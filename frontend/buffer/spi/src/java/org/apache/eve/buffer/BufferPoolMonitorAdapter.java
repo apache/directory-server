@@ -35,7 +35,7 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#augmented(
      * org.apache.eve.buffer.BufferPool)
      */
-    public void augmented( BufferPool a_bp )
+    public void augmented( BufferPool bp )
     {
     }
 
@@ -44,8 +44,8 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#bufferTaken(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void bufferTaken( BufferPool a_bp, ByteBuffer a_buffer,
-        Object a_taker )
+    public void bufferTaken( BufferPool bp, ByteBuffer buffer,
+        Object taker )
     {
     }
 
@@ -54,8 +54,8 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#bufferReleased(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void bufferReleased( BufferPool a_bp, ByteBuffer a_buffer,
-        Object a_releaser )
+    public void bufferReleased( BufferPool bp, ByteBuffer buffer,
+        Object releaser )
     {
     }
 
@@ -64,8 +64,8 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#interestClaimed(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void interestClaimed( BufferPool a_bp, ByteBuffer a_buffer,
-        Object a_claimer )
+    public void interestClaimed( BufferPool bp, ByteBuffer buffer,
+        Object claimer )
     {
     }
     
@@ -74,8 +74,8 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#interestReleased(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void interestReleased( BufferPool a_bp, ByteBuffer a_buffer,
-                                  Object a_releaser )
+    public void interestReleased( BufferPool bp, ByteBuffer buffer,
+                                  Object releaser )
     {
     }
 
@@ -84,7 +84,7 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#resourceUnavailable(
      * org.apache.eve.buffer.BufferPool, java.lang.Object)
      */
-    public void resourceUnavailable( BufferPool a_bp, Object a_party ) 
+    public void resourceUnavailable( BufferPool bp, Object party ) 
     {
     }
 
@@ -93,8 +93,8 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#unregisteredParty(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void unregisteredParty( BufferPool a_bp, ByteBuffer a_buffer, 
-                                   Object a_party ) 
+    public void unregisteredParty( BufferPool bp, ByteBuffer buffer, 
+                                   Object party ) 
     {
     }
     
@@ -103,8 +103,8 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#nonPooledBuffer(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void nonPooledBuffer( BufferPool a_bp, ByteBuffer a_buffer, 
-                                 Object a_party )
+    public void nonPooledBuffer( BufferPool bp, ByteBuffer buffer, 
+                                 Object party )
     {
     }
     
@@ -113,8 +113,8 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#releaseOfUnclaimed(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void releaseOfUnclaimed( BufferPool a_bp, ByteBuffer a_buffer,
-									Object a_releaser )
+    public void releaseOfUnclaimed( BufferPool bp, ByteBuffer buffer,
+									Object releaser )
     {
     }
 }

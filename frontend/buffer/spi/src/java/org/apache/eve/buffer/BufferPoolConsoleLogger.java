@@ -14,12 +14,17 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.buffer;
+package org.apache.eve.buffer ;
 
-import java.nio.ByteBuffer;
+
+import java.nio.ByteBuffer ;
+
+import org.apache.commons.logging.Log ;
+import org.apache.commons.logging.LogFactory ;
+
 
 /**
- * $todo$ doc me
+ * Logging monitor for a BufferPool.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
@@ -27,13 +32,42 @@ import java.nio.ByteBuffer;
  */
 public class BufferPoolConsoleLogger implements BufferPoolMonitor
 {
+    /** the default name for the logging channel */
+    private final String DEFAULT = "BufferPool" ;
+    /** the log - can be any implementation */
+    private final Log log ; 
+    
+    
+    /**
+     * Creates a buffer pool logging monitor.
+     */
+    public BufferPoolConsoleLogger()
+    {
+        log = LogFactory.getLog( DEFAULT ) ;
+    }
+    
+    
+    /**
+     * Creates a buffer pool logging monitor.
+     * 
+     * @param name the logging channel name
+     */
+    public BufferPoolConsoleLogger( String name )
+    {
+        log = LogFactory.getLog( name ) ;
+    }
+    
+    
     /* (non-Javadoc)
      * @see org.apache.eve.buffer.BufferPoolMonitor#
      * augmented(org.apache.eve.buffer.BufferPool)
      */
-    public void augmented( BufferPool a_bp )
+    public void augmented( BufferPool bp )
     {
-        System.out.println( "Just augmented the buffer pool" ) ;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Just augmented the buffer pool" ) ;
+        }
     }
 
     
@@ -41,13 +75,14 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#bufferReleased(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void bufferReleased(
-        BufferPool a_bp,
-        ByteBuffer a_buffer,
-        Object a_releaser)
+    public void bufferReleased( BufferPool bp, ByteBuffer buffer,
+								Object releaser)
     {
-        System.out.println( a_releaser + " released " + a_buffer 
-                + " from pool " + a_bp ) ;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( releaser + " released " + buffer 
+                    + " from pool " + bp ) ;
+        }
     }
 
     
@@ -55,13 +90,13 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#bufferTaken(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void bufferTaken(
-        BufferPool a_bp,
-        ByteBuffer a_buffer,
-        Object a_taker)
+    public void bufferTaken( BufferPool bp, ByteBuffer buffer,
+							 Object taker )
     {
-        System.out.println( a_taker + " took " + a_buffer 
-                + " from pool " + a_bp ) ;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( taker + " took " + buffer + " from pool " + bp ) ;
+        }
     }
 
     
@@ -69,13 +104,14 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#interestClaimed(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void interestClaimed(
-        BufferPool a_bp,
-        ByteBuffer a_buffer,
-        Object a_claimer)
+    public void interestClaimed( BufferPool bp, ByteBuffer buffer, 
+                                 Object claimer )
     {
-        System.out.println( a_claimer + " claimed interest in " + a_buffer 
-                + " from pool " + a_bp ) ;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( claimer + " claimed interest in " + buffer 
+                        + " from pool " + bp ) ;
+        }
     }
 
     
@@ -83,13 +119,14 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#interestReleased(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void interestReleased(
-        BufferPool a_bp,
-        ByteBuffer a_buffer,
-        Object a_releaser)
+    public void interestReleased( BufferPool bp, ByteBuffer buffer,
+								  Object releaser )
     {
-        System.out.println( a_releaser + " released interest in " + a_buffer 
-                + " from pool " + a_bp ) ;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( releaser + " released interest in " + buffer 
+                    + " from pool " + bp ) ;
+        }
     }
 
     
@@ -97,14 +134,15 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#nonPooledBuffer(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void nonPooledBuffer(
-        BufferPool a_bp,
-        ByteBuffer a_buffer,
-        Object a_party)
+    public void nonPooledBuffer( BufferPool bp, ByteBuffer buffer,
+								 Object party )
     {
-        System.out.println( a_party + " tried to release interest in " 
-                + a_buffer + " from pool " + a_bp 
-                + " but resouce was not from this pool.") ;
+        if ( log.isErrorEnabled() )
+        {
+            log.error( party + " tried to release interest in " 
+                        + buffer + " from pool " + bp 
+                        + " but resouce was not from this pool.") ;
+        }
     }
 
     
@@ -112,11 +150,14 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#resourceUnavailable(
      * org.apache.eve.buffer.BufferPool, java.lang.Object)
      */
-    public void resourceUnavailable( BufferPool a_bp, Object a_party )
+    public void resourceUnavailable( BufferPool bp, Object party )
     {
-        System.out.println( "BufferPool " + a_bp 
+        if ( log.isErrorEnabled() )
+        {
+            log.error( "BufferPool " + bp 
                 + " is at capacity - cannot allocate buffer resouce to " 
-                + a_party ) ;
+                + party ) ;
+        }
     }
 
     
@@ -124,14 +165,15 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#unregisteredParty(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void unregisteredParty(
-        BufferPool a_bp,
-        ByteBuffer a_buffer,
-        Object a_party)
+    public void unregisteredParty( BufferPool bp, ByteBuffer buffer, 
+                                   Object party )
     {
-        System.out.println( a_party 
-                + " has not registered as claiming interest on " + a_buffer 
-                + " from pool " + a_bp ) ;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( party 
+                + " has not registered as claiming interest on " + buffer 
+                + " from pool " + bp ) ;
+        }
     }
 
 
@@ -139,11 +181,14 @@ public class BufferPoolConsoleLogger implements BufferPoolMonitor
      * @see org.apache.eve.buffer.BufferPoolMonitor#releaseOfUnclaimed(
      * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
      */
-    public void releaseOfUnclaimed( BufferPool a_bp, ByteBuffer a_buffer,
-									Object a_releaser )
+    public void releaseOfUnclaimed( BufferPool bp, ByteBuffer buffer,
+									Object releaser )
     {
-        System.out.println( a_releaser + " attempted to release interest in " 
-                + a_buffer + " from pool " 
-                + a_bp + " when the buffer was not claimed." ) ;
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( releaser + " attempted to release interest in " 
+                    + buffer + " from pool " 
+                    + bp + " when the buffer was not claimed." ) ;
+        }
     }
 }

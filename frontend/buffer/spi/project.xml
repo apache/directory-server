@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
-    <extend>${basedir}/../../../project.xml</extend>
-    <groupId>incubator-directory</groupId>
-    <id>eve-frontend-buffer-spi</id>
-  
-    <name>Eve Frontend Buffer Pool Service SPI</name>
-    <package>org.apache.eve.buffer</package>
-    <currentVersion>SNAPSHOT</currentVersion>
-    <inceptionYear>2003</inceptionYear>
-      
-    <shortDescription>Event Buffer Pool SPI used by Eve's frontend</shortDescription>
+  <extend>${basedir}/../../../project.xml</extend>
+  <groupId>incubator-directory</groupId>
+  <id>eve-frontend-buffer-spi</id>
 
-    <description>
-        A buffer pool service for claiming and releasing pooled preallocated
-        NIO direct buffers.  The service tracks the parties interested in
-        the buffer as which is used to maintain a reference count on the buffer
-        but with actual references. 
-    </description>
+  <name>Eve Frontend Buffer Pool Service SPI</name>
+  <package>org.apache.eve.buffer</package>
+  <currentVersion>SNAPSHOT</currentVersion>
+  <inceptionYear>2003</inceptionYear>
       
-    <dependencies>
-        <dependency>
-            <groupId>incubator-directory</groupId>
-            <artifactId>eve-frontend-common-api</artifactId>
-            <version>SNAPSHOT</version>
-            <url>http://directory.apache.org/ldap/eve/frontend/common/api</url>
-        </dependency>
-    </dependencies>
+  <shortDescription>Event Buffer Pool SPI used by Eve's frontend</shortDescription>
+
+  <description>
+    A buffer pool service for claiming and releasing pooled preallocated
+    NIO direct buffers.  The service tracks the parties interested in
+    the buffer as which is used to maintain a reference count on the buffer
+    but with actual references. 
+  </description>
+      
+  <dependencies>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>eve-frontend-common-api</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/eve/frontend/common/api</url>
+    </dependency>
+  </dependencies>
 </project>
 
