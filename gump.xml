@@ -45,7 +45,7 @@
         <depend project="regexp"/>
         <depend project="oro"/>
         <depend project="seda"/>
-        <depend project="snickers-ber-codec"/>
+        <depend project="snickers-ber"/>
         
         <!-- test-time dependencies -->
         <depend project="junit"/>
@@ -84,7 +84,7 @@
         <depend project="oro"/>
         <depend project="regexp"/>
         <depend project="seda"/>
-        <depend project="snickers-ber-codec"/>
+        <depend project="snickers-ber"/>
         
         <!-- test-time dependencies -->
         <depend project="junit"/>
