@@ -10,6 +10,7 @@
       <item name="Apache" href="http://apache.org/"/>
       <item name="Directory" href="../../index.html"/>
       <item name="Eve" href="/index.html"/>
+      <item name="RMS" href="../rms/index.html"/>
       <item name="LDAP" href="../ldap/index.html"/>
       <item name="Naming" href="../naming/index.html"/>
       <item name="Janus" href="../janus/index.html"/>
@@ -42,6 +43,7 @@
             <item name="Current Status" href="/frontend/status.html"/>
           </item>
         </item>
+        <item name="RMS" href="../rms/index.html"/>
         <item name="LDAP" href="../ldap/index.html"/>
         <item name="Janus" href="../janus/index.html"/>
         <item name="Naming" href="../naming/index.html"/>
