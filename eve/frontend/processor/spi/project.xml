@@ -16,6 +16,18 @@
       
     <dependencies>
       <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://jakarta.apache.org/commons/lang</url>
+      </dependency>
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>ldap-common</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+      </dependency>
+      <dependency>
         <groupId>incubator-directory</groupId>
         <artifactId>eve-frontend-common-api</artifactId>
         <version>SNAPSHOT</version>
