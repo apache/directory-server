@@ -50,6 +50,7 @@ import org.apache.ldap.server.db.ExpressionEnumerator;
 import org.apache.ldap.server.db.ExpressionEvaluator;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorConfigBuilder;
 import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
 import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorChain;
 import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorContext;
@@ -495,9 +496,10 @@ public class CoreContextFactory implements InitialContextFactory
             // If custom interceptor is not specified, use defaule one.
             interceptor = InterceptorChain.newDefaultChain();
         }
-        // FIXME interceptor config is passed incorrectly
+
         interceptor.init( new InterceptorContext(
-                initialEnv, system, globalRegistries, nexus, initialEnv ) );
+                initialEnv, system, globalRegistries, nexus,
+                InterceptorConfigBuilder.build( initialEnv, EnvKeys.INTERCEPTOR ) ) );
         provider.setInterceptor( interceptor );
 
         // fire up the app partitions now!

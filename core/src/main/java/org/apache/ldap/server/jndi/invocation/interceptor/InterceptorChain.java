@@ -18,6 +18,7 @@ package org.apache.ldap.server.jndi.invocation.interceptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -55,11 +56,17 @@ public class InterceptorChain implements Interceptor
      */
     public static final ChainType POSTPROCESS = new ChainType();
     
+    /**
+     * Returns a new chain of default interceptors required to run core.
+     */
     public static InterceptorChain newDefaultChain()
     {
         return newDefaultChain( PREPROCESS );
     }
     
+    /**
+     * Returns a new chain of default interceptors required to run core.
+     */
     public static InterceptorChain newDefaultChain( ChainType type )
     {
         InterceptorChain chain = new InterceptorChain( type );
@@ -100,6 +107,7 @@ public class InterceptorChain implements Interceptor
     private InterceptorChain parent;
     private final ChainType type;
     private final Map name2entry = new HashMap();
+    private final Map interceptor2entry = new IdentityHashMap();
     private Entry head = new Entry( null, null, "end", FINAL_INTERCEPTOR );
     private final Entry tail = head;
 
@@ -127,7 +135,7 @@ public class InterceptorChain implements Interceptor
     /**
      * Initializes all interceptors this chain contains.
      */
-    public synchronized void init( InterceptorContext context ) throws NamingException
+    public synchronized void init( InterceptorContext ctx ) throws NamingException
     {
         ListIterator it = getAll().listIterator();
         Interceptor interceptor = null;
@@ -136,7 +144,14 @@ public class InterceptorChain implements Interceptor
             while( it.hasNext() )
             {
                 interceptor = ( Interceptor ) it.next();
-                interceptor.init( context );
+                String name = getName( interceptor );
+                InterceptorContext newCtx = new InterceptorContext(
+                        ctx.getEnvironment(), ctx.getSystemPartition(),
+                        ctx.getGlobalRegistries(), ctx.getRootNexus(),
+                        InterceptorConfigBuilder.build(
+                                ctx.getConfig(), ( name == null ) ? "" : name ) );
+                
+                interceptor.init( newCtx );
             }
         }
         catch( Throwable t )
@@ -202,7 +217,17 @@ public class InterceptorChain implements Interceptor
         }
         return e.interceptor;
     }
-
+    
+    private String getName( Interceptor interceptor )
+    {
+        Entry e = ( Entry ) interceptor2entry.get( interceptor );
+        if( e == null )
+        {
+            return null;
+        }
+        return e.name;
+    }
+    
     /**
      * Adds the specified interceptor with the specified name at the beginning
      * of this chain.
@@ -312,6 +337,7 @@ public class InterceptorChain implements Interceptor
 
         name2entry.remove( name );
         Interceptor interceptor = entry.interceptor;
+        interceptor2entry.remove( interceptor );
         if( interceptor instanceof InterceptorChain )
         {
             ( ( InterceptorChain ) interceptor ).parent = null;
@@ -333,6 +359,7 @@ public class InterceptorChain implements Interceptor
     private void register(String name, Entry newEntry) {
         Interceptor interceptor = newEntry.interceptor;
         name2entry.put( name, newEntry );
+        interceptor2entry.put( newEntry.interceptor, newEntry );
         if( interceptor instanceof InterceptorChain )
         {
             ( ( InterceptorChain ) interceptor ).parent = this;
