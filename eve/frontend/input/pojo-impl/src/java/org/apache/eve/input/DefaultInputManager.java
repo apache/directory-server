@@ -49,8 +49,6 @@ import org.apache.eve.listener.KeyExpiryException ;
 public class DefaultInputManager extends AbstractSubscriber
     implements InputManager, ConnectSubscriber, DisconnectSubscriber
 {
-    public static final long TIMEOUT_CYCLES = 2000 ;
-    
     /** the thread driving this Runnable */ 
     private Thread m_thread = null ;
     /** parameter used to politely stop running thread */
@@ -386,8 +384,7 @@ public class DefaultInputManager extends AbstractSubscriber
                     l_buf = m_bp.getBuffer( this ) ;
                     int l_count = 0 ;
                     
-                    
-                    if ( ( l_count = l_channel.read( l_buf ) ) <= 0 )
+                    if ( ( l_count = l_channel.read( l_buf ) ) == -1 )
                     {
                         l_channel.socket().close() ;
                         l_channel.close() ;
