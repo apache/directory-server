@@ -92,7 +92,7 @@
   
     <build>
       <nagEmailAddress>directory-dev@incubator.apache.org</nagEmailAddress>
-      <sourceDirectory>${basedir}/src/java</sourceDirectory>
+      <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
       <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
 
       <unitTest>
