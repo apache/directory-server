@@ -138,6 +138,7 @@
           <directory>${basedir}/src/java</directory>
           <includes>
             <include>**/*.dtd</include>
+            <include>**/*.gif</include>
             <include>**/*.properties</include>
             <include>**/*.ldif</include>
             <include>**/*.x*</include>
