@@ -101,6 +101,10 @@ public class SearchHandler extends AbstractManyReplyHandler
             {
                 resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
             }
+            else
+            {
+                resp.getLdapResult().setMatchedDn( "" );
+            }
 
             return Collections.singleton( resp ).iterator();
         }
@@ -121,6 +125,10 @@ public class SearchHandler extends AbstractManyReplyHandler
         if ( e.getResolvedName() != null )
         {
             resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
+        }
+        else
+        {
+            resp.getLdapResult().setMatchedDn( "" );
         }
 
         return resp;
