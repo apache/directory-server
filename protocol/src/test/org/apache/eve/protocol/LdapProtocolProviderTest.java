@@ -54,34 +54,34 @@ public class LdapProtocolProviderTest extends TestCase
         Object req = null;
 
         req = new AbandonRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof AbandonHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof AbandonHandler );
 
         req = new AddRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof AddHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof AddHandler );
 
         req = new BindRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof BindHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof BindHandler );
 
         req = new CompareRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof CompareHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof CompareHandler );
 
         req = new DeleteRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof DeleteHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof DeleteHandler );
 
         req = new ExtendedRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof ExtendedHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof ExtendedHandler );
 
         req = new ModifyDnRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof ModifyDnHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof ModifyDnHandler );
 
         req = new ModifyRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof ModifyHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof ModifyHandler );
 
         req = new SearchRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof SearchHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof SearchHandler );
 
         req = new UnbindRequestImpl( 0 );
-        assertTrue( provider.getHandler( req ) instanceof UnbindHandler );
+        assertTrue( provider.getHandler( null, req ) instanceof UnbindHandler );
     }
 
 
@@ -135,52 +135,52 @@ public class LdapProtocolProviderTest extends TestCase
         RequestHandler handler = null;
 
         req = new AbandonRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.NOREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusAbandonHandler );
 
         req = new AddRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusAddHandler );
 
         req = new BindRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusBindHandler );
 
         req = new CompareRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusCompareHandler );
 
         req = new DeleteRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusDeleteHandler );
 
         req = new ExtendedRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusExtendedHandler );
 
         req = new ModifyDnRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusModifyDnHandler );
 
         req = new ModifyRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusModifyHandler );
 
         req = new SearchRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.MANYREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusSearchHandler );
 
         req = new UnbindRequestImpl( 0 );
-        handler = provider.getHandler( req );
+        handler = provider.getHandler( null, req );
         assertEquals( HandlerTypeEnum.NOREPLY, handler.getHandlerType() );
         assertTrue( handler instanceof BogusUnbindHandler );
     }

@@ -17,9 +17,9 @@
 package org.apache.eve.protocol;
 
 
-import org.apache.seda.protocol.NoReplyHandler;
-import org.apache.seda.protocol.HandlerTypeEnum;
 import org.apache.seda.listener.ClientKey;
+import org.apache.seda.protocol.AbstractNoReplyHandler;
+
 import org.apache.ldap.common.NotImplementedException;
 
 
@@ -30,24 +30,10 @@ import org.apache.ldap.common.NotImplementedException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UnbindHandler implements NoReplyHandler
+public class UnbindHandler extends AbstractNoReplyHandler
 {
-    /**
-     * @see NoReplyHandler#handle(ClientKey,Object)
-     */
     public void handle( ClientKey key, Object request )
     {
         throw new NotImplementedException( "handle in org.apache.eve.protocol.UnbindHandler not implemented!" );
-    }
-
-
-    /**
-     * Gets HandlerTypeEnum.NOREPLY always.
-     *
-     * @return HandlerTypeEnum.NOREPLY always
-     */
-    public HandlerTypeEnum getHandlerType()
-    {
-        return HandlerTypeEnum.NOREPLY;
     }
 }

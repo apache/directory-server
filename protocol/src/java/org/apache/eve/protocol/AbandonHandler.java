@@ -17,11 +17,8 @@
 package org.apache.eve.protocol;
 
 
-import java.util.Properties;
-
-import org.apache.seda.protocol.NoReplyHandler;
-import org.apache.seda.protocol.HandlerTypeEnum;
 import org.apache.seda.listener.ClientKey;
+import org.apache.seda.protocol.AbstractNoReplyHandler;
 
 import org.apache.ldap.common.NotImplementedException;
 
@@ -32,16 +29,10 @@ import org.apache.ldap.common.NotImplementedException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonHandler implements NoReplyHandler
+public class AbandonHandler extends AbstractNoReplyHandler
 {
     public void handle( ClientKey key, Object request )
     {
         throw new NotImplementedException( "handle in org.apache.eve.protocol.AbandonHandler not implemented!" );
-    }
-
-
-    public HandlerTypeEnum getHandlerType()
-    {
-        return HandlerTypeEnum.NOREPLY;
     }
 }

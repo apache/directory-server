@@ -19,8 +19,7 @@ package org.apache.eve.protocol;
 
 import java.util.Iterator;
 
-import org.apache.seda.protocol.ManyReplyHandler;
-import org.apache.seda.protocol.HandlerTypeEnum;
+import org.apache.seda.protocol.AbstractManyReplyHandler;
 import org.apache.seda.listener.ClientKey;
 
 import org.apache.ldap.common.NotImplementedException;
@@ -32,33 +31,16 @@ import org.apache.ldap.common.NotImplementedException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchHandler implements ManyReplyHandler
+public class SearchHandler extends AbstractManyReplyHandler
 {
-    /**
-     * @see ManyReplyHandler#handle(ClientKey,Object)
-     */
+    public SearchHandler()
+    {
+        super( true );
+    }
+
+
     public Iterator handle( ClientKey key, Object request )
     {
         throw new NotImplementedException();
-    }
-
-
-    /**
-     * @see ManyReplyHandler#isSequential()
-     */
-    public boolean isSequential()
-    {
-        return true;
-    }
-
-
-    /**
-     * Gets HandlerTypeEnum.MANYREPLY always.
-     *
-     * @return HandlerTypeEnum.MANYREPLY always
-     */
-    public HandlerTypeEnum getHandlerType()
-    {
-        return HandlerTypeEnum.MANYREPLY;
     }
 }

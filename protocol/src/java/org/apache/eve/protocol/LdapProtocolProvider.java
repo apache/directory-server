@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.apache.seda.protocol.ProtocolProvider;
 import org.apache.seda.protocol.RequestHandler;
+import org.apache.seda.listener.ClientKey;
 
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapNamingException;
@@ -237,9 +238,9 @@ public class LdapProtocolProvider implements ProtocolProvider
 
 
     /**
-     * @see ProtocolProvider#getHandler(Object)
+     * @see ProtocolProvider#getHandler(ClientKey, Object)
      */
-    public RequestHandler getHandler( Object request )
+    public RequestHandler getHandler( ClientKey key, Object request )
     {
         if ( this.handlers.containsKey( request.getClass().getName() ) )
         {
