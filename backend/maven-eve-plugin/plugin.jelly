@@ -77,7 +77,7 @@
 
   <preGoal name="java:compile">
     <j:if test="${!eveSchemaDir.equals('MAVEN_EVE_SCHEMA_DIR_NOT_SET')}">
-      <attainGoal name="eve:generate"/>
+      <attainGoal name="eve:schema"/>
     </j:if>
   </preGoal>
 
