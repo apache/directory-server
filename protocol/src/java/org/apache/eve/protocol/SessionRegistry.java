@@ -19,6 +19,7 @@ package org.apache.eve.protocol;
 
 import java.util.*;
 import javax.naming.InitialContext;
+import javax.naming.Context;
 
 import org.apache.seda.listener.ClientKey;
 
@@ -68,10 +69,13 @@ public class SessionRegistry
         if ( env == null )
         {
             this.env = new Hashtable();
+            this.env.put( Context.PROVIDER_URL, "" );
+            this.env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         }
         else
         {
             this.env = env;
+            this.env.put( Context.PROVIDER_URL, "" );
         }
     }
 

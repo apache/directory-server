@@ -19,6 +19,8 @@ package org.apache.eve.protocol;
 
 import java.util.*;
 
+import javax.naming.Context;
+
 import org.apache.seda.protocol.ProtocolProvider;
 import org.apache.seda.protocol.RequestHandler;
 import org.apache.seda.listener.ClientKey;
@@ -116,6 +118,8 @@ public class LdapProtocolProvider implements ProtocolProvider
     public LdapProtocolProvider( Hashtable env ) throws LdapNamingException
     {
         this.handlers = new HashMap();
+
+        env.put( Context.PROVIDER_URL, "" );
         SessionRegistry.getSingleton( env );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();

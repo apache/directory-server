@@ -22,6 +22,7 @@ import java.util.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.Name;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.directory.SearchControls;
@@ -33,6 +34,7 @@ import org.apache.seda.listener.ClientKey;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.message.*;
+import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -167,7 +169,7 @@ public class SearchHandler extends AbstractManyReplyHandler
                      * local variable for the following call to next()
                      */
                     Attribute ref = result.getAttributes().get( "ref" );
-                    if ( ref == null && ref.size() > 0 )
+                    if ( ref == null || ref.size() > 0 )
                     {
                         SearchResponseEntry respEntry;
                         respEntry = new SearchResponseEntryImpl( req.getMessageId() );
@@ -270,7 +272,7 @@ public class SearchHandler extends AbstractManyReplyHandler
              * local variable for the following call to next()
              */
             Attribute ref = result.getAttributes().get( "ref" );
-            if ( ref == null && ref.size() > 0 )
+            if ( ref == null || ref.size() > 0 )
             {
                 SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
                 respEntry.setAttributes( result.getAttributes() );
