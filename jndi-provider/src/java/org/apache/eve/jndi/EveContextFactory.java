@@ -89,6 +89,20 @@ public class EveContextFactory implements InitialContextFactory
     public static final String ANONYMOUS_ENV = "eve.enable.anonymous";
 
     // ------------------------------------------------------------------------
+    // Custom JNDI properties for adding new application partitions
+    // ------------------------------------------------------------------------
+
+    /** a comma separated list of partition names */
+    public static final String PARTITIONS_ENV = "eve.db.partitions";
+    /** the envprop key base to the suffix of a partition */
+    public static final String SUFFIX_BASE_ENV = "eve.db.partition.suffix.";
+    /** the envprop key base to the space separated list of indices for a partition */
+    public static final String INDICES_BASE_ENV = "eve.db.partition.indices.";
+    /** the envprop key base to the Attributes for the context nexus entry */
+    public static final String ATTRIBUTES_BASE_ENV = "eve.db.partition.attributes.";
+
+
+    // ------------------------------------------------------------------------
     //
     // ------------------------------------------------------------------------
 
@@ -106,19 +120,6 @@ public class EveContextFactory implements InitialContextFactory
         "org.apache.eve.schema.bootstrap.NisSchema",
         "org.apache.eve.schema.bootstrap.SystemSchema"
     };
-
-    // ------------------------------------------------------------------------
-    // Custom JNDI properties for adding new application partitions
-    // ------------------------------------------------------------------------
-
-    /** a comma separated list of partition names */
-    public static final String PARTITIONS_ENV = "eve.db.partitions";
-    /** the envprop key base to the suffix of a partition */
-    public static final String SUFFIX_BASE_ENV = "eve.db.partition.suffix.";
-    /** the envprop key base to the space separated list of indices for a partition */
-    public static final String INDICES_BASE_ENV = "eve.db.partition.indices.";
-    /** the envprop key base to the Attributes for the context nexus entry */
-    public static final String ATTRIBUTES_BASE_ENV = "eve.db.partition.attributes.";
 
     // ------------------------------------------------------------------------
     // Members
@@ -297,6 +298,10 @@ public class EveContextFactory implements InitialContextFactory
         if ( initialEnv.containsKey( SCHEMAS_ENV ) )
         {
             schemas = ( ( String ) initialEnv.get( SCHEMAS_ENV ) ).split( "," );
+            for ( int ii = 0; ii < schemas.length; ii++ )
+            {
+                schemas[ii] = schemas[ii].trim();
+            }
         }
 
         loader.load( schemas, bootstrapRegistries );
@@ -544,7 +549,7 @@ public class EveContextFactory implements InitialContextFactory
             else
             {
                 throw new EveNamingException( "The root entry env property was"
-                        + " not of an expected type!",
+                        + " not of an expected type: " + rootEntry,
                         ResultCodeEnum.OTHER );
             }
 
