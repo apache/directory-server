@@ -36,12 +36,12 @@
         <table>
           <tr><th>Resource</th></tr>
           <tr>
-            <td><a href="http://cvs.apache.org/viewcvs.cgi/incubator/directory/eve/trunk/eve?root=Apache-SVN">
+            <td><a href="http://svn.apache.org/viewcvs.cgi/incubator/directory/eve/trunk/eve?root=Apache-SVN">
             Eve's Subversion Repository</a></td>
           </tr>
             
           <tr><td>
-            <a href="../../../svn.html">
+            <a href="../../svn.html">
             Subversion Documentation</a></td>
           </tr>
         </table>
