@@ -19,7 +19,8 @@ package org.apache.eve.processor ;
 
 import java.util.EventObject ;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils ;
+
 import org.apache.eve.event.Subscriber ;
 import org.apache.eve.listener.ClientKey ;
 import org.apache.ldap.common.message.Request ;
@@ -43,7 +44,7 @@ public class RequestProcessorMonitorAdapter implements RequestProcessorMonitor
     public void failedOnInform( Subscriber subscriber, EventObject event,
 								Throwable t )
     {
-        throw new RuntimeException( t ) ;
+        System.err.println( ExceptionUtils.getFullStackTrace( t ) ) ;
     }
     
     
@@ -65,7 +66,6 @@ public class RequestProcessorMonitorAdapter implements RequestProcessorMonitor
         buf.append( " request. Please report the the following server stack" );
         buf.append( " trace to the Apache Directory Project:\n" ) ;
         buf.append( ExceptionUtils.getFullStackTrace( t ) ) ;
-        
-        throw new RuntimeException( buf.toString(), t ) ;
+        System.err.println( buf.toString() ) ;
     }
 }

@@ -17,8 +17,8 @@
 package org.apache.eve.processor.impl ;
 
 
+import java.util.Iterator ;
 import java.util.EventObject ;
-import java.util.Iterator;
 
 import org.apache.commons.lang.exception.ExceptionUtils ;
 
@@ -30,10 +30,11 @@ import org.apache.eve.event.AbstractSubscriber ;
 
 import org.apache.eve.listener.ClientKey ;
 
-import org.apache.eve.seda.DefaultStageConfig;
 import org.apache.eve.seda.StageConfig ;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.seda.StageHandler ;
+import org.apache.eve.seda.DefaultStageConfig ;
+import org.apache.eve.seda.StderrLoggingStageMonitor;
 
 import org.apache.eve.processor.NoReplyHandler ;
 import org.apache.eve.processor.RequestHandler ;
@@ -92,6 +93,7 @@ public class DefaultRequestProcessor extends DefaultStage
         
         DefaultStageConfig defaultConfig = ( DefaultStageConfig ) config ;
         defaultConfig.setHandler( new ProcessorStageHandler() ) ;
+        super.setMonitor( new StderrLoggingStageMonitor( getClass() ) ) ;
         
         this.hooks = hooks ;
         this.router = router ;

@@ -20,6 +20,7 @@ package org.apache.eve.processor.impl ;
 import org.apache.eve.thread.ThreadPool ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStageConfig ;
+import org.apache.eve.seda.StageMonitorAdapter;
 
 import org.apache.eve.processor.RequestProcessor ;
 
@@ -74,12 +75,7 @@ public class MerlinRequestProcessor
     // ------------------------------------------------------------------------
 
 
-    /* (non-Javadoc)
-     * @see org.apache.eve.processor.RequestProcessor#dummy()
-     */
-    public void dummy()
-    {
-    }
+    // nothing here yet
     
     
     // ------------------------------------------------------------------------
@@ -142,7 +138,10 @@ public class MerlinRequestProcessor
      */
     public void initialize() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        DefaultHandlerRegistry hooks = new DefaultHandlerRegistry() ;
+        requestProcessor = 
+            new DefaultRequestProcessor( router, stageConfig, hooks ) ;
+        requestProcessor.setMonitor( new StageMonitorAdapter() ) ;
     }
     
     
@@ -151,7 +150,7 @@ public class MerlinRequestProcessor
      */
     public void start() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        requestProcessor.start() ;
     }
     
     
@@ -160,6 +159,7 @@ public class MerlinRequestProcessor
      */
     public void stop() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        System.out.println( "stopping ... ") ;
+        requestProcessor.stop() ;
     }
 }
