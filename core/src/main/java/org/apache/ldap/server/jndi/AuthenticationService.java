@@ -25,7 +25,8 @@ import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.LdapPrincipal;
-import org.apache.ldap.server.Authenticator;
+import org.apache.ldap.server.auth.Authenticator;
+import org.apache.ldap.server.auth.Authenticator;
 
 import java.util.Map;
 import java.util.LinkedHashMap;

@@ -14,7 +14,11 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.auth;
+
+
+import org.apache.ldap.server.RootNexus;
+
 
 /**
  * Base class for all Authenticators.

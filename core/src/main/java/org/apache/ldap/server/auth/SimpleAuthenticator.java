@@ -16,7 +16,6 @@
  */
 package org.apache.ldap.server.auth;
 
-import org.apache.ldap.server.Authenticator;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
