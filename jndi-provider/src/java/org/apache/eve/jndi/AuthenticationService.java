@@ -18,7 +18,6 @@ package org.apache.eve.jndi;
 
 
 import java.util.Hashtable;
-import java.io.IOException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -62,20 +61,11 @@ public class AuthenticationService implements Interceptor
      * @param nexus the root nexus to access all database partitions
      */
     public AuthenticationService( RootNexus nexus, NameComponentNormalizer normalizer,
-                                  boolean allowAnonymous ) throws LdapNamingException
+                                  boolean allowAnonymous ) throws NamingException
     {
         this.nexus = nexus;
         this.allowAnonymous = allowAnonymous;
-        try
-        {
-            this.parser = new DnParser( normalizer );
-        }
-        catch ( IOException e )
-        {
-            LdapNamingException ene = new LdapNamingException( ResultCodeEnum.OTHER );
-            ene.setRootCause( e );
-            throw ene;
-        }
+        this.parser = new DnParser( normalizer );
     }
 
 

@@ -17,7 +17,6 @@
 package org.apache.eve.jndi.ibs;
 
 
-import java.io.IOException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -63,17 +62,7 @@ public class AuthorizationService extends BaseInterceptor
                                  FilterService filterService )
             throws NamingException
     {
-        try
-        {
-            this.dnParser = new DnParser( normalizer );
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
-
+        this.dnParser = new DnParser( normalizer );
         AuthorizationFilter filter = new AuthorizationFilter();
         filterService.addLookupFilter( filter );
         filterService.addSearchResultFilter( filter );

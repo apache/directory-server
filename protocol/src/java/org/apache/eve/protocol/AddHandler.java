@@ -23,7 +23,6 @@ import javax.naming.NamingException;
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
-import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.message.*;
 
