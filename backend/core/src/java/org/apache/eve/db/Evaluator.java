@@ -30,7 +30,7 @@ import org.apache.ldap.common.filter.ExprNode;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Evaluator extends DatabaseEnabled
+public interface Evaluator
 {
     /**
      * Evaluates a candidate to determine if a filter expression selects it.
@@ -40,6 +40,5 @@ public interface Evaluator extends DatabaseEnabled
      * @return true if the filter selects the candidate false otherwise
      * @throws NamingException if there is a database fault during evaluation
      */
-    boolean evaluate( ExprNode node, IndexRecord record ) 
-        throws NamingException;
+    boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException;
 }

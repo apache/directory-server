@@ -16,14 +16,13 @@
  */
 package org.apache.eve.db;
 
-
 /**
- * Creates Enumerations over a set of entry candidates based on a conjunction 
- * (or'ed set) of assertion expressions.
+ * A monitor for enumerators.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ConjunctionEnumerator extends Enumerator
+public interface EnumeratorMonitor
 {
+    
 }

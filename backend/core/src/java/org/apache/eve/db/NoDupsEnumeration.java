@@ -62,7 +62,7 @@ public class NoDupsEnumeration
      * @param doAscendingScan TODO
      * @throws NamingException TODO
      */
-    NoDupsEnumeration( TupleBrowser browser, boolean doAscendingScan )
+    public NoDupsEnumeration( TupleBrowser browser, boolean doAscendingScan )
         throws NamingException
     {
         this.browser = browser;

@@ -33,13 +33,13 @@ import org.apache.ldap.common.filter.ExprNode;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Optimizer extends DatabaseEnabled
+public interface Optimizer
 {
     /**
-     * TODO Document me!
+     * Annotates the expression node tree for optimized traversal metrics.
      *
-     * @param node TODO
-     * @throws NamingException TODO
+     * @param node the root of the expression node tree
+     * @throws NamingException if there are failures while optimizing
      */
     void annotate( ExprNode node ) throws NamingException;
 }

@@ -35,7 +35,7 @@ import org.apache.ldap.common.filter.ExprNode;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SearchEngine extends DatabaseEnabled
+public interface SearchEngine 
 {
     /**
      * @todo put this in the right place

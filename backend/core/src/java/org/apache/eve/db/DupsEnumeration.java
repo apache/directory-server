@@ -73,11 +73,10 @@ public class DupsEnumeration
      * Creates a DupsEnumeration over a enumeration of Tuples holding TreeSets
      * for values that have the same key.
      *
-     * @param list TODO
-     * @throws NamingException TODO
+     * @param list the underlying enumeration
+     * @throws NamingException if there is a problem
      */
-    DupsEnumeration( NoDupsEnumeration list )
-        throws NamingException
+    public DupsEnumeration( NoDupsEnumeration list ) throws NamingException
     {
         underlying = list;
 
@@ -102,8 +101,7 @@ public class DupsEnumeration
      * 
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next()
-        throws NamingException
+    public Object next() throws NamingException
     {
         returned.setKey( prefetched.getKey() );
         returned.setValue( prefetched.getValue() );

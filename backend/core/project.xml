@@ -32,6 +32,13 @@
         <version>1.2</version>
         <url>http://jakarta.apache.org/regexp/index.html</url>
       </dependency>
+
+      <dependency>
+        <groupId>jdbm</groupId>
+        <artifactId>jdbm</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://jdbm.sourceforge.net</url>
+      </dependency>
     </dependencies>
 </project>
 

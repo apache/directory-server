@@ -62,7 +62,7 @@ public class IndexEnumeration
      * @param list TODO
      * @throws NamingException TODO
      */
-    IndexEnumeration( NamingEnumeration list ) throws NamingException
+    public IndexEnumeration( NamingEnumeration list ) throws NamingException
     {
         this( list, false, null );
     }
@@ -75,7 +75,7 @@ public class IndexEnumeration
      * @param swapKeyVal TODO
      * @throws NamingException TODO
      */
-    IndexEnumeration( NamingEnumeration list, boolean swapKeyVal )
+    public IndexEnumeration( NamingEnumeration list, boolean swapKeyVal )
         throws NamingException
     {
         this( list, swapKeyVal, null );
@@ -90,8 +90,9 @@ public class IndexEnumeration
      * @param regex TODO
      * @throws NamingException TODO
      */
-    IndexEnumeration( NamingEnumeration list, boolean swapKeyVal, 
-        RE regex ) throws NamingException
+    public IndexEnumeration( NamingEnumeration list, boolean swapKeyVal,
+                             RE regex )
+        throws NamingException
     {
         re = regex;
         underlying = list;

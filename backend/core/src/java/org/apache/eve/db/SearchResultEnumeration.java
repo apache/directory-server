@@ -36,8 +36,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchResultEnumeration
-    implements DatabaseEnabled, NamingEnumeration
+public class SearchResultEnumeration implements NamingEnumeration
 {
     /** Database used to lookup entries from */
     private Database db = null;
@@ -54,25 +53,17 @@ public class SearchResultEnumeration
      * 
      * @param attrIds the returned attributes
      * @param underlying the enumeration over IndexRecords
-     * @throws NamingException if there is a problem accessing the underlying db
      */
     public SearchResultEnumeration( String [] attrIds, 
-        NamingEnumeration underlying ) throws NamingException
+                                    NamingEnumeration underlying,
+                                    Database db )
     {
+        this.db = db;
         this.attrIds = attrIds;
         this.underlying = underlying;
     }
     
     
-    /**
-     * @see org.apache.eve.db.DatabaseEnabled#enableDatabase( Database)
-     */
-    public void enableDatabase( Database db )
-    {
-        this.db = db;
-    }
-    
-
     /**
      * @see javax.naming.NamingEnumeration#close()
      */
