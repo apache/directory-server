@@ -215,7 +215,7 @@
 package org.apache.eve.db;
 
 
-import javax.naming.NamingException ;
+import javax.naming.NamingException;
 
 
 /**
@@ -236,11 +236,11 @@ public interface IndexAssertion
      * a side-effect an index assertion may populate the entry attribute after
      * resusitating an entry from the master table.
      * 
-     * @param a_record an index record of the entry
+     * @param record an index record of the entry
      * @return true if the entry should be returned, false otherwise
      * @throws NamingException if their are failures while asserting the 
      * condition
      */
-    boolean assertCandidate( IndexRecord a_record ) 
-        throws NamingException ;
+    boolean assertCandidate( IndexRecord record ) 
+        throws NamingException;
 }

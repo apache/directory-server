@@ -1,12 +1,12 @@
 package org.apache.eve.db;
 
 
-import java.util.Map ;
-import java.util.HashMap ;
-import java.util.NoSuchElementException ;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.NoSuchElementException;
 
-import javax.naming.NamingException ;
-import javax.naming.NamingEnumeration ;
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 
 
 /**
@@ -19,17 +19,17 @@ import javax.naming.NamingEnumeration ;
 public class DisjunctionEnumeration implements NamingEnumeration
 {
     /** The underlying child enumerations */
-    private final NamingEnumeration [] m_children ;
+    private final NamingEnumeration [] children;
     /** LUT used to avoid returning duplicates */
-    private final Map m_candidates = new HashMap() ;
+    private final Map candidates = new HashMap();
     /** Index of current cursor used */
-    private int m_index = 0 ;
+    private int index = 0;
     /** Candidate to return */
-    private final IndexRecord m_candidate = new IndexRecord() ;
+    private final IndexRecord candidate = new IndexRecord();
     /** Prefetched record returned */
-    private final IndexRecord m_prefetched = new IndexRecord() ;
+    private final IndexRecord prefetched = new IndexRecord();
     /** Used to determine if this enumeration has been exhausted */
-    private boolean m_hasMore = true ;
+    private boolean hasMore = true;
 
 
     // ------------------------------------------------------------------------
@@ -42,39 +42,39 @@ public class DisjunctionEnumeration implements NamingEnumeration
      * The returned result is the union of all underlying NamingEnumerations 
      * without duplicates.
      *
-     * @param a_children array of child NamingInstances
+     * @param children array of child NamingInstances
      * @throws NamingException if something goes wrong
      */
-    public DisjunctionEnumeration( NamingEnumeration [] a_children )
+    public DisjunctionEnumeration( NamingEnumeration [] children )
         throws NamingException
     {
-        m_children = a_children ;
+        this.children = children;
 
         // Close this cursor if their are no children.
-        if ( a_children.length <= 0 ) 
+        if ( children.length <= 0 ) 
         {
-            m_hasMore = false ;
-            return ;
+            hasMore = false;
+            return;
         }
 
         // Advance to the first cursor that has a candidate for us.
-        while ( ! m_children[m_index].hasMore() ) 
+        while ( ! children[index].hasMore() ) 
         {
-            m_index++ ;
+            index++;
 
             // Close and return if we exhaust the cursors without finding a
             // valid candidate to return.
-            if ( m_index >= m_children.length ) 
+            if ( index >= children.length ) 
             {
-                close() ;
-                return ;
+                close();
+                return;
             }
         }
 
         // Grab the next candidate and add it's id to the LUT/hash of candidates
-        IndexRecord l_rec = ( IndexRecord ) m_children[m_index].next() ;
-        m_prefetched.copy( l_rec ) ;
-        m_candidates.put( l_rec.getEntryId(), l_rec.getEntryId() ) ;
+        IndexRecord rec = ( IndexRecord ) children[index].next();
+        prefetched.copy( rec );
+        candidates.put( rec.getEntryId(), rec.getEntryId() );
     }
 
 
@@ -90,11 +90,11 @@ public class DisjunctionEnumeration implements NamingEnumeration
     {
         try
         {
-            return next() ;
+            return next();
         }
         catch ( NamingException e )
         {
-            throw new NoSuchElementException() ;
+            throw new NoSuchElementException();
         }
     }
     
@@ -104,7 +104,7 @@ public class DisjunctionEnumeration implements NamingEnumeration
      */
     public boolean hasMoreElements()
     {
-        return hasMore() ;
+        return hasMore();
     }
     
 
@@ -124,40 +124,40 @@ public class DisjunctionEnumeration implements NamingEnumeration
      */
     public Object next() throws NamingException
     {
-        // Store the last prefetched candidate to return in m_candidate
-        m_candidate.copy( m_prefetched ) ;
+        // Store the last prefetched candidate to return in candidate
+        candidate.copy( prefetched );
 
         do 
         {
             // Advance to a Cursor that has the next valid candidate for us.
-            while ( ! m_children[m_index].hasMore() ) 
+            while ( ! children[index].hasMore() ) 
             {
-                m_index++ ;
+                index++;
         
                 /* Close and return existing prefetched candidate if we
                  * have exhausted the underlying Cursors without finding a
                  * valid candidate to return.
                  */
-                if ( m_index >= m_children.length ) 
+                if ( index >= children.length ) 
                 {
-                    close() ;
-                    return m_candidate ;
+                    close();
+                    return candidate;
                 }
             }
 
             // Grab next candidate!
-            IndexRecord l_rec = ( IndexRecord ) m_children[m_index].next() ;
-            m_prefetched.copy( l_rec ) ;
+            IndexRecord rec = ( IndexRecord ) children[index].next();
+            prefetched.copy( rec );
 
             // Break through do/while if the candidate is seen for the first
             // time, meaning we have not returned it already.
-        } while ( m_candidates.containsKey( m_prefetched.getEntryId() ) ) ;
+        } while ( candidates.containsKey( prefetched.getEntryId() ) );
 
         // Add candidate to LUT of encountered candidates.
-        m_candidates.put( m_candidate.getEntryId(), m_candidate.getEntryId() ) ;
+        candidates.put( candidate.getEntryId(), candidate.getEntryId() );
 
         // Return the original value saved before overwriting prefetched
-        return m_candidate ;
+        return candidate;
     }
 
 
@@ -169,7 +169,7 @@ public class DisjunctionEnumeration implements NamingEnumeration
      */
     public boolean hasMore()
     {
-        return m_hasMore ;
+        return hasMore;
     }
 
 
@@ -181,32 +181,32 @@ public class DisjunctionEnumeration implements NamingEnumeration
      */
     public void close() throws NamingException
     {
-        Throwable l_throwable = null ;
-        m_hasMore = false ;
+        Throwable throwable = null;
+        hasMore = false;
         
-        for ( int ii = 0; ii < m_children.length; ii++ ) 
+        for ( int ii = 0; ii < children.length; ii++ ) 
         {
             try
             {
                 // Close all children but don't fail fast meaning don't stop
                 // closing all children if one fails to close for some reason.
-                m_children[ii].close() ;
+                children[ii].close();
             }
-            catch ( Throwable a_throwable )
+            catch ( Throwable t )
             {
-                l_throwable = a_throwable ;
+                throwable = t;
             }
         }
         
-        if ( null != l_throwable && l_throwable instanceof NamingException )
+        if ( null != throwable && throwable instanceof NamingException )
         {
-            throw ( NamingException ) l_throwable ;
+            throw ( NamingException ) throwable;
         }
-        else if ( null != l_throwable )
+        else if ( null != throwable )
         {
-            NamingException l_ne = new NamingException() ;
-            l_ne.setRootCause( l_throwable ) ;
-            throw l_ne ;
+            NamingException ne = new NamingException();
+            ne.setRootCause( throwable );
+            throw ne;
         }
     }
 }

@@ -220,16 +220,13 @@ package org.apache.eve.db;
  * NegationEnumerator.  This interface enables the master top level Enumerator
  * interface to hand a reference to itself to the EnumeratorSlave 
  * 
- * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
- * @version $Revision: 1.1 $
  */
 public interface EnumeratorDependent
 {
     /**
      * Sets the enumerator dependency .
      * 
-     * @param a_enumerator the master expression enumerator handle to set
+     * @param enumerator the master expression enumerator handle to set
      */
-    void setEnumeratorDependency( Enumerator a_enumerator ) ;
+    void setEnumeratorDependency( Enumerator enumerator );
 }

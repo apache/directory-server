@@ -214,7 +214,7 @@
 package org.apache.eve.db;
 
 
-import javax.naming.NamingException ;
+import javax.naming.NamingException;
 
 
 /**
@@ -228,35 +228,35 @@ public class IndexNotFoundException
     extends NamingException
 {
     /** the name of the index that was not found */
-    private final String m_indexName ;
+    private final String indexName;
 
 
     /**
      * Constructs an Exception with a detailed message.
      * 
-     * @param a_indexName the name of the index that was not found 
+     * @param indexName the name of the index that was not found 
      */
-    public IndexNotFoundException( String a_indexName )
+    public IndexNotFoundException( String indexName )
     {
         super( "Cannot efficiently search the DIB w/o an index on attribute "
-            + a_indexName + "\n. To allow such searches please contact the "
+            + indexName + "\n. To allow such searches please contact the "
             + "directory\nadministrator to create the index or to enable "
             + "referrals on searches using these\nattributes to a replica with "
-            + "the required set of indices." ) ;
-        m_indexName = a_indexName ;
+            + "the required set of indices." );
+        this.indexName = indexName;
     }
 
 
     /**
      * Constructs an Exception with a detailed message.
      * 
-     * @param a_message the message associated with the exception.
-     * @param a_indexName the name of the index that was not found 
+     * @param message the message associated with the exception.
+     * @param indexName the name of the index that was not found 
      */
-    public IndexNotFoundException( String a_message, String a_indexName )
+    public IndexNotFoundException( String message, String indexName )
     {
-        super( a_message ) ;
-        m_indexName = a_indexName ;
+        super( message );
+        this.indexName = indexName;
     }
 
 
@@ -264,15 +264,15 @@ public class IndexNotFoundException
      * Constructs an Exception with a detailed message and a root cause 
      * exception.
      * 
-     * @param a_message the message associated with the exception.
-     * @param a_indexName the name of the index that was not found 
-     * @param a_rootCause the root cause of this exception 
+     * @param message the message associated with the exception.
+     * @param indexName the name of the index that was not found 
+     * @param rootCause the root cause of this exception 
      */
-    public IndexNotFoundException( String a_message, String a_indexName,
-        Throwable a_rootCause )
+    public IndexNotFoundException( String message, String indexName,
+        Throwable rootCause )
     {
-        this( a_message, a_indexName ) ;
-        setRootCause( a_rootCause ) ;
+        this( message, indexName );
+        setRootCause( rootCause );
     }
 
 
@@ -283,6 +283,6 @@ public class IndexNotFoundException
      */
     public String getIndexName()
     {
-        return m_indexName ;
+        return indexName;
     }
 }

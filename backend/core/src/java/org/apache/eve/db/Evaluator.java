@@ -215,9 +215,9 @@
 package org.apache.eve.db;
 
 
-import javax.naming.NamingException ;
+import javax.naming.NamingException;
 
-import org.apache.ldap.common.filter.ExprNode ;
+import org.apache.ldap.common.filter.ExprNode;
 
 
 /**
@@ -228,17 +228,14 @@ import org.apache.ldap.common.filter.ExprNode ;
  */
 public interface Evaluator extends DatabaseEnabled
 {
-    /** Avalon Service Role */
-    String ROLE = Evaluator.class.getName() ;
-    
     /**
      * Evaluates a candidate to determine if a filter expression selects it.
      * 
-     * @param a_node the filter expression to evaluate on the candidate
-     * @param a_record the index record of the entry to evaluate
+     * @param node the filter expression to evaluate on the candidate
+     * @param record the index record of the entry to evaluate
      * @return true if the filter selects the candidate false otherwise
      * @throws NamingException if there is a database fault during evaluation
      */
-    boolean evaluate( ExprNode a_node, IndexRecord a_record ) 
-        throws NamingException ;
+    boolean evaluate( ExprNode node, IndexRecord record ) 
+        throws NamingException;
 }

@@ -214,12 +214,12 @@
 package org.apache.eve.db;
 
 
-import java.util.Map ;
-import java.util.HashMap ;
-import java.util.NoSuchElementException ;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.NoSuchElementException;
 
-import javax.naming.NamingException ;
-import javax.naming.NamingEnumeration ;
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 
 
 /**
@@ -234,19 +234,19 @@ public class IndexAssertionEnumeration
     implements NamingEnumeration
 {
     /** The prefetched candidate */
-    private final IndexRecord m_prefetched = new IndexRecord() ;
+    private final IndexRecord prefetched = new IndexRecord();
     /** The returned candidate */
-    private final IndexRecord m_candidate = new IndexRecord() ;
+    private final IndexRecord candidate = new IndexRecord();
     /** The iteration cursor */
-    private final NamingEnumeration m_underlying ;
+    private final NamingEnumeration underlying;
     /** LUT used to avoid returning duplicates */
-    private final Map m_candidates ;
+    private final Map candidates;
     /** */
-    private final IndexAssertion m_assertion ;
+    private final IndexAssertion assertion;
     /** */
-    private final boolean m_checkDups ;
+    private final boolean checkDups;
     /** */
-    private boolean m_hasMore = true ;
+    private boolean hasMore = true;
 
 
     // ------------------------------------------------------------------------
@@ -257,38 +257,38 @@ public class IndexAssertionEnumeration
     /**
      * TODO Domument me!
      *
-     * @param a_underlying TODO
-     * @param a_assertion TODO
+     * @param underlying TODO
+     * @param assertion TODO
      * @throws NamingException TODO
      */
-    public IndexAssertionEnumeration( NamingEnumeration a_underlying, 
-        IndexAssertion a_assertion ) throws NamingException
+    public IndexAssertionEnumeration( NamingEnumeration underlying, 
+        IndexAssertion assertion ) throws NamingException
     {
-        m_underlying = a_underlying ;
-        m_candidates = null ;
-        m_assertion = a_assertion ;
-        m_checkDups = false ;
-        prefetch() ;
+        this.underlying = underlying;
+        candidates = null;
+        this.assertion = assertion;
+        checkDups = false;
+        prefetch();
     }
 
 
     /**
      * TODO Domument me!
      *
-     * @param a_underlying TODO
-     * @param a_assertion TODO
-     * @param a_enableDupCheck TODO
+     * @param underlying TODO
+     * @param assertion TODO
+     * @param enableDupCheck TODO
      * @throws NamingException TODO
      */
-    public IndexAssertionEnumeration( NamingEnumeration a_underlying,
-        IndexAssertion a_assertion, boolean a_enableDupCheck ) 
+    public IndexAssertionEnumeration( NamingEnumeration underlying,
+        IndexAssertion assertion, boolean enableDupCheck ) 
         throws NamingException
     {
-        m_underlying = a_underlying ;
-        m_candidates = new HashMap() ;
-        m_assertion = a_assertion ;
-        m_checkDups = true ;
-        prefetch() ;
+        this.underlying = underlying;
+        candidates = new HashMap();
+        this.assertion = assertion;
+        checkDups = true;
+        prefetch();
     }
 
 
@@ -304,11 +304,11 @@ public class IndexAssertionEnumeration
     {
         try
         {
-            return next() ;
+            return next();
         }   
         catch ( NamingException e )
         {
-            throw new NoSuchElementException() ;
+            throw new NoSuchElementException();
         }     
     }
     
@@ -318,7 +318,7 @@ public class IndexAssertionEnumeration
      */
     public boolean hasMoreElements()
     {
-        return m_hasMore ;
+        return hasMore;
     }
     
     
@@ -332,9 +332,9 @@ public class IndexAssertionEnumeration
      */
     public Object next() throws NamingException
     {
-        m_candidate.copy( m_prefetched ) ;
-        prefetch() ;
-        return m_candidate ;
+        candidate.copy( prefetched );
+        prefetch();
+        return candidate;
     }
 
     
@@ -343,18 +343,17 @@ public class IndexAssertionEnumeration
      */
     public boolean hasMore()
     {
-        return m_hasMore ;
+        return hasMore;
     }
 
     
     /**
      * @see javax.naming.NamingEnumeration#close()
      */
-    public void close()
-        throws NamingException
+    public void close() throws NamingException
     {
-        m_hasMore = false ;
-        m_underlying.close() ;
+        hasMore = false;
+        underlying.close();
     }
 
 
@@ -370,31 +369,30 @@ public class IndexAssertionEnumeration
      */
     private void prefetch() throws NamingException
     {
-        IndexRecord l_rec = null ;
+        IndexRecord rec = null;
 
         /*
          * Scan underlying Cursor until we arrive at the next valid candidate
          * if the cursor is exhuasted we clean up after completing the loop
          */ 
-        while ( m_underlying.hasMore() ) 
+        while ( underlying.hasMore() ) 
         {
-            l_rec = ( IndexRecord ) m_underlying.next() ;
+            rec = ( IndexRecord ) underlying.next();
 
             // If value is valid then we set it as the next candidate to return
-            if ( m_assertion.assertCandidate( l_rec ) )
+            if ( assertion.assertCandidate( rec ) )
             {
-                if ( m_checkDups ) 
+                if ( checkDups ) 
                 {
-                    boolean l_dup = m_candidates.containsKey( l_rec
-                        .getEntryId() ) ;
+                    boolean dup = candidates.containsKey( rec.getEntryId() );
                     
-                    if ( l_dup )
+                    if ( dup )
                     {
                         /*
                          * Dup checking is on and candidate is a duplicate that
                          * has already been seen so we need to skip it.
                          */ 
-                        continue ;
+                        continue;
                     }
                     else
                     {
@@ -404,19 +402,18 @@ public class IndexAssertionEnumeration
                          * and add it to the LUT in case we encounter it another
                          * time.
                          */
-                        m_prefetched.copy( l_rec ) ;
-                        m_candidates.put( l_rec.getEntryId(), l_rec
-                            .getEntryId() ) ;
-                        return ;
+                        prefetched.copy( rec );
+                        candidates.put( rec.getEntryId(), rec.getEntryId() );
+                        return;
                     }
                 }
 
-                m_prefetched.copy( l_rec ) ;
-                return ;
+                prefetched.copy( rec );
+                return;
             }
         }
 
         // At this pt the underlying Cursor has been exhausted so we close up
-        close() ;
+        close();
     }
 }
