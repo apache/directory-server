@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>eve-core</artifactId>
-  <name>Eve Core</name>
+  <artifactId>server-core</artifactId>
+  <name>Server Core</name>
   <inceptionYear>2002</inceptionYear>
-  <shortDescription>Eve's Core</shortDescription>
+  <shortDescription>Server's Core</shortDescription>
   <description>
-    Eve's core contains all of Eve's backend subsystems.  It depends on 
+    Server's core contains all backend subsystems.  It depends on 
     protocol and uses it with seda to service LDAP requests.  The core 
     contains the JNDI provider, interceptor framework, interceptor services,
     the schema subsystem and the database subsystem.  Hence the core is the
@@ -71,12 +71,12 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-shared</artifactId>
+      <artifactId>server-shared</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-protocol</artifactId>
+      <artifactId>server-protocol</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -103,13 +103,14 @@
     <!-- The Eve Maven Plugin -->
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>maven-eve-plugin</artifactId>
+      <artifactId>maven-directory-plugin</artifactId>
       <version>0.8-SNAPSHOT</version>
       <type>plugin</type>
     </dependency>
   </dependencies>
+
   <build>
-    <aspectSourceDirectory>${basedir}/src/aspects</aspectSourceDirectory>
+    <aspectSourceDirectory>${basedir}/src/main/aspects</aspectSourceDirectory>
   </build>
 
   <reports>
