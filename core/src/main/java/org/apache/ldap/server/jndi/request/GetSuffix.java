@@ -2,12 +2,12 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class GetSuffixRequest extends Request {
+public class GetSuffix extends Call {
 
     private final Name name;
     private final boolean normalized;
     
-    public GetSuffixRequest( Name name, boolean normalized )
+    public GetSuffix( Name name, boolean normalized )
     {
         if( name == null )
         {

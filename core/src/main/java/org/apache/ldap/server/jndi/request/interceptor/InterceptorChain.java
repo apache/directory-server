@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.request.Request;
+import org.apache.ldap.server.jndi.request.Call;
 
 /**
  * Manages {@link Interceptor} stack.  The first {@link Interceptor} is
@@ -34,7 +34,7 @@ public class InterceptorChain
             // do nothing
         }
 
-        public void process(NextInterceptor nextProcessor, Request request)
+        public void process(NextInterceptor nextProcessor, Call request)
                 throws NamingException
         {
             // do nothing
@@ -199,7 +199,7 @@ public class InterceptorChain
      * Start invocation chain with the specified invocation.
      * @throws NamingException if invocation failed
      */
-    public void process( Request request ) throws NamingException
+    public void process( Call request ) throws NamingException
     {
         Entry head = this.head;
         try
@@ -280,7 +280,7 @@ public class InterceptorChain
             this.processor = processor;
             this.nextProcessor = new NextInterceptor()
             {
-                public void process(Request request)
+                public void process(Call request)
                         throws NamingException {
                     Interceptor processor = Entry.this.nextEntry.processor;
                     try

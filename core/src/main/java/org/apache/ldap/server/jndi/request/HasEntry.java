@@ -2,11 +2,11 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class DeleteRequest extends Request {
+public class HasEntry extends Call {
 
     private final Name name;
     
-    public DeleteRequest( Name name )
+    public HasEntry( Name name )
     {
         if( name == null )
         {

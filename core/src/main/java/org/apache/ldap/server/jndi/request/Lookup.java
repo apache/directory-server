@@ -2,11 +2,11 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class HasEntryRequest extends Request {
+public class Lookup extends Call {
 
     private final Name name;
     
-    public HasEntryRequest( Name name )
+    public Lookup( Name name )
     {
         if( name == null )
         {

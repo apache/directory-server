@@ -21,23 +21,23 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.request.AddRequest;
-import org.apache.ldap.server.jndi.request.DeleteRequest;
-import org.apache.ldap.server.jndi.request.GetMatchedNameRequest;
-import org.apache.ldap.server.jndi.request.GetSuffixRequest;
-import org.apache.ldap.server.jndi.request.HasEntryRequest;
-import org.apache.ldap.server.jndi.request.IsSuffixRequest;
-import org.apache.ldap.server.jndi.request.ListRequest;
-import org.apache.ldap.server.jndi.request.ListSuffixesRequest;
-import org.apache.ldap.server.jndi.request.LookUpRequest;
-import org.apache.ldap.server.jndi.request.LookUpWithAttributeIdsRequest;
-import org.apache.ldap.server.jndi.request.ModifyManyRequest;
-import org.apache.ldap.server.jndi.request.ModifyRelativeNameRequest;
-import org.apache.ldap.server.jndi.request.ModifyRequest;
-import org.apache.ldap.server.jndi.request.MoveRequest;
-import org.apache.ldap.server.jndi.request.MoveWithNewRelativeNameRequest;
-import org.apache.ldap.server.jndi.request.Request;
-import org.apache.ldap.server.jndi.request.SearchRequest;
+import org.apache.ldap.server.jndi.request.Add;
+import org.apache.ldap.server.jndi.request.Delete;
+import org.apache.ldap.server.jndi.request.GetMatchedDN;
+import org.apache.ldap.server.jndi.request.GetSuffix;
+import org.apache.ldap.server.jndi.request.HasEntry;
+import org.apache.ldap.server.jndi.request.IsSuffix;
+import org.apache.ldap.server.jndi.request.List;
+import org.apache.ldap.server.jndi.request.ListSuffixes;
+import org.apache.ldap.server.jndi.request.Lookup;
+import org.apache.ldap.server.jndi.request.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.request.ModifyMany;
+import org.apache.ldap.server.jndi.request.ModifyRN;
+import org.apache.ldap.server.jndi.request.Modify;
+import org.apache.ldap.server.jndi.request.Move;
+import org.apache.ldap.server.jndi.request.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.request.Call;
+import org.apache.ldap.server.jndi.request.Search;
 
 
 /**
@@ -71,7 +71,7 @@ public abstract class BaseInterceptor implements Interceptor
      * 
      * @return the principal making the call
      */
-    public static LdapPrincipal getPrincipal( Request request )
+    public static LdapPrincipal getPrincipal( Call request )
     {
         ServerContext ctx = ( ServerContext ) request.getContextStack().peek();
         return ctx.getPrincipal();
@@ -90,72 +90,72 @@ public abstract class BaseInterceptor implements Interceptor
      * analog method that does the work of the Interceptor for that Invocation
      * method.
      */
-    public void process( NextInterceptor nextProcessor, Request request )
+    public void process( NextInterceptor nextProcessor, Call request )
             throws NamingException
     {
-        if( request instanceof AddRequest )
+        if( request instanceof Add )
         {
-            process( nextProcessor, ( AddRequest ) request );
+            process( nextProcessor, ( Add ) request );
         }
-        else if( request instanceof DeleteRequest )
+        else if( request instanceof Delete )
         {
-            process( nextProcessor, ( DeleteRequest ) request );
+            process( nextProcessor, ( Delete ) request );
         }
-        else if( request instanceof GetMatchedNameRequest )
+        else if( request instanceof GetMatchedDN )
         {
-            process( nextProcessor, ( GetMatchedNameRequest ) request );
+            process( nextProcessor, ( GetMatchedDN ) request );
         }
-        else if( request instanceof GetSuffixRequest )
+        else if( request instanceof GetSuffix )
         {
-            process( nextProcessor, ( GetSuffixRequest ) request );
+            process( nextProcessor, ( GetSuffix ) request );
         }
-        else if( request instanceof HasEntryRequest )
+        else if( request instanceof HasEntry )
         {
-            process( nextProcessor, ( HasEntryRequest ) request );
+            process( nextProcessor, ( HasEntry ) request );
         }
-        else if( request instanceof IsSuffixRequest )
+        else if( request instanceof IsSuffix )
         {
-            process( nextProcessor, ( IsSuffixRequest ) request );
+            process( nextProcessor, ( IsSuffix ) request );
         }
-        else if( request instanceof ListRequest )
+        else if( request instanceof List )
         {
-            process( nextProcessor, ( ListRequest ) request );
+            process( nextProcessor, ( List ) request );
         }
-        else if( request instanceof ListSuffixesRequest )
+        else if( request instanceof ListSuffixes )
         {
-            process( nextProcessor, ( ListSuffixesRequest ) request );
+            process( nextProcessor, ( ListSuffixes ) request );
         }
-        else if( request instanceof LookUpRequest )
+        else if( request instanceof Lookup )
         {
-            process( nextProcessor, ( LookUpRequest ) request );
+            process( nextProcessor, ( Lookup ) request );
         }
-        else if( request instanceof LookUpWithAttributeIdsRequest )
+        else if( request instanceof LookupWithAttrIds )
         {
-            process( nextProcessor, ( LookUpWithAttributeIdsRequest ) request );
+            process( nextProcessor, ( LookupWithAttrIds ) request );
         }
-        else if( request instanceof ModifyRequest )
+        else if( request instanceof Modify )
         {
-            process( nextProcessor, ( ModifyRequest ) request );
+            process( nextProcessor, ( Modify ) request );
         }
-        else if( request instanceof ModifyManyRequest )
+        else if( request instanceof ModifyMany )
         {
-            process( nextProcessor, ( ModifyManyRequest ) request );
+            process( nextProcessor, ( ModifyMany ) request );
         }
-        else if( request instanceof ModifyRelativeNameRequest )
+        else if( request instanceof ModifyRN )
         {
-            process( nextProcessor, ( ModifyRelativeNameRequest ) request );
+            process( nextProcessor, ( ModifyRN ) request );
         }
-        else if( request instanceof MoveRequest )
+        else if( request instanceof Move )
         {
-            process( nextProcessor, ( MoveRequest ) request );
+            process( nextProcessor, ( Move ) request );
         }
-        else if( request instanceof MoveWithNewRelativeNameRequest )
+        else if( request instanceof MoveAndModifyRN )
         {
-            process( nextProcessor, ( MoveWithNewRelativeNameRequest ) request );
+            process( nextProcessor, ( MoveAndModifyRN ) request );
         }
-        else if( request instanceof SearchRequest )
+        else if( request instanceof Search )
         {
-            process( nextProcessor, ( SearchRequest ) request );
+            process( nextProcessor, ( Search ) request );
         }
         else {
             throw new IllegalArgumentException(
@@ -167,97 +167,97 @@ public abstract class BaseInterceptor implements Interceptor
     // Invocation Analogs
     // ------------------------------------------------------------------------
 
-    protected void process( NextInterceptor nextProcessor, AddRequest request )
+    protected void process( NextInterceptor nextProcessor, Add request )
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, DeleteRequest request ) 
+    protected void process( NextInterceptor nextProcessor, Delete request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, GetMatchedNameRequest request ) 
+    protected void process( NextInterceptor nextProcessor, GetMatchedDN request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, GetSuffixRequest request ) 
+    protected void process( NextInterceptor nextProcessor, GetSuffix request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, HasEntryRequest request ) 
+    protected void process( NextInterceptor nextProcessor, HasEntry request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, IsSuffixRequest request ) 
+    protected void process( NextInterceptor nextProcessor, IsSuffix request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, ListRequest request ) 
+    protected void process( NextInterceptor nextProcessor, List request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, ListSuffixesRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ListSuffixes request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, LookUpRequest request ) 
+    protected void process( NextInterceptor nextProcessor, Lookup request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, LookUpWithAttributeIdsRequest request ) 
+    protected void process( NextInterceptor nextProcessor, LookupWithAttrIds request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, ModifyRequest request ) 
+    protected void process( NextInterceptor nextProcessor, Modify request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, ModifyManyRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ModifyMany request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, ModifyRelativeNameRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ModifyRN request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, MoveRequest request ) 
+    protected void process( NextInterceptor nextProcessor, Move request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, MoveWithNewRelativeNameRequest request ) 
+    protected void process( NextInterceptor nextProcessor, MoveAndModifyRN request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextInterceptor nextProcessor, SearchRequest request ) 
+    protected void process( NextInterceptor nextProcessor, Search request ) 
             throws NamingException
     {
         nextProcessor.process( request );

@@ -2,8 +2,8 @@ package org.apache.ldap.server.jndi.request.interceptor;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.request.Request;
+import org.apache.ldap.server.jndi.request.Call;
 
 public interface NextInterceptor {
-    void process( Request request ) throws NamingException;
+    void process( Call request ) throws NamingException;
 }

@@ -36,17 +36,17 @@ import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.ibs.FilterService;
-import org.apache.ldap.server.jndi.request.DeleteRequest;
-import org.apache.ldap.server.jndi.request.HasEntryRequest;
-import org.apache.ldap.server.jndi.request.LookUpRequest;
-import org.apache.ldap.server.jndi.request.LookUpWithAttributeIdsRequest;
-import org.apache.ldap.server.jndi.request.ModifyManyRequest;
-import org.apache.ldap.server.jndi.request.ModifyRelativeNameRequest;
-import org.apache.ldap.server.jndi.request.ModifyRequest;
-import org.apache.ldap.server.jndi.request.MoveRequest;
-import org.apache.ldap.server.jndi.request.MoveWithNewRelativeNameRequest;
-import org.apache.ldap.server.jndi.request.Request;
-import org.apache.ldap.server.jndi.request.SearchRequest;
+import org.apache.ldap.server.jndi.request.Delete;
+import org.apache.ldap.server.jndi.request.HasEntry;
+import org.apache.ldap.server.jndi.request.Lookup;
+import org.apache.ldap.server.jndi.request.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.request.ModifyMany;
+import org.apache.ldap.server.jndi.request.ModifyRN;
+import org.apache.ldap.server.jndi.request.Modify;
+import org.apache.ldap.server.jndi.request.Move;
+import org.apache.ldap.server.jndi.request.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.request.Call;
+import org.apache.ldap.server.jndi.request.Search;
 
 
 /**
@@ -92,7 +92,7 @@ public class Authorizer extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    protected void process( NextInterceptor nextProcessor, DeleteRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, Delete request ) throws NamingException
     {
         Name name = request.getName();
         Name principalDn = getPrincipal( request ).getDn();
@@ -141,7 +141,7 @@ public class Authorizer extends BaseInterceptor
      *
      * @see org.apache.ldap.server.jndi.BaseInterceptor#hasEntry(Name)
      */
-    protected void process( NextInterceptor nextProcessor, HasEntryRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, HasEntry request ) throws NamingException
     {
         super.process( nextProcessor, request );
     }
@@ -160,7 +160,7 @@ public class Authorizer extends BaseInterceptor
      *
      * @see BaseInterceptor#modify(Name, int, Attributes)
      */
-    protected void process( NextInterceptor nextProcessor, ModifyRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, Modify request ) throws NamingException
     {
         protectModifyAlterations( request, request.getName() );
         nextProcessor.process( request );
@@ -175,14 +175,14 @@ public class Authorizer extends BaseInterceptor
      *
      * @see BaseInterceptor#modify(Name, ModificationItem[])
      */
-    protected void process( NextInterceptor nextProcessor, ModifyManyRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, ModifyMany request ) throws NamingException
     {
         protectModifyAlterations( request, request.getName() );
         nextProcessor.process( request );
     }
 
 
-    private void protectModifyAlterations( Request request, Name dn ) throws LdapNoPermissionException
+    private void protectModifyAlterations( Call request, Name dn ) throws LdapNoPermissionException
     {
         Name principalDn = getPrincipal( request ).getDn();
 
@@ -232,28 +232,28 @@ public class Authorizer extends BaseInterceptor
     // ------------------------------------------------------------------------
 
 
-    protected void process( NextInterceptor nextProcessor, ModifyRelativeNameRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, ModifyRN request ) throws NamingException
     {
         protectDnAlterations( request, request.getName() );
         nextProcessor.process( request );
     }
 
 
-    protected void process( NextInterceptor nextProcessor, MoveRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, Move request ) throws NamingException
     {
         protectDnAlterations( request, request.getName() );
         nextProcessor.process( request );
     }
 
 
-    protected void process( NextInterceptor nextProcessor, MoveWithNewRelativeNameRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, MoveAndModifyRN request ) throws NamingException
     {
         protectDnAlterations( request, request.getName() );
         nextProcessor.process( request );
     }
 
 
-    private void protectDnAlterations( Request request, Name dn ) throws LdapNoPermissionException
+    private void protectDnAlterations( Call request, Name dn ) throws LdapNoPermissionException
     {
         Name principalDn = getPrincipal( request ).getDn();
 
@@ -290,7 +290,7 @@ public class Authorizer extends BaseInterceptor
         }
     }
     
-    protected void process(NextInterceptor nextProcessor, LookUpRequest request) throws NamingException {
+    protected void process(NextInterceptor nextProcessor, Lookup request) throws NamingException {
         super.process(nextProcessor, request);
         
         Attributes attributes = ( Attributes ) request.getResponse();
@@ -305,7 +305,7 @@ public class Authorizer extends BaseInterceptor
         request.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextProcessor, LookUpWithAttributeIdsRequest request) throws NamingException {
+    protected void process(NextInterceptor nextProcessor, LookupWithAttrIds request) throws NamingException {
         super.process(nextProcessor, request);
         
         Attributes attributes = ( Attributes ) request.getResponse();
@@ -370,7 +370,7 @@ public class Authorizer extends BaseInterceptor
         }
     }
     
-    protected void process(NextInterceptor nextProcessor, SearchRequest request) throws NamingException {
+    protected void process(NextInterceptor nextProcessor, Search request) throws NamingException {
         super.process(nextProcessor, request);
         
         SearchControls searchControls = request.getSearchControls();

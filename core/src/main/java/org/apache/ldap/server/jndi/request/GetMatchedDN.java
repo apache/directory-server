@@ -2,12 +2,12 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class GetMatchedNameRequest extends Request {
+public class GetMatchedDN extends Call {
 
     private final Name name;
     private final boolean normalized;
     
-    public GetMatchedNameRequest( Name name, boolean normalized )
+    public GetMatchedDN( Name name, boolean normalized )
     {
         if( name == null )
         {

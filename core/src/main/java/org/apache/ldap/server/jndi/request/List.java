@@ -2,11 +2,11 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class ListRequest extends Request {
+public class List extends Call {
 
     private final Name baseName;
     
-    public ListRequest( Name baseName )
+    public List( Name baseName )
     {
         if( baseName == null )
         {

@@ -1,10 +1,10 @@
 package org.apache.ldap.server.jndi.request;
 
-public class ListSuffixesRequest extends Request {
+public class ListSuffixes extends Call {
 
     private final boolean normalized;
     
-    public ListSuffixesRequest( boolean normalized )
+    public ListSuffixes( boolean normalized )
     {
         this.normalized = normalized;
     }

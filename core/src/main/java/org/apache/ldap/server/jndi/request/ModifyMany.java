@@ -3,12 +3,12 @@ package org.apache.ldap.server.jndi.request;
 import javax.naming.Name;
 import javax.naming.directory.ModificationItem;
 
-public class ModifyManyRequest extends Request {
+public class ModifyMany extends Call {
 
     private final Name name;
     private final ModificationItem[] modificationItems;
     
-    public ModifyManyRequest( Name name, ModificationItem[] modificationItems )
+    public ModifyMany( Name name, ModificationItem[] modificationItems )
     {
         if( name == null )
         {

@@ -3,13 +3,13 @@ package org.apache.ldap.server.jndi.request;
 import javax.naming.Name;
 import javax.naming.directory.Attributes;
 
-public class AddRequest extends Request {
+public class Add extends Call {
 
     private final String userProvidedName;
     private final Name normalizedName;
     private final Attributes attributes;
     
-    public AddRequest( String userProvidedName, Name normalizedName,
+    public Add( String userProvidedName, Name normalizedName,
                        Attributes attributes )
     {
         if( userProvidedName == null )

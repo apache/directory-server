@@ -2,12 +2,12 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class LookUpWithAttributeIdsRequest extends Request {
+public class LookupWithAttrIds extends Call {
 
     private final Name name;
     private final String[] attributeIds;
     
-    public LookUpWithAttributeIdsRequest( Name name, String[] attributeIds )
+    public LookupWithAttrIds( Name name, String[] attributeIds )
     {
         if( name == null )
         {

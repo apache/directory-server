@@ -20,7 +20,7 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.request.Request;
+import org.apache.ldap.server.jndi.request.Call;
 
 /**
  * Processes or filters any directory operations.  You can intercept the
@@ -56,6 +56,6 @@ public interface Interceptor
      * @param invocation the invocation to process
      * @throws NamingException on failures while handling the invocation
      */
-    void process( NextInterceptor nextProcessor, Request request )
+    void process( NextInterceptor nextProcessor, Call request )
             throws NamingException;
 }

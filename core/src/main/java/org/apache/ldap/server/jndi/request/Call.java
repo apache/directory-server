@@ -2,12 +2,12 @@ package org.apache.ldap.server.jndi.request;
 
 import java.util.Stack;
 
-public abstract class Request {
+public abstract class Call {
 
     private Object response;
     private Stack contextStack;
 
-    protected Request()
+    protected Call()
     {
     }
     

@@ -2,14 +2,14 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class MoveWithNewRelativeNameRequest extends Request {
+public class MoveAndModifyRN extends Call {
 
     private final Name name;
     private final Name newParentName;
     private final String newRelativeName;
     private final boolean deleteOldName;
     
-    public MoveWithNewRelativeNameRequest( Name name, Name newParentName, String newRelativeName,
+    public MoveAndModifyRN( Name name, Name newParentName, String newRelativeName,
                                            boolean deleteOldName )
     {
         if( name == null )

@@ -36,7 +36,7 @@ import org.apache.ldap.server.auth.Authenticator;
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.ServerLdapContext;
-import org.apache.ldap.server.jndi.request.Request;
+import org.apache.ldap.server.jndi.request.Call;
 
 /**
  * A service used to for authenticating users.
@@ -120,7 +120,7 @@ public class Authenticatior implements Interceptor
     {
     }
 
-    public void process( NextInterceptor nextProcessor, Request request ) throws NamingException
+    public void process( NextInterceptor nextProcessor, Call request ) throws NamingException
     {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context

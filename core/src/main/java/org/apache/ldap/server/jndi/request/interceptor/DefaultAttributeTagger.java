@@ -37,15 +37,15 @@ import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.jndi.request.AddRequest;
-import org.apache.ldap.server.jndi.request.LookUpRequest;
-import org.apache.ldap.server.jndi.request.LookUpWithAttributeIdsRequest;
-import org.apache.ldap.server.jndi.request.ModifyManyRequest;
-import org.apache.ldap.server.jndi.request.ModifyRelativeNameRequest;
-import org.apache.ldap.server.jndi.request.ModifyRequest;
-import org.apache.ldap.server.jndi.request.MoveRequest;
-import org.apache.ldap.server.jndi.request.MoveWithNewRelativeNameRequest;
-import org.apache.ldap.server.jndi.request.SearchRequest;
+import org.apache.ldap.server.jndi.request.Add;
+import org.apache.ldap.server.jndi.request.Lookup;
+import org.apache.ldap.server.jndi.request.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.request.ModifyMany;
+import org.apache.ldap.server.jndi.request.ModifyRN;
+import org.apache.ldap.server.jndi.request.Modify;
+import org.apache.ldap.server.jndi.request.Move;
+import org.apache.ldap.server.jndi.request.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.request.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
@@ -112,7 +112,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
      *
      * @see BaseInterceptor#add(String, Name, Attributes)
      */
-    protected void process( NextInterceptor nextInterceptor, AddRequest request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Add request ) throws NamingException
     {
         String principal = getPrincipal( request ).getName();
         Attributes entry = request.getAttributes();
@@ -129,7 +129,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRequest request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Modify request ) throws NamingException
     {
         nextInterceptor.process( request );
         
@@ -147,7 +147,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyManyRequest request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyMany request ) throws NamingException
     {
         nextInterceptor.process( request );
 
@@ -165,7 +165,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRelativeNameRequest request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyRN request ) throws NamingException
     {
         nextInterceptor.process( request );
         
@@ -184,7 +184,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveRequest request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Move request ) throws NamingException
     {
         nextInterceptor.process( request );
 
@@ -202,7 +202,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveWithNewRelativeNameRequest request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN request ) throws NamingException
     {
         nextInterceptor.process( request );
 
@@ -220,7 +220,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
     }
 
 
-    protected void process(NextInterceptor nextInterceptor, LookUpRequest request) throws NamingException {
+    protected void process(NextInterceptor nextInterceptor, Lookup request) throws NamingException {
         nextInterceptor.process( request );
         
         Attributes attributes = ( Attributes ) request.getResponse();
@@ -229,7 +229,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
         request.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, LookUpWithAttributeIdsRequest request) throws NamingException {
+    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds request) throws NamingException {
         nextInterceptor.process( request );
         
         Attributes attributes = ( Attributes ) request.getResponse();
@@ -243,7 +243,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
         request.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, SearchRequest request) throws NamingException {
+    protected void process(NextInterceptor nextInterceptor, Search request) throws NamingException {
         nextInterceptor.process( request );
         
         SearchControls searchControls = request.getSearchControls();

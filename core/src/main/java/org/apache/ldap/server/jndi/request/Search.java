@@ -7,14 +7,14 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
 
-public class SearchRequest extends Request {
+public class Search extends Call {
 
     private final Name baseName;
     private final Map environment;
     private final ExprNode expressionNode;
     private final SearchControls searchControls;
     
-    public SearchRequest( Name baseName, Map environment, ExprNode expressionNode,
+    public Search( Name baseName, Map environment, ExprNode expressionNode,
                           SearchControls searchControls )
     {
         if( baseName == null )

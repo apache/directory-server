@@ -2,12 +2,12 @@ package org.apache.ldap.server.jndi.request;
 
 import javax.naming.Name;
 
-public class MoveRequest extends Request {
+public class Move extends Call {
 
     private final Name name;
     private final Name newParentName;
     
-    public MoveRequest( Name name, Name newParentName )
+    public Move( Name name, Name newParentName )
     {
         if( name == null )
         {
