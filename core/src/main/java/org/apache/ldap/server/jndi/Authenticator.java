@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.call.interceptor;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.ArrayList;
@@ -32,9 +32,9 @@ import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.LdapPrincipal;
-import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.jndi.call.Call;
+import org.apache.ldap.server.jndi.call.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.call.interceptor.NextInterceptor;
 
 /**
  * A service used to for authenticating users.
@@ -131,6 +131,7 @@ public class Authenticator implements Interceptor
             }
 
             nextProcessor.process(call);
+            return;
         }
 
         String authList = ( String ) ctx.getEnvironment().get( AUTH_TYPE );

@@ -86,12 +86,17 @@ public class Authorizer extends BaseInterceptor
     public void destroy()
     {
     }
+    
+    public void process( NextInterceptor nextInterceptor, Call call ) throws NamingException
+    {
+        super.process( nextInterceptor, call );
+    }
 
     // Note:
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    protected void process( NextInterceptor nextProcessor, Delete call ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Delete call ) throws NamingException
     {
         Name name = call.getName();
         Name principalDn = getPrincipal( call ).getDn();
@@ -128,7 +133,7 @@ public class Authorizer extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
         
-        nextProcessor.process( call );
+        nextInterceptor.process( call );
     }
 
 
@@ -140,9 +145,9 @@ public class Authorizer extends BaseInterceptor
      *
      * @see org.apache.ldap.server.jndi.BaseInterceptor#hasEntry(Name)
      */
-    protected void process( NextInterceptor nextProcessor, HasEntry call ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, HasEntry call ) throws NamingException
     {
-        super.process( nextProcessor, call );
+        super.process( nextInterceptor, call );
     }
 
 
@@ -159,10 +164,10 @@ public class Authorizer extends BaseInterceptor
      *
      * @see BaseInterceptor#modify(Name, int, Attributes)
      */
-    protected void process( NextInterceptor nextProcessor, Modify call ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
     {
         protectModifyAlterations( call, call.getName() );
-        nextProcessor.process( call );
+        nextInterceptor.process( call );
     }
 
 
@@ -174,10 +179,10 @@ public class Authorizer extends BaseInterceptor
      *
      * @see BaseInterceptor#modify(Name, ModificationItem[])
      */
-    protected void process( NextInterceptor nextProcessor, ModifyMany call ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
     {
         protectModifyAlterations( call, call.getName() );
-        nextProcessor.process( call );
+        nextInterceptor.process( call );
     }
 
 
@@ -231,24 +236,24 @@ public class Authorizer extends BaseInterceptor
     // ------------------------------------------------------------------------
 
 
-    protected void process( NextInterceptor nextProcessor, ModifyRN call ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
     {
         protectDnAlterations( call, call.getName() );
-        nextProcessor.process( call );
+        nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextProcessor, Move call ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
     {
         protectDnAlterations( call, call.getName() );
-        nextProcessor.process( call );
+        nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextProcessor, MoveAndModifyRN call ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
     {
         protectDnAlterations( call, call.getName() );
-        nextProcessor.process( call );
+        nextInterceptor.process( call );
     }
 
 
@@ -289,8 +294,8 @@ public class Authorizer extends BaseInterceptor
         }
     }
     
-    protected void process(NextInterceptor nextProcessor, Lookup call) throws NamingException {
-        super.process(nextProcessor, call);
+    protected void process(NextInterceptor nextInterceptor, Lookup call) throws NamingException {
+        super.process(nextInterceptor, call);
         
         Attributes attributes = ( Attributes ) call.getResponse();
         if( attributes == null )
@@ -304,8 +309,8 @@ public class Authorizer extends BaseInterceptor
         call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextProcessor, LookupWithAttrIds call) throws NamingException {
-        super.process(nextProcessor, call);
+    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds call) throws NamingException {
+        super.process(nextInterceptor, call);
         
         Attributes attributes = ( Attributes ) call.getResponse();
         if( attributes == null )
@@ -369,8 +374,8 @@ public class Authorizer extends BaseInterceptor
         }
     }
     
-    protected void process(NextInterceptor nextProcessor, Search call) throws NamingException {
-        super.process(nextProcessor, call);
+    protected void process(NextInterceptor nextInterceptor, Search call) throws NamingException {
+        super.process(nextInterceptor, call);
         
         SearchControls searchControls = call.getControls();
         if ( searchControls.getReturningAttributes() != null )

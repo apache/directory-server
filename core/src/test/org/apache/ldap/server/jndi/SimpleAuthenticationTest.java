@@ -18,6 +18,7 @@ package org.apache.ldap.server.jndi;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
@@ -46,8 +47,9 @@ public class SimpleAuthenticationTest extends AbstractServerTest
 {
     /**
      * Cleans up old database files on creation.
+     * @throws IOException 
      */
-    public SimpleAuthenticationTest()
+    public SimpleAuthenticationTest() throws IOException
     {
         doDelete( new File( "target" + File.separator + "eve" ) );
     }

@@ -59,9 +59,6 @@ public abstract class ServerContext implements Context
 
     /** The Principal associated with this context */
     private LdapPrincipal principal;
-    
-    private boolean principalSetOnce;
-
 
     // ------------------------------------------------------------------------
     // Constructors
@@ -166,15 +163,9 @@ public abstract class ServerContext implements Context
      * Sets the principal of the authenticated user which also happens to own.
      * This method can be invoked only once to keep this property safe.
      */
-    public synchronized void setPrincipal( LdapPrincipal principal )
+    void setPrincipal( LdapPrincipal principal )
     {
-        if( principalSetOnce )
-        {
-            throw new IllegalStateException();
-        }
-        
         this.principal = principal;
-        principalSetOnce = true;
     }
 
 

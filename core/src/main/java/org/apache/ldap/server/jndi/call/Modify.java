@@ -18,10 +18,6 @@ public class Modify extends Call {
         {
             throw new NullPointerException( "name" );
         }
-        if( attributes == null )
-        {
-            throw new NullPointerException( "attributes" );
-        }
         
         this.name = name;
         this.modOp = modOp;

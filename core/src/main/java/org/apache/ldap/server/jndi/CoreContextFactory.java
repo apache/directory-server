@@ -46,7 +46,6 @@ import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.auth.AbstractAuthenticator;
 import org.apache.ldap.server.auth.AnonymousAuthenticator;
-import org.apache.ldap.server.auth.Authenticator;
 import org.apache.ldap.server.auth.AuthenticatorConfig;
 import org.apache.ldap.server.auth.AuthenticatorContext;
 import org.apache.ldap.server.auth.SimpleAuthenticator;
@@ -523,8 +522,7 @@ public class CoreContextFactory implements InitialContextFactory
          * interceptor chain.
          */
         boolean allowAnonymous = !initialEnv.containsKey( EnvKeys.DISABLE_ANONYMOUS );
-        org.apache.ldap.server.jndi.call.interceptor.Authenticator authenticationService =
-                new org.apache.ldap.server.jndi.call.interceptor.Authenticator();
+        Authenticator authenticationService = new Authenticator();
 
         // create authenticator context
         AuthenticatorContext authenticatorContext = new AuthenticatorContext();
@@ -538,7 +536,7 @@ public class CoreContextFactory implements InitialContextFactory
             authenticatorConfig.setAuthenticatorName( "none" );
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
-            Authenticator authenticator = new AnonymousAuthenticator();
+            org.apache.ldap.server.auth.Authenticator authenticator = new AnonymousAuthenticator();
             authenticator.init( authenticatorConfig );
             authenticationService.register( authenticator );
 

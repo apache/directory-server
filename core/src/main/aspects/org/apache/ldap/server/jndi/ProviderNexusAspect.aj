@@ -181,7 +181,7 @@ public aspect ProviderNexusAspect
      */
     pointcut newInvocation( Call invocation ):
         target( invocation ) &&
-        execution( public Call.new() );
+        execution( Call.new(..) );
       
         
     // ------------------------------------------------------------------------
@@ -193,7 +193,7 @@ public aspect ProviderNexusAspect
         jndiNexusCalls( caller )
         {
     		JndiProvider.push( ( LdapContext ) caller );
-            //System.out.println( "\npushed " + a_caller + " for join point "
+            //System.out.println( "\npushed " + caller + " for join point "
             //    + thisJoinPoint );
         }
         
@@ -202,7 +202,7 @@ public aspect ProviderNexusAspect
         jndiNexusCalls( caller ) 
         {
             LdapContext head = JndiProvider.pop();
-            //System.out.println( "\npopped " + a_caller + " for join point "
+            //System.out.println( "\npopped " + caller + " for join point "
             //    + thisJoinPoint );
         }
       
@@ -216,4 +216,3 @@ public aspect ProviderNexusAspect
             //    + thisJoinPoint );
         }
 }
-

@@ -16,11 +16,6 @@ public class LookupWithAttrIds extends Call {
         {
             throw new NullPointerException( "name" );
         }
-        if( attributeIds == null )
-        {
-            throw new NullPointerException( "attributeIds" );
-        }
-        
         this.name = name;
         this.attributeIds = attributeIds;
     }

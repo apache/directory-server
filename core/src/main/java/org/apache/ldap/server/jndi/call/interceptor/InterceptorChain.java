@@ -23,7 +23,7 @@ import org.apache.ldap.server.jndi.call.Call;
  */
 public class InterceptorChain
 {
-    private final Interceptor FINAL_PROCESSOR = new Interceptor()
+    private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
         public void init(Properties config) throws NamingException
         {
@@ -44,7 +44,7 @@ public class InterceptorChain
 
     private final BackingStore store;
     private final Map name2entry = new HashMap();
-    private Entry head = new Entry( null, null, "", FINAL_PROCESSOR );
+    private Entry head = new Entry( null, null, "end", FINAL_INTERCEPTOR );
     private final Entry tail = head;
 
     /**
@@ -88,6 +88,8 @@ public class InterceptorChain
         Entry newEntry = new Entry( null, head, name, interceptor );
         head.prevEntry = newEntry;
         head = newEntry;
+
+        name2entry.put( name, newEntry );
     }
 
     /**
@@ -100,8 +102,17 @@ public class InterceptorChain
         checkNewName( name );
         
         Entry newEntry = new Entry( tail.prevEntry, tail, name, interceptor );
-        tail.prevEntry.nextEntry = newEntry;
+        if( tail.prevEntry != null )
+        {
+            tail.prevEntry.nextEntry = newEntry;
+        }
+        else
+        {
+            head = newEntry;
+        }
         tail.prevEntry = newEntry;
+        
+        name2entry.put( name, newEntry );
     }
 
     /**
@@ -266,7 +277,7 @@ public class InterceptorChain
     {
         private Entry prevEntry;
         private Entry nextEntry;
-        //private final String name;
+        private final String name;
         private final Interceptor interceptor;
         private final NextInterceptor nextInterceptor;
 
@@ -284,7 +295,7 @@ public class InterceptorChain
 
             this.prevEntry = prevEntry;
             this.nextEntry = nextEntry;
-            //this.name = name;
+            this.name = name;
             this.interceptor = interceptor;
             this.nextInterceptor = new NextInterceptor()
             {

@@ -94,21 +94,18 @@ public abstract class AbstractServerTest extends TestCase
     /**
      * Deletes the Eve working directory.
      */
-    protected void doDelete( File wkdir )
+    protected void doDelete( File wkdir ) throws IOException
     {
-        try 
+        if ( doDelete )
         {
-            if ( doDelete )
+            if ( wkdir.exists() )
             {
-                if ( wkdir.exists() )
-                {
-                    FileUtils.deleteDirectory( wkdir );
-                }
+                FileUtils.deleteDirectory( wkdir );
             }
-        }
-        catch( IOException ioe )
-        {
-            ioe.printStackTrace();
+            if ( wkdir.exists() )
+            {
+                throw new IOException( "Failed to delete: " + wkdir );
+            }
         }
     }
 
@@ -173,7 +170,6 @@ public abstract class AbstractServerTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
-
         Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ou=system" );

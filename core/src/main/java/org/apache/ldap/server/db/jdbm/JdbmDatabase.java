@@ -864,6 +864,7 @@ public class JdbmDatabase implements Database
             } 
             catch ( Throwable t ) 
             {
+                t.printStackTrace();
                 if ( null == rootCause ) 
                 {
                     rootCause = new MultiException();
@@ -880,6 +881,7 @@ public class JdbmDatabase implements Database
         }
         catch ( Throwable t ) 
         {
+            t.printStackTrace();
             if ( null == rootCause ) 
             {
                 rootCause = new MultiException();
@@ -887,7 +889,6 @@ public class JdbmDatabase implements Database
                 
             rootCause.addThrowable( t );
         }
-
 
         if ( null != rootCause )
         {

@@ -179,7 +179,7 @@ public class CreateContextTest extends AbstractServerTest
         try
         {
             ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
-            fail( "Attept to create exiting context should fail!" );
+            fail( "Attempt to create exiting context should fail!" );
         }
         catch ( NamingException e )
         {
