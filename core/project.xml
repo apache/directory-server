@@ -110,7 +110,7 @@
       <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory</groupId>
       <artifactId>mina</artifactId>
       <version>0.7-SNAPSHOT</version>
     </dependency>
