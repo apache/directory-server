@@ -27,6 +27,7 @@ import org.apache.avalon.framework.activity.Initializable ;
 import org.apache.avalon.framework.service.ServiceManager ;
 import org.apache.avalon.framework.service.ServiceException ;
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
 
 import org.apache.eve.buffer.BufferPool ;
@@ -62,6 +63,8 @@ public class MerlinInputManager extends AbstractLogEnabled
     private Selector m_selector = null ;
     /** the wrapped input manager implementation */
     private DefaultInputManager m_delegate = null ;
+    /** the monitor for the delegate */
+    private AvalonInputManagerMonitor m_monitor = null ;
     
     
     // ------------------------------------------------------------------------
@@ -103,6 +106,13 @@ public class MerlinInputManager extends AbstractLogEnabled
     // ------------------------------------------------------------------------
     
     
+    public void enableLogging( Logger a_logger )
+    {
+        super.enableLogging( a_logger ) ;
+        m_monitor = new AvalonInputManagerMonitor() ;
+        m_monitor.enableLogging( a_logger ) ;
+    }
+    
     /**
      * Starts up this module.
      * 
@@ -143,6 +153,7 @@ public class MerlinInputManager extends AbstractLogEnabled
     {
         getLogger().debug( "Delegate constructed" ) ;
         m_delegate = new DefaultInputManager( m_router, m_bp ) ;
+        m_delegate.setMonitor( m_monitor ) ;
     }
 
     

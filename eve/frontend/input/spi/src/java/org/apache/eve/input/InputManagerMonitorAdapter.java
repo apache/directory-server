@@ -51,6 +51,8 @@ package org.apache.eve.input ;
 
 
 import java.io.IOException ;
+
+import java.nio.ByteBuffer ;
 import java.nio.channels.Selector ; 
 import java.nio.channels.SocketChannel ;
 
@@ -179,6 +181,15 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
      * java.nio.channels.Selector)
      */
     public void selectTimedOut( Selector a_selector )
+    {
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#inputRecieved(
+     * java.nio.ByteBuffer, org.apache.eve.listener.ClientKey)
+     */
+    public void inputRecieved( ByteBuffer a_buffer, ClientKey a_key )
     {
     }
 }

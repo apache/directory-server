@@ -166,7 +166,6 @@
         <url>http://directory.apache.org</url>
       </dependency>
 
-      <!-- 
       <dependency>
         <groupId>directory</groupId>
         <artifactId>eve-frontend-input-spi</artifactId>
@@ -187,8 +186,6 @@
         <version>SNAPSHOT</version>
         <url>http://directory.apache.org</url>
       </dependency>
-
-      -->
 
       <dependency>
         <groupId>junit</groupId>

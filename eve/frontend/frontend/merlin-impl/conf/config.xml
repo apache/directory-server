@@ -4,4 +4,19 @@
   <target path="/eve/frontend">
     <categories priority="DEBUG"/>
   </target>
+  <target path="/eve/event-router">
+    <categories priority="DEBUG"/>
+  </target>
+  <target path="/eve/buffer-pool">
+    <categories priority="DEBUG"/>
+  </target>
+  <target path="/eve/listener-manager">
+    <categories priority="DEBUG"/>
+  </target>
+  <target path="/eve/input-manager">
+    <categories priority="DEBUG"/>
+  </target>
+  <target path="/eve/thread-manager">
+    <categories priority="DEBUG"/>
+  </target>
 </targets>

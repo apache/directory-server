@@ -51,6 +51,8 @@ package org.apache.eve.input ;
 
 
 import java.io.IOException ;
+
+import java.nio.ByteBuffer ;
 import java.nio.channels.Selector ;
 import java.nio.channels.SocketChannel ;
 
@@ -98,6 +100,14 @@ public interface InputManagerMonitor
      * @param a_key the key of the client sending the request
      */
     void inputRecieved( ClientKey a_key ) ;
+
+    /**
+     * Monitors input read from a client socket channel.
+     * 
+     * @param a_buffer the input recieved
+     * @param a_key the key of the client sending the request
+     */
+    void inputRecieved( ByteBuffer a_buffer, ClientKey a_key ) ;
 
     
     // ------------------------------------------------------------------------

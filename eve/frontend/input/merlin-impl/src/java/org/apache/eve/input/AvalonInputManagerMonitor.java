@@ -18,6 +18,7 @@ package org.apache.eve.input ;
 
 
 import java.io.IOException ;
+import java.nio.ByteBuffer ;
 import java.nio.channels.Selector ;
 import java.nio.channels.SocketChannel ;
 
@@ -209,5 +210,25 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
         {
             getLogger().warn( "Select on " + a_selector + " timed out" ) ;
         }
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#inputRecieved(
+     * java.nio.Buffer, org.apache.eve.listener.ClientKey)
+     */
+    public void inputRecieved( ByteBuffer a_buffer, ClientKey a_key )
+    {
+        if ( getLogger().isDebugEnabled() )
+        {
+            getLogger().debug( "Recieved input [" +  toHexString( a_buffer ) 
+                    + "] from client " + a_key ) ;
+        }
+    }
+    
+    
+    public String toHexString( ByteBuffer a_buf )
+    {
+        return new String ( a_buf.array() ) ;
     }
 }
