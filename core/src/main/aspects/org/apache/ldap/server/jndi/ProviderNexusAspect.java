@@ -1,4 +1,4 @@
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.Map;
@@ -15,9 +15,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.eve.PartitionNexus;
-import org.apache.eve.db.Database;
-import org.apache.eve.ContextPartition;
+import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.db.Database;
+import org.apache.ldap.server.ContextPartition;
 
 
 /**
@@ -215,5 +215,4 @@ public aspect ProviderNexusAspect
             //    + thisJoinPoint );
         }
 }
-
 
