@@ -28,6 +28,7 @@ import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 
 /**
  * A single reply handler for {@link org.apache.ldap.common.message.AddRequest}s.
@@ -35,9 +36,9 @@ import org.apache.mina.protocol.ProtocolSession;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AddHandler implements CommandHandler
+public class AddHandler implements MessageHandler
 {
-    public void handle( ProtocolSession session, Object request )
+    public void messageReceived( ProtocolSession session, Object request )
     {
         AddRequest req = ( AddRequest ) request;
         AddResponse resp = new AddResponseImpl( req.getMessageId() );

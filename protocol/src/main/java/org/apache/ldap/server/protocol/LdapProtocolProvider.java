@@ -49,13 +49,15 @@ import org.apache.ldap.common.message.SearchRequestImpl;
 import org.apache.ldap.common.message.UnbindRequest;
 import org.apache.ldap.common.message.UnbindRequestImpl;
 import org.apache.ldap.common.message.spi.Provider;
+import org.apache.mina.common.IdleStatus;
+import org.apache.mina.protocol.DemuxingProtocolHandler;
 import org.apache.mina.protocol.ProtocolCodecFactory;
 import org.apache.mina.protocol.ProtocolDecoder;
 import org.apache.mina.protocol.ProtocolEncoder;
 import org.apache.mina.protocol.ProtocolHandler;
-import org.apache.mina.protocol.ProtocolHandlerAdapter;
 import org.apache.mina.protocol.ProtocolProvider;
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 import org.apache.mina.protocol.codec.Asn1CodecDecoder;
 import org.apache.mina.protocol.codec.Asn1CodecEncoder;
 
@@ -127,9 +129,6 @@ public class LdapProtocolProvider implements ProtocolProvider
     /** the MINA protocol handler */
     private final LdapProtocolHandler handler = new LdapProtocolHandler();
 
-    /** the handlers to use while processing requests */
-    private final Map commandHandlers;
-
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
@@ -143,8 +142,6 @@ public class LdapProtocolProvider implements ProtocolProvider
     public LdapProtocolProvider( Hashtable env ) throws LdapNamingException
     {
         Hashtable copy = ( Hashtable ) env.clone();
-        this.commandHandlers = new HashMap();
-
         copy.put( Context.PROVIDER_URL, "" );
         SessionRegistry.releaseSingleton();
         new SessionRegistry( copy );
@@ -152,7 +149,7 @@ public class LdapProtocolProvider implements ProtocolProvider
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while( requestTypes.hasNext() )
         {
-            CommandHandler handler = null;
+            MessageHandler handler = null;
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
@@ -179,7 +176,7 @@ public class LdapProtocolProvider implements ProtocolProvider
 
             try
             {
-                handler = ( CommandHandler ) clazz.newInstance();
+                handler = ( MessageHandler ) clazz.newInstance();
             }
             catch( Exception e )
             {
@@ -191,7 +188,7 @@ public class LdapProtocolProvider implements ProtocolProvider
                 throw lne;
             }
 
-            this.commandHandlers.put( type, handler );
+            this.handler.registerMessageType( clazz, handler );
         }
 
         this.codecFactory = new ProtocolCodecFactoryImpl( copy );
@@ -202,14 +199,13 @@ public class LdapProtocolProvider implements ProtocolProvider
      */
     public LdapProtocolProvider() throws LdapNamingException
     {
-        this.commandHandlers = new HashMap();
         SessionRegistry.releaseSingleton();
         new SessionRegistry( null );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while( requestTypes.hasNext() )
         {
-            CommandHandler handler = null;
+            MessageHandler handler = null;
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
@@ -217,7 +213,7 @@ public class LdapProtocolProvider implements ProtocolProvider
 
             try
             {
-                handler = ( CommandHandler ) clazz.newInstance();
+                handler = ( MessageHandler ) clazz.newInstance();
             }
             catch( Exception e )
             {
@@ -229,7 +225,7 @@ public class LdapProtocolProvider implements ProtocolProvider
                 throw lne;
             }
 
-            this.commandHandlers.put( type, handler );
+            this.handler.registerMessageType( clazz, handler );
         }
 
         this.codecFactory = new ProtocolCodecFactoryImpl();
@@ -252,28 +248,6 @@ public class LdapProtocolProvider implements ProtocolProvider
     public ProtocolHandler getHandler()
     {
         return handler;
-    }
-
-    public CommandHandler getCommandHandler( Object request )
-    {
-        if( this.commandHandlers.containsKey( request.getClass().getName() ) )
-        {
-            return ( CommandHandler ) this.commandHandlers.get( request
-                    .getClass().getName() );
-        }
-
-        Class[] interfaces = request.getClass().getInterfaces();
-        for( int ii = 0; ii < interfaces.length; ii ++ )
-        {
-            if( this.commandHandlers.containsKey( interfaces[ ii ].getName() ) )
-            {
-                return ( CommandHandler ) this.commandHandlers
-                        .get( interfaces[ ii ].getName() );
-            }
-        }
-
-        String msg = "cannot find a handler for request: " + request;
-        throw new IllegalArgumentException( msg );
     }
 
     /**
@@ -319,13 +293,20 @@ public class LdapProtocolProvider implements ProtocolProvider
         }
     }
 
-    private class LdapProtocolHandler extends ProtocolHandlerAdapter
+    private class LdapProtocolHandler extends DemuxingProtocolHandler
     {
-
-        public void messageReceived( ProtocolSession session, Object request )
+        private LdapProtocolHandler()
         {
-            CommandHandler handler = getCommandHandler( request );
-            handler.handle( session, request );
+        }
+
+        protected void deregisterMessageType( Class arg0 )
+        {
+            super.deregisterMessageType( arg0 );
+        }
+
+        protected void registerMessageType( Class arg0, MessageHandler arg1 )
+        {
+            super.registerMessageType( arg0, arg1 );
         }
 
         public void sessionClosed( ProtocolSession session )
@@ -336,6 +317,18 @@ public class LdapProtocolProvider implements ProtocolProvider
         public void exceptionCaught( ProtocolSession session, Throwable cause )
         {
             cause.printStackTrace();
+        }
+
+        public void messageSent( ProtocolSession arg0, Object arg1 )
+        {
+        }
+
+        public void sessionIdle( ProtocolSession arg0, IdleStatus arg1 )
+        {
+        }
+
+        public void sessionOpened( ProtocolSession arg0 )
+        {
         }
     }
 }

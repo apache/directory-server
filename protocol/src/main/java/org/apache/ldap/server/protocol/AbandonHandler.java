@@ -20,6 +20,7 @@ package org.apache.ldap.server.protocol;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.message.AbandonRequest;
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 
 
 /**
@@ -28,9 +29,9 @@ import org.apache.mina.protocol.ProtocolSession;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonHandler implements CommandHandler
+public class AbandonHandler implements MessageHandler
 {
-    public void handle( ProtocolSession session, Object request )
+    public void messageReceived( ProtocolSession session, Object request )
     {
         AbandonRequest req = ( AbandonRequest ) request;
         int abandonedId = req.getAbandoned();

@@ -33,6 +33,7 @@ import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 
 
 /**
@@ -41,12 +42,12 @@ import org.apache.mina.protocol.ProtocolSession;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BindHandler implements CommandHandler
+public class BindHandler implements MessageHandler
 {
     private static final Control[] EMPTY = new Control[0];
 
 
-    public void handle( ProtocolSession session, Object request )
+    public void messageReceived( ProtocolSession session, Object request )
     {
         InitialLdapContext ictx;
         BindRequest req = ( BindRequest ) request;

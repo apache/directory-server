@@ -21,6 +21,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 
 
 /**
@@ -30,9 +31,9 @@ import org.apache.mina.protocol.ProtocolSession;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UnbindHandler implements CommandHandler
+public class UnbindHandler implements MessageHandler
 {
-    public void handle( ProtocolSession session, Object request )
+    public void messageReceived( ProtocolSession session, Object request )
     {
         SessionRegistry registry = SessionRegistry.getSingleton();
 

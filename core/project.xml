@@ -85,12 +85,12 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory</groupId>
       <artifactId>apacheds-shared</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory</groupId>
       <artifactId>apacheds-protocol</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>

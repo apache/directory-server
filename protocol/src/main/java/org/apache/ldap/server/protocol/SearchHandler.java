@@ -44,6 +44,7 @@ import org.apache.ldap.common.message.SearchResponseReferenceImpl;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 
 /**
  * A handler for processing search requests.
@@ -51,12 +52,12 @@ import org.apache.mina.protocol.ProtocolSession;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchHandler implements CommandHandler
+public class SearchHandler implements MessageHandler
 {
     private static final String DEREFALIASES_KEY = "java.naming.ldap.derefAliases";
 
 
-    public void handle( ProtocolSession session, Object request )
+    public void messageReceived( ProtocolSession session, Object request )
     {
         LdapContext ctx;
         SearchRequest req = ( SearchRequest ) request;

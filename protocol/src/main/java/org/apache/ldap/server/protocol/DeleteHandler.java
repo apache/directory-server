@@ -28,6 +28,7 @@ import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 
 /**
  * A single reply handler for {@link org.apache.ldap.common.message.DeleteRequest}s.
@@ -35,9 +36,9 @@ import org.apache.mina.protocol.ProtocolSession;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeleteHandler implements CommandHandler
+public class DeleteHandler implements MessageHandler
 {
-    public void handle( ProtocolSession session, Object request )
+    public void messageReceived( ProtocolSession session, Object request )
     {
         DeleteRequest req = ( DeleteRequest ) request;
         DeleteResponse resp = new DeleteResponseImpl( req.getMessageId() );

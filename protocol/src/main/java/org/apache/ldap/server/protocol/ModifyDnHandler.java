@@ -30,6 +30,7 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.DemuxingProtocolHandler.MessageHandler;
 
 
 /**
@@ -38,9 +39,9 @@ import org.apache.mina.protocol.ProtocolSession;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyDnHandler implements CommandHandler
+public class ModifyDnHandler implements MessageHandler
 {
-    public void handle( ProtocolSession session, Object request )
+    public void messageReceived( ProtocolSession session, Object request )
     {
         ModifyDnRequest req = ( ModifyDnRequest ) request;
         ModifyDnResponse resp = new ModifyDnResponseImpl( req.getMessageId() );

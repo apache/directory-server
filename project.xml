@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <project>
-    <groupId>incubator-directory</groupId>
+    <groupId>directory</groupId>
     <artifactId>apacheds</artifactId>
     <name>Apache Directory Server</name>
     <currentVersion>0.9-SNAPSHOT</currentVersion>
@@ -26,22 +26,22 @@
       /www/incubator.apache.org/directory/subprojects/apacheds
     </siteDirectory>
     <distributionDirectory>
-      /www/cvs.apache.org/dist/incubator/directory
+      /www/cvs.apache.org/dist/directory
     </distributionDirectory>
 
     <gumpRepositoryId>apache-incubator-svn</gumpRepositoryId>
 
     <repository>
       <connection>
-        scm:svn:http://svn.apache.org/repos/asf/incubator:directory/apacheds/trunk/${module.path}
+        scm:svn:http://svn.apache.org/repos/asf:directory/apacheds/trunk/${module.path}
       </connection>
 
       <url>
-        http://svn.apache.org/viewcvs.cgi/incubator/directory/apacheds/trunk/${module.path}/?root=Apache-SVN
+        http://svn.apache.org/viewcvs.cgi/directory/apacheds/trunk/${module.path}/?root=Apache-SVN
       </url>
       
       <developerConnection>
-        https://svn.apache.org/repos/asf/incubator/directory/apacheds/trunk/${module.path}
+        https://svn.apache.org/repos/asf/directory/apacheds/trunk/${module.path}
       </developerConnection>
     </repository>
   
