@@ -14,24 +14,24 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.config;
+package org.apache.eve.schema.bootstrap;
 
 
 import java.util.Map;
 
 
 /**
- * A Factory for Comparator OID String to Comparator object mapping.
+ * A factory which creates a Normalizer OID String to Normalizer object mapping.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ComparatorFactory
+public interface NormalizerFactory
 {
     /**
-     * Creates a Comparator OID String to Comparator object mapping.
+     * Creates a Normalizer OID String to Normalizer object mapping.
      *
-     * @return a Map of Comparator OID Strings to Comparator objects
+     * @return a Map of Normalizer OID Strings to Normalizer objects
      */
-    Map getComparators();
+    Map getNormalizers();
 }

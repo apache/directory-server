@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.config;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.util.ArrayUtils;

@@ -14,13 +14,10 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.config;
+package org.apache.eve.schema.bootstrap;
 
-import org.apache.ldap.common.schema.*;
-import org.apache.eve.schema.*;
 
 import javax.naming.NamingException;
-import java.util.Map;
 
 
 /**

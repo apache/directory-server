@@ -14,24 +14,24 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.config;
+package org.apache.eve.schema.bootstrap;
 
 
 import java.util.Map;
 
 
 /**
- * Factory that creates a SyntaxChecker OID String to SyntaxChecker mapping.
+ * A Factory for Comparator OID String to Comparator object mapping.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxCheckerFactory
+public interface ComparatorFactory
 {
     /**
-     * Creates a SyntaxChecker OID String to SyntaxChecker mapping.
+     * Creates a Comparator OID String to Comparator object mapping.
      *
-     * @return a Map of SyntaxChecker OID Strings to SyntaxChecker objects  
+     * @return a Map of Comparator OID Strings to Comparator objects
      */
-    Map getSyntaxCheckers();
+    Map getComparators();
 }

@@ -14,24 +14,24 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.config;
+package org.apache.eve.schema.bootstrap;
 
 
 import java.util.Map;
 
 
 /**
- * A factory which creates a Normalizer OID String to Normalizer object mapping.
+ * Factory that creates a SyntaxChecker OID String to SyntaxChecker mapping.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface NormalizerFactory
+public interface SyntaxCheckerFactory
 {
     /**
-     * Creates a Normalizer OID String to Normalizer object mapping.
+     * Creates a SyntaxChecker OID String to SyntaxChecker mapping.
      *
-     * @return a Map of Normalizer OID Strings to Normalizer objects
+     * @return a Map of SyntaxChecker OID Strings to SyntaxChecker objects  
      */
-    Map getNormalizers();
+    Map getSyntaxCheckers();
 }

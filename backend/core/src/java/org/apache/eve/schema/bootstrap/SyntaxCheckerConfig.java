@@ -14,28 +14,26 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.config;
+package org.apache.eve.config;
 
+import org.apache.ldap.common.schema.SyntaxChecker;
 
-import org.apache.ldap.common.schema.Syntax;
-import org.apache.eve.schema.SyntaxCheckerRegistry;
-
-import java.util.Map;
-
+import java.util.ArrayList;
 
 /**
- * Factory that creates an OID String to Syntax map.
+ * Document me.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxFactory
+public class SyntaxCheckerConfig
 {
-    /**
-     * Creates a Syntax OID String to Syntax object map.
-     *
-     * @param registry a registry of SyntaxChecker objects
-     * @return a Map of Syntax OID Strings to Syntax objects
-     */
-    Map getSyntaxes( SyntaxCheckerRegistry registry );
+    private SyntaxChecker[] EMPTY_ARRAY = new SyntaxChecker[0];
+
+
+    public SyntaxChecker[] loadSyntaxCheckers()
+    {
+        ArrayList syntaxCheckers = new ArrayList( 100 );
+        return ( SyntaxChecker[] ) syntaxCheckers.toArray( EMPTY_ARRAY );
+    }
 }

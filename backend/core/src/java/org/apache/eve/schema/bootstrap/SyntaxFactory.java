@@ -14,28 +14,27 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.config;
+package org.apache.eve.schema.bootstrap;
 
 
-import org.apache.eve.schema.OidRegistry;
-import org.apache.eve.schema.SyntaxRegistry;
-import org.apache.eve.schema.NormalizerRegistry;
-import org.apache.eve.schema.ComparatorRegistry;
+import org.apache.eve.schema.SyntaxCheckerRegistry;
 
 import java.util.Map;
 
 
 /**
- * A factory that creates a Map of MatchingRule OID Strings to MatchingRule 
- * objects.
+ * Factory that creates an OID String to Syntax map.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MatchingRuleFactory
+public interface SyntaxFactory
 {
-    Map getMatchingRules( OidRegistry oidRegistry,
-                          SyntaxRegistry syntaxRegistry,
-                          NormalizerRegistry normalizerRegistry,
-                          ComparatorRegistry comparatorRegistry );
+    /**
+     * Creates a Syntax OID String to Syntax object map.
+     *
+     * @param registry a registry of SyntaxChecker objects
+     * @return a Map of Syntax OID Strings to Syntax objects
+     */
+    Map getSyntaxes( SyntaxCheckerRegistry registry );
 }
