@@ -209,7 +209,7 @@ public class DefaultEventRouter implements EventRouter
      * 
      * @param a_monitor the monitor
      */
-    void setMonitor( EventRouterMonitor a_monitor )
+    public void setMonitor( EventRouterMonitor a_monitor )
     {
         m_monitor = a_monitor ;
     }
@@ -220,7 +220,7 @@ public class DefaultEventRouter implements EventRouter
      * 
      * @return the monitor
      */
-    EventRouterMonitor getMonitor()
+    public EventRouterMonitor getMonitor()
     {
         return m_monitor ;
     }
