@@ -30,10 +30,11 @@ import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.message.spi.Provider;
 import org.apache.ldap.common.exception.LdapNamingException;
 
-import org.apache.snickers.codec.stateful.DecoderFactory;
-import org.apache.snickers.codec.stateful.EncoderFactory;
-import org.apache.snickers.codec.stateful.StatefulDecoder;
-import org.apache.snickers.codec.stateful.StatefulEncoder;
+import org.apache.asn1.codec.stateful.StatefulDecoder;
+import org.apache.asn1.codec.stateful.StatefulEncoder;
+import org.apache.asn1.codec.stateful.DecoderFactory;
+import org.apache.asn1.codec.stateful.EncoderFactory;
+import org.apache.asn1.codec.stateful.*;
 
 
 /**
