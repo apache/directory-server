@@ -88,8 +88,12 @@ public class RootNexus implements PartitionNexus
 
         // setup that root DSE
         this.rootDSE = rootDSE;
-        Attribute attr = new LockableAttributeImpl( NAMINGCTXS_ATTR );
-        attr.add( "" );
+        Attribute attr = new LockableAttributeImpl( "subschemaSubentry" );
+        attr.add( "cn=schema,ou=system" );
+        rootDSE.put( attr );
+
+        attr = new LockableAttributeImpl( NAMINGCTXS_ATTR );
+        attr.add( SystemPartition.SUFFIX );
         rootDSE.put( attr );
 
         attr = new LockableAttributeImpl( VENDORNAME_ATTR );
@@ -279,7 +283,34 @@ public class RootNexus implements PartitionNexus
                  searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
                  ( ( PresenceNode ) filter ).getAttribute().equalsIgnoreCase( "objectclass" ) )
             {
-                Attributes attrs = getRootDSE();
+                Attributes attrs = ( Attributes ) getRootDSE().clone();
+
+                String[] ids = searchCtls.getReturningAttributes();
+                if ( ids != null && ids.length > 0 )
+                {
+                    boolean doSwap = true;
+                    Attributes askedFor = new LockableAttributesImpl();
+
+                    for ( int ii = 0; ii < ids.length; ii++ )
+                    {
+                        if ( ids[ii].trim().equals( "*" ) )
+                        {
+                            doSwap = false;
+                            break;
+                        }
+
+                        if ( attrs.get( ids[ii] ) != null )
+                        {
+                            askedFor.put( attrs.get( ids[ii] ) );
+                        }
+                    }
+
+                    if ( doSwap )
+                    {
+                        attrs = askedFor;
+                    }
+                }
+
                 SearchResult result = new SearchResult( "", null, attrs, false );
                 return new SingletonEnumeration( result );
             }
