@@ -65,17 +65,18 @@ public class $classname extends AbstractBootstrapProducer
         // --------------------------------------------------------------------
 
         attributeType = newAttributeType( "$attrType.getOid()", registries );
+        attributeType.setDescription( "$attrType.getDescription()" );
+        attributeType.setCanUserModify( ! $attrType.isNoUserModification() );
         attributeType.setSingleValue( $attrType.isSingleValue() );
         attributeType.setCollective( $attrType.isCollective() );
         attributeType.setObsolete( $attrType.isObsolete() );
-        attributeType.setCanUserModify( $attrType.isNoUserModification() );
         attributeType.setLength( $attrType.getLength() );
         attributeType.setUsage( UsageEnum.getUsage( "$attrType.getUsage().getName()" ) );
-#if ( $attrType.getSuperiorOid() )        attributeType.setSuperiorId( "$attrType.getSuperiorOid()" ); #end
-#if ( $attrType.getEqualityOid() )        attributeType.setEqualityId( "$attrType.getEqualityOid()" );#end
-#if ( $attrType.getSubstrOid() )        attributeType.setSubstrId( "$attrType.getSubstrOid()" );#end
-#if ( $attrType.getOrderingOid() )        attributeType.setOrderingId( "$attrType.getOrderingOid()" );#end
-#if ( $attrType.getSyntaxOid() )        attributeType.setSyntaxId( "$attrType.getSyntaxOid()" );#end
+#if ( $attrType.getSuperior() )        attributeType.setSuperiorId( "$attrType.getSuperior()" ); #end
+#if ( $attrType.getEquality() )        attributeType.setEqualityId( "$attrType.getEquality()" );#end
+#if ( $attrType.getSubstr() )        attributeType.setSubstrId( "$attrType.getSubstr()" );#end
+#if ( $attrType.getOrdering() )        attributeType.setOrderingId( "$attrType.getOrdering()" );#end
+#if ( $attrType.getSyntax() )        attributeType.setSyntaxId( "$attrType.getSyntax()" );#end
 
         #if ( $attrType.getNames() )
 names.clear();
