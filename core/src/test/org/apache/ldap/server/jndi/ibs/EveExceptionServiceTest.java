@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import javax.naming.NamingException;
@@ -23,7 +23,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
-import org.apache.eve.jndi.AbstractJndiTest;
+import org.apache.ldap.server.jndi.AbstractJndiTest;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
 import org.apache.ldap.common.exception.LdapNameAlreadyBoundException;

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
@@ -85,7 +85,7 @@ public class RootDSETest extends TestCase
         super.tearDown();
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
         env.put( EnvKeys.SHUTDOWN, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );

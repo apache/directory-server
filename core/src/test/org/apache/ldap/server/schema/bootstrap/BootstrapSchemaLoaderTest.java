@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.bootstrap;
+package org.apache.ldap.server.schema.bootstrap;
 
 
 import java.util.List;
@@ -24,7 +24,6 @@ import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.server.schema.bootstrap.*;
 
 
 /**

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import javax.naming.NamingException;
@@ -23,12 +23,13 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
 
-import org.apache.eve.jndi.AbstractJndiTest;
+import org.apache.ldap.server.jndi.AbstractJndiTest;
+import org.apache.ldap.server.jndi.AbstractJndiTest;
 
 
 /**
  * Tests to see that the binary property filtering in the schema service's
- * filter class {@link SchemaService.BinaryAttributeFilter} is working
+ * filter class {@link org.apache.ldap.server.jndi.ibs.SchemaService.BinaryAttributeFilter} is working
  * properly.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>

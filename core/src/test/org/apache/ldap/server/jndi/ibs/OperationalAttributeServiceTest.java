@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import javax.naming.directory.*;
@@ -22,7 +22,7 @@ import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 
 import org.apache.ldap.common.message.DerefAliasesEnum;
-import org.apache.eve.jndi.AbstractJndiTest;
+import org.apache.ldap.server.jndi.AbstractJndiTest;
 
 
 /**

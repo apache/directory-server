@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.ArrayList;

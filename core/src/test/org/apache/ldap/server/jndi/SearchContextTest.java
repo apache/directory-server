@@ -14,22 +14,24 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
+import java.util.HashMap;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
 
-import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.message.DerefAliasesEnum;
 
 
 /**
- * Tests the destroyContext methods of the provider.
+ * Tests the search() methods of the provider.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DestroyContextTest extends AbstractJndiTest
+public class SearchContextTest extends AbstractJndiTest
 {
     protected void setUp() throws Exception
     {
@@ -131,75 +133,50 @@ public class DestroyContextTest extends AbstractJndiTest
     }
 
 
-    /**
-     * Tests the creation and subsequent read of a new JNDI context under the
-     * system context root.
-     *
-     * @throws NamingException if there are failures
-     */
-    public void testDestroyContext() throws NamingException
+    public void testSearchOneLevel() throws NamingException
     {
-        /*
-         * delete ou=testing00,ou=system
-         */
-        sysRoot.destroySubcontext( "ou=testing00");
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP,
+                DerefAliasesEnum.NEVERDEREFALIASES.getName() );
 
-        try
+        HashMap map = new HashMap();
+        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
+        while ( list.hasMore() )
         {
-            sysRoot.lookup( "ou=testing00" );
-            fail( "ou=testing00, ou=system should not exist" );
-        }
-        catch( NamingException e )
-        {
-            assertTrue( e instanceof LdapNameNotFoundException );
-        }
-
-        /*
-         * delete ou=subtest,ou=testing01,ou=system
-         */
-        sysRoot.destroySubcontext( "ou=subtest,ou=testing01");
-
-        try
-        {
-            sysRoot.lookup( "ou=subtest,ou=testing01" );
-            fail( "ou=subtest,ou=testing01,ou=system should not exist" );
-        }
-        catch( NamingException e )
-        {
-            assertTrue( e instanceof LdapNameNotFoundException );
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
         }
 
-        /*
-         * delete ou=testing01,ou=system
-         */
-        sysRoot.destroySubcontext( "ou=testing01");
-
-        try
-        {
-            sysRoot.lookup( "ou=testing01" );
-            fail( "ou=testing01, ou=system should not exist" );
-        }
-        catch( NamingException e )
-        {
-            assertTrue( e instanceof LdapNameNotFoundException );
-        }
-
-
-        /*
-         * delete ou=testing01,ou=system
-         */
-        sysRoot.destroySubcontext( "ou=testing02");
-
-        try
-        {
-            sysRoot.lookup( "ou=testing02" );
-            fail( "ou=testing02, ou=system should not exist" );
-        }
-        catch( NamingException e )
-        {
-            assertTrue( e instanceof LdapNameNotFoundException );
-        }
+        assertEquals( "Expected number of results returned was incorrect!", 5, map.size() );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
     }
 
 
+    public void testSearchSubTreeLevel() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP,
+                DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+
+        HashMap map = new HashMap();
+        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect", 9, map.size() );
+        assertTrue( map.containsKey( "ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
+        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
+    }
 }

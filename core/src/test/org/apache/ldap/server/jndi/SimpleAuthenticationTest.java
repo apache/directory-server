@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.io.File;
@@ -139,7 +139,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
         InitialDirContext ic = new InitialDirContext( env );
         Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
         Attribute ou = attrs.get( "ou" );
@@ -196,7 +196,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
 
         // now go in as anonymous user and we should be wh
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
 
         InitialLdapContext initial = new InitialLdapContext( env, null );
 
@@ -287,7 +287,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
         assertNotNull( new InitialContext( env ) );
     }
 
@@ -306,7 +306,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
         assertNotNull( new InitialContext( env ) );
     }
 }

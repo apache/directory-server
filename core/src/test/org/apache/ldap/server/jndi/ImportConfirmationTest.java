@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.io.InputStream;
@@ -30,7 +30,6 @@ import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 
 

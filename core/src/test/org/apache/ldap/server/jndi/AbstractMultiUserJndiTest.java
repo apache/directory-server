@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
@@ -36,7 +36,7 @@ public abstract class AbstractMultiUserJndiTest extends AbstractJndiTest
     /**
      * Set's up a context for an authenticated non-root user.
      *
-     * @see AbstractJndiTest#setUp()
+     * @see org.apache.ldap.server.jndi.AbstractJndiTest#setUp()
      */
     protected void setUp() throws Exception
     {
@@ -46,7 +46,7 @@ public abstract class AbstractMultiUserJndiTest extends AbstractJndiTest
         // authenticate as akarasulu
         Hashtable env = new Hashtable( );
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
         InitialContext ictx = new InitialContext( env );

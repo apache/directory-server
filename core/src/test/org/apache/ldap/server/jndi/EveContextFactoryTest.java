@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
@@ -110,7 +110,7 @@ public class EveContextFactoryTest extends AbstractJndiTest
         env.put( Context.PROVIDER_URL, "dc=example" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
@@ -131,7 +131,7 @@ public class EveContextFactoryTest extends AbstractJndiTest
         env.put( Context.PROVIDER_URL, "ou=testing" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
