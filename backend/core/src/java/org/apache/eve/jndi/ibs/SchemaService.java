@@ -147,7 +147,7 @@ public class SchemaService extends BaseInterceptor
             {
                 String id = ( String ) list.next();
                 AttributeType type = registry.lookup( id );
-                boolean isBinary = ! type.getSyntax().isHumanReadable();
+                boolean isBinary = ! type.getSyntax().isHumanReadible();
 
                 if ( isBinary || binaries.contains( type ) )
                 {

@@ -18,31 +18,40 @@ package org.apache.eve.jndi;
 
 
 import java.util.Hashtable;
+import java.security.Principal;
 
 import javax.naming.NamingException;
+import javax.naming.Name;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.NotImplementedException;
 
 import org.apache.eve.PartitionNexus;
 
 
 /**
+ * An Eve implementation of a JNDI LdapContext.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class EveLdapContext extends EveDirContext implements LdapContext
 {
+    private static final Control[] EMPTY_CONTROLS = new Control[0];
+    private Control[] requestControls = EMPTY_CONTROLS;
+    private Control[] responseControls = EMPTY_CONTROLS;
+    private Control[] connectControls = EMPTY_CONTROLS;
+
 
     /**
-     * TODO Document me!
+     * Creates an instance of an EveLdapContext.
      *
-     * @param nexusProxy TODO
-     * @param env TODO
+     * @param nexusProxy the proxy to a partition nexus
+     * @param env the JNDI environment parameters
+     * @throws NamingException the context cannot be created
      */
     public EveLdapContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
@@ -53,14 +62,15 @@ public class EveLdapContext extends EveDirContext implements LdapContext
     /**
      * Creates a new EveDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
-     * 
+     *
+     * @param principal the directory user principal that is propagated
      * @param nexusProxy the intercepting proxy to the nexus
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    EveLdapContext( PartitionNexus nexusProxy, Hashtable env, LdapName dn )
+    EveLdapContext( Principal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
     {
-        super( nexusProxy, env, dn );
+        super( principal, nexusProxy, env, dn );
     }
 
 
@@ -70,8 +80,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      */
     public ExtendedResponse extendedOperation( ExtendedRequest request )
     {
-        // TODO Auto-generated method stub
-        return null;
+        throw new NotImplementedException();
     }
 
 
@@ -82,8 +91,10 @@ public class EveLdapContext extends EveDirContext implements LdapContext
     public LdapContext newInstance( Control[] requestControls )
         throws NamingException
     {
-        // TODO Auto-generated method stub
-        return null;
+        EveLdapContext ctx = new EveLdapContext( getPrincipal(), getNexusProxy(),
+                getEnvironment(), getDn() );
+        ctx.setRequestControls( requestControls );
+        return ctx;
     }
 
 
@@ -92,56 +103,44 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      */
     public void reconnect( Control[] connCtls ) throws NamingException
     {
-        // TODO Auto-generated method stub
+        this.connectControls = connCtls;
     }
 
 
     /**
-     * TODO Document me! 
-     *
      * @see javax.naming.ldap.LdapContext#getConnectControls()
      */
     public Control[] getConnectControls() throws NamingException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return this.connectControls;
     }
 
 
     /**
-     * TODO Document me! 
-     *
      * @see javax.naming.ldap.LdapContext#setRequestControls(
      * javax.naming.ldap.Control[])
      */
     public void setRequestControls( Control[] requestControls )
         throws NamingException
     {
-        // TODO Auto-generated method stub
+        this.requestControls = requestControls;
     }
 
 
     /**
-     * TODO Document me! 
-     *
      * @see javax.naming.ldap.LdapContext#getRequestControls()
      */
     public Control[] getRequestControls() throws NamingException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return requestControls;
     }
 
 
     /**
-     * TODO Document me! 
-     *
      * @see javax.naming.ldap.LdapContext#getResponseControls()
      */
     public Control[] getResponseControls() throws NamingException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return responseControls;
     }
-
 }

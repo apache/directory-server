@@ -108,6 +108,7 @@ public class EveContextFactoryTest extends AbstractJndiTest
     {
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "dc=example" );
+        env.put( Context.SECURITY_CREDENTIALS, "testing" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
@@ -127,6 +128,7 @@ public class EveContextFactoryTest extends AbstractJndiTest
     {
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=testing" );
+        env.put( Context.SECURITY_CREDENTIALS, "testing" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );

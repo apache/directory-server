@@ -20,6 +20,7 @@ package org.apache.eve.jndi;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.text.ParseException;
+import java.security.Principal;
 
 import javax.naming.Name;
 import javax.naming.ldap.Control;
@@ -75,14 +76,16 @@ public abstract class EveDirContext extends EveContext implements DirContext
     /**
      * Creates a new EveDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
-     * 
+     *
+     * @param principal the principal which is propagated
      * @param nexusProxy the intercepting proxy to the nexus
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected EveDirContext( PartitionNexus nexusProxy, Hashtable env, LdapName dn )
+    protected EveDirContext( Principal principal, PartitionNexus nexusProxy,
+                             Hashtable env, Name dn )
     {
-        super( nexusProxy, env, dn );
+        super( principal, nexusProxy, env, dn );
     }
 
 
@@ -291,7 +294,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
         getNexusProxy().add( target.toString(), target, attributes );
 
         // Initialize the new context
-        EveLdapContext ctx = new EveLdapContext( getNexusProxy(), getEnvironment(), target );
+        EveLdapContext ctx = new EveLdapContext( getPrincipal(), getNexusProxy(),
+                getEnvironment(), target );
         
         Control [] controls = ( ( EveLdapContext ) this ).getRequestControls();
         if ( controls != null )

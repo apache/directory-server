@@ -42,7 +42,8 @@ import org.apache.eve.db.SearchEngine;
 public final class SystemPartition extends AbstractContextPartition
 {
     /** the default user principal or DN */
-    public final static String DEFAULT_PRINCIPAL = "uid=admin,ou=system";
+    public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
+    public final static String ADMIN_UID = "admin";
 
     /**
      * System backend suffix constant.  Should be kept down to a single Dn name 
@@ -98,7 +99,7 @@ public final class SystemPartition extends AbstractContextPartition
             attributes = new LockableAttributesImpl() ;
             attributes.put( "objectClass", "top" ) ;
             attributes.put( "objectClass", "organizationalUnit" ) ;
-            attributes.put( "creatorsName", DEFAULT_PRINCIPAL ) ;
+            attributes.put( "creatorsName", ADMIN_PRINCIPAL ) ;
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() ) ;
             attributes.put( NamespaceTools.getRdnAttribute( SUFFIX ),
                 NamespaceTools.getRdnValue( SUFFIX ) ) ;

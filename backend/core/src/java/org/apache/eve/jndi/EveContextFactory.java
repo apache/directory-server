@@ -6,15 +6,19 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 
+import javax.naming.Name;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.Name;
+import javax.naming.ConfigurationException;
 import javax.naming.directory.Attributes;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.common.util.DateUtils;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
@@ -45,16 +49,25 @@ import org.apache.eve.schema.MatchingRuleRegistry;
  */
 public class EveContextFactory implements InitialContextFactory
 {
+    // for convenience
+    private static final String TYPE = Context.SECURITY_AUTHENTICATION;
+    private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
+    //private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
+
+    /** property used to shutdown the system */
     public static final String SHUTDOWN_OP_ENV = "eve.operation.shutdown";
+    /** property used to sync the system with disk */
     public static final String SYNC_OP_ENV = "eve.operation.sync";
     /** key base for a set of user indices provided as comma sep list of attribute names or oids */
     public static final String USER_INDICES_ENV_BASE = "eve.user.db.indices";
-    /** the path to eve's working directory - relative or absolute */
+    /** bootstrap prop: path to eve's working directory - relative or absolute */
     public static final String WKDIR_ENV = "eve.wkdir";
     /** default path to working directory if WKDIR_ENV property is not set */
     public static final String DEFAULT_WKDIR = "eve";
     /** a comma separated list of schema class files to load */
     public static final String SCHEMAS_ENV = "eve.schemas";
+    /** bootstrap prop: if key is present it enables anonymous users */
+    public static final String ANONYMOUS_ENV = "eve.enable.anonymous";
 
     // ------------------------------------------------------------------------
     //
@@ -85,7 +98,7 @@ public class EveContextFactory implements InitialContextFactory
     public static final String SUFFIX_BASE_ENV = "eve.db.partition.suffix.";
     /** the envprop key base to the space separated list of indices for a partition */
     public static final String INDICES_BASE_ENV = "eve.db.partition.indices.";
-    /** the envprop key base to the Attributes for the context root entry */
+    /** the envprop key base to the Attributes for the context nexus entry */
     public static final String ATTRIBUTES_BASE_ENV = "eve.db.partition.attributes.";
 
     // ------------------------------------------------------------------------
@@ -100,7 +113,7 @@ public class EveContextFactory implements InitialContextFactory
 
     private SystemPartition system;
     private GlobalRegistries globalRegistries;
-    private RootNexus root;
+    private RootNexus nexus;
 
 
     /**
@@ -148,10 +161,88 @@ public class EveContextFactory implements InitialContextFactory
         if ( null == provider )
         {
             this.initialEnv = env;
+
+            // check if we are trying to boostrap as another user
+            if ( initialEnv.containsKey( PRINCIPAL ) &&
+                 initialEnv.containsKey( TYPE ) &&
+                 initialEnv.get( TYPE ).equals( "none" ) )
+            {
+                String msg = "Ambiguous configuration: " + TYPE;
+                msg += " is set to none and the security principal";
+                msg += " is set using " + PRINCIPAL + " as well";
+                throw new ConfigurationException( msg );
+            }
+            else if ( ! initialEnv.containsKey( Context.SECURITY_PRINCIPAL ) &&
+                   initialEnv.containsKey( Context.SECURITY_AUTHENTICATION ) &&
+                   initialEnv.get( Context.SECURITY_AUTHENTICATION ).equals( "none" ) )
+            {
+                throw new ConfigurationException( "using authentication type none "
+                        + "for anonymous binds while trying to bootstrap Eve "
+                        + "- this is not allowed ONLY the admin can bootstrap" );
+            }
+            else if ( initialEnv.containsKey( Context.SECURITY_PRINCIPAL ) &&
+                      ! initialEnv.get( Context.SECURITY_PRINCIPAL ).equals( SystemPartition.ADMIN_PRINCIPAL ) )
+            {
+                throw new ConfigurationException( "user "
+                        + initialEnv.get( Context.SECURITY_PRINCIPAL )
+                        + " is not allowed to bootstrap the system. ONLY the "
+                        + "admin can bootstrap" );
+            }
+
             initialize();
+            createAdminAccount();
         }
-        
-        return provider.getLdapContext( env );
+
+        EveContext ctx = ( EveContext ) provider.getLdapContext( env );
+        return ctx;
+    }
+
+
+    /**
+     * Returns true if we had to create the admin account since this is the
+     * first time we started the server.  Otherwise if the account exists then
+     * we are not starting for the first time.
+     *
+     * @return
+     * @throws NamingException
+     */
+    private boolean createAdminAccount() throws NamingException
+    {
+        Name admin = new LdapName( SystemPartition.ADMIN_PRINCIPAL );
+
+        /*
+         * If the admin entry is there, then the database was already created
+         * before so we just need to lookup the userPassword field to see if
+         * the password matches.
+         */
+        if ( nexus.hasEntry( admin ) )
+        {
+            return false;
+        }
+
+        Attributes attributes = new LockableAttributesImpl();
+        attributes.put( "objectClass", "top" );
+        attributes.put( "objectClass", "person" );
+        attributes.put( "objectClass", "organizationalPerson" );
+        attributes.put( "objectClass", "inetOrgPerson" );
+        attributes.put( "uid", SystemPartition.ADMIN_UID );
+        attributes.put( "displayName", "Directory Superuser" );
+        attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
+        attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+        attributes.put( "displayName", "Directory Superuser" );
+
+        if ( initialEnv.containsKey( Context.SECURITY_CREDENTIALS ) )
+        {
+            attributes.put( "userPassword", initialEnv.get(
+                    Context.SECURITY_CREDENTIALS ) );
+        }
+        else
+        {
+            attributes.put( "userPassword", ArrayUtils.EMPTY_BYTE_ARRAY );
+        }
+
+        nexus.add( SystemPartition.ADMIN_PRINCIPAL, admin, attributes );
+        return true;
     }
 
 
@@ -195,8 +286,7 @@ public class EveContextFactory implements InitialContextFactory
         {
             if ( ! wkdirFile.exists() )
             {
-                throw new NamingException( "working directory " +  wkdir
-                    + " does not exist" );
+                throw new NamingException( "working directory " +  wkdir + " does not exist" );
             }
         }
         else
@@ -234,8 +324,8 @@ public class EveContextFactory implements InitialContextFactory
 
         system = new SystemPartition( db, eng, attributes );
         globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
-        root = new RootNexus( system );
-        provider = new EveJndiProvider( root );
+        nexus = new RootNexus( system );
+        provider = new EveJndiProvider( nexus );
 
 
         // --------------------------------------------------------------------
@@ -248,11 +338,18 @@ public class EveContextFactory implements InitialContextFactory
          * before and onError interceptor chains.
          */
         InvocationStateEnum[] state = new InvocationStateEnum[]{
-            InvocationStateEnum.POSTINVOCATION
+            InvocationStateEnum.PREINVOCATION
         };
-        Interceptor interceptor;
-        FilterService filterService =
-                new FilterServiceImpl();
+        boolean allowAnonymous = initialEnv.containsKey( ANONYMOUS_ENV );
+        Interceptor interceptor = new AuthenticationService( nexus, allowAnonymous );
+        provider.addInterceptor( interceptor, state );
+
+        /*
+         * Create and add the Eve Exception service interceptor to both the
+         * before and onError interceptor chains.
+         */
+        state = new InvocationStateEnum[]{ InvocationStateEnum.POSTINVOCATION };
+        FilterService filterService = new FilterServiceImpl();
         interceptor = ( Interceptor ) filterService;
         provider.addInterceptor( interceptor, state );
 
@@ -264,16 +361,14 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.PREINVOCATION,
             InvocationStateEnum.FAILUREHANDLING
         };
-        interceptor = new EveExceptionService( root );
+        interceptor = new EveExceptionService( nexus );
         provider.addInterceptor( interceptor, state );
 
         /*
          * Create and add the Eve schema service interceptor to before chain.
          */
-        state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION
-        };
-        interceptor = new SchemaService( root, globalRegistries, filterService );
+        state = new InvocationStateEnum[]{ InvocationStateEnum.PREINVOCATION };
+        interceptor = new SchemaService( nexus, globalRegistries, filterService );
         provider.addInterceptor( interceptor, state );
 
         /*
@@ -284,10 +379,11 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.PREINVOCATION,
             InvocationStateEnum.POSTINVOCATION
         };
-        interceptor = new OperationalAttributeService( root, globalRegistries,
-                filterService );
+        interceptor = new OperationalAttributeService( nexus, globalRegistries, filterService );
         provider.addInterceptor( interceptor, state );
 
+
+        // fire up the app partitions now!
         if ( initialEnv.get( PARTITIONS_ENV ) != null )
         {
             initAppPartitions( wkdir );
@@ -314,7 +410,6 @@ public class EveContextFactory implements InitialContextFactory
             String suffix = ( String ) initialEnv.get( SUFFIX_BASE_ENV + names[ii] );
             String wkdir = eveWkdir + File.separator + names[ii];
             mkdirs( eveWkdir, names[ii] );
-
 
             // ----------------------------------------------------------------
             // create the database/store
@@ -371,10 +466,10 @@ public class EveContextFactory implements InitialContextFactory
                     .toArray( new AttributeType[attributeTypeList.size()] );
             ApplicationPartition partition = new ApplicationPartition( upSuffix,
                     normSuffix, db, eng, indexTypes );
-            root.register( partition );
+            nexus.register( partition );
 
             // ----------------------------------------------------------------
-            // add the root context entry
+            // add the nexus context entry
             // ----------------------------------------------------------------
 
             Attributes rootEntry = ( Attributes ) initialEnv.get(

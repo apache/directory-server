@@ -113,14 +113,14 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
     /**
      * @see org.apache.eve.EveBackendSubsystem#getLdapContext(Hashtable)
      */
-    public LdapContext getLdapContext( Hashtable aenv ) throws NamingException
+    public LdapContext getLdapContext( Hashtable env ) throws NamingException
     {
         if ( this.isShutdown )
         {
             throw new IllegalStateException( "Eve has been shutdown!" );
         }
 
-        return new EveLdapContext( proxy, aenv );
+        return new EveLdapContext( proxy, env );
     }
 
 

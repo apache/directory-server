@@ -289,6 +289,6 @@ public class OperationalAttributeService extends BaseInterceptor
         String principal;
         Context ctx = ( ( Context ) invocation.getContextStack().peek() );
         principal = ( String ) ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        return principal == null ? SystemPartition.DEFAULT_PRINCIPAL : principal;
+        return principal == null ? SystemPartition.ADMIN_PRINCIPAL : principal;
     }
 }

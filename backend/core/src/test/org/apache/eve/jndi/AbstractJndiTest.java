@@ -19,9 +19,11 @@ package org.apache.eve.jndi;
 
 import java.util.Hashtable;
 import java.io.File;
+import java.io.IOException;
 import javax.naming.ldap.LdapContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
@@ -44,6 +46,9 @@ public class AbstractJndiTest extends TestCase
     /** extra environment parameters that can be added before setUp */
     protected Hashtable extras = new Hashtable();
 
+    /** extra environment parameters that can be added before setUp to override values */
+    protected Hashtable overrides = new Hashtable();
+
 
     /**
      * Get's the initial context factory for the provider's ou=system context
@@ -54,24 +59,67 @@ public class AbstractJndiTest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
+        doDelete( new File( "target" + File.separator + "eve" ) );
+        setSysRoot( "uid=admin,ou=system", "testing" );
+    }
 
-        if ( doDelete == true )
+
+    /**
+     * Deletes the Eve working directory.
+     *
+     * @throws IOException if there are failures while deleting.
+     */
+    protected void doDelete( File wkdir ) throws IOException
+    {
+        if ( doDelete )
         {
-            File file = new File( "target/eve" );
-
-            if ( file.exists() )
+            if ( wkdir.exists() )
             {
-                FileUtils.deleteDirectory( file );
+                FileUtils.deleteDirectory( wkdir );
             }
         }
+    }
 
+
+    /**
+     * Sets and returns the system root.  Values of user and password used to
+     * set the respective JNDI properties.  These values can be overriden by the
+     * overrides properties.
+     *
+     * @param user the username for authenticating as this user
+     * @param passwd the password of the user
+     * @return the sysRoot context which is also set
+     * @throws NamingException if there is a failure of any kind
+     */
+    protected LdapContext setSysRoot( String user, String passwd ) throws NamingException
+    {
         Hashtable env = new Hashtable();
-        env.putAll( extras );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
-        InitialContext initialContext = new InitialContext( env );
-        sysRoot = ( LdapContext ) initialContext.lookup( "" );
+        env.put( Context.SECURITY_PRINCIPAL, user );
+        env.put( Context.SECURITY_CREDENTIALS, passwd );
+        return setSysRoot( env );
+    }
+
+
+    /**
+     * Sets the system root taking into account the extras and overrides
+     * properties.  In between these it sets the properties for the working
+     * directory, the provider URL and the JNDI InitialContexFactory to use.
+     *
+     * @param env an environment to use while setting up the system root.
+     * @return the sysRoot context which is also set
+     * @throws NamingException if there is a failure of any kind
+     */
+    protected LdapContext setSysRoot( Hashtable env ) throws NamingException
+    {
+        Hashtable envFinal = new Hashtable();
+        envFinal.putAll( extras );
+        envFinal.putAll( env );
+        envFinal.put( Context.PROVIDER_URL, "ou=system" );
+        envFinal.put( EveContextFactory.WKDIR_ENV, "target" + File.separator + "eve" );
+        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        envFinal.putAll( overrides );
+        InitialContext initialContext = new InitialContext( envFinal );
+        return sysRoot = ( LdapContext ) initialContext.lookup( "" );
     }
 
 
@@ -87,6 +135,8 @@ public class AbstractJndiTest extends TestCase
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         env.put( EveContextFactory.SHUTDOWN_OP_ENV, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "testing" );
 
         try
         {
@@ -94,7 +144,6 @@ public class AbstractJndiTest extends TestCase
         }
         catch( Exception e )
         {
-
         }
 
         sysRoot = null;
