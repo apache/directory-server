@@ -20,8 +20,6 @@ package org.apache.eve.protocol;
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractNoReplyHandler;
 
-import org.apache.ldap.common.NotImplementedException;
-
 
 /**
  * A no reply protocol handler implementation for LDAP {@link
@@ -34,6 +32,6 @@ public class UnbindHandler extends AbstractNoReplyHandler
 {
     public void handle( ClientKey key, Object request )
     {
-        throw new NotImplementedException( "handle in org.apache.eve.protocol.UnbindHandler not implemented!" );
+        SessionRegistry.getSingleton( null ).remove( key );
     }
 }

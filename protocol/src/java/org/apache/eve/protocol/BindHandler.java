@@ -17,10 +17,16 @@
 package org.apache.eve.protocol;
 
 
+import java.util.Hashtable;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
-import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.message.*;
+import org.apache.ldap.common.util.ExceptionUtils;
 
 
 /**
@@ -36,6 +42,37 @@ public class BindHandler extends AbstractSingleReplyHandler
      */
     public Object handle( ClientKey key, Object request )
     {
-        throw new NotImplementedException( "handle in org.apache.eve.protocol.BindHandler not implemented!" );
+        BindRequest req = ( BindRequest ) request;
+        BindResponse resp = new BindResponseImpl( req.getMessageId() );
+
+        if ( ! req.isSimple() )
+        {
+            resp.setLdapResult( new LdapResultImpl( resp ) );
+            resp.getLdapResult().setResultCode( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+            resp.getLdapResult().setErrorMessage( "Only simple binds currently supported" );
+            return resp;
+        }
+
+        String dn = req.getName();
+        byte[] creds = req.getCredentials();
+        Hashtable env = SessionRegistry.getSingleton( null ).getEnvironment();
+        InitialContext ictx;
+
+        try
+        {
+            ictx = new InitialContext( env );
+        }
+        catch( NamingException e )
+        {
+            resp.setLdapResult( new LdapResultImpl( resp ) );
+            resp.getLdapResult().setResultCode( ResultCodeEnum.OTHER );
+            String msg = "Bind failure:\n" + ExceptionUtils.getStackTrace( e );
+            msg += "\n\nBindRequest = \n" + req.toString();
+            resp.getLdapResult().setErrorMessage( msg );
+            return resp;
+        }
+
+        SessionRegistry.getSingleton( null ).put( key, ictx );
+        return resp;
     }
 }

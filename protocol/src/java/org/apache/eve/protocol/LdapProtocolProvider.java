@@ -115,6 +115,7 @@ public class LdapProtocolProvider implements ProtocolProvider
     public LdapProtocolProvider( Properties env ) throws LdapNamingException
     {
         this.handlers = new HashMap();
+        SessionRegistry.getSingleton( env );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while ( requestTypes.hasNext() )
@@ -172,6 +173,7 @@ public class LdapProtocolProvider implements ProtocolProvider
     public LdapProtocolProvider() throws LdapNamingException
     {
         this.handlers = new HashMap();
+        SessionRegistry.getSingleton( null );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while ( requestTypes.hasNext() )

@@ -17,25 +17,12 @@
 package org.apache.eve.protocol;
 
 
-import org.apache.seda.listener.ClientKey;
-import org.apache.seda.protocol.AbstractNoReplyHandler;
-
-import org.apache.ldap.common.message.AbandonRequest;
-import org.apache.ldap.common.NotImplementedException;
-
-
 /**
- * Handler for {@link org.apache.ldap.common.message.AbandonRequest}s.
+ * Document this class.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonHandler extends AbstractNoReplyHandler
+public interface LdapProviderMonitor
 {
-    public void handle( ClientKey key, Object request )
-    {
-        AbandonRequest req = ( AbandonRequest ) request;
-        int abandonedId = req.getAbandoned();
-        throw new NotImplementedException( "don't know how to do this just yet" );
-    }
 }
