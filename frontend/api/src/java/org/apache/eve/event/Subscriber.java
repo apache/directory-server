@@ -24,7 +24,7 @@ import java.util.EventListener ;
 /**
  * A Subscriber from the Event Notifier pattern. 
  * 
- * @see <a href="http://members.ispwest.com/jeffhartkopf/notifier">
+ * @see <a href="http://www.dralasoft.com/products/eventbroker/whitepaper/">
  * Event Notifier Pattern</a>
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>

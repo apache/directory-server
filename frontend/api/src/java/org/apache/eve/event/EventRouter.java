@@ -22,7 +22,7 @@ import java.util.EventObject ;
 
 /**
  * Event service based on an exact version of the event notifier pattern found
- * <a href="http://members.ispwest.com/jeffhartkopf/notifier/">here</a>.
+ * <a href="http://www.dralasoft.com/products/eventbroker/whitepaper/">here</a>.
  * 
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
