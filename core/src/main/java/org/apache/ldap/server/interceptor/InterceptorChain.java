@@ -19,6 +19,7 @@ package org.apache.ldap.server.interceptor;
 
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.authz.AuthorizationService;
 
 import javax.naming.NamingException;
 import java.util.*;
@@ -52,8 +53,8 @@ public class InterceptorChain implements Interceptor
     {
         InterceptorChain chain = new InterceptorChain();
         chain.addBefore( NEXT_INTERCEPTOR, "authenticator", new AuthenticationService() );
-        chain.addBefore( NEXT_INTERCEPTOR, "authorizer", new Authorizer() );
-        chain.addBefore( NEXT_INTERCEPTOR, "validator", new Validator() );
+        chain.addBefore( NEXT_INTERCEPTOR, "authorizer", new AuthorizationService() );
+        chain.addBefore( NEXT_INTERCEPTOR, "validator", new ExceptionService() );
         chain.addBefore( NEXT_INTERCEPTOR, "schemaManager", new SchemaManager() );
         chain.addBefore( NEXT_INTERCEPTOR, "operationalAttributeInterceptor", new OperationalAttributeInterceptor() );
         return chain;

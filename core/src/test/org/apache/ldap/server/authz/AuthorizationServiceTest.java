@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.ibs;
+package org.apache.ldap.server.authz;
 
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;

@@ -14,13 +14,16 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.interceptor;
+package org.apache.ldap.server.authz;
 
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.InterceptorContext;
+import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.invocation.*;
@@ -38,7 +41,7 @@ import javax.naming.ldap.LdapContext;
 
 
 /**
- * An {@link Interceptor} that controls access to {@link BackingStore}
+ * An {@link org.apache.ldap.server.interceptor.Interceptor} that controls access to {@link BackingStore}
  * operations.  If a user tries to perform any operations that requires
  * permission he or she doesn't have, {@link NamingException} will be
  * thrown and therefore the current invocation chain will terminate.
@@ -46,7 +49,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Authorizer extends BaseInterceptor
+public class AuthorizationService extends BaseInterceptor
 {
     /**
      * the administrator's distinguished {@link Name}
@@ -72,7 +75,7 @@ public class Authorizer extends BaseInterceptor
     /**
      * Creates an authorization service interceptor.
      */
-    public Authorizer()
+    public AuthorizationService()
     {
     }
 
@@ -397,7 +400,7 @@ public class Authorizer extends BaseInterceptor
                                            SearchControls controls )
                             throws NamingException
                     {
-                        return Authorizer.this.isSearchable( ctx, result );
+                        return AuthorizationService.this.isSearchable( ctx, result );
                     }
                 } );
 
@@ -420,7 +423,7 @@ public class Authorizer extends BaseInterceptor
                                        SearchControls controls )
                         throws NamingException
                 {
-                    return Authorizer.this.isSearchable( ctx, result );
+                    return AuthorizationService.this.isSearchable( ctx, result );
                 }
             } );
 

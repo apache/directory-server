@@ -43,7 +43,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class Validator extends BaseInterceptor
+public class ExceptionService extends BaseInterceptor
 {
     /**
      * the root nexus of the system
@@ -54,7 +54,7 @@ public class Validator extends BaseInterceptor
     /**
      * Creates an interceptor that is also the exception handling service.
      */
-    public Validator()
+    public ExceptionService()
     {
     }
 
