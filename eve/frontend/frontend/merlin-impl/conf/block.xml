@@ -7,6 +7,10 @@
       <repository>
 
         <resource 
+          id="commons-codec:commons-codec" version="1.2"/>
+        <resource 
+          id="commons-logging:commons-logging" version="1.0.3"/>
+        <resource 
           id="commons-lang:commons-lang" version="2.0"/>
         <resource 
           id="commons-collections:commons-collections" version="2.1"/>
@@ -28,6 +32,10 @@
         <resource 
           id="avalon-framework:avalon-framework-impl" version="4.1.5"/>
 
+        <resource 
+          id="incubator-directory:ldap-common" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:codec-stateful" version="SNAPSHOT"/>
         <resource 
           id="incubator-directory:eve-frontend-common-api" version="SNAPSHOT"/>
         <resource 
