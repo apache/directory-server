@@ -94,9 +94,9 @@ import org.apache.eve.schema.SyntaxCheckerRegistry;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreSyntaxProducer extends AbstractBootstrapProducer
+public class SystemSyntaxProducer extends AbstractBootstrapProducer
 {
-    public CoreSyntaxProducer()
+    public SystemSyntaxProducer()
     {
         super( ProducerTypeEnum.SYNTAX_PRODUCER );
     }

@@ -31,13 +31,13 @@ import org.apache.ldap.common.schema.AcceptAllSyntaxChecker;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreSyntaxCheckerProducer extends AbstractBootstrapProducer
+public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
 {
     /**
      * Creates a producer which produces all 58 of the core schema syntax's
      * SyntaxCheckers.
      */
-    public CoreSyntaxCheckerProducer()
+    public SystemSyntaxCheckerProducer()
     {
         super( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER );
     }

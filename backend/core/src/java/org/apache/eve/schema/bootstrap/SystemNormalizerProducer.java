@@ -29,9 +29,9 @@ import org.apache.ldap.common.schema.*;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreNormalizerProducer extends AbstractBootstrapProducer
+public class SystemNormalizerProducer extends AbstractBootstrapProducer
 {
-    public CoreNormalizerProducer()
+    public SystemNormalizerProducer()
     {
         super( ProducerTypeEnum.NORMALIZER_PRODUCER );
     }
