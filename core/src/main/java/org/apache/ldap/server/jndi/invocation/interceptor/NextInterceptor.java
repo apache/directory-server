@@ -22,13 +22,6 @@ import org.apache.ldap.server.jndi.invocation.Invocation;
 
 /**
  * Represents the next {@link Interceptor} in the interceptor chain.
- * {@link Interceptor}s should usually pass the control of current invocation
- * to the next {@link Interceptor} by calling
- * <code>nextInterceptor.process(invocation)</code>.
- * This method returns when the next interceptor's
- * {@link Interceptor#process(NextInterceptor, Invocation)} returns.
- * You can therefore implement pre-, post-, around- invocation
- * handler by how you place the statement. 
  * 
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @author Trustin Lee (trustin@apache.org)

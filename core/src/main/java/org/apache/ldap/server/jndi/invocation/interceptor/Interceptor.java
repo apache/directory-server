@@ -27,6 +27,49 @@ import org.apache.ldap.server.jndi.invocation.Invocation;
  * {@link Invocation}s performed on {@link BackingStore}s just like Servlet
  * filters do.
  * 
+ * <h2>Interceptor Chaining</h2>
+ * Interceptors should usually pass the control of current invocation
+ * to the next interceptor by calling {@link NextInterceptor#process(Invocation)}.
+ * The flow control is returned when the next interceptor's
+ * {@link Interceptor#process(NextInterceptor, Invocation)} returns.
+ * You can therefore implement pre-, post-, around- invocation
+ * handler by how you place the statement. 
+ * <p>
+ * <h3>Pre-invocation Filtering</h3>
+ * <pre>
+ * public void process( NextInterceptor nextInterceptor, Invocation invocation )
+ * {
+ *     System.out.println( "Starting invocation." );
+ *     nextInterceptor.process( invocation );
+ * }
+ * </pre>
+ * 
+ * <h3>Post-invocation Filtering</h3>
+ * <pre>
+ * public void process( NextInterceptor nextInterceptor, Invocation invocation )
+ * {
+ *     nextInterceptor.process( invocation );
+ *     System.out.println( "Invocation ended." );
+ * }
+ * </pre>
+ * 
+ * <h3>Around-invocation Filtering</h3>
+ * <pre>
+ * public void process( NextInterceptor nextInterceptor, Invocation invocation )
+ * {
+ *     long startTime = System.currentTimeMillis();   
+ *     try
+ *     {
+ *         nextInterceptor.process( invocation );
+ *     }
+ *     finally
+ *     {
+ *         long endTime = System.currentTimeMillis();
+ *         System.out.println( ( endTime - startTime ) + "ms elapsed." );
+ *     }
+ * }
+ * </pre>
+ * 
  * <h2>Interceptor Naming Convention</h2>
  * <p>
  * When you create an implementation of Interceptor, you have to follow
@@ -44,6 +87,7 @@ import org.apache.ldap.server.jndi.invocation.Invocation;
  * @version $Rev$, $Date$
  * 
  * @see InvocationChain
+ * @see NextInterceptor
  */
 public interface Interceptor
 {
