@@ -118,14 +118,15 @@ public class DefaultInputManager extends AbstractSubscriber
             
             try
             {
-                m_monitor.enteringSelect( m_selector ) ;
-                
                 /*
                  * Register newly arrived connections and unregister thosed 
                  * that were dropped while we were blocked on the select call
                  */
                 registerNewConnections() ;
                 unregisterDroppedConnections() ;
+
+                // report that we're about to enter the select call
+                m_monitor.enteringSelect( m_selector ) ;
                 
                 /*
                  * Clean stale connections that do not have and data: select
