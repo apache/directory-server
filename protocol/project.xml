@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>1</pomVersion>
+  <artifactId>eve-protocol</artifactId>
+  <groupId>incubator-directory</groupId>
+  <id>eve-protocol</id>
+  <name>Eve SEDA Protocol Provider</name>
+  <package>org.apache.eve</package>
+  <currentVersion>SNAPSHOT</currentVersion>
+  <inceptionYear>2002</inceptionYear>
+  <shortDescription>The Eve SEDA Protocol Provider</shortDescription>
+  <description>
+    The SEDA protocol provider used to snap in LDAP handlers and codecs into
+    the SEDA framework.  These handlers are JNDI clients specifically LDAP 
+    JNDI callers.  Any JNDI provider can be used for the provider but the 
+    primary target is the Eve JNDI provider.
+  </description>
+  <dependencies>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.7</version>
+      <url>http://jakarta.apache.org/oro</url>
+    </dependency>
+    <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+      <version>1.2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/regexp/index.html</url>
+    </dependency>
+    <dependency>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <version>2.7.2</version>
+      <url>http://antlr.org/</url>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
+</project>
+
