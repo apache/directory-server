@@ -32,7 +32,7 @@ import org.apache.eve.jndi.AbstractJndiTest;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OperationalAttributesTest extends AbstractJndiTest
+public class OperationalAttributeServiceTest extends AbstractJndiTest
 {
     private static final String CREATORS_NAME = "creatorsName";
     private static final String CREATE_TIMESTAMP = "createTimestamp";
