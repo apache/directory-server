@@ -20,14 +20,13 @@
     <url>http://incubator.apache.org/directory/server/</url>
     
     <issueTrackingUrl>http://issues.apache.org/jira/browse/DIRSERVER</issueTrackingUrl>
-    <siteAddress>directory.apache.org</siteAddress>
 
-    <!-- TODO: I have to figure out how we're going to stage this and use rsync 
-         so we do not have to ckeck in generated docs anymore into CVS.
-     -->
-    <siteDirectory>/home/akarasulu/public_html</siteDirectory>
+    <siteAddress>minotaur.apache.org</siteAddress>
+    <siteDirectory>
+      /home/akarasulu/public_html/rsynced-sites/directory/subprojects/server
+    </siteDirectory>
     <distributionDirectory>
-      /home/akarasulu/public_html/dist
+      /home/akarasulu/public_html/directory/dist
     </distributionDirectory>
 
     <gumpRepositoryId>apache-incubator-svn</gumpRepositoryId>
