@@ -17,6 +17,7 @@
 package org.apache.eve.schema.bootstrap;
 
 
+import java.util.Comparator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.*;
@@ -124,6 +125,64 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         public boolean isObsolete()
         {
             return false;
+        }
+    }
+
+
+    public static class BootstrapMatchingRule extends AbstractMatchingRule
+    {
+        final SyntaxRegistry syntaxRegistry;
+        final NormalizerRegistry normalizerRegistry;
+        final ComparatorRegistry comparatorRegistry;
+        String syntaxOid;
+
+
+        protected BootstrapMatchingRule( String oid, BootstrapRegistries registries )
+        {
+            super( oid );
+            this.syntaxRegistry = registries.getSyntaxRegistry();
+            this.normalizerRegistry = registries.getNormalizerRegistry();
+            this.comparatorRegistry = registries.getComparatorRegistry();
+        }
+
+
+        public void setNames( String[] names )
+        {
+            super.setNames( names );
+        }
+
+        public void setSyntaxOid( String syntaxOid )
+        {
+            this.syntaxOid = syntaxOid;
+        }
+
+        public void setDescription( String description )
+        {
+            super.setDescription( description );
+        }
+
+        public void setObsolete( boolean isObsolete )
+        {
+            super.setObsolete( isObsolete );
+        }
+
+
+        // accessors
+
+
+        public Syntax getSyntax() throws NamingException
+        {
+            return syntaxRegistry.lookup( syntaxOid );
+        }
+
+        public Comparator getComparator() throws NamingException
+        {
+            return comparatorRegistry.lookup( getOid() );
+        }
+
+        public Normalizer getNormalizer() throws NamingException
+        {
+            return normalizerRegistry.lookup( getOid() );
         }
     }
 
