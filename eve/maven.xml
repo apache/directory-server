@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="ISO-8859-1"?> 
   
 <project default="javaapp"
-  >
+  xmlns:ant="jelly:ant">
+
   <preGoal name="javaapp">
     <attainGoal name="java:compile"/>
   </preGoal>
 
   <goal name="jar:jar">
     <attainGoal name="javaapp"/>
+  </goal>
+
+  <goal name="clean">
+    <ant:delete>
+      <fileset dir="." includes="*.db"/>
+      <fileset dir="." includes="*.lg"/>
+    </ant:delete>
   </goal>
 </project>
