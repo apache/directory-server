@@ -2,7 +2,7 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Apache Directory Project: Eve Frontend Subsystem</title>
+    <title>Eve Frontend Subsystem</title>
   </properties>
   
   <body>
@@ -86,7 +86,7 @@ applications.
         </p>
       -->          
           
-      <section name="Introduction">
+      <section name="Frontend Introduction">
         <p>
           The front end is the network protocol server portion that handles 
           requests by returning zero or more responses.  The following request 
