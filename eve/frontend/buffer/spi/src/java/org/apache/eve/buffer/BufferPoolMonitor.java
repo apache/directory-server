@@ -70,6 +70,17 @@ public interface BufferPoolMonitor
     void augmented( BufferPool a_bp ) ;
     
     /**
+     * Monitors the release of an unclaimed buffer which cannot be released if
+     * there is no claim and it is on the free list.
+     * 
+     * @param a_bp the BufferPool the buffer is released back to
+     * @param a_buffer the buffer that is released
+     * @param a_releaser the object doing the releasing
+     */
+    void releaseOfUnclaimed( BufferPool a_bp, ByteBuffer a_buffer, 
+                             Object a_releaser ) ;
+    
+    /**
      * Monitors the giving of a buffer to a client.
      * 
      * @param a_bp the BufferPool the buffer is taken from

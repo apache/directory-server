@@ -59,6 +59,13 @@ package org.apache.eve.buffer ;
 public interface BufferPoolConfig
 {
     /**
+     * Gets the name of this BufferPool configuration.
+     * 
+     * @return the name 
+     */
+    String getName() ;
+    
+    /**
      * The increment by which the BufferPool should grow.
      * 
      * @return the increment amount for the BufferPool

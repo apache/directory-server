@@ -47,7 +47,8 @@
  Apache Software Foundation, please see <http://www.apache.org/>.
 
 */
-package org.apache.eve.buffer;
+package org.apache.eve.buffer ;
+
 
 /**
  * A BufferPoolConfig implementation bean.
@@ -58,6 +59,8 @@ package org.apache.eve.buffer;
  */
 public class DefaultBufferPoolConfig implements BufferPoolConfig
 {
+    /** the name */
+    private final String m_name ;
     /** the growth increment */
     private int m_inc = 0 ;
     /** the maximum pool size */
@@ -71,14 +74,16 @@ public class DefaultBufferPoolConfig implements BufferPoolConfig
     /**
      * Creates a BufferPool configuration bean using the supplied values.
      * 
+     * @param a_name the name
      * @param a_inc the growth increment
      * @param a_max the maximum pool size
      * @param a_ini the initial pool size 
      * @param a_size the size of the buffers pooled
      */
-    public DefaultBufferPoolConfig( int a_inc, int a_max, int a_ini, 
-                                    int a_size )
+    public DefaultBufferPoolConfig( String a_name, int a_inc, int a_max, 
+                                    int a_ini, int a_size )
     {
+        m_name = a_name ;
         m_inc = a_inc ;
         m_max = a_max ;
         m_ini = a_ini ;
@@ -119,5 +124,14 @@ public class DefaultBufferPoolConfig implements BufferPoolConfig
     public int getMaximumSize()
     {
         return m_max ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPoolConfig#getName()
+     */
+    public String getName()
+    {
+        return m_name ;
     }
 }

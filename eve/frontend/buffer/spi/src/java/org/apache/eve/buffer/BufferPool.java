@@ -52,7 +52,7 @@ package org.apache.eve.buffer ;
 
 import java.nio.ByteBuffer ;
 
-import org.apache.eve.ResourceException;
+import org.apache.eve.ResourceException ;
 
 
 /**
@@ -106,4 +106,42 @@ public interface BufferPool
      * @return the configuration for this BufferPool
      */
     BufferPoolConfig getConfig() ;
+    
+    /**
+     * Gets the number of interested parties that have claimed interest on a
+     * pooled buffer.  This number is like the link count.
+     * 
+     * @param a_buffer the buffer to get a interest count for
+     * @return count of parties claiming interest on the buffer
+     */
+    int getInterestedCount( ByteBuffer a_buffer ) ; 
+    
+    /**
+     * Gets a count of the number of free buffers in this BufferPool.
+     * 
+     * @return count of free buffers in this BufferPool
+     */
+    int getFreeCount() ;
+    
+    /**
+     * Gets a count of the number of buffers currently being used in this 
+     * BufferPool.
+     * 
+     * @return count of buffers currently being used in this BufferPool
+     */
+    int getInUseCount() ;
+    
+    /**
+     * Gets the current size of this BufferPool.
+     * 
+     * @return the number of buffers total (free and in use) in this BufferPool
+     */
+    int size() ;
+
+    /**
+     * Gets the name of this BufferPool
+     * 
+     * @return the name of this BufferPool
+     */
+    String getName() ;
 }

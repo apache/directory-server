@@ -52,14 +52,18 @@ package org.apache.eve.buffer ;
 
 import java.nio.ByteBuffer ;
 
-import java.util.HashMap ;
 import java.util.ArrayList ;
 
+import org.apache.commons.lang.Validate ;
 import org.apache.eve.ResourceException ;
 
 
 /**
  * The default BufferPool implementation.
+ * 
+ * @see <a 
+ * href="http://nagoya.apache.org/jira/secure/ViewIssue.jspa?key=DIR-12">
+ * JIRA Issue</a>
  *
  * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
  * @author $Author$
@@ -69,13 +73,12 @@ public class DefaultBufferPool implements BufferPool
 {
     /** a configuration bean */
     private final BufferPoolConfig m_config ;
+    /** list of all buffers */
+    private final ArrayList m_allList ;
     /** list of currently free buffers */
     private final ArrayList m_freeList ;
     /** list of currently in use buffers */
     private final ArrayList m_inUseList ;
-    /** map of buffers to their interest lists */
-    private final HashMap m_interestLists ;
-
     /** the monitor for this DefaultBufferPool */
     private BufferPoolMonitor m_monitor = new BufferPoolMonitorAdapter() ;
     
@@ -90,18 +93,15 @@ public class DefaultBufferPool implements BufferPool
         super() ;
         
         m_config = a_config ;
-        m_freeList = new ArrayList( a_config.getIncrement() ) ;
-        m_inUseList = new ArrayList( a_config.getIncrement() ) ;
-        m_interestLists = new HashMap( a_config.getIncrement() ) ;
+        m_freeList = new ArrayList( a_config.getMaximumSize() ) ;
+        m_inUseList = new ArrayList( a_config.getMaximumSize() ) ;
+        m_allList = new ArrayList( a_config.getMaximumSize() ) ;
 
         for( int ii = 0; ii < m_config.getInitialSize(); ii++ )
         {
-            ByteBuffer l_buf = ByteBuffer.allocateDirect( m_config
-                    .getBufferSize() ) ;
-            m_freeList.add( l_buf ) ;
-            
-            // create interest lists in advance for the buffers
-            m_interestLists.put( l_buf, new ArrayList( 3 ) ) ;
+            BufferListPair l_list = new BufferListPair() ;
+            m_freeList.add( l_list ) ;
+            m_allList.add( l_list ) ;
         }
     }
 
@@ -112,18 +112,17 @@ public class DefaultBufferPool implements BufferPool
     public synchronized ByteBuffer getBuffer( Object a_party ) 
         throws ResourceException
     {
-        ByteBuffer l_buf = null ;
+        BufferListPair l_list = null ;
         
         if ( m_freeList.size() == 0 )
         {
-            if ( ( m_freeList.size() + m_config.getIncrement() ) <= 
-                    m_config.getMaximumSize() )
+            if ( m_config.getIncrement() <= m_config.getMaximumSize() )
             {
                 for ( int ii = 0; ii < m_config.getIncrement(); ii++ )
                 {
-                    l_buf = ByteBuffer.allocateDirect( m_config
-                            .getBufferSize() ) ; 
-                    m_interestLists.put( l_buf, new ArrayList( 3 ) ) ;
+                    l_list = new BufferListPair() ;
+                    m_freeList.add( l_list ) ;
+                    m_allList.add( l_list ) ;
                 }
             }
             else
@@ -134,15 +133,14 @@ public class DefaultBufferPool implements BufferPool
         }
         
         // remove from free list and add to in use list then report to monitir
-        l_buf = ( ByteBuffer ) m_freeList.remove( 0 ) ;
-        m_inUseList.add( l_buf ) ;
-        m_monitor.bufferTaken( this, l_buf, a_party ) ;
+        l_list = ( BufferListPair ) m_freeList.remove( 0 ) ;
+        m_inUseList.add( l_list ) ;
+        m_monitor.bufferTaken( this, l_list.getBuffer(), a_party ) ;
 
         // claim interest on the buffer automatically then report to monitor
-        ArrayList l_list = ( ArrayList ) m_interestLists.get( l_buf ) ;
         l_list.add( a_party ) ;
-        m_monitor.interestClaimed( this, l_buf, a_party ) ;
-        return l_buf ;
+        m_monitor.interestClaimed( this, l_list.getBuffer(), a_party ) ;
+        return l_list.getBuffer() ;
     }
 
     
@@ -153,13 +151,14 @@ public class DefaultBufferPool implements BufferPool
     public synchronized void claimInterest( ByteBuffer a_buffer, 
                                             Object a_party )
     {
-        if ( ! m_interestLists.containsKey( a_buffer ) )
+        BufferListPair l_list = getBufferListPair( a_buffer ) ;
+        
+        if ( null == l_list )
         {
             m_monitor.nonPooledBuffer( this, a_buffer, a_party ) ;
             throw new IllegalStateException( "Not a BufferPool resource" ) ;
         }
         
-        ArrayList l_list = ( ArrayList ) m_interestLists.get( a_buffer ) ;
         l_list.add( a_party ) ;
         m_monitor.interestClaimed( this, a_buffer, a_party ) ;
     }
@@ -171,13 +170,13 @@ public class DefaultBufferPool implements BufferPool
      */
     public synchronized void releaseClaim( ByteBuffer a_buffer, Object a_party )
     {
-        if ( ! m_interestLists.containsKey( a_buffer ) )
-        {
-            m_monitor.nonPooledBuffer( this, a_buffer, a_party ) ;
-            throw new IllegalStateException( "Not a BufferPool resource" ) ;
-        }
+        BufferListPair l_list = getBufferListPair( a_buffer ) ;
         
-        ArrayList l_list = ( ArrayList ) m_interestLists.get( a_buffer ) ;
+        if ( null == l_list )
+        {
+            m_monitor.releaseOfUnclaimed( this, a_buffer, a_party ) ;
+            throw new IllegalArgumentException( "Not a pooled resource" ) ;
+        }
         
         if ( ! l_list.contains( a_party ) )
         {
@@ -209,6 +208,54 @@ public class DefaultBufferPool implements BufferPool
     }
     
     
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#size()
+     */
+    public synchronized int size()
+    {
+        return m_freeList.size() + m_inUseList.size() ;
+    }
+    
+
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getName()
+     */
+    public String getName()
+    {
+        return m_config.getName() ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getFreeCount()
+     */
+    public synchronized int getFreeCount()
+    {
+        return m_freeList.size() ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getInUseCount()
+     */
+    public synchronized int getInUseCount()
+    {
+        return m_inUseList.size() ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getInterestedCount(
+     * java.nio.ByteBuffer)
+     */
+    public int getInterestedCount( ByteBuffer a_buffer )
+    {
+        BufferListPair l_list = getBufferListPair( a_buffer ) ;
+        Validate.notNull( l_list ) ;
+        return l_list.size() ;
+    }
+    
+    
     /**
      * Gets the monitor.
      * 
@@ -228,5 +275,113 @@ public class DefaultBufferPool implements BufferPool
     public void setMonitor( BufferPoolMonitor a_monitor )
     {
         m_monitor = a_monitor ;
+    }
+    
+    
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString()
+    {
+        StringBuffer l_buf = new StringBuffer( m_config.getName() ) ;
+        l_buf.append( " buffer pool" ) ;
+        return l_buf.toString() ;
+    }
+    
+    
+    // ------------------------------------------------------------------------
+    // code dealing with pairs of buffers and an interested party list 
+    // ------------------------------------------------------------------------
+    
+    
+    /**
+     * Finds and returns a BufferListPair by scanning the complete list of 
+     * pairs looking for the pair that contains the same buffer.
+     * 
+     * @param a_buffer the buffer to search for in the list of pairs
+     * @return null if the buffer does not exist or the pair containing it
+     */
+    BufferListPair getBufferListPair( ByteBuffer a_buffer )
+    {
+        BufferListPair l_list = null ;
+        
+        for ( int ii = 0; ii < m_allList.size(); ii++ )
+        {
+            l_list = ( BufferListPair ) m_allList.get( ii ) ;
+            if ( a_buffer == l_list.getBuffer() )
+            {
+                return l_list ;
+            }
+        }
+        
+        return null ;
+    }
+    
+    
+    /**
+     * Class used to pair up a buffer with a list to track the parties 
+     * interested in the buffer. 
+     */
+    class BufferListPair
+    {
+        final ArrayList m_list ;
+        final ByteBuffer m_buffer ;
+        
+        
+        BufferListPair()
+        {
+            this( new ArrayList( 3 ), 
+                    ByteBuffer.allocateDirect( m_config.getBufferSize() ) ) ;
+        }
+
+        
+        BufferListPair( ByteBuffer a_buffer )
+        {
+            this( new ArrayList( 3 ), a_buffer ) ;
+        }
+
+        
+        BufferListPair( ArrayList a_list, ByteBuffer a_buffer )
+        {
+            m_list = a_list ;
+            m_buffer = a_buffer ;
+        }
+        
+        
+        ByteBuffer getBuffer()
+        {
+            return m_buffer ;
+        }
+        
+        
+        ArrayList getList()
+        {
+            return m_list ;
+        }
+        
+        
+        void add( Object a_party )
+        {
+            m_list.add( a_party ) ;
+        }
+        
+        
+        boolean contains( Object a_party )
+        {
+            return m_list.contains( a_party ) ;
+        }
+        
+        
+        boolean remove( Object a_party )
+        {
+            return m_list.remove( a_party ) ;
+        }
+        
+        
+        int size()
+        {
+            return m_list.size() ;
+        }
     }
 }

@@ -79,6 +79,8 @@ public class MerlinBufferPool
     private DefaultBufferPool m_bp = null ;
     /** the configuration bean for this BufferPool */
     private BufferPoolConfig m_config = null ;
+    /** the monitor for the BufferPool */
+    private AvalonLoggingMonitor m_monitor = new AvalonLoggingMonitor() ;
     
     
     // ------------------------------------------------------------------------
@@ -124,6 +126,51 @@ public class MerlinBufferPool
     }
     
     
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#size()
+     */
+    public int size()
+    {
+        return m_bp.size() ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getName()
+     */
+    public String getName()
+    {
+        return m_bp.getName() ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getInUseCount()
+     */
+    public int getInUseCount()
+    {
+        return m_bp.getInUseCount() ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getFreeCount()
+     */
+    public int getFreeCount()
+    {
+        return m_bp.getFreeCount() ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPool#getInterestedCount(java.nio.ByteBuffer)
+     */
+    public int getInterestedCount(ByteBuffer a_buffer)
+    {
+        return m_bp.getInterestedCount( a_buffer ) ;
+    }
+    
+    
     // ------------------------------------------------------------------------
     // Avalon Life Cycle Methods
     // ------------------------------------------------------------------------
@@ -135,9 +182,8 @@ public class MerlinBufferPool
     public void initialize() throws Exception
     {
         m_bp = new DefaultBufferPool( m_config ) ;
-        MerlinBufferPoolMonitor l_monitor = new MerlinBufferPoolMonitor() ;
-        l_monitor.enableLogging( getLogger() ) ;
-        m_bp.setMonitor( l_monitor ) ;
+        m_monitor.enableLogging( getLogger() ) ;
+        m_bp.setMonitor( m_monitor ) ;
     }
 
     
@@ -148,6 +194,7 @@ public class MerlinBufferPool
     public void configure( Configuration a_config ) 
         throws ConfigurationException
     {
+        String l_name = a_config.getChild( "name" ).getValue() ;
         int l_max = Integer.parseInt( a_config
                 .getChild( "maximum" ).getValue() ) ;
         int l_ini = Integer.parseInt( a_config
@@ -157,6 +204,7 @@ public class MerlinBufferPool
         int l_size = Integer.parseInt( a_config
                 .getChild( "bufferSize" ).getValue() ) ;
         
-        m_config = new DefaultBufferPoolConfig( l_inc, l_max, l_ini, l_size ) ;
+        m_config = new DefaultBufferPoolConfig( l_name, l_inc, l_max, 
+                l_ini, l_size ) ;
     }
 }

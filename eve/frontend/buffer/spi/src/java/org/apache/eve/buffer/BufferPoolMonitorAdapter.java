@@ -140,4 +140,14 @@ public class BufferPoolMonitorAdapter implements BufferPoolMonitor
                                  Object a_party )
     {
     }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.buffer.BufferPoolMonitor#releaseOfUnclaimed(
+     * org.apache.eve.buffer.BufferPool, java.nio.ByteBuffer, java.lang.Object)
+     */
+    public void releaseOfUnclaimed( BufferPool a_bp, ByteBuffer a_buffer,
+									Object a_releaser )
+    {
+    }
 }

@@ -1,6 +1,7 @@
 <configuration>
+	<name>default</name>
     <bufferSize>4096</bufferSize>
-    <maximum>50</maximum>
-    <initial>10</initial>
-    <increment>5</increment>
+    <maximum>10</maximum>
+    <initial>2</initial>
+    <increment>4</increment>
 </configuration>
