@@ -50,7 +50,7 @@ public class AttributeTypeParserTest extends TestCase
         });
 
         Map attributeTypes = parser.getAttributeTypes();
-        parser.attributeType();
+        parser.parseSchema();
         AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );
