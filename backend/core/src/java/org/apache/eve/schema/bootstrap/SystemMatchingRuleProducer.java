@@ -216,7 +216,7 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.1466.109.114.1", registries  );
-        mrule.setNames( new String[] { "caseExactIA5Match" } );
+        mrule.setNames( new String[] { "caseExactIA5Match", "caseExactMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 

@@ -70,10 +70,13 @@ public abstract class AbstractContextPartition implements ContextPartition
 
         1.2.6.1.4.1.18060.1.1.1.3
 
-          * 1.2.6.1.4.1.18060.1.1.1.3.1 - _ndn
-          * 1.2.6.1.4.1.18060.1.1.1.3.2 - _updn
-          * 1.2.6.1.4.1.18060.1.1.1.3.3 - _existance
-          * 1.2.6.1.4.1.18060.1.1.1.3.4 - _hierarchy
+          * 1.2.6.1.4.1.18060.1.1.1.3.1 - eveNdn
+          * 1.2.6.1.4.1.18060.1.1.1.3.2 - eveUpdn
+          * 1.2.6.1.4.1.18060.1.1.1.3.3 - eveExistance
+          * 1.2.6.1.4.1.18060.1.1.1.3.4 - eveHierarchy
+          * 1.2.6.1.4.1.18060.1.1.1.3.5 - eveOneAlias
+          * 1.2.6.1.4.1.18060.1.1.1.3.6 - eveSubAlias
+          * 1.2.6.1.4.1.18060.1.1.1.3.7 - eveAlias
 
       The following branch is reserved for use by eve ObjectClasses:
 
