@@ -34,7 +34,6 @@ package org.apache.eve.tools.schema;
 
 import java.util.* ;
 import org.apache.ldap.common.schema.*;
-import org.apache.eve.schema.*;
 
 }
 
@@ -115,7 +114,6 @@ options    {
     private Map attributeTypes = new HashMap();
     private Map objectClasses = new HashMap();
     private ParserMonitor monitor = null;
-    private OidRegistry registry = null;
 
 
     // ------------------------------------------------------------------------
@@ -141,33 +139,9 @@ options    {
     }
 
 
-    public void setOidRegistry( OidRegistry registry )
-    {
-        this.registry = registry;
-    }
-
-
     // ------------------------------------------------------------------------
     // Private Methods
     // ------------------------------------------------------------------------
-
-
-    private final String resolve( String name )
-    {
-        String oid = null;
-
-        try
-        {
-            oid = registry.getOid( name );
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            throw new RuntimeException( "could not find the oid: " + e.getMessage() );
-        }
-
-        return oid;
-    }
 
 
     private void matchedProduction( String msg )
@@ -175,128 +149,6 @@ options    {
         if ( null != monitor )
         {
             monitor.matchedProduction( msg );
-        }
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Static Classes
-    // ------------------------------------------------------------------------
-
-
-    private static class MutableAttributeType extends BaseAttributeType
-    {
-        public MutableAttributeType( String oid )
-        {
-            super( oid );
-        }
-
-        public void setSuperior( AttributeType superior )
-        {
-            super.setSuperior( superior );
-        }
-
-        public void setAllNames( String[] nameArray )
-        {
-            super.setAllNames( nameArray );
-        }
-
-        public void setEquality( MatchingRule equality )
-        {
-            super.setEquality( equality );
-        }
-
-        public void setSubstr( MatchingRule substr )
-        {
-            super.setSubstr( substr );
-        }
-
-        public void setOrdering( MatchingRule ordering )
-        {
-            super.setOrdering( ordering );
-        }
-
-        public void setSyntax( Syntax syntax )
-        {
-            super.setSyntax( syntax );
-        }
-
-        public void setSingleValue( boolean singleValue )
-        {
-            super.setSingleValue( singleValue );
-        }
-
-        public void setDescription( String description )
-        {
-            super.setDescription( description );
-        }
-
-        public void setCollective( boolean collective )
-        {
-            super.setCollective( collective );
-        }
-
-        public void setCanUserModify( boolean canUserModify )
-        {
-            super.setCanUserModify( canUserModify );
-        }
-
-        public void setObsolete( boolean obsolete )
-        {
-            super.setObsolete( obsolete );
-        }
-
-        public void setUsage( UsageEnum usage )
-        {
-            super.setUsage( usage );
-        }
-
-        public void setLength( int length )
-        {
-            super.setLength( length );
-        }
-
-        public String getSuperiorOid()
-        {
-            return super.getSuperior() != null ? super.getSuperior().getOid() : null;
-        }
-
-        public String getSubstrOid()
-        {
-            return super.getSubstr() != null ? super.getSubstr().getOid() : null;
-        }
-
-        public String getOrderingOid()
-        {
-            return super.getOrdering() != null ? super.getOrdering().getOid() : null;
-        }
-
-        public String getEqualityOid()
-        {
-            return super.getEquality() != null ? super.getEquality().getOid() : null;
-        }
-
-        public String getSyntaxOid()
-        {
-            return super.getSyntax() != null ? super.getSyntax().getOid() : null;
-        }
-    }
-
-
-    private static class MutableMatchingRule extends BaseMatchingRule
-    {
-        public MutableMatchingRule( String oid )
-        {
-            super( oid ) ;
-        }
-    }
-
-
-    private static class MutableSyntax extends BaseSyntax
-    {
-        public MutableSyntax( String oid )
-        {
-            super( oid ) ;
         }
     }
 }
@@ -312,14 +164,14 @@ parseSchema
 attributeType
 {
     matchedProduction( "attributeType()" );
-    MutableAttributeType type = null;
+    AttributeTypeLiteral type = null;
     UsageEnum usageEnum;
 }
     :
     "attributetype"
     OPEN_PAREN oid:NUMERICOID
     {
-        type = new MutableAttributeType( oid.getText() );
+        type = new AttributeTypeLiteral( oid.getText() );
     }
         ( names[type] )?
         ( desc[type] )?
@@ -331,7 +183,7 @@ attributeType
         ( syntax[type] )?
         ( "SINGLE-VALUE" { type.setSingleValue( true ); } )?
         ( "COLLECTIVE" { type.setCollective( true ); } )?
-        ( "NO-USER-MODIFICATION" { type.setCanUserModify( true ); } )?
+        ( "NO-USER-MODIFICATION" { type.setNoUserModification( true ); } )?
         ( usage[type] )?
 
     CLOSE_PAREN
@@ -341,7 +193,7 @@ attributeType
     ;
 
 
-desc [MutableAttributeType type]
+desc [AttributeTypeLiteral type]
 {
 }
     : d:DESC
@@ -350,7 +202,8 @@ desc [MutableAttributeType type]
     }
     ;
 
-superior [MutableAttributeType type]
+
+superior [AttributeTypeLiteral type]
 {
     matchedProduction( "superior()" ) ;
 }
@@ -358,18 +211,17 @@ superior [MutableAttributeType type]
     (
         oid:NUMERICOID
         {
-            type.setSuperior( new MutableAttributeType( oid.getText() ) );
+            type.setSuperior( oid.getText() );
         }
         |
         id:IDENTIFIER
         {
-            String soid = resolve( id.getText() );
-            type.setSuperior( new MutableAttributeType( soid ) );
+            type.setSuperior( id.getText() );
         }
     );
 
 
-equality [MutableAttributeType type]
+equality [AttributeTypeLiteral type]
 {
     matchedProduction( "equality()" ) ;
 }
@@ -377,18 +229,17 @@ equality [MutableAttributeType type]
     (
         oid:NUMERICOID
         {
-            type.setEquality( new MutableMatchingRule( oid.getText() ) );
+            type.setEquality( oid.getText() );
         }
         |
         id:IDENTIFIER
         {
-            String soid = resolve( id.getText() );
-            type.setEquality( new MutableMatchingRule( soid ) );
+            type.setEquality( id.getText() );
         }
     );
 
 
-substr [MutableAttributeType type]
+substr [AttributeTypeLiteral type]
 {
     matchedProduction( "substr()" ) ;
 }
@@ -396,18 +247,17 @@ substr [MutableAttributeType type]
     (
         oid:NUMERICOID
         {
-            type.setSubstr( new MutableMatchingRule( oid.getText() ) );
+            type.setSubstr( oid.getText() );
         }
         |
         id:IDENTIFIER
         {
-            String soid = resolve( id.getText() );
-            type.setSubstr( new MutableMatchingRule( soid ) );
+            type.setSubstr( id.getText() );
         }
     );
 
 
-ordering [MutableAttributeType type]
+ordering [AttributeTypeLiteral type]
 {
     matchedProduction( "ordering()" ) ;
 }
@@ -415,18 +265,17 @@ ordering [MutableAttributeType type]
     (
         oid:NUMERICOID
         {
-            type.setOrdering( new MutableMatchingRule( oid.getText() ) );
+            type.setOrdering( oid.getText() );
         }
         |
         id:IDENTIFIER
         {
-            String soid = resolve( id.getText() );
-            type.setOrdering( new MutableMatchingRule( soid ) );
+            type.setOrdering( id.getText() );
         }
     );
 
 
-names [MutableAttributeType type]
+names [AttributeTypeLiteral type]
 {
     matchedProduction( "names()" ) ;
     ArrayList list = new ArrayList();
@@ -436,27 +285,24 @@ names [MutableAttributeType type]
         "NAME" QUOTE id0:IDENTIFIER QUOTE
         {
             list.add( id0.getText() );
-            registry.register( id0.getText(), type.getOid() );
         }
         |
         ( OPEN_PAREN QUOTE id1:IDENTIFIER
         {
             list.add( id1.getText() );
-            registry.register( id1.getText(), type.getOid() );
         } QUOTE
         ( QUOTE id2:IDENTIFIER QUOTE
         {
             list.add( id2.getText() );
-            registry.register( id2.getText(), type.getOid() );
         } )* CLOSE_PAREN )
     )
     {
-        type.setAllNames( ( String[] ) list.toArray( EMPTY ) );
+        type.setNames( ( String[] ) list.toArray( EMPTY ) );
     }
     ;
 
 
-syntax [MutableAttributeType type]
+syntax [AttributeTypeLiteral type]
 {
     matchedProduction( "syntax()" ) ;
 }
@@ -467,19 +313,20 @@ syntax [MutableAttributeType type]
         int index = comps[1].indexOf( "{" );
         if ( index == -1 )
         {
-            type.setSyntax( new MutableSyntax( comps[1] ) );
+            type.setSyntax( comps[1] );
             return;
         }
 
         String oid = comps[1].substring( 0, index );
         String length = comps[1].substring( index + 1, comps[1].length() - 1 );
 
-        type.setSyntax( new MutableSyntax( oid ) );
+        type.setSyntax( oid );
         type.setLength( Integer.parseInt( length ) );
     }
     ;
 
-usage [MutableAttributeType type]
+
+usage [AttributeTypeLiteral type]
 {
     matchedProduction( "usage()" ) ;
 }
