@@ -71,7 +71,7 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>0.8-SNAPSHOT</version>
+      <version>0.8</version>
     </dependency>
     <dependency>
       <groupId>aspectj</groupId>
@@ -85,37 +85,37 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>apacheds-shared</artifactId>
-      <version>0.8-SNAPSHOT</version>
+      <version>0.8</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>apacheds-protocol</artifactId>
-      <version>0.8-SNAPSHOT</version>
+      <version>0.8</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>asn1-codec</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>0.2</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>apache-ldapber-provider</artifactId>
-      <version>0.8-SNAPSHOT</version>
+      <version>0.8</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>asn1-ber</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>0.2</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>apseda</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>0.2</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>apacheds-core</artifactId>
-      <version>0.8-SNAPSHOT</version>
+      <version>0.8</version>
     </dependency>
     <dependency>
       <groupId>maven-plugins</groupId>
