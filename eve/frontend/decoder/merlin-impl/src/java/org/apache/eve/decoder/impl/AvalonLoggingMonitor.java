@@ -19,6 +19,7 @@ package org.apache.eve.decoder.impl ;
 
 import java.util.EventObject ;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.eve.event.Subscriber ;
 import org.apache.eve.decoder.DecoderManagerMonitor ;
 
@@ -46,7 +47,8 @@ public class AvalonLoggingMonitor
         if ( getLogger().isErrorEnabled() )
         {
             getLogger().debug( "Failed to invoke the appropriate inform method"
-                    + " for event " + event + " on subscriber " + subscriber ) ;
+                    + " for event " + event + " on subscriber " + subscriber 
+                    + ":\n" + ExceptionUtils.getFullStackTrace( t ) ) ;
         }
     }
 }

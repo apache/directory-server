@@ -193,6 +193,8 @@ public class MerlinDecoderManager
     public void initialize() throws Exception
     {
         decoderManager = new DefaultDecoderManager( router, stageConfig ) ;
+        DecodeStageHandler handler = new DecodeStageHandler( decoderManager ) ;
+        stageConfig.setHandler( handler ) ;
         decoderManager.setMonitor( monitor ) ;
     }
     

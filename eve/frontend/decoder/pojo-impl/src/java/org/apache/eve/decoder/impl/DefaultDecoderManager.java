@@ -28,7 +28,6 @@ import org.apache.ldap.common.message.Request ;
 
 import org.apache.eve.event.InputEvent ;
 import org.apache.eve.seda.StageConfig ;
-import org.apache.eve.seda.LoggingStageMonitor;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.listener.ClientKey ;
@@ -39,6 +38,7 @@ import org.apache.eve.event.DisconnectEvent ;
 import org.apache.eve.event.InputSubscriber ;
 import org.apache.eve.decoder.DecoderManager ;
 import org.apache.eve.event.ConnectSubscriber ;
+import org.apache.eve.seda.LoggingStageMonitor ;
 import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.DisconnectSubscriber ;
 import org.apache.eve.decoder.DecoderManagerMonitor ;
