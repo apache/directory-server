@@ -17,12 +17,9 @@
 package org.apache.ldap.server.exception;
 
 
-import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.exception.LdapException;
-import org.apache.ldap.server.jndi.Interceptor;
-
-import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.common.exception.LdapNamingException;
+import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.server.jndi.Interceptor;
 import org.apache.ldap.server.jndi.Invocation;
 

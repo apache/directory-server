@@ -18,9 +18,9 @@ package org.apache.ldap.server.db;
 
 
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
 
 
 /**

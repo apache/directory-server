@@ -18,7 +18,6 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.MatchingRuleUse;
-import org.apache.ldap.server.schema.MatchingRuleUseRegistryMonitor;
 
 
 /**

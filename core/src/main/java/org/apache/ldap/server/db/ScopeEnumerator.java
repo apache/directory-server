@@ -18,15 +18,13 @@ package org.apache.ldap.server.db;
 
 
 import java.math.BigInteger;
-
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.ScopeNode;
 import org.apache.ldap.common.util.SingletonEnumeration;
-import org.apache.ldap.server.db.*;
 
 
 /**

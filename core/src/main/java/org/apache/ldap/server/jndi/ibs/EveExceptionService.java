@@ -19,24 +19,22 @@ package org.apache.ldap.server.jndi.ibs;
 
 import java.util.Map;
 import javax.naming.Name;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attribute;
 
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.exception.EveInterceptorException;
-import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.jndi.InvocationStateEnum;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.exception.EveInterceptorException;
 import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.Invocation;
-import org.apache.ldap.server.exception.EveInterceptorException;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 
 /**

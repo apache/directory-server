@@ -17,39 +17,33 @@
 package org.apache.ldap.server.db.jdbm;
 
 
-import java.math.BigInteger;
-
 import java.io.File;
 import java.io.IOException;
-
-import java.util.Map;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ArrayList;
-
+import java.util.Map;
 import javax.naming.Name;
-import javax.naming.NamingException; 
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import jdbm.helper.MRU;
 import jdbm.RecordManager;
+import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
-
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.db.*;
-
-import org.apache.eve.db.*;
 
 
 /**

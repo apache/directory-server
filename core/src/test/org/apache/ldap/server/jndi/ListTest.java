@@ -18,11 +18,9 @@ package org.apache.ldap.server.jndi;
 
 
 import java.util.HashSet;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NameClassPair;
-
-import org.apache.ldap.server.jndi.AbstractMultiUserJndiTest;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 
 /**

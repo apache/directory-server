@@ -2,9 +2,8 @@ package org.apache.ldap.server;
 
 
 import java.util.Hashtable;
-
-import javax.naming.NamingException ;
-import javax.naming.ldap.LdapContext ;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
 
 /**

@@ -19,8 +19,6 @@ package org.apache.ldap.server.schema;
 
 import java.util.List;
 
-import org.apache.ldap.server.schema.*;
-
 
 /**
  * Document this class.

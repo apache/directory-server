@@ -17,14 +17,9 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.List;
-import java.util.Stack;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Collections;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.*;
 
 
 /**

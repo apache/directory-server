@@ -17,16 +17,16 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import org.apache.ldap.common.schema.DITStructureRule;
-import org.apache.ldap.server.schema.OidRegistry;
-import org.apache.ldap.server.schema.DITStructureRuleRegistryMonitor;
-import org.apache.ldap.server.schema.DITStructureRuleRegistryMonitorAdapter;
-import org.apache.ldap.server.schema.*;
-
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import javax.naming.NamingException;
+
+import org.apache.ldap.common.schema.DITStructureRule;
+import org.apache.ldap.server.schema.DITStructureRuleRegistry;
+import org.apache.ldap.server.schema.DITStructureRuleRegistryMonitor;
+import org.apache.ldap.server.schema.DITStructureRuleRegistryMonitorAdapter;
+import org.apache.ldap.server.schema.OidRegistry;
 
 
 /**

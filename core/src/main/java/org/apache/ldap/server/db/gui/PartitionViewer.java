@@ -17,15 +17,11 @@
 package org.apache.ldap.server.db.gui ;
 
 
-import java.awt.Toolkit ;
-import java.awt.Dimension ;
-
+import java.awt.*;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
-import org.apache.ldap.server.db.gui.MainFrame;
 
 
 /**

@@ -19,16 +19,19 @@ package org.apache.ldap.server.jndi;
 
 import java.io.File;
 import java.util.Hashtable;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.InitialDirContext;
+import javax.naming.ConfigurationException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.*;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.util.ArrayUtils;
 
 
 /**

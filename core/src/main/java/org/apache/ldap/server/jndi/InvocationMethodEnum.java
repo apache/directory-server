@@ -17,10 +17,10 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.ldap.common.util.ValuedEnum;
 

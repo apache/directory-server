@@ -17,17 +17,12 @@
 package org.apache.ldap.server.db.gui ;
 
 
-import javax.swing.JDialog ;
-import java.awt.Frame ;
-import java.awt.event.WindowEvent ;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
-import javax.swing.tree.TreeModel;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import javax.swing.*;
+import javax.swing.tree.TreeModel;
 
 
 /**

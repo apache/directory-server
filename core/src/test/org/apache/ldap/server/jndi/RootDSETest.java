@@ -17,10 +17,9 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Hashtable;
 import java.io.File;
 import java.io.IOException;
-
+import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;

@@ -19,8 +19,6 @@ package org.apache.ldap.server.db;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.db.Tuple;
-
 
 /**
  * TupleBrowser interface used to abstract 

@@ -17,9 +17,9 @@
 package org.apache.ldap.server.auth;
 
 
-import javax.naming.Name;
-import java.security.Principal;
 import java.io.Serializable;
+import java.security.Principal;
+import javax.naming.Name;
 
 import org.apache.ldap.common.name.LdapName;
 

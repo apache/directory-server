@@ -20,7 +20,6 @@ package org.apache.ldap.server.jndi;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.exception.EveInterceptorException;
-import org.apache.ldap.server.exception.EveInterceptorException;
 
 
 /**

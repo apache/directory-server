@@ -19,22 +19,21 @@ package org.apache.ldap.server.jndi.ibs;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
 
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.ldap.common.name.NameComponentNormalizer;
-import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.server.jndi.InvocationStateEnum;
-import org.apache.ldap.server.jndi.EveContext;
 import org.apache.ldap.server.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.EveContext;
 import org.apache.ldap.server.jndi.Invocation;
-import org.apache.ldap.server.db.SearchResultFilter;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 
 /**

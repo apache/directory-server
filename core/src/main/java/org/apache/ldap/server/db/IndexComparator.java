@@ -18,7 +18,6 @@ package org.apache.ldap.server.db;
 
 
 import org.apache.ldap.common.util.BigIntegerComparator;
-
 import org.apache.ldap.server.schema.SerializableComparator;
 
 

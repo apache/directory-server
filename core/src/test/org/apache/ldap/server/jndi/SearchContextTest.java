@@ -18,8 +18,8 @@ package org.apache.ldap.server.jndi;
 
 
 import java.util.HashMap;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.*;
 
 import org.apache.ldap.common.message.DerefAliasesEnum;

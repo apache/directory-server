@@ -18,22 +18,18 @@ package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
-
 import javax.naming.*;
-import javax.naming.ldap.Control;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.ldap.Control;
 
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.filter.PresenceNode;
-import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.ldap.server.auth.LdapPrincipal;
-
+import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.auth.LdapPrincipal;
-import org.apache.ldap.server.PartitionNexus;
 
 
 /**

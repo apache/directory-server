@@ -17,9 +17,9 @@
 package org.apache.ldap.server.jndi.ibs;
 
 
-import javax.naming.directory.*;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
 
 import org.apache.ldap.common.message.DerefAliasesEnum;
 import org.apache.ldap.server.jndi.AbstractJndiTest;

@@ -17,27 +17,26 @@
 package org.apache.ldap.server;
 
 
-import java.util.*;
-
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-import javax.naming.NamingEnumeration;
 import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
 
+import org.apache.ldap.common.MultiException;
+import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.common.MultiException;
-import org.apache.ldap.common.exception.LdapNameNotFoundException;
-import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.ContextPartition;
-import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.common.util.SingletonEnumeration;
 
                                 
 /**

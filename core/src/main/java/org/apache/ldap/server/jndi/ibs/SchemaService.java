@@ -19,32 +19,29 @@ package org.apache.ldap.server.jndi.ibs;
 
 import java.util.*;
 import javax.naming.Name;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.ldap.LdapContext;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
 
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.filter.SimpleNode;
+import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.schema.*;
+import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.Invocation;
 import org.apache.ldap.server.jndi.InvocationStateEnum;
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.RootNexus;
-
-import org.apache.ldap.common.schema.*;
-import org.apache.ldap.common.message.LockableAttributeImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.filter.SimpleNode;
-import org.apache.ldap.common.filter.PresenceNode;
-import org.apache.ldap.common.util.SingletonEnumeration;
-import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.schema.GlobalRegistries;
 
 
 /**

@@ -19,15 +19,17 @@ package org.apache.ldap.server.jndi;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.auth.LdapPrincipal;
-import org.apache.ldap.common.exception.*;
+import org.apache.ldap.common.exception.LdapAuthenticationException;
+import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.auth.LdapPrincipal;
 
 

@@ -17,56 +17,53 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.ArrayList;
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import javax.naming.*;
-import javax.naming.ldap.LdapContext;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.util.DateUtils;
-import org.apache.ldap.common.util.PropertiesUtils;
-import org.apache.ldap.common.util.StringTools;
+import org.apache.eve.protocol.LdapProtocolProvider;
+import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
-import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
-
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.eve.protocol.LdapProtocolProvider;
-import org.apache.eve.db.*;
-import org.apache.ldap.server.db.jdbm.JdbmDatabase;
-import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.ldap.server.schema.*;
-import org.apache.ldap.server.jndi.ibs.*;
-import org.apache.ldap.server.db.jdbm.JdbmDatabase;
-import org.apache.ldap.server.db.*;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.util.PropertiesUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.ApplicationPartition;
 import org.apache.ldap.server.ContextPartitionConfig;
-import org.apache.ldap.server.*;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.db.*;
+import org.apache.ldap.server.db.jdbm.JdbmDatabase;
+import org.apache.ldap.server.jndi.ibs.*;
+import org.apache.ldap.server.schema.*;
+import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
+import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.seda.DefaultFrontend;
 import org.apache.seda.DefaultFrontendFactory;
 import org.apache.seda.listener.TCPListenerConfig;
-import org.apache.seda.protocol.InetServiceEntry;
-import org.apache.seda.protocol.TransportTypeEnum;
 import org.apache.seda.protocol.DefaultInetServicesDatabase;
+import org.apache.seda.protocol.InetServiceEntry;
 import org.apache.seda.protocol.ProtocolProvider;
+import org.apache.seda.protocol.TransportTypeEnum;
 
 
 /**

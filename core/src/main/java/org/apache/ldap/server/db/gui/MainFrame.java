@@ -17,69 +17,44 @@
 package org.apache.ldap.server.db.gui;
 
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-
-import java.math.BigInteger;
-
-import java.util.Stack;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Hashtable;
-
-import java.awt.Window;
-import java.awt.Toolkit;
-import java.awt.Dimension;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.naming.NamingException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Stack;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-
-import javax.swing.JTree;
-import javax.swing.JMenu;
-import javax.swing.JTable;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JTextArea;
-import javax.swing.JSplitPane;
-import javax.swing.JSeparator;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JOptionPane;
-import javax.swing.JFileChooser;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.common.ldif.LdifIterator;
-import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.filter.FilterParser;
 import org.apache.ldap.common.filter.FilterParserImpl;
+import org.apache.ldap.common.ldif.LdifIterator;
+import org.apache.ldap.common.ldif.LdifParser;
+import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.message.DerefAliasesEnum;
 import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.server.db.gui.*;
-
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.IndexRecord;
 import org.apache.ldap.server.db.Index;
-import org.apache.ldap.server.db.*;
+import org.apache.ldap.server.db.IndexRecord;
 import org.apache.ldap.server.db.SearchEngine;
 
 

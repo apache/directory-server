@@ -17,14 +17,14 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Hashtable;
 import java.io.File;
 import java.io.IOException;
-import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.InitialLdapContext;
+import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;

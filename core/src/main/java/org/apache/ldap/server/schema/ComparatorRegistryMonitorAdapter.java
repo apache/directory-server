@@ -18,10 +18,7 @@ package org.apache.ldap.server.schema;
 
 
 import java.util.Comparator;
-
 import javax.naming.NamingException;
-
-import org.apache.ldap.server.schema.ComparatorRegistryMonitor;
 
 
 /**

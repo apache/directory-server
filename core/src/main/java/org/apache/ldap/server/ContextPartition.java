@@ -19,8 +19,6 @@ package org.apache.ldap.server;
 
 import javax.naming.Name;
 
-import org.apache.ldap.server.BackingStore;
-
 
 /**
  * ContextPartitions are indivisible BackingStores associated with a naming

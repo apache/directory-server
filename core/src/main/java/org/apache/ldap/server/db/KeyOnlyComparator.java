@@ -20,7 +20,6 @@ package org.apache.ldap.server.db;
 import java.io.Serializable;
 
 import org.apache.ldap.server.schema.SerializableComparator;
-import org.apache.ldap.server.schema.SerializableComparator;
 
 
 /**

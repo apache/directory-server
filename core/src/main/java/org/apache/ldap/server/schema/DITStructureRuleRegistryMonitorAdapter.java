@@ -18,7 +18,6 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.DITStructureRule;
-import org.apache.ldap.server.schema.DITStructureRuleRegistryMonitor;
 
 
 /**

@@ -22,9 +22,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.regexp.RE;
-
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.regexp.RE;
 
 
 /**

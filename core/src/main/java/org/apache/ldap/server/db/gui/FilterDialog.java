@@ -17,30 +17,12 @@
 package org.apache.ldap.server.db.gui ;
 
 
-import javax.swing.JLabel ;
-import javax.swing.JFrame ;
-import javax.swing.JPanel ;
-import javax.swing.JDialog ;
-import javax.swing.JButton ;
-import javax.swing.JComboBox ;
-import javax.swing.JTextArea ;
-import javax.swing.JTextField ;
-import javax.swing.BorderFactory ;
-import javax.swing.border.TitledBorder ;
-
-import java.awt.Font ;
-import java.awt.Color ;
-import java.awt.Insets ;
-import java.awt.Dimension ;
-import java.awt.FlowLayout ;
-import java.awt.BorderLayout ;
-import java.awt.GridBagLayout ;
-import java.awt.event.WindowEvent ;
-import java.awt.GridBagConstraints ;
-import java.awt.event.WindowAdapter ;
+import java.awt.*;
 import java.awt.event.ActionListener;
-
-import javax.swing.JScrollPane;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
 
 
 /**

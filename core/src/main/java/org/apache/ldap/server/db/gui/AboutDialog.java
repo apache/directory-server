@@ -18,10 +18,10 @@ package org.apache.ldap.server.db.gui;
 
 
 import java.awt.*;
-import javax.swing.*;
-import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import javax.swing.*;
 
 
 /**

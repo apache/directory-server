@@ -19,29 +19,23 @@ package org.apache.ldap.server.db.jdbm;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.math.BigInteger;
-
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.regexp.RE;
-import org.apache.ldap.server.db.Index;
-import org.apache.ldap.server.db.IndexComparator;
-import org.apache.ldap.server.db.IndexComparator;
-import org.apache.ldap.server.db.IndexEnumeration;
-import org.apache.ldap.server.db.IndexEnumeration;
-import org.apache.ldap.server.schema.SerializableComparator;
-import org.apache.ldap.common.util.LRUMap;
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.server.schema.SerializableComparator;
-
-import jdbm.helper.MRU;
 import jdbm.RecordManager;
+import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.util.LRUMap;
+import org.apache.ldap.server.db.Index;
+import org.apache.ldap.server.db.IndexComparator;
+import org.apache.ldap.server.db.IndexEnumeration;
+import org.apache.ldap.server.schema.SerializableComparator;
+import org.apache.regexp.RE;
 
 
 /**

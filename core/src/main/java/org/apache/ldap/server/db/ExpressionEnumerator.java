@@ -17,26 +17,14 @@
 package org.apache.ldap.server.db;
 
 
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-
-import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.filter.LeafNode;
-import org.apache.ldap.common.filter.ScopeNode;
-import org.apache.ldap.common.filter.BranchNode;
-import org.apache.ldap.common.filter.SimpleNode;
-import org.apache.ldap.common.filter.PresenceNode;
-import org.apache.ldap.common.filter.AssertionNode;
-import org.apache.ldap.common.filter.SubstringNode;
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.DisjunctionEnumeration;
-import org.apache.ldap.server.db.Enumerator;
-
-import java.util.ArrayList;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
+import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.filter.*;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**

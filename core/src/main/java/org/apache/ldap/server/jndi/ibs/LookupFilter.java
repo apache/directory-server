@@ -19,8 +19,8 @@ package org.apache.ldap.server.jndi.ibs;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
 
 
 /**

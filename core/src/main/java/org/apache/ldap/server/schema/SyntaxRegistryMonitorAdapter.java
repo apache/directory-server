@@ -20,7 +20,6 @@ package org.apache.ldap.server.schema;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.Syntax;
-import org.apache.ldap.server.schema.SyntaxRegistryMonitor;
 
 
 /**

@@ -17,28 +17,18 @@
 package org.apache.ldap.server.db.jdbm;
 
 
-import java.util.TreeSet;
-import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.ArrayList;
-import java.util.Collections;
-
 import java.io.IOException;
-
-import javax.naming.NamingException;
+import java.util.*;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
-import jdbm.btree.BTree;
 import jdbm.RecordManager;
+import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
-
-import org.apache.ldap.common.util.EmptyEnumeration; 
+import org.apache.ldap.common.util.EmptyEnumeration;
 import org.apache.ldap.common.util.SingletonEnumeration;
-import org.apache.ldap.server.schema.SerializableComparator;
-
-import org.apache.eve.db.*;
-import org.apache.ldap.server.schema.SerializableComparator;
 import org.apache.ldap.server.db.*;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 
 /**

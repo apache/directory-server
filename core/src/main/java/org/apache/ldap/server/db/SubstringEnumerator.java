@@ -215,19 +215,16 @@
 package org.apache.ldap.server.db;
 
 
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
+import javax.naming.NamingException;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.SubstringNode;
-import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.db.*;
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
 
 
 /**

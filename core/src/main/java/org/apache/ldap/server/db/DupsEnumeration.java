@@ -17,14 +17,9 @@
 package org.apache.ldap.server.db;
 
 
-import java.util.TreeSet;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.NoSuchElementException;
-
-import javax.naming.NamingException;
+import java.util.*;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 
 /**

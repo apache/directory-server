@@ -18,11 +18,10 @@ package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
-
-import javax.naming.directory.*;
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
 
 
 /**

@@ -17,9 +17,8 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.List;
 import javax.naming.NamingException;
 
 

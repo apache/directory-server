@@ -17,9 +17,9 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import java.util.List;
-import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;

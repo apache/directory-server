@@ -18,16 +18,16 @@ package org.apache.ldap.server.jndi.ibs;
 
 
 import java.util.HashSet;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.DirContext;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
-import org.apache.ldap.server.jndi.AbstractMultiUserJndiTest;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.eve.db.DbSearchResult;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.server.db.DbSearchResult;
+import org.apache.ldap.server.jndi.AbstractMultiUserJndiTest;
 
 
 /**

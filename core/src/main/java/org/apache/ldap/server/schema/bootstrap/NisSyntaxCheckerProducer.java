@@ -19,12 +19,8 @@ package org.apache.ldap.server.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.common.schema.SyntaxChecker;
 import org.apache.ldap.common.schema.AcceptAllSyntaxChecker;
-import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.ldap.server.schema.bootstrap.ProducerCallback;
-import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
-import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapProducer;
+import org.apache.ldap.common.schema.SyntaxChecker;
 
 
 

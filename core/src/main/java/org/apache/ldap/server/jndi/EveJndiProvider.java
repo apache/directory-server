@@ -17,23 +17,20 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.EveBackendSubsystem;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.server.EveBackendSubsystem;
-
-import java.util.Hashtable;
-
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-
-import javax.naming.NamingException;
-import javax.naming.Context;
-import javax.naming.ldap.LdapContext;
+import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.RootNexus;
 
 
 /**

@@ -17,18 +17,11 @@
 package org.apache.ldap.server.schema;
 
 
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Collections;
-
+import java.util.*;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
-import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
-import org.apache.ldap.server.SystemPartition;
 
 
 /**

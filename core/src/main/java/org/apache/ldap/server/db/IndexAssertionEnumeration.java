@@ -17,14 +17,11 @@
 package org.apache.ldap.server.db;
 
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
-
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-
-import org.apache.ldap.server.db.IndexAssertion;
+import javax.naming.NamingException;
 
 
 /**

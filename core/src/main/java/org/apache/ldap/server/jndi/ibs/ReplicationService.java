@@ -19,7 +19,6 @@ package org.apache.ldap.server.jndi.ibs;
 
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.jndi.BaseInterceptor;
-import org.apache.ldap.server.RootNexus;
 
 
 /**

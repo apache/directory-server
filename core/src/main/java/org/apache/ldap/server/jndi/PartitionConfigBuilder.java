@@ -17,18 +17,16 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Hashtable;
 import java.util.Enumeration;
-
+import java.util.Hashtable;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.ContextPartitionConfig;
-import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.ContextPartitionConfig;
 
 

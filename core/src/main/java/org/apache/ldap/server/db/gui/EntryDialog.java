@@ -17,20 +17,11 @@
 package org.apache.ldap.server.db.gui ;
 
 
-import java.awt.Frame ;
-
-import javax.naming.directory.Attributes;
-import javax.swing.JPanel ;
-import javax.swing.JLabel ;
-import javax.swing.JTable ;
-import javax.swing.JDialog ;
-import javax.swing.JButton ;
-import javax.swing.JComboBox ;
-import javax.swing.JTextField ;
-import javax.swing.JScrollPane ;
-
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.naming.directory.Attributes;
+import javax.swing.*;
 
 
 /**

@@ -18,7 +18,6 @@ package org.apache.ldap.server.db;
 
 
 import java.math.BigInteger;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 

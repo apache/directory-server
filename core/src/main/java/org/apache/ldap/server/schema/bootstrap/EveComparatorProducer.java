@@ -20,9 +20,9 @@ package org.apache.ldap.server.schema.bootstrap;
 import java.util.Comparator;
 import javax.naming.NamingException;
 
+import jdbm.helper.StringComparator;
 import org.apache.ldap.common.schema.ComparableComparator;
 import org.apache.ldap.common.util.BigIntegerComparator;
-import jdbm.helper.StringComparator;
 
 
 

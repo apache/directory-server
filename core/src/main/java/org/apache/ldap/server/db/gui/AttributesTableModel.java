@@ -17,11 +17,10 @@
 package org.apache.ldap.server.db.gui;
 
 
-import java.util.ArrayList;
 import java.math.BigInteger;
-
-import javax.naming.NamingException;
+import java.util.ArrayList;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.swing.table.AbstractTableModel;

@@ -17,15 +17,12 @@
 package org.apache.ldap.server.db;
 
 
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.DbSearchResult;
-import org.apache.ldap.server.db.IndexRecord;
 
 
 /**

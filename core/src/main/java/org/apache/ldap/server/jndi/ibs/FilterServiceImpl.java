@@ -17,24 +17,23 @@
 package org.apache.ldap.server.jndi.ibs;
 
 
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.Map;
 import javax.naming.Name;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import javax.naming.directory.*;
-
-import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.db.ResultFilteringEnumeration;
-import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.jndi.Invocation;
-import org.apache.ldap.server.jndi.BaseInterceptor;
-import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.db.ResultFilteringEnumeration;
+import org.apache.ldap.server.db.SearchResultFilter;
+import org.apache.ldap.server.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 
 /**

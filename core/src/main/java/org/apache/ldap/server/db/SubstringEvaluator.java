@@ -17,27 +17,19 @@
 package org.apache.ldap.server.db;
 
 
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.SubstringNode;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
-
-import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.filter.SubstringNode;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-
-import org.apache.ldap.server.schema.OidRegistry;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.OidRegistry;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.Evaluator;
-import org.apache.ldap.server.db.Index;
-import org.apache.ldap.server.db.IndexRecord;
 
 
 /**

@@ -17,8 +17,8 @@
 package org.apache.ldap.server.jndi;
 
 
-import javax.naming.directory.*;
 import javax.naming.NamingException;
+import javax.naming.directory.*;
 
 
 /**
