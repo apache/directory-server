@@ -93,7 +93,7 @@ public class RootNexus implements PartitionNexus
         rootDSE.put( attr );
 
         attr = new LockableAttributeImpl( NAMINGCTXS_ATTR );
-        attr.add( SystemPartition.SUFFIX );
+        attr.add( "" );
         rootDSE.put( attr );
 
         attr = new LockableAttributeImpl( VENDORNAME_ATTR );
