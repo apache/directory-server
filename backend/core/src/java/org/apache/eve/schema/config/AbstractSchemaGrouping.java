@@ -16,11 +16,9 @@
  */
 package org.apache.eve.schema.config;
 
-import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.common.schema.*;
 
-import java.util.Map;
-import java.util.Collections;
+import org.apache.ldap.common.util.ArrayUtils;
+
 
 /**
  * Document me.
@@ -28,7 +26,7 @@ import java.util.Collections;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbstractSchema implements Schema
+public abstract class AbstractSchemaGrouping implements SchemaGrouping
 {
     private static final String DEFAULT_OWNER = "uid=admin,ou=system";
     private static final String DEFAULT_SCHEMA_NAME = "default";
@@ -43,7 +41,7 @@ public class AbstractSchema implements Schema
     // ------------------------------------------------------------------------
 
 
-    public AbstractSchema( String owner, String schemaName, String[] dependencies )
+    public AbstractSchemaGrouping( String owner, String schemaName, String[] dependencies )
     {
         if ( owner == null )
         {
@@ -88,49 +86,7 @@ public class AbstractSchema implements Schema
 
     public String[] getDependencies()
     {
-        return new String[0];
-    }
-
-
-    public Map getComparators()
-    {
-        return Collections.EMPTY_MAP;
-    }
-
-
-    public Map getNormalizers()
-    {
-        return Collections.EMPTY_MAP;
-    }
-
-
-    public SyntaxChecker[] getSyntaxCheckers()
-    {
-        return new SyntaxChecker[0];
-    }
-
-
-    public Syntax[] getSyntaxes()
-    {
-        return new Syntax[0];
-    }
-
-
-    public MatchingRule[] getMatchingRules()
-    {
-        return new MatchingRule[0];
-    }
-
-
-    public AttributeType[] getAttributeTypes()
-    {
-        return new AttributeType[0];
-    }
-
-
-    public ObjectClass[] getObjectClasses()
-    {
-        return new ObjectClass[0];
+        return dependencies;
     }
 
 

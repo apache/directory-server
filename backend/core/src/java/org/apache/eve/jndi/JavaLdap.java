@@ -20,7 +20,7 @@ import javax.naming.directory.Attributes ;
 public class JavaLdap
 {
     // ------------------------------------------------------------------------
-    // Attribute Id Constants Used By The Java LDAP Schema 
+    // Attribute Id Constants Used By The Java LDAP SchemaGrouping
     // ------------------------------------------------------------------------
 
     /** */

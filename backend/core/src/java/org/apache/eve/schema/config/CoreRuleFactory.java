@@ -37,7 +37,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MatchingRuleConfig
+public class CoreMatchingRuleFactory
 {
     public MatchingRule[] loadMatchingRules( SyntaxRegistry registry,
                                              NormalizerRegistry normRegistry,

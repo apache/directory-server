@@ -12,7 +12,7 @@ import org.apache.ldap.common.schema.Syntax;
 import org.apache.eve.schema.DefaultSyntaxRegistry;
 import org.apache.eve.schema.DefaultOidRegistry;
 
-import org.apache.eve.schema.config.CoreSyntaxes;
+import org.apache.eve.schema.config.CoreSyntaxFactory;
 
 
 /**
@@ -77,11 +77,11 @@ public class EveContextFactory implements InitialContextFactory
         EveJndiProvider provider = null;
         Syntax[] syntaxes;
         DefaultOidRegistry oidRegistry;
-        CoreSyntaxes coreSyntaxes;
+        CoreSyntaxFactory coreSyntaxes;
         DefaultSyntaxRegistry syntaxRegistry;
 
-        coreSyntaxes = new CoreSyntaxes();
-        syntaxes = coreSyntaxes.load( null );
+        coreSyntaxes = new CoreSyntaxFactory();
+        syntaxes = coreSyntaxes.getSyntaxes( null );
         oidRegistry = new DefaultOidRegistry();
         syntaxRegistry = new DefaultSyntaxRegistry( syntaxes, oidRegistry );
 

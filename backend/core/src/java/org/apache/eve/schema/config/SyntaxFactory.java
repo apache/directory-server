@@ -17,12 +17,8 @@
 package org.apache.eve.schema.config;
 
 
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.eve.schema.SyntaxRegistry;
-import org.apache.eve.schema.MatchingRuleRegistry;
-import org.apache.eve.schema.AttributeTypeRegistry;
-
-import javax.naming.NamingException;
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.eve.schema.SyntaxCheckerRegistry;
 
 
 /**
@@ -31,9 +27,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface AttributeTypeConfigSet
+public interface SyntaxFactory
 {
-    AttributeType[] load( SyntaxRegistry syntaxReg, 
-                          MatchingRuleRegistry mruleReg,
-                          AttributeTypeRegistry attrTypeReg ) throws NamingException;
+    Syntax[] getSyntaxes( SyntaxCheckerRegistry registry );
 }

@@ -25,7 +25,7 @@ import org.apache.eve.PartitionNexus;
  * A non-federated abstract Context implementation.
  *
  */
-abstract class EveContext implements Context
+public abstract class EveContext implements Context
 {
     /** */
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN" ;
@@ -208,7 +208,7 @@ abstract class EveContext implements Context
          * attributes before normalization.  The result should have ths same
          * affect as the following line within the interceptor.
          * 
-         * l_attributes.put( Schema.DN_ATTR, l_target.toString() ) ;
+         * l_attributes.put( SchemaGrouping.DN_ATTR, l_target.toString() ) ;
          */
         l_attributes.put( l_rdnAttribute, l_rdnValue ) ;
         l_attributes.put( JavaLdap.OBJECTCLASS_ATTR, 

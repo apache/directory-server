@@ -32,7 +32,7 @@ import org.apache.eve.PartitionNexus;
  * The DirContext implementation for the Server Side JNDI LDAP provider.
  *
  */
-public class EveDirContext extends EveContext implements DirContext
+public abstract class EveDirContext extends EveContext implements DirContext
 {
     
     

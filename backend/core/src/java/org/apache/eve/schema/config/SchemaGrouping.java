@@ -22,24 +22,24 @@ import java.util.Map;
 
 
 /**
- * A configuration of like Schema objects bundled together and identified as a
- * set.
+ * A configuration of related Schema objects bundled together and identified as
+ * a group.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Schema
+public interface SchemaGrouping
 {
     /**
      * Gets the name of the owner of the schema objects within this
-     * Schema.
+     * SchemaGrouping.
      *
      * @return the identifier for the owner of this set's objects
      */
     String getOwner();
 
     /**
-     * Gets the name of the logical schema the objects of this Schema
+     * Gets the name of the logical schema the objects of this SchemaGrouping
      * belong to: e.g. krb5-kdc may be the logical LDAP schema name.
      *
      * @return the name of the logical schema
@@ -48,13 +48,18 @@ public interface Schema
 
     /**
      * Gets the names of other schemas that this objects within this
-     * Schema depends upon.  These dependent schemas are those
+     * SchemaGrouping depends upon.  These dependent schemas are those
      * whose ConfigurationSets will be processed first.
      *
      * @return the String names of schema dependencies
      */
     String[] getDependencies();
 
+    /**
+     * Gets the set of comparators
+     *
+     * @return
+     */
     Map getComparators();
 
     Map getNormalizers();
@@ -68,4 +73,12 @@ public interface Schema
     AttributeType[] getAttributeTypes();
 
     ObjectClass[] getObjectClasses();
+
+    DITContentRule[] getDITContentRules();
+
+    DITStructureRule[] getDITStructureRules();
+
+    NameForm[] getNameForms();
+
+    Map getMatchingRuleUses();
 }

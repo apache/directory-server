@@ -17,17 +17,16 @@
 package org.apache.eve.schema.config;
 
 
-import org.apache.ldap.common.schema.*;
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.ldap.common.schema.BaseSyntax;
 import org.apache.eve.schema.SyntaxCheckerRegistry;
-
-import java.util.Map;
 
 
 /**
- * A Syntax schema object configuration set for the core LDAP schema in Section
- * 4.3.2 of <a href="http://www.faqs.org/rfcs/rfc2252.html">RFC2252</a>.
- * The following table reproduced from RFC2252 shows the syntaxes inclu     ded
- * within this SyntaxConfigSet:
+ * A simple Syntax factory for the core LDAP schema in Section 4.3.2 of
+ * <a href="http://www.faqs.org/rfcs/rfc2252.html">RFC2252</a>.
+ * The following table reproduced from RFC2252 shows the syntaxes included
+ * within this SyntaxFactory:
  * <pre>
  * Index   Value being represented   H-R     OBJECT IDENTIFIER
  * =====================================================================
@@ -95,45 +94,15 @@ import java.util.Map;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreSyntaxes implements SyntaxConfigSet
+public class CoreSyntaxFactory implements SyntaxFactory
 {
-    /** an empty string array */
-    private final static String[] EMPTY_ARRAY = new String[0];
-    /** the DN of the owner of the objects within this SyntaxConfigSet */
-    private static final String OWNER = "uid=admin,ou=system";
-    /** the logical schema the objects within this SyntaxConfigSet belong to */
-    private static final String SCHEMA = "core";
-
 
     // ------------------------------------------------------------------------
-    // Configuration Set Methods
+    // Syntax Factory Method
     // ------------------------------------------------------------------------
 
 
-    public String getOwner()
-    {
-        return OWNER;
-    }
-
-
-    public String getSchemaName()
-    {
-        return SCHEMA;
-    }
-
-
-    public String[] getDependencies()
-    {
-        return EMPTY_ARRAY;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Syntax Configuration Set Methods
-    // ------------------------------------------------------------------------
-
-
-    public Syntax[] load( SyntaxCheckerRegistry registry )
+    public Syntax[] getSyntaxes( SyntaxCheckerRegistry registry )
     {
         MutableSyntax[] syntaxes = new MutableSyntax[54];
 
@@ -419,8 +388,8 @@ public class CoreSyntaxes implements SyntaxConfigSet
          * 52 UTC Time                        Y  1.3.6.1.4.1.1466.115.121.1.53
          * 53 LDAP Syntax Description         Y  1.3.6.1.4.1.1466.115.121.1.54
          * 54 Modify Rights                   Y  1.3.6.1.4.1.1466.115.121.1.55
-         * 55 LDAP Schema Definition          Y  1.3.6.1.4.1.1466.115.121.1.56
-         * 56 LDAP Schema Description         Y  1.3.6.1.4.1.1466.115.121.1.57
+         * 55 LDAP SchemaGrouping Definition          Y  1.3.6.1.4.1.1466.115.121.1.56
+         * 56 LDAP SchemaGrouping Description         Y  1.3.6.1.4.1.1466.115.121.1.57
          * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
          */
         syntaxes[50] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.51" );
@@ -444,11 +413,11 @@ public class CoreSyntaxes implements SyntaxConfigSet
         syntaxes[54].setHumanReadible( true );
 
         syntaxes[55] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.56" );
-        syntaxes[55].setName( "LDAP Schema Definition" );
+        syntaxes[55].setName( "LDAP SchemaGrouping Definition" );
         syntaxes[55].setHumanReadible( true );
 
         syntaxes[56] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.57" );
-        syntaxes[56].setName( "LDAP Schema Description" );
+        syntaxes[56].setName( "LDAP SchemaGrouping Description" );
         syntaxes[56].setHumanReadible( true );
 
         syntaxes[57] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.58" );
@@ -458,40 +427,6 @@ public class CoreSyntaxes implements SyntaxConfigSet
         return syntaxes;
     }
 
-    public Map getComparators()
-    {
-        return null;
-    }
-
-    public Map getNormalizers()
-    {
-        return null;
-    }
-
-    public SyntaxChecker[] getSyntaxCheckers()
-    {
-        return new SyntaxChecker[0];
-    }
-
-    public Syntax[] getSyntaxes()
-    {
-        return new Syntax[0];
-    }
-
-    public MatchingRule[] getMatchingRules()
-    {
-        return new MatchingRule[0];
-    }
-
-    public AttributeType[] getAttributeTypes()
-    {                                                               
-        return new AttributeType[0];
-    }
-
-    public ObjectClass[] getObjectClasses()
-    {
-        return new ObjectClass[0];
-    }
 
     /**
      * Used to access protected mutators of BaseSyntax from within this class.
