@@ -64,7 +64,7 @@
 			<j:useBean var="task" class="org.apache.eve.tools.schema.EveSchemaToolTask" 
 				name="${schema}" owner="${owner}" package="${package}" dependencies="${deps}"/>
 			<j:expr value="${task.execute()}"/>
-			<echo>Generated ${schema}.schema files</echo>
+			<echo>Generated schema producer classes for ${schema}.schema</echo>
           </j:forEach>
           
         </j:if>
@@ -75,12 +75,13 @@
     </j:if>
   </goal>
 
-
+  <!--
   <preGoal name="java:compile">
     <j:if test="${!eveSchemaDir.equals('MAVEN_EVE_SCHEMA_DIR_NOT_SET')}">
       <attainGoal name="eve:schema"/>
     </j:if>
   </preGoal>
+  -->
 
   <goal name="eve:schema"> 
     <attainGoal name="eve:init"/>
