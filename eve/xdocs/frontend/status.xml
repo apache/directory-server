@@ -20,7 +20,7 @@
         They are being rewritten with the frontend redesign while in the
         incubator.
       </p>
-        <table><tr><th>Status On: $LastChangedDate$</th></tr></table>
+        <table><tr><th>$LastChangedDate$</th></tr></table>
         <table>
           <tr>
             <th>Component</th>
