@@ -47,7 +47,7 @@
  Apache Software Foundation, please see <http://www.apache.org/>.
 
 */
-package org.apache.eve.listener ;
+package org.apache.eve.merlin.listener ;
 
 
 import java.io.IOException ;

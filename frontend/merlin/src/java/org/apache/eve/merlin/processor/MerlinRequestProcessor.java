@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.processor ;
+package org.apache.eve.merlin.processor ;
 
 
 import org.apache.eve.thread.ThreadPool ;

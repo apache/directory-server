@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.buffer ;
+package org.apache.eve.merlin.buffer ;
 
 
 import java.nio.ByteBuffer ;

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.encoder ;
+package org.apache.eve.merlin.encoder ;
 
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;

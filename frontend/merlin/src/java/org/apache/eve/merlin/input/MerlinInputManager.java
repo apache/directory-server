@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.input ;
+package org.apache.eve.merlin.input ;
 
 
 import java.nio.channels.Selector ;

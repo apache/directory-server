@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.output ;
+package org.apache.eve.merlin.output ;
 
 
 import java.io.IOException ;

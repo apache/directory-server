@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.event ;
+package org.apache.eve.merlin.event ;
 
 
 import java.util.EventObject ;
