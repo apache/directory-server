@@ -23,12 +23,12 @@ import java.util.ArrayList;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.db.DbSearchResult;
-import org.apache.eve.db.SearchResultEnumeration;
 import org.apache.eve.db.ResultFilteringEnumeration;
 import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.BaseInterceptor;
@@ -101,10 +101,10 @@ public class FilterServiceImpl extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
         {
-            SearchResultEnumeration enum ;
+            NamingEnumeration enum ;
             ResultFilteringEnumeration retval;
             LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
-            enum = ( SearchResultEnumeration ) invocation.getReturnValue();
+            enum = ( NamingEnumeration ) invocation.getReturnValue();
             retval = new ResultFilteringEnumeration( enum, LIST_CONTROLS, ctx,
                 new SearchResultFilter()
                 {
@@ -179,10 +179,10 @@ public class FilterServiceImpl extends BaseInterceptor
                 return;
             }
 
-            SearchResultEnumeration enum ;
+            NamingEnumeration enum ;
             ResultFilteringEnumeration retval;
             LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
-            enum = ( SearchResultEnumeration ) invocation.getReturnValue();
+            enum = ( NamingEnumeration ) invocation.getReturnValue();
             retval = new ResultFilteringEnumeration( enum, searchControls, ctx,
                 new SearchResultFilter()
                 {
