@@ -17,15 +17,14 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.io.FileInputStream;
 import java.util.Hashtable;
 import java.util.Properties;
-import java.io.FileInputStream;
+
+import javax.naming.NamingException;
 
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.AuthenticatorConfig;
-import org.apache.ldap.server.auth.AuthenticatorConfig;
-
-import javax.naming.NamingException;
 
 
 /**
