@@ -92,7 +92,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
      */
     public LdapContext getLdapContext( Hashtable an_env ) throws NamingException
     {
-        return new LdapServerContext( m_proxy, an_env ) ;
+        return new EveLdapContext( m_proxy, an_env ) ;
     }
 
 

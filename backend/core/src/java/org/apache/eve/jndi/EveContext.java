@@ -25,7 +25,7 @@ import org.apache.eve.PartitionNexus;
  * A non-federated abstract Context implementation.
  *
  */
-abstract class ServerContext implements Context
+abstract class EveContext implements Context
 {
     /** */
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN" ;
@@ -52,7 +52,7 @@ abstract class ServerContext implements Context
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
+    protected EveContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
     {
         m_nexusProxy = a_nexusProxy ;
         m_env = ( Hashtable ) a_env.clone() ;
@@ -83,7 +83,7 @@ abstract class ServerContext implements Context
      * @param a_env the environment properties used by this context
      * @param a_dn the distinguished name of this context
      */
-    protected ServerContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
+    protected EveContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
     {
         m_dn = ( LdapName ) a_dn.clone() ; 
         m_env = ( Hashtable ) a_env.clone() ;
@@ -219,16 +219,16 @@ abstract class ServerContext implements Context
         /*
          * Add the new context to the server which as a side effect adds 
          * operational attributes to the l_attributes refering instance which 
-         * can them be used to initialize a new LdapServerContext.  Remember
+         * can them be used to initialize a new EveLdapContext.  Remember
          * we need to copy over the controls as well to propagate the complete 
          * environment besides whats in the hashtable for m_env.
          */
         m_nexusProxy.add( l_target.toString(), l_target, l_attributes ) ;
         
-        LdapServerContext l_ctx = 
-            new LdapServerContext( m_nexusProxy, m_env, l_target ) ;
+        EveLdapContext l_ctx =
+            new EveLdapContext( m_nexusProxy, m_env, l_target ) ;
         Control [] l_controls = ( Control [] )
-            ( ( LdapServerContext ) this ).getRequestControls().clone() ; 
+            ( ( EveLdapContext ) this ).getRequestControls().clone() ;
         l_ctx.setRequestControls( l_controls ) ;
         return l_ctx ;
     }
@@ -267,7 +267,7 @@ abstract class ServerContext implements Context
      */
     public void bind( Name a_name, Object a_obj ) throws NamingException
     {
-        if ( a_obj instanceof LdapServerContext )
+        if ( a_obj instanceof EveLdapContext )
         {
             throw new IllegalArgumentException(
                 "Cannot bind a directory context object!" ) ;
@@ -427,11 +427,11 @@ abstract class ServerContext implements Context
         }
         
         // Initialize and return a context since the entry is not a java object
-        LdapServerContext l_ctx = new LdapServerContext( m_nexusProxy, 
+        EveLdapContext l_ctx = new EveLdapContext( m_nexusProxy,
             m_env, l_target ) ; 
             
         // Need to add controls to propagate extended ldap operational env
-        Control [] l_controls = ( ( LdapServerContext ) this )
+        Control [] l_controls = ( ( EveLdapContext ) this )
             .getRequestControls() ; 
         if ( null != l_controls )
         {    

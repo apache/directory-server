@@ -32,7 +32,7 @@ import org.apache.eve.PartitionNexus;
  * The DirContext implementation for the Server Side JNDI LDAP provider.
  *
  */
-public class DirServerContext extends ServerContext implements DirContext
+public class EveDirContext extends EveContext implements DirContext
 {
     
     
@@ -41,28 +41,28 @@ public class DirServerContext extends ServerContext implements DirContext
     // ------------------------------------------------------------------------
     
     /**
-     * Creates a new DirServerContext by reading the PROVIDER_URL to resolve the
+     * Creates a new EveDirContext by reading the PROVIDER_URL to resolve the
      * distinguished name for this context.
      *
      * @param a_nexusProxy the proxy to the backend nexus
      * @param a_env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public DirServerContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
+    public EveDirContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
     {
         super( a_nexusProxy, a_env ) ;
     }
 
 
     /**
-     * Creates a new DirServerContext with a distinguished name which is used to
+     * Creates a new EveDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
      * 
      * @param a_nexusProxy the intercepting proxy to the nexus
      * @param a_env the environment properties used by this context
      * @param a_dn the distinguished name of this context
      */
-    protected DirServerContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
+    protected EveDirContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
     {
         super( a_nexusProxy, a_env, a_dn ) ;
     }
@@ -196,7 +196,7 @@ public class DirServerContext extends ServerContext implements DirContext
         // Need to perform serialization of object into a copy of a_attrs
         else 
         {
-            if ( a_obj instanceof LdapServerContext )
+            if ( a_obj instanceof EveLdapContext )
             {
                 throw new IllegalArgumentException(
                     "Cannot bind a directory context object!" ) ;
@@ -276,10 +276,10 @@ public class DirServerContext extends ServerContext implements DirContext
         getNexusProxy().add( l_target.toString(), l_target, l_attributes ) ;
 
         // Initialize the new context
-        LdapServerContext l_ctx = new LdapServerContext( getNexusProxy(),
+        EveLdapContext l_ctx = new EveLdapContext( getNexusProxy(),
             getEnvironment(), l_target ) ;
         Control [] l_controls = ( Control [] )
-            ( ( LdapServerContext ) this ).getRequestControls().clone() ; 
+            ( ( EveLdapContext ) this ).getRequestControls().clone() ;
         l_ctx.setRequestControls( l_controls ) ;
         return l_ctx ;
     }

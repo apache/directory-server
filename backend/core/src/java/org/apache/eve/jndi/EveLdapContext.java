@@ -17,7 +17,7 @@ import org.apache.eve.PartitionNexus;
 /**
  *
  */
-public class LdapServerContext extends DirServerContext implements LdapContext
+public class EveLdapContext extends EveDirContext implements LdapContext
 {
 
     /**
@@ -26,21 +26,21 @@ public class LdapServerContext extends DirServerContext implements LdapContext
      * @param a_nexusProxy TODO
      * @param a_env TODO
      */
-    public LdapServerContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
+    public EveLdapContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
     {
         super( a_nexusProxy, a_env ) ;
     }
 
 
     /**
-     * Creates a new DirServerContext with a distinguished name which is used to
+     * Creates a new EveDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
      * 
      * @param a_nexusProxy the intercepting proxy to the nexus
      * @param a_env the environment properties used by this context
      * @param a_dn the distinguished name of this context
      */
-    LdapServerContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
+    EveLdapContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
     {
         super( a_nexusProxy, a_env, a_dn ) ;
     }
