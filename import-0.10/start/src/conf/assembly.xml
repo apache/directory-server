@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<!DOCTYPE assembly PUBLIC "-//PHOENIX/Assembly DTD Version 1.0//EN" 
+    "http://jakarta.apache.org/avalon/dtds/phoenix/assembly_1_0.dtd">
+<assembly>
+
+	<!-- ======================================================================
+
+
+
+					  C O R N E R S T O N E   B L O C K S
+
+
+
+    ======================================================================= -->
+
+
+	<!-- ======================================================================
+			  		T H R E A D   M A N A G E R   B L O C K
+    ======================================================================= -->
+
+	<block
+    		class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager"
+    	   	name="thread-manager"/>
+
+
+
+	<!-- ======================================================================
+
+
+
+					  S Y S T E M   M O D U L E   B L O C K S
+
+
+
+    ======================================================================= -->
+
+
+	<!-- ======================================================================
+					  O U T P U T   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.output.OutputModule"
+		name="output">
+	
+		<provide
+			name="thread-manager"
+			role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+	</block>
+
+	<!-- ======================================================================
+					   I N P U T   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.input.InputModule"
+		name="input">
+
+		<provide
+			name="decoder"
+			role="org.apache.eve.decoder.Decoder" />
+		<provide
+			name="thread-manager"
+			role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+	</block>
+
+	<!-- ======================================================================
+					  S C H E M A   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.schema.SchemaModule"
+		name="schema-manager"/>
+
+	<!-- ======================================================================
+				B A C K E N D   N E X U S   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.backend.NexusModule"
+		name="nexus">
+		<provide
+			name="schema-manager"
+			role="org.apache.eve.schema.SchemaManager" />
+	</block>
+
+	<!-- ======================================================================
+					L I S T E N E R   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.listener.ListenerModule"
+		name="listener">
+		<provide
+			name="client"
+			role="org.apache.eve.client.ClientManager" />
+	</block>
+
+	<!-- ======================================================================
+					  C L I E N T   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.client.ClientModule"
+		name="client">
+		<provide
+			name="decoder"
+			role="org.apache.eve.decoder.Decoder" />
+		<provide
+			name="input"
+			role="org.apache.eve.input.InputManager" />
+		<provide
+			name="output"
+			role="org.apache.eve.output.OutputManager" />
+		<provide
+			name="nexus"
+			role="org.apache.eve.backend.UnifiedBackend" />
+		<provide
+			name="protocol"
+			role="org.apache.eve.protocol.ProtocolEngine" />
+		<provide
+			name="thread-manager"
+			role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+	</block>
+
+	<!-- ======================================================================
+					  E N C O D E R   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.encoder.EncoderModule"
+		name="encoder">
+
+		<provide
+			name="output"
+			role="org.apache.eve.output.OutputManager" />
+		<provide
+			name="thread-manager"
+			role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+	</block>
+
+	<!-- ======================================================================
+					  D E C O D E R   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.decoder.DecoderModule"
+		name="decoder">
+		<provide
+			name="protocol"
+			role="org.apache.eve.protocol.ProtocolEngine" />
+		<provide
+			name="thread-manager"
+			role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+	</block>
+
+	<!-- ======================================================================
+					 P R O T O C O L   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.protocol.ProtocolModule"
+		name="protocol">
+
+		<provide
+			name="event"
+			role="org.apache.eve.event.protocol.EventManager" />
+
+		<provide
+			name="nexus"
+			role="org.apache.eve.backend.UnifiedBackend" />
+
+		<provide
+			name="authman"
+			role="org.apache.eve.security.auth.AuthenticationManager" />
+
+		<provide
+			name="encoder"
+			role="org.apache.eve.encoder.Encoder" />
+
+		<provide
+			name="output"
+			role="org.apache.eve.output.OutputManager" />
+
+		<provide
+			name="thread-manager"
+			role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+	</block>
+
+	<!-- ======================================================================
+			    J D B M   B A C K E N D   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.backend.jdbm.JdbmModule"
+		name="backend0">
+		<provide
+			name="schema-manager"
+			role="org.apache.eve.schema.SchemaManager" />
+		<provide
+			name="nexus"
+			role="org.apache.eve.backend.UnifiedBackend" />
+	</block>
+
+	<!-- ======================================================================
+				A U T H E N T I C A T I O N   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.security.auth.AuthenticationModule"
+		name="authman">
+		<provide
+			name="nexus"
+			role="org.apache.eve.backend.UnifiedBackend" />
+	</block>
+
+
+	<!-- ======================================================================
+				J N D I   P R O V I D E R   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.jndi.JndiProviderModule"
+		name="jndi">
+		<provide
+			name="nexus"
+			role="org.apache.eve.backend.UnifiedBackend" />
+	</block>
+
+	<!-- ======================================================================
+				E V E N T   M A N A G E R   M O D U L E   B L O C K
+    ======================================================================= -->
+
+	<block
+		class="org.apache.eve.event.protocol.EventModule"
+		name="event">
+	</block>
+
+</assembly>

@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+	"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+	<title>Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: akarasulu $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.4 $</revnumber>
+                <date>$Date: 2003/08/22 21:15:54 $</date>
+                <revdescription>
+                    <para>
+$Log: jndi-provider-module.xml,v $
+Revision 1.4  2003/08/22 21:15:54  akarasulu
+Merged changes made in the USING_PROVIDER_FRAMEWORK branch of the
+server.  I don't suspect she will be working well at this point.  Lots
+of overhauling required now.
+
+Revision 1.2.2.1  2003/05/19 00:42:41  akarasulu
+Working on getting better integration with JNDI and embedding result codes
+into the exception message strings.
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.1  2003/03/10 23:24:20  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.1  2003/03/03 04:49:25  akarasulu
+Added as placeholders for now.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+	<abstract>
+		<para>
+		</para>
+	</abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+        </para>
+
+        <para>
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+    </section>
+    
+    <section>
+        <title>Notes</title>
+        
+        <para>
+            When the JNDI provider is used directly outside of the path through
+            the protocol module, there is no ClientKey or ClientSession 
+            associated with the thread of execution.  One cannot use the client
+            key to access the ClientSession through the ClientManager interface.
+            The identity of the user is unknown currently.  Code responsible for
+            setting the operational attributes within the UnifiedBackend or 
+            nexus as it is referred to, requires the prinicipal of the user in
+            order to set attributes like the creatorsName and the modifiersName.
+            Another means is required to establish the identity of the user on 
+            whose behalf a non-protocol engine thread executes through the JNDI
+            provider.
+        </para>
+        
+        <para>
+            JNDI inherently passes around parameters pertaining to its mode of
+            operation and to the identity of the user using environment 
+            parameters and properties.  Things like the user prinicipal and the
+            password of the user are inherited by one context which can in turn
+            lead to another.  In our particular situation calls on a Contexts 
+            and their subclasses result in calls by the server side JNDI 
+            provider to the nexus module.  These calls are made with respect to
+            a single context.  When calls are made on the nexus, the nexus
+            methods need to be able to access environment parameters without
+            passing around extra arguments.  Access to environment parameters
+            no matter how deep the calls into the nexus and its registered 
+            backends should occur on an as needed basis.  The nexus, backends
+            and other modules need to be able to differentiate between calls 
+            made by protocol module worker threads and other threads going 
+            through the JNDI provider bypassing the protocol.  
+        </para>
+        
+        <para>
+            In conclusion, every module used to conduct backend operations must 
+            first be able to differentiate between a protocol driven call and a
+            protocol bypassing call.  Secondly parameters required to conduct
+            operations must be extracted either through JNDI environment 
+            properties or through a ClientSession.  To do so threads must be 
+            tracked centrally somewhere and associated with these objects.  When
+            all operations complete or another context is used by the same 
+            thread the relationship is dismantled and another one is 
+            established.
+        </para>
+            
+        <para>
+            The ClientManager again is the perfect candidate for centrally 
+            managing thread to Context associations.  After all non-protocol 
+            driven calls through the JNDI provider are still server clients yet
+            not in the protocol sense as remote processes but in the method call
+            sense as local servers embedding LDAPd in the same process space.
+            Another reason why the ClientManager is perfect for this task is due
+            to the ability to referrence it from every module in the server.  
+            The ClientManager is the central master module.  Other modules 
+            implementing the ClientManagerSlave interface can get a handle on 
+            the ClientManager service without imposing cyclic dependencies 
+            within an Avalon Container like Phoenix.  It is the best place to 
+            keep data related to a JNDI contexts for referrence later on by 
+            modules requiring JNDI environment parameters without passing around
+            environments as arguments in each method call.
+        </para>
+        
+        <para>
+            An overload to the threadAssociate method taking a LdapContext as 
+            its only argument can be implemented to associate a thread with a 
+            JNDI LdapContext.  The context and its environment can then be 
+            referred at any time during the execution of method calls against 
+            the server's backend nexus.  The extraction of the user principal 
+            to set operational attributes simple requires a test to see if a 
+            JNDI LdapContext is associated with the calling thread.  If so the
+            environment of the context is access to get the user principal 
+            associated with the context and hence the executing thread.
+        </para>
+    </section>
+    
+</article>

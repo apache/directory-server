@@ -1,0 +1,298 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:45:23 $</date>
+                <revdescription>
+                    <para>
+$Log: nexus-module.xml,v $
+Revision 1.6  2003/05/03 01:45:23  bearcej
+Refix image URLs
+
+Revision 1.5  2003/05/03 01:43:08  bearcej
+Add maven file to help generate server site.
+Modify graphic links again.
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.4  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.3  2003/04/08 02:29:55  bearcej
+* Clean up project.properties
+* Fix logos in project.xml
+* Fix links to image files in docs
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.3  2003/03/15 17:19:44  bearcej
+Fixed figure tags to confirm to simple docbook.
+Modified Files:
+ Tag: ALPHA-0_7
+    nexus-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:32  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:21  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.2  2003/03/10 21:44:14  akarasulu
+Done with nexus module documentation
+
+Revision 1.1.2.1  2003/03/03 04:49:25  akarasulu
+Added as placeholders for now.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+            The NexusModule implements the UnifiedBackend service and was 
+            intended as a Backend hub or nexus for glueing together multiple 
+            naming contexts into one unified system while centralizing the 
+            management of operational attributes.  The module routes Create,
+            Read, Update and Delete (CRUD) method calls on entries as well
+            as Directory Information Base (DIB) management operations to owning 
+            Backends.  As a wrapper around all server Backends it has the unique
+            opportunity to centralize the maintanance of operational attributes 
+            for all entries before and after entry CRUD method calls and DIB 
+            management operations.
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+
+
+    <section>
+        <title>Architecture</title>
+        
+        <para>
+            Breifly stated, the architectural goal is to have one central 
+            naming context independent service responsible for all Directory 
+            Information Base (DIB) operations.  Centralized DIB managment 
+            enables the transparent introduction of operational attributes in 
+            a standard manner independent of context assigned Backends.  Backend 
+            implementations need not manage operational attributes other than 
+            those specific to and required by their implementations.  Backend
+            implementation operational attribute maintenance overheads, 
+            complexity and coupling to other server modules decrease when a
+            centralized unified backend nexus service is introduced.
+        </para>
+        
+        <para>
+            The org.apache.eve.backend package within the ldapd-server subproject 
+            defines three critical interfaces to enable the aforementioned 
+            architectural goals.  The core Backend interface declares the 
+            signatures of entry CRUD operations as well as other DIB management
+            operations.  The interface does not define a ROLE constant.  The
+            primary purpose of the Backend interface is structural: 
+            implementations of this interface are not expected.  The lack of a 
+            ROLE constant revieals our intention: the Backend interface alone 
+            is insufficient for a viable backend service.  See Figure I below:
+        </para>
+        
+        <figure>
+            <title>Figure I: Backend Interfaces</title>
+            <graphic fileref="../images/BackendInterfaces.gif"/>
+        </figure>
+        
+        <para>
+            Two service interfaces are defined with a ROLE constant member: 
+            UnifiedBackend and AtomicBackend.  Implementations of these 
+            interfaces would constitute a viable service.  Both service 
+            interfaces extend from the Backend base interface.  Extention from
+            Backend implies the ability of both sub interfaces to handle entry
+            CRUD operations and DIB management operations.  These relationships
+            are depicted in the UML diagram above.
+        </para>
+            
+        <para>
+            The AtomicBackend service interface declares additional methods
+            required by concrete backends assigned as the backing store to one
+            and only one naming context.  Context specificity is implied by 
+            the getSuffix() method declaration in AtomicBackend.  Extention of
+            the BackendConfig interface by the AtomicBackend further 
+            differntiates it from the UnifiedBackend by introducing backend 
+            configuration parameter management interfaces.  As its name 
+            suggests, the AtomicBackend is clearly designed to implement an
+            indivisible backend for a single naming context specified by a
+            distinguished name suffix.  For more information see the <ulink 
+            url="backend-module.html">BackendModule</ulink> documentation.
+        </para>
+            
+        <para>
+            The UnifiedBackend service interface contains methods that 
+            differentiates its role from the AtomicBackend interface.  These
+            methods lookup, register, unregister and list AtomicBackends and 
+            the suffixes of their naming contexts.  The registration methods
+            of the interface allow the addition and removal of AtomicBackends
+            from the nexus service.  The service enables lookups of currently 
+            registered AtomicBackends through the getBackend() method which 
+            looksup AtomicBackends by suffix distinuished names.  Registered 
+            AtomicBackends or their suffixes are listed using the listBackends()
+            and listSuffixes() methods.  The interface also contains naming 
+            context independent methods.  An example would be the getRootDSE() 
+            method, which returns the Root Directory Server Agent (DSA) Entry 
+            or RootDSE.  The RootDSE resides at a nameless context and is looked 
+            up using a one level search with an empty search base distinguished 
+            name.  The unified backend is the best location for context indepent
+            entries like the RootDSE.
+        </para>
+        
+        <para>
+            Other utility methods on the UnifiedBackend provide a convenient
+            means to parse distinguished names as Strings into javax.naming.Name
+            object instances or to get a valid parser for a specific DN.  These
+            methods help present a facade to schema driven distinguished name
+            parsering.  They remove the need for modules upstream of the nexus
+            to have to interface with the SchemaManager.  The nexus hence acts
+            like a one stop service for modules like the ProtocolModule.
+        </para>
+    </section>
+    
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            The NexusModule implements the UnifiedBackend interface and extends
+            the AbstractModule base class.  The Backend interface method 
+            implementations merely wrap calls to underlying AtomicBackends after 
+            resolving a distinguished name to the owning AtomicBackend.  All 
+            Backend methods provide some manner of access to a distinguished 
+            name which localizes the operation within a specific naming context.
+            The distinguished name is either provided as an argument or can be
+            accessed from an argument passed into the method.  If the resolution
+            of a distinguished name to a registered AtomicBackend fails, the 
+            method throws the appropriate subtype of NamingException.  For these
+            reasons and others virtually all Backend interface methods throw the
+            NamingException superclass.
+        </para>
+        
+        <para>
+            Perhaps the most significant method implementations for the module
+            are those that resolve a distinguished name to a naming context, 
+            enable search traps for returning the RootDSE and configure the
+            module.  Each of these method implementations are described in the
+            paragraphs below.
+        </para>
+        
+        <para>
+            The getBackend() method resolves a distinguished name provided as a
+            javax.naming.Name argument into a naming context and returns the
+            AtomicBackend associated with the context.  The NexusModule keeps a 
+            Map of suffix distinguished names mapped as java.lang.Sting keys to 
+            AtomicBackend instances.  To lookup and return the AtomicBackend the
+            backend suffix must be extracted from Name argument.  First before
+            considerable investment, the method checks to see if the argument 
+            represents a suffix.  Next it presumes the Name argument represents
+            a non-suffix entry and cycles through all contexts looking for the
+            one whose suffix is a prefix to the Name argument.  If the loop
+            does not find a valid AtomicBackend, an IllegalArgumentException
+            is thrown.  Otherwise the AtomicBackend is returned.
+        </para>
+        
+        <para>
+            Without traping search requests, a RootDSE search would result in
+            an IllegalArgumentException in getBackend() due to the empty String
+            provided as the search base.  Remember to list the contents of the 
+            RootDSE the search base must be set to the empty string.  The nexus
+            inspects every search request to see if it needs to bypass normal
+            search processing.  Normally the nexus would forward the search 
+            request to the appropriate backend resolved using the search base.
+            Upon detection of a search with base scope and an empty string for
+            the search base, the nexus bypasses normal search processing.  It
+            creates a special Cursor which returns only one entry: the RootDSE.
+        </para>
+        
+        <para>
+            The configuration of the module simply extracts the attributes of
+            the RootDSE from the config.xml.  The attributes are stored in XML
+            using &lt;attribute&gt; tags having two manditory attributes: "name"
+            and "value".  The name attribute is used as the id of the LDAP 
+            attribute to add to the RootDSE.  The value attribute is obviously
+            used as the value of the named LDAP attribute.  These attributes are
+            used to build the RootDSE entry on the spot.  The RootDSE is a
+            special implementation of LdapEntry specifically for this purpose.
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+            Enable automatic updates to the RootDSE whenever new naming contexts
+            are created or destroyed with the registration and unregistration of
+            AtomicBackends.  The namingContexts attributes would be added and 
+            removed when Backends are registered and unregistered respectively.
+        </para>
+
+        <para>
+            Enable administrative naming contexts for cn=schema and other 
+            administrative areas.
+        </para>
+        
+        <para>
+            Start managing critical operational attributes defined in RFC2251
+            for the creators name, creation timestamp or the modifiers name etc.
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+            Does not manage operational attributes.
+        </para>
+        
+        <para>
+            We need to reinvestigate the service interfaces implemented by this
+            module as well as AtomicBackends to find a better more JNDI like
+            mechanism for operating against a DIB.  These new interfaces should 
+            make the JNDI provider implementation trivial if designed correctly.
+            Currently, serveral transformations of an LdapEntry to an Attributes
+            object in the JNDI provider impose inefficiencies and extra code in
+            the provider.  By reducing the rift between the Backend super 
+            interface and the JNDI API methods these inefficiencies can be 
+            avoided while reducing the code base.  As a pleasent side effect,
+            upstream dependent modules can use the JNDI provider rather than 
+            access the nexus directly.  This would make those dependant modules
+            easier to understand since JNDI APIs are standard JDK APIs more 
+            familiar to most developers than the Backend, AtomicBackend, and
+            UnifiedBackend interfaces as they exist today.  Another major 
+            benefit gained from the use of the internal server side JNDI 
+            provider would be entry location transparency.  If JNDI is used 
+            references can be automatically resolved by the provider based on
+            the controls in effect.  The protocol module would not have to
+            directly invoke the Sun LDAP JNDI provider to resolve references on 
+            behalf of the user.  The server-side provider would handle 
+            references in a manner consistant with the controls bound to the 
+            ClientSession.  The protocol module would just use JNDI would little 
+            regard concerning the nature of the entries returned.  The use of 
+            the server-side JNDI provider would hence greatly simplify the 
+            implementation of the ProtocolEngine.
+        </para>
+    </section>
+</article>

@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Input Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:45:23 $</date>
+                <revdescription>
+                    <para>
+$Log: input-module.xml,v $
+Revision 1.6  2003/05/03 01:45:23  bearcej
+Refix image URLs
+
+Revision 1.5  2003/05/03 01:43:08  bearcej
+Add maven file to help generate server site.
+Modify graphic links again.
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.4  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.3  2003/03/24 13:22:27  akarasulu
+Made it so all modules use ClientKey lock objects for IO locking.
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.3  2003/03/15 17:11:40  bearcej
+Fixed figure tags to conform to simple docbook.
+Modified Files:
+ Tag: ALPHA-0_7
+    input-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:31  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:20  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.2  2003/03/03 04:39:08  akarasulu
+new docs and changes
+
+Revision 1.1.2.1  2003/03/02 22:29:22  akarasulu
+Added input module architecture and implementation document.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+            The InputModule implements the InputManager service interface and in
+            doing so is responsible for detecting input on the client Socket's 
+            InputStream.
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            The InputManager service interface implemented by this module 
+            defines two symetric methods for client input management.  These
+            methods are register and unregister.  The register method takes two
+            arguments: the client socket's ClientKey and its InputStream.  The 
+            unregister method takes a sole ClientKey argument to undo the 
+            affects of the register method.  Through these interface methods the
+            service provides input detection on registered client InputStreams.
+            Detection of incomming client requests results in the creation and
+            delivery of InputEvents to the request Decoder.  
+        </para>
+        
+        <para>
+            The InputModule is not a staged module.  Hence stage events can not 
+            be enqueued onto this module. Unlike a simple module it has an 
+            internal thread pool.  Pool threads execute the code which detects 
+            input on each client socket InputStream.  
+        </para>
+        
+        <para>
+            The monitoring process begins when clients are registered.  The 
+            register call first maps a ClientKey argument to an InputStream 
+            argument using a Map.  The Map enables rapid InputStream lookups 
+            based on ClientKeys.  The register method then creates and 
+            instantiates an InputStreamMonitor which happens to implement the
+            Runnable interface.  The InputStreamMonitor's run method contains 
+            the logic used to detect input on the client Socket's InputStream 
+            and is executed by threads from this module's sole thread pool.  
+            The register method, immediately before returning, assigns and 
+            starts a Thread from the pool to drive the Runnable 
+            InputStreamMonitor.  Hence an InputStreamMonitor, a driving thread,
+            and a ClientKey to InputStream Map entry are created for each 
+            registered client.
+        </para>
+        
+        <figure>
+            <title>register() Method Sequence Diagram </title>
+            <graphic fileref=
+                "../images/InputModuleRegister.gif"/>
+        </figure>
+        
+        <para>
+            The Runnable InputStreamMonitor waits blocked on a 
+            PushbackInputStream.  The PushbackInputStream wraps the client 
+            Socket's InputStream so reads from it actually read from the client.
+            The blocking call is on the read() method without arguments which 
+            returns a single byte of data from the underlying InputStream. When 
+            read() returns the byte read is pushed back to enable the decoder
+            to read a complete protocol request.  An InputEvent is created in
+            response using the ClientKey with the PushbackInputStream as event
+            members.  The InputEvent is then delivered to the Decoder service
+            which extends the InputListener interface.  The InputListener method 
+            used to deliver the event is inputReceived() which takes a sole 
+            InputEvent argument.  Once the Decorder extracts the PDU from the 
+            PushbackInputStream the monitor then loops once again to listen 
+            for incomming request PDUs.  The process continues for each request
+            PDU delivered to the client.  If the client disconnects abruptly 
+            an IOException occurs.  Once caught the client is dropped and the
+            loop terminates by returning from the run method.  Dropped clients
+            are handled by testing for key expiration or responding to a 
+            KeyExpiryException.  In either case the InputStreamMonitor's loop
+            terminates and the run method returns.
+        </para>
+        
+        <para>
+            The run() method synchronizes on the input lock object of the client
+            before going into the while loop which detects input on the stream.
+            This is necessary to prevent reads while a decoder extracts the PDU.
+            The loop makes sure that it does not reread from the stream on the 
+            same incomming PDU after input detection by sitting in a wait state.  
+            The indefinate wait() is called on the input lock object after the 
+            event is handed off to the Decoder.  The worker thread is awakened
+            to continue monitoring for input after the Decoder completes the 
+            full read of the request PDU.  The Decoder awakens the worker by
+            calling notifyAll() on the input lock object immediately after the
+            PDU read.
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <itemizedlist><listitem><para>
+            Because blocking IO is used, a thread pool is needed to assign a 
+            thread to a Runnable input handler to monitor each client Socket's 
+            InputStream.  This is unavoidable with any JVM below version 1.4
+            since non-blocking IO is not provided.  JDK 1.4 introduces the new
+            IO packages that have selectable IO channels where a single thread
+            can be used to monitor multiple input channels.  For a stateful
+            protocol server non-blocking IO is critical otherwise a thread is
+            required for the management of IO on each client.  Stateful protocol
+            servers (like LDAPd) can NOT scale well as the number of concurrent 
+            clients increase.  This was a serious limitation for pure Java
+            stateful protocol servers up until JDK1.4.  Native libraries
+            could have been used while sacrificing portability but this would 
+            have problems with Java purists.  With a one to one ratio of clients
+            to threads, performance will degrade rapidly after 50 clients.
+            Non-blocking IO should allow for thousands of concurrent client 
+            connections with minimal performance hits.  Furthermore the overhead
+            of SEDA in LDAPd will not pay off until non-blocking IO is used.
+            Expect the use of NIO libraries or their equivalent in a beta 
+            release.
+        </para></listitem></itemizedlist>
+
+        <itemizedlist><listitem><para>
+            We have specifically modeled the modules dealing with client IO as
+            granular as possible to reflect a separation of concerns.  Rather 
+            than use larger modules to handle the detection and read from a 
+            stream we created two separate modules: one for IO detection and 
+            another to actually read from the client's stream.  The same
+            approach was applied with respect to the detection of client
+            connections on the server socket.  If client connection accepts,
+            input detection and input reads were bundled into one module, the
+            implementation would have been extremely trivial yet very coupled
+            and hard to manage without complete rewrites.  The listener, input, 
+            output, encoder, decoder and client modules have been defined to 
+            handle a small part of client IO management functions.  This 
+            approach should make it easier to implement plugable non-blocking 
+            replacements for most of these modules with minimal changes to their 
+            service interfaces or affecting other services associated with IO
+            management.
+        </para></listitem></itemizedlist>
+    </section>
+        
+    <section>
+        <title>Faults</title>
+        <itemizedlist>
+            <listitem><para>
+                Does not presently use non-blocking IO.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+</article>

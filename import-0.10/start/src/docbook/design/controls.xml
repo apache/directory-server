@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Controls</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.3 $</revnumber>
+                <date>$Date: 2003/05/03 01:21:32 $</date>
+                <revdescription>
+                    <para>
+$Log: controls.xml,v $
+Revision 1.3  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.2  2003/03/27 21:54:57  akarasulu
+Index exchange search control should be implemented.
+
+Revision 1.1  2003/03/27 21:34:14  akarasulu
+Start designs to implement some controls.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+    <para>
+        The LDAPv3 protocol uses controls to send and receive additional data 
+        to affect the behavior of predefined operations. Controls can be sent 
+        along with any LDAP operation to the server. These are referred to as 
+        request controls. For example, a "sort" control can be sent with an 
+        LDAP search operation to request that the results be returned in a 
+        particular order. Solicited and unsolicited controls can also be 
+        returned with responses from the server. Such controls are referred to
+        as response controls. For example, an LDAP server might define a 
+        special control to return change notifications.  LDAPv3 controls are
+        defined in section 4.1.12 of RFC <ulink url=
+        "http://www.faqs.org/rfcs/rfc2251.html">2251</ulink>. 
+    </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+
+            <listitem><para>
+                Implement special search index exchange control to redirect or
+                return entries from server with sufficent indices to rapidly
+                conduct the search.
+            </para></listitem>
+
+            <listitem><para>
+                Implement LDAP Control Extension for Server Side Sorting of 
+                Search Results, RFC 2891 
+            </para></listitem>
+
+            <listitem><para>
+                Implement LDAP Extensions for Scrolling View Browsing of Search 
+                Results, Internet-Draft Revision 4. 
+            </para></listitem>
+
+            <listitem><para>
+                Implement LDAP Proxied Authorization Control, Revision 5 
+            </para></listitem>
+
+            <listitem><para>
+                Implement LDAP Authentication Response Control, Internet-Draft 
+                Revision 1
+            </para></listitem>
+
+            <listitem><para>
+                Implement Persistent Search: A Simple LDAP Change Notification
+                Mechanism, Internet-Draft Revision 2 
+            </para></listitem>
+
+            <listitem><para>
+                Implement Manage DSA IT Control
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Design</title>
+        
+        <para>
+            Add design here.
+        </para>
+    </section>
+    
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            Add implementation details here.
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+            Start this stuff.
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+            Did not even start.
+        </para>
+    </section>
+</article>

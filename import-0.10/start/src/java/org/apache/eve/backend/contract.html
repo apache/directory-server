@@ -1,0 +1,237 @@
+<html>
+<head>
+<title>Server Backend Contract</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p><font color="#999999">$Id: contract.html,v 1.1.1.1 2002/11/13 23:46:12 akarasulu Exp $</font> </p>
+<h2 align="center">Server Backend Contract</h2>
+<p>The Server Backend Contract is defined syntactically by the APIs presented 
+  in the backend package. Semantic contracts are also required to make sure that 
+  Backends operate as expected and as efficiently as possible.</p>
+<p>&nbsp;</p>
+<h3 align="center">Syntax Overview</h3>
+<p>Backends are interfaces to an entry backing store. Backends provide create, 
+  read, update and delete (CRUD) operations, against the store. Bulk retreivals 
+  using filtered searches and heirarchical (parent child) relationships must also 
+  be provided. </p>
+<p>Backends are the factories for BackendArtifacts. Together, the Backend interface 
+  and these artifacts specify how entries and their attributes are accessed, created 
+  and modified both individually and in bulk.</p>
+<p>&nbsp;</p>
+<h4>CRUD &amp; Entry Life-Cycle Operations</h4>
+<p>The operations used to manipulate entries use the <b>CRUD</b> model which dictates 
+  the Entry life-cycle. These Backend interface methods are straight forward:</p>
+<ul>
+  <li><code>newEntry(String a_dn):Entry</code></li>
+  <li><font color="#FF0000"><code><b><u>c</u></b></code></font><code>reate(Entry 
+    an_entry):void</code></li>
+  <li><code><b><u><font color="#FF0000">r</font></u></b>ead(String a_dn):Entry</code></li>
+  <li><code><b><u><font color="#FF0000">u</font></u></b>pdate(Entry an_entry):void</code></li>
+  <li><code><b><u><font color="#FF0000">d</font></u></b>elete(Entry an_entry):void</code></li>
+</ul>
+<p>Perhaps the only method worthy of explanation is <code>newEntry</code>. This 
+  method constructs a new empty and invalid Entry instance. Valid entries exist 
+  within the Backend's backing store and invalid entries do not: they have been 
+  instantiated yet <code>create</code> has not been called on the Entry. Backends 
+  are Entry factories in this respect. An invalid Entry merely contains the user 
+  provide DN string as an operational attribute and the <a href="dnnormalization.html">normalized</a> 
+  string stored as a property of the class. These <b>CRUD</b> methods do the obvious 
+  once the ball is set in motion. Newly instantiated entries are altered via Entry 
+  interface methods and added to the Backend using the <code>create</code> method. 
+  Once created the Entry can have attributes manipulated and can be used to make 
+  successful calls to <code>delete</code>, and <code>update</code> (presuming 
+  schema constraints are not violated). Calls to <code>read</code> will return 
+  created and updated entries. These interfaces are simple and straight forward. 
+  The rest of the Backend interface methods can be categorized as non-<b>CRUD</b> 
+  methods belonging to the set of entry checker methods, hierarchical operations, 
+  or search operations:</p>
+<p>Entry Test Methods:</p>
+<ul>
+  <li><code>hasEntry(String a_dn):boolean</code></li>
+  <li><code>isSuffix(Entry an_entry):boolean</code></li>
+</ul>
+<p>Hierarchical Operations:</p>
+<ul>
+  <li><code>getParent(String a_childDN):Entry</code></li>
+  <li><code>listChildren(String a_parentDN):Cursor</code></li>
+</ul>
+<p>Search Operations:</p>
+<ul>
+  <li><code>search(String a_base, String a_filter, SearchControls a_ctls):Cursor</code></li>
+</ul>
+<p>The Backend is responsible for enforcing Schema constraints. Separate Schema 
+  interfaces dictate the interaction between Backend and Schema subsystems. Hence 
+  schema based attribute normalization and schema based objectclass constraint 
+  checking are delegated to the Schema subsystem by the Backend. This dependency 
+  is the source of the various kinds of NamingExceptions thrown by most of the 
+  methods on the Backend interface. A Backend simply let's these exceptions pass 
+  through.</p>
+<p>&nbsp;</p>
+<h4>BackendArtifacts: Helper Interfaces</h4>
+<p>An Entry is a pivotal helper class and a Backend artifact. It represents a 
+  server side LDAP entry by containing attributes. It is the atomic unit of storage 
+  within a Backend. In this respect an Entry is a value object. Once instantiated 
+  by a Backend using the <code>newEntry</code> call, attribute value pair add 
+  methods are used to add single and multivalued attributes to new instances. 
+  Once all attributes are added the Entry can be stored in the Backend via <code>create</code>. 
+  Change and remove mutators are used afterwords on the validated Entry to alter 
+  its attributes. An Entry can be repeatedly updated this way until it is deleted. 
+  Backends and cursors provide the means to access and store entries while entries 
+  provide the means to alter attributes.</p>
+<p>Cursor artifacts extend the Backend interfaces to provide search and bulk access 
+  methods to efficiently iterate over entries. In very large DIBs entries cannot 
+  be loaded on mass due to resource limitations. Likewise search implementations 
+  must manage joins efficiently avoiding mass retreivals or table scans returning 
+  results on an as needed basis. Cursor are the iterative conduit into the DIB.</p>
+<p>The Cursor class is abstract and implemented as a NamingEnumeration that extends 
+  the Observable class. Cursors will interface with the Backend factory that created 
+  it. Most interfaces on Backends could potentially throw various subclasses of 
+  NamingException. It was natural to encapsulate all possible naming exceptions 
+  by implementing a NamingEnumeration. Observable was extended to potentially 
+  anounce open/close state changes to managing Backends so resouces associated 
+  with Cursors can be freed. The Backend interface does not extend Observable 
+  however. Not all backends will need to 'observe' these state changes. Implementations 
+  may decide to complement Cursor Observables by implementing the Observer interface, 
+  the potential is there if its use is needed. Also subtype interfaces of Backend, 
+  namely Atomic Backend and Unified Backend are designed to be used as service 
+  interfaces in the avalon framework. The design pattern could be compromised 
+  if the Observer's update method were to be exposed as a service interface.</p>
+<p>The abstract Cursor class declares the NamingException methods final and introduces 
+  the abstract protected advance, canAdvance, and freeResources methods requiring 
+  their implementation by concrete Cursors. These seals were introduced to allow 
+  the abstract Cursor class to automatically close itself without the chance of 
+  tampering by subclasses. When exhausted or when exceptions prevent further iteration, 
+  Cursors call close. Enumeration and NamingEnumeration semantics are maintained 
+  by wraping unexpected Backend exceptions in a subtype of NoSuchElement exception 
+  called CursorException. The JDK expects such an exception to be thrown when 
+  nextElement and next are called on exhausted instances of these interfaces.</p>
+<p>&nbsp;</p>
+<h3 align="center">Server Backend Semantics</h3>
+<p>Some operational semantics are supported by the syntax of classes and interfaces 
+  defined in the backend package. Others are not and need to be explicitly defined 
+  here. Exception handling semantics and iterative cursor behavoir are aspects 
+  of expected semantics in the server backend contract.</p>
+<p>&nbsp;</p>
+<h4>Exception Handling</h4>
+<p>To allow the gambit of Backend implementations, while balancing complexity 
+  with performance we quickly realized that most effective Backends must interface 
+  with a Schema subsystem. Attribute value and DN normalization will be a concern 
+  for every Backend. This is unavoidable. Attribute value normalization is specific 
+  to the type of the attribute and hence is dependent upon schema information.</p>
+<p>Value normalization requires valid values and introduces schema checking issues: 
+  object class correctness, attribute syntax correctness, attribute value syntaxes 
+  and matching rules. There simply is no way to avoid these aspects however they 
+  can and will be encapsulated within schema subsystem components provided to 
+  all backends as an independent service. Backends interface with the schema subsystem 
+  through Schemas and attribute Normalizer interfaces to conduct schema checking 
+  and validation. These interfaces will throw NamingException subclasses to announce 
+  schema violations. Backends need to remain as simple as possible. Minimizing 
+  the amount of exception handling within backends to manage calls to Schema and 
+  Normalizer interfaces keeps the complexity down. For these reasons many methods 
+  on backend package classes and interfaces throw subclasses of NamingExceptions. 
+  Hence Backends and their artifacts pass through exceptions generated by schema 
+  method calls. </p>
+<p>Backend implementations need not handle NamingExceptions generated by calls 
+  to dependent schema APIs. All Backends hence will need to have access to the 
+  schema subsystem. The backend package does not define how this actually happens 
+  nor does it place any restriction on the means. This is due to the use of various 
+  server composition schemes: embedded, standalone and micro-kernel configurations. 
+  Handling naming subsystem, schema subsystem and BackendException failures are 
+  the responsibility of protocol processing elements which sit above these modules 
+  in their various configurations.</p>
+<p>Exception bubble up from schema subsystem calls. The types of exceptions generated 
+  by the various interfaces hint at what they do. We have tried to distribute 
+  the number of exception types thrown by interfaces based on aspect. Some naming 
+  exceptions will result when validating the correctness of attribute values using 
+  attribute syntaxes and their identifiers. Others result in Entry level schema 
+  violations where the required attributes in an objectclass definition as missing 
+  or extra attributes not allowed by the schema have been added. We will coin 
+  the phrase entry level and attribute level to describe the two diffent types 
+  of violations we must manage. The Backend interface must manage entry level 
+  violations first because it is the facade through which all entries are created, 
+  updated and deleted. Secondly, restrictions on entry attribute composition cannot 
+  be managed by an Entry. Think about what would happend as an entry is being 
+  built. Stages in building it would of course be inconsistent with schema requirements 
+  on objectclasses. When an objectclass attribute is added the Entry is already 
+  inconsistent if that objectclass has manditory attribute requirements. What 
+  do you add first the objectclass attribute or the attributes it requires to 
+  be consistent with the objectclass definition? If the attributes required are 
+  added first they violate the schema by not having the appropriate objectclass 
+  attribute. To avoid this chicken or egg problem such Entry level schema checking 
+  is delegated to the Backend interfaces and avoided by Entry interfaces. Hence 
+  the contract presumes that Backend implementations manage objectclass schema 
+  checks while Entry implementations for that Backend manage attribute schema 
+  checks. </p>
+<p>Other non-schema subsystem associated exceptions (also NamingException subclasses) 
+  are thrown by the search method. These exceptions express problems with search 
+  criteria. Cursors created by searches can also throw other exceptions associated 
+  with resources or search limitations. These matters are left to the discretion 
+  of the backend implementors. Below we categorically list some of the exceptions 
+  that could be thrown by backend implementation classes which have conveniently 
+  been defined for us by the JNDI packages. Note that some exceptions in JNDI 
+  were defined specifically to express client side or client side provider errors. 
+  If we elect to use them we refer to them in our own serverside context.</p>
+<p><b>Cursor: </b></p>
+<p>Search errors (implicitly defined as NamingExceptions)</p>
+<ul>
+  <li>CannotProceedException</li>
+  <li>InterruptedNamingException</li>
+  <li>LimitExceededException</li>
+  <li>LinkException</li>
+  <li>LinkLoopException</li>
+  <li>MalformedLinkException</li>
+  <li>PartialResultException</li>
+  <li>SizeLimitExceededException</li>
+  <li>TimeLimitExceededException</li>
+</ul>
+<h4>Backend: </h4>
+<p> Objectclass level schema violations (explicitly thrown)</p>
+<ul>
+  <li>NameNotFoundException</li>
+  <li>InvalidNameException</li>
+  <li>NameAlreadyBoundException</li>
+  <li>ContextNotEmptyException</li>
+  <li>InvalidSearchFilterException</li>
+  <li>InvalidSearchControlsException</li>
+  <li>InvalidAttributesException</li>
+  <li>SchemaViolationException<br>
+  </li>
+</ul>
+<h4>Entry: </h4>
+Attribute level schema violations (explicitly thrown) 
+<ul>
+  <li>AttributeModificationException</li>
+  <li>InvalidAttributeValueException</li>
+  <li>InvalidAttributeIdentifierException</li>
+</ul>
+<p>&nbsp;</p>
+<h4>Cursor Behavoir</h4>
+<p>Cursors react to exceptional conditions based on the iteration methods used. 
+  If Cursors are used as Enumerations callers are sheilded from exception handling. 
+  Both backend and naming exceptions are logged and the Cursor is automatically 
+  closed if the hasNextElement method bombs. The nextElement method logs then 
+  transduces NamingExceptions and BackendExceptions into a CursorException which 
+  is a subclass of NoSuchElementException. Implementations must support the Enumeration 
+  contract by making sure that calls to nextElement preceded by hasNextElement 
+  call with a true return value never throw a CursorException. This can be accomplished 
+  by prefetching values.</p>
+<p>A similar contract is required for NamingEnumeration interfaces. The hasNext 
+  method sheilds callers from handling Backend exceptions while allowing them 
+  to handle NamingExceptions. BackendExceptions when encountered are logged and 
+  the Cursor is closed. Likewise the next method allows callers to handle NamingExceptions, 
+  yet sheilds them from BackendExceptions resulting from delegated calls to advance. 
+  It logs the BackendException and rethrows it as a CursorException. Again NamingEnumeration 
+  semantics must be adhered to. Calls to next should not throw a CursorException 
+  if hasNext returned true before the call. Prefetching again is the key.</p>
+<p>Concrete Cursor implementors may wonder how they can comply with the Enumeration 
+  and NamingEnumeration contract if all their interface methods are made final 
+  by the abstract Cursor class. Again prefetching is the key! Cursor implementors 
+  should prefetch at Cursor initialization. If the prefetch fails the BackendException 
+  can be handled by the caller to the Backend interface method instantiating the 
+  Cursor. If the prefetch yeilds no result a closed exhausted Cursor is returned. 
+  They are empty in such cases and the contract is satisfied.</p>
+<p>&nbsp;</p>
+</body>
+</html>

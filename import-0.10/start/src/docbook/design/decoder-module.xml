@@ -1,0 +1,258 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>DecoderModule Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:43:08 $</date>
+                <revdescription>
+                    <para>
+$Log: decoder-module.xml,v $
+Revision 1.6  2003/05/03 01:43:08  bearcej
+Add maven file to help generate server site.
+Modify graphic links again.
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.5  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.4  2003/03/25 23:17:13  akarasulu
+Finished off doc changes for use of lock objects.
+
+Revision 1.3  2003/03/24 13:22:27  akarasulu
+Made it so all modules use ClientKey lock objects for IO locking.
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.3  2003/03/15 17:24:52  bearcej
+Fixed figure tags to conform to simple docbook.
+Modified Files:
+ Tag: ALPHA-0_7
+    decoder-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:29  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:19  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.2  2003/03/06 23:11:26  akarasulu
+Proof read decoder module and added some content to protocol module docs.
+
+Revision 1.1.2.1  2003/03/03 04:39:08  akarasulu
+new docs and changes
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+            The DecoderModule implements the Decoder service interface which is
+            a subinterface of the InputListener interface.  The InputListener 
+            interface implements a single void method called inputReceived which
+            takes an InputEvent as its sole argument.  The DecoderModule is thus
+            a glorified InputEvent listener or processor which decodes BER 
+            encoded ASN.1 LDAPv3 request message envelopes into a request 
+            LDAPMessage object.  It essentially demarshals incomming requests 
+            and is implemented as a server stage.
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Have a link to the InputModule documentation.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            As mentioned in the summary, the DecoderModule must implement only 
+            one service method: inputReceived.  The InputManager which is 
+            implemented as a stage directly upstream of this Decoder stage, 
+            has input handlers that monitor client Socket InputStreams for input
+            activity.  Once input is dectected an InputEvent is generated and
+            handed off to the inputReceived method of the Decoder service.  The
+            Decoder is then responsible for reading the request PDU from the
+            stream packaged within the InputEvent.  The InputModule only detects
+            the input without interfering with or removing the content from the 
+            stream.
+        </para>
+        
+        <para>
+            The DecoderModule implements the Decoder service as a stage and so
+            its inputReceived method simply enqueues the InputEvent onto the 
+            stage event queue and returns immediately.  The event is processed
+            asynchronously by the worker threads of the DecoderModule stage 
+            using the event handler initialized within the DecoderModule's 
+            default constructor.  Events are dequeued by the stage's driver 
+            thread, and the code within the AbstractStage super class for this 
+            module creates an annonymous Runnable to wrap and drive the call to
+            the stage's EventHandler using the dequeued event.  For more details 
+            regarding stage processing see the architecture and implementation 
+            documentation for SEDA stages in LDAPd.
+        </para>
+        
+        <figure>
+            <title>DecoderModule's InputEventHandler Sequence Diagram</title>
+           <graphic fileref=
+       "../images/InputEventHandlerHandleEvent.gif"/>
+        </figure>
+        
+        <para>
+            The EventHandler for the DecoderModule is implemented as a named
+            inner class extending AbstractEventHandler.  It is responsible for
+            processing the InputEvent in its handleEvent method which takes an
+            EventObject.  The event argument must be an instance of an 
+            InputEvent.  The handleEvent method performs the work which is
+            driven by a stage worker thread.  handleEvent extracts from the 
+            InputEvent argument the ClientKey and an InputStream.
+        </para>
+        
+        <para>
+            The extracted InputStream is used to read and decode BER encoded 
+            ASN.1 LDAPv3 request message envelopes.  The DecoderModule uses a 
+            Snacc4J BERDecoder to demarshal the encoded stream bytes into an 
+            LDAPMessage request envelope object.  The Snacc4J compiler was 
+            applied to generate this LDAPMessage stub class and other classes 
+            whose instances are kept within a containment heirarchy with the
+            LDAPMessage at the root.  The Snacc4J stub compiler generated these 
+            classes from the LDAPv3 definitions specified in ASN.1 notation in 
+            <ulink url="http://www.faqs.org/rfcs/rfc2251.html"> RFC 2251</ulink> 
+            Appendix A.  The generated classes are stored within the 
+            ldapd-common subproject under the org.apache.ldap.common.ber.ldap_v3 package.
+            These classes are kept within the common subproject so that command
+            line ldap clients can be written both for protocol test suites and
+            production use.  The Snacc4J BERDecoder instance is created to 
+            specifically read from the InputStream extracted from the InputEvent
+            by invoking its constructor using the InputStream as the sole 
+            argument.  Then within a synchronized block on the input lock, the 
+            decode method of the LDAPMessage object is called using the 
+            BERDecoder instance as the sole argument.  The LDAPMessage instance 
+            was created earlier as an empty message void of content using the 
+            default constructor. Once the decode method of the LDAPMessage 
+            returns, the entire request PDU will have been read from the 
+            client's InputStream and the LDAPMessage instance will contain a 
+            tree of nested LDAPv3 defined object instances.  At this point, 
+            any further incomming bytes on the InputStream are the bytes to the 
+            next request being sent by the client.  For more info on how Snacc4J 
+            reads and decodes bytes on the InputStream to generate the 
+            LDAPMessage containment tree consult the 
+            <ulink url="http://www.alphaworks.ibm.com/tech/snaccforjava">
+            Snacc4J website</ulink>.  Since protocol engine request processors 
+            must directly access the contents within the LDAPMessage envelope,
+            the structure of the containment tree is discussed in more detail 
+            within their documentation.
+        </para>
+        
+        <para>
+            All modules must assume the possibility of concurrent access to 
+            client resources.  In the case of the Decoder another thread may
+            attempt to read from the client InputStream while a request 
+            extraction is in progress.  Concurrent access would corrupt the
+            content stream removing bytes from the PDU.  The Decoder must make
+            certain that no other thread is reading from the client's input 
+            stream from which the decoder may be in the process of demarshalling
+            a request message.  The ClientKey was explicitly designed to 
+            centralize lock objects used for inter and intra module 
+            synchronization.  Lock objects for both the client's input and 
+            output channels exist within the ClientKey.  Two separate lock 
+            objects were intentionally used to enable the writing of a response 
+            while reading requests from the client at the same time.  All 
+            modules must use these lock objects to synchronize client IO 
+            instead of using the supplied streams carried by events.  The
+            objects carried by an event may not be those used for 
+            synchronization in other modules.  Use of these lock objects 
+            instead guarrantee the use of the correct synchronization object.
+        </para>
+
+        <para>
+            Before leaving the synchronized block on the lock object, the 
+            notifyAll method is called on the input lock.  This wakes up blocked
+            threads waiting to read from the clients InputStream.  The client 
+            input monitor thread in the InputModule stage waits for this notify 
+            to resume reads on the InputStream when the decoder is finished 
+            demarshalling a request.  Finally, with the LDAPMessage populated 
+            a RequestEvent is created and packaged with the ClientKey and the 
+            demarshaled LDAPMessage.  Before returning from the handleEvent 
+            method in the InputEventHandler the generated RequestEvent is 
+            delivered to the ProtocolEngine to process the request.  The 
+            requestReceived method on the ProtocolEngine is used with the newly
+            created RequestEvent as the argument.  Upon return the worker thread
+            dies and is reclaimed by the worker thread pool of the 
+            DecoderModule stage.
+        </para>
+    </section>
+    
+    <section id="future">
+        <title>Future</title>
+        
+        <itemizedlist><listitem><para>
+            Think about writing a hard coded LDAPv3 specific encoder and decoder 
+            using our own ASN.1 parser.  The current stub compilers generate
+            stubs that implement or extend generalized encodind and decoding 
+            classes to handle any kind of notation.  This makes them less 
+            efficient but more useful.  If we hard code only for the the 
+            LDAPv3 notation and use JDK1.4 new IO libraries we can customize and
+            optimize the encoder and decoder IO handling.  Also the containment 
+            tree generated by snacc in a decoded LDAPMessage is very mesy from 
+            an OO perspective.  All members are public and intuitive accessors 
+            are not provided.  Using these generated APIs for PDU construction 
+            is tedious and the code is hard to maintain.  Also collection APIs
+            are not used in Snacc4J Java stubs.  A lot of ugliness within the 
+            protocol processors would go away if we coded explicity for the 
+            LDAPv3 definitions.  The undertaking however is an open source 
+            project on its own but well worth it considering the prevalence use
+            of ASN.1 and the BER, DER, and XER encodings.  Considering the 
+            performance impact of using direct memory IO on incoming and 
+            outgoing messages for decoding and encoding buffers gets us excited.
+        </para></listitem></itemizedlist>
+
+        <itemizedlist><listitem><para>
+            Consider the use of a2j rather than Snacc4J.  IBM's Snacc4J license 
+            according to Peter Donald is not very compatable with the Apache 1.1
+            license.  The a4j ASN.1 to Java Class compiler would better 
+            compliment the Apache License.  a2j is available 
+            <ulink url="http://sourceforge.net/projects/a2j">here</ulink>, but 
+            it may not be mature enough for now.
+        </para></listitem></itemizedlist>
+
+        <itemizedlist><listitem><para>
+            Potential use of new IO APIs to decode.  Will this be necessary
+            if channels are interchangeable or wrappable by InputStreams.  We
+            will always have to generate a DOM like containment tree of the 
+            request message to access it.  Perhaps a SAX like implementation 
+            can be found but will that be feasible with the manner in which 
+            request processors operate.  Do we want to cache copies of this 
+            data in multiple formes? Answer is no way.  Right now it is stored
+            in the LDAPMessage tree as well as parameters within the protocol
+            request processors.  It would be nice to just maintain one copy of
+            the information set stored in each request.
+        </para></listitem></itemizedlist>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <itemizedlist><listitem><para>
+            Uses Snacc4J.
+        </para></listitem></itemizedlist>
+    </section>
+</article>

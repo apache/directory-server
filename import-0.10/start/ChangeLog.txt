@@ -1,0 +1,17 @@
+Release 0.71a
+=============
+
+* Refactored ClientKeys to throw KeyExpiryExceptions.
+* Modified OutputModule to handle expirations and it now buffers client writes.
+* Enabled use of IO lock objects in InputModule and DecoderModule.
+* InputModule's InputStreamMonitor now politely exits when the ClientKey is
+  expired rather than exiting due to an IOException on the InputStream.
+* Cleaned up the ClientManager interface and its ClientModule implementation
+  to enable named and anonymous sessions.
+* ClientModule now dependent on Nexus which has become a ClientManagerSlave
+  along with all backends.
+* ProtocolEngine now uses ClientManager interface methods to assiciate worker
+  threads with clients when they process requests on behalf of the client.
+* Added ability to transparently inject or alter operational attributes within
+  the nexus module.
+

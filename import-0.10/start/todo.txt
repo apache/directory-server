@@ -1,0 +1,4 @@
+ o add check to build.xml for proper ant version
+ o test it out
+ o add modified phoenix download and install option to build
+

@@ -1,0 +1,745 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>LDAPv3 Search Operation Design And Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.7 $</revnumber>
+                <date>$Date: 2003/05/03 01:21:33 $</date>
+                <revdescription>
+                    <para>
+$Log: search-operation.xml,v $
+Revision 1.7  2003/05/03 01:21:33  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.6  2003/04/04 01:40:16  akarasulu
+Added more to search operation document yet temporarily suspended it to
+start working on request scope management design which all operations will
+eventually depend upon.
+
+Revision 1.5  2003/04/02 22:15:00  akarasulu
+Added section on jdbm backend design for alias dereferencing.
+
+Revision 1.4  2003/04/02 16:23:39  akarasulu
+Exploring issues dealing with alias cycles, indirect alias chains and how
+they must be handled.
+
+Revision 1.3  2003/04/02 02:15:24  akarasulu
+Got down to how we should finally handle alias dereferencing modes.
+
+Revision 1.2  2003/03/31 13:14:12  akarasulu
+Added more documentation on alias dereferencing.
+
+Revision 1.1  2003/03/28 05:12:35  akarasulu
+Adding documents to track changes to protocol enhancements.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Comments on Protocol Requirements</title>
+
+        <section>
+            <title>Aliases and Search Operations</title>
+            
+            <para>
+                Alias entries according to X.501 are entries "of the class 
+                'alias' containing information used to provide an alternative 
+                name for an object."  The objectClass definition for an alias
+                is provided below along with the attributeType definition for
+                its sole required attribute aliasedObjectName:
+            </para>
+            
+            <programlisting>
+                objectclass ( 2.5.6.1 NAME 'alias' SUP top STRUCTURAL
+                    MUST aliasedObjectName )
+            
+                attributetype ( 2.5.4.1 NAME 'aliasedObjectName'
+                    EQUALITY distinguishedNameMatch
+                    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE )
+            </programlisting>
+            
+            <para>
+                The aliasedObjectName is uses the distinguishedNameSyntax.
+                Aliases can only refer to entries local to the DSA since they
+                only represent distinguished names and not an LDAP URL.  There 
+                seems to be no documentation pertaining to the use of aliases 
+                that span across DIBs.  Hence we presume an alias in one backend
+                can refer to an entry within another.  Aliases cannot refer to 
+                other aliases in an alias chain according to X.501.  Write 
+                operations are not allowed to affect the DIT through aliases 
+                (need confirmation about this).  There seems to be a defunct 
+                IETF draft that never made it to RFC which discusses the 
+                expected behavoir of aliases.  See <ulink url=
+"http://www.globecom.net/ietf/draft/draft-byrne-ldap-alias-00.html">
+                draft-byrne-ldap-alias-00 </ulink> for more information 
+                regarding alias behavior in LDAPv3.  While reading this draft
+                note that it often violates RFC 2251 - namely by allowing 
+                aliases to other aliases in a chain.
+            </para>
+            
+            <para>
+                According to X.511 section 12.5.2.1 the following error codes
+                are associated with aliases (see <ulink url=
+"http://www.alternic.org/drafts/drafts-j-k/draft-just-ldapv3-rescodes-02.txt">
+                Error Code Definitons Draft</ulink> for detailed error code
+                explanations):
+            </para>
+            
+            <table frame='all'><title>Mandarory LDAPd Services</title>
+                <tgroup cols='3' align='left' colsep='1' rowsep='1'>
+                    <colspec colname='ErrorName'/>
+                    <colspec colname='LDAPv3Code'/>
+                    <colspec colname='Description'/>
+                    <thead>
+                        <row>
+                            <entry>Error Name</entry>
+                            <entry>LDAPv3 Code</entry>
+                            <entry>Error Condition Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>aliasProblem</entry>
+                            <entry>33</entry>
+                            <entry>An alias has been dereferenced which names 
+                                no object - a broken link where destination 
+                                entry does not exist. [X511, Section 12.5].
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>aliasDereferencingProblem</entry>
+                            <entry>36</entry>
+                            <entry>An alias was encountered in a situation where
+                                it was not allowed.  For example an add that 
+                                creates an alias to another alias could throw 
+                                this error or a delete operation going through
+                                an alias.  If the client does not have read 
+                                permission for the aliasedObjectName attribute 
+                                and its value then the error should be returned.
+                                [X511, Section 7.11.1.1]
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            
+            <para>
+                According to section 4.5.1 of RFC 
+                <ulink url="http://www.faqs.org/rfcs/rfc2251.html">2251</ulink>,
+                search requests contain a search operation modifier called
+                derefAliases which affect the manner in which aliases are 
+                handled during the course of a search operation.  Parts of the 
+                RFC's section defining the values of the derefAliases search 
+                parameter are listed in the block below:
+            </para>
+            
+            <programlisting>
+
+            Search Request ASN.1 Notation Snippet:
+            --------------------------------------
+            
+                derefAliases    ENUMERATED {
+                        neverDerefAliases       (0),
+                        derefInSearching        (1),
+                        derefFindingBaseObj     (2),
+                        derefAlways             (3) }
+            
+            Indicator Commentary Snippet:
+            -----------------------------
+            
+            derefAliases: An indicator as to how alias objects (as defined in
+            X.501) are to be handled in searching.  The semantics of the
+            possible values of this field are:
+        
+                    neverDerefAliases: do not dereference aliases in searching
+                    or in locating the base object of the search;
+        
+                    derefInSearching: dereference aliases in subordinates of
+                    the base object in searching, but not in locating the
+                    base object of the search;
+        
+                    derefFindingBaseObj: dereference aliases in locating
+                    the base object of the search, but not when searching
+                    subordinates of the base object;
+        
+                    derefAlways: dereference aliases both in searching and in
+                    locating the base object of the search.
+                     
+            </programlisting>
+            
+            <para>
+                The definitions for the four modes of alias handling raise 
+                questions regarding alias handling behavoir.  These questions
+                deal with the order in which dereferencing and search selection 
+                criteria are applied.  If alias dereferencing is applied before
+                the application of search criteria then the filter takes affect
+                on the target entry referred to by the alias.  Conversely if
+                dereferencing is applied after the application of search 
+                criteria then the filter is applied to the alias itself and not 
+                on the target entry.  In the later case the alias may never be 
+                a candidate for dereferencing if the search filter does not 
+                select it.  Although a subtle nuance in alias handling, the 
+                order of handling can produce dramatic differences in the 
+                returned search result set.
+            </para>
+            
+            <para>
+                These questions must be answered before choosing a design 
+                approach that incorporates the handling of aliases.  The 
+                existing LDAP and DAP standards do not explicitly confront these
+                crutial details.  Perhaps the lack of standardization is the
+                reason why so many directory servers do not support aliases.
+                The SUN One Directory Server for example does not support 
+                aliases at all.  Although a sticky point aliases provide 
+                an immeasurable degree of flexibility, and should be supported.
+                Ultimately we need to pose these questions to both the LDAP and
+                DAP communities to find the appropriate answers.  For the time 
+                being some inferences can be drawn from what little information 
+                we do have regarding alias handling.  These inferences can be 
+                presented to the community for definitive answers after we draw
+                them out below.
+            </para>
+            
+            <para>
+                Let's consider alias handling for searches when the search base 
+                is an alias.  In neverDerefAliases or in derefInSearching modes 
+                the search base is never dereferenced.  Hence it must be treated
+                like any other regular leaf entry.  Depending on the search 
+                scope and the filter used there are two possible outcomes: 
+                either nothing is returned or the search base entry (the alias)
+                is returned.  Regardless of the filter used, a search scope set 
+                to one level search will always return nothing.  One level 
+                scoped searches never return the search base entry in the result
+                set.  If base level or subtree level search scope is used, then 
+                the alias is returned in the result set only if the search 
+                filter selects the base (alias) entry.  For example a filter of
+                '(objectClass=alias)' will select the alias entry when the 
+                search scope is set to the base or subtree level scope.  If the
+                alias entry is to be returned it is packaged in a 
+                SearchResultEntry PDU and sent to the client.  A final 
+                SearchResultDone PDU signals the completion of the search 
+                operation.  If the alias is not selected a single 
+                SearchResultDone PDU only.
+            </para>
+                
+            <para>    
+                If a search request has derefAliases set to derefAlways or 
+                derefFindingBaseObj then the search base if it is an alias is 
+                dereferenced before the search filter is applied.  The effective
+                search base then becomes the DN of the entry pointed to by the 
+                alias.  In these cases alias, dereferencing of the base must be 
+                applied before the search begins.  Use of the aliased DN 
+                propagates it to the new search base.  Ironically the previous 
+                filter example '(objectClass=alias)' using the base search scope 
+                should return nothing in these modes which do dereference the
+                base entry.  The reason being is the dereferenced base cannot 
+                be an alias since chaining is not allowed.  So once the new base
+                is dereferenced, and the filter is applied, the filter 
+                expression will not select it.  Based on the position of the 
+                new search base, the search scope, and the search filter the 
+                returned result set could be just about anything.  We can only 
+                comment on this one special filter example's result.
+            </para>
+                
+            <para>
+                Search behavoir under these cases enabling search base 
+                dereferencing are well understood and documented.  It is clear
+                in these cases that dereferencing of aliases must occur before
+                the application of search filters to select dereferenced entries
+                and their descendants.  Standards however lack clarity with 
+                regard to search behavoir when alias dereferencing is totally 
+                enabled while searching.  To obtain a solid footing we have 
+                decided to take a leap of faith with a simple presumption 
+                regarding alias handling consistancy.  The presumption stems 
+                from our clear conclusions regarding the order of dereferencing
+                found for alias handling on search bases.  In this light, we 
+                presume the consistant application of alias dereferencing 
+                before the application of search criteria across all alias 
+                handling modes.  So with this premis, derefInSearching mode on 
+                a subtree scoped search would dereference every descendant 
+                alias under the search base whether or not the search filter 
+                selects descendant alias entries.  The impact of this premis 
+                aligns perfectly well with search semantics and the concept of 
+                name aliases.  Aliases alter both the DIT structure and the 
+                namespace by providing alternative names for entries.  In 
+                affect, under the various modes of alias handling they present 
+                different views of the DIT to search operations.  When aliases 
+                are never dereferenced the DIT remains a perfect tree structure 
+                with aliases represented as leaf entries.  Without 
+                dereferencing, aliases have no influence on the effective 
+                namespace presented to a search operation.  When alias
+                dereferencing is totally enabled, the effective DIT structure 
+                and namespace, which a search filter operates on, differs from
+                modes where alias dereferencing is totally disabled.  The 
+                alternative view of the DIT structure and namespace represents 
+                aliased names and alias induced structural relationships as 
+                actual entry names and relationships as if aliases never 
+                existed in the first place.  The new modifed view of the DIT, 
+                depending on the aliases used, may be a tree or it may be a
+                graph.  Regardless the search algorthim which applies the filter
+                to the DIB, should operate on the modified view when alias 
+                dereferencing has been totally enabled.
+            </para>
+                
+            <para>
+                In conclusion, all alias handling modes, if at all, must 
+                dereference aliases before applying search filters to select
+                DIT entries.  This clarifies our approach in dealing with the
+                two modes: derefInSearching and derefAlways.  derefAlways after 
+                the initial search base is dereferenced reduces to the 
+                derefInSearching mode by using the DN of entry referenced by the
+                alias.  After this step the handling of these modes are the 
+                same.  To conduct searches in derefAlways and derefInSearching 
+                modes the alias dereferencing mechanism is unfortunately 
+                optimally implemented within a backend module's search algorthm 
+                to enable dereferencing before the application of search 
+                criteria.  This is unfortunate because it demands the knowledge
+                of alias handling behavoir on the part of backends and their 
+                implementors.
+            </para>
+            
+            <para>
+                Another potential pitfall while dereferencing aliases during
+                searches with subtree scope appears when aliases induce cycles
+                within the DIT.  Cycles cause infinite loops or the return
+                of redundant entry copies to the client.  A simple cycle
+                results when an alias refers back to a relative within the 
+                heirarchy.  Dereferencing the alias to propagate the search back
+                at the relative eventually encounters the alias once again and
+                so on in an infinite search loop.  One approach to mitigate the
+                problem would be to restrict alias creation, by rejecting the
+                addition of aliases to the DIT which cause cycles where the
+                offending alias refers back to an immediate or distant parent.
+                Another approach would be to track search propagation preventing
+                the dereferencing of aliases more than once.  Although the 
+                approach prevents an infinite loop it does not prevent the
+                possibility of returning duplicate entry copies to the client.
+                The search would have to track the entries it has already 
+                returned to prevent the redundant return of duplicates.
+            </para>
+            
+            <para>
+                More complex situations occur where indirect alias chains cause 
+                cycles.  When refering to indirect chains we do not mean the 
+                referral of one alias to another.  This is not allowed to begin
+                with.  Indirect chains occur when one alias refers to an entry,
+                which has a descendant alias that refers back to a parent of the
+                first alias.  Under a subtree scoped search with dereferencing 
+                enabled, the search would eventually cycle from the first alias
+                to the second and back to the first.  This "indirect chain" 
+                presents the same challanges encountered in a simple cyclic
+                alias.  The chain however is much harder to detect and its 
+                affects are less trivial to handle than the simple cycle 
+                inducing alias.  These problems must be confronted regardless
+                of the design approach.
+            </para>
+            
+            <para>
+                With respect to JNDI, alias dereferencing is controled using the
+                "java.naming.ldap.derefAliases" environment property.  The 
+                "dereference links" flag obtained via the getDerefLinkFlag() on
+                SearchControls has nothing to do with alias dereferencing.  
+                This is clearly stated in the tutorial for JNDI.  However, the
+                flag's purpose is unknown due to lack of documentation by SUN.  
+                Can someone find out what it's used for?  Also when resolving 
+                the name of an aliased entry using the NameClassPair method 
+                getName() on dereferenced aliases, the name returned will be the 
+                full distinguished name of the aliased entry and not the 
+                relative distinguished name.  As a consequence the isRelative()
+                method for the NameClassPair should return false.  This nuance 
+                yet a requirement of JNDI must be meet by the server side JNDI 
+                provider once alias dereferencing is enabled.
+            </para>
+        </section>
+    </section>
+    
+    <section>
+        <title>Design</title>
+        
+        <section>
+            <title>Alias Handling in Search Operations</title>
+            
+            <para>
+                With some of our conclusions in the protocol commentary section
+                above regarding alias handling, we now consider some design 
+                approaches in this section.  These approaches are dependent on 
+                the existing server design and so we breifly recap its relavent
+                aspects.
+            </para>
+            
+            <para>
+                The search operation is conducted within the ProtocolModule
+                using a search request processor.  The processor extracts search
+                parameters from the SearchRequest PDU and calls the search 
+                method on the nexus to return a Cursor over the result set.  The
+                processor then enters a loop to pull entries one at a time from 
+                the backend using the search Cursor.  Each iteration transmits
+                an entry packaged within a SearchResultEntry PDU to the client.
+                The Cursor returned by the search method of the nexus, is 
+                actually created by calling the search method on the backend 
+                associated with the naming context of the search base.  In this 
+                respect the nexus design presumes the confinement of a search 
+                operation to a single backend.  The current nexus design 
+                presents challanges for alias dereferencing when aliases in one
+                backend refer to entries in other backends.  "DIB crossing 
+                aliases", as we coin them, may require a completely different 
+                approach to handling dereferencing.
+            </para>
+                
+            <para>
+                With the design in mind we now explore the design options
+                for the various alias dereferencing modes.  Without alias
+                dereferencing support the server effectively operates in
+                neverDerefAliases mode.  The alias is returned itself within a
+                SearchResultEntry PDU as if it is a terminal leaf entry.
+                derefFindingBaseObj mode could be handled trivially before
+                calling search on the nexus within the search processor.  Search
+                base dereferencing can also be handled within the nexus itself.
+                In these cases, the search base entry could be checked to see
+                if it is an alias.  If it is an alias the target entry it points
+                to could be dereferenced and used as the base of the search when
+                the call to the nexus or owning backend is made.  The amount of
+                change required to enable this mode is trivial with several
+                implementation alternatives.
+            </para>
+            
+            <para>
+                The other two modes, derefInSearching and derefAlways, would
+                require non-trivial changes to handle alias dereferencing since
+                they pervade into the searching mechanism.  Requirin the
+                dereferencing of aliases before the application of search
+                selection criteria, tightly couples dereferencing with the
+                search algorithm.  In an effort to simplify our approach, we
+                reduce the two modes into one.  As mentioned before the only
+                difference between derefInSearching and derefAlways modes is
+                the fact that the search base if it is an alias is resolved
+                before the search.  So for all practical purposes we can reduce
+                the derefAlways mode into the derefInSearching mode by
+                dereferencing the search base to the aliased DN.  Then the
+                dereferenced entry can then be used as the search base while
+                conducting the search as if it were in derefInSearching mode.
+                Even with this reduction, derefInSearching mode is not a simple
+                mode to manage especially with whole subtree scoped searches.
+                Many approaches can be taken for dereferencing aliases when in
+                derefInSearching mode.  We shall explore the options within the
+                rest of this section to determine the most optimal design for
+                searches conducted in derefInSearching mode.  All options below
+                are geared specifically to the toughest case to handle: a
+                search in derefInSearching mode with the scope set to the whole
+                subtree.
+            </para>
+            
+            <section>
+            <title>Alias Handling Outside of Backends</title>
+            
+            <para>
+                Already congested Backends can be spared by embedding alias 
+                dereferencing fuctionality into the protocol engine's search 
+                request processor or into the nexus module.  While iterating 
+                through the resultant cursor the search processor may encounter 
+                aliased entries.  On an alias entry the processor can conduct a 
+                subordinate search using the DN of the aliased entry as the 
+                search base with the parent search's parameters.  Once a 
+                subordinate search cursor is consumed the parent search can 
+                carry on from where it left off.
+            </para>
+            
+            <para>
+                This approach has several problems.  The the most apparent lies
+                in the fact that a subordinate search may return yet another
+                alias and its subordinates may in turn return more aliases and 
+                so on.  A recursive solution would be required to resolve the 
+                possible heirarchy of alias triggered subordinate searches.  A 
+                special cursor can be designed to encapsulate the process and 
+                lessen the amount of impact this would produce on the regions 
+                responsible for alias dereferencing.  At some point during the 
+                search the number of subordinate search cursors waiting for the 
+                last cursor in the chain to complete will be equal to the depth
+                of the deepest alias chain in the search.  That is if there are 
+                no time or size limitations.  Furthermore there is the danger 
+                of cyclic aliases mentioned before.  To prevent such situations
+                the search must maintain a common cache of entries that it has 
+                already returned.  The cache must be shared by all subordinate 
+                search cursors.  Alias dereferencing functionality implemented 
+                outside of the backend need not be pushed into the processor - 
+                it could reside in the nexus (a.k.a. the UnifiedBackend).  
+                Regardless of where it is located, if it does not reside within 
+                backends, it will have the same set of challanges to confront.  
+                These challanges will require recursive solutions.
+            </para>
+            
+            <para>
+                This approach is certainly not trivial however it does spare 
+                backends from having to manage aliases.  If aliases were 
+                managed by backends then they would have to manage them for all
+                protocol operations.  Each backend would have to apply its own
+                unique means to accomplish this depending on the nature of its 
+                backing store and hence its own design.  We explore these issues
+                with regard to the JDBM backend in the section to follow.
+            </para>
+            </section>
+            
+            
+            <section>
+            <title>Adding Alias Dereferencing Functionality To Backends</title>
+            <para>
+                The only other alternative design would be to delegate alias
+                dereferencing to backends.  This as mentioned before further 
+                complicates backend implementations making life even more 
+                difficult for backend implementors.  It also limits aliases,
+                preventing their use across DIBs.  Alias dereferencing design
+                and implementation would be highly specific to the nature of the
+                backend's backing store and would have to be implemented for 
+                each backend.  When analyzing the possibilities of this option 
+                we would have to focus on a specific backend, which makes the 
+                exercise valid for only that backend.  Nevertheless the 
+                exercise will lead to a better understanding of the hurdles to
+                overcome within backends in general.  For the exercise we chose
+                the default Jdbm based backend or modjdbm.  See the module 
+                documentation for more details on its operation.  We will 
+                presume the reader is already familiar with its design and its 
+                implementation.
+            </para>
+            
+            <para>
+                The modjdbm search algorithm factors scope directly into a
+                modified search filter's tree using a special type of node 
+                called a ScopeNode.  The search engine creates a new tree with a 
+                conjuction node at the root.  It attaches the ScopeNode 
+                underneath the root along with the filter expression tree 
+                generated from the user supplied search filter.  This is done 
+                before the optimization stage where the tree is evalutated by 
+                the search optimizer.  Introduction of the scope node before 
+                optimization considers scope while deciding the optimal search
+                route.  If the ScopeNode is chosen as the iteration loop a 
+                Cursor is created over entry ids which comply with search scope
+                requirements based on the search base.  For subtree scope the
+                ids of all descendants of the search base and the base entry 
+                itself are returned.  The cursor operates by performing a full
+                index scan on the DN index testing each entry to see if it is 
+                accepted by a descendant Assertion.  Entry DN's accepted by the 
+                assertion have their ids returned.  The optimizer rarely selects
+                the ScopeNode for iteration in subtree scope, due to an 
+                inefficient full index scan.  The search algorthim in most cases
+                opts to use the ScopeNode in assertion checks rather than in
+                iteration loops.  Whether the ScopeNode is used in iteration or
+                for assertion checks, the same Assertion is used to validate 
+                entries to return.  While iterating the candidate is accepted by
+                the assertion and in a lookup the candidate is also accepted or
+                rejected by the assertion.
+            </para>
+            
+            <para>
+                At the present moment the assertion used for the ScopeNode of
+                a subtree search leverages a single DN to determine if a 
+                candidate is a descendant.  In derefInSearching mode, all 
+                aliases and any indirect chains can be detected before the 
+                search begins.  The DNs of these aliases can be used to build
+                a composite disjunction Assertion for the ScopeNode used in 
+                iterations and lookups.  When used in iteration, the Cursor 
+                built for the ScopeNode equiped with the disjunction Assertion,
+                will return candidates under and at all the alias DNs.  In 
+                lookups, the disjunction Assertion will accept the ids of 
+                entries that are aliased as well as their descendants.
+            </para>
+            
+            <para>
+                The composite descendant Assertion built on multiple DNs can be 
+                spared the trouble of testing each candidate against all aliased
+                DNs.  Aliased entry DNs and the base DN can be consolidated 
+                depending on the relationships between the search base and the
+                aliased entries.  If an aliased entry is a descendant of the 
+                search base then it need not be added to the Assertion.  The 
+                subtree search on the base will eventually included the aliased
+                DN entry and its descendants.  Likewise the base DN need not
+                be added if an aliased entry refers to a parent of the DN.  The
+                subtree search from the aliased parent will eventually include
+                the base entry and its descendants.   This technique can be used
+                to consolidate M related DNs into one DN which is the top most 
+                parent of all descendant DNs.  DN consolidation makes simple 
+                cycles irrelavant to the search without dealing with redundant
+                returns or infinite loops.
+            </para>
+            
+            <para>
+                The one detail left out of all is the mechanism for detecting
+                the set of aliases dereferenced in the search and making their 
+                aliased entry DNs available to the search engine.  A special 
+                index can be built to track aliased names unlike the way normal 
+                indices work.  This special index would map the DN of the alias 
+                to the DN of the entry the alias refers to.  The search engine 
+                would start by scanning the keys of the index looking for DNs 
+                that are descendants of the search base.  The descendant DNs 
+                represent the DNs of all the aliases existing under the search
+                base.  The values of these DNs are appended to the set of DNs
+                that we need to add to the ScopeNode Assertion.  After the 
+                initial scan a similar scan is performed for every value added 
+                to the set until all values added have been checked to see if 
+                they have descendant aliases.  This way we capture all DNs
+                involved in alias chains.  In effect, alias dereferencing is 
+                being performed here for all aliases before the search begins.
+                Once all possible aliased entry DNs are resolved and accumulated
+                within a set, the consolidation process can begin.  The 
+                remaining DNs after consolidation are used to build the subtree
+                ScopeNode's Assertion.  Search then continues in the same 
+                fashion as it has before.  Surprisingly the solution is clean
+                and can be encapsulated outside of the search mechanism.
+            </para>
+            
+            <para>
+                The modjdbm design for alias dereferencing works out 
+                surprisingly well.  The process of dereferencing and the 
+                application of filter selection criteria are more seperable 
+                than we had first imagined.  The performance degradation due to
+                alias dereferencing is nominal.  The issues described within 
+                the "Future Considerations" section to follow do not hold with 
+                such a design - server side sorts can still be implemented 
+                without elaborate designs.  The only drawback is the inability 
+                to implement DIB crossing aliases.  Situations requiring such 
+                constructs can rely on the use of referrals instead.  These
+                surprising conclusions lead us to believe that alias handling
+                is best left upto the individual backend.
+            </para>
+            </section>
+            
+            <section>
+            <title>Furture Considerations</title>
+            <para>
+                Another consideration for choosing between these approaches is
+                the affect it will have on the ease in which other aspects of 
+                search will be designed and implemented.  Namely we are 
+                concerned with support for search operational modifiers like
+                control extentions.  An example of a popular search control 
+                extention is the server side sorting control.  This control
+                enables clients with a small memory foot print which cannot 
+                possibly hold the entire result set for sorting search results
+                by delegating the sort to the server.  The entries are returned 
+                sorted based on an attribute specified by the control.  
+            </para>
+            
+            <para>
+                The most efficient implementation for server side sorting would
+                leverage the sorted indicies of backends to have them return 
+                entries in sorted order.  The alternative of caching the result
+                set on the server after a search to sort the result before 
+                returning it would consume too much memory and processing time.
+                Backends could be asked to leverage their specific indexing 
+                scheme to return entries already sorted since indices usualy 
+                maintain their keys in sorted order.  It would be a waste to 
+                not take advantage of this, only to spend time and memory to
+                sort the results afterwords.
+            </para>
+            
+            <para>
+                The design where alias dereferencing is handled outside of 
+                backends through subordinate searches on aliased entries would 
+                fragment the sorted resultset returned by search cursors.  If a
+                parent search returning sorted entries stops at some alias entry
+                to return the sorted entries of a subordinate search then there
+                will be a discontinuity in sorting order.  The subordinate 
+                search would not return entries in order after the last entry
+                returned by the parent.  Likewise when the subordinate returns
+                its last entry, there is a discontinuity again in the sorting 
+                order when the parent search resumes where it left off.  Without
+                caching the entire set of entrys then iterating over them once 
+                again for the return to the client in sorted order, it would be
+                virtually impossible to manage server side entry sorting 
+                controls.  Doing so would unnecessarily consume both space and
+                time.
+            </para>
+            
+            <para>
+                ????
+                In the case of implementing alias dereferencing within the Jdbm 
+                based backend, modjdbm, the problem would still persist.
+            </para>
+            </section>
+        </section>
+    </section>
+    
+    <section>
+        <title>Alias Handling Implementation</title>
+        
+        <para>
+            We have decided to embed alias handling functionality into backends
+            enabling rapid alias handling without allowing the creation of DIB 
+            crossing aliases.  The following section elaborates on the details
+            of the implementation with respect to the default backend based on
+            JDBM.  The implementation of the JDBM backend is applicable to the
+            the implementation for the BerkeleyDB backend due to their extreme
+            similarity.  Other backend modules like the jdbc backend will be
+            very different.
+        </para>
+        
+        <section>
+        <title>The Implementation of Alias Dereferencing in Backends</title>
+        
+        <para>
+            The implementation shall separate alias handling into categories
+            based on scope and dereferencing modes.  These search parameters
+            are request specific.  The scope parameter is made available to the
+            backend through the search method as a method argument.  The alias
+            dereferencing mode is not and must be made available.  The lack of
+            access to the dereferencing mode parameter raises some questions
+            regarding the handling of request parameters.  There presently is
+            no localized access mechanism for request scope parameters.  In 
+            contrast, session scope parameter alteration and access is 
+            centralized and well defined within the ClientManager and its
+            helper interfaces.  Perhaps there needs to be a similar central
+            facility to access and alter mutable request parameters.  The answer
+            to this question is beyond the scope of this document and it needs
+            to be resolved before implementing any request parameter dependent
+            functionality such as alias dereferencing.
+        </para>
+        
+        </section>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+        </para>
+
+        <para>
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+    </section>
+    
+</article>

@@ -1,0 +1,979 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+	"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+	<title>Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: akarasulu $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.7 $</revnumber>
+                <date>$Date: 2003/08/22 21:15:54 $</date>
+                <revdescription>
+                    <para>
+$Log: protocol-module.xml,v $
+Revision 1.7  2003/08/22 21:15:54  akarasulu
+Merged changes made in the USING_PROVIDER_FRAMEWORK branch of the
+server.  I don't suspect she will be working well at this point.  Lots
+of overhauling required now.
+
+Revision 1.3.2.2  2003/05/17 16:58:52  akarasulu
+started an addendum section for refactorings which will be used to refactor
+this document to synch it up with the code changes currently under way w/i
+the USING_PROVIDER_FRAMEWORK brach.
+
+Revision 1.3.2.1  2003/05/05 17:28:54  akarasulu
+Moving towards the request handler flywieght pattern away from the
+per request dedicated processor based design of the protocol engine.
+
+Revision 1.3  2003/04/08 02:29:55  bearcej
+* Clean up project.properties
+* Fix logos in project.xml
+* Fix links to image files in docs
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.4  2003/03/15 22:30:30  bearcej
+Fix last figure href.
+
+Revision 1.1.2.3  2003/03/15 17:16:47  bearcej
+Fixed figure tags to conform to simple docbook.
+Modified Files:
+ Tag: ALPHA-0_7
+	protocol-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:32  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:21  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.6  2003/03/09 00:36:54  akarasulu
+Finished encoder docs and refactored inner annonymous handler to be a
+named inner class.
+
+Revision 1.1.2.5  2003/03/08 23:38:42  akarasulu
+Completed protocol engine documentation along with subsections for the
+various protocol request processors used.
+
+Revision 1.1.2.4  2003/03/07 20:50:47  akarasulu
+*** empty log message ***
+
+Revision 1.1.2.3  2003/03/07 20:49:33  akarasulu
+Adding Bind docs
+
+Revision 1.1.2.2  2003/03/06 23:11:26  akarasulu
+Proof read decoder module and added some content to protocol module docs.
+
+Revision 1.1.2.1  2003/03/03 04:49:25  akarasulu
+Added as placeholders for now.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+	<abstract>
+		<para>
+			The ProtocolModule is the heart of the server.  It contains the
+			logic required to service each LDAPv3 protocol request and if need
+			be construct one or more response PDUs.  The module implements the
+			RequestListener interface to have RequestEvents delivered for 
+			processing.  It is implemented as a stage and consequently can 
+			process several requests in parallel.
+		</para>
+	</abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add sequence diagrams.
+            </para></listitem>
+            <listitem><para>
+                Add link to relavent rfc 2251 sections.
+            </para></listitem>
+            <listitem><para>
+                Add diagrams showing the composition of both request and 
+                where relavent response envelopes.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Background</title>
+        
+        <para>
+            The decoding stage of the server delivers decoded Requests to the 
+            protocol stage using RequestEvents.  The request events carry the
+            Request and the ClientKey for the client submitting the Request.  It
+            is the responsibility of the protocol stage to service each request
+            using the resources available.
+        </para>
+            
+        <para>
+            Based on the message type, the manner in which Requests are serviced
+            differs.  The majority of Request messages produce a single Response
+            as a reply.  AbandonRequest, and UnbindRequests produce no Response 
+            at all.  Conversely, in the course of servicing a SearchRequest many
+            Responses of various message types may be generated in reply.  
+            According to RFC 2251 a SearchRequest must reply with a 
+            SearchResponseDone to mark the end of the reply.  Before 
+            transmission of the SearchResponseDone, zero or more (in any order)
+            SearchResponseEntry, SearchResponseReference and ExtendedResponses
+            may be returned to the client.  These vastly differing modes of 
+            Request handling makes it difficult to devise a generalize mechanism
+            to process all requests.  The best approach would be to devise a 
+            processing scheme for each category of request.
+        </para>
+        
+        <para>
+            The protocol imposes no requirement enforcing ordered response 
+            delivery between request messages.  The message sequence identifier
+            is used to prevent the protocol from having to impose such 
+            requirements.  Hence the response to request 3 may be returned 
+            before the response to request 1.  The server's seda architecture 
+            takes advantage of this be enabling the asynchonous staged delivery
+            of responses back to a client.  Whenever a response to a request is
+            composes it is returned back to the client asynchronously without 
+            concern for the order of delivery.  The multiresponse nature of the
+            search request does however impose a response delivery order within
+            a message request.  All Responses delivered in reply to a 
+            SearchRequest have the same message sequence identifier.  This way 
+            they are all associated with the same SearchRequest.  Our only 
+            problem is the need to return some search responses before others 
+            in a asynchronous response delivery environment.
+        </para>
+        
+        <para>
+            The SearchRequest presents many design hurdles to overcome.  The 
+            server must synchronize the delivery of search responses within a 
+            SearchRequest.  Searches using the sort control extention cannot 
+            return sorted entries without synchronous delivery to maintain 
+            sorting order.  Furthurmore we must ensure the last response sent to
+            be the SearchResponseDone message.
+        </para>
+    </section>
+    
+    
+    <section>
+        <title>Architecture</title>
+        
+        <para>
+			As a stage the work of processing RequestEvents is delegated to the
+			stage worker threads.  The worker threads as in other stages drive
+			the synchronous call to the stage's event handler.  The stage event
+			handler accepts event's and specifically with regard to this module
+			it requires events to be RequestEvents.  So far these aspects to the
+			module's architecture are really based on the architecture of a 
+			stage.
+        </para>
+        
+        <para>
+            The use of the new Message Framework encapsulates protocol request
+            parameters and other message parameters within a Request object.
+            The Request object can be used to store request processing state 
+            rather than embedding state tracking into some kind of request 
+            processor object for each request.  The FlyWeight design pattern 
+            can be used to have a specific processor instance service all 
+            requests of a particular request message type.  Previously before 
+            the Message Framework, a specific processor would be instantiated to 
+            track and process each request.  Once processing was complete the
+            processor memory would be reclaimed.  Each incomming request would 
+            instantiate a processor.  The processor itself served to encapsulate
+            request protocol parameters like a request bean to prevent other 
+            parts of the system from having to deal with ASN.1 compiler stubs.
+            Now with a clean explicit API to represent messages independent of 
+            the ASN.1 stub compiler and BER library used we can expose a Request
+            bean rather than a processor wrapping a stub class.
+        </para>
+            
+        <para>
+			Still the specific processing of each type of protocol requests is 
+            best handled using separate request processor implementations.  For
+            now we will just call them handlers.  They really are specific 
+            request message type handlers with the new Message framework.  A 
+            handler unlike a processor, can be used to safely handle several
+            requests concurrently whereas a processor is dedicated to an 
+            individual request.  We can easily find the request handler for a
+            request based on the message type enumeration.  A RequestHandler 
+            interface is designed to standardize handler operations.  The 
+            stage's handler selects the specific request handler for the 
+            respective request off of a switch on the protocol message type.  
+            After assigning the Request to a handler, generic handling interface
+            methods can be used to manage the process without regard to type 
+            specifics.
+        </para>
+        
+        <para>
+			The work of a request handler is performed in a simple handleRequest 
+            method that returns a potentially null handle on a Response.  The 
+            stage's event handler simply calls this method on the processor.  If
+            the request requires a response the response is handed off to the 
+            next downstream stage (the decoder) in the form of a ResponseEvent.  
+            The response if one is to be returned is the LDAPMessage object 
+            returned by the process method.
+        </para>
+		
+		<para>
+			The use of processors to handle requests based on type is a form of
+			the Reactor design patten and has several benefits.  First and 
+			foremost it separates the handling of each request out into separate
+			classes thereby minimizing complexity.  Second it provides a place 
+			where request specific parameters can be managed, like the request 
+			PDU envelope (an LDAPMessage instance).  Finally a common super 
+			interface standardizes request event handling by manipulating each
+			request processor implementation through the methods of this common 
+			interface.
+		</para>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+			The best approach to describing the implementation is to generally 
+			describe the event handling from an enqueue onto this stage's queue 
+			on upto the death of a stage worker thread without dealing with the
+			specifics of each processor.  The specifics of each processor's 
+			implentation is handled in separate request specific sections.
+        </para>
+        
+        <para>
+			As noted, this module is implemented as a stage to enable parallel
+			processing of multiple request events.  Event processing is handled
+			asynchronously by stage worker threads.  The RequestListener's
+			requestReceived method implementation simply enqueues the 
+			RequestEvent argument onto the stage event queue.  Hence, the 
+			requestReceived method called by an upstream decoder stage worker 
+			thread returns immediately.
+        </para>
+        
+        <para>
+			Once the RequestEvent is enqueued, the stage dedicates a worker to 
+			drive an instance of an annonymous Runnable class.  The Runnable's 
+			run method, as in all stages, calls the stage's EventHandler passing
+			it the RequestEvent.  A named inner class called a 
+			RequestEventHandler is defined and an instance of it is instantiated 
+			within the module's default constructor.  This is the EventHandler 
+			implementation used for this stage.  The RequestEventHandler's 
+			handleEvent method is called by the annonymous Runnable's run 
+			method.
+        </para>
+		
+		<figure>
+            <title>ProtocolModule's RequestEventHandler Sequence Diagram</title>
+	    <mediaobject><imageobject>
+            <imagedata fileref="images/RequestEventHandlerHandleEvent.gif"/>
+	    </imageobject></mediaobject>
+		</figure>
+		
+		<para>
+			The primary function of the eventHandler implementation is to 
+			instantiate the correct RequestProcessor matching the request and 
+			call the RequestProcessor.process() method.  Initially the handler
+			checks that the event is an instance of RequestEvent, and accesses
+			the parameter's of the request packaged into the RequestEvent.  
+			These include the request envelope as an LDAPMessage, the ClientKey,
+			and the message type value used in the switch to follow.  The switch
+			is on the message type and it is used to instantiate the appropriate
+			RequestProcessor.  Once the RequestProcessor is set the current 
+			thread of execution is bound to the processor within a ThreadLocal
+			to access request parameters during the coarse of processing the 
+			request without passing around several variables.  The service and
+			initialize life-cycle methods of the RequestProcessor are called to 
+			prepare it for the process invokation.  The call to the process 
+			method returns a handle on a response if one exists.  If a response
+			is to be returned by the processor it is packaged into a 
+			ResponseEvent and delivered to the next downstream stage, the 
+			encoder.  Whether or not a response is generated the executing 
+			thread is disassociated with the RequestProcessor after the call
+			to process.  After this last step the handler returns.  The entire
+			sequence is depicted in the sequence diagram above.  The specifics
+			of each RequestProcessor's process method is discussed in details
+			within the sections to follow.
+		</para>
+
+		<section>
+        	<title>AbandonRequestProcessor</title>
+			
+			<para>
+				The purpose of the AbandonRequestProcessor is to implement the 
+				abandon protocol operation.  This processor is not yet 
+                implemented.  According to the protocol this operation does not
+                produce as response.
+			</para>
+		</section>
+
+		<section>
+        	<title>AddRequestProcessor</title>
+			
+			<para>
+				The purpose of the AddRequestProcessor is to implement the add 
+                protocol operation.  This operation adds a single new entry at 
+                the base of an existing entry.  According to the protocol this 
+                operation must produce a response indicating success or failure.
+			</para>
+            
+            <para>
+                The processor is created by passing the client's key and the 
+                request envelope to the constructor.  On initialization the 
+                response envelope is allocated and populated minimally with the
+                message sequence id and an empty AddResponse object.  The 
+                service method initializes handles on dependent modules: the
+                UnifiedBackend and the EventManager.
+            </para>
+            
+			<figure>
+				<title>
+					AddRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+				<imagedata fileref="images/AddRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+            <para>
+                Before wasting time and resources by investigating the contents
+                of the request envelope the processors process() method checks 
+                to see if the entry to be added already exists by calling the 
+                hasEntry method of the UnifiedBackend.  The protocol request 
+                contains the set of attribute identifiers and their single or 
+                multiple values.  These values are extracted from the request 
+                envelope using the stubs generated by the Snacc4J compiler.  
+                These attributes and values are added to an empty LdapEntry 
+                returned by the UnifiedBackend.  The LdapEntry implementation is 
+                constructed by the AtomicBackend associated with the naming 
+                context under which the name of the entry to be added exists.
+                The UnifiedBackend automatically routes these kinds of calls to
+                the naming context's AtomicBackend.  Once populated a pre-event
+                announcement via the fireBefore() method of the EventManager is
+                made.  The create method on the UnifiedBackend is called to 
+                create (add) this new attribute.  Immediately there after 
+                another post-addition protocol event is fired via the 
+                EventManager's fireAfter method.  See the sequence diagram for
+                high level view of the add operation's success pathway.
+            </para>
+		</section>
+        
+		<section>
+        	<title>BindRequestProcessor</title>
+			
+			<para>
+				The purpose of the BindRequestProcessor is to implement the 
+				bind protocol operation.  The processor depends on the 
+				EventManager, UnifiedBackend and AuthenticationManager services.
+                The bind operation generates a bind response no matter what the
+                results of the bind operation.
+			</para>
+			
+			<para>
+                An instance of the bind processor is created by passing the 
+                ClientKey, a handle to the ClientManager service and the 
+				LDAPMessage request as arguments to the constructor.  The call 
+                to initialize allocates a response LDAPMessage to the bind 
+                request which is an empty envelope.  Some preparations are made
+				to the request envelope like adding the message sequence id, and
+				initializing the BindResponse object.  The service method is
+				next in line and is called by the handler after calling 
+				initialize.  The service method is used to pass service handles 
+				to the processor.  The handle to the AuthorizationManager, the
+				UnifiedBackend and the EventManager are acquired here.
+			</para>
+			
+			<figure>
+				<title>
+					BindRequest Processor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+				<imagedata fileref="images/BindRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+				After all life-cycle methods are invoked the process method is 
+				called.  The highlevel sequence of events within the process() 
+                method are shown in the sequence diagram above.  Currently the 
+                only available authentication method is simple.  SASL based 
+                authentication is not available.  Therefore the diagram 
+                represents the steps towards successfully authenticating a user 
+                via the simple method pathway.  It does not show error handling 
+                functionality within the processor.  SASL authentication 
+                attempts and various exceptions which may occur result in the
+                construction of an alternative LDAPMessage response object.  In 
+                these cases the error or unavailability of an operation result 
+                in a response returning the respective LDAP error code along 
+                with a descriptive message regarding the error.
+			</para>
+            
+            <para>
+                The normal operational pathway for the processor first results
+                in the construction of a bind protocol event which is delivered
+                to protocol event listeners via the EventManager service.  This
+                pre-event announcement is depicted in call 1.1 of the diagram.
+                The processor then invokes the loginSimple method of the 
+                AuthenticationManager which either results in a LoginException 
+                or returned a valid Pricipal object.  Presuming the correct
+                credentials were supplied, the processor then creates the 
+                client's session by calling create on the ClientManager service
+                interface.  Thereafter the processor fires a post-event 
+                announcement using the fireAfter method on the EventManager and
+                returns.
+            </para>
+            
+            <para>
+                Exceptional conditions at any point result in the return of an
+                envelope packaged with the LDAP error code and a descriptive
+                message.
+            </para>
+		</section>
+
+        <section>
+        	<title>CompareRequestProcessor</title>
+			
+			<para>
+				The purpose of the CompareRequestProcessor is to implement the 
+				compare protocol operation.  The processor depends on the 
+				EventManager, and the UnifiedBackend services.  The purpose of
+                the operation is to evaluate an attribute assertion on an entry 
+                specified by DN.  The compare operation generates a compare 
+                response no matter whether the operation succeeds, fails or
+                generates an exception during processing.
+			</para>
+			
+			<figure>
+				<title>
+					CompareRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+				<imagedata fileref="images/CompareRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+                The processor is instantiated by passing the client key and the
+                request message envelope as arguments to the constructor.  On
+                initialization the response message envelope is allocated and
+                populated with the message sequence id and an empty 
+                CompareResponse.  The handles on the dependent UnifiedBackend 
+                and EventManager services are acquired after initialization with
+                a call to the processor's service method.
+			</para>
+            
+            <para>
+                Once the process method is called the processor attempts to 
+                resusitate the LdapEntry to be tested using the attribute value
+                assertion contained in the compare request envelope.  Next the
+                entries attributes are tested to see if they comply with the
+                assertion.  The results of the test are then packaged into the
+                compare response returned within the LDAPMessage envelope.  
+                Before returning the response the process method announces 
+                operation completion via the EventManager's fireAfter method.
+            </para>
+
+            <para>
+                Exceptional conditions at any point result in the return of an
+                envelope packaged with the LDAP error code and a descriptive
+                message.
+            </para>
+        </section>
+        
+        <section>
+        	<title>DelRequestProcessor</title>
+			
+			<para>
+				The purpose of the DelRequestProcessor is to implement the 
+				delete protocol operation.  The processor depends on the 
+				EventManager, and the UnifiedBackend services.  The purpose of
+                the operation is to remove a single entry specified by DN.  The
+                operation according to the LDAPv3 protocol will fail if the
+                target entry has children.  The delete operation generates a 
+                response no matter whether the operation succeeds, fails or
+                generates an exception during processing.
+			</para>
+			
+			<figure>
+				<title>
+					DelRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+				<imagedata fileref="images/DelRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+                The processor is instantiated by the protocol engines stage
+                event handle by a call to the constructor passing in the client
+                key and the request message envelope.  On initialization the
+                response message envelope is allocated and populated with the
+                message sequence id and an empty delete response object.  
+                Handles to the dependent UnifiedBackend and EventManager 
+                services are initialized on the call to the service life-cycle
+                method before the process method is called.
+			</para>
+            
+            <para>
+                The process method first resusitates the target entry to delete
+                from the UnifiedBackend with a read call that returns a handle
+                on an LdapEntry.  This confirms the existance of the entry and
+                facilitates the call to delete() which requires an LdapEntry as
+                the argument.  Then a pre-event announcement is made via a call
+                to the fireBefore method of the EventManager.  The call to the
+                delete method is made using the returned LdapEntry.  Finally
+                before returning the response envelope confirming the deletion,
+                a post protocol operation is announced via the fireAfter method
+                of the EventManager.
+            </para>
+            
+            <para>
+                Exceptional conditions at any point result in the return of an
+                envelope packaged with the LDAP error code and a descriptive
+                message.
+            </para>
+		</section>
+        
+        <section>
+        	<title>ExtendedRequestProcessor</title>
+			
+			<para>
+				The purpose of the ExtendedRequestProcessor is to implement the 
+				extended protocol operation.  The processor depends on the 
+				EventManager, and the UnifiedBackend services.  The purpose of
+                the operation is to enable protocol compliant operation 
+                extentions.  The request contains an OID and a binary payload
+                holding the parameters required in an operation specific format.
+                The operation is simply a pass through to execute some type of
+                application specific or server specific operation.  The extended
+                operation generates a response no matter whether the operation 
+                succeeds, fails or generates an exception during processing.
+			</para>
+			
+			<figure>
+				<title>
+					ExtendedRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+                		<imagedata fileref="images/ExtendedRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+                The processor is instantiated by passing the client key, the
+                request message envelope and a handler map to the constructor.
+                The handler map contains a map of OID Strings to ExtReqHandler
+                instances.  These handlers are simple implementations of 
+                functions with assigned OIDs.  They take the payload as a byte 
+                array argument which is extracted from the extended request 
+                envelope and return a byte array.  The returned byte array 
+                represents the extended response payload which is packaged into
+                the response envelope returned by the processor's process 
+                method.  These extended request handlers and the OID to handler
+                map are created by the protocol engine during the module's 
+                configuration life-cycle phase.
+			</para>
+            
+            <para>
+                By providing the extended request handler map in the constructor
+                the processor can invoke the appropriate handler on the request
+                payload and hence respond to the request using the resultant 
+                response payload.  Following instantiation the processor is 
+                initialized creating the empty extended request message envelope
+                populated with the message sequence id and an empty 
+                ExtendedResponse object.  Then before the process method is 
+                called the service method is called to acquire handles on the 
+                dependent EventManager service.  It is very likely that other
+                service dependencies will exist however since we have not 
+                implemented any of these extended request handlers we know of 
+                none for now.  Eventually it will be necessary to enable 
+                extended request handlers with handles to other dependent 
+                modules.  This will require a change to the extended request 
+                handler or to its implementation to have it implement the 
+                Serviceable interface.  Handles to dependent services within 
+                the server to do the work of processing the extended request
+                can be obtained through this standard Avalon life-cycle method.
+            </para>
+            
+            <para>
+                The process method immediately announces the arrival of an 
+                extended request by calling the fireBefore method of the 
+                EventManager service.  It then calls the handle method of the
+                OID specific handler using the extracted payload of the request
+                envelope.  Then before the resultant payload is packaged into
+                the response envelope and returned the fireAfter method of the
+                EventManager is called.
+            </para>
+            
+            <para>
+                Exceptional conditions at any point result in the return of an
+                envelope packaged with the LDAP error code and a descriptive
+                message.
+            </para>
+		</section>
+        
+        <section>
+        	<title>ModifyDNRequestProcessor</title>
+			
+			<para>
+				The purpose of the ModifyDNRequestProcessor is to implement the 
+				modify DN protocol operation.  The processor depends on the 
+				EventManager, and the UnifiedBackend services.  The purpose of
+                the operation is to change the name of an entry and consequently
+                the DN of every descendant entry.  The modify DN operation can
+                optionally change the Rdn attribute used by the target entry.  
+                The operation generates a response no matter whether it 
+                succeeds, fails or generates an exception during processing.
+			</para>
+			
+			<figure>
+				<title>
+					ModifyDNRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+                		<imagedata fileref="images/ModifyDNRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+                The call to the constructor with a client key and the request
+                message envelope is made by the protocol engine stage's event
+                handler.  Once instantiated the call initialize again by the
+                event handler allocates a response message envelope populated
+                with the message sequence id and an empty ModifyDNResponse
+                object.  The call to the service method next by the handler 
+                initializes processor member variables referring to the 
+                dependent services.
+			</para>
+            
+            <para>
+                The process method of the processor first checks to see if the
+                target entry whose DN is to be modified exists.  If the entry
+                exists a pre modify DN announcement is made via the fireBefore
+                method of the EventManager service.  Next the modifyRdn method 
+                is called on the UnifiedBackend service and then a call is made
+                to fireAfter to announce the completion of the operation on the
+                EventManager service.  The results of the operation are returned
+                after being packaged into the response envelope.
+            </para>
+            
+            <para>
+                Exceptional conditions at any point result in the return of an
+                envelope packaged with the LDAP error code and a descriptive
+                message.
+            </para>
+		</section>
+        
+        <section>
+        	<title>ModifyRequestProcessor</title>
+			
+			<para>
+				The purpose of the ModifyRequestProcessor is to implement the 
+				modify protocol operation.  The processor depends on the 
+				EventManager, and the UnifiedBackend services.  The purpose of
+                the operation is to change, remove or add a set of attribute 
+                value pairs to an entry specified by DN.  The operation 
+                generates a response no matter whether it succeeds, fails or 
+                generates an exception during processing.
+			</para>
+			
+			<figure>
+				<title>
+					ModifyRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+				<imagedata fileref="images/ModifyRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+                The processor is instantiate via a standard constructor call 
+                taking the client key and the request message envelope as its
+                arguments.  The initialize method call made by the protocol 
+                engine stage event handler allocates a response message envelope
+                populated with the message sequence id and an empty 
+                ModifyResponse.  Finally before assigning a worker to process
+                the request the service method is called by the handler to 
+                initialize handles on the dependent services required by this
+                processor.
+			</para>
+            
+            <para>
+                Once the worker thread calls process, the target entry is 
+                resusitated from the owning context via a call to the 
+                UnifiedBackend's read method.  Next the resusitated entries
+                are modified according to the changes described by the modify
+                request envelope.  At this point before calling update the 
+                pre modify operation must be fired, yet it seems to have been
+                overlooked.  It needs to be fired.  Next a the call to update 
+                on the UnifiedBackend is made to effect the changes made to the
+                target entry.  Finally before returning the response message 
+                envelope the processor needs to call the fireAfter method on the
+                EventManager service yet again this seems to have been 
+                overlooked.
+            </para>
+		</section>
+        
+        <section>
+        	<title>SearchRequestProcessor</title>
+			
+			<para>
+				The purpose of the SearchRequestProcessor is to implement the 
+				search protocol operation and it is by far the most complex of
+                all the protocol operations.  The processor depends on the 
+				EventManager, the UnifiedBackend, the Encoder and OutputManager 
+                services.  The purpose of the operation is to search the 
+                directory returning zero or more entries or references to 
+                entries while appling search controls to moderate the operation.  
+                The operation generates a response no matter whether it 
+                succeeds, fails or generates an exception during processing.
+			</para>
+            
+            <para>
+                The search operation as mentioned before is the most complex. As
+                a consequence the processor implementation for it is complex as
+                well.  The search operation can return one or more responses to 
+                the client or zero or more entry or referrals.  The search 
+                operation uses different responses for each entry returned, from
+                each referral to a remote entry.  Referral response message 
+                envelopes hence have the url of the entry whereas entry response
+                message envelopes contain the attributes of the entry.  Not to
+                mention these response types, at the end of the operation once 
+                the search has completed a search done response message must be
+                delivered to the client.  The search done response message 
+                envelope has yet another makeup.
+            </para>
+            
+            <para>
+                While managing the delivery, the search processor must take 
+                search controls into account to moderate the operation.  For
+                the time being controls are not fully implemented.  As a 
+                consequence of the need to sychronize the ordered receipt of 
+                messages the search processor must use synchronous message 
+                delivery methods on the Encoder and the OutputModule for all
+                response messages except the final search done response.  These
+                factors complicate the operation of the processor.
+            </para>
+            
+			<figure>
+				<title>
+					SearchRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+				<imagedata fileref="images/SearchRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+                The processor is instantiated via a call to its constructor 
+                using the client key and the request message envelope as 
+                parameters.  The initialize life-cycle method does nothing since
+                the response message processing can be handled usind more than
+                one type of response unlike other protocol operations.
+			</para>
+            
+            <para>
+                Since the processor directly manages and drives the synchronous
+                delivery of all responses except for the final search done 
+                response it must communicate with the Encoder and the 
+                OutputModule directly without relying on staged event processing
+                pathways within the server.  This is why the processor must 
+                initialize a handle on both the Encoder and OutputManager 
+                services as well as the EventManager and UnifiedBackend services
+                during the service life-cycle method.
+            </para>
+			
+            <para>
+                Once processing begins the processor extracts the base DN, 
+                search controls and filter information for the search from the
+                request message envelope.  A pre search event is then fired from
+                the EventManager service's fireBefore method.  Now the processor
+                is ready to call the search method on the UnifiedBackend 
+                service.  The search simply returns a Cursor which requires a
+                loop to extract the candidate entries to return.  Within the 
+                loop synchronous calls are made to special method interfaces 
+                for synchronous processing on the Encoder and OutputManager 
+                services.  Once all the entry and referal response messages have
+                been delivered synchronously to the client, the last search done
+                response message envelope is constructed and returned to the
+                caller.  This last response message envelope is delivered 
+                asynchronously to the client using the standard staged pathways
+                of the server.
+            </para>
+		</section>
+        
+        <section>
+        	<title>UnBindRequestProcessor</title>
+			
+			<para>
+				The purpose of the UnBindRequestProcessor is to implement the 
+				unbind protocol operation.  The processor depends on the 
+				CllientManager only and the handle is passed in the constructor.  
+                The purpose of the operation is to drop a client and destroy 
+                their session and associated resources.  The operation does not
+                generate a response - the client socket drop can be considered
+                the response however clients usually close their connections
+                just after sending this request.
+			</para>
+			
+			<figure>
+				<title>
+					UnBindRequestProcessor's process() Sequence Diagram
+				</title>
+				<mediaobject><imageobject>
+				<imagedata fileref="images/UnBindRequestProcessorProcess.gif"/>
+				</imageobject></mediaobject>
+			</figure>
+		
+			<para>
+                This very simple processor is instantiated via a call to its 
+                constructor requiring as arguments a handle to the ClientManager
+                service, a client key, and the request message envelope.  Both
+                the initialize and service life-cycle methods do nothing at all
+                with empty method bodies.
+			</para>
+            
+            <para>
+                The process method should announce the unbind protocol operation
+                before and after droping the client connection yet this is not
+                the case.  It merely drops the connection through a call to the
+                drop method of the client manager.  It returns null indicating
+                that no response is to be returned to the client.
+            </para>
+		</section>
+        
+    </section>
+    
+    
+    
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+			We need to revaluate whether or not we are using ThreadLocals 
+			correctly.
+        </para>
+
+        <para>
+			We need to cleanup the processor code perhaps wrapping access to
+			the Snacc4J generated classes.  Later when and if we use other ASN.1
+			stubs only the stub wrappers will have to change.
+        </para>
+
+        <para>
+			We may want to look at using the JNDI provider to access backends
+			rather than going directly through the nexus module.  The JNDI 
+			provider may be able to transparently manage and encapsulate the 
+			referal management code on behalf of the protocol engine.
+        </para>
+
+        <para>
+			We need to implement the AbandonRequestProcessor for the Abandon
+			request type.  This will require access to the client's session 
+			which may have to hold the executing processor's which will need to
+			be stopped.  In this case the RequestProcessor implementations will
+			need to have some form of termination variable that can be checked
+			every now and then by the executing thread.  These are problems best
+			solved through aspect oriented techniques.
+        </para>
+		
+		<para>
+			Based on the decisions made on using the JNDI provider inside the
+			processors to access backends we may need to put protocol event 
+			firing hooks into all processors to fire their respective protocol
+			event.
+		</para>
+
+        <para>
+            Need to make all processors consistant in the way they handle
+            reporting errors.  Namely I would like to see stack traces returned
+            to the client only if debugging is enabled.
+        </para>
+        
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+            Pre and Post modify protocol events are not fired by the 
+            ModifyRequestProcessor.
+        </para>
+        
+        <para>
+            Pre and Post unbind protocol events are not fired by the 
+            UnBindRequestProcessor.
+        </para>
+    </section>
+    
+    <section>
+        <title>Adendum</title>
+        
+        <para>
+            In the process of refactoring the protocol module and its processors
+            using message beans from the Common Message API (CMA) we started to
+            use the JNDI provider instead of directly interfacing with the 
+            UnifiedBackend.
+        </para>
+
+        <para>
+            There are some issues that arise when using the JNDI provider 
+            specifically in the area of translating Exceptions back into 
+            LDAPv3 result codes.  Some JNDI exceptions are used to represent
+            multiple result codes.  Result code to JNDI exception mappings are
+            published <ulink url=
+            "http://java.sun.com/products/jndi/tutorial/ldap/models/exceptions.html">
+            here</ulink> on the SUN Java site. There is no way for the protocol 
+            module to tell which result code to use when it encounters an 
+            exception that can map to more than one result code.  Using the 
+            JNDI provider hence results in a loss of resolution.  For example 
+            the OperationNotSupportedException can represent result codes 12 and
+            53 for unavailable critical extensions and an unwillingness to 
+            perform an operation respectively.  Hence when the protocol engine 
+            catches a OperationNotSupportedException on calls to the JNDI 
+            interfaces there is no way for it to determine the cause of the 
+            exception.  The protocol engine cannot associate the error with a 
+            Control or Extended opertation that is unsupported with a situation
+            that the server implementation specifically does not support like
+            the deletion of a suffix entry.  We have solved this problem for the
+            time being by embedding the result code enumeration value into the 
+            exception message.  Since the result code can range from 1 to 80 
+            there are at most 2 digits required to represent it within the 
+            message.  We use a 4 character prefix which holds the 2 digit result
+            code value surrounded by '[' ']' brackets.  When handling exceptions 
+            this 4 character prefix is detected if present and the result code
+            is extracted from the exception message.  At the present time this 
+            is a kludgy solution yet it saves us the hastle of extending JNDI 
+            exceptions only to add a result code property to it.
+        </para>
+        
+        <para>
+            With the result code situation above we could have taken another
+            approach.  The code throwing the exception could store the response
+            code directly in the response by accessing the response being 
+            processed.  This will spread the code around involved with 
+            manipulating or building the response rather than centralizing it.  
+            These approaches need to be considered thoroughly before commiting 
+            to any one of them.  Regardless of the approach the region 
+            generating the exception needs to be aware of the result code to 
+            associate with the exception.  Some of this code is within the JNDI
+            provider, some within the nexus and some deep down within the 
+            backends.  The only difference with giving access to the response 
+            is that we enable its alteration within other modules.  There is no 
+            way to manadate every peice of code throwing an exception to use 
+            whatever mechanism we choose.  It would be nice to be able to have a
+            means to enforce it but this is not easy.  Nevertheless before 
+            sending the response to the encoder the handlers of the protocol
+            module need to detect whether or not the result code was set by the
+            exception handling code in the ldap result of a response.  If it did
+            not some default result code would need to be used instead.
+        </para>
+    </section>
+    
+</article>

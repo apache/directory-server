@@ -1,0 +1,121 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+
+<article>
+<title>Triggers and Stored Procedures</title>
+
+<para>
+    All of us that have had serious experience using a traditional RDBMS are more
+    than familiar with the use of triggers and stored procedures.  Triggers and
+    stored procedures provide the basic framework for a rich application development
+    platform.  We agree with most architects when we reject the idea of using the
+    integration teir for the development of whole applications.  However it is a
+    place where peices specific to the integration teir can be developed as 
+    components in the overall application.  Sometimes there is no way to avoid 
+    using these component even though they can be ignored for the majority of 
+    applications.  In this way, triggers and stored procedures are a nice feature
+    to have in any data management system if the need requires them.
+</para>
+
+<para>
+    Triggers and stored procedures have played a major role in the database world.
+    Why not enable the facility within the world of the directory?  Directories unlike
+    databases have until recently been a nacent and uncommon technology.  In total 
+    LDAP has existed for less than two decades.  The demand for LDAP is just now 
+    catching on as directories become a staple component in the architect's palette.  
+    The idea of architecting for the constant shared data in a system as well as the 
+    ever changing data is finally manifesting itself.  As applications using directory
+    services increase so do the potential for circumstances requiring the use of 
+    triggers.  Just recently the some effort have begun to incorporate triggers into
+    the LDAP specification as an extention.  The LTAP (Lightweigth Trigger Access 
+    Process) http://ltap.bell-labs.com/ is one step in that direction but it implements
+    LDAP triggers using a gateway process blanketed over an existing directory.  Ldapd
+    incorporates such functionality directly into the server.
+</para>
+
+<para>
+    This chapter explores an experimental trigger and stored procedure subsystem 
+    within the ldapd server.  The LDAP tigger and stored procedure counterparts 
+    are not all that different from those in the world of databases.  The idea is 
+    essentially the same.  A trigger defines the conditions required to fire.  
+    Firing a trigger invokes a stored procedure or an embedded procedure specified 
+    as the body of the trigger.  Hence like a business rule a trigger has a LHS 
+    specifying the conditions for firing it and a RHS specifying the actions to take 
+    when fired.  Our goals are to describe how these subsystems have been designed, 
+    and implemented in ldapd. Consequently we will show how triggers can be specified, 
+    and enabled within a directory information tree served by ldapd.
+</para>
+
+<section>
+    <title>
+        UseCases and Conventions
+    </title>
+    
+    <para>
+        some text here.
+    </para>
+
+    <para>
+        SOME NOTES ON TRIGGERS
+        
+        Triggers are going to need some sort of trigger specification.  This spec
+        must describe whether trigger itself is relicated and whether or not the
+        resultant changes induced by the trigger are replicated.  Conversely we
+        may descide to put these parameters into a stored procedure spec instead
+        that way a timer driven firing of a stored proc may suppress replication.
+        
+        If a trigger itself is replicated then it cannot replicate the effects of
+        the opperation because then the operations would be executed twice on the
+        replicas.  Once by the operation of the replicated trigger, and again by
+        the replicated events fired as the result of the trigger firing on the
+        master. So a trigger is either replicated and does not replicate resultant
+        change driven events or is not replicated and does replicate the resultant
+        events caused by the stored procedures it executes.
+        
+        Sometime there are scenarios when one scheme will be better than the other.
+        For example an involved CPU intensive procedure that updates only one entry
+        like a time triggered summary job may be better off kept on the master without
+        replicating the trigger and only replicating the events triggered by the
+        execution of its stored procedure.  This way the expensive operations is
+        run once and its results are replicated rather than running the operation
+        on every replica.  Conversely if the trigger's execution results in a large
+        number of changes then it may be best to replicate the trigger and not its
+        results because the amount of network communication required may be
+        detrimental.
+    </para>
+        <programlisting>
+            trigger   : CREATE TRIGGER NAME 
+                OWNED BY dn [ ON USERS dn+ ] [ AS dn ] when ENTITY matches DO procedure ;
+            when      : WHEN ( BEFORE | AFTER | FAILED ) 
+                ( ADD | DELETE | MODIFY | READ | BIND | UNBIND )+ ;
+            matches   : MATCHES dn '?' [ scope ] '?' [ filter ] '?' [ FIELDS attribName+ ] ;
+            procedure : NAME | LANG ( JAVA | JYTHON ) '{' code '}' ;
+            
+            
+            attributetype ( UNDEFINED_OID
+                NAME 'op'
+                DESC 'An LDAP Operation'
+                EQUALITY caseIgnoreMatch
+                SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+            objectclass ( UNDEFINED_OID
+                NAME 'trigger'
+                DESC 'LDAP trigger'
+                SUP top
+                MAY ( run-as $  )
+                MUST ( uid $ owner $ op $ when $ match $ procedure ) 
+            )
+
+            LDAPv2 (RFC 1777) and LDAPv3 (RFCs 2251 through 2256) compliant, including support for 
+            extensible schema, referrals, paged results, and change log extensions 
+
+            Dynamically computed virtual attributes for integration with other information sources 
+        </programlisting>
+    <para>
+        
+    
+    </para>
+</section>
+
+</article>
