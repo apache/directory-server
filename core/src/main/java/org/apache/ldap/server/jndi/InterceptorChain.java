@@ -12,29 +12,23 @@ package org.apache.ldap.server.jndi;
  */
 public class InterceptorChain
 {
-	
-	public Interceptor getInterceptor( String name )
-	{
-		
-	}
+    public Interceptor getInterceptor( String name )
+    {
+    }
 
-	public void addFirst( String name, Interceptor interceptor )
-	{
-		
-	}
-	
-	public void addLast( String name, Interceptor interceptor )
-	{
-		
-	}
-	
-	public void addBefore( Interceptor other, String name, Interceptor interceptor )
-	{
-		
-	}
-	
-	public void addAfter( Interceptor other, String name, Interceptor interceptor )
-	{
-		
-	}
+    public void addFirst( String name, Interceptor interceptor )
+    {
+    }
+
+    public void addLast( String name, Interceptor interceptor )
+    {
+    }
+
+    public void addBefore( Interceptor other, String name, Interceptor interceptor )
+    {
+    }
+
+    public void addAfter( Interceptor other, String name, Interceptor interceptor )
+    {
+    }
 }

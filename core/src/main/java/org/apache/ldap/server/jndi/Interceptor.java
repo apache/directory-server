@@ -31,22 +31,22 @@ import javax.naming.NamingException;
  */
 public interface Interceptor
 {
-	/**
-	 * Intializes this interceptor.  This is invoked by directory service
-	 * provider when this intercepter is loaded into invocation chain.
-	 * 
-	 * @param config the configuration properties for this interceptor
-	 * @throws NamingException if failed to initialize this interceptor
-	 */
-	void init( Properties config ) throws NamingException;
+    /**
+     * Intializes this interceptor.  This is invoked by directory service
+     * provider when this intercepter is loaded into invocation chain.
+     * 
+     * @param config the configuration properties for this interceptor
+     * @throws NamingException if failed to initialize this interceptor
+     */
+    void init( Properties config ) throws NamingException;
 
-	/**
-	 * Deinitialized this interceptor.  This is invoked by directory service
-	 * provider when this intercepter is unloaded from invocation chain.
-	 */
-	void destroy();
+    /**
+     * Deinitialized this interceptor.  This is invoked by directory service
+     * provider when this intercepter is unloaded from invocation chain.
+     */
+    void destroy();
 
-	/**
+    /**
      * Process a particular invocation.  You can pass control to
      * <code>nextInterceptor</code> by invoking {@link #invoke(Interceptor, Invocation)}. 
      *
@@ -55,5 +55,5 @@ public interface Interceptor
      * @throws NamingException on failures while handling the invokation
      */
     void invoke( Interceptor nextInterceptor, Invocation invocation )
-	        throws NamingException;
+            throws NamingException;
 }
