@@ -110,7 +110,7 @@
       <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
+      <groupId>directory-network</groupId>
       <artifactId>mina</artifactId>
       <version>0.7-SNAPSHOT</version>
     </dependency>
