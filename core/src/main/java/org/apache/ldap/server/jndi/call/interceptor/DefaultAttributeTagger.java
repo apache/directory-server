@@ -246,7 +246,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
     protected void process(NextInterceptor nextInterceptor, Search call) throws NamingException {
         nextInterceptor.process( call );
         
-        SearchControls searchControls = call.getSearchControls();
+        SearchControls searchControls = call.getControls();
         if ( searchControls.getReturningAttributes() != null )
         {
             return;

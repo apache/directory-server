@@ -8,18 +8,11 @@ import org.apache.ldap.server.BackingStore;
 
 public abstract class Call {
 
-    protected final BackingStore store;
     protected Object response;
     protected Stack contextStack;
 
-    protected Call( BackingStore store )
+    protected Call()
     {
-        if( store == null )
-        {
-            throw new NullPointerException( "store" );
-        }
-
-        this.store = store;
     }
     
     /**
@@ -61,10 +54,10 @@ public abstract class Call {
         this.contextStack = contextStack;
     }
     
-    public void execute() throws NamingException
+    public void execute( BackingStore store ) throws NamingException
     {
-        setResponse( doExecute() );
+        setResponse( doExecute( store ) );
     }
     
-    protected abstract Object doExecute() throws NamingException;
+    protected abstract Object doExecute( BackingStore store ) throws NamingException;
 }

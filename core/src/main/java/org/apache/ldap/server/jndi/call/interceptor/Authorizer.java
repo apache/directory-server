@@ -373,7 +373,7 @@ public class Authorizer extends BaseInterceptor
     protected void process(NextInterceptor nextProcessor, Search call) throws NamingException {
         super.process(nextProcessor, call);
         
-        SearchControls searchControls = call.getSearchControls();
+        SearchControls searchControls = call.getControls();
         if ( searchControls.getReturningAttributes() != null )
         {
             return;

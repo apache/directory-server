@@ -127,8 +127,8 @@ public class SchemaManager extends BaseInterceptor
         }
 
         boolean bypass = false;
-        SearchControls searchControls = call.getSearchControls();
-        ExprNode filter = call.getExpressionNode();
+        SearchControls searchControls = call.getControls();
+        ExprNode filter = call.getFilter();
         if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
              filter instanceof SimpleNode )
         {

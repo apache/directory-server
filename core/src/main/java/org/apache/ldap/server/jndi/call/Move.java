@@ -1,6 +1,9 @@
 package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
+
+import org.apache.ldap.server.BackingStore;
 
 public class Move extends Call {
 
@@ -31,5 +34,10 @@ public class Move extends Call {
     public Name getNewParentName()
     {
         return newParentName;
+    }
+
+    protected Object doExecute(BackingStore store) throws NamingException {
+        store.move( name, newParentName );
+        return null;
     }
 }

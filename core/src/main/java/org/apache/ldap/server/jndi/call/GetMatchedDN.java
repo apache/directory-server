@@ -1,6 +1,10 @@
 package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
+
+import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.PartitionNexus;
 
 public class GetMatchedDN extends Call {
 
@@ -24,5 +28,9 @@ public class GetMatchedDN extends Call {
 
     public Name getName() {
         return name;
+    }
+
+    protected Object doExecute(BackingStore store) throws NamingException {
+        return ( ( PartitionNexus ) store ).getMatchedDn( name, normalized );
     }
 }

@@ -1,7 +1,10 @@
 package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+
+import org.apache.ldap.server.BackingStore;
 
 public class Add extends Call {
 
@@ -9,8 +12,7 @@ public class Add extends Call {
     private final Name normalizedName;
     private final Attributes attributes;
     
-    public Add( String userProvidedName, Name normalizedName,
-                       Attributes attributes )
+    public Add( String userProvidedName, Name normalizedName, Attributes attributes )
     {
         if( userProvidedName == null )
         {
@@ -42,5 +44,10 @@ public class Add extends Call {
     
     public String getUserProvidedName() {
         return userProvidedName;
+    }
+
+    protected Object doExecute( BackingStore store ) throws NamingException {
+        store.add( userProvidedName, normalizedName, attributes );
+        return null;
     }
 }

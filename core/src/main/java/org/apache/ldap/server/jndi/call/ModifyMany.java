@@ -1,7 +1,10 @@
 package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.ModificationItem;
+
+import org.apache.ldap.server.BackingStore;
 
 public class ModifyMany extends Call {
 
@@ -31,5 +34,10 @@ public class ModifyMany extends Call {
     public ModificationItem[] getModificationItems()
     {
         return modificationItems;
+    }
+
+    protected Object doExecute(BackingStore store) throws NamingException {
+        store.modify( name, modificationItems );
+        return null;
     }
 }

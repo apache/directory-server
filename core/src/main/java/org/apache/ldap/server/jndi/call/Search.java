@@ -3,19 +3,21 @@ package org.apache.ldap.server.jndi.call;
 import java.util.Map;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.BackingStore;
 
 public class Search extends Call {
 
     private final Name baseName;
     private final Map environment;
-    private final ExprNode expressionNode;
-    private final SearchControls searchControls;
+    private final ExprNode filter;
+    private final SearchControls controls;
     
-    public Search( Name baseName, Map environment, ExprNode expressionNode,
-                          SearchControls searchControls )
+    public Search( Name baseName, Map environment, ExprNode filters,
+                   SearchControls controls )
     {
         if( baseName == null )
         {
@@ -25,19 +27,19 @@ public class Search extends Call {
         {
             throw new NullPointerException( "environment" );
         }
-        if( expressionNode == null )
+        if( filters == null )
         {
-            throw new NullPointerException( "expressionNode" );
+            throw new NullPointerException( "filter" );
         }
-        if( searchControls == null )
+        if( controls == null )
         {
-            throw new NullPointerException( "searchControls" );
+            throw new NullPointerException( "controls" );
         }
         
         this.baseName = baseName;
         this.environment = environment;
-        this.expressionNode = expressionNode;
-        this.searchControls = searchControls;
+        this.filter = filters;
+        this.controls = controls;
     }
 
     public Name getBaseName()
@@ -50,13 +52,17 @@ public class Search extends Call {
         return environment;
     }
     
-    public ExprNode getExpressionNode()
+    public ExprNode getFilter()
     {
-        return expressionNode;
+        return filter;
     }
     
-    public SearchControls getSearchControls()
+    public SearchControls getControls()
     {
-        return searchControls;
+        return controls;
+    }
+
+    protected Object doExecute( BackingStore store ) throws NamingException {
+        return store.search( baseName, environment, filter, controls );
     }
 }

@@ -1,6 +1,9 @@
 package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
+
+import org.apache.ldap.server.BackingStore;
 
 public class List extends Call {
 
@@ -18,5 +21,9 @@ public class List extends Call {
 
     public Name getBaseName() {
         return baseName;
+    }
+
+    protected Object doExecute(BackingStore store) throws NamingException {
+        return store.list( baseName );
     }
 }

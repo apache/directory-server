@@ -1,6 +1,9 @@
 package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
+
+import org.apache.ldap.server.BackingStore;
 
 public class MoveAndModifyRN extends Call {
 
@@ -49,5 +52,10 @@ public class MoveAndModifyRN extends Call {
     public boolean isDeleteOldName()
     {
         return deleteOldName;
+    }
+
+    protected Object doExecute(BackingStore store) throws NamingException {
+        store.move( name, newParentName, newRelativeName, deleteOldName );
+        return null;
     }
 }
