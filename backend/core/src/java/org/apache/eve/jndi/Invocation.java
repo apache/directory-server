@@ -1,14 +1,30 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.jndi;
 
 
 import java.util.List;
-import java.util.Stack ;
-import java.util.Iterator ;
-import java.util.ArrayList ;
-import java.util.Collections ;
+import java.util.Stack;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
 
-import java.io.Serializable ;
-import java.lang.reflect.Method ;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 
 /**
@@ -18,69 +34,68 @@ import java.lang.reflect.Method ;
  * This class was originally written by Peter Donald for XInvoke from the Spice 
  * Group.
  * 
- * @author <a href="mailto:peter at realityforge.org">Peter Donald</a>
- * @author <a href="mailto:aok123 at bellsouth.net">Alex Karasulu</a>
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
-public class Invocation
-    implements Serializable
+public class Invocation implements Serializable
 {
     /**
      * The interceptor processing state of this Invocation.
      */
-    private InvocationStateEnum m_state = InvocationStateEnum.PREINVOCATION ; 
+    private InvocationStateEnum state = InvocationStateEnum.PREINVOCATION;
     
     /**
-     * The invokation state: when call has completed m_isCompleted will be true
+     * The invokation state: when call has completed isCompleted will be true
      */
-    private boolean m_isComplete = false ;
-    
-    /**
-     * InterceptorException thrown by the first interceptor to fail within the 
-     * after invocation InterceptorPipeline which is fail fast.
-     */
-    private InterceptorException m_before ;
+    private boolean isComplete = false;
     
     /**
      * InterceptorException thrown by the first interceptor to fail within the 
      * after invocation InterceptorPipeline which is fail fast.
      */
-    private InterceptorException m_after ;
+    private InterceptorException before;
+    
+    /**
+     * InterceptorException thrown by the first interceptor to fail within the 
+     * after invocation InterceptorPipeline which is fail fast.
+     */
+    private InterceptorException after;
     
     /**
      * Exceptions thrown by interceptors within the failure pipeline which is 
      * NOT fail fast - hence the use of a list for potentially many exceptions.
      */
-    private List m_failures ;
+    private List failures;
     
     /**
      * The proxy on which the method was invoked.
      */
-    private Object m_proxy ;
+    private Object proxy;
 
     /**
      * The actual method that is being invoked.
      */
-    private Method m_method ;
+    private Method method;
 
     /**
      * The parameters of method invocation.
      */
-    private Object[] m_parameters ;
+    private Object[] parameters;
 
     /**
      * The return value of the invocation.
      */
-    private Object m_returnValue ;
+    private Object returnValue;
 
     /**
      * The exception thrown by the invocation if any.
      */
-    private Throwable m_throwable ;
+    private Throwable throwable;
 
     /**
      * The context in which invocation occurs.
      */
-    private Stack m_contextStack ;
+    private Stack contextStack;
     
     
     // ------------------------------------------------------------------------
@@ -95,18 +110,18 @@ public class Invocation
      */
     public InvocationStateEnum getState()
     {
-        return m_state ;
+        return state;
     }
     
 
     /**
      * Sets the state of this Invocation.
      *
-     * @param a_enum the new state to set
+     * @param enum the new state to set
      */
-    void setState( InvocationStateEnum a_enum )
+    void setState( InvocationStateEnum enum )
     {
-        m_state = a_enum ;
+        state = enum;
     }
 
 
@@ -118,7 +133,7 @@ public class Invocation
      */
     public boolean isComplete()
     {
-        return m_isComplete ;
+        return isComplete;
     }
 
 
@@ -126,12 +141,12 @@ public class Invocation
      * Sets the completion state of this invocation.  The invocation is complete
      * after the target method on the proxied object returns.
      *
-     * @param a_isComplete whether or not the call on the proxied object 
+     * @param isComplete whether or not the call on the proxied object
      * returned
      */
-    void setComplete( boolean a_isComplete )
+    void setComplete( boolean isComplete )
     {
-        m_isComplete = a_isComplete ;
+        this.isComplete = isComplete;
     }
     
 
@@ -144,12 +159,12 @@ public class Invocation
      */
     public Iterator listFailures()
     {
-        if ( null == m_failures )
+        if ( null == failures )
         {
-            return Collections.EMPTY_LIST.iterator() ;
+            return Collections.EMPTY_LIST.iterator();
         }
         
-        return Collections.unmodifiableList( m_failures ).iterator() ;
+        return Collections.unmodifiableList( failures ).iterator();
     }
     
     
@@ -157,16 +172,16 @@ public class Invocation
      * Adds a throwable to the list of throwables resulting from the execution
      * of Interceptors in the order they were thrown.
      *
-     * @param a_throwable Throwable resulting from an Interceptor invoke call
+     * @param throwable Throwable resulting from an Interceptor invoke call
      */
-    public void addFailure( InterceptorException a_throwable )
+    public void addFailure( InterceptorException throwable )
     {
-        if ( null == m_failures )
+        if ( null == failures )
         {
-            m_failures = new ArrayList() ;
+            failures = new ArrayList();
         }
         
-        m_failures.add( a_throwable ) ; 
+        failures.add( throwable );
     }
     
     
@@ -179,7 +194,7 @@ public class Invocation
      */
     public InterceptorException getBeforeFailure()
     {
-        return m_before ;
+        return before;
     }
     
     
@@ -187,12 +202,12 @@ public class Invocation
      * Sets the InterceptorException thrown if at all within the before
      * InterceptorPipeline.
      *
-     * @param a_before the InterceptorException thrown if at all within the 
+     * @param before the InterceptorException thrown if at all within the
      * before InterceptorPipeline 
      */
-    public void setBeforeFailure( InterceptorException a_before )
+    public void setBeforeFailure( InterceptorException before )
     {
-        m_before = a_before ;
+        this.before = before;
     }
     
     
@@ -205,7 +220,7 @@ public class Invocation
      */
     public InterceptorException getAfterFailure()
     {
-        return m_after ;
+        return after;
     }
     
     
@@ -213,12 +228,12 @@ public class Invocation
      * Sets the InterceptorException thrown if at all within the after
      * InterceptorPipeline.
      *
-     * @param a_after the InterceptorException thrown if at all within the 
+     * @param after the InterceptorException thrown if at all within the
      * after InterceptorPipeline 
      */
-    public void setAfterFailure( InterceptorException a_after )
+    public void setAfterFailure( InterceptorException after )
     {
-        m_after = a_after ;
+        this.after = after;
     }
     
     
@@ -229,18 +244,18 @@ public class Invocation
      */
     public Object getProxy()
     {
-        return m_proxy ;
+        return proxy;
     }
 
 
     /**
      * Set the proxy on which the method was invoked.
      *
-     * @param a_proxy the proxy on which the method was invoked.
+     * @param proxy the proxy on which the method was invoked.
      */
-    public void setProxy( final Object a_proxy )
+    public void setProxy( final Object proxy )
     {
-        m_proxy = a_proxy ;
+        this.proxy = proxy;
     }
 
 
@@ -251,18 +266,18 @@ public class Invocation
      */
     public Method getMethod()
     {
-        return m_method ;
+        return method;
     }
 
 
     /**
      * Set the method that was invoked.
      *
-     * @param a_method the method that was invoked.
+     * @param method the method that was invoked.
      */
-    public void setMethod( final Method a_method )
+    public void setMethod( final Method method )
     {
-        m_method = a_method ;
+        this.method = method;
     }
 
 
@@ -273,18 +288,18 @@ public class Invocation
      */
     public Object[] getParameters()
     {
-        return m_parameters ;
+        return parameters;
     }
 
 
     /**
      * Set the parameters passed to method for invocation.
      *
-     * @param a_parameters the parameters passed to method for invocation.
+     * @param parameters the parameters passed to method for invocation.
      */
-    public void setParameters( final Object[] a_parameters )
+    public void setParameters( final Object[] parameters )
     {
-        m_parameters = a_parameters ;
+        this.parameters = parameters;
     }
 
 
@@ -295,18 +310,18 @@ public class Invocation
      */
     public Object getReturnValue()
     {
-        return m_returnValue ;
+        return returnValue;
     }
 
 
     /**
      * Set the return value of the invocation.
      *
-     * @param a_returnValue the return value of the invocation.
+     * @param returnValue the return value of the invocation.
      */
-    public void setReturnValue( final Object a_returnValue )
+    public void setReturnValue( final Object returnValue )
     {
-        m_returnValue = a_returnValue ;
+        this.returnValue = returnValue;
     }
 
 
@@ -317,18 +332,18 @@ public class Invocation
      */
     public Throwable getThrowable()
     {
-        return m_throwable ;
+        return throwable;
     }
 
 
     /**
      * Set the exception thrown by the invocation if any.
      *
-     * @param a_throwable the exception thrown by the invocation if any.
+     * @param throwable the exception thrown by the invocation if any.
      */
-    public void setThrowable( Throwable a_throwable )
+    public void setThrowable( Throwable throwable )
     {
-        m_throwable = a_throwable ;
+        this.throwable = throwable;
     }
 
 
@@ -340,7 +355,7 @@ public class Invocation
      */
     public Stack getContextStack()
     {
-        return m_contextStack ;
+        return contextStack;
     }
 
 
@@ -348,11 +363,11 @@ public class Invocation
      * Sets the context stack in which this invocation occurs.  The context 
      * stack is a stack of LdapContexts.
      *
-     * @param a_contextStack a stack of LdapContexts in which the invocation 
+     * @param contextStack a stack of LdapContexts in which the invocation
      * occurs
      */
-    public void setContextStack( final Stack a_contextStack )
+    public void setContextStack( final Stack contextStack )
     {
-        m_contextStack = a_contextStack ;
+        this.contextStack = contextStack;
     }
 }

@@ -1,4 +1,20 @@
-package org.apache.eve.jndi ;
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.jndi;
 
 
 /**
@@ -7,6 +23,8 @@ package org.apache.eve.jndi ;
  * exceptions are added to the afterFailure list of exceptions on the 
  * Invocation.
  *
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class AfterFailurePipeline extends InterceptorPipeline
 {
@@ -17,7 +35,7 @@ public class AfterFailurePipeline extends InterceptorPipeline
      */
     public final boolean isFailFast() 
     {
-        return false ;
+        return false;
     }
 
 
@@ -31,19 +49,19 @@ public class AfterFailurePipeline extends InterceptorPipeline
      *
      * @see Interceptor#invoke(Invocation)
      */
-    public void invoke( Invocation a_invocation ) throws InterceptorException
+    public void invoke( Invocation invocation ) throws InterceptorException
     {
-        InterceptorException l_last = null ;
+        InterceptorException last = null;
         
-        for ( int ii = 0 ; ii < getList().size(); ii++ )
+        for ( int ii = 0; ii < getList().size(); ii++ )
         {
-            Interceptor l_service = ( Interceptor ) getList().get( ii ) ;
+            Interceptor service = ( Interceptor ) getList().get( ii );
             
             try
             {
-                l_service.invoke( a_invocation ) ;
+                service.invoke( invocation );
             }
-            catch ( Throwable a_throwable )
+            catch ( Throwable throwable )
             {
                 /*
                  * If exception is InterceptorException we add it to the list
@@ -53,25 +71,24 @@ public class AfterFailurePipeline extends InterceptorPipeline
                  * Invocation
                  */
 
-                if ( a_throwable instanceof InterceptorException )
+                if ( throwable instanceof InterceptorException )
                 {
-                    l_last = ( InterceptorException ) a_throwable ;
-                    a_invocation.addFailure( l_last ) ;
+                    last = ( InterceptorException ) throwable;
+                    invocation.addFailure( last );
                 }
                 else
                 {
-                    l_last = 
-                        new InterceptorException( l_service, a_invocation ) ;
-                    l_last.setRootCause( a_throwable ) ;
-                    a_invocation.addFailure( l_last ) ;
+                    last = new InterceptorException( service, invocation );
+                    last.setRootCause( throwable );
+                    invocation.addFailure( last );
                 }
             }
         }
         
         // Throw the last excepts if any after all Interceptors are invoked
-        if ( null != l_last )
+        if ( null != last )
         {
-            throw l_last ;
+            throw last;
         }
     }
 }

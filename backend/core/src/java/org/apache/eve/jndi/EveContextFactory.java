@@ -32,6 +32,8 @@ import org.apache.eve.schema.OidRegistry;
  * InitialContext initialContext = new InitialContext( env );
  * </code>
  * @see javax.naming.spi.InitialContextFactory
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class EveContextFactory implements InitialContextFactory
 {

@@ -1,3 +1,19 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.jndi;
 
 
@@ -18,6 +34,8 @@ import javax.naming.ldap.LdapContext;
 /**
  * EveBackendSubsystem service implementing block.
  * 
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 {
@@ -74,11 +92,11 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
      * Enables a EveContextFactory with a handle to the system wide
      * EveJndiProvider instance.
      *
-     * @param a_factory the EveContextFactory to enable
+     * @param factory the EveContextFactory to enable
      */
-    static void setProviderOn( EveContextFactory a_factory )
+    static void setProviderOn( EveContextFactory factory )
     {
-        a_factory.setProvider( s_singleton );
+        factory.setProvider( s_singleton );
     }
 
 
@@ -90,9 +108,9 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
     /**
      * @see org.apache.eve.EveBackendSubsystem#getLdapContext(Hashtable)
      */
-    public LdapContext getLdapContext( Hashtable an_env ) throws NamingException
+    public LdapContext getLdapContext( Hashtable aenv ) throws NamingException
     {
-        return new EveLdapContext( proxy, an_env );
+        return new EveLdapContext( proxy, aenv );
     }
 
 
@@ -104,36 +122,36 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
     /**
      * @see java.lang.reflect.InvocationHandler#invoke(Object,Method,Object[])
      */
-    public Object invoke( Object a_proxy, Method a_method, Object[] a_args )
+    public Object invoke( Object proxy, Method method, Object[] args )
         throws Throwable
     {
         // Setup the invocation and populate: remember aspect sets context stack
         Invocation invocation = new Invocation();
-        invocation.setMethod( a_method );
-        invocation.setProxy( a_proxy );
-        invocation.setParameters( a_args );
+        invocation.setMethod( method );
+        invocation.setProxy( proxy );
+        invocation.setParameters( args );
         
         try
         {
             before.invoke( invocation );
         }
-        catch ( Throwable a_throwable )
+        catch ( Throwable throwable )
         {
             /*
              * On errors we need to continue into the failure handling state
              * of Invocation processing and not throw anything just record it.
              */
-            if ( a_throwable instanceof InterceptorException )
+            if ( throwable instanceof InterceptorException )
             {
                 invocation.setBeforeFailure( ( InterceptorException )
-                    a_throwable );
+                    throwable );
             }
             else 
             {
                 InterceptorException ie =
                     new InterceptorException( before, invocation );
                 invocation.setBeforeFailure( ie );
-                ie.setRootCause( a_throwable );
+                ie.setRootCause( throwable );
             }
             
             invocation.setState( InvocationStateEnum.FAILUREHANDLING );
@@ -152,13 +170,13 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
         {
             try
             {
-                invocation.setReturnValue( a_method.invoke( nexus,
+                invocation.setReturnValue( method.invoke( nexus,
                     invocation.getParameters() ) );
                 invocation.setState( InvocationStateEnum.POSTINVOCATION );
             }
-            catch ( Throwable a_throwable )
+            catch ( Throwable throwable )
             {
-                invocation.setThrowable( a_throwable );
+                invocation.setThrowable( throwable );
                 invocation.setState( InvocationStateEnum.FAILUREHANDLING );
             }
 
@@ -188,20 +206,20 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
                 after.invoke( invocation );
                 return invocation.getReturnValue();
             }
-            catch ( Throwable a_throwable )
+            catch ( Throwable throwable )
             {
                 invocation.setState( InvocationStateEnum.FAILUREHANDLING );
                 
-                if ( a_throwable instanceof InterceptorException )
+                if ( throwable instanceof InterceptorException )
                 {
                     invocation.setAfterFailure( ( InterceptorException )
-                        a_throwable );
+                        throwable );
                 }
                 else 
                 {
                     InterceptorException ie =
                         new InterceptorException( after, invocation );
-                    ie.setRootCause( a_throwable );
+                    ie.setRootCause( throwable );
                     invocation.setAfterFailure( ie );
                 }
                 

@@ -1,3 +1,19 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.jndi;
 
 
@@ -24,6 +40,8 @@ import org.apache.eve.PartitionNexus;
 /**
  * A non-federated abstract Context implementation.
  *
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public abstract class EveContext implements Context
 {
@@ -211,10 +229,10 @@ public abstract class EveContext implements Context
          * l_attributes.put( BootstrapSchema.DN_ATTR, l_target.toString() ) ;
          */
         l_attributes.put( l_rdnAttribute, l_rdnValue ) ;
-        l_attributes.put( JavaLdap.OBJECTCLASS_ATTR, 
-            JavaLdap.JCONTAINER_ATTR ) ;
-        l_attributes.put( JavaLdap.OBJECTCLASS_ATTR, 
-            JavaLdap.TOP_ATTR ) ;
+        l_attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR,
+            JavaLdapSupport.JCONTAINER_ATTR ) ;
+        l_attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR,
+            JavaLdapSupport.TOP_ATTR ) ;
         
         /*
          * Add the new context to the server which as a side effect adds 
@@ -287,7 +305,7 @@ public abstract class EveContext implements Context
         Name l_target = buildTarget( a_name ) ;
 
         // Serialize object into entry attributes and add it.
-        JavaLdap.serialize( l_attributes, a_obj ) ;
+        JavaLdapSupport.serialize( l_attributes, a_obj ) ;
         m_nexusProxy.add( l_target.toString(), l_target, l_attributes ) ;
     }
 
@@ -420,10 +438,10 @@ public abstract class EveContext implements Context
         Attributes l_attributes = m_nexusProxy.lookup( l_target ) ;
         
         // First lets test and see if the entry is a serialized java object
-        if ( l_attributes.get( JavaLdap.JCLASSNAME_ATTR ) != null )
+        if ( l_attributes.get( JavaLdapSupport.JCLASSNAME_ATTR ) != null )
         {
             // Give back serialized object and not a context
-            return JavaLdap.deserialize( l_attributes ) ;
+            return JavaLdapSupport.deserialize( l_attributes ) ;
         }
         
         // Initialize and return a context since the entry is not a java object

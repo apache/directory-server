@@ -1,4 +1,20 @@
-package org.apache.eve.jndi ;
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.jndi;
 
 
 /**
@@ -6,17 +22,19 @@ package org.apache.eve.jndi ;
  * to fail within the invocation chain of the pipeline shorts the invocation of
  * interceptors downstream of the error.
  *
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class FailFastPipeline extends InterceptorPipeline
 {
     /**
      * Returns true all the time! 
      *
-     * @see org.apache.ldap.server.jndi.InterceptorPipeline#isFailFast()
+     * @see InterceptorPipeline#isFailFast()
      */
     public final boolean isFailFast() 
     {
-        return true ;
+        return true;
     }
 
 
@@ -26,29 +44,28 @@ public class FailFastPipeline extends InterceptorPipeline
      * results this method catches it and wraps it within an 
      * InterceptorException and rethrows the new exception.
      *
-     * @see org.apache.ldap.server.jndi.Interceptor#invoke(org.apache.ldap.server.jndi.Invocation)
+     * @see Interceptor#invoke(Invocation)
      */
-    public void invoke( Invocation a_invocation ) throws InterceptorException
+    public void invoke( Invocation invocation ) throws InterceptorException
     {
-        for ( int ii = 0 ; ii < getList().size(); ii++ )
+        for ( int ii = 0; ii < getList().size(); ii++ )
         {
-            Interceptor l_service = ( Interceptor ) getList().get( ii ) ;
+            Interceptor service = ( Interceptor ) getList().get( ii );
             
             try
             {
-                l_service.invoke( a_invocation ) ;
+                service.invoke( invocation );
             }
-            catch ( Throwable a_throwable )
+            catch ( Throwable throwable )
             {
-                if ( a_throwable instanceof InterceptorException )
+                if ( throwable instanceof InterceptorException )
                 {
-                    throw ( InterceptorException ) a_throwable ;
+                    throw ( InterceptorException ) throwable;
                 }
                 
-                InterceptorException l_ie = 
-                    new InterceptorException( l_service, a_invocation ) ;
-                l_ie.setRootCause( a_throwable ) ;
-                throw l_ie ;
+                InterceptorException ie = new InterceptorException( service, invocation );
+                ie.setRootCause( throwable );
+                throw ie;
             }
         }
     }

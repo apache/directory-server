@@ -1,50 +1,89 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.jndi;
 
-import javax.naming.NamingException ;
+
+import javax.naming.NamingException;
 
 
 /**
  * Exception thrown by an Interceptor while intercepting an Invocation.  
- * Interceptor failures caught from the 
- * {@link org.apache.eve.EveBackendSubsystem#invoke(Object, Method, Object[])}
- * method are bundled as InterceptorExceptions and rethrown.
+ * Interceptor failures caught from the method are bundled as
+ * InterceptorExceptions and rethrown.
  * 
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class InterceptorException extends NamingException
 {
     /** The Invokation the Interceptor failed on */
-    private final Invocation m_invocation ;
+    private final Invocation invocation;
     /** The Interceptor causing the failure */
-    private final Interceptor m_interceptor ;
+    private final Interceptor interceptor;
     
     
     /**
      * Creates an InterceptorException without a message.
      *
-     * @param a_interceptor the Interceptor causing the failure
-     * @param a_invocation the Invocation the Interceptor failed on
+     * @param interceptor the Interceptor causing the failure
+     * @param invocation the Invocation the Interceptor failed on
      */
-    public InterceptorException( Interceptor a_interceptor,
-        Invocation a_invocation )
+    public InterceptorException( Interceptor interceptor, Invocation invocation )
     {
-        super() ;
-        m_invocation = a_invocation ;
-        m_interceptor = a_interceptor ;
+        super();
+        this.invocation = invocation;
+        this.interceptor = interceptor;
     }
 
 
     /**
      * Creates an InterceptorException with a custom message.
      *
-     * @param a_interceptor the Interceptor causing the failure
-     * @param a_invocation the Invocation the Interceptor failed on
-     * @param a_explanation String explanation of why the Interceptor failed
+     * @param interceptor the Interceptor causing the failure
+     * @param invocation the Invocation the Interceptor failed on
+     * @param explanation String explanation of why the Interceptor failed
      */
-    public InterceptorException( Interceptor a_interceptor,
-        Invocation a_invocation, String a_explanation )
+    public InterceptorException( Interceptor interceptor,
+                                 Invocation invocation, String explanation )
     {
-        super( a_explanation ) ;
-        m_invocation = a_invocation ;
-        m_interceptor = a_interceptor ;
+        super( explanation );
+        this.invocation = invocation;
+        this.interceptor = interceptor;
+    }
+
+
+    /**
+     * Gets the invovation object this exception is associated with.
+     *
+     * @return the invovation object this exception is associated with
+     */
+    public Invocation getInvocation()
+    {
+        return invocation;
+    }
+
+
+    /**
+     * Gets the interceptor this exception is associated with.
+     *
+     * @return the interceptor this exception is associated with
+     */
+    public Interceptor getInterceptor()
+    {
+        return interceptor;
     }
 }

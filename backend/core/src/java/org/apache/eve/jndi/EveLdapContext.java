@@ -1,21 +1,39 @@
-package org.apache.eve.jndi ;
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.jndi;
 
 
-import java.util.Hashtable ;
+import java.util.Hashtable;
 
-import javax.naming.NamingException ;
-import javax.naming.ldap.Control ;
-import javax.naming.ldap.ExtendedRequest ;
-import javax.naming.ldap.ExtendedResponse ;
-import javax.naming.ldap.LdapContext ;
+import javax.naming.NamingException;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.ExtendedRequest;
+import javax.naming.ldap.ExtendedResponse;
+import javax.naming.ldap.LdapContext;
 
-import org.apache.ldap.common.name.LdapName ;
+import org.apache.ldap.common.name.LdapName;
 
 import org.apache.eve.PartitionNexus;
 
 
 /**
  *
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class EveLdapContext extends EveDirContext implements LdapContext
 {
@@ -23,12 +41,12 @@ public class EveLdapContext extends EveDirContext implements LdapContext
     /**
      * TODO Document me!
      *
-     * @param a_nexusProxy TODO
-     * @param a_env TODO
+     * @param nexusProxy TODO
+     * @param env TODO
      */
-    public EveLdapContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
+    public EveLdapContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
-        super( a_nexusProxy, a_env ) ;
+        super( nexusProxy, env );
     }
 
 
@@ -36,13 +54,13 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      * Creates a new EveDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
      * 
-     * @param a_nexusProxy the intercepting proxy to the nexus
-     * @param a_env the environment properties used by this context
-     * @param a_dn the distinguished name of this context
+     * @param nexusProxy the intercepting proxy to the nexus
+     * @param env the environment properties used by this context
+     * @param dn the distinguished name of this context
      */
-    EveLdapContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
+    EveLdapContext( PartitionNexus nexusProxy, Hashtable env, LdapName dn )
     {
-        super( a_nexusProxy, a_env, a_dn ) ;
+        super( nexusProxy, env, dn );
     }
 
 
@@ -50,10 +68,10 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      * @see javax.naming.ldap.LdapContext#extendedOperation(
      * javax.naming.ldap.ExtendedRequest)
      */
-    public ExtendedResponse extendedOperation( ExtendedRequest a_request )
+    public ExtendedResponse extendedOperation( ExtendedRequest request )
     {
         // TODO Auto-generated method stub
-        return null ;
+        return null;
     }
 
 
@@ -61,18 +79,18 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      * @see javax.naming.ldap.LdapContext#newInstance(
      * javax.naming.ldap.Control[])
      */
-    public LdapContext newInstance( Control[] a_requestControls )
+    public LdapContext newInstance( Control[] requestControls )
         throws NamingException
     {
         // TODO Auto-generated method stub
-        return null ;
+        return null;
     }
 
 
     /**
      * @see javax.naming.ldap.LdapContext#reconnect(javax.naming.ldap.Control[])
      */
-    public void reconnect( Control[] a_connCtls ) throws NamingException
+    public void reconnect( Control[] connCtls ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
@@ -86,7 +104,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
     public Control[] getConnectControls() throws NamingException
     {
         // TODO Auto-generated method stub
-        return null ;
+        return null;
     }
 
 
@@ -96,7 +114,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      * @see javax.naming.ldap.LdapContext#setRequestControls(
      * javax.naming.ldap.Control[])
      */
-    public void setRequestControls( Control[] a_requestControls )
+    public void setRequestControls( Control[] requestControls )
         throws NamingException
     {
         // TODO Auto-generated method stub
@@ -111,7 +129,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
     public Control[] getRequestControls() throws NamingException
     {
         // TODO Auto-generated method stub
-        return null ;
+        return null;
     }
 
 
@@ -123,7 +141,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
     public Control[] getResponseControls() throws NamingException
     {
         // TODO Auto-generated method stub
-        return null ;
+        return null;
     }
 
 }
