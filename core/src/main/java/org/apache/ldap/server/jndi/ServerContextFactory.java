@@ -71,7 +71,6 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.mina.io.socket.SocketAcceptor;
 import org.apache.mina.protocol.ProtocolAcceptor;
-import org.apache.mina.protocol.ProtocolProvider;
 import org.apache.mina.protocol.io.IoProtocolAcceptor;
 
 /**
@@ -133,8 +132,6 @@ public class ServerContextFactory implements InitialContextFactory
     private InetSocketAddress serverAddress;
 
     private ProtocolAcceptor acceptor;
-
-    private ProtocolProvider proto;
 
     /**
      * Default constructor that sets the provider of this ServerContextFactory.
@@ -402,7 +399,7 @@ public class ServerContextFactory implements InitialContextFactory
         {
             String schemaList = ( String ) initialEnv.get( EnvKeys.SCHEMAS );
             schemaList = StringTools.deepTrim( schemaList );
-            schemas = ( ( String ) schemaList ).split( " " );
+            schemas = schemaList.split( " " );
             for( int ii = 0; ii < schemas.length; ii ++ )
             {
                 schemas[ ii ] = schemas[ ii ].trim();
@@ -737,8 +734,7 @@ public class ServerContextFactory implements InitialContextFactory
         env.putAll( initialEnv );
         env.put( Context.PROVIDER_URL, "ou=system" );
         LdapContext ctx = provider.getLdapContext( env );
-        InputStream in = ( InputStream ) getClass().getResourceAsStream(
-                "system.ldif" );
+        InputStream in = getClass().getResourceAsStream( "system.ldif" );
         LdifParser parser = new LdifParserImpl();
 
         try
