@@ -71,7 +71,7 @@ public interface PartitionNexus extends BackingStore
      * the supplied distinguished name parameter.  If the DN argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param dn to use for finding a suffix.
+     * @param dn the normalized distinguished name to use for finding a suffix.
      * @param normalized if true causes the return of a normalized Dn, but
      * if false it returns the original user provided distinguished name for 
      * the suffix Dn as it was provided on suffix entry creation.

@@ -587,10 +587,10 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * Gets the backend partition associated with a dn.
+     * Gets the backend partition associated with a normalized dn.
      *
-     * @param dn the name to resolve to a backend
-     * @return the backend partition associated with the dn
+     * @param dn the normalized distinguished name to resolve to a backend
+     * @return the backend partition associated with the normalized dn
      * @throws NamingException if the name cannot be resolved to a backend
      */
     private ContextPartition getBackend( Name dn ) throws NamingException
