@@ -64,16 +64,14 @@ public abstract class AbstractJndiTest extends TestCase
         doDelete( new File( "target" + File.separator + "eve" ) );
 
         extras.put( EveContextFactory.EVE_LDAP_PORT,
-                String.valueOf( AvailablePortFinder.getNextAvailable( 1025 ) ) );
+                String.valueOf( AvailablePortFinder.getNextAvailable( 1024 ) ) );
 
-        setSysRoot( "uid=admin,ou=system", "testing" );
+        setSysRoot( "uid=admin,ou=system", "secret" );
     }
 
 
     /**
      * Deletes the Eve working directory.
-     *
-     * @throws IOException if there are failures while deleting.
      */
     protected void doDelete( File wkdir )
     {
@@ -148,7 +146,7 @@ public abstract class AbstractJndiTest extends TestCase
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         env.put( EveContextFactory.SHUTDOWN_OP_ENV, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "testing" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         try { new InitialContext( env ); } catch( Exception e ) {}
         sysRoot = null;
     }

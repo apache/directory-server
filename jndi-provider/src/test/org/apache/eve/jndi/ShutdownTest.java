@@ -44,7 +44,7 @@ public class ShutdownTest extends AbstractJndiTest
 
         try
         {
-            setSysRoot( "uid=admin,ou=system", "testing" );
+            setSysRoot( "uid=admin,ou=system", "secret" );
         }
         finally
         {
@@ -66,7 +66,7 @@ public class ShutdownTest extends AbstractJndiTest
 
         try
         {
-            setSysRoot( "uid=admin,ou=system", "testing" );
+            setSysRoot( "uid=admin,ou=system", "secret" );
         }
         finally
         {
@@ -76,6 +76,6 @@ public class ShutdownTest extends AbstractJndiTest
         assertNotNull( sysRoot );
 
         // restart the system now
-        setSysRoot( "uid=admin,ou=system", "testing" );
+        setSysRoot( "uid=admin,ou=system", "secret" );
     }
 }

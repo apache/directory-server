@@ -336,6 +336,12 @@ public class AuthorizationService extends BaseInterceptor
             {
                 if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
                 {
+                    // allow for self reads
+                    if ( dn.toString().equals( principalDn.toString() ) )
+                    {
+                        return;
+                    }
+
                     String msg = "Access to user account '" + dn + "' not permitted";
                     msg += " for user '" + principalDn + "'.  Only the admin can";
                     msg += " access user account information";
@@ -344,6 +350,12 @@ public class AuthorizationService extends BaseInterceptor
 
                 if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) )
                 {
+                    // allow for self reads
+                    if ( dn.toString().equals( principalDn.toString() ) )
+                    {
+                        return;
+                    }
+
                     String msg = "Access to group '" + dn + "' not permitted";
                     msg += " for user '" + principalDn + "'.  Only the admin can";
                     msg += " access group information";
@@ -352,6 +364,12 @@ public class AuthorizationService extends BaseInterceptor
 
                 if ( dn.equals( ADMIN_DN ) )
                 {
+                    // allow for self reads
+                    if ( dn.toString().equals( principalDn.toString() ) )
+                    {
+                        return;
+                    }
+
                     String msg = "Access to admin account not permitted for user '";
                     msg += principalDn + "'.  Only the admin can";
                     msg += " access admin account information";

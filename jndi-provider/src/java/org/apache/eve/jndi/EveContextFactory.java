@@ -36,7 +36,6 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.common.ldif.LdifIterator;
@@ -306,20 +305,11 @@ public class EveContextFactory implements InitialContextFactory
         attributes.put( "objectClass", "organizationalPerson" );
         attributes.put( "objectClass", "inetOrgPerson" );
         attributes.put( "uid", SystemPartition.ADMIN_UID );
+        attributes.put( "userPassword", SystemPartition.ADMIN_PW );
         attributes.put( "displayName", "Directory Superuser" );
         attributes.put( "creatorsName", ADMIN );
         attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
         attributes.put( "displayName", "Directory Superuser" );
-
-        if ( initialEnv.containsKey( Context.SECURITY_CREDENTIALS ) )
-        {
-            attributes.put( "userPassword", initialEnv.get(
-                    Context.SECURITY_CREDENTIALS ) );
-        }
-        else
-        {
-            attributes.put( "userPassword", ArrayUtils.EMPTY_BYTE_ARRAY );
-        }
 
         nexus.add( ADMIN, ADMIN_NAME, attributes );
         return true;
@@ -430,9 +420,7 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.PREINVOCATION
         };
         boolean allowAnonymous = initialEnv.containsKey( ANONYMOUS_ENV );
-        ConcreteNameComponentNormalizer normalizer;
-        normalizer = new ConcreteNameComponentNormalizer( globalRegistries.getAttributeTypeRegistry() );
-        Interceptor interceptor = new AuthenticationService( nexus, normalizer, allowAnonymous );
+        Interceptor interceptor = new AuthenticationService( nexus, allowAnonymous );
         provider.addInterceptor( interceptor, state );
 
         /*
@@ -449,6 +437,9 @@ public class EveContextFactory implements InitialContextFactory
          * interceptor chain.
          */
         state = new InvocationStateEnum[]{ InvocationStateEnum.PREINVOCATION };
+        ConcreteNameComponentNormalizer normalizer;
+        AttributeTypeRegistry atr = globalRegistries.getAttributeTypeRegistry();
+        normalizer = new ConcreteNameComponentNormalizer( atr );
         interceptor = new AuthorizationService( normalizer, filterService );
         provider.addInterceptor( interceptor, state );
 

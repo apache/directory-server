@@ -17,21 +17,17 @@
 package org.apache.eve.jndi;
 
 
-import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
 
 import org.apache.eve.RootNexus;
-import org.apache.eve.SystemPartition;
 import org.apache.eve.auth.LdapPrincipal;
 import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.name.NameComponentNormalizer;
-import org.apache.ldap.common.name.DnParser;
 
 
 /**
@@ -42,17 +38,17 @@ import org.apache.ldap.common.name.DnParser;
  */
 public class AuthenticationService implements Interceptor
 {
-
-    private static final String TYPE = Context.SECURITY_AUTHENTICATION;
+    /** short for Context.SECURITY_AUTHENTICATION */
+    private static final String AUTH_TYPE = Context.SECURITY_AUTHENTICATION;
+    /** short for Context.SECURITY_PRINCIPAL */
     private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
-    private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
+    /** short for Context.SECURITY_CREDENTIALS */
+    private static final String CREDS = Context.SECURITY_CREDENTIALS;
 
     /** the root nexus to all database partitions */
     private final RootNexus nexus;
     /** whether or not to allow anonymous users */
     private boolean allowAnonymous = false;
-    /** the normalizing DnParser to use while parsing names */
-    private final DnParser parser;
 
 
     /**
@@ -60,49 +56,97 @@ public class AuthenticationService implements Interceptor
      *
      * @param nexus the root nexus to access all database partitions
      */
-    public AuthenticationService( RootNexus nexus, NameComponentNormalizer normalizer,
-                                  boolean allowAnonymous ) throws NamingException
+    public AuthenticationService( RootNexus nexus, boolean allowAnonymous )
     {
         this.nexus = nexus;
         this.allowAnonymous = allowAnonymous;
-        this.parser = new DnParser( normalizer );
     }
 
 
     public void invoke( Invocation invocation ) throws NamingException
     {
+        // only handle preinvocation state
         if ( invocation.getState() != InvocationStateEnum.PREINVOCATION )
         {
             return;
         }
 
+        // check if we are already authenticated and if so we return making
+        // sure first that the credentials are not exposed within context
         EveContext ctx = ( EveLdapContext ) invocation.getContextStack().peek();
         if ( ctx.getPrincipal() != null )
         {
-            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
+            if ( ctx.getEnvironment().containsKey( CREDS ) )
             {
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+                ctx.removeFromEnvironment( CREDS );
             }
 
             return;
         }
 
-        String principal = getPrincipal( ctx.getEnvironment() );
+        // check the kind of authentication being performed
+        if ( ctx.getEnvironment().containsKey( AUTH_TYPE ) )
+        {
+            // authentication type can be anything
 
-        if ( principal.length() == 0 )
+            String auth = ( String ) ctx.getEnvironment().get( AUTH_TYPE );
+            if ( auth.equalsIgnoreCase( "none" ) )
+            {
+                doAuthNone( ctx );
+            }
+            else if ( auth.equalsIgnoreCase( "simple" ) )
+            {
+                doAuthSimple( ctx );
+            }
+            else
+            {
+                doAuthSasl( ctx );
+            }
+        }
+        else if ( ctx.getEnvironment().containsKey( CREDS ) )
+        {
+            // authentication type is simple here
+            doAuthSimple( ctx );
+        }
+        else
+        {
+            // authentication type is anonymous
+            doAuthNone( ctx );
+        }
+
+        // remove creds so there is no security risk
+        ctx.removeFromEnvironment( CREDS );
+    }
+
+
+    private void doAuthSasl( EveContext ctx ) throws NamingException
+    {
+        ctx.getEnvironment(); // shut's up idea's yellow light
+        ResultCodeEnum rc = ResultCodeEnum.AUTHMETHODNOTSUPPORTED; 
+        throw new LdapAuthenticationNotSupportedException( rc );
+    }
+
+
+    private void doAuthNone( EveContext ctx ) throws NamingException
+    {
+        if ( this.allowAnonymous )
         {
             if ( allowAnonymous )
             {
                 ctx.setPrincipal( LdapPrincipal.ANONYMOUS );
-                return;
             }
             else
             {
                 throw new LdapNoPermissionException( "Anonymous bind NOT permitted!" );
             }
         }
+    }
 
-        Object creds = ctx.getEnvironment().get( Context.SECURITY_CREDENTIALS );
+
+    private void doAuthSimple( EveContext ctx ) throws NamingException
+    {
+        Object creds = ctx.getEnvironment().get( CREDS );
+
         if ( creds == null )
         {
             creds = ArrayUtils.EMPTY_BYTE_ARRAY;
@@ -110,6 +154,21 @@ public class AuthenticationService implements Interceptor
         else if ( creds instanceof String )
         {
             creds = ( ( String ) creds ).getBytes();
+        }
+
+        // let's get the principal now
+        String principal;
+        if ( ! ctx.getEnvironment().containsKey( PRINCIPAL ) )
+        {
+            throw new LdapAuthenticationException();
+        }
+        else
+        {
+            principal = ( String ) ctx.getEnvironment().get( PRINCIPAL );
+            if ( principal == null )
+            {
+                throw new LdapAuthenticationException();
+            }
         }
 
         LdapName principalDn = new LdapName( principal );
@@ -139,89 +198,6 @@ public class AuthenticationService implements Interceptor
             throw new LdapAuthenticationException();
         }
 
-        synchronized( parser )
-        {
-            ctx.setPrincipal( new LdapPrincipal( parser.parse( principal ) ) );
-        }
-
-        // remove creds so there is no security risk
-        ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
-    }
-
-
-    /**
-     * Gets the effective principal associated with a JNDI context's environment.
-     *
-     * @param env the JNDI Context environment
-     * @return the effective principal
-     * @throws NamingException if certain properties are not present or present
-     * in wrong values or present in the wrong combinations
-     */
-    private String getPrincipal( Hashtable env ) throws NamingException
-    {
-        if ( "strong".equalsIgnoreCase( ( String ) env.get( TYPE ) ) )
-        {
-            throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
-        }
-
-        // --------------------------------------------------------------------
-        // if both the authtype and principal keys not defined then the
-        // princial is set to the admin user for the system
-        // --------------------------------------------------------------------
-        if ( ! env.containsKey( TYPE ) && ! env.containsKey( PRINCIPAL ) )
-        {
-            return SystemPartition.ADMIN_PRINCIPAL;
-        }
-
-        // the authtype is set but the principal is not
-        if ( env.containsKey( TYPE ) && ! env.containsKey( PRINCIPAL ) )
-        {
-            Object val = env.get( TYPE );
-
-            // princial is set to the anonymous user if authType is "none"
-            if ( "none".equalsIgnoreCase( ( String ) val ) )
-            {
-                return "";
-            }
-            // princial is set to the admin user if authType is "simple"
-            else if ( "simple".equalsIgnoreCase( ( String ) val ) )
-            {
-                return ADMIN;
-            }
-
-            // blow chuncks if we see any other authtype values
-            throw new LdapConfigurationException( "Unknown value for property " + TYPE + ": " + val );
-        }
-
-        // both are set
-        if ( env.containsKey( TYPE ) && env.containsKey( PRINCIPAL ) )
-        {
-            Object val = env.get( TYPE );
-
-            // princial is set to the anonymous user if authType is "none"
-            if ( "none".equalsIgnoreCase( ( String ) val ) )
-            {
-                String msg = "Ambiguous configuration: " + TYPE;
-                msg += " is set to none and the security principal";
-                msg += " is set using " + PRINCIPAL + " as well";
-                throw new LdapConfigurationException( msg );
-            }
-            // princial is set to the admin user if authType is "simple"
-            else if ( "simple".equalsIgnoreCase( ( String ) val ) )
-            {
-                return ( String ) env.get( PRINCIPAL );
-            }
-
-            // blow chuncks if we see any other authtype values
-            throw new LdapConfigurationException( "Unknown value for property " + TYPE + ": " + val );
-        }
-
-        // we have the principal key so we set that as the value
-        if ( env.containsKey( PRINCIPAL ) )
-        {
-            return ( String ) env.get( PRINCIPAL );
-        }
-
-        return ADMIN;
+        ctx.setPrincipal( new LdapPrincipal( principalDn ) );
     }
 }

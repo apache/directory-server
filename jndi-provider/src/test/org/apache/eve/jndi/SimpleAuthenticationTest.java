@@ -18,10 +18,11 @@ package org.apache.eve.jndi;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Hashtable;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.Attribute;
 import javax.naming.*;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.InitialLdapContext;
@@ -42,10 +43,8 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
 {
     /**
      * Cleans up old database files on creation.
-     *
-     * @throws IOException if we can't clean the files
      */
-    public SimpleAuthenticationTest() throws IOException
+    public SimpleAuthenticationTest()
     {
         doDelete( new File( "target" + File.separator + "eve" ) );
     }
@@ -58,11 +57,9 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
      *   <li>sets doDelete to false for test1AdminAccountCreation</li>
      *   <li>sets doDelete to false for test2AccountExistsOnRestart</li>
      *   <li>sets doDelete to true for all other cases</li>
-     *   <li>bypasses normal setup for test3BuildDbNoNothing</li>
      *   <li>bypasses normal setup for test5BuildDbNoPassWithPrincAuthNone</li>
      *   <li>bypasses normal setup for test4BuildDbNoPassNoPrincAuthNone</li>
      *   <li>bypasses normal setup for test6BuildDbNoPassNotAdminPrinc</li>
-     *   <li>bypasses normal setup for test7BuildDbNoPassNoPrincAuthNoneAnonOff</li>
      * </ul>
      *
      * @throws Exception
@@ -79,10 +76,8 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
             super.doDelete = true;
         }
 
-        if ( getName().equals( "test3BuildDbNoNothing" ) ||
-             getName().equals( "test5BuildDbNoPassWithPrincAuthNone" ) ||
+        if ( getName().equals( "test5BuildDbNoPassWithPrincAuthNone" ) ||
                 getName().equals( "test6BuildDbNoPassNotAdminPrinc" ) ||
-                getName().equals( "test7BuildDbNoPassNoPrincAuthNoneAnonOff" ) ||
              getName().equals( "test4BuildDbNoPassNoPrincAuthNone" ) )
         {
             return;
@@ -118,7 +113,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         DirContext ctx = ( DirContext ) sysRoot.lookup( "uid=admin" );
         Attributes attrs = ctx.getAttributes( "" );
         performAdminAccountChecks( attrs );
-        assertTrue( attrs.get( "userPassword" ).contains( "testing" ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ));
     }
 
 
@@ -133,38 +128,40 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         Attributes attrs = ctx.getAttributes( "" );
 
         performAdminAccountChecks( attrs );
-        assertTrue( attrs.get( "userPassword" ).contains( "testing" ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ));
     }
 
 
-    /**
-     * Checks that we can give basically the minimal set of properties without
-     * any security information to build and bootstrap a new system.  The admin
-     * user is presumed and no password is set.  The admin password defaults to
-     * the empty byte array.
-     *
-     * @throws Exception if there are problems
-     */
-    public void test3BuildDbNoNothing() throws Exception
+    public void test3UseAkarasulu() throws NamingException
     {
-        // clean out the database
-        doDelete( new File( "target" + File.separator + "eve" ) );
-        LdapContext ctx = setSysRoot( new Hashtable() );
-        Attributes attributes = ctx.getAttributes( "uid=admin" );
-        assertNotNull( attributes );
-
-        // Eve has started now so we access another context w/o the wkdir
+        // now go in as anonymous user and we should be rejected
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
-        InitialContext initial = new InitialContext( env );
-        ctx = ( LdapContext ) initial.lookup( "uid=admin" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
+        InitialDirContext ic = new InitialDirContext( env );
+        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        Attribute ou = attrs.get( "ou" );
+        assertTrue( ou.contains( "Engineering" ) );
+        assertTrue( ou.contains( "People" ) );
 
-        performAdminAccountChecks( attributes );
-        assertTrue( attributes.get( "userPassword" ).contains( ArrayUtils.EMPTY_BYTE_ARRAY ) );
+        Attribute objectClass = attrs.get( "objectClass" );
+        assertTrue( objectClass.contains( "top" ) );
+        assertTrue( objectClass.contains( "person" ) );
+        assertTrue( objectClass.contains( "organizationalPerson" ) );
+        assertTrue( objectClass.contains( "inetOrgPerson" ) );
+
+        assertTrue( attrs.get( "telephonenumber" ).contains( "+1 408 555 4798" ) );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        assertTrue( attrs.get( "givenname" ).contains( "Alex" ) );
+        assertTrue( attrs.get( "mail" ).contains( "akarasulu@apache.org" ) );
+        assertTrue( attrs.get( "l" ).contains( "Bogusville" ) );
+        assertTrue( attrs.get( "sn" ).contains( "Karasulu" ) );
+        assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
+        assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
+        assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
     }
 
 
@@ -281,40 +278,6 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
 
 
     /**
-     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
-     * is set to "none" when trying to get a context from an already
-     * bootstrapped system when anonymous users are not turned on.
-     *
-     * @throws Exception if anything goes wrong
-     */
-    public void test7BuildDbNoPassNoPrincAuthNoneAnonOff() throws Exception
-    {
-        // clean out the database
-        tearDown();
-        doDelete( new File( "target" + File.separator + "eve" ) );
-
-        // ok this should start up the system now as admin
-        InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( new Hashtable() );
-        assertNotNull( ctx );
-
-        // now go in as anonymous user and we should be rejected
-        Hashtable env = new Hashtable();
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
-
-        try
-        {
-            new InitialContext( env );
-            fail( "should never get here due to an exception" );
-        }
-        catch ( NoPermissionException e )
-        {
-        }
-    }
-
-
-    /**
      * Tests to make sure we can authenticate after the database has already
      * been build as the admin user when simple authentication is in effect.
      *
@@ -326,7 +289,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "testing" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         assertNotNull( new InitialContext( env ) );

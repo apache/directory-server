@@ -88,7 +88,7 @@ public class RootDSETest extends TestCase
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         env.put( EveContextFactory.SHUTDOWN_OP_ENV, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "testing" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         try { new InitialContext( env ); } catch( Exception e ) {}
     }
 
@@ -104,6 +104,8 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, EveContextFactory.class.getName() );
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -121,6 +123,8 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, EveContextFactory.class.getName() );
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -141,6 +145,8 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, EveContextFactory.class.getName() );
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -164,6 +170,8 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, EveContextFactory.class.getName() );
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -196,6 +204,8 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, EveContextFactory.class.getName() );
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -228,6 +238,8 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, EveContextFactory.class.getName() );
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -262,6 +274,8 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, EveContextFactory.class.getName() );
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
