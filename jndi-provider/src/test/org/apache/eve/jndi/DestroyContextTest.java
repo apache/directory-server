@@ -19,7 +19,7 @@ package org.apache.eve.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.eve.jndi.exception.EveNameNotFoundException;
+import org.apache.eve.exception.EveNameNotFoundException;
 
 
 /**

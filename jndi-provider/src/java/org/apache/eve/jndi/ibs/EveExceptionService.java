@@ -22,8 +22,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.eve.jndi.*;
-import org.apache.eve.jndi.exception.EveNameNotFoundException;
-import org.apache.eve.jndi.exception.EveNameAlreadyBoundException;
+import org.apache.eve.exception.EveNameNotFoundException;
+import org.apache.eve.exception.EveNameAlreadyBoundException;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.exception.EveInterceptorException;

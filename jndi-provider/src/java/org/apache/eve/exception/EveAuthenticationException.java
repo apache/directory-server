@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.exception;
+package org.apache.eve.exception;
 
 
 import javax.naming.AuthenticationException;
