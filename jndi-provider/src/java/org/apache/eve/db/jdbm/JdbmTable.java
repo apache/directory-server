@@ -1059,7 +1059,7 @@ public class JdbmTable implements Table
     {
         StringBuffer buf = new StringBuffer();
 
-        buf.append( '\'' );
+        buf.append( "\'" );
         if ( null == renderer ) 
         {
             buf.append( obj.toString() );
@@ -1069,7 +1069,7 @@ public class JdbmTable implements Table
             buf.append( renderer.getKeyString( obj ) );
         }
         
-        buf.append( '\'' );
+        buf.append( "\'" );
         return buf.toString();
     }
 

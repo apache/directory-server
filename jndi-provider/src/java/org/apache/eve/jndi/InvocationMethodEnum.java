@@ -305,7 +305,7 @@ public class InvocationMethodEnum extends ValuedEnum
     {
         StringBuffer buf = new StringBuffer();
         buf.append( method.getName() );
-        buf.append( '(' );
+        buf.append( "(" );
 
         Class[] params = method.getParameterTypes();
         for ( int ii = 0; ii < params.length; ii++ )
@@ -314,11 +314,11 @@ public class InvocationMethodEnum extends ValuedEnum
 
             if ( ii < params.length - 1 )
             {
-                buf.append( ',' );
+                buf.append( "," );
             }
         }
 
-        buf.append( ')' );
+        buf.append( ")" );
         return buf.toString();
     }
 }

@@ -195,7 +195,7 @@ public class EntryNode
         try
         {
             LdapName dn = new LdapName( db.getEntryDn( id ) );
-            buf.append( '(' ).append( id ).append( ") " );
+            buf.append( "(" ).append( id ).append( ") " );
             buf.append( dn.getRdn() );
         }
         catch( NamingException e )
@@ -206,7 +206,7 @@ public class EntryNode
         
         if ( children.size() > 0 )
         {
-            buf.append( " [" ).append( children.size() ).append( ']' );
+            buf.append( " [" ).append( children.size() ).append( "]" );
         }
         
         return buf.toString();

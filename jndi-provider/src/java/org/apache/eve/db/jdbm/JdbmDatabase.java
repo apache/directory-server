@@ -1035,7 +1035,7 @@ public class JdbmDatabase implements Database
             IndexRecord rec = ( IndexRecord ) list.next();
             val.append( "_existance[" ); 
             val.append( rec.getIndexKey() );
-            val.append( ']' );
+            val.append( "]" );
             attributes.put( val.toString(), rec.getEntryId() );
             val.setLength( 0 );
         }

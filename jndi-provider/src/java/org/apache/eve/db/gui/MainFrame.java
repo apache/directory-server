@@ -678,15 +678,25 @@ public class MainFrame extends JFrame
 
         SearchResultDialog results = new SearchResultDialog( this, false );
         StringBuffer buf = new StringBuffer();
-        buf.append( "base: " ).append( base ).append( '\n' );
-        buf.append( "scope: " ).append( scope ).append( '\n' );
-        buf.append( "limit: " ).append( limit ).append( '\n' );
-        buf.append( "total: " ).append( count ).append( '\n' );
-        buf.append( "filter:\n" ).append( filter ).append( '\n' );
+        buf.append( "base: " );
+        buf.append( base );
+        buf.append( "\n" );
+        buf.append( "scope: " );
+        buf.append( scope );
+        buf.append( "\n" );
+        buf.append( "limit: " );
+        buf.append( limit );
+        buf.append( "\n" );
+        buf.append( "total: " );
+        buf.append( count );
+        buf.append( "\n" );
+        buf.append( "filter:\n" );
+        buf.append( filter );
+        buf.append( "\n" );
         results.setFilter( buf.toString() );
 
-	    TreeNode astRoot = new ASTNode( null, root );
-	    TreeModel treeModel = new DefaultTreeModel( astRoot, true );
+        TreeNode astRoot = new ASTNode( null, root );
+        TreeModel treeModel = new DefaultTreeModel( astRoot, true );
         results.setTreeModel( treeModel );
         results.setTableModel( tableModel );
         centerOnScreen( results );
