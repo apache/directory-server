@@ -7,29 +7,54 @@
   
   <body>
     <section name="Overview">
-      <subsection name="">
-        <p>
-          Coming soon ...
-        </p>
+      <p>Welcome to the Eve Directory Server Homepage!</p>
+      <p>
+        Eve is a modular LDAP server written in pure Java.
+      </p>
+      
+      <table>
+        <tr>
+          <th>Topic</th>
+          <th>Description</th>
+        </tr>
         
-        <table>
-          <tr>
-            <th>Heading I</th>
-            <th>Heading II</th>
-          </tr>
-          
-          <tr>
-            <td>
-              Coming soon ...
-            </td>
-            <td>
-              <p>
-                Coming soon ...
-              </p>
-            </td>
-          </tr>
-        </table>
-      </subsection>
+        <tr>
+          <td>
+            <a href="./features.html">Features</a>
+          </td>
+          <td>
+            Eve's existing and planned features
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <a href="./design/index.html">Design</a>
+          </td>
+          <td>
+            Documentation regarding high level design
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <a href="./frontend/index.html">Frontend Design</a>
+          </td>
+          <td>
+            Server's frontend design documentation
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <a href="./backend/index.html">Backend Design</a>
+          </td>
+          <td>
+            Server's backend design documentation
+          </td>
+        </tr>
+        
+      </table>
 
     </section>
   </body>

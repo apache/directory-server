@@ -23,8 +23,9 @@
       <item name="Latest News" href="../../news.html"/>
       <item name="Sub-Projects" href="../../subprojects/index.html">
         <item name="Eve" href="/index.html">
-          <item name="Design" href="/index.html">
-            <item name="Components" href="/design/components.html">
+          <item name="Design" href="/design/index.html">
+            <item name="SCM" href="/design/scm.html"/>
+            <item name="Components" href="/design/components.html"/>
           </item>  
           <item name="Features" href="/features.html"/>
           <item name="Backend" href="/backend/index.html"/>

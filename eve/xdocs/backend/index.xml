@@ -6,31 +6,87 @@
   </properties>
   
   <body>
-    <section name="Eve Backend Subsystem">
-      <subsection name="Overview">
+    
+          
+      <section name="Backend Subsystem Introduction">
         <p>
-          Coming soon ...
+          The backend subsystem is responsible for many different aspects of the
+          server besides just entry storage.  It is a major subsystem that 
+          contains within it other subsystems which in turn contain several
+          granular services implemented by components.  Although you'll have to
+          look into the detailed design of the backend and the other subsystems
+          composing it we have here a cursory overview of the responsibilities
+          of the entire backend subsystem:
         </p>
         
-        <table>
-          <tr>
-            <th>Heading I</th>
-            <th>Heading II</th>
-          </tr>
+        <ul>
+          <li>
+            manages multiple backends (a.k.a. partitions) each associated with
+            a naming context within the server
+          </li>
           
-          <tr>
-            <td>
-              Coming soon ...
-            </td>
-            <td>
-              <p>
-                Coming soon ...
-              </p>
-            </td>
-          </tr>
-        </table>
-      </subsection>
-
-    </section>
+          <li>
+            maintains special system backends used to manage schema information 
+            and server (DSA) specific configuration information in addition to
+            backends used to manage application specific information
+          </li>
+          
+          <li>
+            decorates backend operations with orthogonal services using an
+            interceptor framework - the framework will be used to neatly manage
+            the following aspects possibly associated with backend system 
+            operations:
+            <ul>
+              <li>operation authorization on entries using ACLs</li>
+              <li>replication</li>
+              <li>schema checking</li>
+              <li>input normalization</li>
+              <li>trigger firing</li>
+              <li>error handling</li>
+              <li>transaction support</li>
+            </ul>
+          </li>
+          
+          <li>
+            manages Java and Groovy stored procedures
+          </li>
+          
+          <li>
+            contains a server side JNDI provider which wraps the backend nexus
+            translating JNDI operations efficently to nexus operations where 
+            several backends hang.  The JNDI provider is intended for used 
+            within stored procedures to access backend entries.  This makes
+            stored procedures written in Java and Groovy operable within the
+            server as well as outside of it as remote procedures.
+          </li>
+        </ul>
+        
+        <p>
+          Together these subsystems are wrapped as one major system using JNDI 
+          as the top level facade.  The entire backend subsystem of Eve is
+          actually designed as a server side JNDI provider.  The frontend 
+          translates protocol requests into JNDI calls against the backend 
+          subsystem's JNDI Contexts to operate on entries.  
+        </p>
+        
+        <p>
+          The backend subsystem without the frontend itself is embeddable using
+          the JNDI to start up the backend.  JNDI is used to load the provider
+          in a fashion already familiar to those using JNDI.  So code written to
+          operate remotely against an LDAP server using the SUN JNDI LDAP 
+          provider can work locally against Eve's server side JNDI LDAP 
+          provider where the backend is embedded within the same process space.
+          Because we chose to push the interceptor framework into the backend 
+          all decorative services are available through the embedded backend
+          when used as a JNDI provider.  Meaning if you embed Eve's backend 
+          things like replication, schema checking and triggers are still active
+          and available without the frontend.
+        </p>
+        
+        <p>
+          There is are so many details to discuss however we leave these details
+          to more specific documentation in the sections below:
+        </p>
+      </section>
   </body>
 </document>

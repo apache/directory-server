@@ -2,12 +2,29 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Apache Directory Project: Eve Directory Server</title>
+    <title>Apache Directory Project: Components and Services</title>
   </properties>
   
   <body>
+    <section name="TODO">
+      <ul>
+        <li>
+          Talk about not taking advantage of container specific functionality
+          within pojo implementations.
+        </li>
+        
+        <li>
+          Talk more about the service interface.  Talk about how dependencies 
+          are between services not components.
+        </li>
+        
+        <li>
+          Break this section down a little better.  It's all in one clump.
+        </li>
+      </ul>
+    </section>
+    
     <section name="Design">
-      
       <subsection name="Components and Services">
         <p>
           The server is designed as a system of highly granular components.
@@ -69,226 +86,6 @@
           another.
         </p>
       </subsection>
-
-      <subsection name="Project Layout">
-        <p>
-          Within the Subversion repository Eve contains several small Maven 
-          projects.  Each component within Eve has at least two separate Maven
-          projects.  The layout of component and API projects are based on
-          Eve's structure.
-        </p>
-        
-        <p>
-          Eve tries to make a logical distinction between various subsystems and
-          separates out its components in a heirarchy based on function within 
-          the source code repository.  The aspects of each subsystem shall be 
-          discussed in detail within the documentation set for that subsystem.  
-          Developers looking at Eve's source should know that the Subversion 
-          repository is structured to mimic this component containment 
-          heirarchy.  Here's a brief listing of the directory structure we're 
-          referring to:
-        </p>
-        
-        <source>
-eve                       -- holds Eve's top component projects and subsystems
-    ./frontend            -- holds frontend subsystem API and component projects
-        ./common          -- holds projects containing code common to components
-            ./api         -- holds API common to all components in frontend
-        ./buffer          -- holds buffer component projects
-            ./spi         -- holds buffer component SPI project
-            ./impl        -- holds buffer component implementation project
-        ./event           -- holds SEDA event dispatcher component projects
-            ./spi         -- holds event dispatcher component SPI project
-            ./impl        -- holds event dispatcher implementation project
-        </source>
-        
-        <p>
-          The structure above my nest deeper for other subsystems.  For example 
-          the backend subsystem has within it other sub subsystems.  Each 
-          subsystem itself is a new directory depth.  In turn this subsystem
-          may have other subsystems and or component directories that have an
-          SPI and an implementation project.  Some subsystems may have a common
-          API under a common directory used to centralize some classes shared 
-          by the subsystem.  This helps localize domain specific classes and 
-          interfaces and helps reduce the possibility of cyclic java class 
-          dependencies between component projects within the subsystem.  
-          Basically if there are classes that depend on each other but are 
-          kept apart in separate component projects, they create a dependency
-          between the two projects when both classes are needed by both 
-          projects.  To decouple these component projects we relocate these 
-          ancillary non SPI classes into the common API where possible.  This
-          way both component projects depend on a common API project rather than
-          each other.
-        </p>
-      </subsection>
-      
-      <subsection name="Frontend Subsystem Introduction">
-        <p>
-          At the topmost level Eve is composed of two major subsystems: the 
-          <a href="./frontend/index.html">frontend</a> subsystem and the 
-          <a href="./backend/index.html">backend</a> subsystem.
-        </p>
-        
-        <p>
-          As a network protocol server Eve handles LDAP requests and returns
-          zero or more responses for them.  The handling of these requests are 
-          the responsibility of the frontend subsystem.  The frontend listens 
-          for new client connections, services new requests for established 
-          client connections, decodes these requests, processes them and encodes
-          responses using BER encoding rules.  Components within the frontend
-          are designed to handle these specific frontend aspects.
-        </p>
-        
-        <p>
-          The frontend may have components swapped out to make it operate as a
-          X.500 directory or as an LDAP frontend to a X.500.  Both the encoding
-          and decoding of protocol responses and requests are handled by 
-          separate services.  Implementations of these services can encode or 
-          decode different kinds of BER messages.  One implementation is 
-          designed to work with the LDAP version 3 ASN.1 definition, and another
-          can be implemented to work with X.500 ASN.1 definitions.  X.500 now 
-          supports the TCP/IP stack in addition to the OSI stack so there is no 
-          need to swap out the network components.  All that would be required
-          to have the server frontend operate as an X.500 server frontend would
-          be the replacement of the set of services dealing with response 
-          encodeing and request decodeing.  The processing of these requests
-          will also change requiring a new set of request handlers in the heart 
-          of the protocol engine which is also designed as a service and 
-          implemented as a component.
-        </p>
-        
-        <p>
-          Eve's frontend LDAP request processing component is designed today 
-          to take each request and operate against a JNDI context using any
-          JNDI provider.  Hence the frontend can serve as a virtual directory
-          front'ing other LDAP servers or as a LDAP gateway to an X.500 
-          directory.
-        </p>
-        
-        <p>
-          The frontend is designed using a simplified form of Matt Welsh's 
-          <a href="http://www.eecs.harvard.edu/~mdw/proj/seda/">Staged Event 
-          Driven Architecture</a> (SEDA).  A short description of SEDA is 
-          from Matt Welsh is quoted in the source block below:
-        </p>
-        
-        <source>
-SEDA is an acronym for staged event-driven architecture, and decomposes a 
-complex, event-driven application into a set of stages connected by queues. 
-This design avoids the high overhead associated with thread-based concurrency 
-models, and decouples event and thread scheduling from application logic. 
-By performing admission control on each event queue, the service can be 
-well-conditioned to load, preventing resources from being overcommitted when 
-demand exceeds service capacity. SEDA employs dynamic control to automatically 
-tune runtime parameters (such as the scheduling parameters of each stage), as 
-well as to manage load, for example, by performing adaptive load shedding. 
-Decomposing services into a set of stages also enables modularity and code 
-reuse, as well as the development of debugging tools for complex event-driven 
-applications. 
-        </source>
-          
-        <p>
-          The frontend has been designed around the non-blocking channels of 
-          the NIO package to handle small chunks of arriving data when that IO 
-          is available.  The processing of each chunk is staged in the server 
-          and eventually the request built from these peices is itself processed
-          in a staged manner.  Our SEDA alignment is very simple without some 
-          of the bells and whistles used for the dynamic control of load sheding
-          and so on.  We would like to wreak the benefits of high concurrency
-          without all the extra features for now at least.
-        </p>
-        
-        <p>
-          Eve's frontend subsystem is very flexible.  It's based on a granular 
-          set of services and their component implementations.  Everything is 
-          plugable and can be reconfigured for different fuctions or swapped out
-          for experimentation.  Furthermore the frontend uses JNDI as the 
-          coupling interface between it and other systems including the backend
-          subsystem so it's very generic.
-        </p>
-      </subsection>
-      
-      <subsection name="Backend Subsystem Introduction">
-        <p>
-          The backend subsystem is responsible for many different aspects of the
-          server besides just entry storage.  It is a major subsystem that 
-          contains within it other subsystems which in turn contain several
-          granular services implemented by components.  Although you'll have to
-          look into the detailed design of the backend and the other subsystems
-          composing it we have here a cursory overview of the responsibilities
-          of the entire backend subsystem:
-        </p>
-        
-        <ul>
-          <li>
-            manages multiple backends (a.k.a. partitions) each associated with
-            a naming context within the server
-          </li>
-          
-          <li>
-            maintains special system backends used to manage schema information 
-            and server (DSA) specific configuration information in addition to
-            backends used to manage application specific information
-          </li>
-          
-          <li>
-            decorates backend operations with orthogonal services using an
-            interceptor framework - the framework will be used to neatly manage
-            the following aspects possibly associated with backend system 
-            operations:
-            <ul>
-              <li>operation authorization on entries using ACLs</li>
-              <li>replication</li>
-              <li>schema checking</li>
-              <li>input normalization</li>
-              <li>trigger firing</li>
-              <li>error handling</li>
-              <li>transaction support</li>
-            </ul>
-          </li>
-          
-          <li>
-            manages Java and Groovy stored procedures
-          </li>
-          
-          <li>
-            contains a server side JNDI provider which wraps the backend nexus
-            translating JNDI operations efficently to nexus operations where 
-            several backends hang.  The JNDI provider is intended for used 
-            within stored procedures to access backend entries.  This makes
-            stored procedures written in Java and Groovy operable within the
-            server as well as outside of it as remote procedures.
-          </li>
-        </ul>
-        
-        <p>
-          Together these subsystems are wrapped as one major system using JNDI 
-          as the top level facade.  The entire backend subsystem of Eve is
-          actually designed as a server side JNDI provider.  The frontend 
-          translates protocol requests into JNDI calls against the backend 
-          subsystem's JNDI Contexts to operate on entries.  
-        </p>
-        
-        <p>
-          The backend subsystem without the frontend itself is embeddable using
-          the JNDI to start up the backend.  JNDI is used to load the provider
-          in a fashion already familiar to those using JNDI.  So code written to
-          operate remotely against an LDAP server using the SUN JNDI LDAP 
-          provider can work locally against Eve's server side JNDI LDAP 
-          provider where the backend is embedded within the same process space.
-          Because we chose to push the interceptor framework into the backend 
-          all decorative services are available through the embedded backend
-          when used as a JNDI provider.  Meaning if you embed Eve's backend 
-          things like replication, schema checking and triggers are still active
-          and available without the frontend.
-        </p>
-        
-        <p>
-          There is are so many details to discuss however we leave these details
-          to more specific documentation in the sections below:
-        </p>
-      </subsection>
     </section>
-    
   </body>
 </document>

@@ -7,30 +7,40 @@
   
   <body>
     <section name="Design Overview">
-      <subsection name="Overview">
-        <p>
-          Coming soon ...
-        </p>
+      <p>
+        Here we cover some general design decisions.  Other specific designs 
+        localized to subsystems and/or components are discussed in those regions
+        of the documentation at greater detail.  Here we discuss the high level
+        common architecture of the server and the organization of its source.
+      </p>
+      
+      <table>
+        <tr>
+          <th>Topic</th>
+          <th>Description</th>
+        </tr>
         
-        <table>
-          <tr>
-            <th>Heading I</th>
-            <th>Heading II</th>
-          </tr>
-          
-          <tr>
-            <td>
-              Coming soon ...
-            </td>
-            <td>
-              <p>
-                Coming soon ...
-              </p>
-            </td>
-          </tr>
-        </table>
-      </subsection>
+        <tr>
+          <td>
+            <a href="./scm.html">SCM</a>
+          </td>
+          <td>
+            As with every large code base the source must be managed properly.  
+            This section discusses Eve's source code layout within the 
+            repository and how it is used to build and manage developement.
+          </td>
+        </tr>
 
+        <tr>
+          <td>
+            <a href="./components.html">Components</a>
+          </td>
+          <td>
+            Eve is a system made up of several components.  The aspects 
+            associated with Eve's component based design are discussed here.
+          </td>
+        </tr>
+      </table>
     </section>
   </body>
 </document>

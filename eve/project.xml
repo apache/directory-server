@@ -4,16 +4,19 @@
     <groupId>directory</groupId>
     <id>eve-directory-server</id>
     <name>Eve Directory Server</name>
-    <package>org.apache.eve</package>
-
-  <organization>
-      <name>The Apache Directory Project</name>
-      <url>http://incubator.apache.org/directory</url>
-      <logo>/images/apache-directory-logo.png</logo>
-  </organization>
+    
+    <organization>
+      <name>The Apache Incubator</name>
+      <url>http://incubator.apache.org</url>
+      <logo>/images/apache-incubator-logo.png</logo>
+    </organization>
 
     <inceptionYear>2003</inceptionYear>
-    <url>http://directory.apache.org/${module.path}modules</url>
+    <package>org.apache.eve</package>
+    
+    <logo>/images/apache-directory-logo.png</logo>
+    <url>http://incubator.apache.org/directory</url>
+    
     <issueTrackingUrl>
       http://nagoya.apache.org/scarab/servlet/scarab
     </issueTrackingUrl>
@@ -154,7 +157,7 @@
     	<report>maven-jxr-plugin</report>
     	<report>maven-license-plugin</report>
         <!-- report>maven-changelog-plugin</report -->
-        <report>maven-javadoc-plugin</report>
+        <!-- <report>maven-javadoc-plugin</report> -->
     	<report>maven-tasklist-plugin</report>
     </reports>
 </project>
