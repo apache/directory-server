@@ -17,18 +17,26 @@
 package org.apache.eve.jndi.ibs;
 
 
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.Attribute;
 
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.RootNexus;
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.schema.GlobalRegistries;
-import org.apache.ldap.common.NotImplementedException;
+import org.apache.eve.schema.AttributeTypeRegistry;
+
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.message.LockableAttributeImpl;
 
 
 /**
@@ -41,7 +49,10 @@ public class SchemaService extends BaseInterceptor
 {
     /** the root nexus to all database partitions */
     private final RootNexus nexus;
-    private FilterService filterService;
+    /** a binary attribute tranforming filter: String -> byte[] */
+    private final BinaryAttributeFilter binaryAttributeFilter;
+    /** the filter service used by the schema service */
+    private final FilterService filterService;
     /** the global schema object registries */
     private final GlobalRegistries globalRegistries;
 
@@ -73,27 +84,113 @@ public class SchemaService extends BaseInterceptor
         {
             throw new NullPointerException( "the filter service cannot be null" );
         }
+
+        binaryAttributeFilter = new BinaryAttributeFilter(
+                globalRegistries.getAttributeTypeRegistry() );
+        filterService.addLookupFilter( binaryAttributeFilter );
+        filterService.addSearchResultFilter( binaryAttributeFilter );
     }
 
 
+    /**
+     * A special filter over entry attributes which replaces Attribute String
+     * values with their respective byte[] representations using schema
+     * information and the value held in the JNDI environment property:
+     * <code>java.naming.ldap.attributes.binary</code>.
+     *
+     * @see <a href=
+     * "http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#binary">
+     * java.naming.ldap.attributes.binary</a>
+     */
     private class BinaryAttributeFilter implements LookupFilter, SearchResultFilter
     {
-        public void filter( LdapContext ctx, Name dn, Attributes entry )
-                throws NamingException
+        private final static String BINARY_KEY =
+                "java.naming.ldap.attributes.binary";
+        private final AttributeTypeRegistry registry;
+
+
+        public BinaryAttributeFilter( AttributeTypeRegistry registry )
         {
-            throw new NotImplementedException( "filter in org.apache.eve.jndi.ibs.SchemaService.BinaryAttributeFilter not implemented!" );
+            this.registry = registry;
         }
 
 
-        public void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids ) throws NamingException
+        private void doFilter( LdapContext ctx, Attributes entry )
+                throws NamingException
         {
-            throw new NotImplementedException( "filter in org.apache.eve.jndi.ibs.SchemaService.BinaryAttributeFilter not implemented!" );
+            // set of AttributeType objects that are to behave as binaries
+            Set binaries;
+
+            // construct the set for fast lookups while filtering
+            String binaryIds = ( String ) ctx.getEnvironment().get( BINARY_KEY );
+            if ( binaryIds == null )
+            {
+                binaries = Collections.EMPTY_SET;
+            }
+            else
+            {
+                String[] binaryArray = binaryIds.split( " " );
+                binaries = new HashSet( binaryArray.length );
+                for ( int ii = 0; ii < binaryArray.length; ii++ )
+                {
+                    AttributeType type = registry.lookup( binaryArray[ii] );
+                    binaries.add( type );
+                }
+            }
+
+            /*
+             * start converting values of attributes to byte[]s which are not
+             * human readable and those that are in the binaries set
+             */
+            NamingEnumeration list = entry.getIDs();
+            while ( list.hasMore() )
+            {
+                String id = ( String ) list.next();
+                AttributeType type = registry.lookup( id );
+                boolean isBinary = ! type.getSyntax().isHumanReadable();
+
+                if ( isBinary || binaries.contains( type ) )
+                {
+                    Attribute attribute = entry.get( id );
+                    Attribute binary = new LockableAttributeImpl( id );
+
+                    for ( int ii = 0; ii < attribute.size(); ii++ )
+                    {
+                        Object value = attribute.get( ii );
+                        if ( value instanceof String )
+                        {
+                            binary.add( ii, ( ( String ) value ).getBytes() );
+                        }
+                        else
+                        {
+                            binary.add( ii, value );
+                        }
+                    }
+
+                    entry.remove( id );
+                    entry.put( binary );
+                }
+            }
+        }
+
+
+        public void filter( LdapContext ctx, Name dn, Attributes entry ) throws NamingException
+        {
+            doFilter( ctx, entry );
+        }
+
+
+        public void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids )
+                throws NamingException
+        {
+            doFilter( ctx, entry );
         }
 
 
         public boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls ) throws NamingException
         {
-            throw new NotImplementedException( "accept in org.apache.eve.jndi.ibs.SchemaService.BinaryAttributeFilter not implemented!" );
+            doFilter( ctx, result.getAttributes() );
+            return true;
         }
     }
 }
