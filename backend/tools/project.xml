@@ -72,16 +72,6 @@
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
 
     <unitTest>
-
-      <resources>
-        <resource>
-          <directory>src/java</directory>
-          <includes>
-            <include>**/*.template</include>
-          </includes>
-        </resource>
-      </resources>
-
       <resources>
         <resource>
           <directory>src/test</directory>
@@ -100,6 +90,30 @@
     </unitTest>
 
     <resources>
+
+      <resources>
+        <resource>
+          <directory>src/java</directory>
+          <includes>
+            <include>**/*.template</include>
+          </includes>
+        </resource>
+      </resources>
+
+      <resource>
+        <directory>${basedir}/src/plugin-resources</directory>
+        <targetPath>plugin-resources</targetPath>
+      </resource>
+      <resource>
+        <directory>${basedir}</directory>
+        <includes>
+            <include>plugin.jelly</include>
+            <include>plugin.properties</include>
+            <include>project.properties</include>
+            <include>project.xml</include>
+        </includes>
+      </resource>
+
       <resource>
         <directory>${basedir}/src/java</directory>
         <includes>
