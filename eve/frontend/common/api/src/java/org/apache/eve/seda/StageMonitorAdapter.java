@@ -19,10 +19,13 @@ package org.apache.eve.seda ;
 
 import java.util.EventObject ;
 
+import org.apache.commons.lang.exception.ExceptionUtils ;
+
 
 /**
- * A do nothing adapter for a stage.  For safty's sake this adapter throws 
- * runtime exceptions wrapping failure exception notifications.
+ * A do nothing adapter for a stage.  For safty's sake this adapter reports 
+ * exceptions that occur on failure exception notifications to stderr.  This
+ * is just for safty since we do not want to ignore these exceptions.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
@@ -30,6 +33,48 @@ import java.util.EventObject ;
  */
 public class StageMonitorAdapter implements StageMonitor
 {
+    /* (non-Javadoc)
+     * @see org.apache.eve.seda.StageMonitor#handlerMissing(
+     * org.apache.eve.seda.Stage)
+     */
+    public void handlerMissing( Stage stage )
+    {
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.seda.StageMonitor#stopping(org.apache.eve.seda.Stage)
+     */
+    public void stopping( Stage stage )
+    {
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.seda.StageMonitor#stopping(org.apache.eve.seda.Stage,
+     * long)
+     */
+    public void stopping( Stage stage, long millis )
+    {
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.seda.StageMonitor#notified(org.apache.eve.seda.Stage)
+     */
+    public void notified( Stage stage )
+    {
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.seda.StageMonitor#waiting( Stage )
+     */
+    public void waiting( Stage stage )
+    {
+    }
+    
+    
     /* (non-Javadoc)
      * @see org.apache.eve.seda.StageMonitor#started(org.apache.eve.seda.Stage)
      */
@@ -75,6 +120,15 @@ public class StageMonitorAdapter implements StageMonitor
     
     /* (non-Javadoc)
      * @see org.apache.eve.seda.StageMonitor#lockedQueue(
+     * org.apache.eve.seda.Stage)
+     */
+    public void lockedQueue( Stage stage )
+    {
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.seda.StageMonitor#lockedQueue(
      * org.apache.eve.seda.Stage, java.util.EventObject)
      */
     public void lockedQueue( Stage stage, EventObject event )
@@ -106,7 +160,7 @@ public class StageMonitorAdapter implements StageMonitor
      */
     public void driverFailed( Stage stage, InterruptedException fault )
     {
-        throw new RuntimeException( fault ) ;
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -116,6 +170,6 @@ public class StageMonitorAdapter implements StageMonitor
      */
     public void handlerFailed( Stage stage, EventObject event, Throwable fault )
     {
-        throw new RuntimeException( fault ) ;
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 }

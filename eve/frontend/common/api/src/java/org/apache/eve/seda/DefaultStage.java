@@ -32,6 +32,12 @@ import java.util.EventObject ;
  */
 public class DefaultStage implements Stage
 {
+    /** 
+     * time to sleep in milliseconds waiting for this stage to stop
+     * @todo migth want add this to config and use this as the default value
+     */
+    private static final long STOP_WAIT = 100 ;
+    
     /** the configuration bean */
     protected final StageConfig config ;
     /** this Stage's event queue */
@@ -143,11 +149,15 @@ public class DefaultStage implements Stage
             {
                 synchronized ( queue ) 
                 {
+                    monitor.lockedQueue( DefaultStage.this ) ;
+                    
                     if( queue.isEmpty() ) 
                     {
                         try 
                         {
+                            monitor.waiting( DefaultStage.this ) ;
                             queue.wait() ;
+                            monitor.notified( DefaultStage.this ) ;
                         } 
                         catch( InterruptedException e ) 
                         {
@@ -162,6 +172,7 @@ public class DefaultStage implements Stage
                         monitor.eventDequeued( DefaultStage.this, event ) ;
                         Runnable l_runnable = new ExecutableHandler( event ) ;
                         config.getThreadPool().execute( l_runnable ) ;
+                        monitor.eventHandled( DefaultStage.this, event ) ;
                     }
                 }
             }
@@ -187,26 +198,25 @@ public class DefaultStage implements Stage
         
         public void run()
         {
-            synchronized( activeWorkers )
-            {
-                activeWorkers.add( Thread.currentThread() ) ;
-            }
+            activeWorkers.add( Thread.currentThread() ) ;
             
             try 
             {
-                config.getHandler().handleEvent( m_event ) ;
+                if ( config.getHandler() != null )
+                {
+                    config.getHandler().handleEvent( m_event ) ;
+                }
+                
+                monitor.handlerMissing( DefaultStage.this ) ;
             } 
             catch( Throwable t ) 
             {
                 monitor.handlerFailed( DefaultStage.this, m_event, t ) ;
             }
-            
-            synchronized( activeWorkers )
+            finally
             {
                 activeWorkers.remove( Thread.currentThread() ) ;
             }
-
-            monitor.eventHandled( DefaultStage.this, m_event ) ;
         }
     }
 
@@ -221,17 +231,14 @@ public class DefaultStage implements Stage
      */
     public void start()
     {
-        synchronized( hasStarted )
+        if ( hasStarted.booleanValue() )
         {
-            if ( hasStarted.booleanValue() )
-            {
-                throw new IllegalStateException( "Already started!" ) ;
-            }
-            
-            hasStarted = new Boolean( true ) ;
-            thread = new Thread( new StageDriver() ) ;
-            thread.start() ;
+            throw new IllegalStateException( "Already started!" ) ;
         }
+        
+        hasStarted = new Boolean( true ) ;
+        thread = new Thread( new StageDriver() ) ;
+        thread.start() ;
         
         monitor.started( this ) ;
     }
@@ -244,10 +251,12 @@ public class DefaultStage implements Stage
     public void stop() throws InterruptedException
     {
         hasStarted = new Boolean( false ) ;
+        monitor.stopping( this ) ;
 
         while ( thread.isAlive() || ! activeWorkers.isEmpty() )
         {
-            Thread.sleep( 100 ) ;
+            monitor.stopping( this, STOP_WAIT ) ;
+            Thread.sleep( STOP_WAIT ) ;
             
             synchronized( queue )
             {

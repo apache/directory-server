@@ -30,6 +30,45 @@ import java.util.EventObject ;
 public interface StageMonitor
 {
     /**
+     * Reports when the Stage is missing its handler.
+     * 
+     * @param stage the stage reporting a missing handler
+     */
+    void handlerMissing( Stage stage ) ;
+    
+    /**
+     * A has been made to gracefully stop the Stage.
+     * 
+     * @param stage the Stage being stopped
+     */
+    void stopping( Stage stage ) ;
+    
+    /**
+     * A has been made to gracefully stop the Stage but we're waiting for some 
+     * active workers to complete.
+     * 
+     * @param stage the Stage being stopped
+     * @param millis the time in milliseconds waiting for workers to complete
+     */
+    void stopping( Stage stage, long millis ) ;
+    
+    /**
+     * The stage driver thread was notified out of the wait state due to an 
+     * enqueue operation or to the driver being requested to stop.
+     * 
+     * @param stage the notified Stage 
+     */
+    void notified( Stage stage ) ;
+    
+    /**
+     * Notification of stage driver thread going into wait state due to an 
+     * empty queue.
+     * 
+     * @param stage the waiting Stage 
+     */
+    void waiting( Stage stage ) ;
+    
+    /**
      * Monitors Stage has starts.
      * 
      * @param stage the started Stage 
@@ -73,6 +112,13 @@ public interface StageMonitor
      * @param event the event to be enqueued
      */
     void lockedQueue( Stage stage, EventObject event ) ;
+    
+    /**
+     * Queue lock acquired by awoken Stage driver thread.
+     * 
+     * @param stage the Stage whose queue lock was acquired
+     */
+    void lockedQueue( Stage stage ) ;
     
     /**
      * Monitor for dequeue operations.
