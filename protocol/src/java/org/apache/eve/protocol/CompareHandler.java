@@ -17,8 +17,8 @@
 package org.apache.eve.protocol;
 
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
 
@@ -27,6 +27,7 @@ import org.apache.seda.listener.ClientKey;
 
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.message.*;
+import org.apache.ldap.common.exception.LdapException;
 
 
 /**
@@ -45,10 +46,11 @@ public class CompareHandler extends AbstractSingleReplyHandler
         CompareRequest req = ( CompareRequest ) request;
         CompareResponse resp = new CompareResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
-        InitialContext ictx = SessionRegistry.getSingleton().get( key );
 
         try
         {
+            InitialLdapContext ictx = SessionRegistry.getSingleton()
+                    .getInitialLdapContext( key, null, true );
             DirContext ctx = ( DirContext ) ictx.lookup( "" );
             Attribute attr = ctx.getAttributes( req.getName() ).get( req.getAttributeId() );
 
@@ -70,7 +72,16 @@ public class CompareHandler extends AbstractSingleReplyHandler
             String msg = "failed to add entry " + req.getName() + ":\n";
             msg += ExceptionUtils.getStackTrace( e );
             ResultCodeEnum code;
-            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+
+            if ( e instanceof LdapException )
+            {
+                code = ( ( LdapException ) e ).getResultCode() ;
+            }
+            else
+            {
+                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            }
+
             resp.getLdapResult().setResultCode( code );
             resp.getLdapResult().setErrorMessage( msg );
 

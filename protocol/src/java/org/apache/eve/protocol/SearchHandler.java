@@ -19,11 +19,10 @@ package org.apache.eve.protocol;
 
 import java.util.*;
 
-import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.Name;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.InitialLdapContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
@@ -34,7 +33,7 @@ import org.apache.seda.listener.ClientKey;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.message.*;
-import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.exception.LdapException;
 
 
 /**
@@ -58,7 +57,6 @@ public class SearchHandler extends AbstractManyReplyHandler
     {
         LdapContext ctx;
         SearchRequest req = ( SearchRequest ) request;
-        InitialContext ictx = SessionRegistry.getSingleton().get( key );
         NamingEnumeration list = null;
 
         // check the attributes to see if a referral's ref attribute is included
@@ -86,6 +84,8 @@ public class SearchHandler extends AbstractManyReplyHandler
 
         try
         {
+            InitialLdapContext ictx = SessionRegistry.getSingleton()
+                    .getInitialLdapContext( key, null, true );
             ctx = ( LdapContext ) ictx.lookup( "" );
             ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases().getName() );
             list = ctx.search( req.getBase(), req.getFilter().toString(), controls );
@@ -108,7 +108,17 @@ public class SearchHandler extends AbstractManyReplyHandler
             String msg = "failed on search operation:\n" + req + "\n";
             msg += ExceptionUtils.getStackTrace( e );
             SearchResponseDone resp = new SearchResponseDoneImpl( req.getMessageId() );
-            ResultCodeEnum rc = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            ResultCodeEnum rc = null;
+
+            if ( e instanceof LdapException )
+            {
+                rc = ( ( LdapException ) e ).getResultCode() ;
+            }
+            else
+            {
+                rc = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            }
+
             resp.setLdapResult( new LdapResultImpl( resp ) );
             resp.getLdapResult().setResultCode( rc );
             resp.getLdapResult().setErrorMessage( msg );
@@ -133,7 +143,17 @@ public class SearchHandler extends AbstractManyReplyHandler
         String msg = "failed on search operation:\n" + req + "\n";
         msg += ExceptionUtils.getStackTrace( e );
         SearchResponseDone resp = new SearchResponseDoneImpl( req.getMessageId() );
-        ResultCodeEnum rc = ResultCodeEnum.getBestEstimate( e, req.getType() );
+        ResultCodeEnum rc = null;
+
+        if ( e instanceof LdapException )
+        {
+            rc = ( ( LdapException ) e ).getResultCode() ;
+        }
+        else
+        {
+            rc = ResultCodeEnum.getBestEstimate( e, req.getType() );
+        }
+
         resp.setLdapResult( new LdapResultImpl( resp ) );
         resp.getLdapResult().setResultCode( rc );
         resp.getLdapResult().setErrorMessage( msg );

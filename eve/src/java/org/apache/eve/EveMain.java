@@ -79,11 +79,9 @@ public class EveMain
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
         env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
 
-        InitialDirContext ctx;
-
         try
         {
-            ctx = new InitialDirContext( env );
+            new InitialDirContext( env );
         }
         catch ( NamingException e )
         {
@@ -104,7 +102,7 @@ public class EveMain
                 try
                 {
                     env.setProperty( EveContextFactory.SYNC_OP_ENV, "true" );
-                    ctx = new InitialDirContext( env );
+                    new InitialDirContext( env );
                 }
                 catch ( NamingException e )
                 {

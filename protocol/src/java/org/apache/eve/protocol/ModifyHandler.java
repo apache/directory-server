@@ -17,17 +17,17 @@
 package org.apache.eve.protocol;
 
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
-import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.message.*;
+import org.apache.ldap.common.exception.LdapException;
 
 
 /**
@@ -47,10 +47,11 @@ public class ModifyHandler extends AbstractSingleReplyHandler
         ModifyRequest req = ( ModifyRequest ) request;
         ModifyResponse resp = new ModifyResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
-        InitialContext ictx = SessionRegistry.getSingleton().get( key );
 
         try
         {
+            InitialLdapContext ictx = SessionRegistry.getSingleton()
+                    .getInitialLdapContext( key, null, true );
             DirContext ctx = ( DirContext ) ictx.lookup( "" );
             Object[] mods = req.getModificationItems().toArray( EMPTY );
             ctx.modifyAttributes( req.getName(), ( ModificationItem[] ) mods );
@@ -60,7 +61,16 @@ public class ModifyHandler extends AbstractSingleReplyHandler
             String msg = "failed to add entry " + req.getName() + ":\n";
             msg += ExceptionUtils.getStackTrace( e );
             ResultCodeEnum code;
-            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+
+            if ( e instanceof LdapException )
+            {
+                code = ( ( LdapException ) e ).getResultCode() ;
+            }
+            else
+            {
+                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            }
+
             resp.getLdapResult().setResultCode( code );
             resp.getLdapResult().setErrorMessage( msg );
 

@@ -17,15 +17,16 @@
 package org.apache.eve.protocol;
 
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.ldap.common.exception.LdapException;
 
 
 /**
@@ -41,11 +42,12 @@ public class AddHandler extends AbstractSingleReplyHandler
         AddRequest req = ( AddRequest ) request;
         AddResponse resp = new AddResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
-        InitialContext ictx = SessionRegistry.getSingleton().get( key );
 
         try
         {
-            DirContext ctx = ( DirContext ) ictx.lookup( "" );
+            InitialLdapContext ictx = SessionRegistry.getSingleton()
+                    .getInitialLdapContext( key, null, true );
+            LdapContext ctx = ( LdapContext ) ictx.lookup( "" );
             ctx.createSubcontext( req.getName(), req.getEntry() );
         }
         catch ( NamingException e )
@@ -53,7 +55,16 @@ public class AddHandler extends AbstractSingleReplyHandler
             String msg = "failed to add entry " + req.getName() + ":\n";
             msg += ExceptionUtils.getStackTrace( e );
             ResultCodeEnum code;
-            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+
+            if ( e instanceof LdapException )
+            {
+                code = ( ( LdapException ) e ).getResultCode() ;
+            }
+            else
+            {
+                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            }
+
             resp.getLdapResult().setResultCode( code );
             resp.getLdapResult().setErrorMessage( msg );
 

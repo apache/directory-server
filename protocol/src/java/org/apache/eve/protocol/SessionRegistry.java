@@ -18,8 +18,11 @@ package org.apache.eve.protocol;
 
 
 import java.util.*;
-import javax.naming.InitialContext;
 import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.Control;
+import javax.naming.directory.InitialDirContext;
 
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.event.EventRouter;
@@ -109,18 +112,36 @@ public class SessionRegistry
 
     /**
      * Gets the InitialContext to the root of the system that was gotten for
-     * client.
+     * client.  If the context is not present then there was no bind operation
+     * that set it.  Hence this operation requesting the IC is anonymous.
      *
      * @param key the client's key
+     * @param connCtls connection controls if any to use if creating anon context
+     * @param allowAnonymous true if anonymous requests will create anonymous
+     * InitialContext if one is not present for the operation
      * @return the InitialContext or null
      */
-    public InitialContext get( ClientKey key )
+    public InitialLdapContext getInitialLdapContext( ClientKey key,
+                                                     Control[] connCtls,
+                                                     boolean allowAnonymous )
+            throws NamingException
     {
+        InitialLdapContext ictx = null;
+
         key.addObserver( keyObserver );
+
         synchronized( contexts )
         {
-            return ( InitialContext ) contexts.get( key );
+            ictx = ( InitialLdapContext ) contexts.get( key );
         }
+
+        if ( ictx == null && allowAnonymous )
+        {
+            ictx = new InitialLdapContext( env, connCtls );
+            // @todo log something with a monitor here eventually!
+        }
+
+        return ictx;
     }
 
 
@@ -130,7 +151,7 @@ public class SessionRegistry
      * @param key the client's key
      * @param ictx the initial context gotten
      */
-    public void put( ClientKey key, InitialContext ictx )
+    public void setInitialLdapContext( ClientKey key, InitialDirContext ictx )
     {
         key.deleteObserver( keyObserver );  // remove first just in case
         key.addObserver( keyObserver );

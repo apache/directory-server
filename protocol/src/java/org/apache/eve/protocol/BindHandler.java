@@ -19,14 +19,16 @@ package org.apache.eve.protocol;
 
 import java.util.Hashtable;
 
-import javax.naming.InitialContext;
+import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.ldap.common.exception.LdapException;
 
 
 /**
@@ -37,45 +39,64 @@ import org.apache.ldap.common.util.ExceptionUtils;
  */
 public class BindHandler extends AbstractSingleReplyHandler
 {
+    private static final Control[] EMPTY = new Control[0];
+
+
     /**
      * @see org.apache.seda.protocol.SingleReplyHandler#handle(ClientKey,Object)
      */
     public Object handle( ClientKey key, Object request )
     {
+        InitialLdapContext ictx;
         BindRequest req = ( BindRequest ) request;
         BindResponse resp = new BindResponseImpl( req.getMessageId() );
+        LdapResult result = new LdapResultImpl( resp );
+        resp.setLdapResult( result );
+        Hashtable env = SessionRegistry.getSingleton().getEnvironment();
 
+        // if the bind request is not simple then we freak: no strong auth yet
         if ( ! req.isSimple() )
         {
-            resp.setLdapResult( new LdapResultImpl( resp ) );
-            resp.getLdapResult().setResultCode( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
-            resp.getLdapResult().setErrorMessage( "Only simple binds currently supported" );
+            result.setResultCode( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+            result.setErrorMessage( "Only simple binds currently supported" );
             return resp;
         }
 
+        // clone the environment first then add the required security settings
         String dn = req.getName();
         byte[] creds = req.getCredentials();
-        Hashtable env = SessionRegistry.getSingleton().getEnvironment();
-        InitialContext ictx;
 
+        env = ( Hashtable ) env.clone();
+        env.put( Context.SECURITY_PRINCIPAL, dn );
+        env.put( Context.SECURITY_CREDENTIALS, creds );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+
+        Control[] connCtls = ( Control[] ) req.getControls().toArray( EMPTY );
         try
         {
-            ictx = new InitialContext( env );
+            ictx = new InitialLdapContext( env, connCtls );
         }
         catch( NamingException e )
         {
-            resp.setLdapResult( new LdapResultImpl( resp ) );
-            resp.getLdapResult().setResultCode( ResultCodeEnum.OTHER );
+            if ( e instanceof LdapException )
+            {
+                result.setResultCode( ( ( LdapException ) e ).getResultCode() );
+            }
+            else
+            {
+                result.setResultCode( ResultCodeEnum.getBestEstimate( e,
+                        req.getType() ) );
+            }
+
             String msg = "Bind failure:\n" + ExceptionUtils.getStackTrace( e );
             msg += "\n\nBindRequest = \n" + req.toString();
-            resp.getLdapResult().setErrorMessage( msg );
+            result.setErrorMessage( msg );
             return resp;
         }
 
-        SessionRegistry.getSingleton().put( key, ictx );
-        resp.setLdapResult( new LdapResultImpl( resp ) );
-        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-        resp.getLdapResult().setMatchedDn( req.getName() );
+        SessionRegistry.getSingleton().setInitialLdapContext( key, ictx );
+        result.setResultCode( ResultCodeEnum.SUCCESS );
+        result.setMatchedDn( req.getName() );
         return resp;
     }
 }

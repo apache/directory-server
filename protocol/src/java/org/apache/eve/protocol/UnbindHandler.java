@@ -19,6 +19,7 @@ package org.apache.eve.protocol;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractNoReplyHandler;
@@ -35,12 +36,16 @@ public class UnbindHandler extends AbstractNoReplyHandler
 {
     public void handle( ClientKey key, Object request )
     {
-        InitialContext ictx = SessionRegistry.getSingleton().get( key );
         SessionRegistry registry = SessionRegistry.getSingleton();
 
         try
         {
-            ictx.close();
+            InitialLdapContext ictx = SessionRegistry.getSingleton()
+                    .getInitialLdapContext( key, null, false );
+            if ( ictx != null )
+            {
+                ictx.close();
+            }
             registry.terminateSession( key );
             registry.remove( key );
         }
