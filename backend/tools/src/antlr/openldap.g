@@ -111,8 +111,45 @@ options    {
 
 {
     public static final String[] EMPTY = new String[0];
+
+    private Map attributeTypes = new HashMap();
+    private Map objectClasses = new HashMap();
     private ParserMonitor monitor = null;
-    OidRegistry registry = null;
+    private OidRegistry registry = null;
+
+
+    // ------------------------------------------------------------------------
+    // Public Methods
+    // ------------------------------------------------------------------------
+
+
+    public Map getAttributeTypes()
+    {
+        return Collections.unmodifiableMap( attributeTypes );
+    }
+
+
+    public Map getObjectClasses()
+    {
+        return Collections.unmodifiableMap( objectClasses );
+    }
+
+
+    public void setParserMonitor( ParserMonitor monitor )
+    {
+        this.monitor = monitor;
+    }
+
+
+    public void setOidRegistry( OidRegistry registry )
+    {
+        this.registry = registry;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Private Methods
+    // ------------------------------------------------------------------------
 
 
     private final String resolve( String name )
@@ -133,25 +170,18 @@ options    {
     }
 
 
-    public final void matchedProduction( String msg )
+    private void matchedProduction( String msg )
     {
         if ( null != monitor )
         {
             monitor.matchedProduction( msg );
         }
     }
-    
-
-    public void setParserMonitor( ParserMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
 
 
-    public void setOidRegistry( OidRegistry registry )
-    {
-        this.registry = registry;
-    }
+    // ------------------------------------------------------------------------
+    // Static Classes
+    // ------------------------------------------------------------------------
 
 
     private static class MutableAttributeType extends BaseAttributeType
@@ -272,10 +302,17 @@ options    {
 }
 
 
-attributeType returns [MutableAttributeType type]
+parseSchema
 {
-    matchedProduction( "attributeType()" ) ;
-    type = null ;
+}
+    :
+    ( attributeType )*
+    ;
+
+attributeType
+{
+    matchedProduction( "attributeType()" );
+    MutableAttributeType type = null;
     UsageEnum usageEnum;
 }
     :
@@ -297,7 +334,11 @@ attributeType returns [MutableAttributeType type]
         ( "NO-USER-MODIFICATION" { type.setCanUserModify( true ); } )?
         ( usage[type] )?
 
-    CLOSE_PAREN ;
+    CLOSE_PAREN
+    {
+        attributeTypes.put( type.getOid(), type );
+    }
+    ;
 
 
 desc [MutableAttributeType type]

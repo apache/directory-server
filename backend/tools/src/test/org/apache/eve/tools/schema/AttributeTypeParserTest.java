@@ -19,10 +19,11 @@ package org.apache.eve.tools.schema;
 
 import junit.framework.TestCase;
 
+import java.util.Map;
 import java.io.ByteArrayInputStream;
 
-import org.apache.ldap.common.schema.AttributeType;
 import org.apache.eve.schema.DefaultOidRegistry;
+import org.apache.ldap.common.schema.AttributeType;
 
 
 /**
@@ -54,8 +55,12 @@ public class AttributeTypeParserTest extends TestCase
         DefaultOidRegistry registry = new DefaultOidRegistry();
         registry.register( "caseIgnoreMatch", "1.1.1.1.1.1" );
         parser.setOidRegistry( registry );
-        AttributeType type = parser.attributeType();
 
+        Map attributeTypes = parser.getAttributeTypes();
+        parser.attributeType();
+        AttributeType type = ( AttributeType ) attributeTypes.get( "2.5.4.2" );
+
+        assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
         assertEquals( "knowledgeInformation", type.getName() );
         assertEquals( "RFC2256: knowledge information", type.getDescription() );
