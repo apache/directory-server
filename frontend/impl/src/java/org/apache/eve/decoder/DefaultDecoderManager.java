@@ -230,7 +230,7 @@ public class DefaultDecoderManager extends DefaultStage
     public Object decode( ByteBuffer buffer ) throws DecoderException
     {
         // replace this decoder with a real one later
-        StatefulDecoder decoder = null;//new SnickersDecoder() ;
+        StatefulDecoder decoder = new MessageDecoder();
         // used array to set a value on final variable and get by compiler
         final Object[] decoded = new Object[1] ;
         
