@@ -27,6 +27,7 @@ import javax.naming.directory.InitialDirContext;
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.event.EventRouter;
 import org.apache.seda.event.DisconnectEvent;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 
 /**
@@ -137,8 +138,13 @@ public class SessionRegistry
 
         if ( ictx == null && allowAnonymous )
         {
-            ictx = new InitialLdapContext( env, connCtls );
-            // @todo log something with a monitor here eventually!
+            if ( env.containsKey( "eve.disable.anonymous" ) )
+            {
+                throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
+            }
+
+            Hashtable cloned = ( Hashtable ) env.clone();
+            ictx = new InitialLdapContext( cloned, connCtls );
         }
 
         return ictx;

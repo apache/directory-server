@@ -108,7 +108,7 @@ public class EveContextFactory implements InitialContextFactory
     /** a comma separated list of schema class files to load */
     public static final String SCHEMAS_ENV = "eve.schemas";
     /** bootstrap prop: if key is present it enables anonymous users */
-    public static final String ANONYMOUS_ENV = "eve.enable.anonymous";
+    public static final String DISABLE_ANONYMOUS_ENV = "eve.disable.anonymous";
 
 
     /** key used to disable the networking layer (wire protocol) */
@@ -243,11 +243,11 @@ public class EveContextFactory implements InitialContextFactory
         {
             // we need to check this here instead of in AuthenticationService
             // because otherwise we are going to start up the system incorrectly
-            if ( isAnonymous( env ) && ! env.containsKey( ANONYMOUS_ENV ) )
+            if ( isAnonymous( env ) && env.containsKey( DISABLE_ANONYMOUS_ENV ) )
             {
                 throw new LdapNoPermissionException( "cannot bind as anonymous "
-                    + " on startup without enabling anonymous bind property: "
-                    + ANONYMOUS_ENV );
+                    + "on startup while disabling anonymous binds w/ property: "
+                    + DISABLE_ANONYMOUS_ENV );
             }
 
             this.initialEnv = env;
@@ -507,7 +507,7 @@ public class EveContextFactory implements InitialContextFactory
         InvocationStateEnum[] state = new InvocationStateEnum[]{
             InvocationStateEnum.PREINVOCATION
         };
-        boolean allowAnonymous = initialEnv.containsKey( ANONYMOUS_ENV );
+        boolean allowAnonymous = ! initialEnv.containsKey( DISABLE_ANONYMOUS_ENV );
         Interceptor interceptor = new AuthenticationService( nexus, allowAnonymous );
         provider.addInterceptor( interceptor, state );
 

@@ -24,7 +24,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.Attribute;
 import javax.naming.*;
-import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.ldap.common.util.ArrayUtils;
@@ -179,6 +178,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         doDelete( new File( "target" + File.separator + "eve" ) );
         Hashtable env = new Hashtable();
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
+        env.put( EveContextFactory.DISABLE_ANONYMOUS_ENV, "true" );
 
         try
         {
@@ -191,7 +191,6 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
 
         // ok this should start up the system now as admin
         Hashtable anonymous = new Hashtable();
-        anonymous.put( EveContextFactory.ANONYMOUS_ENV, "true" );
         InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( anonymous );
         assertNotNull( ctx );
 
