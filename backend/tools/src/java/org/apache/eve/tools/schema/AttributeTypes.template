@@ -80,13 +80,59 @@ schemaDeps[$ii] = "$dep";
     // ------------------------------------------------------------------------
 
 
-    public AttributeType[] load()
+    public AttributeType[] load( AttributeTypeRegistry attrTypeReg,
+                                 MatchingRuleRegistry mruleReg )
+        throws NamingException
     {
+        String usage;
+        String mruleOid;
+        String superiorOid;
+        MatchingRule mrule;
+        AttributeType superior;
         AttributeType[] attributeTypes = new AttributeType[$attrTypeCount];
 
         #foreach ( $attrType in $attrTypes )
         #set ( $ii = $velocityCount - 1 )
 attributeTypes[$ii] = new MutableAttributeType( "$attrType.getOid()" );
+        attributeTypes[$ii].setSingleValue( $attrType.isSingleValue() );
+        attributeTypes[$ii].setCollective( $attrType.isCollective() );
+        attributeTypes[$ii].setObsolete( $attrType.isObsolete() );
+        attributeTypes[$ii].setCanUserModify( $attrType.isCanUserModify() );
+        attributeTypes[$ii].setLength( $attrType.getLength() );
+
+        // set the superior attribute type
+        superiorOid = "$!attrType.getSuperiorOid()";
+        if ( ! superiorOid.equals("") )
+        {
+            attributeTypes[$ii].setSuperior( attrTypeReg.lookup( superiorOid ) );
+        }
+
+        // set usage enumeration value
+        usage = "$attrType.getUsage().getName()";
+        attributeTypes[$ii].setUsageEnum( UsageEnum.getUsageEnum( usage ) );
+
+        // set the equality matching rule
+        mruleOid = "$!attrType.getEqualityOid()";
+        if ( ! mruleOid.equals("") )
+        {
+            attributeTypes[$ii].setEquality( mruleReg.lookup( mruleOid ) );
+        }
+
+        // set the substr matching rule
+        mruleOid = "$!attrType.getSubstrOid()";
+        if ( ! mruleOid.equals("") )
+        {
+            attributeTypes[$ii].setSubstr( mruleReg.lookup( mruleOid ) );
+        }
+
+        // set the ordering matching rule
+        mruleOid = "$!attrType.getOrderingOid()";
+        if ( ! mruleOid.equals("") )
+        {
+            attributeTypes[$ii].setOrdering( mruleReg.lookup( mruleOid ) );
+        }
+
+
         #end
 
         return attributeTypes;

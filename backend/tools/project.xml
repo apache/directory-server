@@ -64,7 +64,17 @@
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+
     <unitTest>
+      <resources>
+        <resource>
+          <directory>src/java</directory>
+          <includes>
+            <include>**/*.template</include>
+          </includes>
+        </resource>
+      </resources>
+
       <includes>
         <include>**/*Test.java</include>
       </includes>
@@ -72,13 +82,15 @@
         <exclude>**/NaughtyTest.java</exclude>
       </excludes>
     </unitTest>
+
     <resources>
       <resource>
-        <directory>src/conf</directory>
+        <directory>src/java</directory>
         <includes>
-          <include>*.properties</include>
+          <include>**/*.template</include>
         </includes>
       </resource>
     </resources>
+
   </build>
 </project>

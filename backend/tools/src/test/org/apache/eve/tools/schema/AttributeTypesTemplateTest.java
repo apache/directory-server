@@ -19,11 +19,12 @@ package org.apache.eve.tools.schema;
 import junit.framework.TestCase;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.apache.ldap.common.schema.BaseAttributeType;
+import org.apache.ldap.common.schema.*;
 
-import java.io.StringWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 
 /**
@@ -34,11 +35,55 @@ import java.io.FileWriter;
  */
 public class AttributeTypesTemplateTest extends TestCase
 {
+    private FileReader getResourceReader( String res ) throws Exception
+    {
+        String path = getClass().getResource( res ).getFile() ;
+        return new FileReader( path );
+    }
+
+
+    private boolean mkdirs( String base, String path )
+    {
+        String[] comps = path.split( "/" );
+        File file = new File( base );
+
+        if ( ! file.exists() )
+        {
+            file.mkdirs();
+        }
+
+        for ( int ii = 0; ii < comps.length; ii++ )
+        {
+            file = new File( file, comps[ii] );
+            if ( ! file.exists() )
+            {
+                file.mkdirs();
+            }
+        }
+
+        return file.exists();
+    }
+
+
+    private FileWriter getResourceWriter( String srcBase, String pkg,
+                                          String classname ) throws Exception
+    {
+        mkdirs( srcBase, pkg.replace( '.', File.separatorChar ) );
+        File base = new File( srcBase );
+        String relativePath = pkg.replace( '.', File.separatorChar );
+        File dir = new File( base, relativePath );
+        return new FileWriter( new File( dir, classname + ".java" ) );
+    }
+
+
     public void testGeneration() throws Exception
     {
         TestAttributeType[] attributeTypes = new TestAttributeType[2];
         attributeTypes[0] = new TestAttributeType( "1.1.1.1" );
+        attributeTypes[0].setUsage( UsageEnum.DIRECTORYOPERATION );
+
         attributeTypes[1] = new TestAttributeType( "1.1.1.2" );
+        attributeTypes[1].setUsage( UsageEnum.DIRECTORYOPERATION );
 
         VelocityContext context = new VelocityContext();
         context.put( "package", "org.apache.eve.schema.config" );
@@ -50,10 +95,9 @@ public class AttributeTypesTemplateTest extends TestCase
         context.put( "attrTypeCount", new Integer( attributeTypes.length ) );
         context.put( "attrTypes", attributeTypes );
 
-        FileReader template = new FileReader(
-            "c:\\projects\\home\\akarasulu\\projects\\directory\\eve\\trunk\\backend\\tools\\src\\template\\AttributeTypes.template" );
-        FileWriter writer = new FileWriter(
-            "c:\\projects\\home\\akarasulu\\projects\\directory\\eve\\trunk\\backend\\tools\\src\\java\\org\\apache\\eve\\schema\\config\\CoreAttributeTypes.java" );
+        FileReader template = getResourceReader( "AttributeTypes.template" );
+        FileWriter writer = getResourceWriter( "target/schema",
+            "org.apache.eve.schema.config", "CoreAttributeTypes" );
         Velocity.init();
         Velocity.evaluate( context, writer, "LOG", template );
         writer.flush();
@@ -66,6 +110,86 @@ public class AttributeTypesTemplateTest extends TestCase
         protected TestAttributeType( String oid )
         {
             super( oid );
+        }
+
+        protected void setSuperior( AttributeType superior )
+        {
+            super.setSuperior( superior );
+        }
+
+        protected void setNameList( ArrayList nameList )
+        {
+            super.setNameList( nameList );
+        }
+
+        protected void setEquality( MatchingRule equality )
+        {
+            super.setEquality( equality );
+        }
+
+        protected void setSubstr( MatchingRule substr )
+        {
+            super.setSubstr( substr );
+        }
+
+        protected void setOrdering( MatchingRule ordering )
+        {
+            super.setOrdering( ordering );
+        }
+
+        protected void setSyntax( Syntax syntax )
+        {
+            super.setSyntax( syntax );
+        }
+
+        protected void setSingleValue( boolean singleValue )
+        {
+            super.setSingleValue( singleValue );
+        }
+
+        protected void setCollective( boolean collective )
+        {
+            super.setCollective( collective );
+        }
+
+        protected void setCanUserModify( boolean canUserModify )
+        {
+            super.setCanUserModify( canUserModify );
+        }
+
+        protected void setObsolete( boolean obsolete )
+        {
+            super.setObsolete( obsolete );
+        }
+
+        protected void setUsage( UsageEnum usage )
+        {
+            super.setUsage( usage );
+        }
+
+        protected void setLength( int length )
+        {
+            super.setLength( length );
+        }
+
+        public String getSuperiorOid()
+        {
+            return super.getSuperior() != null ? super.getSuperior().getOid() : null;
+        }
+
+        public String getSubstrOid()
+        {
+            return super.getSubstr() != null ? super.getSubstr().getOid() : null;
+        }
+
+        public String getOrderingOid()
+        {
+            return super.getOrdering() != null ? super.getOrdering().getOid() : null;
+        }
+
+        public String getEqualityOid()
+        {
+            return super.getEquality() != null ? super.getEquality().getOid() : null;
         }
     }
 }
