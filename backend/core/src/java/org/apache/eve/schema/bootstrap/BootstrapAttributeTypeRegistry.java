@@ -14,10 +14,14 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.AttributeTypeRegistryMonitor;
+import org.apache.eve.schema.AttributeTypeRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,7 +34,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
+public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 {
     /** maps an OID to an AttributeType */
     private final Map byOid;
@@ -48,9 +52,9 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 
 
     /**
-     * Creates an empty DefaultAttributeTypeRegistry.
+     * Creates an empty BootstrapAttributeTypeRegistry.
      */
-    public DefaultAttributeTypeRegistry( OidRegistry oidRegistry )
+    public BootstrapAttributeTypeRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();

@@ -14,10 +14,14 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.DITContentRule;
+import org.apache.eve.schema.DITContentRuleRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.DITContentRuleRegistryMonitor;
+import org.apache.eve.schema.DITContentRuleRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,7 +34,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
+public class BootstrapDitContentRuleRegistry implements DITContentRuleRegistry
 {
     /** maps an OID to an DITContentRule */
     private final Map byOid;
@@ -48,9 +52,9 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
 
 
     /**
-     * Creates an empty DefaultDITContentRuleRegistry.
+     * Creates an empty BootstrapDitContentRuleRegistry.
      */
-    public DefaultDITContentRuleRegistry( OidRegistry oidRegistry )
+    public BootstrapDitContentRuleRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
