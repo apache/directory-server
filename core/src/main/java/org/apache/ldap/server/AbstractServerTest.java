@@ -63,6 +63,7 @@ public abstract class AbstractServerTest extends TestCase
     /** extra environment parameters that can be added before setUp to override values */
     protected Hashtable overrides = new Hashtable();
 
+    protected int port = -1;
 
     /**
      * Get's the initial context factory for the provider's ou=system context
@@ -83,8 +84,8 @@ public abstract class AbstractServerTest extends TestCase
             doDelete( new File( "target" + File.separator + "apacheds" ) );
         }
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
+        port = AvailablePortFinder.getNextAvailable( 1024 );
+        
         extras.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
 
         setSysRoot( "uid=admin,ou=system", "secret" );

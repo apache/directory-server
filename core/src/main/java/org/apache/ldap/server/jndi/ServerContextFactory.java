@@ -60,9 +60,11 @@ public class ServerContextFactory extends CoreContextFactory
 
     private static ServiceRegistry minaRegistry;
 
+
     static
     {
         ServiceRegistry tmp = null;
+
         try
         {
             tmp = new SimpleServiceRegistry();
@@ -80,14 +82,6 @@ public class ServerContextFactory extends CoreContextFactory
     // ------------------------------------------------------------------------
 
 
-    /**
-     * Default constructor that sets the provider of this ServerContextFactory.
-     */
-    public ServerContextFactory()
-    {
-    }
-
-
     public Context getInitialContext( Hashtable env ) throws NamingException
     {
         Context ctx = null;
@@ -103,9 +97,9 @@ public class ServerContextFactory extends CoreContextFactory
             {
                 this.provider.shutdown();
 
-                if ( this.minaRegistry != null )
+                if ( minaRegistry != null )
                 {
-                    this.minaRegistry.unbind( minaService );
+                    minaRegistry.unbind( minaService );
                 }
             }
             catch( NamingException ne )
@@ -115,7 +109,9 @@ public class ServerContextFactory extends CoreContextFactory
             catch( Throwable t )
             {
                 NamingException ne = new NamingException( "Failed to shutdown." );
+
                 ne.setRootCause( t );
+
                 throw ne;
             }
             finally
@@ -180,6 +176,7 @@ public class ServerContextFactory extends CoreContextFactory
             registry.bind( service, new LdapProtocolProvider( ( Hashtable ) initialEnv.clone() ) );
             
             minaService = service;
+
             minaRegistry = registry;
         }
         catch ( IOException e )
@@ -187,7 +184,9 @@ public class ServerContextFactory extends CoreContextFactory
             String msg = "Failed to bind the service to the service registry: " + service;
 
             LdapConfigurationException lce = new LdapConfigurationException( msg );
+
             lce.setRootCause( e );
+
             throw lce;
         }
     }

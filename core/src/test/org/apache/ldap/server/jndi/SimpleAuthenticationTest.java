@@ -89,6 +89,11 @@ public class SimpleAuthenticationTest extends AbstractServerTest
             return;
         }
 
+        if ( getName().equals( "test11DisableAnonymousBinds" ) )
+        {
+            extras.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
+        }
+
         super.setUp();
     }
 
@@ -140,7 +145,6 @@ public class SimpleAuthenticationTest extends AbstractServerTest
 
     public void test3UseAkarasulu() throws NamingException
     {
-        // now go in as anonymous user and we should be rejected
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
@@ -289,13 +293,12 @@ public class SimpleAuthenticationTest extends AbstractServerTest
 
     /**
      * Tests to make sure we can authenticate after the database has already
-     * been build as the admin user when simple authentication is in effect.
+     * been started by the admin user when simple authentication is in effect.
      *
      * @throws Exception if anything goes wrong
      */
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
-        // now go in as anonymous user and we should be rejected
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -314,7 +317,6 @@ public class SimpleAuthenticationTest extends AbstractServerTest
      */
     public void test10TestNonAdminUser() throws Exception
     {
-        // now go in as anonymous user and we should be rejected
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
@@ -322,5 +324,25 @@ public class SimpleAuthenticationTest extends AbstractServerTest
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         assertNotNull( new InitialContext( env ) );
+    }
+
+
+    /**
+     * Test to make sure anonymous binds are disabled when going through
+     * the wire protocol.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    public void test11DisableAnonymousBinds() throws Exception
+    {
+        // Use the SUN JNDI provider to hit server port and bind as anonymous
+
+        Hashtable env = new Hashtable();
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "none" );
+
+        InitialContext ctx = new InitialContext( env );
+        
+        assertNotNull( ctx );
     }
 }
