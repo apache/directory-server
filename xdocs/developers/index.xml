@@ -18,10 +18,55 @@
         
         <tr>
           <td>
-            <a href="/index.html">Developer's Guide</a>
+            <a href="./architecture.html">Architecture</a>
           </td>
           <td>
-            Blah blah.
+            Eve's high level architecture.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./components.html">Components</a>
+          </td>
+          <td>
+            How we do components in Eve.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./networking.html">Networking</a>
+          </td>
+          <td>
+            Describes Eve's networking layer.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./protocol.html">Protocol</a>
+          </td>
+          <td>
+            The design of LDAP protocol layer.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./backend.html">Backend Subsystem</a>
+          </td>
+          <td>
+            Looks at the backend subsystem design in detail.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./.html"></a>
+          </td>
+          <td>
+
           </td>
         </tr>
 

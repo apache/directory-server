@@ -81,39 +81,35 @@
         </table>
       </subsection>
 
-      <subsection name="Goals">
-        <p>
-          <goals>
-            <goal>
-              <name>eve:generate</name>
-              <description>
-                Generates class files for OpenLDAP schemas.
-              </description>
-            </goal>
-            <goal>
-              <name>eve:init</name>
-              <description>
-                Finds the required parameters needed for the goals of the
-                plugin.
-              </description>
-            </goal>
-            <goal>
-              <name>eve:prepare-filesystem</name>
-              <description>
-                Creates source output directories used to deposite schema
-                files that are generated.
-              </description>
-            </goal>
-            <goal>
-              <name>eve:schema</name>
-              <description>
-                Top level schema generating function that uses other goals to
-                coordinate generation.
-              </description>
-            </goal>
-          </goals>
-        </p>
-      </subsection>
+      <goals>
+        <goal>
+          <name>eve:generate</name>
+          <description>
+            Generates class files for OpenLDAP schemas.
+          </description>
+        </goal>
+        <goal>
+          <name>eve:init</name>
+          <description>
+            Finds the required parameters needed for the goals of the
+            plugin.
+          </description>
+        </goal>
+        <goal>
+          <name>eve:prepare-filesystem</name>
+          <description>
+            Creates source output directories used to deposite schema
+            files that are generated.
+          </description>
+        </goal>
+        <goal>
+          <name>eve:schema</name>
+          <description>
+            Top level schema generating function that uses other goals to
+            coordinate generation.
+          </description>
+        </goal>
+      </goals>
 
       <subsection names="Usage">
         <p>

@@ -8,7 +8,7 @@
   <body>
     <section name="High Level Architecture">
       <subsection name="A picture is worth a thousand words!">
-        <img src="./images/architecture.png"/>
+        <img src="../images/architecture.png"/>
 
         <p>
           Eve is actually composed of two separable subsystems: the LDAP protocol
