@@ -65,7 +65,8 @@ public class $classname extends AbstractBootstrapProducer
         // --------------------------------------------------------------------
 
         attributeType = newAttributeType( "$attrType.getOid()", registries );
-#if ( $attrType.getDescription() )        attributeType.setDescription( "$attrType.getDescription()" );#end
+#if ( $attrType.getDescription() )        attributeType.setDescription( "$attrType.getDescription()" );
+#end
         attributeType.setCanUserModify( ! $attrType.isNoUserModification() );
         attributeType.setSingleValue( $attrType.isSingleValue() );
         attributeType.setCollective( $attrType.isCollective() );
@@ -73,7 +74,8 @@ public class $classname extends AbstractBootstrapProducer
         attributeType.setLength( $attrType.getLength() );
         attributeType.setUsage( UsageEnum.getUsage( "$attrType.getUsage().getName()" ) );
 #if ( $attrType.getSuperior() )        attributeType.setSuperiorId( "$attrType.getSuperior()" ); #end
-#if ( $attrType.getEquality() )        attributeType.setEqualityId( "$attrType.getEquality()" );#end
+#if ( $attrType.getEquality() )        attributeType.setEqualityId( "$attrType.getEquality()" );
+#end
 #if ( $attrType.getSubstr() )        attributeType.setSubstrId( "$attrType.getSubstr()" );#end
 #if ( $attrType.getOrdering() )        attributeType.setOrderingId( "$attrType.getOrdering()" );#end
 #if ( $attrType.getSyntax() )        attributeType.setSyntaxId( "$attrType.getSyntax()" );#end
