@@ -36,7 +36,7 @@ import org.apache.ldap.common.schema.AttributeType;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BootstrapRegistries
+public class BootstrapRegistries implements Registries
 {
     private BootstrapAttributeTypeRegistry attributeTypeRegistry;
     private BootstrapComparatorRegistry comparatorRegistry;
