@@ -398,6 +398,18 @@ public class EveExceptionService extends BaseInterceptor
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
             String msg = "Attempt to search under non-existant entry: ";
+
+            if ( base.size() == 0 )
+            {
+                return;
+            }
+            
+            Attribute attr = nexus.getRootDSE().get( "subschemaSubentry" );
+            if ( ( ( String ) attr.get() ).equalsIgnoreCase( base.toString() ) )
+            {
+                return;
+            }  
+
             assertHasEntry( msg, base, invocation );
         }
     }
