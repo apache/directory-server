@@ -41,9 +41,7 @@ import org.apache.ldap.common.util.SingletonEnumeration;
                                 
 /**
  * A nexus for partitions dedicated for storing entries specific to a naming
- * context.  The decision was made to rename this to RootNexus because of the
- * following improvement request in <a
- * href="http://nagoya.apache.org/jira/browse/DIREVE-23">JIRA</a>.
+ * context.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -52,10 +50,13 @@ public class RootNexus implements PartitionNexus
 {
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
+
     /** the vendorName DSE operational attribute */
     private static final String VENDORNAME_ATTR = "vendorName";
+
     /** the namingContexts DSE operational attribute */
     private static final String NAMINGCTXS_ATTR = "namingContexts";
+
     /** Handle on the singleton instance of this class within the entire JVM. */
     private static RootNexus s_singleton = null;
     
@@ -64,8 +65,10 @@ public class RootNexus implements PartitionNexus
 
     /** the system backend */
     private SystemPartition system;
+
     /** the backends keyed by normalized suffix strings */
     private HashMap backends = new HashMap();
+
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
 
@@ -149,8 +152,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see PartitionNexus#getMatchedDn(javax.naming.Name,
-     * boolean)
+     * @see PartitionNexus#getMatchedDn(javax.naming.Name, boolean)
      */
     public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
     {
@@ -171,12 +173,12 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.PartitionNexus#getSuffix(javax.naming.Name,
-     * boolean)
+     * @see org.apache.ldap.server.PartitionNexus#getSuffix(javax.naming.Name, boolean)
      */
     public Name getSuffix( Name dn, boolean normalized ) throws NamingException
     {
         ContextPartition backend = getBackend( dn );
+
         return backend.getSuffix( normalized );
     }
 
@@ -208,7 +210,9 @@ public class RootNexus implements PartitionNexus
     public void register( ContextPartition backend )
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+
         namingContexts.add( backend.getSuffix( false ).toString() );
+
         backends.put( backend.getSuffix( true ).toString(), backend );
     }
 
@@ -220,7 +224,9 @@ public class RootNexus implements PartitionNexus
     public void unregister( ContextPartition backend )
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+
         namingContexts.remove( backend.getSuffix( false ).toString() );
+
         backends.remove( backend.getSuffix( true ).toString() );
     }
 
@@ -236,6 +242,7 @@ public class RootNexus implements PartitionNexus
     public void delete( Name dn ) throws NamingException
     {
         ContextPartition backend = getBackend( dn );
+
         backend.delete( dn );
     }
 
@@ -252,6 +259,7 @@ public class RootNexus implements PartitionNexus
     public void add( String updn, Name dn, Attributes an_entry ) throws NamingException
     {
         ContextPartition backend = getBackend( dn );
+
         backend.add( updn, dn, an_entry );
     }
 
@@ -262,6 +270,7 @@ public class RootNexus implements PartitionNexus
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
         ContextPartition backend = getBackend( dn );
+
         backend.modify( dn, modOp, mods );
     }
 
@@ -273,6 +282,7 @@ public class RootNexus implements PartitionNexus
     public void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
         ContextPartition backend = getBackend( dn );
+
         backend.modify( dn, mods );
     }
 
@@ -283,6 +293,7 @@ public class RootNexus implements PartitionNexus
     public NamingEnumeration list( Name base ) throws NamingException
     {
         ContextPartition backend = getBackend( base );
+
         return backend.list( base );
     }
     
@@ -290,27 +301,30 @@ public class RootNexus implements PartitionNexus
     /**
      * @see BackingStore#search(Name, Map, ExprNode, SearchControls)
      */
-    public NamingEnumeration search( Name base, Map env, ExprNode filter,
-                                     SearchControls searchCtls )
-        throws NamingException
+    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+            throws NamingException
     {
 
         if ( base.size() == 0 )
         {
+            boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
+
+            boolean isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equalsIgnoreCase( "objectclass" );
+
             /*
              * if basedn is "", filter is "(objectclass=*)" and scope is object
              * then we have a request for the rootDSE
              */
-            if ( filter instanceof PresenceNode &&
-                 searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
-                 ( ( PresenceNode ) filter ).getAttribute().equalsIgnoreCase( "objectclass" ) )
+            if ( filter instanceof PresenceNode && isObjectScope && isSearchAll )
             {
                 Attributes attrs = ( Attributes ) getRootDSE().clone();
 
                 String[] ids = searchCtls.getReturningAttributes();
+
                 if ( ids != null && ids.length > 0 )
                 {
                     boolean doSwap = true;
+
                     Attributes askedFor = new LockableAttributesImpl();
 
                     for ( int ii = 0; ii < ids.length; ii++ )
@@ -318,6 +332,7 @@ public class RootNexus implements PartitionNexus
                         if ( ids[ii].trim().equals( "*" ) )
                         {
                             doSwap = false;
+
                             break;
                         }
 
@@ -334,6 +349,7 @@ public class RootNexus implements PartitionNexus
                 }
 
                 SearchResult result = new SearchResult( "", null, attrs, false );
+
                 return new SingletonEnumeration( result );
             }
 
@@ -341,6 +357,7 @@ public class RootNexus implements PartitionNexus
         }
 
         ContextPartition backend = getBackend( base );
+
         return backend.search( base, env, filter, searchCtls );
     }
 
@@ -353,11 +370,14 @@ public class RootNexus implements PartitionNexus
         if ( dn.size() == 0 )
         {
             LockableAttributes retval = ( LockableAttributes ) rootDSE.clone();
+
             retval.setLocked( true );
+
             return retval;
         }
 
         ContextPartition backend = getBackend( dn );
+
         return backend.lookup( dn );
     }
 
@@ -370,19 +390,25 @@ public class RootNexus implements PartitionNexus
         if ( dn.size() == 0 )
         {
             LockableAttributes retval = new LockableAttributesImpl();
+
             NamingEnumeration list = rootDSE.getIDs();
+
             while ( list.hasMore() )
             {
                 String id = ( String ) list.next();
+
                 Attribute attr = rootDSE.get( id );
+
                 retval.put( ( Attribute ) attr.clone() );
             }
 
             retval.setLocked( true );
+
             return retval;
         }
 
         ContextPartition backend = getBackend( dn );
+
         return backend.lookup( dn, attrIds );
     }
 
@@ -398,6 +424,7 @@ public class RootNexus implements PartitionNexus
         }
 
         ContextPartition backend = getBackend( dn );
+
         return backend.hasEntry( dn );
     }
 
@@ -417,6 +444,7 @@ public class RootNexus implements PartitionNexus
     public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         ContextPartition backend = getBackend( dn );
+
         backend.modifyRn( dn, newRdn, deleteOldRdn );
     }
     
@@ -427,6 +455,7 @@ public class RootNexus implements PartitionNexus
     public void move( Name oriChildName, Name newParentName ) throws NamingException
     {
         ContextPartition backend = getBackend( oriChildName );
+
         backend.move( oriChildName, newParentName );
     }
     
@@ -439,6 +468,7 @@ public class RootNexus implements PartitionNexus
         boolean deleteOldRdn ) throws NamingException
     {
         ContextPartition backend = getBackend( oldChildDn );
+
         backend.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
     }
 
@@ -449,7 +479,9 @@ public class RootNexus implements PartitionNexus
     public void sync() throws NamingException
     {
         MultiException error = null;
+
         Iterator list = this.backends.values().iterator();
+
         while ( list.hasNext() )
         {
             BackingStore store = ( BackingStore ) list.next();
@@ -474,8 +506,10 @@ public class RootNexus implements PartitionNexus
 
         if ( error != null )
         {
-            NamingException total = new NamingException( "Encountered failures "
-                    + "while performing a sync() operation on backing stores" );
+            String msg = "Encountered failures while performing a sync() operation on backing stores";
+
+            NamingException total = new NamingException( msg );
+
             total.setRootCause( error );
         }
     }
@@ -501,6 +535,7 @@ public class RootNexus implements PartitionNexus
         }
 
         MultiException error = null;
+
         Iterator list = this.backends.values().iterator();
 
         // make sure this loop is not fail fast so all backing stores can
@@ -512,6 +547,7 @@ public class RootNexus implements PartitionNexus
             try
             {
                 store.sync();
+
                 store.close();
             }
             catch ( NamingException e )
@@ -534,9 +570,12 @@ public class RootNexus implements PartitionNexus
 
         if ( error != null )
         {
-            NamingException total = new NamingException( "Encountered failures " 
-                    + "while performing a close() operation on backing stores" );
+            String msg = "Encountered failures while performing a close() operation on backing stores";
+
+            NamingException total = new NamingException( msg );
+
             total.setRootCause( error );
+
             throw total;
         }
     }

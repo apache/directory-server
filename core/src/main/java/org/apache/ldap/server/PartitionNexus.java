@@ -67,9 +67,9 @@ public interface PartitionNexus extends BackingStore
     Name getMatchedDn( Name dn, boolean normalized ) throws NamingException;
 
     /**
-     * Gets the distinguished name of the suffix for the naming context that 
-     * would hold a distinguished name or the empty string Dn if a naming 
-     * context is not associated with the name.
+     * Gets the distinguished name of the suffix that would hold an entry with
+     * the supplied distinguished name parameter.  If the DN argument does not
+     * fall under a partition suffix then the empty string Dn is returned.
      *
      * @param dn to use for finding a suffix.
      * @param normalized if true causes the return of a normalized Dn, but
