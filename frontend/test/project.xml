@@ -93,7 +93,7 @@
 
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>snickers-ber-api</artifactId>
+      <artifactId>snickers-ber-codec</artifactId>
       <version>SNAPSHOT</version>
       <url>
         http://incubator.apache.org/directory/subprojects/snickers/ber/api
@@ -103,6 +103,13 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-snacc-provider</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-ber-provider</artifactId>
       <version>SNAPSHOT</version>
       <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
     </dependency>
@@ -129,6 +136,13 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.0</version>
+      <url>http://jakarta.apache.org/commons/lang</url>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+      <version>SNAPSHOT</version>
       <url>http://jakarta.apache.org/commons/lang</url>
     </dependency>
 

@@ -20,6 +20,8 @@ import java.nio.ByteBuffer;
 
 import org.apache.avalon.merlin.unit.AbstractMerlinTestCase;
 import org.apache.eve.ResourceException;
+import org.apache.eve.buffer.BufferPool;
+import org.apache.eve.buffer.BufferPoolConfig;
 
 /**
  * $todo$ doc me
@@ -51,7 +53,7 @@ public class MerlinBufferPoolTest extends AbstractMerlinTestCase
     public void setUp() throws Exception
     {
         super.setUp() ;
-        m_bp = ( BufferPool ) resolve( "/server/buffer-pool" ) ; 
+        m_bp = ( BufferPool ) resolve( "/server/buffer-pool" ) ;
     }
 
     

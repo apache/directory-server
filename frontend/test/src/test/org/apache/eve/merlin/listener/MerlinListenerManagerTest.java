@@ -18,6 +18,7 @@ package org.apache.eve.merlin.listener ;
 
 
 import org.apache.eve.event.EventRouter ;
+import org.apache.eve.listener.ListenerManager;
 
 import org.apache.avalon.merlin.unit.AbstractMerlinTestCase ;
 

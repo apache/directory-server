@@ -27,12 +27,13 @@
        <artifact>incubator-directory/eve-frontend-api#SNAPSHOT</artifact>
        <artifact>incubator-directory/eve-frontend-impl#SNAPSHOT</artifact>
        <artifact>incubator-directory/codec-stateful#SNAPSHOT</artifact>
-       <artifact>incubator-directory/snickers-ber-api#SNAPSHOT</artifact>
+       <artifact>incubator-directory/snickers-ber-codec#SNAPSHOT</artifact>
+       <artifact>incubator-directory/ldap-ber-provider#SNAPSHOT</artifact>
        <artifact>incubator-directory/eve-frontend-merlin#SNAPSHOT</artifact>
        <artifact>commons-lang/commons-lang#2.0</artifact>
        <artifact>commons-codec/commons-codec#SNAPSHOT</artifact>
        <artifact>commons-logging/commons-logging#1.0.3</artifact>
-       <artifact>commons-primitives/commons-primitives#1.1-dev</artifact>
+       <artifact>commons-primitives/commons-primitives#SNAPSHOT</artifact>
        <artifact>commons-collections/commons-collections#2.1</artifact>
        <artifact>regexp/regexp#1.2</artifact>
        <artifact>snacc4j/snacc#2.3</artifact>
@@ -40,14 +41,14 @@
      </classpath>
    </classloader>
 
-   <component name="input-manager" class="org.apache.eve.input.MerlinInputManager"/>
-   <component name="encoder-manager" class="org.apache.eve.encoder.MerlinEncoderManager"/>
-   <component name="decoder-manager" class="org.apache.eve.decoder.MerlinDecoderManager"/>
-   <component name="output-manager" class="org.apache.eve.output.MerlinOutputManager"/>
-   <component name="buffer-pool" class="org.apache.eve.buffer.MerlinBufferPool"/>
-   <component name="event-router" class="org.apache.eve.event.MerlinEventRouter"/>
-   <component name="listener-manager" class="org.apache.eve.listener.MerlinListenerManager"/>
-   <component name="request-processor" class="org.apache.eve.processor.MerlinRequestProcessor"/>
+   <component name="input-manager" class="org.apache.eve.merlin.input.MerlinInputManager"/>
+   <component name="encoder-manager" class="org.apache.eve.merlin.encoder.MerlinEncoderManager"/>
+   <component name="decoder-manager" class="org.apache.eve.merlin.decoder.MerlinDecoderManager"/>
+   <component name="output-manager" class="org.apache.eve.merlin.output.MerlinOutputManager"/>
+   <component name="buffer-pool" class="org.apache.eve.merlin.buffer.MerlinBufferPool"/>
+   <component name="event-router" class="org.apache.eve.merlin.event.MerlinEventRouter"/>
+   <component name="listener-manager" class="org.apache.eve.merlin.listener.MerlinListenerManager"/>
+   <component name="request-processor" class="org.apache.eve.merlin.processor.MerlinRequestProcessor"/>
 
    <component name="thread-manager" 
         class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" 

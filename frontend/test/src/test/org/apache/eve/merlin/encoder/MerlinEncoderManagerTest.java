@@ -26,6 +26,7 @@ import org.apache.eve.event.OutputEvent;
 import org.apache.eve.event.ResponseEvent;
 import org.apache.eve.event.OutputSubscriber;
 import org.apache.eve.event.AbstractSubscriber;
+import org.apache.eve.encoder.EncoderManager;
 
 import org.apache.ldap.common.message.LdapResult;
 import org.apache.ldap.common.message.AddResponse;
