@@ -16,12 +16,14 @@ import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.jndi.ibs.EveExceptionService;
 import org.apache.eve.jndi.ibs.OperationalAttributeService;
+import org.apache.eve.jndi.ibs.SchemaService;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
 import org.apache.eve.schema.bootstrap.BootstrapRegistries;
 import org.apache.eve.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.eve.schema.AttributeTypeRegistry;
 import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.GlobalRegistries;
 
 
 /**
@@ -128,7 +130,7 @@ public class EveContextFactory implements InitialContextFactory
         // Load the schema here and check that it is ok!
         // --------------------------------------------------------------------
 
-        BootstrapRegistries registries = new BootstrapRegistries();
+        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
 
         String[] schemas = DEFAULT_SCHEMAS;
@@ -137,8 +139,8 @@ public class EveContextFactory implements InitialContextFactory
             schemas = ( ( String ) initialEnv.get( SCHEMAS_ENV ) ).split( "," );
         }
 
-        loader.load( schemas, registries );
-        List errors = registries.checkRefInteg();
+        loader.load( schemas, bootstrapRegistries );
+        List errors = bootstrapRegistries.checkRefInteg();
         if ( ! errors.isEmpty() )
         {
             NamingException e = new NamingException();
@@ -177,9 +179,9 @@ public class EveContextFactory implements InitialContextFactory
         Database db = new JdbmDatabase( suffix, wkdir );
 
         AttributeTypeRegistry attributeTypeRegistry;
-        attributeTypeRegistry = registries.getAttributeTypeRegistry();
+        attributeTypeRegistry = bootstrapRegistries.getAttributeTypeRegistry();
         OidRegistry oidRegistry;
-        oidRegistry = registries.getOidRegistry();
+        oidRegistry = bootstrapRegistries.getOidRegistry();
 
         ExpressionEvaluator evaluator;
         evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
@@ -200,8 +202,15 @@ public class EveContextFactory implements InitialContextFactory
         };
 
         SystemPartition system = new SystemPartition( db, eng, attributes );
+        GlobalRegistries globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
         RootNexus root = new RootNexus( system );
         provider = new EveJndiProvider( root );
+
+
+        // --------------------------------------------------------------------
+        // Adding interceptors
+        // --------------------------------------------------------------------
+
 
         /*
          * Create and add the Eve Exception service interceptor to both the
@@ -212,6 +221,17 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.FAILUREHANDLING
         };
         Interceptor interceptor = new EveExceptionService( root );
+        provider.addInterceptor( interceptor, state );
+
+        /*
+         * Create and add the Eve scheam service interceptor to both the
+         * before and after interceptor chains.
+         */
+        state = new InvocationStateEnum[]{
+            InvocationStateEnum.PREINVOCATION,
+            InvocationStateEnum.POSTINVOCATION
+        };
+        interceptor = new SchemaService( root, globalRegistries );
         provider.addInterceptor( interceptor, state );
 
         /*

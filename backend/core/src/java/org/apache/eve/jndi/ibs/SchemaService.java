@@ -19,6 +19,7 @@ package org.apache.eve.jndi.ibs;
 
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.RootNexus;
+import org.apache.eve.schema.GlobalRegistries;
 
 
 /**
@@ -31,15 +32,20 @@ public class SchemaService extends BaseInterceptor
 {
     /** the root nexus to all database partitions */
     private final RootNexus nexus;
+    /** the global schema object registries */
+    private final GlobalRegistries globalRegistries;
+
 
 
     /**
      * Creates a schema service interceptor.
      *
      * @param nexus the root nexus to access all database partitions
+     * @param globalRegistries the global schema object registries
      */
-    public SchemaService( RootNexus nexus )
+    public SchemaService( RootNexus nexus, GlobalRegistries globalRegistries )
     {
         this.nexus = nexus;
+        this.globalRegistries = globalRegistries;
     }
 }
