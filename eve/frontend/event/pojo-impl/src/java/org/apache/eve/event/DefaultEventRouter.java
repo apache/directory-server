@@ -60,8 +60,8 @@ import java.util.EventObject ;
  * An synchronous implementation of the event router / notification pattern.
  *
  * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
- * @author $Author$
- * @version $Rev$
+ * @author $Author: akarasulu $
+ * @version $Rev: 1452 $
  */
 public class DefaultEventRouter implements EventRouter
 {
