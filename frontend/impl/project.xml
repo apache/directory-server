@@ -108,7 +108,7 @@ http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
 
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>snickers-ber-api</artifactId>
+      <artifactId>snickers-ber-codec</artifactId>
       <version>SNAPSHOT</version>
       <url>
         http://incubator.apache.org/directory/subprojects/snickers/ber/api
