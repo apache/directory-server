@@ -33,6 +33,9 @@ header {
 package org.apache.eve.tools.schema;
 
 import java.util.* ;
+import org.apache.ldap.common.schema.*;
+import org.apache.eve.schema.*;
+
 }
 
 
@@ -70,12 +73,12 @@ OPEN_BRACKET       : '{'
 CLOSE_BRACKET      : '}'
     ;
 
-NUMERICOID         :
-        ( '0'..'9' )+ ( '.' ( '0'..'9' )+ )*
+protected NUMERIC_STRING : ('0' .. '9')+
     ;
 
-LENGTH             :
-        OPEN_BRACKET ('0' .. '9')+ CLOSE_BRACKET
+
+NUMERICOID         :
+        NUMERIC_STRING ( '.' NUMERIC_STRING )+
     ;
 
 IDENTIFIER options { testLiterals=true; }
@@ -83,12 +86,6 @@ IDENTIFIER options { testLiterals=true; }
         ( 'a' .. 'z') ( 'a' .. 'z' | '0' .. '9' | '-' | ';' )*
     ;
 
-QIDENTIFIER
-    :
-        '\'' IDENTIFIER '\''
-    ;
-
-    
 
 
 class antlrOpenLdapSchemaParser extends Parser ;
@@ -100,77 +97,320 @@ options    {
 
 
 {
-    OpenLdapSchemaParserMonitor monitor = null ;
+    public static final String[] EMPTY = new String[0];
+    private ParserMonitor monitor = null;
+    OidRegistry registry = null;
 
 
-    public void matchedProduction( String a_msg )
+    private final String resolve( String name )
     {
-        if ( null == monitor )
+        String oid = null;
+
+        try
         {
-            //System.out.println( a_msg ) ;
+            oid = registry.getOid( name );
         }
-        else
+        catch( Exception e )
         {
-            monitor.matchedProduction( a_msg ) ;
+            e.printStackTrace();
+            throw new RuntimeException( "could not find the oid: " + e.getMessage() );
+        }
+
+        return oid;
+    }
+
+
+    public final void matchedProduction( String msg )
+    {
+        if ( null != monitor )
+        {
+            monitor.matchedProduction( msg );
         }
     }
     
 
-    public void setOpenLdapSchemaParserMonitor( OpenLdapSchemaParserMonitor monitor )
+    public void setParserMonitor( ParserMonitor monitor )
     {
-        this.monitor = monitor ;
+        this.monitor = monitor;
     }
-    
+
+
+    public void setOidRegistry( OidRegistry registry )
+    {
+        this.registry = registry;
+    }
+
+
+    private static class MutableAttributeType extends BaseAttributeType
+    {
+        public MutableAttributeType( String oid )
+        {
+            super( oid );
+        }
+
+        public void setSuperior( AttributeType superior )
+        {
+            super.setSuperior( superior );
+        }
+
+        public void setAllNames( String[] nameArray )
+        {
+            super.setAllNames( nameArray );
+        }
+
+        public void setEquality( MatchingRule equality )
+        {
+            super.setEquality( equality );
+        }
+
+        public void setSubstr( MatchingRule substr )
+        {
+            super.setSubstr( substr );
+        }
+
+        public void setOrdering( MatchingRule ordering )
+        {
+            super.setOrdering( ordering );
+        }
+
+        public void setSyntax( Syntax syntax )
+        {
+            super.setSyntax( syntax );
+        }
+
+        public void setSingleValue( boolean singleValue )
+        {
+            super.setSingleValue( singleValue );
+        }
+
+        public void setDescription( String description )
+        {
+            super.setDescription( description );
+        }
+
+        public void setCollective( boolean collective )
+        {
+            super.setCollective( collective );
+        }
+
+        public void setCanUserModify( boolean canUserModify )
+        {
+            super.setCanUserModify( canUserModify );
+        }
+
+        public void setObsolete( boolean obsolete )
+        {
+            super.setObsolete( obsolete );
+        }
+
+        public void setUsage( UsageEnum usage )
+        {
+            super.setUsage( usage );
+        }
+
+        public void setLength( int length )
+        {
+            super.setLength( length );
+        }
+
+        public String getSuperiorOid()
+        {
+            return super.getSuperior() != null ? super.getSuperior().getOid() : null;
+        }
+
+        public String getSubstrOid()
+        {
+            return super.getSubstr() != null ? super.getSubstr().getOid() : null;
+        }
+
+        public String getOrderingOid()
+        {
+            return super.getOrdering() != null ? super.getOrdering().getOid() : null;
+        }
+
+        public String getEqualityOid()
+        {
+            return super.getEquality() != null ? super.getEquality().getOid() : null;
+        }
+
+        public String getSyntaxOid()
+        {
+            return super.getSyntax() != null ? super.getSyntax().getOid() : null;
+        }
+    }
+
+
+    private static class MutableMatchingRule extends BaseMatchingRule
+    {
+        public MutableMatchingRule( String oid )
+        {
+            super( oid ) ;
+        }
+    }
+
+
+    private static class MutableSyntax extends BaseSyntax
+    {
+        public MutableSyntax( String oid )
+        {
+            super( oid ) ;
+        }
+    }
 }
 
 
-attributeType returns [AttributeType type]
+attributeType returns [MutableAttributeType type]
 {
     matchedProduction( "attributeType()" ) ;
     type = null ;
     UsageEnum usageEnum;
-    String[] nameArray;
-} 
+}
     :
     "attributetype"
-    OPEN_PAREN NUMERICOID
-        ( "NAME" nameArray=names )?
-        ( "DESC" QDESC )?
-        ( "OBSOLETE" )?
-        ( "SUP" ( NUMERICOID | IDENTIFIER ) )?
-        ( "EQUALITY" ( NUMERICOID | IDENTIFIER ) )?
-        ( "ORDERING" ( NUMERICOID | IDENTIFIER ) )?
-        ( "SUBSTR"   ( NUMERICOID | IDENTIFIER ) )?
-        ( "SINGLE-VALUE" )?
-        ( "COLLECTIVE" )?
-        ( "NO-USER-MODIFICATION" )?
-        ( usageEnum=usage )?
+    OPEN_PAREN oid:NUMERICOID
+    {
+        type = new MutableAttributeType( oid.getText() );
+    }
+        ( names[type] )?
+        ( "DESC" "'" desc:IDENTIFIER { type.setDescription( desc.getText() ); } "'" )?
+        ( "OBSOLETE" { type.setObsolete( true ); } )?
+        ( superior[type] )?
+        ( equality[type] )?
+        ( ordering[type] )?
+        ( substr[type] )?
+        ( syntax[type] )?
+        ( "SINGLE-VALUE" { type.setSingleValue( true ); } )?
+        ( "COLLECTIVE" { type.setCollective( true ); } )?
+        ( "NO-USER-MODIFICATION" { type.setCanUserModify( true ); } )?
+        ( usage[type] )?
 
     CLOSE_PAREN ;
 
 
-names returns [String[] nameArray]
+superior [MutableAttributeType type]
 {
-    nameArray = null;
-    ArrayList list = new ArrayList();
 }
-    :
+    : "SUP"
     (
-        "'" id0:IDENTIFIER "'" { list.add( id0.getText() ); } |
-        ( OPEN_PAREN "'" id1:IDENTIFIER { list.add( id1.getText(); } "'"
-            ( "'" id2:IDENTIFIER "'" {list.add( id2.getText();} )* CLOSE_PAREN ) 
+        oid:NUMERICOID
+        {
+            type.setSuperior( new MutableAttributeType( oid.getText() ) );
+        }
+        |
+        id:IDENTIFIER
+        {
+            String soid = resolve( id.getText() );
+            type.setSuperior( new MutableAttributeType( soid ) );
+        }
     );
 
 
-usage returns [UsageEnum usage]
+equality [MutableAttributeType type]
 {
-    usage = null;
+}
+    : "EQUALITY"
+    (
+        oid:NUMERICOID
+        {
+            type.setEquality( new MutableMatchingRule( oid.getText() ) );
+        }
+        |
+        id:IDENTIFIER
+        {
+            String soid = resolve( id.getText() );
+            type.setEquality( new MutableMatchingRule( soid ) );
+        }
+    );
+
+
+substr [MutableAttributeType type]
+{
+}
+    : "SUBSTR"
+    (
+        oid:NUMERICOID
+        {
+            type.setSubstr( new MutableMatchingRule( oid.getText() ) );
+        }
+        |
+        id:IDENTIFIER
+        {
+            String soid = resolve( id.getText() );
+            type.setSubstr( new MutableMatchingRule( soid ) );
+        }
+    );
+
+
+ordering [MutableAttributeType type]
+{
+}
+    : "ORDERING"
+    (
+        oid:NUMERICOID
+        {
+            type.setOrdering( new MutableMatchingRule( oid.getText() ) );
+        }
+        |
+        id:IDENTIFIER
+        {
+            String soid = resolve( id.getText() );
+            type.setOrdering( new MutableMatchingRule( soid ) );
+        }
+    );
+
+
+names [MutableAttributeType type]
+{
+    ArrayList list = new ArrayList();
+}
+    :
+//    (
+        "NAME" "'" id0:IDENTIFIER "'"
+        {
+            list.add( id0.getText() );
+            registry.register( id0.getText(), type.getOid() );
+//        }
+//        |
+//        ( OPEN_PAREN "'" id1:IDENTIFIER
+//        {
+//            list.add( id1.getText() );
+//            registry.register( id1.getText(), type.getOid() );
+//        } "'"
+//        ( "'" id2:IDENTIFIER "'"
+//        {
+//            list.add( id2.getText() );
+//            registry.register( id2.getText(), type.getOid() );
+//        } )* CLOSE_PAREN )
+//    )
+//    {
+        type.setAllNames( ( String[] ) list.toArray( EMPTY ) );
+    }
+    ;
+
+
+syntax [MutableAttributeType type]
+{
+}
+    : "SYNTAX"
+    (
+        oid:NUMERICOID
+        {
+            type.setSyntax( new MutableSyntax( oid.getText() ) );
+        }
+        ( OPEN_BRACKET length:NUMERIC_STRING
+        {
+            type.setLength( Integer.parseInt( length.getText() ) );
+        } OPEN_BRACKET )?
+    );
+
+usage [MutableAttributeType type]
+{
 }
     :
     "USAGE"
     (
-        "userApplications" { usage = UsageEnum.USERAPPLICATIONS; } |
-        "directoryOperation" { usage = UsageEnum.DIRECTORYOPERATION; } |
-        "distributedOperation" { usage = UsageEnum.DISTRIBUTEDOPERATION; } |
-        "dSAOperation" { usage = UsageEnum.DSAOPERATION; }
+        "userApplications" { type.setUsage( UsageEnum.USERAPPLICATIONS ); } |
+        "directoryOperation" { type.setUsage( UsageEnum.DIRECTORYOPERATION ); } |
+        "distributedOperation" { type.setUsage( UsageEnum.DISTRIBUTEDOPERATION ); } |
+        "dSAOperation" { type.setUsage( UsageEnum.DSAOPERATION ); }
     );
