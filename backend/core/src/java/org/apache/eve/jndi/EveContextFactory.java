@@ -268,6 +268,11 @@ public class EveContextFactory implements InitialContextFactory
     }
 
 
+    /**
+     * Kicks off the initialization of the entire system.
+     * 
+     * @throws NamingException if there are problems along the way
+     */
     private void initialize() throws NamingException
     {
         // --------------------------------------------------------------------
@@ -409,12 +414,21 @@ public class EveContextFactory implements InitialContextFactory
         // fire up the app partitions now!
         if ( initialEnv.get( PARTITIONS_ENV ) != null )
         {
-            initAppPartitions( wkdir );
+            startUpAppPartitions( wkdir );
         }
     }
 
 
-    private void initAppPartitions( String eveWkdir ) throws NamingException
+    /**
+     * Starts up all the application partitions that will be attached to naming
+     * contexts in the system.  Partition database files are created within a
+     * subdirectory immediately under the Eve working directory base.
+     *
+     * @param eveWkdir the base Eve working directory
+     * @throws NamingException if there are problems creating and starting these
+     * new application partitions
+     */
+    private void startUpAppPartitions( String eveWkdir ) throws NamingException
     {
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
         AttributeTypeRegistry attributeTypeRegistry;
@@ -502,6 +516,14 @@ public class EveContextFactory implements InitialContextFactory
     }
 
 
+    /**
+     * Recursively creates a bunch of directories from a base down to a path.
+     *
+     * @param base the base directory to start at
+     * @param path the path to recursively create if we have to
+     * @return true if the target directory has been created or exists, false
+     * if we fail along the way somewhere
+     */
     protected boolean mkdirs( String base, String path )
     {
         String[] comps = path.split( "/" );
@@ -525,6 +547,15 @@ public class EveContextFactory implements InitialContextFactory
     }
 
 
+    /**
+     * Imports the LDIF entries packaged with the Eve JNDI provider jar into
+     * the newly created system partition to prime it up for operation.  Note
+     * that only ou=system entries will be added - entries for other partitions
+     * cannot be imported and will blow chunks.
+     *
+     * @throws NamingException if there are problems reading the ldif file and
+     * adding those entries to the system partition
+     */
     protected void importLdif() throws NamingException
     {
         Hashtable env = new Hashtable();
