@@ -34,6 +34,8 @@ import org.apache.ldap.server.jndi.InvocationStateEnum;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
+import java.util.HashSet;
+
 
 /**
  * An interceptor based service which manages the creation and modification of
@@ -75,6 +77,28 @@ public class OperationalAttributeService extends BaseInterceptor
             {
                 OperationalAttributeService.this.filter( entry );
                 return;
+            }
+
+            if ( dn.size() == 0 )
+            {
+                HashSet idsSet = new HashSet( ids.length );
+
+                for ( int ii = 0; ii < ids.length; ii++ )
+                {
+                    idsSet.add( ids[ii].toLowerCase() );
+                }
+
+                NamingEnumeration list = entry.getIDs();
+
+                while ( list.hasMore() )
+                {
+                    String attrId = ( ( String ) list.nextElement() ).toLowerCase();
+
+                    if ( ! idsSet.contains( attrId ) )
+                    {
+                        entry.remove( attrId );
+                    }
+                }
             }
 
             // do nothing past here since this explicity specifies which

@@ -94,6 +94,15 @@ public class RootNexus implements PartitionNexus
         attr.add( "cn=schema,ou=system" );
         rootDSE.put( attr );
 
+        attr = new LockableAttributeImpl( "supportedLDAPVersion" );
+        rootDSE.put( attr );
+        attr.add( "3" );
+
+        attr = new LockableAttributeImpl( "objectClass" );
+        rootDSE.put( attr );
+        attr.add( "top" );
+        attr.add( "extensibleObject" );
+
         attr = new LockableAttributeImpl( NAMINGCTXS_ATTR );
         rootDSE.put( attr );
 
