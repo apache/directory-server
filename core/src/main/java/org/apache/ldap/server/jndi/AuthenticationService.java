@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import javax.naming.Context;
@@ -28,6 +28,7 @@ import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.jndi.Interceptor;
 
 
 /**

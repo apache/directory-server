@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.io.IOException;
@@ -40,6 +40,7 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.FilterParser;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.filter.FilterParserImpl;
+import org.apache.ldap.server.jndi.JavaLdapSupport;
 
 import org.apache.eve.PartitionNexus;
 import org.apache.eve.auth.LdapPrincipal;

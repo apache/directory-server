@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import java.util.Map;
@@ -35,6 +35,9 @@ import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
+import org.apache.ldap.server.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.Invocation;
 
 
 /**
@@ -223,7 +226,7 @@ public class EveExceptionService extends BaseInterceptor
      * Checks to make sure the entry being looked up exists other wise throws
      * the appropriate LdapException.
      *
-     * @see BaseInterceptor#lookup(javax.naming.Name)
+     * @see org.apache.ldap.server.jndi.BaseInterceptor#lookup(javax.naming.Name)
      */
     protected void lookup( Name dn ) throws NamingException
     {

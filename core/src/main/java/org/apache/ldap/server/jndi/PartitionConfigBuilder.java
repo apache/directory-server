@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
@@ -29,6 +29,7 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.jndi.EnvKeys;
 
 
 /**

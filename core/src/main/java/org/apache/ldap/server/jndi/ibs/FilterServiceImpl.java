@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import java.util.Map;
@@ -29,11 +29,14 @@ import javax.naming.directory.*;
 
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.db.ResultFilteringEnumeration;
-import org.apache.eve.jndi.Invocation;
-import org.apache.eve.jndi.BaseInterceptor;
-import org.apache.eve.jndi.InvocationStateEnum;
+import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.server.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.jndi.ibs.FilterService;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
+import org.apache.ldap.server.jndi.BaseInterceptor;
 
 
 /**
@@ -72,7 +75,7 @@ public class FilterServiceImpl extends BaseInterceptor
 
 
     /**
-     * @see FilterService#addLookupFilter(LookupFilter)
+     * @see org.apache.ldap.server.jndi.ibs.FilterService#addLookupFilter(LookupFilter)
      */
     public boolean addLookupFilter( LookupFilter filter )
     {
@@ -81,7 +84,7 @@ public class FilterServiceImpl extends BaseInterceptor
 
 
     /**
-     * @see FilterService#addSearchResultFilter(SearchResultFilter)
+     * @see org.apache.ldap.server.jndi.ibs.FilterService#addSearchResultFilter(SearchResultFilter)
      */
     public boolean addSearchResultFilter( SearchResultFilter filter )
     {

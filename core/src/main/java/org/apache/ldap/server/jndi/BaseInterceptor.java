@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.Map;
@@ -25,6 +25,9 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.jndi.Interceptor;
+import org.apache.ldap.server.jndi.InvocationMethodEnum;
+import org.apache.ldap.server.jndi.EveContext;
 import org.apache.eve.auth.LdapPrincipal;
 
 
@@ -101,7 +104,7 @@ public abstract class BaseInterceptor implements Interceptor
      * analog method that does the work of the Interceptor for that Invocation
      * method.
      *
-     * @see Interceptor#invoke(Invocation)
+     * @see org.apache.ldap.server.jndi.Interceptor#invoke(Invocation)
      */
     public void invoke( Invocation invocation ) throws NamingException
     {

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import org.apache.eve.RootNexus;
@@ -22,6 +22,9 @@ import org.apache.eve.PartitionNexus;
 import org.apache.eve.EveBackendSubsystem;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.server.jndi.OnErrorPipeline;
+import org.apache.ldap.server.jndi.FailFastPipeline;
+import org.apache.ldap.server.jndi.DeadContext;
 
 import java.util.Hashtable;
 

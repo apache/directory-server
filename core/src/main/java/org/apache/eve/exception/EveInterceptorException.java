@@ -20,9 +20,11 @@ package org.apache.eve.exception;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.exception.LdapException;
+import org.apache.ldap.server.jndi.Interceptor;
 
-import org.apache.eve.jndi.Invocation;
-import org.apache.eve.jndi.Interceptor;
+import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.server.jndi.Interceptor;
+import org.apache.ldap.server.jndi.Invocation;
 
 
 /**

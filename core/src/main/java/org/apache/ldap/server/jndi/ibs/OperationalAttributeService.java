@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import javax.naming.Name;
@@ -25,9 +25,9 @@ import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.db.SearchResultFilter;
-import org.apache.eve.jndi.Invocation;
-import org.apache.eve.jndi.BaseInterceptor;
-import org.apache.eve.jndi.InvocationStateEnum;
+import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.server.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
@@ -36,6 +36,9 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
+import org.apache.ldap.server.jndi.ibs.FilterService;
+import org.apache.ldap.server.jndi.ibs.LookupFilter;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 
 /**

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.List;
@@ -25,6 +25,9 @@ import java.util.Collections;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+
+import org.apache.ldap.server.jndi.InvocationStateEnum;
+import org.apache.ldap.server.jndi.InvocationMethodEnum;
 
 
 /**

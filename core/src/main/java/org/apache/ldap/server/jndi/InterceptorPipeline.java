@@ -14,13 +14,15 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.List;
 import java.util.ArrayList;
 
 import javax.naming.NamingException;
+
+import org.apache.ldap.server.jndi.Interceptor;
 
 
 /**

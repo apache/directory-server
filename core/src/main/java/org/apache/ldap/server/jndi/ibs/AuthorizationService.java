@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import javax.naming.Name;
@@ -31,6 +31,10 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.eve.jndi.*;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.server.jndi.InvocationStateEnum;
+import org.apache.ldap.server.jndi.EveContext;
+import org.apache.ldap.server.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.Invocation;
 
 
 /**
@@ -123,7 +127,7 @@ public class AuthorizationService extends BaseInterceptor
      * provider for optimization purposes so there is no reason for us to start
      * to constrain it.
      *
-     * @see BaseInterceptor#hasEntry(Name)
+     * @see org.apache.ldap.server.jndi.BaseInterceptor#hasEntry(Name)
      */
     protected void hasEntry( Name dn ) throws NamingException
     {

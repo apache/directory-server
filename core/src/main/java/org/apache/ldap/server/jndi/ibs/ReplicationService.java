@@ -14,21 +14,22 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi.ibs;
+package org.apache.ldap.server.jndi.ibs;
 
 
 import org.apache.eve.RootNexus;
-import org.apache.eve.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.BaseInterceptor;
+import org.apache.ldap.server.jndi.BaseInterceptor;
 
 
 /**
- * Service used to notify registered listeners of various events within the
- * JNDI provider.
+ * A service used for replicating changes to other backing stores and applying
+ * changes to from other replicas to this backing store.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EventNotificationService extends BaseInterceptor
+public class ReplicationService extends BaseInterceptor
 {
     /** the root nexus to all database partitions */
     private final RootNexus nexus;
@@ -39,7 +40,7 @@ public class EventNotificationService extends BaseInterceptor
      *
      * @param nexus the root nexus to access all database partitions
      */
-    public EventNotificationService( RootNexus nexus )
+    public ReplicationService( RootNexus nexus )
     {
         this.nexus = nexus;
     }

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
@@ -57,6 +57,8 @@ import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.ldap.server.schema.*;
+import org.apache.ldap.server.jndi.ibs.*;
+import org.apache.ldap.server.jndi.*;
 import org.apache.seda.DefaultFrontend;
 import org.apache.seda.DefaultFrontendFactory;
 import org.apache.seda.listener.TCPListenerConfig;
@@ -72,7 +74,7 @@ import org.apache.seda.protocol.ProtocolProvider;
  * <code>
  * Hashtable env = new Hashtable();
  * env.put( Context.PROVIDER_URL, "ou=system" );
- * env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+ * env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
  * InitialContext initialContext = new InitialContext( env );
  * </code>
  * @see javax.naming.spi.InitialContextFactory
