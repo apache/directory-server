@@ -128,7 +128,7 @@ public class MerlinOutputManager
         String name = config.getChild( "stage-name" ).getValue() ;
         String pool = config.getChild( "thread-pool" ).getValue() ;
         
-        final org.apache.avalon.excalibur.thread.ThreadPool excaliburPool = 
+        final org.apache.excalibur.thread.ThreadPool excaliburPool = 
             tm.getThreadPool( pool ) ;
         ThreadPool tp = new ThreadPool()
         {

@@ -33,6 +33,13 @@
       </dependency>
 
       <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://jakarta.apache.org/commons/codec</url>
+      </dependency>
+
+      <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>SNAPSHOT</version>
