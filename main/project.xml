@@ -2,7 +2,7 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <artifactId>server-main</artifactId>
-  <name>Directory server Main</name>
+  <name>Server Main</name>
   <inceptionYear>2003</inceptionYear>
   <shortDescription>A single executable server jar</shortDescription>
 
