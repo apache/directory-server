@@ -73,6 +73,8 @@ public class BindHandler extends AbstractSingleReplyHandler
         }
 
         SessionRegistry.getSingleton( null ).put( key, ictx );
+        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+        resp.getLdapResult().setMatchedDn( req.getName() );
         return resp;
     }
 }
