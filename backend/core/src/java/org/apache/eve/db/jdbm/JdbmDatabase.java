@@ -38,7 +38,7 @@ import org.apache.eve.db.*;
  * A Database implementation based on JDBM B+Tree implementation.
  *
  */
-public class DefaultDatabase implements Database
+public class JdbmDatabase implements Database
 {
     /** the JDBM record manager used by this database */
     private final RecordManager recMan;
@@ -75,7 +75,7 @@ public class DefaultDatabase implements Database
      * @param wkdirPath the path to the working directory where the db resides
      * @throws NamingException if db cannot be created
      */
-    public DefaultDatabase ( final Name suffix, final String wkdirPath ) 
+    public JdbmDatabase ( final Name suffix, final String wkdirPath )
         throws NamingException
     {
         this.suffix = suffix;
