@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>eve-shared</artifactId>
-  <name>Eve Shared</name>
+  <artifactId>server-shared</artifactId>
+  <name>Server Shared</name>
   <inceptionYear>2003</inceptionYear>
 
-  <shortDescription>Shared Eve resources, and classes</shortDescription>
+  <shortDescription>Shared server resources, and classes</shortDescription>
   <description>
-    Created to eliminate cyclic project dependencies between the dib 
-    and maven projects.  Any code shared across modules can go here
-    so long as it does not depend on other modules.
+    Created to eliminate cyclic project dependencies between the core
+    and the maven plugin.  Any code shared across modules in general 
+    can go here so long as it does not depend on other modules.
   </description>
 
   <dependencies>
