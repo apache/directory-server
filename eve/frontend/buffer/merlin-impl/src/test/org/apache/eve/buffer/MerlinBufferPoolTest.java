@@ -194,17 +194,18 @@ public class MerlinBufferPoolTest extends AbstractMerlinTestCase
             l_buffers[ii] = m_bp.getBuffer( this ) ;
             assertNotNull( "Got null ByteBuffer", l_buffers[ii] ) ;
             
-            if ( ii < 2 )
+            
+            if ( ii < m_bp.getConfig().getInitialSize() )
             {    
-                assertEquals( "size was off", 2, m_bp.size() ) ;
+                assertEquals( "size was off", m_bp.getConfig().getInitialSize(),
+                        m_bp.size() ) ;
             }
-            else if ( ii >= 2 && ii < 6 )
+            else if ( ii >= m_bp.getConfig().getInitialSize() && 
+                        ii < m_bp.getConfig().getMaximumSize() )
             {
-                assertEquals( "size was off", 6, m_bp.size() ) ;
-            }
-            else if ( ii >= 6 && ii < 10 )
-            {
-                assertEquals( "size was off", 10, m_bp.size() ) ;
+                int size = ( ii + m_bp.getConfig().getIncrement() ) / 4 ;
+                size *= 4 ;
+                assertEquals( "size was off", (int) size, m_bp.size() ) ;
             }
             else
             {
