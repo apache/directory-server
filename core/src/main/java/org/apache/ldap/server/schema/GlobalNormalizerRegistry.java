@@ -24,8 +24,9 @@ import javax.naming.NamingException;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.server.schema.bootstrap.BootstrapNormalizerRegistry;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapNormalizerRegistry;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

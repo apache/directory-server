@@ -41,9 +41,9 @@ import org.apache.ldap.common.filter.ExprNode;
  * An interceptor based service which manages the filtering of result responses
  * back to callers.  This service is strictly post invocation based and
  * operates upon Attributes and SearchResults obtained through
- * {@link org.apache.eve.BackingStore#lookup(Name)},
- * {@link org.apache.eve.BackingStore#lookup(Name,String[])} and
- * {@link org.apache.eve.BackingStore#search(Name, Map, ExprNode, SearchControls)}
+ * {@link org.apache.ldap.server.BackingStore#lookup(Name)},
+ * {@link org.apache.ldap.server.BackingStore#lookup(Name,String[])} and
+ * {@link org.apache.ldap.server.BackingStore#search(Name, Map, ExprNode, SearchControls)}
  * operations.
  * <p>
  * We try to limit the amount of filtering decorators used on search results and

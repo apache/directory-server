@@ -41,8 +41,9 @@ import org.apache.ldap.common.filter.FilterParser;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.filter.FilterParserImpl;
 
-import org.apache.eve.PartitionNexus;
+import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.PartitionNexus;
 
 
 /**

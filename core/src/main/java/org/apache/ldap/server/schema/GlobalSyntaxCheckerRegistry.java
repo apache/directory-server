@@ -23,8 +23,9 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.SyntaxChecker;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

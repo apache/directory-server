@@ -26,8 +26,9 @@ import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.util.JoinIterator;
 import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleRegistry;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleRegistry;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

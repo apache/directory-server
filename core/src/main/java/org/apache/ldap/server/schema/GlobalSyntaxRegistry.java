@@ -26,8 +26,9 @@ import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.JoinIterator;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxRegistry;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxRegistry;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

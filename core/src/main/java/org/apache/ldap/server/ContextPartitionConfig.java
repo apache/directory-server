@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve;
+package org.apache.ldap.server;
 
 
 import javax.naming.directory.Attributes;

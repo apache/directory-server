@@ -200,9 +200,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#add(String, Name, Attributes)}.
+     * {@link org.apache.ldap.server.BackingStore#add(String, Name, Attributes)}.
      *
-     * @see org.apache.eve.BackingStore#add(String, Name, Attributes)
+     * @see org.apache.ldap.server.BackingStore#add(String, Name, Attributes)
      */
     protected void add( String upName, Name normName, Attributes entry ) throws NamingException
     {
@@ -211,9 +211,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#delete(Name)}.
+     * {@link org.apache.ldap.server.BackingStore#delete(Name)}.
      *
-     * @see org.apache.eve.BackingStore#delete(Name)}
+     * @see org.apache.ldap.server.BackingStore#delete(Name)}
      */
     protected void delete( Name name ) throws NamingException
     {
@@ -222,9 +222,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.PartitionNexus#getMatchedDn(Name, boolean)}.
+     * {@link org.apache.ldap.server.PartitionNexus#getMatchedDn(Name, boolean)}.
      *
-     * @see org.apache.eve.PartitionNexus#getMatchedDn(Name, boolean)
+     * @see org.apache.ldap.server.PartitionNexus#getMatchedDn(Name, boolean)
      */
     protected void getMatchchedDn( Name dn, boolean normalized ) throws NamingException
     {
@@ -233,9 +233,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.ContextPartition#getSuffix(boolean)}.
+     * {@link org.apache.ldap.server.ContextPartition#getSuffix(boolean)}.
      *
-     * @see org.apache.eve.ContextPartition#getSuffix(boolean)
+     * @see org.apache.ldap.server.ContextPartition#getSuffix(boolean)
      */
     protected void getSuffix( Name dn, boolean normalized ) throws NamingException
     {
@@ -244,9 +244,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#hasEntry(Name)}.
+     * {@link org.apache.ldap.server.BackingStore#hasEntry(Name)}.
      *
-     * @see org.apache.eve.BackingStore#hasEntry(Name)
+     * @see org.apache.ldap.server.BackingStore#hasEntry(Name)
      */
     protected void hasEntry( Name dn ) throws NamingException
     {
@@ -255,9 +255,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#isSuffix(Name)}.
+     * {@link org.apache.ldap.server.BackingStore#isSuffix(Name)}.
      *
-     * @see org.apache.eve.BackingStore#isSuffix(Name)}
+     * @see org.apache.ldap.server.BackingStore#isSuffix(Name)}
      */
     protected void isSuffix( Name name ) throws NamingException
     {
@@ -266,9 +266,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#list(Name)}.
+     * {@link org.apache.ldap.server.BackingStore#list(Name)}.
      *
-     * @see org.apache.eve.BackingStore#list(Name)
+     * @see org.apache.ldap.server.BackingStore#list(Name)
      */
     protected void list( Name base ) throws NamingException
     {
@@ -277,9 +277,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.PartitionNexus#listSuffixes(boolean)}.
+     * {@link org.apache.ldap.server.PartitionNexus#listSuffixes(boolean)}.
      *
-     * @see org.apache.eve.PartitionNexus#listSuffixes(boolean)
+     * @see org.apache.ldap.server.PartitionNexus#listSuffixes(boolean)
      */
     protected void listSuffixes( boolean normalized ) throws NamingException
     {
@@ -288,9 +288,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#lookup(javax.naming.Name)}.
+     * {@link org.apache.ldap.server.BackingStore#lookup(javax.naming.Name)}.
      *
-     * @see org.apache.eve.BackingStore#lookup(javax.naming.Name)
+     * @see org.apache.ldap.server.BackingStore#lookup(javax.naming.Name)
      */
     protected void lookup( Name dn ) throws NamingException
     {
@@ -299,9 +299,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.PartitionNexus#lookup(javax.naming.Name, String[])}.
+     * {@link org.apache.ldap.server.PartitionNexus#lookup(javax.naming.Name, String[])}.
      *
-     * @see org.apache.eve.PartitionNexus#lookup(javax.naming.Name, String[])
+     * @see org.apache.ldap.server.PartitionNexus#lookup(javax.naming.Name, String[])
      */
     protected void lookup( Name dn, String[] attrIds ) throws NamingException
     {
@@ -310,9 +310,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#modify(Name, int, Attributes)}.
+     * {@link org.apache.ldap.server.BackingStore#modify(Name, int, Attributes)}.
      *
-     * @see org.apache.eve.BackingStore#modify(Name, int, Attributes)
+     * @see org.apache.ldap.server.BackingStore#modify(Name, int, Attributes)
      */
     protected void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
@@ -321,9 +321,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#modify(Name, ModificationItem[])}.
+     * {@link org.apache.ldap.server.BackingStore#modify(Name, ModificationItem[])}.
      *
-     * @see org.apache.eve.BackingStore#modify(Name, ModificationItem[])
+     * @see org.apache.ldap.server.BackingStore#modify(Name, ModificationItem[])
      */
     protected void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
@@ -332,9 +332,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#modifyRn(Name, String, boolean)}.
+     * {@link org.apache.ldap.server.BackingStore#modifyRn(Name, String, boolean)}.
      *
-     * @see org.apache.eve.BackingStore#modifyRn(Name, String, boolean)
+     * @see org.apache.ldap.server.BackingStore#modifyRn(Name, String, boolean)
      */
     protected void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn )
         throws NamingException
@@ -344,9 +344,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#move(Name, Name)}.
+     * {@link org.apache.ldap.server.BackingStore#move(Name, Name)}.
      *
-     * @see org.apache.eve.BackingStore#move(Name, Name)
+     * @see org.apache.ldap.server.BackingStore#move(Name, Name)
      */
     protected void move( Name oriChildName, Name newParentName ) throws NamingException
     {
@@ -355,9 +355,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#move(Name, Name, String, boolean)}.
+     * {@link org.apache.ldap.server.BackingStore#move(Name, Name, String, boolean)}.
      *
-     * @see org.apache.eve.BackingStore#move(Name, Name, String, boolean)
+     * @see org.apache.ldap.server.BackingStore#move(Name, Name, String, boolean)
      */
     protected void move( Name oriChildName, Name newParentName, String newRdn,
                          boolean deleteOldRdn ) throws NamingException
@@ -367,9 +367,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Override to inject functionality before, after or on error to
-     * {@link org.apache.eve.BackingStore#search(Name, Map, ExprNode, SearchControls)}.
+     * {@link org.apache.ldap.server.BackingStore#search(Name, Map, ExprNode, SearchControls)}.
      *
-     * @see org.apache.eve.BackingStore#search(Name, Map, ExprNode, SearchControls)
+     * @see org.apache.ldap.server.BackingStore#search(Name, Map, ExprNode, SearchControls)
      */
     protected void search( Name base, Map env, ExprNode filter,
                            SearchControls searchControls ) throws NamingException

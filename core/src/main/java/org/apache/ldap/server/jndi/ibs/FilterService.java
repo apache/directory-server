@@ -25,9 +25,9 @@ import org.apache.ldap.server.db.SearchResultFilter;
  * A service which applies a linear combination of filters to attributes before
  * they are returned from calls to the following operations:
  * <ul>
- *   <li><code>{@link org.apache.eve.BackingStore#lookup(javax.naming.Name)}</code></li>
- *   <li><code>{@link org.apache.eve.BackingStore#lookup(javax.naming.Name,String[])}</code></li>
- *   <li><code>{@link org.apache.eve.BackingStore#search(javax.naming.Name,
+ *   <li><code>{@link org.apache.ldap.server.BackingStore#lookup(javax.naming.Name)}</code></li>
+ *   <li><code>{@link org.apache.ldap.server.BackingStore#lookup(javax.naming.Name,String[])}</code></li>
+ *   <li><code>{@link org.apache.ldap.server.BackingStore#search(javax.naming.Name,
  * java.util.Map, org.apache.ldap.common.filter.ExprNode,
  * javax.naming.directory.SearchControls)}</code></li>
  * </ul>
@@ -40,8 +40,8 @@ public interface FilterService
     /**
      * Adds a new lookup filter to the end of the list of filters be applied to
      * attributes being returned to Eve JNDI Contexts from calls made to
-     * {@link org.apache.eve.BackingStore#lookup(javax.naming.Name)} and
-     * {@link org.apache.eve.BackingStore#lookup(javax.naming.Name,String[])}
+     * {@link org.apache.ldap.server.BackingStore#lookup(javax.naming.Name)} and
+     * {@link org.apache.ldap.server.BackingStore#lookup(javax.naming.Name,String[])}
      *
      * @param filter the filter to be added
      * @return the return value from {@link java.util.List#add(Object)}
@@ -52,7 +52,7 @@ public interface FilterService
     /**
      * Adds a new database search result filter to the end of the list of
      * filters be applied to attributes being returned via NamingEnumerations
-     * created via calls made to {@link org.apache.eve.BackingStore#search(
+     * created via calls made to {@link org.apache.ldap.server.BackingStore#search(
      * javax.naming.Name, java.util.Map, org.apache.ldap.common.filter.ExprNode,
      * javax.naming.directory.SearchControls)}
      *

@@ -25,7 +25,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.name.NameComponentNormalizer;

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve;
+package org.apache.ldap.server;
 
 
 import java.util.Map;
@@ -229,7 +229,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#delete( Name )
+     * @see org.apache.ldap.server.BackingStore#delete( Name )
      */
     public void delete( Name dn ) throws NamingException
     {
@@ -255,7 +255,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     
 
     /**
-     * @see org.apache.eve.BackingStore#add( String, Name, Attributes )
+     * @see org.apache.ldap.server.BackingStore#add( String, Name, Attributes )
      */
     public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
@@ -264,7 +264,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#modify( Name, int, Attributes )
+     * @see org.apache.ldap.server.BackingStore#modify( Name, int, Attributes )
      */
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
@@ -273,7 +273,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#modify( Name,ModificationItem[] )
+     * @see org.apache.ldap.server.BackingStore#modify( Name,ModificationItem[] )
      */
     public void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
@@ -282,7 +282,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#list( Name )
+     * @see org.apache.ldap.server.BackingStore#list( Name )
      */
     public NamingEnumeration list( Name base ) throws NamingException
     {
@@ -294,7 +294,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     
     
     /**
-     * @see org.apache.eve.BackingStore#search(Name, Map, ExprNode, SearchControls)
+     * @see org.apache.ldap.server.BackingStore#search(Name, Map, ExprNode, SearchControls)
      */
     public NamingEnumeration search( Name base, Map env, ExprNode filter,
                                      SearchControls searchCtls )
@@ -310,7 +310,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#lookup( Name )
+     * @see org.apache.ldap.server.BackingStore#lookup( Name )
      */
     public Attributes lookup( Name dn ) throws NamingException
     {
@@ -346,7 +346,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#hasEntry( Name )
+     * @see org.apache.ldap.server.BackingStore#hasEntry( Name )
      */
     public boolean hasEntry( Name dn ) throws NamingException
     {
@@ -364,7 +364,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#move( Name, Name )
+     * @see org.apache.ldap.server.BackingStore#move( Name, Name )
      */
     public void move( Name oldChildDn, Name newParentDn ) throws NamingException
     {
@@ -373,7 +373,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     
 
     /**
-     * @see org.apache.eve.BackingStore#move( Name, Name, String, boolean )
+     * @see org.apache.ldap.server.BackingStore#move( Name, Name, String, boolean )
      */
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
         boolean deleteOldRdn ) throws NamingException

@@ -28,7 +28,8 @@ import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.server.schema.bootstrap.*;
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

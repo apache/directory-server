@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve;
+package org.apache.ldap.server;
 
 import javax.naming.Name ;
 import javax.naming.NamingException ;
@@ -30,6 +30,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl ;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.AbstractContextPartition;
 
 
 /**
@@ -202,7 +203,7 @@ public final class SystemPartition extends AbstractContextPartition
 
 
     /**
-     * @see ContextPartition#getSuffix(boolean)
+     * @see org.apache.ldap.server.ContextPartition#getSuffix(boolean)
      */
     public final Name getSuffix( boolean normalized )
     {
@@ -215,7 +216,7 @@ public final class SystemPartition extends AbstractContextPartition
 
 
     /**
-     * @see BackingStore#isSuffix(javax.naming.Name)
+     * @see org.apache.ldap.server.BackingStore#isSuffix(javax.naming.Name)
      */
     public final boolean isSuffix( Name dn )
     {

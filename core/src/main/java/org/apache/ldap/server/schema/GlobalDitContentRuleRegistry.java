@@ -26,11 +26,12 @@ import org.apache.ldap.common.schema.DITContentRule;
 import org.apache.ldap.common.util.JoinIterator;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
 import org.apache.ldap.server.schema.DITContentRuleRegistry;
 import org.apache.ldap.server.schema.DITContentRuleRegistryMonitor;
 import org.apache.ldap.server.schema.DITContentRuleRegistryMonitorAdapter;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

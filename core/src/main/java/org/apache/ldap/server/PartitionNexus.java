@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve;
+package org.apache.ldap.server;
 
 
 import java.util.Iterator;
@@ -22,6 +22,9 @@ import java.util.Iterator;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.ContextPartition;
 
 
 /**

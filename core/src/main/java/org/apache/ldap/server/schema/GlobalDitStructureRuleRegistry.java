@@ -25,11 +25,12 @@ import javax.naming.NamingException;
 import org.apache.ldap.common.schema.DITStructureRule;
 import org.apache.ldap.common.util.JoinIterator;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitStructureRuleRegistry;
 import org.apache.ldap.server.schema.DITStructureRuleRegistry;
 import org.apache.ldap.server.schema.DITStructureRuleRegistryMonitor;
 import org.apache.ldap.server.schema.DITStructureRuleRegistryMonitorAdapter;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

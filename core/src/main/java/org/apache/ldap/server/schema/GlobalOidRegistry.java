@@ -25,9 +25,10 @@ import java.util.Collections;
 
 import javax.naming.NamingException;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

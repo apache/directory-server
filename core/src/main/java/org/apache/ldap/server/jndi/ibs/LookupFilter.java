@@ -40,7 +40,7 @@ public interface LookupFilter
 {
     /**
      * Filters attributes to be returned from
-     * {@link org.apache.eve.BackingStore#lookup(Name)} operations.
+     * {@link org.apache.ldap.server.BackingStore#lookup(Name)} operations.
      *
      * @param dn the distinguished name of the entry looked up
      * @param entry the attributes of the entry that were looked up
@@ -52,7 +52,7 @@ public interface LookupFilter
 
     /**
      * Filters attributes to be returned from
-     * {@link org.apache.eve.BackingStore#lookup(Name,String[])} operations.
+     * {@link org.apache.ldap.server.BackingStore#lookup(Name,String[])} operations.
      *
      * @param dn the distinguished name of the entry looked up
      * @param entry the attributes of the entry that were looked up

@@ -31,8 +31,9 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.server.auth.LdapPrincipal;
 
-import org.apache.eve.PartitionNexus;
+import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.PartitionNexus;
 
 
 /**

@@ -26,7 +26,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
 
-import org.apache.eve.RootNexus;
+import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.exception.EveInterceptorException;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.*;

@@ -26,8 +26,9 @@ import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.util.JoinIterator;
 import org.apache.ldap.server.schema.bootstrap.BootstrapObjectClassRegistry;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapObjectClassRegistry;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**

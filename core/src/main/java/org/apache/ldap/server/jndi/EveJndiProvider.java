@@ -17,11 +17,12 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.eve.RootNexus;
-import org.apache.eve.PartitionNexus;
-import org.apache.eve.EveBackendSubsystem;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.EveBackendSubsystem;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.server.EveBackendSubsystem;
 
 import java.util.Hashtable;
 
@@ -113,7 +114,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
 
     /**
-     * @see org.apache.eve.EveBackendSubsystem#getLdapContext(Hashtable)
+     * @see org.apache.ldap.server.EveBackendSubsystem#getLdapContext(Hashtable)
      */
     public LdapContext getLdapContext( Hashtable env ) throws NamingException
     {

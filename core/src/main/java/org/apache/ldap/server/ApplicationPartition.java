@@ -14,12 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve;
+package org.apache.ldap.server;
 
 
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.AbstractContextPartition;
 import org.apache.ldap.common.schema.AttributeType;
 
 import javax.naming.Name ;

@@ -25,11 +25,12 @@ import javax.naming.NamingException;
 import org.apache.ldap.common.util.JoinIterator;
 import org.apache.ldap.common.schema.AttributeType;
 
-import org.apache.eve.SystemPartition;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapAttributeTypeRegistry;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.AttributeTypeRegistryMonitor;
 import org.apache.ldap.server.schema.AttributeTypeRegistryMonitorAdapter;
+import org.apache.ldap.server.SystemPartition;
 
 
 /**
