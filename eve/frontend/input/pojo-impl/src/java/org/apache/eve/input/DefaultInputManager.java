@@ -49,6 +49,8 @@ import org.apache.eve.listener.KeyExpiryException ;
 public class DefaultInputManager extends AbstractSubscriber
     implements InputManager, ConnectSubscriber, DisconnectSubscriber
 {
+    public static final long TIMEOUT_CYCLES = 2000 ;
+    
     /** the thread driving this Runnable */ 
     private Thread m_thread = null ;
     /** parameter used to politely stop running thread */
@@ -122,6 +124,29 @@ public class DefaultInputManager extends AbstractSubscriber
                     
                     if ( 0 == ( l_count = m_selector.select() ) )
                     {
+                        /*
+                         * Loop here solves a bug where some lingering phantom
+                         * clients (long gone) have sockets and channels that 
+                         * appear valid and connected.  These sockets and 
+                         * channels are cleaned up here in this loop.  Keep in
+                         * mind they have triggered a wakeup on select() and 
+                         * are appear ready for reads yet were not selected w/i
+                         * the last iteration since the selected count was zero.
+                         * 
+                         * For more information on this you can refer to the 
+                         * Jira Issue: 
+                 http://nagoya.apache.org/jira/secure/ViewIssue.jspa?key=DIR-18
+                         */
+                        Iterator l_list = m_selector.selectedKeys().iterator() ;
+                        while( l_list.hasNext() )
+                        {
+                            SelectionKey l_key = ( SelectionKey ) 
+                                l_list.next() ;
+                            l_key.channel().close() ;
+                            l_key.cancel() ;
+                            l_list.remove() ;
+                        }
+                        
                         m_monitor.selectTimedOut( m_selector ) ;
                         continue ;
                     }
@@ -351,7 +376,7 @@ public class DefaultInputManager extends AbstractSubscriber
             {
                 ByteBuffer l_buf = null ;
                 SocketChannel l_channel = ( SocketChannel ) l_key.channel() ;
-
+                
                 /*
                  * claim a buffer, read from channel into it and remove 
                  * the current selection key from selected set
@@ -359,7 +384,18 @@ public class DefaultInputManager extends AbstractSubscriber
                 try
                 {
                     l_buf = m_bp.getBuffer( this ) ;
-                    l_channel.read( l_buf ) ;
+                    int l_count = 0 ;
+                    
+                    
+                    if ( ( l_count = l_channel.read( l_buf ) ) <= 0 )
+                    {
+                        l_channel.socket().close() ;
+                        l_channel.close() ;
+                        l_key.cancel() ;
+                        return ;
+                    }
+                    
+                    l_buf.flip() ;
                     m_monitor.inputRecieved( 
                             l_buf.asReadOnlyBuffer(), l_client ) ;
                     l_list.remove() ;
