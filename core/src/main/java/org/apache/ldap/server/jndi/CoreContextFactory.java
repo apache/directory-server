@@ -73,7 +73,7 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
  * Hashtable env = new Hashtable();
  * env.put( Context.PROVIDER_URL, "ou=system" );
  * env.put(
- * Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+ * Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
  * InitialContext initialContext = new InitialContext( env );
  * </code>
  *
