@@ -86,9 +86,21 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
+      <artifactId>ldap-ber-provider</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>snickers-ber-codec</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
       <artifactId>seda</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
+
+    <!-- The Eve Maven Plugin -->
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>maven-eve-plugin</artifactId>
