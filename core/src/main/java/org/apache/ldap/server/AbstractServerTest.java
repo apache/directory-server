@@ -108,8 +108,11 @@ public abstract class AbstractServerTest extends TestCase
     protected LdapContext setSysRoot( String user, String passwd ) throws NamingException
     {
         Hashtable env = new Hashtable();
+
         env.put( Context.SECURITY_PRINCIPAL, user );
+
         env.put( Context.SECURITY_CREDENTIALS, passwd );
+
         return setSysRoot( env );
     }
 
@@ -126,14 +129,22 @@ public abstract class AbstractServerTest extends TestCase
     protected LdapContext setSysRoot( Hashtable env ) throws NamingException
     {
         Hashtable envFinal = new Hashtable();
+
         envFinal.putAll( extras );
+
         envFinal.putAll( env );
+
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
+
         envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "apacheds" );
+
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+
         envFinal.putAll( overrides );
+
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
+
 
 
     /**
@@ -144,13 +155,21 @@ public abstract class AbstractServerTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
+
         Hashtable env = new Hashtable();
+
         env.put( Context.PROVIDER_URL, "ou=system" );
+
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+
         env.put( EnvKeys.SHUTDOWN, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
         try { new InitialContext( env ); } catch( Exception e ) {}
+
         sysRoot = null;
     }
 }
