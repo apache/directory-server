@@ -35,7 +35,7 @@ public class ComparatorRegistryMonitorAdapter
      * @see org.apache.eve.schema.ComparatorRegistryMonitor#registered(
      * org.apache.eve.schema.Comparator)
      */
-    public void registered( Comparator comparator )
+    public void registered( String oid, Comparator comparator )
     {
     }
 
@@ -44,7 +44,7 @@ public class ComparatorRegistryMonitorAdapter
      * @see org.apache.eve.schema.ComparatorRegistryMonitor#lookedUp(
      * org.apache.eve.schema.Comparator)
      */
-    public void lookedUp( Comparator comparator )
+    public void lookedUp( String oid, Comparator comparator )
     {
     }
 
@@ -66,7 +66,11 @@ public class ComparatorRegistryMonitorAdapter
      * @see org.apache.eve.schema.ComparatorRegistryMonitor#registerFailed(
      * org.apache.eve.schema.Comparator, javax.naming.NamingException)
      */
-    public void registerFailed( Comparator comparator, NamingException fault )
+    public void registerFailed( String oid, Comparator comparator, NamingException fault )
     {
+        if ( fault != null )
+        {
+            fault.printStackTrace();
+        }
     }
 }

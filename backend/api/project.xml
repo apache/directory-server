@@ -2,17 +2,21 @@
 <project>
     <extend>${basedir}/../../project.xml</extend>
     <groupId>incubator-directory</groupId>
-    <id>backend-api</id>
+    <id>eve-backend</id>
   
-    <name>API used by the backend</name>
+    <name>Eve's Backend Subsystem</name>
     <package>org.apache.eve</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2002</inceptionYear>
       
-    <shortDescription>Backend API</shortDescription>
+    <shortDescription>Eve's Backend Subsystem</shortDescription>
 
     <description>
-      Eve's backend API.
+      Eve's backend subsystem, providing a LDAP namespace based backing store
+      using JNDI as the access API.  This deliverable is a JNDI LDAP namespace
+      provider but it does not use the LDAP protocol to access and store 
+      entries.  Instead entries are stored within a custom database 
+      implementation on disk designed for fast reads and hierarchical data.
     </description>
       
     <dependencies>
