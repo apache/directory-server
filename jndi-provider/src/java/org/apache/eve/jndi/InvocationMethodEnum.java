@@ -44,7 +44,7 @@ public class InvocationMethodEnum extends ValuedEnum
     public static final String LOOKUP_NAME_STRINGARR_STR =
             "lookup(Name, String[])";
     /** name/signature for the add() method */
-    public static final String ADD_STR = "add()";
+        public static final String ADD_STR = "add()";
     /** name/signature for the delete() method */
     public static final String DELETE_STR = "delete()";
     /** name/signature for the hasEntry() method */
@@ -62,7 +62,7 @@ public class InvocationMethodEnum extends ValuedEnum
     public static final String MODIFY_NAME_MODIFICATIONITEMARR_STR =
             "modify(Name, ModificationItem[])";
     /** name/signature for the modifyRdn() method */
-    public static final String MODIFYRDN_STR = "modifyRdn()";
+    public static final String MODIFYRN_STR = "modifyRn()";
     /** name/signature for the move(Name, Name) method */
     public static final String MOVE_NAME_NAME_STR = "move(Name, Name)";
     /** name/signature for the move(Name, Name, String, boolean) method */
@@ -77,7 +77,7 @@ public class InvocationMethodEnum extends ValuedEnum
         LOOKUP_NAME_STRINGARR_STR,
         ADD_STR, DELETE_STR, HASENTRY_STR, ISSUFFIX_STR, LIST_STR,
         LOOKUP_NAME_STR, MODIFY_NAME_INT_ATTRIBUTES_STR,
-        MODIFY_NAME_MODIFICATIONITEMARR_STR, MODIFYRDN_STR,
+        MODIFY_NAME_MODIFICATIONITEMARR_STR, MODIFYRN_STR,
         MOVE_NAME_NAME_STR, MOVE_NAME_NAME_STRING_BOOL_STR, SEARCH_STR
     };
 
@@ -186,7 +186,7 @@ public class InvocationMethodEnum extends ValuedEnum
         map.put( "hasEntry", new InvocationMethodEnum[]{ HASENTRY } );
         map.put( "isSuffix", new InvocationMethodEnum[]{ ISSUFFIX } );
         map.put( "listSuffixes", new InvocationMethodEnum[]{ LISTSUFFIXES } );
-        map.put( "modifyRdn", new InvocationMethodEnum[]{ MODIFYRDN } );
+        map.put( "modifyRn", new InvocationMethodEnum[]{ MODIFYRDN } );
         map.put( "getSuffix", new InvocationMethodEnum[]{ GETSUFFIX } );
         map.put( "getMatchedDn", new InvocationMethodEnum[]{ GETMATCHEDDN } );
 

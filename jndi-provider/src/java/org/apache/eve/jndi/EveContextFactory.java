@@ -359,8 +359,8 @@ public class EveContextFactory implements InitialContextFactory
 
 
         /*
-         * Create and add the Eve Exception service interceptor to both the
-         * before and onError interceptor chains.
+         * Create and add the Authentication service interceptor to before
+         * interceptor chain.
          */
         InvocationStateEnum[] state = new InvocationStateEnum[]{
             InvocationStateEnum.PREINVOCATION
@@ -378,6 +378,14 @@ public class EveContextFactory implements InitialContextFactory
         state = new InvocationStateEnum[]{ InvocationStateEnum.POSTINVOCATION };
         FilterService filterService = new FilterServiceImpl();
         interceptor = ( Interceptor ) filterService;
+        provider.addInterceptor( interceptor, state );
+
+        /*
+         * Create and add the Authorization service interceptor to before
+         * interceptor chain.
+         */
+        state = new InvocationStateEnum[]{ InvocationStateEnum.PREINVOCATION };
+        interceptor = new AuthorizationService( normalizer, filterService );
         provider.addInterceptor( interceptor, state );
 
         /*

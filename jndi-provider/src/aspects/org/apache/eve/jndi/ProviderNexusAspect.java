@@ -166,7 +166,7 @@ public aspect ProviderNexusAspect
 		call( public Attributes lookup( Name ) ) ||
         call( public void modify( Name, int, Attributes ) ) ||
         call( public void modify( Name, ModificationItem [] ) ) ||
-        call( public void modifyRdn( Name, String, boolean ) ) ||
+        call( public void modifyRn( Name, String, boolean ) ) ||
         call( public void move( Name, Name ) ) ||
         call( public void move( Name, Name, String, boolean ) ) ||
         call( public NamingEnumeration 

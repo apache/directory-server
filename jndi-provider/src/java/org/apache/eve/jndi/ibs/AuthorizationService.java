@@ -17,17 +17,24 @@
 package org.apache.eve.jndi.ibs;
 
 
+import java.io.IOException;
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
 
-import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
+import org.apache.eve.db.SearchResultFilter;
+import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.exception.EveNoPermissionException;
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.InvocationStateEnum;
+import org.apache.eve.jndi.EveContext;
+import org.apache.ldap.common.name.NameComponentNormalizer;
+import org.apache.ldap.common.name.DnParser;
 
 
 /**
@@ -43,18 +50,34 @@ public class AuthorizationService extends BaseInterceptor
     /** the base distinguished {@link Name} for all users */
     private static final Name USER_BASE_DN = SystemPartition.getUsersBaseDn();
 
-    /** the root nexus to all database partitions */
-    private final RootNexus nexus;
+    /** the name parser used by this service */
+    private final DnParser dnParser;
 
 
     /**
      * Creates an authorization service interceptor.
      *
-     * @param nexus the root nexus to access all database partitions
+     * @param normalizer a schema enabled name component normalizer
+     * @param filterService a {@link FilterService} to register filters with
      */
-    public AuthorizationService( RootNexus nexus )
+    public AuthorizationService( NameComponentNormalizer normalizer,
+                                 FilterService filterService )
+            throws NamingException
     {
-        this.nexus = nexus;
+        try
+        {
+            this.dnParser = new DnParser( normalizer );
+        }
+        catch ( IOException e )
+        {
+            NamingException ne = new NamingException();
+            ne.setRootCause( e );
+            throw ne;
+        }
+
+        AuthorizationFilter filter = new AuthorizationFilter();
+        filterService.addLookupFilter( filter );
+        filterService.addSearchResultFilter( filter );
     }
 
 
@@ -79,7 +102,8 @@ public class AuthorizationService extends BaseInterceptor
                 throw new EveNoPermissionException( msg );
             }
 
-            if ( name.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            if ( name.size() > 2 && name.startsWith( USER_BASE_DN )
+                    && ! principalDn.equals( ADMIN_DN ) )
             {
                 String msg = "User " + principalDn;
                 msg += " does not have permission to delete the user account: ";
@@ -144,7 +168,14 @@ public class AuthorizationService extends BaseInterceptor
         {
             Name principalDn = getPrincipal( invocation ).getDn();
 
-            if ( dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            {
+                String msg = "User " + principalDn;
+                msg += " does not have permission to modify the admin account.";
+                throw new EveNoPermissionException( msg );
+            }
+
+            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
             {
                 String msg = "User " + principalDn;
                 msg += " does not have permission to modify the account of the";
@@ -203,12 +234,60 @@ public class AuthorizationService extends BaseInterceptor
                 throw new EveNoPermissionException( msg );
             }
 
-            if ( dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
             {
                 String msg = "User " + principalDn;
                 msg += " does not have permission to move or rename the user";
                 msg += " account: " + dn + ". Only the admin can move or";
                 msg += " rename user accounts.";
+                throw new EveNoPermissionException( msg );
+            }
+        }
+    }
+    
+    
+    private class AuthorizationFilter implements SearchResultFilter, LookupFilter
+    {
+        public boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls )
+                throws NamingException
+        {
+            Name dn;
+            synchronized( dnParser )
+            {
+                dn = dnParser.parse( result.getName() );
+            }
+
+            Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
+            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+        public void filter( LdapContext ctx, Name dn, Attributes entry ) throws NamingException
+        {
+            filter( ctx, dn );
+        }
+
+
+        public void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids )
+                throws NamingException
+        {
+            filter( ctx, dn );
+        }
+
+
+        private void filter( LdapContext ctx, Name dn ) throws NamingException
+        {
+            Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
+            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            {
+                String msg = "Access to user account " + dn + " not permitted";
+                msg += " for user " + principalDn + ".  Only the admin can";
+                msg += " access user account information";
                 throw new EveNoPermissionException( msg );
             }
         }
