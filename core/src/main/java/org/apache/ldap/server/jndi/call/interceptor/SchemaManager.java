@@ -51,6 +51,7 @@ import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerLdapContext;
+import org.apache.ldap.server.jndi.call.List;
 import org.apache.ldap.server.jndi.call.Lookup;
 import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
 import org.apache.ldap.server.jndi.call.Search;
@@ -115,6 +116,17 @@ public class SchemaManager extends BaseInterceptor
     
     public void destroy()
     {
+    }
+
+    protected void process(NextInterceptor nextInterceptor, List call) throws NamingException {
+        nextInterceptor.process( call );
+        
+        NamingEnumeration e ;
+        ResultFilteringEnumeration retval;
+        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
+        e = ( NamingEnumeration ) call.getResponse();
+        retval = new ResultFilteringEnumeration( e, new SearchControls(), ctx, binaryAttributeFilter );
+        call.setResponse( retval );
     }
 
     protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException

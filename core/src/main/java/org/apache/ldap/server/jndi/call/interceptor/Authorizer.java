@@ -38,6 +38,7 @@ import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.call.Call;
 import org.apache.ldap.server.jndi.call.Delete;
 import org.apache.ldap.server.jndi.call.HasEntry;
+import org.apache.ldap.server.jndi.call.List;
 import org.apache.ldap.server.jndi.call.Lookup;
 import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
 import org.apache.ldap.server.jndi.call.Modify;
@@ -388,6 +389,27 @@ public class Authorizer extends BaseInterceptor
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         e = ( NamingEnumeration ) call.getResponse();
         retval = new ResultFilteringEnumeration( e, searchControls, ctx,
+            new SearchResultFilter()
+            {
+                public boolean accept( LdapContext ctx, SearchResult result,
+                                       SearchControls controls )
+                        throws NamingException
+                {
+                    return Authorizer.this.isSearchable( ctx, result );
+                }
+            } );
+
+        call.setResponse( retval );
+    }
+
+    protected void process(NextInterceptor nextInterceptor, List call) throws NamingException {
+        super.process(nextInterceptor, call);
+        
+        NamingEnumeration e ;
+        ResultFilteringEnumeration retval;
+        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
+        e = ( NamingEnumeration ) call.getResponse();
+        retval = new ResultFilteringEnumeration( e, null, ctx,
             new SearchResultFilter()
             {
                 public boolean accept( LdapContext ctx, SearchResult result,
