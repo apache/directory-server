@@ -55,6 +55,9 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
     /** PartitionNexus proxy wrapping nexus to inject services */
     private PartitionNexus proxy = null;
 
+    /** whether or not this instance has been shutdown */
+    private boolean isShutdown = false;
+
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -112,7 +115,42 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
      */
     public LdapContext getLdapContext( Hashtable aenv ) throws NamingException
     {
+        if ( this.isShutdown )
+        {
+            throw new IllegalStateException( "Eve has been shutdown!" );
+        }
+
         return new EveLdapContext( proxy, aenv );
+    }
+
+
+    public void sync() throws NamingException
+    {
+        if ( this.isShutdown )
+        {
+            throw new IllegalStateException( "Eve has been shutdown!" );
+        }
+
+        this.nexus.sync();
+    }
+
+
+    public void shutdown() throws NamingException
+    {
+        if ( this.isShutdown )
+        {
+            throw new IllegalStateException( "Eve has been shutdown!" );
+        }
+
+        this.nexus.sync();
+        this.nexus.close();
+        this.nexus = null;
+        this.proxy = null;
+        this.before = null;
+        this.after = null;
+        this.afterFailure = null;
+        this.isShutdown = true;
+        s_singleton = null;
     }
 
 

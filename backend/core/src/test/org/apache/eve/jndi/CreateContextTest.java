@@ -140,18 +140,43 @@ public class CreateContextTest extends AbstractJndiTest
         DirContext ctx = null;
 
         /*
-         * fail on ou=testing01,ou=system
+         * create ou=testing00,ou=system
          */
         attributes = new BasicAttributes();
         attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
-        attributes.put( "ou", "testing01" );
+        attributes.put( "ou", "testing00" );
+        ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
+        assertNotNull( ctx );
 
+        ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
+        assertNotNull( ctx );
+
+        attributes = ctx.getAttributes( "" );
+        assertNotNull( attributes );
+        assertEquals( "testing00", attributes.get( "ou" ).get() );
+        attribute = attributes.get( "objectClass" );
+        assertNotNull( attribute );
+        assertTrue( attribute.contains( "top" ) );
+        assertTrue( attribute.contains( "organizationalUnit" ) );
+
+
+        /*
+         * fail on recreate attempt for ou=testing00,ou=system
+         */
+        attributes = new BasicAttributes();
+        attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "organizationalUnit" );
+        attributes.put( attribute );
+        attributes.put( "ou", "testing00" );
+
+        ctx = null;
         try
         {
-            ctx = sysRoot.createSubcontext( "ou=testing01", attributes );
+            ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
             fail( "Attept to create exiting context should fail!" );
         }
         catch ( NamingException e )

@@ -365,4 +365,16 @@ public abstract class AbstractContextPartition implements ContextPartition
     {
         db.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
     }
+
+
+    public void sync() throws NamingException
+    {
+        db.sync();
+    }
+
+
+    public void close() throws NamingException
+    {
+        db.close();
+    }
 }

@@ -288,16 +288,47 @@ public class RootNexus implements PartitionNexus
         ContextPartition backend = getBackend( oldChildDn );
         backend.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
     }
-    
+
+
+    /**
+     * @see BackingStore#sync()
+     */
+    public void sync() throws NamingException
+    {
+        Iterator list = this.backends.values().iterator();
+        while ( list.hasNext() )
+        {
+            BackingStore store = ( BackingStore ) list.next();
+            store.sync();
+        }
+    }
+
+
+    /**
+     * @see BackingStore#close()
+     */
+    public void close() throws NamingException
+    {
+        Iterator list = this.backends.values().iterator();
+        while ( list.hasNext() )
+        {
+            BackingStore store = ( BackingStore ) list.next();
+            store.sync();
+            store.close();
+        }
+
+        s_singleton = null;
+    }
+
 
     // ------------------------------------------------------------------------
     // Private Methods
     // ------------------------------------------------------------------------
-    
-    
+
+
     /**
      * Gets the backend partition associated with a dn.
-     * 
+     *
      * @param dn the name to resolve to a backend
      * @return the backend partition associated with the dn
      * @throws NamingException if the name cannot be resolved to a backend

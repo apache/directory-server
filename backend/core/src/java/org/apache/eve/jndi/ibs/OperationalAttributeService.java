@@ -201,7 +201,10 @@ public class OperationalAttributeService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
         {
-            filter( ( Attributes ) invocation.getReturnValue() );
+            Attributes attributes = ( Attributes ) invocation.getReturnValue();
+            Attributes retval = ( Attributes ) attributes.clone();
+            filter( retval );
+            invocation.setReturnValue( retval );
         }
     }
 
@@ -214,6 +217,11 @@ public class OperationalAttributeService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
         {
+            if ( searchControls.getReturningAttributes() != null )
+            {
+                return;
+            }
+
             SearchResultEnumeration enum ;
             ResultFilteringEnumeration retval;
             enum = ( SearchResultEnumeration ) invocation.getReturnValue();

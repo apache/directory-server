@@ -39,6 +39,8 @@ import org.apache.eve.schema.OidRegistry;
  */
 public class EveContextFactory implements InitialContextFactory
 {
+    public static final String SHUTDOWN_OP_ENV = "eve.operation.shutdown";
+    public static final String SYNC_OP_ENV = "eve.operation.sync";
     /** key base for a set of user indices provided as comma sep list of attribute names or oids */
     public static final String USER_INDICES_ENV_BASE = "eve.user.db.indices";
     /** the path to eve's working directory - relative or absolute */
@@ -95,6 +97,20 @@ public class EveContextFactory implements InitialContextFactory
      */
     public Context getInitialContext( Hashtable env ) throws NamingException
     {
+        if ( env.containsKey( SHUTDOWN_OP_ENV ) )
+        {
+            provider.shutdown();
+            provider = null;
+            initialEnv = null;
+            return null;
+        }
+
+        if ( env.containsKey( SYNC_OP_ENV ) )
+        {
+            provider.sync();
+            return null;
+        }
+
         // fire up the backend subsystem if we need to
         if ( null == provider )
         {

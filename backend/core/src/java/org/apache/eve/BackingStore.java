@@ -215,6 +215,10 @@ public interface BackingStore
      */
     void move( Name oriChildName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
+    
+    void sync() throws NamingException;
+
+    void close() throws NamingException;
 }
 
 

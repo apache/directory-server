@@ -50,4 +50,18 @@ public class EveContextFactoryTest extends AbstractJndiTest
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
+
+
+    public void testSetupTeardown() throws NamingException
+    {
+        assertNotNull( sysRoot );
+
+        Attributes attributes = sysRoot.getAttributes( "" );
+        assertNotNull( attributes );
+        assertEquals( "system", attributes.get( "ou" ).get() );
+        Attribute attribute = attributes.get( "objectClass" );
+        assertNotNull( attribute );
+        assertTrue( attribute.contains( "top" ) );
+        assertTrue( attribute.contains( "organizationalUnit" ) );
+    }
 }

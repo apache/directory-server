@@ -66,6 +66,20 @@ public class AbstractJndiTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
+        Hashtable env = new Hashtable();
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.put( EveContextFactory.SHUTDOWN_OP_ENV, "" );
+
+        try
+        {
+            InitialContext initialContext = new InitialContext( env );
+        }
+        catch( Exception e )
+        {
+
+        }
+
         sysRoot = null;
         File file = new File( "target/eve" );
         FileUtils.deleteDirectory( file );

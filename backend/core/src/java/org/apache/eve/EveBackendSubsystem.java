@@ -21,4 +21,8 @@ public interface EveBackendSubsystem
      * @throws NamingException if something goes wrong
      */
     LdapContext getLdapContext( Hashtable env ) throws NamingException;
+
+    void sync() throws NamingException;
+
+    void shutdown() throws NamingException;
 }
