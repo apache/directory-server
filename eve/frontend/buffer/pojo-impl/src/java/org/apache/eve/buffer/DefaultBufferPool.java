@@ -214,7 +214,7 @@ public class DefaultBufferPool implements BufferPool
      * 
      * @return returns the monitor
      */
-    BufferPoolMonitor getMonitor()
+    public BufferPoolMonitor getMonitor()
     {
         return m_monitor ;
     }
@@ -225,7 +225,7 @@ public class DefaultBufferPool implements BufferPool
      * 
      * @param a_monitor the monitor to set
      */
-    void setMonitor( BufferPoolMonitor a_monitor )
+    public void setMonitor( BufferPoolMonitor a_monitor )
     {
         m_monitor = a_monitor ;
     }
