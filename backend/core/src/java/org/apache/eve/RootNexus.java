@@ -34,7 +34,9 @@ import org.apache.ldap.common.NotImplementedException;
 
 /**
  * A nexus for partitions dedicated for storing entries specific to a naming
- * context.
+ * context.  The decision was made to rename this to RootNexus because of the
+ * following improvement request in <a
+ * href="http://nagoya.apache.org/jira/browse/DIREVE-23">JIRA</a>.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
