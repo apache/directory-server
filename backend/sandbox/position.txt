@@ -7,14 +7,14 @@ backend-database-spi/               - not done
 backend-database-viewer/            - not done
 backend-nexus-api/                  - not done
 backend-nexus-impl/                 - not done
-bootstrap-attribute-type-manager/   - not done
+default-backend-impl/               - not done
+system-backend-impl/                - not done
+jndi-provider/                      - not done
+schema-api/                         - partially
+bootstrap-attribute-type-manager/   - DONE
 bootstrap-matching-rule-manager/    - DONE
-bootstrap-object-class-manager/     - not done
+bootstrap-object-class-manager/     - DONE
 bootstrap-syntax-manager/           - DONE
 comparator-registry/                - DONE
-default-backend-impl/               - not done
-jndi-provider/                      - not done
-normalizer-registry/                - not done
+normalizer-registry/                - DONE
 oid-registry/                       - DONE
-schema-api/                         - partially
-system-backend-impl/                - not done
