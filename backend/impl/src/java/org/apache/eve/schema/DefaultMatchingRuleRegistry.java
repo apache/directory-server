@@ -52,10 +52,9 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
      * @param matchingRules a map of OIDs to their respective MatchingRule objs
      */
     public DefaultMatchingRuleRegistry( MatchingRule[] matchingRules,
-                                          OidRegistry registry )
+                                        OidRegistry registry )
     {
-        this ( matchingRules, registry,
-            new MatchingRuleRegistryMonitorAdapter() );
+        this ( matchingRules, registry, new MatchingRuleRegistryMonitorAdapter() );
     }
 
         
@@ -66,8 +65,8 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
      * @param matchingRules a map of OIDs to their respective MatchingRule objs
      */
     public DefaultMatchingRuleRegistry( MatchingRule[] matchingRules,
-                                          OidRegistry registry,
-                                          MatchingRuleRegistryMonitor monitor )
+                                        OidRegistry registry,
+                                        MatchingRuleRegistryMonitor monitor )
     {
         this.monitor = monitor;
         this.matchingRules = new HashMap();
@@ -102,14 +101,12 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     {
         if ( matchingRules.containsKey( oid ) )
         {
-            MatchingRule MatchingRule = ( MatchingRule )
-                matchingRules.get( oid );
+            MatchingRule MatchingRule = ( MatchingRule ) matchingRules.get( oid );
             monitor.lookedUp( MatchingRule );
             return MatchingRule;
         }
         
-        NamingException fault = new NamingException( "Unknown MatchingRule OID "
-            + oid );
+        NamingException fault = new NamingException( "Unknown MatchingRule OID " + oid );
         monitor.lookupFailed( oid, fault );
         throw fault;
     }

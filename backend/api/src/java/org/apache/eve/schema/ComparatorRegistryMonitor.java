@@ -33,16 +33,18 @@ public interface ComparatorRegistryMonitor
     /**
      * Monitors when a Comparator is registered successfully.
      * 
+     * @param oid OID key used for registration
      * @param comparator the Comparator registered
      */
-    void registered( Comparator comparator );
+    void registered( String oid, Comparator comparator );
 
     /**
      * Monitors when a Comparator is successfully looked up.
      * 
+     * @param oid OID key used for registration
      * @param comparator the Comparator looked up
      */
-    void lookedUp( Comparator comparator );
+    void lookedUp( String oid, Comparator comparator );
 
     /**
      * Monitors when a lookup attempt fails.
@@ -55,8 +57,9 @@ public interface ComparatorRegistryMonitor
     /**
      * Monitors when a registration attempt fails.
      * 
+     * @param oid OID key used for registration
      * @param comparator the Comparator which failed registration
      * @param fault the exception to be thrown for the fault
      */
-    void registerFailed( Comparator comparator, NamingException fault );
+    void registerFailed( String oid, Comparator comparator, NamingException fault );
 }
