@@ -31,7 +31,7 @@ import org.apache.ldap.common.filter.BranchNode;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EvaluatorImpl implements Evaluator
+public class ExpressionEvaluator implements Evaluator
 {
     /** Leaf Evaluator flyweight use for leaf filter assertions */
     private LeafEvaluator leafEvaluator;
@@ -42,7 +42,7 @@ public class EvaluatorImpl implements Evaluator
      *
      * @param leafEvaluator handles leaf node evaluation.
      */
-    public EvaluatorImpl( LeafEvaluator leafEvaluator )
+    public ExpressionEvaluator( LeafEvaluator leafEvaluator )
     {
         this.leafEvaluator = leafEvaluator;
     }

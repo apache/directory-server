@@ -53,18 +53,15 @@ public class DisjunctionEnumerator implements Enumerator
     /**
      * @see Enumerator#enumerate(ExprNode)
      */
-    public NamingEnumeration enumerate( ExprNode node )
-        throws NamingException
+    public NamingEnumeration enumerate( ExprNode node ) throws NamingException
     {
         ArrayList children = ( ( BranchNode ) node ).getChildren();
-        NamingEnumeration [] childEnumerations = 
-            new NamingEnumeration [children.size()];
+        NamingEnumeration [] childEnumerations = new NamingEnumeration [children.size()];
 
         // Recursively create NamingEnumerations for each child expression node
         for ( int ii = 0; ii < childEnumerations.length; ii++ ) 
         {
-            childEnumerations[ii] =
-                enumerator.enumerate( ( ExprNode ) children.get( ii ) );
+            childEnumerations[ii] = enumerator.enumerate( ( ExprNode ) children.get( ii ) );
         }
 
         return new DisjunctionEnumeration( childEnumerations );

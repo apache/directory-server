@@ -37,7 +37,7 @@ import org.apache.ldap.common.NotImplementedException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EnumeratorImpl implements Enumerator
+public class ExpressionEnumerator implements Enumerator
 {
     /** The database used by this enumerator */
     private Database db = null;
@@ -51,19 +51,25 @@ public class EnumeratorImpl implements Enumerator
     private DisjunctionEnumerator disjunctionEnumerator;
     /** Enumerator flyweight for evaulating filter negation assertions */
     private NegationEnumerator negationEnumerator;
-    /** Evaluator dependency on a LeafNode evaluator */
-    private LeafEvaluator evaluator;
+    /** Evaluator dependency on a LeafNode leafEvaluator */
+    private LeafEvaluator leafEvaluator;
 
 
-    public EnumeratorImpl( Database db, Evaluator topEvaluator,
-                           LeafEvaluator leafEvaluator )
+    public ExpressionEnumerator( Database db,
+                           LeafEvaluator leafEvaluator,
+                           ScopeEnumerator scopeEnumerator,
+                           NegationEnumerator negationEnumerator,
+                           SubstringEnumerator substringEnumerator,
+                           ConjunctionEnumerator conjunctionEnumerator,
+                           DisjunctionEnumerator disjunctionEnumerator )
     {
         this.db = db;
-        scopeEnumerator = new ScopeEnumerator();
-        substringEnumerator = new SubstringEnumerator();
-        conjunctionEnumerator = new ConjunctionEnumerator( this, topEvaluator );
-        disjunctionEnumerator = new DisjunctionEnumerator( this );
-        negationEnumerator = new NegationEnumerator();
+        this.leafEvaluator = leafEvaluator;
+        this.scopeEnumerator = scopeEnumerator;
+        this.negationEnumerator = negationEnumerator;
+        this.substringEnumerator = substringEnumerator;
+        this.conjunctionEnumerator = conjunctionEnumerator;
+        this.disjunctionEnumerator = disjunctionEnumerator;
     }
 
 
@@ -234,7 +240,7 @@ public class EnumeratorImpl implements Enumerator
             public boolean assertCandidate( IndexRecord record ) 
                 throws NamingException
             {
-                return evaluator.evaluate( node, record );
+                return leafEvaluator.evaluate( node, record );
             }
         };
         

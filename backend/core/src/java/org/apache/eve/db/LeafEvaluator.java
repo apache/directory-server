@@ -57,12 +57,20 @@ public class LeafEvaluator implements Evaluator
     private ScopeEvaluator scopeEvaluator;
 
 
-
+    /**
+     * Creates a leaf expression node evaluator.
+     *
+     * @param db
+     * @param scopeEvaluator
+     * @param normalizerRegistry
+     * @param comparatorRegistry
+     * @param substringEvaluator
+     */
     public LeafEvaluator( Database db,
-                              ScopeEvaluator scopeEvaluator,
-                              NormalizerRegistry normalizerRegistry,
-                              ComparatorRegistry comparatorRegistry,
-                              SubstringEvaluator substringEvaluator )
+                          ScopeEvaluator scopeEvaluator,
+                          NormalizerRegistry normalizerRegistry,
+                          ComparatorRegistry comparatorRegistry,
+                          SubstringEvaluator substringEvaluator )
     {
         this.db = db;
         this.scopeEvaluator = scopeEvaluator;

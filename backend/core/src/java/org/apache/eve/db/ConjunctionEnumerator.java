@@ -58,8 +58,7 @@ public class ConjunctionEnumerator implements Enumerator
     /**
      * @see org.apache.eve.db.Enumerator#enumerate(ExprNode)
      */
-    public NamingEnumeration enumerate( final ExprNode node )
-        throws NamingException
+    public NamingEnumeration enumerate( final ExprNode node ) throws NamingException
     {
         int minIndex = 0;
         int minValue = Integer.MAX_VALUE;
