@@ -11,6 +11,10 @@
     <attainGoal name="directory:schema"/>
   </preGoal> 
  
+  <preGoal name="idea:module">
+    <attainGoal name="directory:schema"/>
+  </preGoal> 
+ 
   <preGoal name="java:compile">
     <attainGoal name="directory:schema"/>
   </preGoal> 
