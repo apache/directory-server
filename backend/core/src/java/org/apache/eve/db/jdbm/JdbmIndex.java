@@ -252,9 +252,9 @@ public class JdbmIndex implements Index
     /** */
     private AttributeType attribute;
     /** */
-    private DefaultTable forward = null;
+    private JdbmTable forward = null;
     /** */
-    private DefaultTable reverse = null;
+    private JdbmTable reverse = null;
     /** */
     private RecordManager recMan = null;
     /** 
@@ -337,7 +337,7 @@ public class JdbmIndex implements Index
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new DefaultTable( attribute.getName() + FORWARD_BTREE,
+        forward = new JdbmTable( attribute.getName() + FORWARD_BTREE,
             true, recMan, new IndexComparator( comp, true ) );
         
         /*
@@ -346,7 +346,7 @@ public class JdbmIndex implements Index
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        reverse = new DefaultTable( attribute.getName() + REVERSE_BTREE,
+        reverse = new JdbmTable( attribute.getName() + REVERSE_BTREE,
             ! attribute.isSingleValue(), recMan, 
             new IndexComparator( comp, false ) );
     }

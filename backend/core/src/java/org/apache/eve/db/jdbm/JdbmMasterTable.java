@@ -16,10 +16,10 @@ import org.apache.eve.db.MasterTable;
  * The master table used to store the Attributes of entries.
  *
  */
-public class JdbmMasterTable extends DefaultTable implements MasterTable
+public class JdbmMasterTable extends JdbmTable implements MasterTable
 {
     /**  */
-    private DefaultTable adminTbl = null;
+    private JdbmTable adminTbl = null;
 
 
     /**
@@ -32,7 +32,7 @@ public class JdbmMasterTable extends DefaultTable implements MasterTable
         throws NamingException
     {
         super( DBF, recMan, new BigIntegerComparator() );
-        adminTbl = new DefaultTable( "admin", recMan, new StringComparator() );
+        adminTbl = new JdbmTable( "admin", recMan, new StringComparator() );
         String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
         
         if ( null == seqValue ) 

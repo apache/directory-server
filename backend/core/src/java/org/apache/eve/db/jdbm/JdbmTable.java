@@ -27,9 +27,8 @@ import org.apache.eve.db.*;
 /**
  * A jdbm Btree wrapper that enables duplicate sorted keys using collections.
  *
- * @todo rename to JdbmTable
  */
-public class DefaultTable implements Table
+public class JdbmTable implements Table
 {
     /**  */
     private static final String SZSUFFIX = "_btree_sz";
@@ -66,7 +65,7 @@ public class DefaultTable implements Table
      * @param comparator a tuple comparator
      * @throws NamingException if the table's file cannot be created
      */
-    public DefaultTable( String name, boolean allowsDuplicates,
+    public JdbmTable( String name, boolean allowsDuplicates,
         RecordManager manager, TupleComparator comparator )
         throws NamingException
     {
@@ -164,7 +163,7 @@ public class DefaultTable implements Table
      * @param keyComparator a tuple comparator
      * @throws NamingException if the table's file cannot be created
      */
-    public DefaultTable( String name, RecordManager manager,
+    public JdbmTable( String name, RecordManager manager,
         Comparator keyComparator ) throws NamingException
     {
         this( name, false, manager, new KeyOnlyComparator( keyComparator ) );
