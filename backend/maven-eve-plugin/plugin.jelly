@@ -64,6 +64,7 @@
 			<j:useBean var="task" class="org.apache.eve.tools.schema.EveSchemaToolTask" 
 				name="${schema}" owner="${owner}" package="${package}" dependencies="${deps}"/>
 			<j:expr value="${task.execute()}"/>
+			<echo>Generated ${schema}.schema files</echo>
           </j:forEach>
           
         </j:if>

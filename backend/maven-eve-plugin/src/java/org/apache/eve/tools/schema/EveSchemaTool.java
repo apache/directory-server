@@ -333,29 +333,8 @@ public class EveSchemaTool
         String defaultClass = schema.getFullDefaultBaseClassName( type );
         String targetClass = schema.getFullDefaultBaseClassName( type );
 
-        // first check and see the classes are in the classpath
-        // although this is highly unlikely since we probably have
-        // not even compiled the classes yet
-        try
-        {
-            Class.forName( defaultClass );
-            return true;
-        }
-        catch ( ClassNotFoundException e )
-        {
-        }
-
-        try
-        {
-            Class.forName( targetClass );
-            return true;
-        }
-        catch ( ClassNotFoundException e )
-        {
-        }
-
-        // now we check to see if any of the classes are available
-        // in the java source directory, if so we return true
+        // check to see if any of the classes are available in the java 
+        // source directory, if so we return true
         File defaultFile = new File( "src" + File.separator + "java"
                 + File.separator + getFilePath( defaultClass ) );
         File targetFile = new File( "src" + File.separator + "java"
