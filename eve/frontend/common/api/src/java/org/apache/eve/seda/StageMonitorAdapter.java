@@ -1,61 +1,30 @@
 /*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.seda ;
 
- ============================================================================
-                   The Apache Software License, Version 1.1
- ============================================================================
 
- Copyright (C) 1999-2002 The Apache Software Foundation. All rights reserved.
+import java.util.EventObject ;
 
- Redistribution and use in source and binary forms, with or without modifica-
- tion, are permitted provided that the following conditions are met:
-
- 1. Redistributions of  source code must  retain the above copyright  notice,
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
- 3. The end-user documentation included with the redistribution, if any, must
-    include  the following  acknowledgment:  "This product includes  software
-    developed  by the  Apache Software Foundation  (http://www.apache.org/)."
-    Alternately, this  acknowledgment may  appear in the software itself,  if
-    and wherever such third-party acknowledgments normally appear.
-
- 4. The names "Eve Directory Server", "Apache Directory Project", "Apache Eve" 
-    and "Apache Software Foundation"  must not be used to endorse or promote
-    products derived  from this  software without  prior written
-    permission. For written permission, please contact apache@apache.org.
-
- 5. Products  derived from this software may not  be called "Apache", nor may
-    "Apache" appear  in their name,  without prior written permission  of the
-    Apache Software Foundation.
-
- THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL  THE
- APACHE SOFTWARE  FOUNDATION  OR ITS CONTRIBUTORS  BE LIABLE FOR  ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL  DAMAGES (INCLU-
- DING, BUT NOT LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS
- OF USE, DATA, OR  PROFITS; OR BUSINESS  INTERRUPTION)  HOWEVER CAUSED AND ON
- ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
- (INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- This software  consists of voluntary contributions made  by many individuals
- on  behalf of the Apache Software  Foundation. For more  information on the
- Apache Software Foundation, please see <http://www.apache.org/>.
-
-*/
-package org.apache.eve.seda;
-
-import java.util.EventObject;
 
 /**
- * $todo$ doc me
+ * A do nothing adapter for a stage.
  *
- * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
- * @author $Author$
+ * @author <a href="mailto:directory-dev@incubator.apache.org">
+ * Apache Directory Project</a>
  * @version $Rev$
  */
 public class StageMonitorAdapter implements StageMonitor
@@ -63,7 +32,7 @@ public class StageMonitorAdapter implements StageMonitor
     /* (non-Javadoc)
      * @see org.apache.eve.seda.StageMonitor#started(org.apache.eve.seda.Stage)
      */
-    public void started( Stage a_stage )
+    public void started( Stage stage )
     {
     }
 
@@ -71,7 +40,7 @@ public class StageMonitorAdapter implements StageMonitor
     /* (non-Javadoc)
      * @see org.apache.eve.seda.StageMonitor#stopped(org.apache.eve.seda.Stage)
      */
-    public void stopped( Stage a_stage )
+    public void stopped( Stage stage )
     {
     }
 
@@ -80,7 +49,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#startedDriver(
      * org.apache.eve.seda.Stage)
      */
-    public void startedDriver( Stage a_stage )
+    public void startedDriver( Stage stage )
     {
     }
 
@@ -89,7 +58,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#enqueueOccurred(
      * org.apache.eve.seda.Stage, java.util.EventObject)
      */
-    public void enqueueOccurred( Stage a_stage, EventObject an_event )
+    public void enqueueOccurred( Stage stage, EventObject event )
     {
     }
 
@@ -98,7 +67,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#enqueueRejected(
      * org.apache.eve.seda.Stage, java.util.EventObject)
      */
-    public void enqueueRejected( Stage a_stage, EventObject an_event )
+    public void enqueueRejected( Stage stage, EventObject event )
     {
     }
 
@@ -107,7 +76,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#lockedQueue(
      * org.apache.eve.seda.Stage, java.util.EventObject)
      */
-    public void lockedQueue( Stage a_stage, EventObject an_event )
+    public void lockedQueue( Stage stage, EventObject event )
     {
     }
 
@@ -116,7 +85,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#eventDequeued(
      * org.apache.eve.seda.Stage, java.util.EventObject)
      */
-    public void eventDequeued( Stage a_stage, EventObject an_event )
+    public void eventDequeued( Stage stage, EventObject event )
     {
     }
 
@@ -125,7 +94,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#eventHandled(
      * org.apache.eve.seda.Stage, java.util.EventObject)
      */
-    public void eventHandled( Stage a_stage, EventObject an_event )
+    public void eventHandled( Stage stage, EventObject event )
     {
     }
 
@@ -134,7 +103,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#driverFailed(
      * org.apache.eve.seda.Stage, java.lang.InterruptedException)
      */
-    public void driverFailed( Stage a_stage, InterruptedException a_fault )
+    public void driverFailed( Stage stage, InterruptedException fault )
     {
     }
 
@@ -143,8 +112,7 @@ public class StageMonitorAdapter implements StageMonitor
      * @see org.apache.eve.seda.StageMonitor#handlerFailed(
      * org.apache.eve.seda.Stage, java.util.EventObject, java.lang.Throwable)
      */
-    public void handlerFailed( Stage a_stage, EventObject an_event, 
-                               Throwable a_fault)
+    public void handlerFailed( Stage stage, EventObject event, Throwable fault )
     {
     }
 }
