@@ -117,10 +117,11 @@ public class LdapProtocolProvider implements ProtocolProvider
      */
     public LdapProtocolProvider( Hashtable env ) throws LdapNamingException
     {
+        Hashtable copy = ( Hashtable ) env.clone();
         this.handlers = new HashMap();
 
-        env.put( Context.PROVIDER_URL, "" );
-        SessionRegistry.getSingleton( env );
+        copy.put( Context.PROVIDER_URL, "" );
+        SessionRegistry.getSingleton( copy );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while ( requestTypes.hasNext() )
@@ -129,11 +130,11 @@ public class LdapProtocolProvider implements ProtocolProvider
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
-            if ( env.containsKey( type ) )
+            if ( copy.containsKey( type ) )
             {
                 try
                 {
-                    clazz = Class.forName( ( String ) env.get( type ) );
+                    clazz = Class.forName( ( String ) copy.get( type ) );
                 }
                 catch ( ClassNotFoundException e )
                 {
@@ -167,8 +168,8 @@ public class LdapProtocolProvider implements ProtocolProvider
             this.handlers.put( type, handler );
         }
 
-        this.decoderFactory = new DecoderFactoryImpl( env );
-        this.encoderFactory = new EncoderFactoryImpl( env );
+        this.decoderFactory = new DecoderFactoryImpl( copy );
+        this.encoderFactory = new EncoderFactoryImpl( copy );
     }
 
 
