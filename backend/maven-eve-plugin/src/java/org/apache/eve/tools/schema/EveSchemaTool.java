@@ -330,31 +330,45 @@ public class EveSchemaTool
 
     protected boolean exists( ProducerTypeEnum type )
     {
-        boolean exists = true;
+        String defaultClass = schema.getFullDefaultBaseClassName( type );
+        String targetClass = schema.getFullDefaultBaseClassName( type );
 
-        String defaultClass = schema.getFullDefaultBaseClassName(
-                ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER );
-        String targetClass = schema.getFullDefaultBaseClassName(
-                ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER );
-
+        // first check and see the classes are in the classpath
+        // although this is highly unlikely since we probably have
+        // not even compiled the classes yet
         try
         {
-            exists = Class.forName( defaultClass ) != null;
+            Class.forName( defaultClass );
+            return true;
         }
         catch ( ClassNotFoundException e )
         {
-            exists = false;
         }
 
         try
         {
-            exists = Class.forName( targetClass ) != null;
+            Class.forName( targetClass );
+            return true;
         }
         catch ( ClassNotFoundException e )
         {
-            exists = false;
         }
 
-        return exists;
+        // now we check to see if any of the classes are available
+        // in the java source directory, if so we return true
+        File defaultFile = new File( "src" + File.separator + "java"
+                + File.separator + getFilePath( defaultClass ) );
+        File targetFile = new File( "src" + File.separator + "java"
+                + File.separator + getFilePath( targetClass ) );
+
+        return defaultFile.exists() || targetFile.exists();
+    }
+
+
+    private String getFilePath( String fqcn )
+    {
+        String path = fqcn.replace( '.', File.separatorChar );
+        path += ".java";
+        return path;
     }
 }
