@@ -23,12 +23,18 @@
       <artifactId>regexp</artifactId>
       <version>1.2</version>
       <url>http://jakarta.apache.org/regexp/index.html</url>
+      <properties>
+        <gump.project>jakarta-regexp</gump.project>
+      </properties>
     </dependency>
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
       <version>2.0.7</version>
       <url>http://jakarta.apache.org/oro</url>
+      <properties>
+        <gump.project>jakarta-oro</gump.project>
+      </properties>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>

@@ -21,6 +21,9 @@
       <artifactId>oro</artifactId>
       <version>2.0.7</version>
       <url>http://jakarta.apache.org/oro</url>
+      <properties>
+        <gump.project>jakarta-oro</gump.project>
+      </properties>
     </dependency>
     <dependency>
       <groupId>regexp</groupId>
@@ -28,6 +31,9 @@
       <version>1.2</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/regexp/index.html</url>
+      <properties>
+        <gump.project>jakarta-regexp</gump.project>
+      </properties>
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
