@@ -2,91 +2,165 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Apache Directory Project: Eve Backend Subsystem</title>
+    <title>Eve JNDI Provider</title>
   </properties>
   
   <body>
-    
-          
-      <section name="Backend Subsystem Introduction">
-        <p>
-          The backend subsystem is responsible for many different aspects of the
-          server besides just entry storage.  It is a major subsystem that 
-          contains within it other subsystems which in turn contain several
-          granular services implemented by components.  Although you'll have to
-          look into the detailed design of the backend and the other subsystems
-          composing it we have here a cursory overview of the responsibilities
-          of the entire backend subsystem:
-        </p>
-        
-        <ul>
-          <li>
-            manages multiple backends (a.k.a. partitions) each associated with
-            a naming context within the server
-          </li>
-          
-          <li>
-            maintains special system backends used to manage schema information 
-            and server (DSA) specific configuration information in addition to
-            backends used to manage application specific information
-          </li>
-          
-          <li>
-            decorates backend operations with orthogonal services using an
-            interceptor framework - the framework will be used to neatly manage
-            the following aspects possibly associated with backend system 
-            operations:
-            <ul>
-              <li>operation authorization on entries using ACLs</li>
-              <li>replication</li>
-              <li>schema checking</li>
-              <li>input normalization</li>
-              <li>trigger firing</li>
-              <li>error handling</li>
-              <li>transaction support</li>
-            </ul>
-          </li>
-          
-          <li>
-            manages Java and Groovy stored procedures
-          </li>
-          
-          <li>
-            contains a server side JNDI provider which wraps the backend nexus
-            translating JNDI operations efficently to nexus operations where 
-            several backends hang.  The JNDI provider is intended for used 
-            within stored procedures to access backend entries.  This makes
-            stored procedures written in Java and Groovy operable within the
-            server as well as outside of it as remote procedures.
-          </li>
-        </ul>
-        
-        <p>
-          Together these subsystems are wrapped as one major system using JNDI 
-          as the top level facade.  The entire backend subsystem of Eve is
-          actually designed as a server side JNDI provider.  The frontend 
-          translates protocol requests into JNDI calls against the backend 
-          subsystem's JNDI Contexts to operate on entries.  
-        </p>
-        
-        <p>
-          The backend subsystem without the frontend itself is embeddable using
-          the JNDI to start up the backend.  JNDI is used to load the provider
-          in a fashion already familiar to those using JNDI.  So code written to
-          operate remotely against an LDAP server using the SUN JNDI LDAP 
-          provider can work locally against Eve's server side JNDI LDAP 
-          provider where the backend is embedded within the same process space.
-          Because we chose to push the interceptor framework into the backend 
-          all decorative services are available through the embedded backend
-          when used as a JNDI provider.  Meaning if you embed Eve's backend 
-          things like replication, schema checking and triggers are still active
-          and available without the frontend.
-        </p>
-        
-        <p>
-          There is are so many details to discuss however we leave these details
-          to more specific documentation in the sections below:
-        </p>
-      </section>
+    <section name="Eve JNDI Provider">
+      <p>
+        Besides an LDAP protocol server, Eve is also a JNDI provider for the
+        LDAP namespace.  Unlike the SUN JNDI LDAP Provider which is an LDAP
+        client, the Eve JNDI Provider is not.  JNDI operations on Contexts
+        directly tap into the server's database partitions to add, lookup,
+        alter, and search for entries.  There is nothing done over the wire.
+      </p>
+
+      <p>
+        Eve leverages its JNDI LDAP provider in several ways.  First stored
+        procedures written in Java will naturally use JNDI to alter entries
+        using this provider.  Thanks to JNDI the same procedure outside of the
+        server can be tested using the SUN JNDI LDAP provider.  This
+        transparency is wicked cool making testing easy.  The Eve JNDI provider
+        is also used as the API of choice for integrating Eve into other Java
+        applications and servers.  The first InitialContext request to the Eve
+        provider fires up the entire server.  So you need not learn anything
+        new to start playing with her!
+      </p>
+
+      <p>
+        This document describes the Eve JNDI Provider in terms of the custom
+        properties used to control its behavoir in the solid state and for
+        configuring her on start up.
+      </p>
+    </section>
+
+    <section name="Eve Specific JNDI Properties">
+      <table>
+        <th><td>key</td><td>optional</td><td>description</td></th>
+        <tr>
+          <td>eve.wkdir</td>
+          <td>true</td>
+          <td>
+            The file system directory Eve will use as its working directory to
+            store database files and other things.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.schemas</td>
+          <td>true</td>
+          <td>
+            The schema configuration settings.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.disable.anonymous</td>
+          <td>true</td>
+          <td>
+            If present disables anonymous binds.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.operation.sync</td>
+          <td>true</td>
+          <td>
+            If present when requesting an InitialContext this property forces
+            all partitions to sync their buffers to disk if they cache writes.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.operation.shutdown</td>
+          <td>true</td>
+          <td>
+            If present when requesting an InitialContext this property
+            gracefully shutsdown the server.  It returns a useless DeadContext
+            which throws exceptions when used.
+          </td>
+        </tr>
+
+
+
+        <tr>
+          <td>eve.net.disable.protocol</td>
+          <td>true</td>
+          <td>
+            Used when starting up the server to disable the networking frontend
+            that handles LDAP protocol requests.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.net.passthru</td>
+          <td>true</td>
+          <td>
+            Used to pass an existing network frontend to the server rather
+            than having the server create its own instance.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.net.ldap.port</td>
+          <td>true</td>
+          <td>
+            The LDAP port to use for servicing LDAP protocol requests if not
+            on the standard port: 389.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.net.ldaps.port</td>
+          <td>true</td>
+          <td>
+            The LDAP port to use for servicing secure LDAP protocol requests if
+            not on the standard secure LDAP port: 636.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.db.partitions</td>
+          <td>true</td>
+          <td>
+            The list of database partition identifiers.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.db.partition.suffix.</td>
+          <td>false</td>
+          <td>
+            A key base for listing the suffixes of database partitions.  The
+            identifier for the partition is appended to this base to form the
+            key for the suffix of that partition.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.db.partition.indices.</td>
+          <td>true</td>
+          <td>
+            A key base for listing the indices for database partitions.  The
+            identifier for the partition is appended to this base to form the
+            key for the suffix of that partition.
+          </td>
+        </tr>
+
+        <tr>
+          <td>eve.db.partition.attributes.</td>
+          <td>false</td>
+          <td>
+            A key base for listing the attributes and values for the suffix
+            entries of partitions.  The identifier for the partition is
+            appended to this base, then the name of attribute is appended to
+            form the key for the attribuet in the suffix of that partition.
+            More information on setting up partitions with this and other
+            properties is <a href="/partitions.html">here</a>...
+          </td>
+        </tr>
+
+      </table>
+    </section>
   </body>
 </document>
