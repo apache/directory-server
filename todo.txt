@@ -1,6 +1,0 @@
-* Add to the following documentation sections:
-  - frontend->seda.xml
-  - frontend->performance.xml
-  - frontend->pushing-jndi.xml
-  - frontend->resource-pooling.xml
-  	  
