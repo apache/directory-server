@@ -31,7 +31,7 @@ import javax.naming.NamingException ;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultBackend extends AbstractContextPartition
+public class ApplicationPartition extends AbstractContextPartition
 {
     /**
      * user provided suffix distinguished name for this backend set during
@@ -60,7 +60,7 @@ public class DefaultBackend extends AbstractContextPartition
      * @param indexAttributes the index attrivutes including system attributes
      * @throws NamingException on failures while creating this partition
      */
-    public DefaultBackend( Name upSuffix, Name normalizedSuffix, Database db,
+    public ApplicationPartition( Name upSuffix, Name normalizedSuffix, Database db,
                            SearchEngine searchEngine,
                            AttributeType[] indexAttributes )
         throws NamingException
