@@ -1,5 +1,5 @@
 <project 
-  default="jar:compile"
+  default="jar:install"
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"
