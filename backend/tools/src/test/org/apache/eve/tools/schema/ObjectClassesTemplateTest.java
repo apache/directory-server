@@ -21,74 +21,74 @@ import org.apache.eve.schema.bootstrap.AbstractBootstrapSchema;
 
 
 /**
- * A test which tries to generate AttributeType producers for all schemas.
+ * A test which tries to generate ObjectClass producers for all schemas.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AttributeTypesTemplateTest extends AbstractTestCase
+public class ObjectClassesTemplateTest extends AbstractTestCase
 {
 
 
-    public void testCoreAttributeTypeGeneration() throws Exception
+    public void testCoreObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "core", "org.apache.eve.schema.bootstrap",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testJavaAttributeTypeGeneration() throws Exception
+    public void testJavaObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "java", "org.apache.eve.schema.bootstrap",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testCorbaAttributeTypeGeneration() throws Exception
+    public void testCorbaObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "corba", "org.apache.eve.schema.bootstrap",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testCosineAttributeTypeGeneration() throws Exception
+    public void testCosineObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "cosine", "org.apache.eve.schema.bootstrap",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testInetorgpersonAttributeTypeGeneration() throws Exception
+    public void testInetorgpersonObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "inetorgperson", "org.apache.eve.schema.bootstrap",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testMiscAttributeTypeGeneration() throws Exception
+    public void testMiscObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "misc", "org.apache.eve.schema.bootstrap",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testNisAttributeTypeGeneration() throws Exception
+    public void testNisObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "nis", "org.apache.eve.schema.bootstrap",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 }

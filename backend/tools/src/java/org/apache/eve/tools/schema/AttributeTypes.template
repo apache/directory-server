@@ -37,8 +37,6 @@ import org.apache.eve.schema.bootstrap.*;
  */
 public class $classname extends AbstractBootstrapProducer
 {
-    /** a reused empty String array */
-    private static final String[] EMPTY = new String[0];
 
     public $classname()
     {
