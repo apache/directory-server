@@ -35,6 +35,8 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
 {
     /** a map using an OID for the key and a MatchingRule for the value */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
     /** a monitor used to track noteable registry events */
@@ -53,6 +55,7 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
      */
     public DefaultMatchingRuleRegistry( OidRegistry oidRegistry )
     {
+        this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.byOid = new HashMap();
         this.monitor = new MatchingRuleRegistryMonitorAdapter();
@@ -85,9 +88,9 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     
 
     /**
-     * @see MatchingRuleRegistry#register(MatchingRule)
+     * @see MatchingRuleRegistry#register(String, MatchingRule)
      */
-    public void register( MatchingRule matchingRule ) throws NamingException
+    public void register( String schema, MatchingRule matchingRule ) throws NamingException
     {
         if ( byOid.containsKey( matchingRule.getOid() ) )
         {
@@ -97,6 +100,7 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
             throw e;
         }
 
+        oidToSchema.put( matchingRule.getOid(), schema );
         oidRegistry.register( matchingRule.getName(), matchingRule.getOid() );
         byOid.put( matchingRule.getOid(), matchingRule );
         monitor.registered( matchingRule );

@@ -34,6 +34,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 {
     /** maps an OID to an ObjectClass */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
@@ -51,6 +53,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     public DefaultObjectClassRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.monitor = new ObjectClassRegistryMonitorAdapter();
     }
@@ -72,7 +75,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( ObjectClass objectClass ) throws NamingException
+    public void register( String schema, ObjectClass objectClass ) throws NamingException
     {
         if ( byOid.containsKey( objectClass.getOid() ) )
         {
@@ -84,6 +87,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 
         oidRegistry.register( objectClass.getName(), objectClass.getOid() );
         byOid.put( objectClass.getOid(), objectClass );
+        oidToSchema.put( objectClass.getOid(), schema );
         monitor.registered( objectClass );
     }
 

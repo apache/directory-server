@@ -34,6 +34,8 @@ public class DefaultDITStructureRuleRegistry implements DITStructureRuleRegistry
 {
     /** maps an OID to an DITStructureRule */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
@@ -51,6 +53,7 @@ public class DefaultDITStructureRuleRegistry implements DITStructureRuleRegistry
     public DefaultDITStructureRuleRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
         this.monitor = new DITStructureRuleRegistryMonitorAdapter();
         this.oidRegistry = oidRegistry;
     }
@@ -72,7 +75,7 @@ public class DefaultDITStructureRuleRegistry implements DITStructureRuleRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( DITStructureRule dITStructureRule ) throws NamingException
+    public void register( String schema, DITStructureRule dITStructureRule ) throws NamingException
     {
         if ( byOid.containsKey( dITStructureRule.getOid() ) )
         {
@@ -82,6 +85,7 @@ public class DefaultDITStructureRuleRegistry implements DITStructureRuleRegistry
             throw e;
         }
 
+        oidToSchema.put( dITStructureRule.getOid(), schema );
         oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() );
         byOid.put( dITStructureRule.getOid(), dITStructureRule );
         monitor.registered( dITStructureRule );

@@ -33,12 +33,13 @@ public interface ComparatorRegistry
     /**
      * Registers a Comparator with this registry.
      * 
+     * @param schema the name of the schema the comparator is associated with
      * @param oid the object identifier
      * @param comparator the Comparator to register
      * @throws NamingException if the Comparator is already registered or the 
      *      registration operation is not supported
      */
-    void register( String oid, Comparator comparator ) throws NamingException;
+    void register( String schema, String oid, Comparator comparator ) throws NamingException;
     
     /**
      * Looks up a Comparator by its unique Object Identifier.

@@ -33,11 +33,12 @@ public interface DITContentRuleRegistry
     /**
      * Registers a DITContentRule with this registry.
      * 
+     * @param schema the name of the schema the DITContentRule is associated with
      * @param dITContentRule the DITContentRule to register
      * @throws NamingException if the DITContentRule is already registered or
      * the registration operation is not supported
      */
-    void register( DITContentRule dITContentRule ) throws NamingException;
+    void register( String schema, DITContentRule dITContentRule ) throws NamingException;
     
     /**
      * Looks up a DITContentRule by its object identifier or by its name.

@@ -36,6 +36,8 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
 {
     /** a map of entries using an OID for the key and a Syntax for the value */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
     private final OidRegistry oidRegistry;
     /** a monitor used to track noteable oidRegistry events */
@@ -52,9 +54,10 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
      */
     public DefaultSyntaxRegistry( OidRegistry registry )
     {
-        this.monitor = new SyntaxRegistryMonitorAdapter();
         this.oidRegistry = registry;
         this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
+        this.monitor = new SyntaxRegistryMonitorAdapter();
     }
     
 
@@ -84,9 +87,9 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     
 
     /**
-     * @see SyntaxRegistry#register(Syntax)
+     * @see SyntaxRegistry#register(String,Syntax)
      */
-    public void register( Syntax syntax ) throws NamingException
+    public void register( String schema, Syntax syntax ) throws NamingException
     {
         if ( byOid.containsKey( syntax.getOid() ) )
         {
@@ -98,6 +101,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
 
         oidRegistry.register( syntax.getName(), syntax.getOid() );
         byOid.put( syntax.getOid(), syntax );
+        oidToSchema.put( syntax.getOid(), schema );
         monitor.registered( syntax );
     }
 

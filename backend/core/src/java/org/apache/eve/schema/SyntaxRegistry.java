@@ -43,11 +43,12 @@ public interface SyntaxRegistry
     /**
      * Registers a Syntax with this registry.  
      * 
+     * @param schema the name of the schema the Syntax is associated with
      * @param syntax the Syntax to register
      * @throws NamingException if the syntax is already registered or the 
      * registration operation is not supported
      */
-    void register( Syntax syntax ) throws NamingException;
+    void register( String schema, Syntax syntax ) throws NamingException;
 
     /**
      * Checks to see if a Syntax exists.  Backing store failures simply return

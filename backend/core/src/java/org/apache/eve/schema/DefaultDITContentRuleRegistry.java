@@ -34,6 +34,8 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
 {
     /** maps an OID to an DITContentRule */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
@@ -51,6 +53,7 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
     public DefaultDITContentRuleRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.monitor = new DITContentRuleRegistryMonitorAdapter();
     }
@@ -72,7 +75,7 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( DITContentRule dITContentRule ) throws NamingException
+    public void register( String schema, DITContentRule dITContentRule ) throws NamingException
     {
         if ( byOid.containsKey( dITContentRule.getOid() ) )
         {
@@ -84,6 +87,7 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
         byOid.put( dITContentRule.getOid(), dITContentRule );
+        oidToSchema.put( dITContentRule.getOid(), schema );
         monitor.registered( dITContentRule );
     }
 

@@ -34,6 +34,8 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
 {
     /** a map of Normalizers looked up by OID */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the monitor used to deliver callback notification events */
     private NormalizerRegistryMonitor monitor;
 
@@ -48,8 +50,9 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
      */
     public DefaultNormalizerRegistry()
     {
-        byOid = new HashMap();
-        monitor = new NormalizerRegistryMonitorAdapter();
+        this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
+        this.monitor = new NormalizerRegistryMonitorAdapter();
     }
 
 
@@ -69,7 +72,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( String oid, Normalizer normalizer )
+    public void register( String schema, String oid, Normalizer normalizer )
         throws NamingException
     {
         if ( byOid.containsKey( oid ) )
@@ -80,6 +83,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
             throw e;
         }
 
+        oidToSchema.put( oid, schema );
         byOid.put( oid, normalizer );
         monitor.registered( oid, normalizer );
     }

@@ -33,6 +33,8 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
 {
     /** the comparators in this registry */
     private final Map comparators;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the monitor for delivering callback events */
     private ComparatorRegistryMonitor monitor;
 
@@ -48,8 +50,9 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
      */
     public DefaultComparatorRegistry()
     {
-        comparators = new HashMap();
-        monitor = new ComparatorRegistryMonitorAdapter();
+        this.oidToSchema = new HashMap();
+        this.comparators = new HashMap();
+        this.monitor = new ComparatorRegistryMonitorAdapter();
     }
 
 
@@ -69,7 +72,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( String oid, Comparator comparator ) throws NamingException
+    public void register( String schema, String oid, Comparator comparator ) throws NamingException
     {
         if ( comparators.containsKey( oid ) )
         {
@@ -79,8 +82,9 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
             throw e;
         }
 
-        monitor.registered( oid, comparator );
+        oidToSchema.put( oid, schema );
         comparators.put( oid, comparator );
+        monitor.registered( oid, comparator );
     }
 
 

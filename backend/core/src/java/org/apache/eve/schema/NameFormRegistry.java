@@ -33,11 +33,12 @@ public interface NameFormRegistry
     /**
      * Registers a NameForm with this registry.
      * 
+     * @param schema the name of the schema the NameForm is associated with
      * @param nameForm the nameForm to register
      * @throws NamingException if the NameForm is already registered or the
      * registration operation is not supported
      */
-    void register( NameForm nameForm ) throws NamingException;
+    void register( String schema, NameForm nameForm ) throws NamingException;
     
     /**
      * Looks up a nameForm by its unique Object Identifier or by name.

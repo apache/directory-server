@@ -34,6 +34,8 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 {
     /** maps a name to an MatchingRuleUse */
     private final Map byName;
+    /** maps a MatchingRuleUse name to a schema name*/
+    private final Map nameToSchema;
     /** monitor notified via callback events */
     private MatchingRuleUseRegistryMonitor monitor;
 
@@ -48,8 +50,9 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
      */
     public DefaultMatchingRuleUseRegistry()
     {
-        byName = new HashMap();
-        monitor = new MatchingRuleUseRegistryMonitorAdapter();
+        this.byName = new HashMap();
+        this.nameToSchema = new HashMap();
+        this.monitor = new MatchingRuleUseRegistryMonitorAdapter();
     }
 
 
@@ -69,18 +72,19 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( String name, MatchingRuleUse matchingRuleUse )
+    public void register( String schema, MatchingRuleUse matchingRuleUse )
         throws NamingException
     {
-        if ( byName.containsKey( name ) )
+        if ( byName.containsKey( matchingRuleUse.getName() ) )
         {
             NamingException e = new NamingException( "matchingRuleUse w/ name "
-                + name + " has already been registered!" );
+                + matchingRuleUse.getName() + " has already been registered!" );
             monitor.registerFailed( matchingRuleUse, e );
             throw e;
         }
 
-        byName.put( name, matchingRuleUse );
+        nameToSchema.put( matchingRuleUse.getName(), schema );
+        byName.put( matchingRuleUse.getName(), matchingRuleUse );
         monitor.registered( matchingRuleUse );
     }
 

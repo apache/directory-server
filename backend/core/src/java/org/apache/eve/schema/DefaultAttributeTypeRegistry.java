@@ -34,6 +34,8 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 {
     /** maps an OID to an AttributeType */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
@@ -51,6 +53,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     public DefaultAttributeTypeRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.monitor = new AttributeTypeRegistryMonitorAdapter();
     }
@@ -72,7 +75,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( AttributeType attributeType ) throws NamingException
+    public void register( String schema, AttributeType attributeType ) throws NamingException
     {
         if ( byOid.containsKey( attributeType.getOid() ) )
         {
@@ -88,6 +91,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             oidRegistry.register( names[0], attributeType.getName() );
         }
 
+        oidToSchema.put( attributeType.getOid(), schema );
         byOid.put( attributeType.getOid(), attributeType );
         monitor.registered( attributeType );
     }

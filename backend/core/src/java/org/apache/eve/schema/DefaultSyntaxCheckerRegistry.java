@@ -34,6 +34,8 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 {
     /** a map by OID of SyntaxCheckers */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the monitor to use for callback event notifications */
     private SyntaxCheckerRegistryMonitor monitor;
 
@@ -48,8 +50,9 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
      */
     public DefaultSyntaxCheckerRegistry()
     {
-        byOid = new HashMap();
-        monitor = new SyntaxCheckerRegistryMonitorAdapter();
+        this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
+        this.monitor = new SyntaxCheckerRegistryMonitorAdapter();
     }
 
 
@@ -69,7 +72,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( String oid, SyntaxChecker syntaxChecker )
+    public void register( String schema, String oid, SyntaxChecker syntaxChecker )
         throws NamingException
     {
         if ( byOid.containsKey( oid ) )
@@ -81,6 +84,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         }
 
         byOid.put( oid, syntaxChecker );
+        oidToSchema.put( oid, schema );
         monitor.registered( oid, syntaxChecker );
     }
 

@@ -34,6 +34,8 @@ public class DefaultNameFormRegistry implements NameFormRegistry
 {
     /** maps an OID to an NameForm */
     private final Map byOid;
+    /** maps an OID to a schema name*/
+    private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
@@ -51,6 +53,7 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     public DefaultNameFormRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
+        this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.monitor = new NameFormRegistryMonitorAdapter();
     }
@@ -72,7 +75,7 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( NameForm nameForm ) throws NamingException
+    public void register( String schema, NameForm nameForm ) throws NamingException
     {
         if ( byOid.containsKey( nameForm.getOid() ) )
         {
@@ -82,6 +85,7 @@ public class DefaultNameFormRegistry implements NameFormRegistry
             throw e;
         }
 
+        oidToSchema.put( nameForm.getOid(), schema );
         oidRegistry.register( nameForm.getName(), nameForm.getOid() );
         byOid.put( nameForm.getOid(), nameForm );
         monitor.registered( nameForm );
