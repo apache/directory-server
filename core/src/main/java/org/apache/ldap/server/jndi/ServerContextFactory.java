@@ -51,7 +51,6 @@ import org.apache.ldap.server.ApplicationPartition;
 import org.apache.ldap.server.ContextPartitionConfig;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.ldap.server.db.*;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
 import org.apache.ldap.server.jndi.ibs.*;
@@ -62,11 +61,8 @@ import org.apache.apseda.DefaultFrontend;
 import org.apache.apseda.DefaultFrontendFactory;
 import org.apache.apseda.listener.TCPListenerConfig;
 import org.apache.apseda.protocol.TransportTypeEnum;
-import org.apache.apseda.listener.TCPListenerConfig;
 import org.apache.apseda.protocol.DefaultInetServicesDatabase;
 import org.apache.apseda.protocol.*;
-import org.apache.apseda.DefaultFrontendFactory;
-import org.apache.apseda.DefaultFrontend;
 
 
 /**
