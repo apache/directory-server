@@ -34,7 +34,7 @@ import org.apache.eve.schema.bootstrap.BootstrapOidRegistry;
  * to a name and vice-versa.
  * 
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
- * @version $Rev: 55327 $
+ * @version $Rev$
  */
 public class GlobalOidRegistry implements OidRegistry
 { 

@@ -17,10 +17,15 @@
 package org.apache.eve.protocol;
 
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.message.*;
 
 
 /**
@@ -33,6 +38,22 @@ public class AddHandler extends AbstractSingleReplyHandler
 {
     public Object handle( ClientKey key, Object request )
     {
-        throw new NotImplementedException( "handle in org.apache.eve.protocol.AddHandler not implemented!" );
+        AddRequest req = ( AddRequest ) request;
+        AddResponse resp = new AddResponseImpl( req.getMessageId() );
+        resp.setLdapResult( new LdapResultImpl( resp ) );
+        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+
+        LdapName dn;
+
+        try
+        {
+            dn = new LdapName( req.getName() );
+        }
+        catch ( NamingException e )
+        {
+            //resp.getLdapResult().setResultCode( ResultCodeEnum);
+        }
+
+        return resp;
     }
 }

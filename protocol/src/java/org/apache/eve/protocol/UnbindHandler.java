@@ -17,6 +17,9 @@
 package org.apache.eve.protocol;
 
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractNoReplyHandler;
 
@@ -32,6 +35,17 @@ public class UnbindHandler extends AbstractNoReplyHandler
 {
     public void handle( ClientKey key, Object request )
     {
+        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
         SessionRegistry.getSingleton( null ).remove( key );
+
+        try
+        {
+            ictx.close();
+        }
+        catch ( NamingException e )
+        {
+            // @todo not much we can do here but monitoring would be good
+            e.printStackTrace();
+        }
     }
 }
