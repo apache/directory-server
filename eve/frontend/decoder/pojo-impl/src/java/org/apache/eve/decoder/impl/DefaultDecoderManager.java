@@ -17,12 +17,13 @@
 package org.apache.eve.decoder.impl ;
 
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer ;
-
 import java.util.Map ;
 import java.util.HashMap ;
 import java.util.EventObject ;
+
+import java.math.BigInteger ;
+
+import java.nio.ByteBuffer ;
 
 import org.apache.eve.event.InputEvent ;
 import org.apache.eve.event.Subscriber ;
@@ -201,6 +202,7 @@ public class DefaultDecoderManager extends DefaultStage
         
         ClientKey key = ( ( ClientDecoder ) decoder ).getClientKey() ;
         RequestEvent event = new RequestEvent( this, key, bind ) ;
+        router.publish( event ) ;
     }
     
 
