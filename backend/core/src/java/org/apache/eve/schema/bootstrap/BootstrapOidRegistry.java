@@ -14,8 +14,12 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
+
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.OidRegistryMonitor;
+import org.apache.eve.schema.OidRegistryMonitorAdapter;
 
 import java.util.List;
 import java.util.Iterator;
@@ -33,7 +37,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultOidRegistry implements OidRegistry
+public class BootstrapOidRegistry implements OidRegistry
 { 
     /** Maps OID to a name or a list of names if more than one name exists */
     private Hashtable byOid = new Hashtable();

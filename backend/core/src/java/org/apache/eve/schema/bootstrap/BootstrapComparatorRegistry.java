@@ -14,8 +14,12 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
+
+import org.apache.eve.schema.ComparatorRegistry;
+import org.apache.eve.schema.ComparatorRegistryMonitor;
+import org.apache.eve.schema.ComparatorRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -29,7 +33,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultComparatorRegistry implements ComparatorRegistry
+public class BootstrapComparatorRegistry implements ComparatorRegistry
 {
     /** the comparators in this registry */
     private final Map comparators;
@@ -48,7 +52,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
      * Creates a default ComparatorRegistry by initializing the map and the
      * montior.
      */
-    public DefaultComparatorRegistry()
+    public BootstrapComparatorRegistry()
     {
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
