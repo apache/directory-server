@@ -70,10 +70,18 @@ public class OperationalAttributeService extends BaseInterceptor
         }
 
         public void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids )
+                throws NamingException
         {
-            // do nothing since this explicity specifies which attributes
-            // to include - backends will automatically populate with right
-            // set of attributes
+            // still need to protect against returning op attrs when ids is null
+            if ( ids == null )
+            {
+                OperationalAttributeService.this.filter( entry );
+                return;
+            }
+
+            // do nothing past here since this explicity specifies which
+            // attributes to include - backends will automatically populate
+            // with right set of attributes using ids array
         }
     };
 
