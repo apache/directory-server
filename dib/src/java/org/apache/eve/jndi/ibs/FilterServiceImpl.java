@@ -28,7 +28,6 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
 import org.apache.eve.db.SearchResultFilter;
-import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.db.ResultFilteringEnumeration;
 import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.BaseInterceptor;
