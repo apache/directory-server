@@ -31,7 +31,7 @@ import javax.naming.directory.ModificationItem;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.NotImplementedException;
 
-
+                                
 /**
  * A nexus for partitions dedicated for storing entries specific to a naming
  * context.  The decision was made to rename this to RootNexus because of the

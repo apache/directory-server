@@ -18,6 +18,7 @@ package org.apache.eve;
 
 
 import java.util.Map;
+import java.util.HashSet;
 import java.math.BigInteger;
 
 import javax.naming.Name;
@@ -29,6 +30,7 @@ import javax.naming.ContextNotEmptyException;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.schema.AttributeType;
 
 import org.apache.eve.db.Database;
 import org.apache.eve.db.SearchEngine;
@@ -45,6 +47,21 @@ import org.apache.eve.db.SearchResultEnumeration;
  */
 public abstract class AbstractContextPartition implements ContextPartition
 {
+    /** Private OID (1.2.6.1.4.1.18060.1.1.3.1) for _ndn op attrib */
+    public static final String NDN_OID       = "1.2.6.1.4.1.18060.1.1.3.1" ;
+    /** Private OID (1.2.6.1.4.1.18060.1.1.3.2) for _updn op attrib */
+    public static final String UPDN_OID      = "1.2.6.1.4.1.18060.1.1.3.2" ;
+    /** Private OID (1.2.6.1.4.1.18060.1.1.3.3) for _existance op attrib */
+    public static final String EXISTANCE_OID = "1.2.6.1.4.1.18060.1.1.3.3" ;
+    /** Private OID (1.2.6.1.4.1.18060.1.1.3.4) for _hierarchy op attrib */
+    public static final String HIERARCHY_OID = "1.2.6.1.4.1.18060.1.1.3.4" ;
+    /** Private OID (1.2.6.1.4.1.18060.1.1.3.5) for _oneAlias index */
+    public static final String ONEALIAS_OID  = "1.2.6.1.4.1.18060.1.1.3.5" ;
+    /** Private OID (1.2.6.1.4.1.18060.1.1.3.6) for _subAlias index */
+    public static final String SUBALIAS_OID  = "1.2.6.1.4.1.18060.1.1.3.6" ;
+    /** Private OID (1.2.6.1.4.1.18060.1.1.3.7) for _alias index */
+    public static final String ALIAS_OID     = "1.2.6.1.4.1.18060.1.1.3.7" ;
+
     /**
      * the database used for this backing store which is also initialized during
      * configuration time
@@ -55,8 +72,84 @@ public abstract class AbstractContextPartition implements ContextPartition
      * the search engine used to search the database
      */
     private SearchEngine engine = null;
-    
-     
+
+
+    // ------------------------------------------------------------------------
+    // C O N S T R U C T O R S
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Creates a context partition with a new database and a search engine.
+     *
+     * @param db the dedicated database for this backing store
+     * @param searchEngine the search engine for this backing store
+     */
+    public AbstractContextPartition( Database db, SearchEngine searchEngine,
+                                     AttributeType[] indexAttributes )
+        throws NamingException
+    {
+        this.db = db;
+        this.engine = searchEngine;
+
+        HashSet sysOidSet = new HashSet();
+        sysOidSet.add( EXISTANCE_OID );
+        sysOidSet.add( HIERARCHY_OID );
+        sysOidSet.add( UPDN_OID );
+        sysOidSet.add( NDN_OID );
+        sysOidSet.add( ONEALIAS_OID );
+        sysOidSet.add( SUBALIAS_OID );
+        sysOidSet.add( ALIAS_OID );
+
+        for ( int ii = 0; ii < indexAttributes.length; ii ++ )
+        {
+            String oid = indexAttributes[ii].getOid();
+
+            // check if attribute is a system attribute
+            if ( sysOidSet.contains( oid ) )
+            {
+                if ( oid.equals( EXISTANCE_OID ) )
+                {
+                    db.setExistanceIndexOn( indexAttributes[ii] );
+                }
+                else if ( oid.equals( HIERARCHY_OID ) )
+                {
+                    db.setHeirarchyIndexOn( indexAttributes[ii] );
+                }
+                else if ( oid.equals( UPDN_OID ) )
+                {
+                    db.setUpdnIndexOn( indexAttributes[ii] );
+                }
+                else if ( oid.equals( NDN_OID ) )
+                {
+                    db.setNdnIndexOn( indexAttributes[ii] );
+                }
+                else if ( oid.equals( ONEALIAS_OID ) )
+                {
+                    db.setOneAliasIndexOn( indexAttributes[ii] );
+                }
+                else if ( oid.equals( SUBALIAS_OID ) )
+                {
+                    db.setSubAliasIndexOn( indexAttributes[ii] );
+                }
+                else if ( oid.equals( ALIAS_OID ) )
+                {
+                    db.setAliasIndexOn( indexAttributes[ii] );
+                }
+                else
+                {
+                    throw new NamingException( "Unidentified system index "
+                        + oid );
+                }
+            }
+            else
+            {
+                db.addIndexOn( indexAttributes[ii] );
+            }
+        }
+    }
+
+
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------
@@ -86,34 +179,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     // ------------------------------------------------------------------------
-    // Protected Mutators
-    // ------------------------------------------------------------------------
-
-
-    /**
-     * Sets the Database used by this AtomicBackend.
-     *
-     * @param database the database
-     */
-    protected void setDb( Database database )
-    {
-        db = database;
-    }
-
-
-    /**
-     * Sets the search engine to be used by this Backend.
-     *
-     * @param engine the search engine
-     */
-    protected void setEngine( SearchEngine engine )
-    {
-        this.engine = engine;
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Backend Interface Method Implementations
+    // BackingStore Interface Method Implementations
     // ------------------------------------------------------------------------
 
 
@@ -139,8 +205,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     /**
      * @see org.apache.eve.BackingStore#add( String, Name, Attributes )
      */
-    public void add( String updn, Name dn, Attributes entry )
-        throws NamingException
+    public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
         db.add( updn, dn, entry );
     }
@@ -149,8 +214,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     /**
      * @see org.apache.eve.BackingStore#modify( Name, int, Attributes )
      */
-    public void modify( Name dn, int modOp, Attributes mods )
-        throws NamingException
+    public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
         db.modify( dn, modOp, mods );
     }
@@ -159,8 +223,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     /**
      * @see org.apache.eve.BackingStore#modify( Name,ModificationItem[] )
      */
-    public void modify( Name dn, ModificationItem[] mods )
-        throws NamingException
+    public void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
         db.modify( dn, mods );
     }
@@ -210,10 +273,9 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.eve.BackingStore#modifyRn( Name, String, boolean )
+     * @see BackingStore#modifyRn( Name, String, boolean )
      */
-    public void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn )
-        throws NamingException
+    public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         db.modifyRdn( dn, newRdn, deleteOldRdn );
     }

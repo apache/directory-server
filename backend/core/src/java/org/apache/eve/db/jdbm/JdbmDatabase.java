@@ -86,6 +86,12 @@ public class JdbmDatabase implements Database
     /** a system index on aliasedObjectName attribute */
     private Index aliasIdx;
 
+
+    // ------------------------------------------------------------------------
+    // C O N S T R U C T O R S
+    // ------------------------------------------------------------------------
+
+
     /**
      * Creates a Databased based on JDBM B+Trees.
      *
@@ -120,6 +126,11 @@ public class JdbmDatabase implements Database
     }
 
 
+    // ------------------------------------------------------------------------
+    // I N D E X   M E T H O D S
+    // ------------------------------------------------------------------------
+
+
     /**
      * @see Database#addIndexOn(AttributeType)
      */
@@ -140,14 +151,18 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * Sets the attribute existance Index.
-     *
-     * @param idx the attribute existance Index 
+     * @see Database#setExistanceIndexOn(AttributeType)
      */    
-    public void setExistanceIndex( Index idx )
+    public void setExistanceIndexOn( AttributeType attrType ) throws NamingException
     {
-        existanceIdx = idx;
-        sysIndices.put( idx.getAttribute().getName().toLowerCase(), idx );
+        if ( existanceIdx != null )
+        {
+            NamingException e = new NamingException( "Index already set!" );
+            throw e;
+        }
+
+        existanceIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), existanceIdx );
     }
 
     
@@ -161,24 +176,18 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * Sets the heirarchy Index.
-     *
-     * @param idx the heirarchy Index 
-     */    
-    public void setHeirarchyIndex( Index idx )
+     * @see Database#setExistanceIndexOn(AttributeType)
+     */
+    public void setHeirarchyIndexOn( AttributeType attrType ) throws NamingException
     {
-        heirarchyIdx = idx;
-        sysIndices.put( idx.getAttribute().getName().toLowerCase()
-            , idx );
-    }
+        if ( heirarchyIdx != null )
+        {
+            NamingException e = new NamingException( "Index already set!" );
+            throw e;
+        }
 
-    
-    /**
-     * @see Database#getUpdnIndex()
-     */    
-    public Index getUpdnIndex() 
-    {
-        return updnIdx;
+        heirarchyIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), heirarchyIdx );
     }
 
     
@@ -192,12 +201,18 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#setAliasIndex(Index)
+     * @see Database#setAliasIndexOn(AttributeType)
      */
-    public void setAliasIndex( Index idx )
+    public void setAliasIndexOn( AttributeType attrType ) throws NamingException
     {
-        aliasIdx = idx; 
-        sysIndices.put( idx.getAttribute().getName().toLowerCase(), idx );
+        if ( aliasIdx != null )
+        {
+            NamingException e = new NamingException( "Index already set!" );
+            throw e;
+        }
+
+        aliasIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), aliasIdx );
     }    
     
 
@@ -211,12 +226,18 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#setOneAliasIndex(Index)
+     * @see Database#setOneAliasIndexOn(AttributeType)
      */
-    public void setOneAliasIndex( Index idx )
+    public void setOneAliasIndexOn( AttributeType attrType ) throws NamingException
     {
-        oneAliasIdx = idx;
-        sysIndices.put( idx.getAttribute().getName().toLowerCase(), idx );
+        if ( oneAliasIdx != null )
+        {
+            NamingException e = new NamingException( "Index already set!" );
+            throw e;
+        }
+
+        oneAliasIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), oneAliasIdx );
     }
 
 
@@ -230,24 +251,43 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#setSubAliasIndex(Index)
+     * @see Database#setSubAliasIndexOn(AttributeType)
      */
-    public void setSubAliasIndex( Index idx )
+    public void setSubAliasIndexOn( AttributeType attrType ) throws NamingException
     {
-        subAliasIdx = idx;
-        sysIndices.put( idx.getAttribute().getName().toLowerCase(), idx );
+        if ( subAliasIdx != null )
+        {
+            NamingException e = new NamingException( "Index already set!" );
+            throw e;
+        }
+
+        subAliasIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), subAliasIdx );
     }
 
 
     /**
-     * Sets the user provided distinguished name Index.
-     *
-     * @param idx the updn Index 
-     */    
-    public void setUpdnIndex( Index idx )
+     * @see Database#getUpdnIndex()
+     */
+    public Index getUpdnIndex()
     {
-        updnIdx = idx;
-        sysIndices.put( idx.getAttribute().getName().toLowerCase(), idx );
+        return updnIdx;
+    }
+
+
+    /**
+     * @see Database#setUpdnIndexOn(AttributeType)
+     */
+    public void setUpdnIndexOn( AttributeType attrType ) throws NamingException
+    {
+        if ( updnIdx != null )
+        {
+            NamingException e = new NamingException( "Index already set!" );
+            throw e;
+        }
+
+        updnIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), updnIdx );
     }
 
     
@@ -261,14 +301,18 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * Sets the normalized distinguished name Index.
-     *
-     * @param idx the ndn Index 
-     */    
-    public void setNdnIndex( Index idx )
+     * @see Database#setNdnIndexOn(AttributeType)
+     */
+    public void setNdnIndexOn( AttributeType attrType ) throws NamingException
     {
-        ndnIdx = idx;
-        sysIndices.put( idx.getAttribute().getName().toLowerCase(), idx );
+        if ( ndnIdx != null )
+        {
+            NamingException e = new NamingException( "Index already set!" );
+            throw e;
+        }
+
+        ndnIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), ndnIdx );
     }
 
     

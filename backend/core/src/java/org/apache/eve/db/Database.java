@@ -139,55 +139,55 @@ public interface Database
      * Sets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
      * be the aliasedObjectName and for X.500 would be aliasedEntryName.
      * 
-     * @param idx the index on the ALIAS_ATTRIBUTE
+     * @param attrType the index on the ALIAS_ATTRIBUTE
      */
-    void setAliasIndex( Index idx );
+    void setAliasIndexOn( AttributeType attrType ) throws NamingException;
 
     /**
      * Sets the attribute existance Index.
      *
-     * @param idx the attribute existance Index
+     * @param attrType the attribute existance Index
      */    
-    void setExistanceIndex( Index idx );
+    void setExistanceIndexOn( AttributeType attrType ) throws NamingException;
 
     /**
      * Sets the heirarchy Index.
      *
-     * @param idx the heirarchy Index
+     * @param attrType the heirarchy Index
      */    
-    void setHeirarchyIndex( Index idx );
+    void setHeirarchyIndexOn( AttributeType attrType ) throws NamingException;
 
     /**
      * Sets the user provided distinguished name Index.
      *
-     * @param idx the updn Index
+     * @param attrType the updn Index
      */    
-    void setUpdnIndex( Index idx );
+    void setUpdnIndexOn( AttributeType attrType ) throws NamingException;
 
     /**
      * Sets the normalized distinguished name Index.
      *
-     * @param idx the ndn Index
+     * @param attrType the ndn Index
      */    
-    void setNdnIndex( Index idx );
+    void setNdnIndexOn( AttributeType attrType ) throws NamingException;
     
     /**
      * Sets the alias index mapping parent entries with scope expanding aliases 
      * children one level below them; this system index is used to dereference
      * aliases on one/single level scoped searches.
      * 
-     * @param idx a one level alias index
+     * @param attrType a one level alias index
      */
-    void setOneAliasIndex( Index idx );
+    void setOneAliasIndexOn( AttributeType attrType ) throws NamingException;
     
     /**
      * Sets the alias index mapping relative entries with scope expanding 
      * alias descendents; this system index is used to dereference aliases on 
      * subtree scoped searches.
      * 
-     * @param idx a subtree alias index
+     * @param attrType a subtree alias index
      */
-    void setSubAliasIndex( Index idx );
+    void setSubAliasIndexOn( AttributeType attrType ) throws NamingException;
     
     /**
      * TODO Document me!
