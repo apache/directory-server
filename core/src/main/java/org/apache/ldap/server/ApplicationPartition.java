@@ -17,12 +17,12 @@
 package org.apache.ldap.server;
 
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
 
 
 /**

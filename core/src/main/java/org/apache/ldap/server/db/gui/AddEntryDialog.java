@@ -17,15 +17,15 @@
 package org.apache.ldap.server.db.gui;
 
 
+import org.apache.ldap.common.message.LockableAttributesImpl;
+
+import javax.naming.directory.Attributes;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.naming.directory.Attributes;
-import javax.swing.*;
-
-import org.apache.ldap.common.message.LockableAttributesImpl;
 
 
 /**

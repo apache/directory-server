@@ -18,7 +18,6 @@ package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.authn.AuthenticatorContext;
 
 
 /**

@@ -17,12 +17,11 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import java.util.HashMap;
+import org.apache.ldap.server.jndi.ServerDirStateFactory;
+import org.apache.ldap.server.schema.StateFactoryRegistry;
 
 import javax.naming.NamingException;
-
-import org.apache.ldap.server.schema.StateFactoryRegistry;
-import org.apache.ldap.server.jndi.ServerDirStateFactory;
+import java.util.HashMap;
 
 
 /**

@@ -17,28 +17,22 @@
 package org.apache.ldap.server.authn;
 
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.ServerLdapContext;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 
 /**

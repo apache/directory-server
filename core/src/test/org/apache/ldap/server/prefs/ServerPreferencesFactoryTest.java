@@ -17,9 +17,9 @@
 package org.apache.ldap.server.prefs;
 
 
-import java.util.prefs.Preferences;
-
 import org.apache.ldap.server.AbstractServerTest;
+
+import java.util.prefs.Preferences;
 
 
 /**

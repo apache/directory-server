@@ -17,23 +17,22 @@
 package org.apache.ldap.server.prefs;
 
 
+import org.apache.ldap.common.Lockable;
+import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.util.PreferencesDictionary;
+import org.apache.ldap.server.jndi.ServerContextFactory;
+
+import javax.naming.Context;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 import java.util.*;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
-
-import javax.naming.directory.*;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NameClassPair;
-import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.InitialLdapContext;
-
-import org.apache.ldap.common.Lockable;
-import org.apache.ldap.common.util.PreferencesDictionary;
-import org.apache.ldap.common.message.LockableAttributeImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.server.jndi.ServerContextFactory;
 
 
 /**

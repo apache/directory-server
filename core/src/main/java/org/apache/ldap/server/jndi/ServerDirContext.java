@@ -17,21 +17,21 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Hashtable;
-import javax.naming.*;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
-import javax.naming.directory.*;
-import javax.naming.ldap.Control;
-
 import org.apache.ldap.common.filter.*;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.authn.LdapPrincipal;
+
+import javax.naming.*;
+import javax.naming.directory.*;
+import javax.naming.ldap.Control;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.Hashtable;
 
 
 /**

@@ -215,13 +215,13 @@
 package org.apache.ldap.server.db;
 
 
-import java.math.BigInteger;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.ScopeNode;
 import org.apache.ldap.common.message.DerefAliasesEnum;
+
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+import java.math.BigInteger;
 
 
 /**

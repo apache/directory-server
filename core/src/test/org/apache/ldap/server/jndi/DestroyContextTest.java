@@ -17,11 +17,11 @@
 package org.apache.ldap.server.jndi;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.*;
-
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.server.AbstractServerTest;
+
+import javax.naming.NamingException;
+import javax.naming.directory.*;
 
 
 /**

@@ -17,10 +17,10 @@
 package org.apache.ldap.server;
 
 
-import java.util.Iterator;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
+import java.util.Iterator;
 
 
 /**

@@ -17,10 +17,10 @@
 package org.apache.ldap.server.schema;
 
 
-import java.util.Iterator;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.MatchingRuleUse;
+
+import javax.naming.NamingException;
+import java.util.Iterator;
 
 
 /**

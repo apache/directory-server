@@ -17,11 +17,10 @@
 package org.apache.ldap.server.prefs;
 
 
+import org.apache.ldap.common.NotImplementedException;
+
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
-
-
-import org.apache.ldap.common.NotImplementedException;
 
 
 /**

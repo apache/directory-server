@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import java.util.*;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.*;
-import org.apache.ldap.server.schema.*;
-import org.apache.ldap.server.jndi.ServerDirStateFactory;
 import org.apache.ldap.server.jndi.ServerDirObjectFactory;
+import org.apache.ldap.server.jndi.ServerDirStateFactory;
+import org.apache.ldap.server.schema.*;
+
+import javax.naming.NamingException;
+import java.util.*;
 
 
 /**

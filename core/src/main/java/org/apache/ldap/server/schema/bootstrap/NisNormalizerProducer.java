@@ -17,11 +17,11 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.CachingNormalizer;
 import org.apache.ldap.common.schema.DeepTrimNormalizer;
 import org.apache.ldap.common.schema.Normalizer;
+
+import javax.naming.NamingException;
 
 
 

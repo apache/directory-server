@@ -17,13 +17,13 @@
 package org.apache.ldap.server.jndi.ibs;
 
 
+import org.apache.ldap.server.AbstractServerTest;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-
-import org.apache.ldap.server.AbstractServerTest;
 
 
 /**

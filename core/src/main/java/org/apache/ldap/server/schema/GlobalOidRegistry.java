@@ -17,11 +17,11 @@
 package org.apache.ldap.server.schema;
 
 
-import java.util.*;
-import javax.naming.NamingException;
-
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
+
+import javax.naming.NamingException;
+import java.util.*;
 
 
 /**

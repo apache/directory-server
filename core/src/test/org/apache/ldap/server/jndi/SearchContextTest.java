@@ -17,13 +17,13 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.HashMap;
+import org.apache.ldap.common.message.DerefAliasesEnum;
+import org.apache.ldap.server.AbstractServerTest;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-
-import org.apache.ldap.common.message.DerefAliasesEnum;
-import org.apache.ldap.server.AbstractServerTest;
+import java.util.HashMap;
 
 
 /**

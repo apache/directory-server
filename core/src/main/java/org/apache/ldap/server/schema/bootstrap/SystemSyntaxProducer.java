@@ -17,9 +17,9 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import javax.naming.NamingException;
-
 import org.apache.ldap.server.schema.SyntaxCheckerRegistry;
+
+import javax.naming.NamingException;
 
 
 /**

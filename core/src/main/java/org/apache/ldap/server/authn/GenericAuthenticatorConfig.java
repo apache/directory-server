@@ -16,9 +16,6 @@
  */
 package org.apache.ldap.server.authn;
 
-import org.apache.ldap.server.authn.AuthenticatorConfig;
-import org.apache.ldap.server.authn.AuthenticatorContext;
-
 import java.util.Enumeration;
 import java.util.Properties;
 

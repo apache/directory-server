@@ -17,14 +17,14 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Hashtable;
-import javax.naming.NamingException;
-
 import junit.framework.TestCase;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.ContextPartitionConfig;
+
+import javax.naming.NamingException;
+import java.util.Hashtable;
 
 
 /**

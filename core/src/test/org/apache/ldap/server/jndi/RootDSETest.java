@@ -17,20 +17,20 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
+import junit.framework.TestCase;
+import org.apache.commons.io.FileUtils;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.mina.util.AvailablePortFinder;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.mina.util.AvailablePortFinder;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
 
 /**

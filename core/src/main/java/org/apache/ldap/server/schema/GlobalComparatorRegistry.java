@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema;
 
 
+import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
+
+import javax.naming.NamingException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import javax.naming.NamingException;
-
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
 
 
 /**

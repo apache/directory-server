@@ -17,9 +17,9 @@
 package org.apache.ldap.server.schema;
 
 
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.Normalizer;
+
+import javax.naming.NamingException;
 
 
 /**

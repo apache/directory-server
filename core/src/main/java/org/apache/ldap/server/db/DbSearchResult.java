@@ -17,9 +17,9 @@
 package org.apache.ldap.server.db;
 
 
-import java.math.BigInteger;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
+import java.math.BigInteger;
 
 
 /**

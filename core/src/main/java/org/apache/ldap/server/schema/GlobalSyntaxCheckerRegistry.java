@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema;
 
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.SyntaxChecker;
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
+
+import javax.naming.NamingException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**

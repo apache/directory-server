@@ -17,16 +17,6 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
@@ -39,6 +29,15 @@ import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
 import org.apache.mina.registry.SimpleServiceRegistry;
+
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 
 /**

@@ -16,9 +16,14 @@
  */
 package org.apache.ldap.server.jndi;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.BackendSubsystem;
+import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.interceptor.Interceptor;
+import org.apache.ldap.server.interceptor.InterceptorChain;
+import org.apache.ldap.server.invocation.*;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -28,33 +33,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.BackendSubsystem;
-import org.apache.ldap.server.ContextPartition;
-import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.interceptor.Interceptor;
-import org.apache.ldap.server.invocation.Delete;
-import org.apache.ldap.server.invocation.GetMatchedDN;
-import org.apache.ldap.server.invocation.*;
-import org.apache.ldap.server.invocation.GetSuffix;
-import org.apache.ldap.server.invocation.HasEntry;
-import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.invocation.IsSuffix;
-import org.apache.ldap.server.invocation.List;
-import org.apache.ldap.server.invocation.ListSuffixes;
-import org.apache.ldap.server.invocation.Lookup;
-import org.apache.ldap.server.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.invocation.Modify;
-import org.apache.ldap.server.invocation.ModifyMany;
-import org.apache.ldap.server.invocation.ModifyRN;
-import org.apache.ldap.server.invocation.Move;
-import org.apache.ldap.server.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.invocation.Search;
-import org.apache.ldap.server.interceptor.Interceptor;
-import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.interceptor.InterceptorChain;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**

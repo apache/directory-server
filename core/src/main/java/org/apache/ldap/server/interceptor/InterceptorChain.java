@@ -17,18 +17,11 @@
 package org.apache.ldap.server.interceptor;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-
-import javax.naming.NamingException;
-
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.invocation.Invocation;
+
+import javax.naming.NamingException;
+import java.util.*;
 
 
 /**

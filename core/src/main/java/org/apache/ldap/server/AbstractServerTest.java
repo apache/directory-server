@@ -17,21 +17,7 @@
 package org.apache.ldap.server;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.ldif.LdifIterator;
@@ -41,6 +27,18 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.mina.util.AvailablePortFinder;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 
 /**

@@ -17,18 +17,18 @@
 package org.apache.ldap.server.db.gui ;
 
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.naming.NamingEnumeration;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.db.Index;
 import org.apache.ldap.server.db.IndexRecord;
 import org.apache.regexp.RE;
+
+import javax.naming.NamingEnumeration;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
 /**

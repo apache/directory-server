@@ -17,17 +17,6 @@
 package org.apache.ldap.server;
 
 
-import java.math.BigInteger;
-import java.util.HashSet;
-import java.util.Map;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.filter.ExprNode;
@@ -38,6 +27,17 @@ import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.SearchResultEnumeration;
 import org.apache.ldap.server.db.gui.PartitionViewer;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Map;
 
 
 /**

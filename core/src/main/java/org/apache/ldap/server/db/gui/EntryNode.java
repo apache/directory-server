@@ -17,18 +17,18 @@
 package org.apache.ldap.server.db.gui;
 
 
-import java.math.BigInteger;
-import java.util.*;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.swing.tree.TreeNode;
-
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.IndexRecord;
 import org.apache.ldap.server.db.SearchEngine;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.swing.tree.TreeNode;
+import java.math.BigInteger;
+import java.util.*;
 
 
 /**

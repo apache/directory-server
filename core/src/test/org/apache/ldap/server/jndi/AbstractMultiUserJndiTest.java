@@ -17,11 +17,11 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Hashtable;
+import org.apache.ldap.server.AbstractServerTest;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
-
-import org.apache.ldap.server.AbstractServerTest;
+import java.util.Hashtable;
 
 
 /**

@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import java.util.Comparator;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.CachingNormalizer;
 import org.apache.ldap.common.schema.ComparableComparator;
 import org.apache.ldap.common.schema.DeepTrimNormalizer;
 import org.apache.ldap.common.schema.NormalizingComparator;
+
+import javax.naming.NamingException;
+import java.util.Comparator;
 
 
 /**

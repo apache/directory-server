@@ -18,8 +18,8 @@ package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.invocation.*;
+import org.apache.ldap.server.jndi.ServerContext;
 
 import javax.naming.NamingException;
 

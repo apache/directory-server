@@ -17,12 +17,12 @@
 package org.apache.ldap.server.db;
 
 
-import java.math.BigInteger;
-import java.util.ArrayList;
+import org.apache.ldap.common.filter.*;
+
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-
-import org.apache.ldap.common.filter.*;
+import java.math.BigInteger;
+import java.util.ArrayList;
 
 
 /**

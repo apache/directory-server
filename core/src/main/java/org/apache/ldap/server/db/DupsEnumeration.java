@@ -17,9 +17,9 @@
 package org.apache.ldap.server.db;
 
 
-import java.util.*;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import java.util.*;
 
 
 /**

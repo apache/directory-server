@@ -17,11 +17,11 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.ArrayList;
+import org.apache.ldap.server.AbstractServerTest;
+
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-
-import org.apache.ldap.server.AbstractServerTest;
+import java.util.ArrayList;
 
 
 /**

@@ -17,15 +17,15 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.util.Hashtable;
-import javax.naming.spi.DirObjectFactory;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.Name;
+import org.apache.ldap.server.AbstractServerTest;
+
 import javax.naming.Context;
+import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-
-import org.apache.ldap.server.AbstractServerTest;
+import javax.naming.spi.DirObjectFactory;
+import javax.naming.spi.DirStateFactory;
+import java.util.Hashtable;
 
 
 /**

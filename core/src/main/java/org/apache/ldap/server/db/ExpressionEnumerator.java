@@ -17,14 +17,14 @@
 package org.apache.ldap.server.db;
 
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.filter.*;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import java.math.BigInteger;
+import java.util.ArrayList;
 
 
 /**

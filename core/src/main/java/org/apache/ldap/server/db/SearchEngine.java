@@ -17,14 +17,14 @@
 package org.apache.ldap.server.db;
 
 
-import java.math.BigInteger;
-import java.util.Map;
+import org.apache.ldap.common.filter.ExprNode;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-
-import org.apache.ldap.common.filter.ExprNode;
+import java.math.BigInteger;
+import java.util.Map;
 
 
 /**

@@ -17,15 +17,15 @@
 package org.apache.ldap.server.schema;
 
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.MatchingRuleUse;
 import org.apache.ldap.common.util.JoinIterator;
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleUseRegistry;
+
+import javax.naming.NamingException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**

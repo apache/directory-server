@@ -17,10 +17,10 @@
 package org.apache.ldap.server.db;
 
 
+import org.apache.ldap.common.filter.ExprNode;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-
-import org.apache.ldap.common.filter.ExprNode;
 
 
 /**

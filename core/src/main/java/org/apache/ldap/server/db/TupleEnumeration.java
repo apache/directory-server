@@ -17,8 +17,8 @@
 package org.apache.ldap.server.db;
 
 
-import java.util.Iterator;
 import javax.naming.NamingEnumeration;
+import java.util.Iterator;
 
 
 /**

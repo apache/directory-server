@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
+import junit.framework.TestCase;
+import org.apache.ldap.common.schema.AttributeType;
+
+import javax.naming.NamingException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
-import javax.naming.NamingException;
-
-import junit.framework.TestCase;
-import org.apache.ldap.common.schema.AttributeType;
 
 
 /**

@@ -17,18 +17,6 @@
 package org.apache.ldap.server.jndi;
 
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.spi.InitialContextFactory;
-
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
@@ -39,21 +27,11 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.ApplicationPartition;
-import org.apache.ldap.server.ContextPartition;
-import org.apache.ldap.server.ContextPartitionConfig;
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.DefaultSearchEngine;
-import org.apache.ldap.server.db.ExpressionEnumerator;
-import org.apache.ldap.server.db.ExpressionEvaluator;
-import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.*;
+import org.apache.ldap.server.db.*;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.interceptor.InterceptorConfigBuilder;
-import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
@@ -61,6 +39,17 @@ import org.apache.ldap.server.schema.MatchingRuleRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
+
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.spi.InitialContextFactory;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 
 /**

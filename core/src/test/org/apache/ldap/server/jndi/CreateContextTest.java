@@ -17,10 +17,10 @@
 package org.apache.ldap.server.jndi;
 
 
+import org.apache.ldap.server.AbstractServerTest;
+
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-
-import org.apache.ldap.server.AbstractServerTest;
 
 
 /**

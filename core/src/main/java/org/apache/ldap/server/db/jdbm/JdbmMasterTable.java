@@ -17,15 +17,15 @@
 package org.apache.ldap.server.db.jdbm;
 
 
-import java.math.BigInteger;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
 import jdbm.RecordManager;
 import jdbm.helper.StringComparator;
 import org.apache.ldap.common.util.BigIntegerComparator;
 import org.apache.ldap.server.db.MasterTable;
 import org.apache.ldap.server.schema.SerializableComparator;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.math.BigInteger;
 
 
 /**

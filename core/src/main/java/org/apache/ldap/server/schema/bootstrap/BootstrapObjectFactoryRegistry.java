@@ -17,14 +17,14 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import java.util.HashMap;
-import javax.naming.directory.Attribute;
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.ldap.server.schema.OidRegistry;
-import org.apache.ldap.server.schema.ObjectFactoryRegistry;
 import org.apache.ldap.server.jndi.ServerDirObjectFactory;
+import org.apache.ldap.server.schema.ObjectFactoryRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.ldap.LdapContext;
+import java.util.HashMap;
 
 
 /**

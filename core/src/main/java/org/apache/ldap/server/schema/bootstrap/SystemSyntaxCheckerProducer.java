@@ -17,11 +17,11 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.AcceptAllSyntaxChecker;
 import org.apache.ldap.common.schema.BinarySyntaxChecker;
 import org.apache.ldap.common.schema.SyntaxChecker;
+
+import javax.naming.NamingException;
 
 
 /**

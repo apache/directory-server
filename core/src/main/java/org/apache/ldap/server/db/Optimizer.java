@@ -17,9 +17,9 @@
 package org.apache.ldap.server.db;
 
 
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.filter.ExprNode;
+
+import javax.naming.NamingException;
 
 
 /**

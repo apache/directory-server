@@ -17,14 +17,6 @@
 package org.apache.ldap.server.db.jdbm;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
@@ -36,6 +28,14 @@ import org.apache.ldap.server.db.IndexComparator;
 import org.apache.ldap.server.db.IndexEnumeration;
 import org.apache.ldap.server.schema.SerializableComparator;
 import org.apache.regexp.RE;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
 
 
 /**

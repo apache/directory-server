@@ -17,8 +17,8 @@
 package org.apache.ldap.server.schema;
 
 
-import java.util.List;
 import javax.naming.NamingException;
+import java.util.List;
 
 
 /**

@@ -17,15 +17,15 @@
 package org.apache.ldap.server.db;
 
 
-import java.math.BigInteger;
-import java.util.Iterator;
+import org.apache.ldap.common.schema.AttributeType;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
-
-import org.apache.ldap.common.schema.AttributeType;
+import java.math.BigInteger;
+import java.util.Iterator;
 
 
 /**

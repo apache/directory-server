@@ -17,11 +17,6 @@
 package org.apache.ldap.server.db.jdbm;
 
 
-import java.io.IOException;
-import java.util.*;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
@@ -29,6 +24,11 @@ import org.apache.ldap.common.util.EmptyEnumeration;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.db.*;
 import org.apache.ldap.server.schema.SerializableComparator;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.util.*;
 
 
 /**

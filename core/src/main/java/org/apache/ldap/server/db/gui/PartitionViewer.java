@@ -17,11 +17,11 @@
 package org.apache.ldap.server.db.gui ;
 
 
-import java.awt.*;
-import javax.naming.NamingException;
-
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
+
+import javax.naming.NamingException;
+import java.awt.*;
 
 
 /**

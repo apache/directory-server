@@ -17,14 +17,14 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.naming.NamingException;
-
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.server.schema.NormalizerRegistry;
 import org.apache.ldap.server.schema.NormalizerRegistryMonitor;
 import org.apache.ldap.server.schema.NormalizerRegistryMonitorAdapter;
+
+import javax.naming.NamingException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**

@@ -17,11 +17,11 @@
 package org.apache.ldap.server.db.jdbm;
 
 
-import java.io.IOException;
-import javax.naming.NamingException;
-
 import org.apache.ldap.server.db.Tuple;
 import org.apache.ldap.server.db.TupleBrowser;
+
+import javax.naming.NamingException;
+import java.io.IOException;
 
 
 /**

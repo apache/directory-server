@@ -17,15 +17,13 @@
 package org.apache.ldap.server.authn;
 
 
+import org.apache.ldap.common.util.StringTools;
+import org.apache.ldap.server.jndi.EnvKeys;
+
+import javax.naming.NamingException;
 import java.io.FileInputStream;
 import java.util.Hashtable;
 import java.util.Properties;
-
-import javax.naming.NamingException;
-
-import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.authn.GenericAuthenticatorConfig;
-import org.apache.ldap.server.jndi.EnvKeys;
 
 
 /**
