@@ -50,10 +50,6 @@
 package org.apache.eve.input ;
 
 
-import org.apache.eve.event.ConnectSubscriber ;
-import org.apache.eve.event.DisconnectSubscriber ;
-
-
 /**
  * Service interface for server modules that monitor incomming PDU requests on
  * a client's inputs.
@@ -63,7 +59,6 @@ import org.apache.eve.event.DisconnectSubscriber ;
  * @version $Rev$
  */
 public interface InputManager
-    extends ConnectSubscriber, DisconnectSubscriber
 {
     /** Role played by this service as specified by Avalon */
     public static final String ROLE = InputManager.class.getName() ;

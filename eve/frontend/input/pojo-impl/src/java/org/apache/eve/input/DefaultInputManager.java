@@ -18,7 +18,7 @@ package org.apache.eve.input ;
 
 
 import java.util.Iterator ;
-import java.util.EventObject ;
+import java.util.ArrayList ;
 
 import java.io.IOException ;
 import java.nio.ByteBuffer ;
@@ -33,6 +33,9 @@ import org.apache.eve.event.EventRouter ;
 import org.apache.eve.listener.ClientKey ;
 import org.apache.eve.event.ConnectEvent ;
 import org.apache.eve.event.DisconnectEvent ;
+import org.apache.eve.event.ConnectSubscriber ;
+import org.apache.eve.event.AbstractSubscriber ;
+import org.apache.eve.event.DisconnectSubscriber ;
 import org.apache.eve.listener.KeyExpiryException ;
 
 
@@ -43,7 +46,8 @@ import org.apache.eve.listener.KeyExpiryException ;
  * Apache Directory Project</a>
  * @version $Rev: 1452 $
  */
-public class DefaultInputManager implements InputManager
+public class DefaultInputManager extends AbstractSubscriber
+    implements InputManager, ConnectSubscriber, DisconnectSubscriber
 {
     /** the thread driving this Runnable */ 
     private Thread m_thread = null ;
@@ -55,6 +59,10 @@ public class DefaultInputManager implements InputManager
     private EventRouter m_router = null ;
     /** selector used to select a ready socket channel */
     private Selector m_selector = null ;
+    /** contains the batch of new connect events and channels to register */
+    private final ArrayList m_connectEvents = new ArrayList() ;
+    /** contains the batch of disconnect events & selection keys to cancel */
+    private final ArrayList m_disconnectEvents = new ArrayList() ;
     /** the input manager's monitor */
     private InputManagerMonitor m_monitor = new InputManagerMonitorAdapter() ;
 
@@ -74,9 +82,12 @@ public class DefaultInputManager implements InputManager
         throws IOException
     {
         m_bp = a_bp ;
-        m_router = a_router ;
         m_hasStarted = new Boolean( false ) ;
         m_selector = Selector.open() ;
+
+        m_router = a_router ;
+        m_router.subscribe( ConnectEvent.class, null, this ) ;
+        m_router.subscribe( DisconnectEvent.class, null, this ) ;
     }
     
 
@@ -107,6 +118,8 @@ public class DefaultInputManager implements InputManager
                 try
                 {
                     m_monitor.enteringSelect( m_selector ) ;
+                    maintainConnections() ;
+                    
                     if ( 0 == ( l_count = m_selector.select() ) )
                     {
                         m_monitor.selectTimedOut( m_selector ) ;
@@ -173,33 +186,12 @@ public class DefaultInputManager implements InputManager
      */
     public void inform( ConnectEvent an_event )
     {
-        ClientKey l_key = null ;
-        SocketChannel l_channel = null ;
+        synchronized ( m_connectEvents )
+        {
+            m_connectEvents.add( an_event ) ;
+        }
         
-        try
-        {
-            l_key = an_event.getClientKey() ;
-            l_channel = l_key.getSocket().getChannel() ;
-            
-            // hands-off blocking sockets!
-            if ( null == l_channel )
-            {
-                return ;
-            }
-            
-            l_channel.configureBlocking( false ) ;
-            l_channel.register( m_selector, SelectionKey.OP_READ, l_key ) ;
-            m_monitor.registeredChannel( l_key, m_selector ) ;
-        }
-        catch ( KeyExpiryException e )
-        {
-            m_monitor.keyExpiryFailure( l_key, e ) ;
-        }
-        catch ( IOException e )
-        {
-            m_monitor.channelRegistrationFailure( m_selector, l_channel, 
-                    SelectionKey.OP_READ, e ) ;
-        }
+        m_selector.wakeup() ;
     }
 
     
@@ -209,65 +201,139 @@ public class DefaultInputManager implements InputManager
      */
     public void inform( DisconnectEvent an_event )
     {
-        SelectionKey l_key = null ;
-        Iterator l_keys = m_selector.keys().iterator() ;
-        
-        while ( l_keys.hasNext() )
+        synchronized ( m_disconnectEvents )
         {
-            l_key = ( SelectionKey ) l_keys.next() ;
-            if ( l_key.attachment().equals( an_event.getClientKey() ) )
-            {
-                break ;
-            }
-        }
-
-        if ( null == l_key )
-        {
-            return ;
+            m_connectEvents.add( an_event ) ;
         }
         
-        try
-        {
-            l_key.channel().close() ;
-        }
-        catch ( IOException e )
-        {
-            m_monitor.channelCloseFailure( 
-                    ( SocketChannel ) l_key.channel(), e ) ;
-        }
-        
-        l_key.cancel() ;
-        m_monitor.disconnectedClient( an_event.getClientKey() ) ;
+        m_selector.wakeup() ;
     }
     
 
-    /**
-     * @see org.apache.eve.event.Subscriber#inform(java.util.EventObject)
-     */
-    public void inform( EventObject an_event )
-    {
-        Class l_clazz = an_event.getClass() ;
-        
-        if ( l_clazz.isAssignableFrom( ConnectEvent.class ) )
-        {
-            inform( ( ConnectEvent ) an_event ) ;
-        }
-        else if ( l_clazz.isAssignableFrom( DisconnectEvent.class ) ) ;
-        {
-            inform( ( DisconnectEvent ) an_event ) ;
-        }
-    }
-    
-    
     // ------------------------------------------------------------------------
     // private utilities
     // ------------------------------------------------------------------------
     
     
     /**
+     * Maintains connections by registering newly established connections within
+     * ConnectEvents and cancelling the selection keys of dropped connections.
+     * 
+     * @see created in response to a <a href=
+     * "http://nagoya.apache.org/jira/secure/ViewIssue.jspa?id=13574">JIRA Issue
+     * </a>
+     */
+    private void maintainConnections()
+    {
+        /* Register New Connections 
+         * ========================
+         * 
+         * Here we perform a synchronized transfer of newly arrived events 
+         * which are batched in the list of ConnectEvents.  This is done to
+         * minimize the chances of contention.  Next we cycle through each
+         * event registering the new connection's channel with the selector.
+         */
+        
+        // copy all events into a separate list first and clear
+        ConnectEvent[] l_connectEvents = null ;
+        synchronized( m_connectEvents ) 
+        {
+            l_connectEvents = new ConnectEvent[m_connectEvents.size()] ;
+            l_connectEvents = ( ConnectEvent[] ) 
+                m_connectEvents.toArray( l_connectEvents ) ;
+            m_connectEvents.clear() ;
+        }
+
+        // cycle through connections and register them with the selector
+        for ( int ii = 0; ii < l_connectEvents.length ; ii++ )
+        {    
+            ClientKey l_key = null ;
+            SocketChannel l_channel = null ;
+            
+            try
+            {
+                l_key = l_connectEvents[ii].getClientKey() ;
+                l_channel = l_key.getSocket().getChannel() ;
+                
+                // hands-off blocking sockets!
+                if ( null == l_channel )
+                {
+                    continue ;
+                }
+                
+                l_channel.configureBlocking( false ) ;
+                l_channel.register( m_selector, SelectionKey.OP_READ, l_key ) ;
+                m_monitor.registeredChannel( l_key, m_selector ) ;
+            }
+            catch ( KeyExpiryException e )
+            {
+                m_monitor.keyExpiryFailure( l_key, e ) ;
+            }
+            catch ( IOException e )
+            {
+                m_monitor.channelRegistrationFailure( m_selector, l_channel, 
+                        SelectionKey.OP_READ, e ) ;
+            }
+        }
+        
+        
+        /* Cancel/Unregister Dropped Connections 
+         * =====================================
+         *
+         * To do this we simply cancel the selection key for the client the
+         * disconnect event is associated with.  
+         */
+        
+        // copy all events into a separate list first and clear
+        DisconnectEvent[] l_disconnectEvents = null ;
+        synchronized( m_disconnectEvents ) 
+        {
+            l_disconnectEvents = new DisconnectEvent[m_disconnectEvents.size()] ;
+            l_disconnectEvents = ( DisconnectEvent[] ) 
+                m_disconnectEvents.toArray( l_disconnectEvents ) ;
+            m_disconnectEvents.clear() ;
+        }
+
+        SelectionKey l_key = null ;
+        for ( int ii = 0; ii < l_disconnectEvents.length; ii++ )
+        {
+            Iterator l_keys = m_selector.keys().iterator() ;
+            ClientKey l_clientKey = l_disconnectEvents[ii].getClientKey() ;
+
+            while ( l_keys.hasNext() )
+            {
+                l_key = ( SelectionKey ) l_keys.next() ;
+                if ( l_key.attachment().equals( l_clientKey ) )
+                {
+                    break ;
+                }
+            }
+
+            if ( null == l_key )
+            {
+                return ;
+            }
+            
+            try
+            {
+                l_key.channel().close() ;
+            }
+            catch ( IOException e )
+            {
+                m_monitor.channelCloseFailure( 
+                        ( SocketChannel ) l_key.channel(), e ) ;
+            }
+        
+            l_key.cancel() ;
+            m_monitor.disconnectedClient( l_clientKey ) ;
+        }
+    }
+    
+    
+    /**
      * Processes input on channels of the read ready selected keys.
      */
-    void processInput()
+    private void processInput()
     {
         /*
          * Process the selectors that are ready.  For each selector that

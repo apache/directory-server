@@ -17,23 +17,19 @@
 package org.apache.eve.input ;
 
 
-import java.util.EventObject ;
-
 import java.nio.channels.Selector ;
 
+import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.activity.Startable ;
 import org.apache.avalon.framework.service.Serviceable ;
 import org.apache.avalon.framework.activity.Initializable ;
 import org.apache.avalon.framework.service.ServiceManager ;
 import org.apache.avalon.framework.service.ServiceException ;
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
 
 import org.apache.eve.buffer.BufferPool ;
 import org.apache.eve.event.EventRouter ;
-import org.apache.eve.event.ConnectEvent ;
-import org.apache.eve.event.DisconnectEvent ;
 
 
 /**
@@ -67,40 +63,6 @@ public class MerlinInputManager extends AbstractLogEnabled
     private AvalonInputManagerMonitor m_monitor = null ;
     
     
-    // ------------------------------------------------------------------------
-    // Listener Interfaces
-    // ------------------------------------------------------------------------
-    
-    
-    /*
-     * @see org.apache.eve.event.ConnectListener#
-     * connectPerformed(org.apache.eve.event.ConnectEvent)
-     */
-    public void inform( ConnectEvent an_event )
-    {
-        m_delegate.inform( an_event ) ;
-    }
-
-    
-    /*
-     * @see org.apache.eve.event.DisconnectListener#
-     * inform(org.apache.eve.event.DisconnectEvent)
-     */
-    public void inform( DisconnectEvent an_event )
-    {
-        m_delegate.inform( an_event ) ;
-    }
-    
-    
-    /*
-     * @see org.apache.eve.event.Subscriber#inform(java.util.EventObject)
-     */
-    public void inform( EventObject an_event )
-    {
-        m_delegate.inform( an_event ) ;
-    }
-    
-
     // ------------------------------------------------------------------------
     // Life Cycle Methods
     // ------------------------------------------------------------------------

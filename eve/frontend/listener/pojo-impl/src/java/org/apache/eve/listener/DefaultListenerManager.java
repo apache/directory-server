@@ -106,10 +106,11 @@ public class DefaultListenerManager
      */
     public DefaultListenerManager( EventRouter a_router ) throws IOException
     {
-        m_router = a_router ;
         m_clients = new HashSet() ;
         m_selector = Selector.open() ;
         m_hasStarted = new Boolean( false ) ;
+
+        m_router = a_router ;
         m_router.subscribe( DisconnectEvent.class, null, this ) ;
     }
     
@@ -150,6 +151,7 @@ public class DefaultListenerManager
                     a_listener.getPort() ) ;
             l_channel.socket().bind( l_address, a_listener.getBacklog() ) ;
             l_channel.configureBlocking( false ) ;
+            m_selector.wakeup() ;
             l_channel.register( m_selector, SelectionKey.OP_ACCEPT, 
                     a_listener ) ;
         }

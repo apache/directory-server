@@ -227,8 +227,13 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
     }
     
     
+    /*
+     * Generates a hex string for a buffer.
+     */
     public String toHexString( ByteBuffer a_buf )
     {
-        return new String ( a_buf.array() ) ;
+        byte[] l_bites = new byte[a_buf.remaining()] ;
+        a_buf.get( l_bites ) ;
+        return new String ( l_bites ) ;
     }
 }

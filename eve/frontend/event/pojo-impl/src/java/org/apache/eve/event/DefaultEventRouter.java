@@ -195,8 +195,11 @@ public class DefaultEventRouter implements EventRouter
                 continue ;
             }
             
-            if ( l_subscriptions[ii].getFilter() != null && 
-                 l_subscriptions[ii].getFilter().apply( a_event ) )  
+            if ( l_subscriptions[ii].getFilter() == null )
+            {
+                l_subscriptions[ii].getSubscriber().inform( a_event ) ;
+            }
+            else if ( l_subscriptions[ii].getFilter().apply( a_event ) )  
             {
                 l_subscriptions[ii].getSubscriber().inform( a_event ) ;
             }
