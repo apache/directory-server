@@ -29,10 +29,14 @@
 
         <tr>
           <td>
-            <a href="../projects/eve-dib/index.html">dib</a>
+            <a href="../projects/eve-core/index.html">dib</a>
           </td>
           <td>
-            Eve Directory Information Base (a.k.a. backend subsystem)
+            Eve's core contains all of Eve's backend subsystems.  It depends on
+            protocol and uses it with seda to service LDAP requests.  The core
+            contains the JNDI provider, interceptor framework, interceptor 
+            services, the schema subsystem and the database subsystem.  Hence 
+            the core is the heart of the server as its name suggests.
           </td>
         </tr>
 
@@ -41,7 +45,7 @@
             <a href="../projects/eve-shared/index.html">shared</a>
           </td>
           <td>
-            Code shared by the dib and plugin separated to prevent cyclic deps
+            Code shared by the core and plugin separated to prevent cyclic deps
           </td>
         </tr>
 
