@@ -75,14 +75,21 @@ public abstract class AbstractJndiTest extends TestCase
      *
      * @throws IOException if there are failures while deleting.
      */
-    protected void doDelete( File wkdir ) throws IOException
+    protected void doDelete( File wkdir )
     {
-        if ( doDelete )
+        try 
         {
-            if ( wkdir.exists() )
+            if ( doDelete )
             {
-                FileUtils.deleteDirectory( wkdir );
+                if ( wkdir.exists() )
+                {
+                    FileUtils.deleteDirectory( wkdir );
+                }
             }
+        }
+        catch( IOException ioe )
+        {
+            ioe.printStackTrace();
         }
     }
 
