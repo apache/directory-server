@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>eve-protocol</artifactId>
-  <name>Eve SEDA Protocol Provider</name>
+  <artifactId>server-protocol</artifactId>
+  <name>Protocol Provider</name>
   <inceptionYear>2002</inceptionYear>
-  <shortDescription>The Eve SEDA Protocol Provider</shortDescription>
+  <shortDescription>The Protocol Provider</shortDescription>
   <description>
-    The SEDA protocol provider used to snap in LDAP handlers and codecs into
-    the SEDA framework.  These handlers are JNDI clients specifically LDAP 
+    The protocol provider used to snap in LDAP handlers and codecs into
+    the protocol framework.  These handlers are JNDI clients specifically LDAP 
     JNDI callers.  Any JNDI provider can be used for the provider but the 
-    primary target is the Eve JNDI provider.
+    primary target is the core's JNDI provider.
   </description>
   <dependencies>
     <dependency>
