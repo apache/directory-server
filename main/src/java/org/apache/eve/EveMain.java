@@ -62,7 +62,7 @@ public class EveMain
             env = new Properties();
         }
 
-        if ( ! env.containsKey( EnvKeys.EVE_LDAP_PORT ) )
+        if ( ! env.containsKey( EnvKeys.LDAP_PORT ) )
         {
             int port = LDAP_PORT;
 
@@ -73,7 +73,7 @@ public class EveMain
                         + " is not available, using " + port + " instead" );
             }
 
-            env.setProperty( EnvKeys.EVE_LDAP_PORT, String.valueOf( port ) );
+            env.setProperty( EnvKeys.LDAP_PORT, String.valueOf( port ) );
         }
 
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
