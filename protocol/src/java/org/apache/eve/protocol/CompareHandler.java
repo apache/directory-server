@@ -17,12 +17,16 @@
 package org.apache.eve.protocol;
 
 
-import org.apache.seda.protocol.HandlerTypeEnum;
-import org.apache.seda.protocol.SingleReplyHandler;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.Attribute;
+
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 import org.apache.seda.listener.ClientKey;
 
-import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.ldap.common.message.*;
 
 
 /**
@@ -38,6 +42,45 @@ public class CompareHandler extends AbstractSingleReplyHandler
      */
     public Object handle( ClientKey key, Object request )
     {
-        throw new NotImplementedException( "handle in org.apache.eve.protocol.CompareHandler not implemented!" );
+        CompareRequest req = ( CompareRequest ) request;
+        CompareResponse resp = new CompareResponseImpl( req.getMessageId() );
+        resp.setLdapResult( new LdapResultImpl( resp ) );
+        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+
+        try
+        {
+            DirContext ctx = ( DirContext ) ictx.lookup( "" );
+            Attribute attr = ctx.getAttributes( req.getName() ).get( req.getAttributeId() );
+
+            if ( attr == null )
+            {
+                resp.getLdapResult().setResultCode( ResultCodeEnum.COMPAREFALSE );
+            }
+            else if ( attr.contains( req.getAssertionValue() ) )
+            {
+                resp.getLdapResult().setResultCode( ResultCodeEnum.COMPARETRUE );
+            }
+            else
+            {
+                resp.getLdapResult().setResultCode( ResultCodeEnum.COMPAREFALSE );
+            }
+        }
+        catch ( NamingException e )
+        {
+            String msg = "failed to add entry " + req.getName() + ":\n";
+            msg += ExceptionUtils.getStackTrace( e );
+            ResultCodeEnum code;
+            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            resp.getLdapResult().setResultCode( code );
+            resp.getLdapResult().setErrorMessage( msg );
+
+            if ( e.getResolvedName() != null )
+            {
+                resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
+            }
+        }
+
+        resp.getLdapResult().setMatchedDn( req.getName() );
+        return resp;
     }
 }
