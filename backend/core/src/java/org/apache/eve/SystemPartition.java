@@ -38,7 +38,7 @@ import org.apache.eve.db.SearchEngine;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SystemPartition extends AbstractContextPartition
+public final class SystemPartition extends AbstractContextPartition
 {
     /**
      * System backend suffix constant.  Should be kept down to a single Dn name 
@@ -72,7 +72,7 @@ public class SystemPartition extends AbstractContextPartition
      * not operate correctly.
      */
     public SystemPartition( Database db, SearchEngine searchEngine,
-                          AttributeType[] indexAttributes )
+                            AttributeType[] indexAttributes )
         throws NamingException
     {
         super( db, searchEngine, indexAttributes );

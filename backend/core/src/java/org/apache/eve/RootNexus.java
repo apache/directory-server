@@ -47,7 +47,7 @@ public class RootNexus implements PartitionNexus
     private static RootNexus s_singleton = null;
     
     /** the system backend */
-    private ContextPartition system;
+    private SystemPartition system;
     /** the backends keyed by normalized suffix strings */
     private HashMap backends = new HashMap();
     
@@ -56,7 +56,7 @@ public class RootNexus implements PartitionNexus
      * Default constructor that checks to make sure that there is only one
      * instance of this class within the entire JVM.
      */
-    public RootNexus( ContextPartition system )
+    public RootNexus( SystemPartition system )
     {
         if ( null != s_singleton )
         {
