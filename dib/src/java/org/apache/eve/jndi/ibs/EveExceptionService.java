@@ -301,6 +301,18 @@ public class EveExceptionService extends BaseInterceptor
             // check if entry to rename exists
             String msg = "Attempt to rename non-existant entry: ";
             assertHasEntry( msg, dn, invocation );
+
+            // check to see if target entry exists
+            Name target = dn.getSuffix( 1 ).add( newRdn );
+            if ( nexus.hasEntry( target ) )
+            {
+                LdapNameAlreadyBoundException e = null;
+                e = new LdapNameAlreadyBoundException( "target entry " + target
+                    + " already exists!" );
+                invocation.setBeforeFailure( e );
+                e.setResolvedName( target );
+                throw e;
+            }
         }
     }
 
@@ -322,6 +334,20 @@ public class EveExceptionService extends BaseInterceptor
             // check if parent to move to exists
             msg = "Attempt to move to non-existant parent: ";
             assertHasEntry( msg, newParentName, invocation );
+
+            // check to see if target entry exists
+            String rdn = oriChildName.get( oriChildName.size() - 1 );
+            Name target = ( Name ) newParentName.clone();
+            target.add( rdn );
+            if ( nexus.hasEntry( target ) )
+            {
+                LdapNameAlreadyBoundException e = null;
+                e = new LdapNameAlreadyBoundException( "target entry " + target
+                    + " already exists!" );
+                invocation.setBeforeFailure( e );
+                e.setResolvedName( target );
+                throw e;
+            }
         }
     }
 
@@ -343,6 +369,19 @@ public class EveExceptionService extends BaseInterceptor
             // check if parent to move to exists
             msg = "Attempt to move to non-existant parent: ";
             assertHasEntry( msg, newParentName, invocation );
+
+            // check to see if target entry exists
+            Name target = ( Name ) newParentName.clone();
+            target.add( newRdn );
+            if ( nexus.hasEntry( target ) )
+            {
+                LdapNameAlreadyBoundException e = null;
+                e = new LdapNameAlreadyBoundException( "target entry " + target
+                    + " already exists!" );
+                invocation.setBeforeFailure( e );
+                e.setResolvedName( target );
+                throw e;
+            }
         }
     }
 

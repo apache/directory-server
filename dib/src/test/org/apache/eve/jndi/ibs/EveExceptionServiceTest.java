@@ -87,6 +87,40 @@ public class EveExceptionServiceTest extends AbstractJndiTest
     // Move Operation Tests
     // ------------------------------------------------------------------------
 
+
+    /**
+     * Test move operation failure when the object moved is non-existant.
+     */
+    public void testFailMoveEntryAlreadyExists() throws NamingException
+    {
+        try
+        {
+            sysRoot.createSubcontext( "ou=users,ou=groups" );
+            sysRoot.rename( "ou=users", "ou=users,ou=groups" );
+            fail( "Execution should never get here due to exception!" );
+        }
+        catch( LdapNameAlreadyBoundException e )
+        {
+            assertEquals( "ou=users,ou=groups,ou=system", e.getResolvedName().toString() );
+            assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
+        }
+
+        try
+        {
+            sysRoot.createSubcontext( "ou=uzerz,ou=groups" );
+            sysRoot.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+            sysRoot.rename( "ou=users", "ou=uzerz,ou=groups" );
+            sysRoot.removeFromEnvironment( "java.naming.ldap.deleteRDN" );
+            fail( "Execution should never get here due to exception!" );
+        }
+        catch( LdapNameAlreadyBoundException e )
+        {
+            assertEquals( "ou=uzerz,ou=groups,ou=system", e.getResolvedName().toString() );
+            assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
+        }
+    }
+
+
     /**
      * Test move operation failure when the object moved is non-existant.
      */
@@ -143,6 +177,24 @@ public class EveExceptionServiceTest extends AbstractJndiTest
     // ------------------------------------------------------------------------
     // ModifyRdn Operation Tests
     // ------------------------------------------------------------------------
+
+    /**
+     * Test modifyRdn operation failure when the object renamed is non-existant.
+     */
+    public void testFailModifyRdnEntryAlreadyExists() throws NamingException
+    {
+        try
+        {
+            sysRoot.rename( "ou=users", "ou=groups" );
+            fail( "Execution should never get here due to exception!" );
+        }
+        catch( LdapNameAlreadyBoundException e )
+        {
+            assertEquals( "ou=groups,ou=system", e.getResolvedName().toString() );
+            assertEquals( ResultCodeEnum.ENTRYALREADYEXISTS, e.getResultCode() );
+        }
+    }
+
 
     /**
      * Test modifyRdn operation failure when the object renamed is non-existant.
