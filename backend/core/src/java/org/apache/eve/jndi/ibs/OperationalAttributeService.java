@@ -76,7 +76,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /** the root nexus of the system */
     private final RootNexus nexus;
     /** a service used to filter search and lookup operations */
-    private ResultFilteringService filteringService;
+    private FilterService filteringService;
     /** the global schema object registries */
     private final GlobalRegistries globalRegistries;
 
@@ -89,7 +89,7 @@ public class OperationalAttributeService extends BaseInterceptor
      */
     public OperationalAttributeService( RootNexus nexus,
                                         GlobalRegistries globalRegistries,
-                                        ResultFilteringService filteringService )
+                                        FilterService filteringService )
     {
         this.nexus = nexus;
         if ( this.nexus == null )

@@ -218,9 +218,9 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.POSTINVOCATION
         };
         Interceptor interceptor;
-        ResultFilteringService resultFilteringService =
-                new ResultFilteringServiceImpl();
-        interceptor = ( Interceptor ) resultFilteringService;
+        FilterService filterService =
+                new FilterServiceImpl();
+        interceptor = ( Interceptor ) filterService;
         provider.addInterceptor( interceptor, state );
 
         /*
@@ -254,7 +254,7 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.POSTINVOCATION
         };
         interceptor = new OperationalAttributeService( root, globalRegistries,
-                resultFilteringService );
+                filterService );
         provider.addInterceptor( interceptor, state );
 
     }

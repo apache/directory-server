@@ -56,8 +56,8 @@ import org.apache.ldap.common.filter.ExprNode;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ResultFilteringServiceImpl extends BaseInterceptor
-        implements ResultFilteringService
+public class FilterServiceImpl extends BaseInterceptor
+        implements FilterService
 {
     /** the set of registered result filters for search */
     private final List resultFilters = new ArrayList();
@@ -71,7 +71,7 @@ public class ResultFilteringServiceImpl extends BaseInterceptor
 
 
     /**
-     * @see ResultFilteringService#addLookupFilter(LookupFilter)
+     * @see FilterService#addLookupFilter(LookupFilter)
      */
     public boolean addLookupFilter( LookupFilter filter )
     {
@@ -80,7 +80,7 @@ public class ResultFilteringServiceImpl extends BaseInterceptor
 
 
     /**
-     * @see ResultFilteringService#addSearchResultFilter(SearchResultFilter)
+     * @see FilterService#addSearchResultFilter(SearchResultFilter)
      */
     public boolean addSearchResultFilter( SearchResultFilter filter )
     {
@@ -152,7 +152,7 @@ public class ResultFilteringServiceImpl extends BaseInterceptor
                 public boolean accept( DbSearchResult result, SearchControls controls )
                         throws NamingException
                 {
-                    return ResultFilteringServiceImpl.this.accept( result, controls );
+                    return FilterServiceImpl.this.accept( result, controls );
                 }
             } );
             invocation.setReturnValue( retval );

@@ -34,7 +34,7 @@ import org.apache.eve.db.SearchResultFilter;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ResultFilteringService
+public interface FilterService
 {
     /**
      * Adds a new lookup filter to the end of the list of filters be applied to
