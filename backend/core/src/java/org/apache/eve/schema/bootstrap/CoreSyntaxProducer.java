@@ -97,7 +97,7 @@ import java.util.HashMap;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreSyntaxFactory implements BootstrapProducer
+public class CoreSyntaxProducer implements BootstrapProducer
 {
 
     // ------------------------------------------------------------------------

@@ -12,7 +12,7 @@ import org.apache.ldap.common.schema.Syntax;
 import org.apache.eve.schema.bootstrap.BootstrapSyntaxRegistry;
 import org.apache.eve.schema.bootstrap.BootstrapOidRegistry;
 
-import org.apache.eve.schema.bootstrap. CoreSyntaxFactory;
+import org.apache.eve.schema.bootstrap. CoreSyntaxProducer;
 
 
 /**
