@@ -28,6 +28,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 import org.apache.eve.PartitionNexus;
 import org.apache.eve.auth.LdapPrincipal;
@@ -305,6 +306,12 @@ public abstract class EveContext implements Context
     public void destroySubcontext( Name name ) throws NamingException
     {
         Name target = buildTarget( name );
+
+        if ( target.size() == 0 )
+        {
+            throw new LdapNoPermissionException( "can't delete the rootDSE" );
+        }
+
         nexusProxy.delete( target );
     }
 
@@ -364,6 +371,12 @@ public abstract class EveContext implements Context
     {
         Name oldDn = buildTarget( oldName );
         Name newDn = buildTarget( newName );
+
+        if ( oldDn.size() == 0 )
+        {
+            throw new LdapNoPermissionException( "can't rename the rootDSE" );
+        }
+
         Name oldBase = oldName.getSuffix( 1 );
         Name newBase = newName.getSuffix( 1 );
 

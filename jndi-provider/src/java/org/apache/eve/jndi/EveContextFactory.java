@@ -42,7 +42,6 @@ import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
-import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
@@ -361,7 +360,7 @@ public class EveContextFactory implements InitialContextFactory
 
         system = new SystemPartition( db, eng, attributes );
         globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
-        nexus = new RootNexus( system );
+        nexus = new RootNexus( system, new LockableAttributesImpl() );
         provider = new EveJndiProvider( nexus );
 
 

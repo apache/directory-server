@@ -32,7 +32,6 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.eve.jndi.*;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 
 /**
@@ -93,6 +92,12 @@ public class AuthorizationService extends BaseInterceptor
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
             Name principalDn = getPrincipal( invocation ).getDn();
+
+            if ( name.toString().equals( "" ) )
+            {
+                String msg = "The rootDSE cannot be deleted!";
+                throw new LdapNoPermissionException( msg );
+            }
 
             if ( name == ADMIN_DN || name.equals( ADMIN_DN ) )
             {
@@ -177,6 +182,12 @@ public class AuthorizationService extends BaseInterceptor
         {
             Name principalDn = getPrincipal( invocation ).getDn();
 
+            if ( dn.toString().equals( "" ) )
+            {
+                String msg = "The rootDSE cannot be modified!";
+                throw new LdapNoPermissionException( msg );
+            }
+
             if ( ! principalDn.equals( ADMIN_DN ) )
             {
                 if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) )
@@ -244,6 +255,12 @@ public class AuthorizationService extends BaseInterceptor
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
             Name principalDn = getPrincipal( invocation ).getDn();
+
+            if ( dn.toString().equals( "" ) )
+            {
+                String msg = "The rootDSE cannot be moved or renamed!";
+                throw new LdapNoPermissionException( msg );
+            }
 
             if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) )
             {

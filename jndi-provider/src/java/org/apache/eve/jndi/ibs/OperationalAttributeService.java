@@ -275,6 +275,4 @@ public class OperationalAttributeService extends BaseInterceptor
         }
         return true;
     }
-
-
 }

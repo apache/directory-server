@@ -27,9 +27,13 @@ import javax.naming.directory.Attributes;
 import javax.naming.NameNotFoundException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.Attribute;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.LockableAttributes;
+import org.apache.ldap.common.message.LockableAttributesImpl;
 
                                 
 /**
@@ -43,6 +47,12 @@ import org.apache.ldap.common.NotImplementedException;
  */
 public class RootNexus implements PartitionNexus
 {
+    /** the vendorName string proudly set to: Apache Software Foundation*/
+    private static final String ASF = "Apache Software Foundation";
+    /** the vendorName DSE operational attribute */
+    private static final String VENDORNAME_ATTR = "vendorName";
+    /** the namingContexts DSE operational attribute */
+    private static final String NAMINGCTXS_ATTR = "namingContexts";
     /** Handle on the singleton instance of this class within the entire JVM. */
     private static RootNexus s_singleton = null;
     
@@ -50,13 +60,19 @@ public class RootNexus implements PartitionNexus
     private SystemPartition system;
     /** the backends keyed by normalized suffix strings */
     private HashMap backends = new HashMap();
-    
-    
+    /** the read only rootDSE attributes */
+    private final Attributes rootDSE;
+
+
     /**
-     * Default constructor that checks to make sure that there is only one
-     * instance of this class within the entire JVM.
+     * Creates the root nexus singleton of the entire system.  The root DSE has
+     * several attributes that are injected into it besides those that may
+     * already exist.  As partitions are added to the system more namingContexts
+     * attributes are added to the rootDSE.
+     *
+     * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
      */
-    public RootNexus( SystemPartition system )
+    public RootNexus( SystemPartition system, Attributes rootDSE )
     {
         if ( null != s_singleton )
         {
@@ -65,6 +81,18 @@ public class RootNexus implements PartitionNexus
         
         s_singleton = this;
         this.system = system;
+
+        // setup that root DSE
+        this.rootDSE = rootDSE;
+        Attribute attr = new LockableAttributeImpl( NAMINGCTXS_ATTR );
+        attr.add( "" );
+        rootDSE.put( attr );
+
+        attr = new LockableAttributeImpl( VENDORNAME_ATTR );
+        attr.add( ASF );
+        rootDSE.put( attr );
+
+        // register will add to the list of namingContexts as well
         register( this.system );
     }
     
@@ -107,8 +135,7 @@ public class RootNexus implements PartitionNexus
     /**
      * @see PartitionNexus#listSuffixes(boolean)
      */
-    public Iterator listSuffixes( boolean normalized )
-        throws NamingException 
+    public Iterator listSuffixes( boolean normalized ) throws NamingException
     {
         return Collections.unmodifiableSet( backends.keySet() ).iterator();
     }
@@ -121,7 +148,7 @@ public class RootNexus implements PartitionNexus
      */
     public Attributes getRootDSE() 
     {
-        throw new NotImplementedException();
+        return rootDSE;
     }
 
 
@@ -131,6 +158,8 @@ public class RootNexus implements PartitionNexus
      */
     public void register( ContextPartition backend )
     {
+        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+        namingContexts.add( backend.getSuffix( false ).toString() );
         backends.put( backend.getSuffix( true ).toString(), backend );
     }
 
@@ -141,6 +170,8 @@ public class RootNexus implements PartitionNexus
      */
     public void unregister( ContextPartition backend )
     {
+        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+        namingContexts.remove( backend.getSuffix( false ).toString() );
         backends.remove( backend.getSuffix( true ).toString() );
     }
 
@@ -224,6 +255,13 @@ public class RootNexus implements PartitionNexus
      */
     public Attributes lookup( Name dn )  throws NamingException
     {
+        if ( dn.size() == 0 )
+        {
+            LockableAttributes retval = ( LockableAttributes ) rootDSE.clone();
+            retval.setLocked( true );
+            return retval;
+        }
+
         ContextPartition backend = getBackend( dn );
         return backend.lookup( dn );
     }
@@ -234,6 +272,21 @@ public class RootNexus implements PartitionNexus
      */
     public Attributes lookup( Name dn, String[] attrIds )  throws NamingException
     {
+        if ( dn.size() == 0 )
+        {
+            LockableAttributes retval = new LockableAttributesImpl();
+            NamingEnumeration list = rootDSE.getIDs();
+            while ( list.hasMore() )
+            {
+                String id = ( String ) list.next();
+                Attribute attr = rootDSE.get( id );
+                retval.put( ( Attribute ) attr.clone() );
+            }
+
+            retval.setLocked( true );
+            return retval;
+        }
+
         ContextPartition backend = getBackend( dn );
         return backend.lookup( dn, attrIds );
     }
@@ -244,6 +297,11 @@ public class RootNexus implements PartitionNexus
      */
     public boolean hasEntry( Name dn ) throws NamingException
     {
+        if ( dn.size() == 0 )
+        {
+            return true;
+        }
+
         ContextPartition backend = getBackend( dn );
         return backend.hasEntry( dn );
     }
