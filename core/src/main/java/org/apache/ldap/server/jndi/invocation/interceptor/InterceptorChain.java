@@ -1,3 +1,19 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
 import java.util.ArrayList;
@@ -12,10 +28,11 @@ import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.jndi.invocation.Invocation;
 
 /**
- * Manages {@link Interceptor} stack.  The first {@link Interceptor} is
- * invoked and then invocation chain starts.
- * 
- * TODO imeplement me.
+ * Manages the chain of {@link Interceptor}s.
+ * <p>
+ * {@link org.apache.ldap.server.jndi.JndiProvider#invoke(Invocation)}
+ * redirects {@link Invocation}s to {@link #process(Invocation)} and
+ * the chain starts.
  * 
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @author Trustin Lee (trustin@apache.org)
@@ -27,12 +44,12 @@ public class InterceptorChain
     {
         public void init(Properties config) throws NamingException
         {
-            // do nothing
+            // unused
         }
 
         public void destroy()
         {
-            // do nothing
+            // unused
         }
 
         public void process(NextInterceptor nextInterceptor, Invocation call)
@@ -185,7 +202,7 @@ public class InterceptorChain
     }
 
     /**
-     * Removed all interceptors added to this chain.
+     * Removes all interceptors added to this chain.
      */
     public synchronized void clear()
     {
@@ -194,6 +211,12 @@ public class InterceptorChain
         head = tail;
     }
 
+	/**
+	 * Throws an exception when the specified interceptor name is not registered
+	 * in this chain.
+	 * 
+	 * @return An interceptor entry with the specified name.
+	 */
     private Entry checkOldName( String baseName )
     {
         Entry e = ( Entry ) name2entry.get( baseName );
@@ -205,6 +228,10 @@ public class InterceptorChain
         return e;
     }
 
+	/**
+	 * Checks the specified interceptor name is already taken and throws
+	 * an exception if already taken.
+	 */
     private void checkNewName( String name )
     {
         if( name2entry.containsKey( name ) )
@@ -216,6 +243,7 @@ public class InterceptorChain
     
     /**
      * Start invocation chain with the specified invocation.
+     * 
      * @throws NamingException if invocation failed
      */
     public void process( Invocation call ) throws NamingException
@@ -238,7 +266,7 @@ public class InterceptorChain
     }
 
     /**
-     * Returns the list of interceptors this chain contains in the order of
+     * Returns the list of interceptors this chain in the order of
      * evaluation.
      */
     public List getAll()
@@ -256,7 +284,7 @@ public class InterceptorChain
     }
 
     /**
-     * Returns the list of interceptors this chain contains in the reversed
+     * Returns the list of interceptors this chain in the reversed
      * order of evaluation.
      */
     public List getAllReversed()
@@ -273,6 +301,9 @@ public class InterceptorChain
         return list;
     }
 
+	/**
+	 * Represents an internal entry of this chain.
+	 */
     private class Entry
     {
         private Entry prevEntry;

@@ -24,81 +24,82 @@ import org.apache.ldap.server.jndi.invocation.Invocation;
 
 
 /**
- * Exception thrown by an Interceptor while intercepting an Invocation.
- * Interceptor failures caught from the method are bundled as
- * InterceptorExceptions and rethrown.
+ * A {@link LdapNamingException} that wraps uncaught runtime exceptions
+ * thrown from {@link Interceptor}s.
  *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @author Alex Karasulu (akarasulu@apache.org)
+ * @author Trustin Lee (trustin@apache.org)
+ * @version $Rev$, $Date$
  */
 public class InterceptorException extends LdapNamingException
 {
     private static final long serialVersionUID = 3258690996517746233L;
 
-    /** The Invokation the Interceptor failed on */
-    private final Invocation call;
+    /** The Invocation the Interceptor failed on */
+    private final Invocation invocation;
     /** The Interceptor causing the failure */
-    private final Interceptor requestProcessor;
+    private final Interceptor interceptor;
 
 
     /**
      * Creates an InterceptorException without a message.
      *
-     * @param requestProcessor the Interceptor causing the failure
+     * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      */
-    public InterceptorException( Interceptor requestProcessor, Invocation request )
+    public InterceptorException( Interceptor interceptor, Invocation invocation )
     {
         super( ResultCodeEnum.OTHER );
-        this.call = request;
-        this.requestProcessor = requestProcessor;
+        this.invocation = invocation;
+        this.interceptor = interceptor;
     }
 
 
     /**
      * Creates an InterceptorException with a custom message.
      *
-     * @param requestProcessor the Interceptor causing the failure
+     * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      */
-    public InterceptorException( Interceptor requestProcessor,
-                                      Invocation request, String explanation )
+    public InterceptorException( Interceptor interceptor,
+                                      Invocation invocation, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
-        this.call = request;
-        this.requestProcessor = requestProcessor;
+        this.invocation = invocation;
+        this.interceptor = interceptor;
     }
 
 
     /**
      * Creates an InterceptorException without a message.
      *
-     * @param requestProcessor the Interceptor causing the failure
+     * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      * @param rootCause the root cause of this exception
      */
-    public InterceptorException( Interceptor requestProcessor,
-                                      Invocation request, Throwable rootCause )
+    public InterceptorException( Interceptor interceptor,
+                                      Invocation invocation, Throwable rootCause )
     {
-        this( requestProcessor, request );
+        this( interceptor, invocation );
         super.setRootCause( rootCause );
     }
 
     /**
      * Creates an InterceptorException without a message.
      *
-     * @param requestProcessor the Interceptor causing the failure
+     * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      * @param rootCause the root cause of this exception
      */
-    public InterceptorException( Interceptor requestProcessor,
-                                      Invocation request,
+    public InterceptorException( Interceptor interceptor,
+                                      Invocation invocation,
                                       String explanation,
                                       Throwable rootCause )
     {
-        this( requestProcessor, request, explanation );
+        this( interceptor, invocation, explanation );
         super.setRootCause( rootCause );
     }
 
@@ -109,7 +110,7 @@ public class InterceptorException extends LdapNamingException
      */
     public Invocation getInvocation()
     {
-        return call;
+        return invocation;
     }
 
 
@@ -118,9 +119,9 @@ public class InterceptorException extends LdapNamingException
      *
      * @return the interceptor this exception is associated with
      */
-    public Interceptor getRequestProcessor()
+    public Interceptor getInterceptor()
     {
-        return requestProcessor;
+        return interceptor;
     }
 
 

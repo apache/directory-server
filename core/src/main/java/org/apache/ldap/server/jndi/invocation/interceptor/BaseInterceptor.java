@@ -41,28 +41,32 @@ import org.apache.ldap.server.jndi.invocation.Search;
 
 
 /**
- * An interceptor base class which delegates handling of specific Invocations
- * to member methods within this Interceptor.  These handler methods are
- * analogous to the methods assocated with the Invocation.  They have the same
- * name and arguments as do the method associated with the Invocation.  The
- * analog member methods simply serve as a clean way to handle interception
- * without having to cast parameter Objects or recode this huge switch statement
- * for each concrete Interceptor implementation.
+ * A easy-to-use implementation of {@link Interceptor} that demultiplexes
+ * invocations using method signature overloading.
+ * <p>
+ * This {@link Interceptor} forwards received process requests to an
+ * appropriate <code>process(NextInterceptor, <em>ConcreteInvocation</em>)</code>
+ * methods.  Users can override any <code>process(..)</code> methods that
+ * corresponds to {@link Invocation} types that he or she wants to filter. 
+ * <p>
+ * For example, if user wants to filter {@link Add} invocation:
+ * <pre>
+ * public class MyInterceptor extends BaseInterceptor
+ * {
+ *     protected void process( NextInterceptor nextInterceptor, Add invocation )
+ *     {
+ *         nextInterceptor.process( invocation );
+ *         System.out.println( "Item added!" );
+ *     }
+ * }
+ * </pre>
+ * <code>BaseInterceptor</code> handles all long and tedious if-elseif blocks
+ * behind the scene.
  *
- * A ThreadLocal is used by all BaseInterceptors to associate the current
- * Thread of execution with an Invocation object.  This is done to optimize
- * the use of a single thread local for all instances of the BaseInterceptor
- * class.  It also removes the need for the invoke() method implementation to
- * have to set and [un]set the thread local Invocation on each invoke call of
- * every BaseInterceptor instance.
- *
- * The question then arrises, "Why do we need the ThreadLocal?"  Well why pass
- * around the Invocation object to all analog methods.  Plus we use member
- * methods rather than static methods to access thread locals and make the
- * analogs appear cleaner matching their respective invocation methods.
- *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @author Alex Karasulu (akarasulu@apache.org)
+ * @author Trustin Lee (trustin@apache.org)
+ * @version $Rev$, $Date$
  */
 public abstract class BaseInterceptor implements Interceptor
 {

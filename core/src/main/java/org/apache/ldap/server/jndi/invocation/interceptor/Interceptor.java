@@ -23,13 +23,15 @@ import javax.naming.NamingException;
 import org.apache.ldap.server.jndi.invocation.Invocation;
 
 /**
- * Processes or filters any directory operations.  You can intercept the
- * {@link Invocation}s and perform 'before', 'after', 'around' any any other
- * filtering operations.
- *
+ * Filters any directory operations.  You can filter any
+ * {@link Invocation}s performed on {@link BackingStore}s just like Servlet
+ * filters do.
+ * 
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
+ * 
+ * @see InvocationChain
  */
 public interface Interceptor
 {
@@ -49,13 +51,13 @@ public interface Interceptor
     void destroy();
 
     /**
-     * Process a particular invocation.  You can pass control to
-     * <code>nextInterceptor</code> by invoking {@link #invoke(RequestProcessor, Invocation)}. 
+     * Filters a particular invocation.  You can pass control to
+     * <code>nextInterceptor</code> by calling {@link NextInterceptor#invoke(Invocation)}. 
      *
-     * @param nextProcessor the next processor in the processor chain
+     * @param nextInterceptor the next interceptor in the interceptor chain
      * @param invocation the invocation to process
      * @throws NamingException on failures while handling the invocation
      */
-    void process( NextInterceptor nextProcessor, Invocation call )
+    void process( NextInterceptor nextInterceptor, Invocation invocation )
             throws NamingException;
 }
