@@ -206,5 +206,23 @@ public class MerlinBufferPool
         
         m_config = new DefaultBufferPoolConfig( l_name, l_inc, l_max, 
                 l_ini, l_size ) ;
+        
+        if ( getLogger().isInfoEnabled() )
+        {   
+            StringBuffer l_buf = new StringBuffer() ;
+            l_buf.append( m_config.getName() ) ;
+            l_buf.append( " direct byte buffer pool created initially with " ) ;
+            l_buf.append( m_config.getInitialSize() ) ;
+            l_buf.append( " byte buffers of " ) ;
+            l_buf.append( m_config.getBufferSize() ) ;
+            l_buf.append( " bytes each.  " ) ;
+            l_buf.append( "The pool will grow to a maximum size of " ) ;
+            l_buf.append( m_config.getMaximumSize() ) ;
+            l_buf.append( " with size increments of " ) ;
+            l_buf.append( m_config.getIncrement() ) ;
+            l_buf.append( " as demand increases." ) ;
+            
+            getLogger().info( l_buf.toString() ) ;
+        }
     }
 }
