@@ -6,37 +6,52 @@
   </properties>
   
   <body>
-    <section name="TODO">
-      <ul>
-        <li>
-          Describe Maven based build and use of POM extension with reactor.
-        </li>
-        
-        <li>
-          Describe the organization of projects from the POV of the POM.
-        </li>
-        
-        <li>
-          Discuss use of a component documentation plugin that uses our 
-          layout and some container information to automatically generate 
-          component documentation.
-        </li>
-        
-        <li>
-          Document goals in maven.xml and what they do.
-        </li>
-        
-        <li>
-          Discuss per project document generation and how that integrates with
-          subproject documents.
-        </li>
-      </ul>
-    </section>
-
     <section name="Building Eve">
       <p>
-        Coming soon ...
+        All directory projects use <a href="http://maven.apache.org">Maven</a>
+        as the default build tool.  We try to remain current with the production
+        version of Maven.  As of 11/04 we use Maven 1.0.1 on JDK 1.4 and up.
       </p>
+
+      <p>
+        The multiproject plugin is used to build Eve.  After checking out the
+        Eve trunk from subversion, cd into it and run the following multiproject
+        command:
+      </p>
+
+      <source>
+        maven -Dgoal=clean,jar:jar multiproject:goal
+      </source>
+    </section>
+
+    <section name="Eve's Maven Modules">
+      <p>
+        Eve is composed of 4 separate maven projects.  These projects are
+        summarized below:
+      </p>
+
+      <table>
+        <tr>
+          <th>Project</th><th>Summary</th>
+        </tr>
+
+        <tr>
+          <td>protocol</td>
+          <td>Contains an LDAP protocol provider for the SEDA framework.</td>
+        </tr>
+        <tr>
+          <td>maven-eve-plugin</td>
+          <td>Contains a maven plugin used while developing with/for Eve.</td>
+        </tr>
+        <tr>
+          <td>jndi-provider</td>
+          <td>Contains Eve's JNDI Provider which wraps/is the backend subsystem.</td>
+        </tr>
+        <tr>
+          <td>shared</td>
+          <td>Contains shared classes between modules to prevent cyclic deps.</td>
+        </tr>
+      </table>
     </section>
   </body>
 </document>

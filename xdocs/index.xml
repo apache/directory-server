@@ -26,7 +26,7 @@
             <a href="./features.html">Features</a>
           </td>
           <td>
-            Eve's existing and planned features
+            Discusses existing and planned features.
           </td>
         </tr>
 
@@ -35,9 +35,7 @@
             <a href="./building.html">Building</a>
           </td>
           <td>
-            Describes how to build Eve from the source.  Should be real simple
-            thanks to Maven.  But this should go off on how the build is
-            structured as well for developers.
+            Describes how to build Eve from the source.
           </td>
         </tr>
 
@@ -55,16 +53,16 @@
             <a href="./roadmap.html">Roadmap</a>
           </td>
           <td>
-            A roadmap for Eve development
+            A roadmap for Eve development.
           </td>
         </tr>
 
         <tr>
           <td>
-            <a href="https://karasulu.homeip.net/svn/akarasulu/apachecon/eve-presentation/eve-intro-long.ppt">Architecture</a>
+            <a href="./architecture.html">Architecture</a>
           </td>
           <td>
-            An ApacheCon presentation showing in detail Eve's architecture.
+            Eve's architecture at a high level.
           </td>
         </tr>
 
@@ -73,8 +71,7 @@
             <a href="./components.html">Components</a>
           </td>
           <td>
-            Eve is a system made up of several components.  Some aspects
-            associated with Eve's component based design are discussed here.
+            Discusses component based design in Eve.
           </td>
         </tr>
         
@@ -83,17 +80,16 @@
             <a href="./protocol.html">Protocol</a>
           </td>
           <td>
-            Documentation regarding Eve's frontend protocol subsystem.
+            Documentation for the LDAP protocol provider.
           </td>
         </tr>
         
         <tr>
           <td>
-            <a href="./jndi.html">Eve JNDI</a>
+            <a href="./jndi.html">JNDI</a>
           </td>
           <td>
-            Documentation regarding Eve's backend subsystem which is a JNDI
-            provider.
+            Documentation for Eve's JNDI provider.
           </td>
         </tr>
         
