@@ -20,11 +20,10 @@ package org.apache.ldap.server.jndi;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.lang.reflect.Constructor;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -47,7 +46,11 @@ import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.*;
+import org.apache.ldap.server.ApplicationPartition;
+import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.ContextPartitionConfig;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.DefaultSearchEngine;
 import org.apache.ldap.server.db.ExpressionEnumerator;
@@ -68,9 +71,10 @@ import org.apache.ldap.server.schema.MatchingRuleRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.mina.io.socket.SocketAcceptor;
-import org.apache.mina.protocol.ProtocolAcceptor;
-import org.apache.mina.protocol.io.IoProtocolAcceptor;
+import org.apache.mina.common.TransportType;
+import org.apache.mina.registry.Service;
+import org.apache.mina.registry.ServiceRegistry;
+import org.apache.mina.registry.SimpleServiceRegistry;
 
 
 /**
@@ -138,9 +142,9 @@ public class ServerContextFactory implements InitialContextFactory
 
     private RootNexus nexus;
 
-    private InetSocketAddress serverAddress;
+    private Service minaService;
 
-    private ProtocolAcceptor acceptor;
+    private ServiceRegistry minaRegistry;
 
 
     /**
@@ -183,9 +187,9 @@ public class ServerContextFactory implements InitialContextFactory
             {
                 this.provider.shutdown();
 
-                if ( this.acceptor != null )
+                if ( this.minaRegistry != null )
                 {
-                    this.acceptor.unbind( serverAddress );
+                    this.minaRegistry.unbind( minaService );
                 }
             }
             catch ( Throwable t )
@@ -353,7 +357,6 @@ public class ServerContextFactory implements InitialContextFactory
      * Returns true if we had to create the admin account since this is the first time we started the server.  Otherwise
      * if the account exists then we are not starting for the first time.
      *
-     * @return
      * @throws NamingException
      */
     private boolean createAdminAccount() throws NamingException
@@ -561,28 +564,40 @@ public class ServerContextFactory implements InitialContextFactory
 
     private void startUpWireProtocol() throws NamingException
     {
-        // TODO MINA registry package is not implemented yet,
-        // so we don't use PASSTHRU property yet.
-        // if ( initialEnv.containsKey( EnvKeys.PASSTHRU ) )
-        // {
-        //     fe = ( DefaultFrontend ) initialEnv.get( EnvKeys.PASSTHRU );
-        // 
-        //     if ( fe != null )
-        //     {
-        //         initialEnv.put( EnvKeys.PASSTHRU, "Handoff Succeeded!" );
-        //     }
-        // }
+        ServiceRegistry registry = null;
+        if ( initialEnv.containsKey( EnvKeys.PASSTHRU ) )
+        {
+            registry = ( ServiceRegistry ) initialEnv.get( EnvKeys.PASSTHRU );
 
-        serverAddress = new InetSocketAddress( PropertiesUtils.get( initialEnv, EnvKeys.LDAP_PORT, LDAP_PORT ) );
+            if ( registry != null )
+            {
+                initialEnv.put( EnvKeys.PASSTHRU, "Handoff Succeeded!" );
+            }
+        }
+        
+        
+        Service service = new Service( "ldap", TransportType.SOCKET,
+                PropertiesUtils.get( initialEnv, EnvKeys.LDAP_PORT,
+                                     LDAP_PORT ) );
         try
         {
-            acceptor = new IoProtocolAcceptor( new SocketAcceptor() );
-            acceptor.bind( serverAddress, new LdapProtocolProvider( ( Hashtable ) initialEnv.clone() ) );
+            if( registry == null )
+            {
+                registry = new SimpleServiceRegistry();
+            }
+
+            registry.bind( service,
+                           new LdapProtocolProvider(
+                                   ( Hashtable ) initialEnv.clone() ) );
+            
+            minaService = service;
+            minaRegistry = registry;
         }
         catch ( IOException e )
         {
             e.printStackTrace();
-            String msg = "Could not recognize the host!";
+            String msg = "Failed to bind the service to the service registry: " +
+                    service;
             LdapConfigurationException e2 = new LdapConfigurationException( msg );
             e2.setRootCause( e );
         }
