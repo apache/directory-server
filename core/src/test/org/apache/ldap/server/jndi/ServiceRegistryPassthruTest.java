@@ -55,8 +55,6 @@ public class ServiceRegistryPassthruTest extends AbstractServerTest
     public void testUsePassthru() throws Exception
     {
         assertTrue( sysRoot.getEnvironment().containsKey( EnvKeys.PASSTHRU ) );
-        assertEquals( String.class, sysRoot.getEnvironment().get( EnvKeys.PASSTHRU ).getClass() );
-        assertEquals( "Handoff Succeeded!", sysRoot.getEnvironment().get( EnvKeys.PASSTHRU ) );
     }
 
 

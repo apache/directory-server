@@ -99,7 +99,7 @@ public class JndiProvider implements BackendSubsystem, InvocationHandler
      *
      * @param factory the ServerContextFactory to enable
      */
-    static void setProviderOn( ServerContextFactory factory )
+    static void setProviderOn( CoreContextFactory factory )
     {
         factory.setProvider( s_singleton );
     }
