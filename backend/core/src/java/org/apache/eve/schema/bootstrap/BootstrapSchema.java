@@ -69,6 +69,16 @@ public interface BootstrapSchema
     String getBaseClassName();
 
     /**
+     * Gets the default base class name for bootstrap Schema class files.  This
+     * name is the schema name with the first character capitalized and qualified
+     * by the default package name.  So for a bootstrap schema name of 'bar'
+     * within the 'foo' package would return foo.Bar as the base class name.
+     *
+     * @return the default base of all bootstrap schema class names for this schema
+     */
+    String getDefaultBaseClassName();
+
+    /**
      * Gets the class name for bootstrap Schema class producer type.
      *
      * @return the bootstrap schema class name for a producer type in this schema
