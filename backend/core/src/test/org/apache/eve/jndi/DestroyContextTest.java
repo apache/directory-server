@@ -19,6 +19,8 @@ package org.apache.eve.jndi;
 
 import javax.naming.NamingException;
 
+import org.apache.eve.jndi.exception.EveNameNotFoundException;
+
 
 /**
  * Tests the destroyContext methods of the provider.
@@ -58,6 +60,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
+            assertTrue( e instanceof EveNameNotFoundException );
         }
 
         /*
@@ -72,6 +75,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
+            assertTrue( e instanceof EveNameNotFoundException );
         }
 
         /*
@@ -86,6 +90,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
+            assertTrue( e instanceof EveNameNotFoundException );
         }
 
 
@@ -101,6 +106,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
+            assertTrue( e instanceof EveNameNotFoundException );
         }
     }
 

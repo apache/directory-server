@@ -22,9 +22,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.eve.jndi.*;
+import org.apache.eve.jndi.exception.EveNameNotFoundException;
 import org.apache.eve.RootNexus;
 import org.apache.eve.exception.EveAttributeInUseException;
-import org.apache.eve.exception.EveInterceptorException;
 
 
 /**
@@ -70,18 +70,30 @@ public class EveExceptionService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
-            try
+            if ( nexus.hasEntry( normName ) )
             {
-                if ( nexus.hasEntry( normName ) )
-                {
-                    NamingException ne = new EveAttributeInUseException();
-                    invocation.setBeforeFailure( new EveAttributeInUseException() );
-                    throw ne;
-                }
+                NamingException ne = new EveAttributeInUseException();
+                invocation.setBeforeFailure( ne );
+                throw ne;
             }
-            catch ( NamingException e )
+        }
+    }
+
+
+    /**
+     * @see BaseInterceptor#lookup(javax.naming.Name)
+     */
+    protected void lookup( Name dn ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            if ( ! nexus.hasEntry( dn ) )
             {
-                throw new EveInterceptorException( this, invocation, e );
+                NamingException ne = new EveNameNotFoundException();
+                invocation.setBeforeFailure( ne );
+                throw ne;
             }
         }
     }
