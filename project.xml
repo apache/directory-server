@@ -9,13 +9,14 @@
     <organization>
       <name>The Apache Incubator</name>
       <url>http://incubator.apache.org</url>
-      <logo>/images/apache-incubator-logo.png</logo>
+      <logo>http://incubator.apache.org/directory/images/apache-incubator-logo.png</logo>
     </organization>
 
     <inceptionYear>2003</inceptionYear>
     <package>org.apache.eve</package>
     
-    <logo>/images/apache-directory-logo.png</logo>
+    <logo>http://incubator.apache.org/directory/images/apache-directory-logo.png</logo>
+
     <url>http://incubator.apache.org/directory/eve/</url>
     
     <issueTrackingUrl>http://issues.apache.org/browse/DIREVE</issueTrackingUrl>
@@ -56,7 +57,7 @@
 
     <mailingLists>
       <mailingList>
-        <name>Apache Directory Developement - use [ldap] prefix</name>
+        <name>Apache Directory Developement - use [eve] prefix</name>
           <subscribe>
             directory-dev-subscribe@incubator.apache.org
           </subscribe>
@@ -144,10 +145,24 @@
       </resources>
       <jars></jars>
     </build>
+
+  <developers>
+    <developer>
+      <name>Alex Karasulu</name>
+      <id>akarasulu</id>
+      <email>akarasulu at apache.org</email>
+      <roles>
+        <role>Founder</role>
+        <role>Architect</role>
+        <role>Lead Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
     
     <!-- TODO: Clover? -->
     <reports>
-    	<report>maven-license-plugin</report>
+      <report>maven-license-plugin</report>
     </reports>
 </project>
 

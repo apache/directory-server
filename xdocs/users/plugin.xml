@@ -234,7 +234,7 @@ Finished at: Tue Dec 14 15:26:26 EST 2004
       </p>
 
       <p>
-        WARNING: As a last bit of advice make note that the plugin may be
+        <b>WARNING</b>: As a last bit of advice make note that the plugin may be
         sensitive to case for keywords in the OpenLDAP file.  For example
         the prefix before an objectClass or an attributeType must be in all
         lowercase.  However words like MUST, and MAY and SUP should all be in

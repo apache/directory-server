@@ -2,7 +2,7 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <artifactId>eve</artifactId>
-  <name>Eve</name>
+  <name>Eve Main</name>
   <inceptionYear>2003</inceptionYear>
   <shortDescription>A single executable Eve jar</shortDescription>
 
@@ -120,5 +120,20 @@
       <type>plugin</type>
     </dependency>
   </dependencies>
+
+  <reports>
+    <report>maven-changes-plugin</report>
+    <report>maven-tasklist-plugin</report>
+    <report>maven-junit-report-plugin</report>
+    <report>maven-jdepend-plugin</report>
+    <report>maven-jcoverage-plugin</report>
+    <!-- <report>maven-checkstyle-plugin</report> -->
+    <report>maven-simian-plugin</report>
+    <report>maven-javadoc-plugin</report>
+    <report>maven-jxr-plugin</report>
+    <report>maven-license-plugin</report>
+    <report>maven-multiproject-plugin</report>
+  </reports>
+
 </project>
 

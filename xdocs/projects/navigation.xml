@@ -25,7 +25,13 @@
       <item name="Roadmap" href="/roadmap.html"/>
       <item name="User's Guide" href="/users/index.html"/>
       <item name="Developer's Guide" href="/developers/index.html"/>
-      <item name="Eve Projects" href="/projects/index.html"/>
+      <item name="Eve Projects" href="/projects/index.html">
+        <item name="main" href="/projects/eve/index.html"/>
+        <item name="dib" href="/projects/eve-dib/index.html"/>
+        <item name="shared" href="/projects/eve-shared/index.html"/>
+        <item name="protocol" href="/projects/eve-protocol/index.html"/>
+        <item name="plugin" href="/projects/maven-eve-plugin/index.html"/>
+      </item>
     </menu>
     
     <menu name="Project Information">

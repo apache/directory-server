@@ -2,17 +2,51 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Ldap Protocol Provider</title>
+    <title>LDAP Protocol Provider</title>
   </properties>
   
   <body>
-    <section name="TODO">
-      <ul>
-        <li>
-          Write it!
-        </li>
-      </ul>
-    </section>
+    <section name="Eve's LDAP Protocol Provider">
+      <subsection name="Provider API">
+        <p>
+          The network layer regardless of the implementation used (seda, sedang,
+          or mina), defines protocol provider interfaces.  Protocol implementors
+          only need to implement these interfaces to plug into these framework
+          implementations.  A protocol provider essentially encapsulates the
+          encoding/decoding of messages and request handlers (hooks) for the
+          protocol.  The networking code handles the rest to make it all work.
+        </p>
 
+        <p>
+          Like other protocols Eve has a protocol provider implementation.  This
+          implementation is for the LDAP protocol.  The provider is rather simple
+          in nature and has some unique properties which make it flexible enough
+          to be used as an LDAP proxy server or an X.500 gateway server.
+        </p>
+      </subsection>
+
+      <subsection name="Design">
+        <p>
+          Eve's LDAP protocol provider translates on the wire LDAP requests into
+          JNDI LDAP operations.  Results from JNDI operations are then
+          translated to LDAP responses pushed out on the wire.  This thin
+          implementation makes the Eve protocol layer efficient and easy to
+          grasp.
+        </p>
+
+        <p>
+          The protocol provider is independent of the JNDI provider used.  It is
+          however dependent on the LDAP namespace.  Hence it can only work with
+          LDAP JNDI providers like the SUN LDAP JNDI provider and Eve's JNDI
+          provider.
+        </p>
+
+        <p>
+          The grunt of the work done by the protocol provider is within the
+          request handlers.  There is a request handler for each LDAP request
+          type.
+        </p>
+      </subsection>
+    </section>
   </body>
 </document>

@@ -3,12 +3,15 @@
   <extend>${basedir}/../project.xml</extend>
   <artifactId>eve-shared</artifactId>
   <name>Eve Shared</name>
-  <inceptionYear>2002</inceptionYear>
-  <shortDescription>Shared Eve resources, interfaces and classes</shortDescription>
+  <inceptionYear>2003</inceptionYear>
+
+  <shortDescription>Shared Eve resources, and classes</shortDescription>
   <description>
-    This project was created to eliminate cyclic project dependencies between Eve
-    maven projects.  The stuff here can be common code, or resources.
+    Created to eliminate cyclic project dependencies between the dib 
+    and maven projects.  Any code shared across modules can go here
+    so long as it does not depend on other modules.
   </description>
+
   <dependencies>
     <dependency>
       <groupId>incubator-directory</groupId>
@@ -16,5 +19,23 @@
       <version>0.8.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
+
+  <reports>
+    <report>maven-changes-plugin</report>
+    <report>maven-tasklist-plugin</report>
+    <report>maven-junit-report-plugin</report>
+    <report>maven-jdepend-plugin</report>
+    <!--
+       Causes 404 because without test cases there is no coverage report.
+       <report>maven-jcoverage-plugin</report>
+    -->
+    <!-- <report>maven-checkstyle-plugin</report> -->
+    <report>maven-simian-plugin</report>
+    <report>maven-javadoc-plugin</report>
+    <report>maven-jxr-plugin</report>
+    <report>maven-license-plugin</report>
+    <report>maven-multiproject-plugin</report>
+  </reports>
+
 </project>
 

@@ -46,7 +46,7 @@
           <td><a href="../../seda/index.html">sedang</a></td>
 
           <td>
-            The next generation seda framework.
+            The next generation seda framework based on d-haven event packages.
           </td>
         </tr>
 
@@ -54,7 +54,7 @@
           <td><a href="../../mina/index.html">mina</a></td>
 
           <td>
-            .
+            Multipurpose Infrastrusture for Network Applications based on ACE.
           </td>
         </tr>
       </table>

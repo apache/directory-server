@@ -8,25 +8,61 @@
   <body>
     <section name="Eve Projects">
       <p>
+        Eve is composed of several Maven projects.  The usually Maven generated
+        project documenation for each of them can be accessed here:
       </p>
       
       <table>
         <tr>
-          <th>Topic</th>
+          <th>Project</th>
           <th>Description</th>
         </tr>
         
         <tr>
           <td>
-            <a href="/index.html">Projects</a>
+            <a href="../projects/eve/index.html">main</a>
           </td>
           <td>
-            Blah blah.
+            Eve command line server application with <code>main()</code>
           </td>
         </tr>
 
-      </table>
+        <tr>
+          <td>
+            <a href="../projects/eve-dib/index.html">dib</a>
+          </td>
+          <td>
+            Eve Directory Information Base (a.k.a. backend subsystem)
+          </td>
+        </tr>
 
+        <tr>
+          <td>
+            <a href="../projects/eve-shared/index.html">shared</a>
+          </td>
+          <td>
+            Code shared by the dib and plugin separated to prevent cyclic deps
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="../projects/eve-protocol/index.html">protocol</a>
+          </td>
+          <td>
+            Eve's LDAP Protocol Provider
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="../projects/maven-eve-plugin/index.html">plugin</a>
+          </td>
+          <td>
+            Eve's Maven Plugin
+          </td>
+        </tr>
+      </table>
 
     </section>
   </body>
