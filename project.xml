@@ -103,7 +103,7 @@
         </includes>
               
         <excludes>
-            <exclude></exclude>
+            <exclude>**/Abstract*Test*</exclude>
         </excludes>
         
         <resources>
