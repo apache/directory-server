@@ -88,7 +88,7 @@ public class ContextPartitionConfig
         return partitionClass;
     }
 
-    public void setPartitionClass(String partitionClass)
+    public void setPartitionClass( String partitionClass )
     {
         this.partitionClass = partitionClass;
     }
@@ -98,7 +98,7 @@ public class ContextPartitionConfig
         return properties;
     }
 
-    public void setProperties(String properties)
+    public void setProperties( String properties )
     {
         this.properties = properties;
     }

@@ -39,11 +39,9 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.ApplicationPartition;
-import org.apache.ldap.server.ContextPartition;
-import org.apache.ldap.server.ContextPartitionConfig;
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.*;
+import org.apache.ldap.server.auth.AnonymousAuthenticator;
+import org.apache.ldap.server.auth.SimpleAuthenticator;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.DefaultSearchEngine;
 import org.apache.ldap.server.db.ExpressionEnumerator;
@@ -503,9 +501,64 @@ public class CoreContextFactory implements InitialContextFactory
 
         boolean allowAnonymous = !initialEnv.containsKey( EnvKeys.DISABLE_ANONYMOUS );
 
-        Interceptor interceptor = new AuthenticationService( nexus, allowAnonymous );
+        AuthenticationService authenticationService = new AuthenticationService();
 
-        provider.addInterceptor( interceptor, state );
+        // create authenticator context
+        AuthenticatorContext authenticatorContext = new AuthenticatorContext();
+        authenticatorContext.setRootNexus( nexus );
+        authenticatorContext.setAllowAnonymous( allowAnonymous );
+
+        try // initialize default authenticators
+        {
+            // create anonymous authenticator
+            AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig();
+            authenticatorConfig.setAuthenticatorName( "none" );
+            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
+
+            Authenticator authenticator = new AnonymousAuthenticator();
+            authenticator.init( authenticatorConfig );
+            authenticationService.register( authenticator );
+
+            // create simple authenticator
+            authenticatorConfig = new AuthenticatorConfig();
+            authenticatorConfig.setAuthenticatorName( "simple" );
+            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
+
+            authenticator = new SimpleAuthenticator();
+            authenticator.init( authenticatorConfig );
+            authenticationService.register( authenticator );
+        }
+        catch ( Exception e )
+        {
+            throw new NamingException( e.getMessage() );
+        }
+
+        AuthenticatorConfig[] configs = null;
+        configs = AuthenticatorConfigBuilder
+                .getAuthenticatorConfigs( initialEnv );
+
+        for ( int ii = 0; ii < configs.length; ii++ )
+        {
+            try
+            {
+                configs[ii].setAuthenticatorContext( authenticatorContext );
+
+                String authenticatorClass = configs[ii].getAuthenticatorClass();
+                Class clazz = Class.forName( authenticatorClass );
+                Constructor constructor = clazz.getConstructor( new Class[] { } );
+
+                Authenticator authenticator = ( Authenticator ) constructor.newInstance( new Object[] { } );
+                authenticator.init( configs[ii] );
+
+                authenticationService.register( authenticator );
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+            }
+        }
+
+        provider.addInterceptor( authenticationService, state );
 
         /*
          * Create and add the Eve Exception service interceptor to both the
@@ -515,7 +568,7 @@ public class CoreContextFactory implements InitialContextFactory
 
         FilterService filterService = new FilterServiceImpl();
 
-        interceptor = ( Interceptor ) filterService;
+        Interceptor interceptor = ( Interceptor ) filterService;
 
         provider.addInterceptor( interceptor, state );
 

@@ -93,7 +93,7 @@ public class PartitionConfigBuilder
         // --------------------------------------------------------------------
 
         buf.setLength( 0 );
-        buf.append( EnvKeys.PROPERTIES ).append( id );
+        buf.append( EnvKeys.PARTITION_PROPERTIES ).append( id );
         String properties = ( String ) env.get(  buf.toString() );
 
         if ( properties != null )

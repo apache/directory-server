@@ -88,8 +88,8 @@
       <version>0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-protocol</artifactId>
+      <groupId>directory-protocols</groupId>
+      <artifactId>ldap-protocol</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>
     <dependency>

@@ -19,19 +19,19 @@ package org.apache.ldap.server.jndi;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
-import org.apache.ldap.common.exception.LdapNameNotFoundException;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.Authenticator;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A service used to for authenticating users.
@@ -48,23 +48,65 @@ public class AuthenticationService implements Interceptor
     /** short for Context.SECURITY_CREDENTIALS */
     private static final String CREDS = Context.SECURITY_CREDENTIALS;
 
-    /** the root nexus to all database partitions */
-    private final RootNexus nexus;
-    /** whether or not to allow anonymous users */
-    private boolean allowAnonymous = false;
+    /** authenticators **/
+    public Map authenticators = new LinkedHashMap();
 
 
     /**
      * Creates an authentication service interceptor.
-     *
-     * @param nexus the root nexus to access all database partitions
      */
-    public AuthenticationService( RootNexus nexus, boolean allowAnonymous )
+    public AuthenticationService()
     {
-        this.nexus = nexus;
-        this.allowAnonymous = allowAnonymous;
     }
 
+    /**
+     * Registers an Authenticator with this AuthenticatorService.  Called by each
+     * Authenticator implementation after it has started to register for
+     * authentication operation calls.
+     *
+     * @param authenticator Authenticator component to register with this
+     * AuthenticatorService.
+     */
+    public void register( Authenticator authenticator )
+    {
+        Collection authenticatorList = getAuthenticators( authenticator.getType() );
+        if ( authenticatorList == null )
+        {
+            authenticatorList = new ArrayList();
+            authenticators.put( authenticator.getType(), authenticatorList );
+        }
+        authenticatorList.add( authenticator );
+    }
+
+    /**
+     * Unregisters an Authenticator with this AuthenticatorService.  Called for each
+     * registered Authenticator right before it is to be stopped.  This prevents
+     * protocol server requests from reaching the Backend and effectively puts
+     * the ContextPartition's naming context offline.
+     *
+     * @param authenticator Authenticator component to unregister with this
+     * AuthenticatorService.
+     */
+    public void unregister( Authenticator authenticator )
+    {
+        Collection authenticatorList = getAuthenticators( authenticator.getType() );
+        if ( authenticatorList == null )
+        {
+            return;
+        }
+        authenticatorList.remove( authenticator );
+    }
+
+    /**
+     * Gets the authenticators with a specific type.
+     *
+     * @param type the authentication type
+     * @return the authenticators with the specified type
+     */
+    public Collection getAuthenticators( String type )
+    {
+        return (Collection)authenticators.get( type );
+    }
 
     public void invoke( Invocation invocation ) throws NamingException
     {
@@ -87,117 +129,66 @@ public class AuthenticationService implements Interceptor
             return;
         }
 
-        // check the kind of authentication being performed
-        if ( ctx.getEnvironment().containsKey( AUTH_TYPE ) )
-        {
-            // authentication type can be anything
+        String authList = ( String ) ctx.getEnvironment().get( AUTH_TYPE );
 
-            String auth = ( String ) ctx.getEnvironment().get( AUTH_TYPE );
-            if ( auth.equalsIgnoreCase( "none" ) )
+        if ( authList == null )
+        {
+            if ( ctx.getEnvironment().containsKey( CREDS ) )
             {
-                doAuthNone( ctx );
-            }
-            else if ( auth.equalsIgnoreCase( "simple" ) )
-            {
-                doAuthSimple( ctx );
+                // authentication type is simple here
+                authList = "simple";
             }
             else
             {
-                doAuthSasl( ctx );
+                // authentication type is anonymous
+                authList = "none";
             }
-        }
-        else if ( ctx.getEnvironment().containsKey( CREDS ) )
-        {
-            // authentication type is simple here
-            doAuthSimple( ctx );
-        }
-        else
-        {
-            // authentication type is anonymous
-            doAuthNone( ctx );
+
         }
 
-        // remove creds so there is no security risk
-        ctx.removeFromEnvironment( CREDS );
-    }
+        authList = StringTools.deepTrim( authList );
+        String[] auth = authList.split( " " );
 
+        Collection authenticators = null;
 
-    private void doAuthSasl( ServerContext ctx ) throws NamingException
-    {
-        ctx.getEnvironment(); // shut's up idea's yellow light
-        ResultCodeEnum rc = ResultCodeEnum.AUTHMETHODNOTSUPPORTED; 
-        throw new LdapAuthenticationNotSupportedException( rc );
-    }
-
-
-    private void doAuthNone( ServerContext ctx ) throws NamingException
-    {
-        if ( allowAnonymous )
+        // pick the first matching authenticator type
+        for ( int i=0; i<auth.length; i++)
         {
-            ctx.setPrincipal( LdapPrincipal.ANONYMOUS );
-        }
-        else
-        {
-            throw new LdapNoPermissionException( "Anonymous bind NOT permitted!" );
-        }
-    }
-
-
-    private void doAuthSimple( ServerContext ctx ) throws NamingException
-    {
-        Object creds = ctx.getEnvironment().get( CREDS );
-
-        if ( creds == null )
-        {
-            creds = ArrayUtils.EMPTY_BYTE_ARRAY;
-        }
-        else if ( creds instanceof String )
-        {
-            creds = ( ( String ) creds ).getBytes();
+            authenticators = getAuthenticators( auth[i] );
+            if ( authenticators != null ) break;
         }
 
-        // let's get the principal now
-        String principal;
-        if ( ! ctx.getEnvironment().containsKey( PRINCIPAL ) )
+        if ( authenticators == null )
         {
-            throw new LdapAuthenticationException();
+            ctx.getEnvironment(); // shut's up idea's yellow light
+            ResultCodeEnum rc = ResultCodeEnum.AUTHMETHODNOTSUPPORTED;
+            throw new LdapAuthenticationNotSupportedException( rc );
         }
-        else
+
+        // try each authenticators
+        for ( Iterator i = authenticators.iterator(); i.hasNext(); )
         {
-            principal = ( String ) ctx.getEnvironment().get( PRINCIPAL );
-            if ( principal == null )
+            try
             {
-                throw new LdapAuthenticationException();
+                Authenticator authenticator = ( Authenticator ) i.next();
+
+                // perform the authentication
+                LdapPrincipal authorizationId = authenticator.authenticate( ctx );
+
+                // authentication was successful
+                ctx.setPrincipal( authorizationId );
+
+                // remove creds so there is no security risk
+                ctx.removeFromEnvironment( CREDS );
+
+                return;
             }
-        }
-
-        LdapName principalDn = new LdapName( principal );
-        Attributes userEntry = nexus.lookup( principalDn );
-        if ( userEntry == null )
-        {
-            throw new LdapNameNotFoundException();
-        }
-
-        Object userPassword;
-        Attribute userPasswordAttr = userEntry.get( "userPassword" );
-        if ( userPasswordAttr == null )
-        {
-            userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
-        }
-        else
-        {
-            userPassword = userPasswordAttr.get();
-            if ( userPassword instanceof String )
+            catch ( LdapAuthenticationException e )
             {
-                userPassword = ( ( String ) userPassword ).getBytes();
+                // authentication failed, try the next authenticator
             }
         }
 
-        if ( ! ArrayUtils.isEquals( creds, userPassword ) )
-        {
-            throw new LdapAuthenticationException();
-        }
-
-        ctx.setPrincipal( new LdapPrincipal( principalDn ) );
+        throw new LdapAuthenticationException();
     }
 }

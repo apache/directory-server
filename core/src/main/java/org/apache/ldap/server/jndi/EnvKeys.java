@@ -45,6 +45,12 @@ public class EnvKeys
     public static final String SCHEMAS = "server.schemas";
     /** bootstrap prop: if key is present it enables anonymous users */
     public static final String DISABLE_ANONYMOUS = "server.disable.anonymous";
+    /** a comma separated list of authenticator names */
+    public static final String AUTHENTICATORS = "server.authenticators";
+    /** the envprop key base to the authenticator implementation class */
+    public static final String AUTHENTICATOR_CLASS = "server.authenticator.class.";
+    /** the envprop key base to the properties of an authenticator */
+    public static final String AUTHENTICATOR_PROPERTIES = "server.authenticator.properties.";
 
 
     // ------------------------------------------------------------------------
@@ -71,7 +77,7 @@ public class EnvKeys
     /** the envprop key base to the implementation of a partition */
     public static final String PARTITION_CLASS = "server.db.partition.class.";
     /** the envprop key base to the properties of a partition */
-    public static final String PROPERTIES = "server.db.partition.properties.";
+    public static final String PARTITION_PROPERTIES = "server.db.partition.properties.";
     /** the envprop key base to the space separated list of indices for a partition */
     public static final String INDICES = "server.db.partition.indices.";
     /** the envprop key base to the Attributes for the context nexus entry */
