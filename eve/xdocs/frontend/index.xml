@@ -6,25 +6,17 @@
   </properties>
   
   <body>
-    
+      <!--
+                  At the topmost level, Eve is composed of two major subsystems: the 
+          frontend subsystem and the <a href="../backend/index.html">backend</a> 
+          subsystem.  
           
-      <section name="Frontend Subsystem Introduction">
-        <p>
-          At the topmost level Eve is composed of two major subsystems: the 
-          <a href="./index.html">frontend</a> subsystem and the 
-          <a href="../backend/index.html">backend</a> subsystem.
-        </p>
-        
-        <p>
-          As a network protocol server Eve handles LDAP requests and returns
-          zero or more responses for them.  The handling of these requests are 
-          the responsibility of the frontend subsystem.  The frontend listens 
-          for new client connections, services new requests for established 
-          client connections, decodes these requests, processes them and encodes
-          responses using BER encoding rules.  Components within the frontend
-          are designed to handle these specific frontend aspects.
-        </p>
-        
+            <td>Listener</td>
+            <td>
+              Manages the set of server socket TCP endpoints used to listen for 
+              new connections being established.</td>
+
+
         <p>
           The frontend may have components swapped out to make it operate as a
           X.500 directory or as an LDAP frontend to a X.500.  Both the encoding
@@ -92,6 +84,121 @@ applications.
           coupling interface between it and other systems including the backend
           subsystem so it's very generic.
         </p>
+      -->          
+          
+      <section name="Introduction">
+        <p>
+          The front end is the network protocol server portion that handles 
+          requests by returning zero or more responses.  The following request 
+          processing sequence represents an over simplified view of how a 
+          request with a single response might be processed within the frontend:
+        </p>
+        
+        <center>
+          <img src="../images/req-resp-seq.gif"/>
+        </center>
+        
+        <ol>
+          <li>Client sent request is detected and being read</li>
+          <li>Decode Basic Encoding Rule (BER) encoded PDU</li>
+          <li>Process request by generating a response PDU</li>
+          <li>Encode the response PDU for delivery</li>
+          <li>Send encoded response PDU out to the client</li>
+        </ol>
+        
+        <p>
+          Besides request handling, the frontend manages shared resources and
+          aids in the communication between processing stages.  The frontend 
+          must also oversee the creation and destruction of client connections 
+          and the data associated with a client's session.  In the following 
+          sections we explore the requirements leading to the frontend design,
+          which meets these functional needs:
+        </p>
+        
+        <table>
+          <tr><th>Section</th><th>Description</th></tr>
+          
+          <tr>
+            <td><a href="./requirements.html">Requirements</a></td>
+            <td>
+              Lists the functional requirements driving the design of the Eve 
+              directory server.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./x.500-ldap.html">X.500 and LDAP Support</a></td>
+            <td>
+              Eve's component design makes switching between an X.500 and LDAP
+              directory server a matter of reconfiguring the components within 
+              the frontend.  The topics pertaining to the support of both 
+              protocols using a server core are discussed in detail here.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./seda.html">SEDA Approach</a></td>
+            <td>
+              The simplified implementation of Matt Welsh's Staged Event Driven
+              Architecture is documented in this section.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./performance.html">High Performance IO</a></td>
+            <td>
+              Describes in detail the Java NIO API features used to make Eve
+              perform fast under heavy load.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./events.html">Event Decoupling</a></td>
+            <td>
+              Discusses the use of an event bus for decoupling components and
+              stages within the server leading to less dependencies between
+              components and services.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./resource-pooling.html">Resource Pooling</a></td>
+            <td>
+              Eve's frontend pools resources that are expensive to create and 
+              destroy.  Pooling of shared resources gets complicated in a 
+              staged environment.  Pooled resources the complications of sharing
+              them are discussed in this section.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./pushing-jndi.html">Pushing the JNDI</a></td>
+            <td>
+              The frontend is designed to use the JNDI as the interface to an
+              entry backing store or other servers altogether.  This unique
+              use of the JNDI is explained here.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./components/index.html">Components</a></td>
+            <td>
+              Each component and its service interface is discussed in detail 
+              here.
+            </td>
+          </tr>
+          
+          <tr>
+            <td><a href="./status.html">Current Status</a></td>
+            <td>
+              Even thought we refer to various peices of functionality within 
+              the frontend most of it has yet to be implemented.  Most likely
+              the functionality has been stubbed out.  The status describes 
+              where we are overall.
+            </td>
+          </tr>
+          
+        </table>
       </section>
   </body>
 </document>

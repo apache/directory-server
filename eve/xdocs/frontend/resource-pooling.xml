@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Resource Pooling and Sharing</title>
+  </properties> 
+  
+  <body>
+    <section name="Resource Pooling and Sharing">
+      <p>Coming soon ...</p>
+    </section>
+
+    <section name="Thread Pools">
+      <p>Coming soon ...</p>
+    </section>
+
+    <section name="The Direct Buffer Pool">
+      <p>Coming soon ...</p>
+    </section>
+  </body>
+</document>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Event Decoupling</title>
+  </properties> 
+  
+  <body>
+    <section name="Event Decoupling">
+      <p>Coming soon ...</p>
+      <!--
+      <subsection name="">
+        <p>
+        </p>
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="">
+        <p>
+        </p>
+        
+        <table>
+          <tr>
+            <th>Topic</th>
+            <th>Description</th>
+          </tr>
+        </table>
+      </subsection>
+      -->
+    </section>
+  </body>
+</document>

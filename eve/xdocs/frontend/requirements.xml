@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Requirements</title>
+  </properties> 
+  
+  <body>
+    <section name="Requirements">
+      <p>Coming soon ...</p>
+      
+      <subsection name="Requirements">
+        <p>Requirements are must haves ...</p>
+        
+        <ul>
+          <li>item I</li>
+          <li>item II</li>
+          <li>item III</li>
+        </ul>
+      </subsection>
+      
+      <subsection name="Nice-to-Haves">
+        <p>These are rebust requirements that are nice to have ...</p>
+        
+        <ul>
+          <li>item I</li>
+          <li>item II</li>
+          <li>item III</li>
+        </ul>
+      </subsection>
+
+    </section>
+  </body>
+</document>

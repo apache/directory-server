@@ -35,9 +35,40 @@
             <item name="SEDA Approach" href="/frontend/seda.html"/>
             <item name="HiPerformance" href="/frontend/performance.html"/>
             <item name="Event Decoupling" href="/frontend/events.html"/>
-            <item name="Resource Pooling" href="/frontend/resource-pooling.html"/>
+            <item name="Resource Pooling" 
+              href="/frontend/resource-pooling.html"/>
             <item name="Pushing the JNDI" href="/frontend/pushing-jndi.html"/>
-            <item name="Components" href="/frontend/components/index.html"/>
+
+            <item name="Components" href="/frontend/components/index.html">
+              <item name="Common APIs"
+                href="/frontend/components/common/index.html"/>
+              <item name="buffer" 
+                href="/frontend/components/buffer/index.html"/>
+              <item name="event" 
+                href="/frontend/components/event/index.html"/>
+              <item name="input" 
+                href="/frontend/components/input/index.html"/>
+              <item name="listener" 
+                href="/frontend/components/listener/index.html"/>
+              <item name="encoder" 
+                href="/frontend/components/encoder/index.html"/>
+              <item name="decoder" 
+                href="/frontend/components/decoder/index.html"/>
+              <item name="output" 
+                href="/frontend/components/output/index.html"/>
+              <item name="client" 
+                href="/frontend/components/client/index.html"/>
+              <item name="processor" 
+                href="/frontend/components/processor/index.html"/>
+              
+              <!--
+                
+              <item name="" 
+                href="/frontend/components//.html"/>
+                
+              -->
+            </item>
+
             <item name="Current Status" href="/frontend/status.html"/>
           </item>
         </item>

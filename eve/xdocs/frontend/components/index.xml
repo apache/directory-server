@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Frontend Components</title>
+  </properties> 
+  
+  <body>
+    <section name="Work In Progress">
+      <p>
+        This documentation set is far from complete.  It is under first draft 
+        developement and will take until the end of next week on Fri 13th of
+        Feb.  Util then beware.
+      </p>
+      
+      <p>
+        Also to a degree as changes are made this will still be a work in 
+        progress, however it will not be incomplete as it is now.
+      </p>
+
+      <subsection name="TODOs">
+        <ul>
+          <li>Everything practically ...</li>
+        </ul>
+      </subsection>
+
+    </section>
+    
+    <section name="Overview">
+      <p>
+        The frontend is composed of services and components that implement those
+        services.  The frontend components are depicted in the component UML
+        diagram below with their service interfaces and their dependency 
+        relationships:
+      </p>
+      
+      <img src=""/>
+    </section>
+    
+    <section name="Components">
+      <p>
+        Each component has a service interface which is defined within an 
+        service provider interface (SPI) project which also includes supporting
+        classes and interfaces like monitors, and configuration beans.  Each
+        component also has a POJO implementation project and a one or more
+        container specific projects wrapping the POJO implementation.  The
+        source organization of a component is discussed in greater detail 
+        <a href="../../components.html">here</a>.
+      </p>
+      
+      <table>
+        <tr>
+          <th>Component</th>
+          <th>Description</th>
+        </tr>
+        
+        <tr>
+          <td><a href="./common/index.html">Common API</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./buffer/index.html">buffer</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./event/index.html">event</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./input/index.html">input</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./listener/index.html">listener</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./encoder/index.html">encoder</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./decoder/index.html">decoder</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./output/index.html">output</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./client/index.html">client</a></td>
+          <td>Add description</td>
+        </tr>        
+
+        <tr>
+          <td><a href="./processor/index.html">processor</a></td>
+          <td>Add description</td>
+        </tr>        
+
+      </table>
+    </section>
+
+  </body>
+</document>

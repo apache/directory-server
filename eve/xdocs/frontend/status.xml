@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Frontend Status</title>
+  </properties> 
+  
+  <body>
+    <section name="Frontend Status">
+      <p>Coming soon ...</p>
+        
+        <table>
+          <tr>
+            <th>Component</th>
+            <th>State</th>
+          </tr>
+        </table>
+
+    </section>
+  </body>
+</document>

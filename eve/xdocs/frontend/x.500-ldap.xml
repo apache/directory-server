@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: X.500 and LDAP Support</title>
+  </properties> 
+  
+  <body>
+    <section name="X.500 Vs. LDAP Overview">
+      <p>Coming soon ...</p>
+    </section>
+
+    <section name="LDAP Support">
+      <p>Coming soon ...</p>
+    </section>
+
+    <section name="X.500 Support">
+      <p>Coming soon ...</p>
+    </section>
+  </body>
+</document>
