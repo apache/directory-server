@@ -17,12 +17,9 @@
 package org.apache.ldap.server.tools.schema;
 
 
-import java.io.IOException;
-
 import junit.framework.TestCase;
+
 import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
-import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
-import org.apache.ldap.server.tools.schema.DirectorySchemaTool;
 
 
 /**

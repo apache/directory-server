@@ -17,19 +17,17 @@
 package org.apache.ldap.server.tools.schema;
 
 
-import junit.framework.TestCase;
-
-import java.io.InputStream;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.File;
+import java.io.InputStream;
+
+import junit.framework.TestCase;
 
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchema;
 import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.apache.ldap.server.schema.bootstrap.BootstrapSchema;
-import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 
 
 /**

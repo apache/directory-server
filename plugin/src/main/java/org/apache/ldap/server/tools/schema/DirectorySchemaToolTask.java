@@ -17,10 +17,8 @@
 package org.apache.ldap.server.tools.schema;
 
 
+import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
 import org.apache.tools.ant.BuildException;
-import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
-import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
-import org.apache.ldap.server.tools.schema.DirectorySchemaTool;
 
 
 /**

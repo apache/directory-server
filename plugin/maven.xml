@@ -8,4 +8,8 @@
     <!-- Can be removed if multiproject-1.6 is required -->
     <attainGoal name="plugin:repository-deploy"/>
   </goal>
+
+  <preGoal name="eclipse">
+    <attainGoal name="antlr:generate" />
+  </preGoal>
 </project>
