@@ -1,0 +1,6 @@
+Since jira is down again ...
+
+ o correct hard coded src/java based paths so we start using the
+   maven properties
+ o add some documentation its pretty easy with the maven plugin plugin
+
