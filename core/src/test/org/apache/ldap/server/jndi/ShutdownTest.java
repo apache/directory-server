@@ -17,8 +17,6 @@
 package org.apache.ldap.server.jndi;
 
 
-import javax.naming.ldap.LdapContext;
-
 import org.apache.ldap.server.AbstractServerTest;
 
 
@@ -45,7 +43,6 @@ public class ShutdownTest extends AbstractServerTest
      */
     public void testShutdownNonNullContext() throws Exception
     {
-        System.out.println("A");
         overrides.put( EnvKeys.SHUTDOWN, "true" );
 
         try
@@ -68,7 +65,6 @@ public class ShutdownTest extends AbstractServerTest
      */
     public void testShutdownRestart() throws Exception
     {
-        System.out.println("B");
         overrides.put( EnvKeys.SHUTDOWN, "true" );
 
         try
@@ -82,9 +78,7 @@ public class ShutdownTest extends AbstractServerTest
 
         assertNotNull( sysRoot );
 
-        System.out.println("C");
         // restart the system now
         setSysRoot( "uid=admin,ou=system", "secret" );
-        System.out.println("D");
     }
 }
