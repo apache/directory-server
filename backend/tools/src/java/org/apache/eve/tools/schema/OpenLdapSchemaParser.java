@@ -20,10 +20,8 @@ package org.apache.eve.tools.schema;
 import org.apache.ldap.common.util.ExceptionUtils;
 
 import java.util.Map;
-import java.io.IOException;
-import java.io.PipedInputStream;
 import java.text.ParseException;
-import java.io.PipedOutputStream;
+import java.io.*;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -37,6 +35,9 @@ import antlr.TokenStreamException;
  */
 public class OpenLdapSchemaParser
 {
+    /** a buffer to use while streaming data into the parser */
+    private byte[] buf = new byte[128];
+    /** the monitor to use for this parser */
     private ParserMonitor monitor = new ParserMonitorAdapter();
     /** The antlr generated parser */
     private antlrOpenLdapSchemaParser parser = null;
@@ -89,45 +90,85 @@ public class OpenLdapSchemaParser
 
 
     /**
-     * Thread safe method parses an OpenLDAP schema file.
+     * Thread safe method parses an OpenLDAP schemaObject element/object.
+     *
+     * @param schemaObject the String image of a complete schema object
      */
-    public synchronized void parse( String schema ) throws IOException, ParseException
+    public synchronized void parse( String schemaObject ) throws IOException, ParseException
     {
-        if ( schema == null || schema.trim().equals( "" ) )
+        if ( schemaObject == null || schemaObject.trim().equals( "" ) )
         {
-            throw new ParseException( "The schema is either null or is "
+            throw new ParseException( "The schemaObject is either null or is "
                 + "the empty String!", 0 );
         }
 
-        if ( null == monitor )
-        {
-            monitor = new ParserMonitorAdapter();
-        }
+        parserIn.write( schemaObject.getBytes() );
+        invokeParser( schemaObject );
+    }
 
-        parserIn.write( schema.getBytes() );
 
+    private void invokeParser( String subject ) throws IOException, ParseException
+    {
         // using an input termination token END - need extra space to return
         parserIn.write( "END ".getBytes() );
         parserIn.flush();
 
         try
         {
+            monitor.startedParse( "starting parse ..." );
             parser.parseSchema();
+            monitor.finishedParse( "Done parsing!" );
         }
         catch ( RecognitionException e )
         {
-            String msg = "Parser failure on schema:\n\t" + schema ;
+            String msg = "Parser failure on:\n\t" + subject ;
             msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e );
             init();
             throw new ParseException( msg, e.getColumn() );
         }
         catch ( TokenStreamException e2 )
         {
-            String msg = "Parser failure on schema:\n\t" + schema ;
+            String msg = "Parser failure on:\n\t" + subject ;
             msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e2 );
             init();
             throw new ParseException( msg, 0 );
         }
+    }
+
+
+    /**
+     * Thread safe method parses a stream of OpenLDAP schemaObject elements/objects.
+     *
+     * @param schemaIn a stream of schema objects
+     */
+    public synchronized void parse( InputStream schemaIn ) throws IOException, ParseException
+    {
+        int count = -1;
+        while ( ( count = schemaIn.read( buf ) ) != -1 )
+        {
+            parserIn.write( buf, 0, count );
+        }
+
+        invokeParser( "schema input stream ==> " + schemaIn.toString() );
+    }
+
+
+    /**
+     * Thread safe method parses a file of OpenLDAP schemaObject elements/objects.
+     *
+     * @param schemaFile a file of schema objects
+     */
+    public synchronized void parse( File schemaFile ) throws IOException, ParseException
+    {
+        FileInputStream schemaIn = new FileInputStream( schemaFile );
+
+        int count = -1;
+        while ( ( count = schemaIn.read( buf ) ) != -1 )
+        {
+            parserIn.write( buf, 0, count );
+        }
+
+        invokeParser( "schema file ==> " + schemaFile.getAbsolutePath() );
     }
 
 

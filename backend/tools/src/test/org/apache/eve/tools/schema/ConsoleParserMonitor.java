@@ -17,16 +17,25 @@
 package org.apache.eve.tools.schema;
 
 /**
- * A monitor for the OpenLdap parser.
+ * Document me.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ParserMonitor
+public class ConsoleParserMonitor implements ParserMonitor
 {
-    void matchedProduction( String prod );
+    public void matchedProduction( String prod )
+    {
+        System.out.println( prod );
+    }
 
-    void startedParse( String s );
+    public void startedParse( String s )
+    {
+        System.out.println( s );
+    }
 
-    void finishedParse( String s );
+    public void finishedParse( String s )
+    {
+        System.out.println( s );
+    }
 }

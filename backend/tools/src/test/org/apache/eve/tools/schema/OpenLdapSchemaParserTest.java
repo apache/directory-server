@@ -39,13 +39,7 @@ public class OpenLdapSchemaParserTest extends TestCase
         super.setUp();
 
         parser = new OpenLdapSchemaParser();
-        parser.setParserMonitor( new ParserMonitor()
-        {
-            public void matchedProduction( String prod )
-            {
-                System.out.println( prod );
-            }
-        });
+        parser.setParserMonitor( new ConsoleParserMonitor() );
     }
 
 
