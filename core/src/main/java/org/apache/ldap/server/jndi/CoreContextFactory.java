@@ -491,7 +491,7 @@ public class CoreContextFactory implements InitialContextFactory
         // --------------------------------------------------------------------
         // Adding interceptors
         // --------------------------------------------------------------------
-        Interceptor interceptor = (Interceptor) initialEnv.get( EnvKeys.INTERCEPTOR );
+        InterceptorChain interceptor = (InterceptorChain) initialEnv.get( EnvKeys.INTERCEPTORS );
         if( interceptor == null ) {
             // If custom interceptor is not specified, use defaule one.
             interceptor = InterceptorChain.newDefaultChain();
@@ -499,7 +499,7 @@ public class CoreContextFactory implements InitialContextFactory
 
         interceptor.init( new InterceptorContext(
                 initialEnv, system, globalRegistries, nexus,
-                InterceptorConfigBuilder.build( initialEnv, EnvKeys.INTERCEPTOR ) ) );
+                InterceptorConfigBuilder.build( initialEnv, EnvKeys.INTERCEPTORS ) ) );
         provider.setInterceptor( interceptor );
 
         // fire up the app partitions now!

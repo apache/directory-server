@@ -25,15 +25,15 @@ public class ConfigurationTest extends AbstractServerTest {
         childChain.addLast( "B", interceptorB );
         rootChain.addLast( "default", InterceptorChain.newDefaultChain() );
         
-        extras.put( EnvKeys.INTERCEPTOR, rootChain );
-        extras.put( EnvKeys.INTERCEPTOR + "#root", "1" );
-        extras.put( EnvKeys.INTERCEPTOR + ".A", "2" );
-        extras.put( EnvKeys.INTERCEPTOR + ".A#A", "3" );
-        extras.put( EnvKeys.INTERCEPTOR + ".A#A.A", "4" );
-        extras.put( EnvKeys.INTERCEPTOR + ".child#child", "5" );
-        extras.put( EnvKeys.INTERCEPTOR + ".child.B", "6" );
-        extras.put( EnvKeys.INTERCEPTOR + ".child.B#B", "7" );
-        extras.put( EnvKeys.INTERCEPTOR + ".child.B#B.B", "8" );
+        extras.put( EnvKeys.INTERCEPTORS, rootChain );
+        extras.put( EnvKeys.INTERCEPTORS + "#root", "1" );
+        extras.put( EnvKeys.INTERCEPTORS + ".A", "2" );
+        extras.put( EnvKeys.INTERCEPTORS + ".A#A", "3" );
+        extras.put( EnvKeys.INTERCEPTORS + ".A#A.A", "4" );
+        extras.put( EnvKeys.INTERCEPTORS + ".child#child", "5" );
+        extras.put( EnvKeys.INTERCEPTORS + ".child.B", "6" );
+        extras.put( EnvKeys.INTERCEPTORS + ".child.B#B", "7" );
+        extras.put( EnvKeys.INTERCEPTORS + ".child.B#B.B", "8" );
         
         super.setUp();
     }

@@ -79,6 +79,11 @@ import org.apache.ldap.server.jndi.invocation.Invocation;
  * Plus, placing your interceptor implementations to packages like
  * '<code>interceptor</code>' would be the best practice.
  * 
+ * <h2>Overriding Default Interceptor Settings</h2>
+ * <p>
+ * See {@link org.apache.ldap.server.jndi.EnvKeys#INTERCEPTORS} and
+ * {@link InterceptorChain#newDefaultChain()}.
+ * 
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
