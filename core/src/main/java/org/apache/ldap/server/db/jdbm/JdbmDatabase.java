@@ -58,8 +58,10 @@ public class JdbmDatabase implements Database
 {
     /** the JDBM record manager used by this database */
     private final RecordManager recMan;
-    /** the suffix of this backend database */
-    private final Name suffix;
+    /** the user provided suffix of this backend database */
+    private final Name upSuffix;
+    /** the normalized suffix of this backend database */
+    private final Name normSuffix;
     /** the working directory to use for files */
     private final String wkdir;
     /** the master table storing entries by primary key */
@@ -96,14 +98,16 @@ public class JdbmDatabase implements Database
     /**
      * Creates a Databased based on JDBM B+Trees.
      *
-     * @param suffix the user provided suffix name 
+     * @param upSuffix the user provided suffix name
+     * @param normSuffix the normalized suffix name
      * @param wkdirPath the path to the working directory where the db resides
      * @throws NamingException if db cannot be created
      */
-    public JdbmDatabase ( final Name suffix, final String wkdirPath )
+    public JdbmDatabase ( final Name upSuffix, final Name normSuffix, final String wkdirPath )
         throws NamingException
     {
-        this.suffix = suffix;
+        this.upSuffix = upSuffix;
+        this.normSuffix = normSuffix;
         this.wkdir = wkdirPath;
 
         try 
@@ -495,14 +499,14 @@ public class JdbmDatabase implements Database
          * make all other aliases to the target inconsistent.
          * 
          * We need to walk up the path of alias ancestors until we reach the 
-         * suffix, deleting each ( ancestorId, targetId ) tuple in the 
+         * upSuffix, deleting each ( ancestorId, targetId ) tuple in the
          * subtree scope alias.  We only need to do this for the direct parent
          * of the alias on the one level subtree.
          */
         oneAliasIdx.drop( ancestorId, targetId );
         subAliasIdx.drop( ancestorId, targetId );
         
-        while ( ! ancestorDn.equals( suffix ) )
+        while ( ! ancestorDn.equals( upSuffix ) )
         {
             ancestorDn = ancestorDn.getSuffix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
@@ -568,13 +572,13 @@ public class JdbmDatabase implements Database
          * id may be null but the alias may be to a valid entry in 
          * another namingContext.  Such aliases are not allowed and we
          * need to point it out to the user instead of saying the target
-         * does not exist when it potentially could outside of this suffix.
+         * does not exist when it potentially could outside of this upSuffix.
          */
-        if ( ! targetDn.startsWith( suffix ) )
+        if ( ! targetDn.startsWith( upSuffix ) )
         {
             // Complain specifically about aliases to outside naming contexts
             throw new NamingException( "[36] aliasDereferencingProblem -"
-                + " the alias points to an entry outside of the " + suffix
+                + " the alias points to an entry outside of the " + upSuffix
                 + " namingContext to an object whose existance cannot be"
                 + " determined." );
         }
@@ -636,14 +640,14 @@ public class JdbmDatabase implements Database
         /*
          * Handle Sub Level Scope Alias Index
          * 
-         * Walk the list of relatives from the parents up to the suffix, testing
+         * Walk the list of relatives from the parents up to the upSuffix, testing
          * to see if the alias' target is a descendant of the relative.  If the
          * alias target is not a descentant of the relative it extends the scope
-         * and is added to the sub tree scope alias index.  The suffix node is
+         * and is added to the sub tree scope alias index.  The upSuffix node is
          * ignored since everything is under its scope.  The first loop 
          * iteration shall handle the parents.
          */
-        while ( ! ancestorDn.equals( suffix ) && null != ancestorId )
+        while ( ! ancestorDn.equals( upSuffix ) && null != ancestorId )
         {
             if ( ! NamespaceTools.isDescendant( ancestorDn, targetDn ) )
             {
@@ -672,7 +676,7 @@ public class JdbmDatabase implements Database
         // entry sequences start at 1.
         //
         
-        if ( dn.equals( suffix ) )
+        if ( dn.equals( normSuffix ) )
         {
             parentId = BigInteger.ZERO;
         }
@@ -760,7 +764,7 @@ public class JdbmDatabase implements Database
         updnIdx.drop( id );
         heirarchyIdx.drop( id );
         
-        // Remove parent's reference to entry only if entry is not the suffix  
+        // Remove parent's reference to entry only if entry is not the upSuffix
         if ( ! parentId.equals( BigInteger.ZERO ) )
         {
             heirarchyIdx.drop( parentId, id );
@@ -811,7 +815,7 @@ public class JdbmDatabase implements Database
      */
     public Name getSuffix()
     {
-        return suffix;
+        return upSuffix;
     }
 
 
@@ -820,7 +824,7 @@ public class JdbmDatabase implements Database
      */
     public Attributes getSuffixEntry() throws NamingException
     {
-        BigInteger id = getEntryId( suffix.toString() );
+        BigInteger id = getEntryId( upSuffix.toString() );
 
         if ( null == id )
         {
@@ -1637,7 +1641,7 @@ public class JdbmDatabase implements Database
          * make all other aliases to the target inconsistent.
          * 
          * We need to walk up the path of alias ancestors right above the moved 
-         * base until we reach the suffix, deleting each ( ancestorId, 
+         * base until we reach the upSuffix, deleting each ( ancestorId,
          * targetId ) tuple in the subtree scope alias.  We only need to do 
          * this for the direct parent of the alias on the one level subtree if
          * the moved base is the alias.
@@ -1649,7 +1653,7 @@ public class JdbmDatabase implements Database
         
         subAliasIdx.drop( ancestorId, targetId );
         
-        while ( ! ancestorDn.equals( suffix ) )
+        while ( ! ancestorDn.equals( upSuffix ) )
         {
             ancestorDn = ancestorDn.getSuffix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );

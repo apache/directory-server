@@ -447,7 +447,7 @@ public class ServerContextFactory implements InitialContextFactory
 
         LdapName suffix = new LdapName();
         suffix.add( SystemPartition.SUFFIX );
-        Database db = new JdbmDatabase( suffix, wkdir );
+        Database db = new JdbmDatabase( suffix, suffix, wkdir );
 
         AttributeTypeRegistry attributeTypeRegistry;
         attributeTypeRegistry = bootstrapRegistries
@@ -628,7 +628,7 @@ public class ServerContextFactory implements InitialContextFactory
                     .getNormalizer();
             Name normSuffix = new LdapName( ( String ) dnNorm
                     .normalize( configs[ii].getSuffix() ) );
-            Database db = new JdbmDatabase( upSuffix, wkdir );
+            Database db = new JdbmDatabase( upSuffix, normSuffix, wkdir );
 
             // ----------------------------------------------------------------
             // create the search engine using db, enumerators and evaluators
