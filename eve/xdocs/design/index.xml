@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Design Overview</title>
+  </properties>
+  
+  <body>
+    <section name="Design Overview">
+      <subsection name="Overview">
+        <p>
+          Coming soon ...
+        </p>
+        
+        <table>
+          <tr>
+            <th>Heading I</th>
+            <th>Heading II</th>
+          </tr>
+          
+          <tr>
+            <td>
+              Coming soon ...
+            </td>
+            <td>
+              <p>
+                Coming soon ...
+              </p>
+            </td>
+          </tr>
+        </table>
+      </subsection>
+
+    </section>
+  </body>
+</document>

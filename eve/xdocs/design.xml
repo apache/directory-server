@@ -10,33 +10,55 @@
       
       <subsection name="Components and Services">
         <p>
-          The server is designed as a system of highly granular components.  
+          The server is designed as a system of highly granular components.
           Some components are a collection of other components with a facade to 
           form a subsystem of the server.  Subsystems can contain other 
-          subsystems and one component can depend on another.
+          subsystems and one component can depend on zero or more other
+          components.
         </p>
         
         <p>
-          A micro kernel or component container is required to run the server.  
+          If the following paragraphs sounds a little confusing you might want 
+          to read a little about the IoC pattern and there is no better place 
+          than Avalon for that.  Below are some Avalon documents you might find
+          useful when translating some of this babble:
+        </p>
+        
+        <ul>
+          <li><a href=
+          "http://avalon.apache.org/framework/cop/guide-patterns-ioc.html">
+          Inversion of Control Pattern</a></li>
+          
+          <li><a href="http://avalon.apache.org/framework/cop/index.html">
+          Component Oriented Programing</a></li>
+        </ul>
+
+        <p>
+          A micro kernel or component container is required to run the server.
           A micro kernel is a peice of code operating as a component container 
           providing services for that component and running the component 
           through a set of life-cycles.  Eve is designed to run on any micro 
-          kernel.  Her subsystems and components are designed as Plain Old Java 
-          Objects (POJOs) that can be wrapped to make them interoperate within 
-          different containers.  Eve currently will work out of the box with 
-          Merlin and PicoContainer.
+          kernel using component wrappers.  Her subsystems and components are 
+          designed as Plain Old Java Objects (POJOs) that can be wrapped to 
+          make them interoperate within different containers.  Eve is slated to 
+          work with both Merlin and PicoContainer, but there are no restrictions
+          to using containers like Loom, Plexus, or Phoenix.
         </p>
         
         <p>
-          Each component within Eve has a service interface which defines to 
-          the world what that component can do for its clients.  The service
-          interface is kept separate from any component implementation.  
-          Different projects are used to separate them.  An SPI project is often
-          used to contain the service interface and other interfaces associated
-          with the component.  Providers of the service must implement the 
-          interfaces in the SPI.  These component implementations are often 
-          kept in separate projects.  The drive behind this approach has to do 
-          with modularity and classloader schemes.  It is always good to keep 
+          Each component within Eve has a public service interface which 
+          declares what that component can do for its clients.  The service
+          interface is kept and packaged separately from any component 
+          implementation.  The separation is achieved by using a different maven
+          project hence build jar for the SPI and the implementations of that
+          service.  An SPI project is often used to contain the service 
+          interface and other interfaces associated with the component.  
+          Providers of the service must implement the interfaces in the SPI.
+        </p>
+        
+        <p>
+          The drive behind this approach has to do with modularity and 
+          classloader schemes.  It is always good to keep 
           the interfaces separate from any specific implementations.  You can 
           have many implementations for the same service interface.  Secondly
           the classloader heirarchy in containers often puts implementation
