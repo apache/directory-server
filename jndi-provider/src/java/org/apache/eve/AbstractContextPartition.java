@@ -384,6 +384,12 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
 
+    public boolean isClosed()
+    {
+        return db.isClosed();
+    }
+
+
     public void inspect() throws Exception
     {
         PartitionViewer viewer = new PartitionViewer( db, engine );

@@ -335,6 +335,14 @@ public interface Database
     void close() throws NamingException;
 
     /**
+     * Checks to see if this BackingStore has been closed or shut down.
+     * Operations against closed BackingStores will fail.
+     *
+     * @return true if shut down, false otherwise
+     */
+    boolean isClosed();
+
+    /**
      * TODO Document me!
      *
      * @param key TODO

@@ -57,6 +57,9 @@ public class RootNexus implements PartitionNexus
     /** Handle on the singleton instance of this class within the entire JVM. */
     private static RootNexus s_singleton = null;
     
+    /** the closed state of this partition */
+    private boolean closed = false;
+
     /** the system backend */
     private SystemPartition system;
     /** the backends keyed by normalized suffix strings */
@@ -101,7 +104,10 @@ public class RootNexus implements PartitionNexus
             {
                 try
                 {
-                    RootNexus.this.close();
+                    if ( ! isClosed() )
+                    {
+                        RootNexus.this.close();
+                    }
                 }
                 catch ( NamingException e )
                 {
@@ -423,10 +429,24 @@ public class RootNexus implements PartitionNexus
 
 
     /**
+     * @see ContextPartition#isClosed()
+     */
+    public boolean isClosed()
+    {
+        return closed;
+    }
+
+
+    /**
      * @see BackingStore#close()
      */
-    public void close() throws NamingException
+    public synchronized void close() throws NamingException
     {
+        if ( closed )
+        {
+            return;
+        }
+
         MultiException error = null;
         Iterator list = this.backends.values().iterator();
 
@@ -457,12 +477,14 @@ public class RootNexus implements PartitionNexus
 
         s_singleton = null;
 
+        closed = true;
 
         if ( error != null )
         {
             NamingException total = new NamingException( "Encountered failures " 
                     + "while performing a close() operation on backing stores" );
             total.setRootCause( error );
+            throw total;
         }
     }
 

@@ -71,6 +71,9 @@ public class JdbmDatabase implements Database
     /** a map of index names to system indices */
     private final Map sysIndices;
 
+    /** the closed state of this Database */
+    private boolean closed = false;
+
     /** the normalized distinguished name index */
     private Index ndnIdx;
     /** the user provided distinguished name index */
@@ -880,8 +883,13 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#close()
      */
-    public void close() throws NamingException
+    public synchronized void close() throws NamingException
     {
+        if ( closed )
+        {
+            return;
+        }
+
         ArrayList array = new ArrayList();
         array.addAll( indices.values() );
         
@@ -970,10 +978,11 @@ public class JdbmDatabase implements Database
             rootCause.addThrowable( t );
         }
 
+        closed = true;
+
         if ( null != rootCause )
         {
-            NamingException ne = 
-                new NamingException( "Failed to close all" );
+            NamingException ne = new NamingException( "Failed to close all" );
             ne.setRootCause( rootCause );
             throw ne;
         }        
@@ -981,8 +990,16 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#setProperty(String,
-     * String)
+     * @see Database#isClosed()
+     */
+    public boolean isClosed()
+    {
+        return closed;
+    }
+
+
+    /**
+     * @see Database#setProperty(String, String)
      */
     public void setProperty( String propertyName, String propertyValue )
         throws NamingException

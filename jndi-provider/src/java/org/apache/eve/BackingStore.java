@@ -223,11 +223,20 @@ public interface BackingStore
     void sync() throws NamingException;
 
     /**
-     * Closes or shuts down this BackingStore.
+     * Closes or shuts down this BackingStore.  Operations against closed
+     * BackingStores will fail.
      *
      * @throws NamingException if there are problems shutting down
      */
     void close() throws NamingException;
+
+    /**
+     * Checks to see if this BackingStore has been closed or shut down.
+     * Operations against closed BackingStores will fail.
+     *
+     * @return true if shut down, false otherwise
+     */
+    boolean isClosed();
 }
 
 
