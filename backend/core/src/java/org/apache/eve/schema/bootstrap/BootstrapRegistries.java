@@ -218,9 +218,10 @@ public class BootstrapRegistries
         {
             if ( mr.getComparator() == null )
             {
+                String schema = matchingRuleRegistry.getSchemaName( mr.getOid() );
                 errors.add( new NullPointerException( "matchingRule "
-                        + mr.getName() + " with OID " + mr.getOid()
-                        + " has a null comparator" ) );
+                        + mr.getName() + " in schema " + schema + " with OID "
+                        + mr.getOid() + " has a null comparator" ) );
                 isSuccess = false;
             }
         }
@@ -234,9 +235,10 @@ public class BootstrapRegistries
         {
             if ( mr.getNormalizer() == null )
             {
+                String schema = matchingRuleRegistry.getSchemaName( mr.getOid() );
                 errors.add( new NullPointerException( "matchingRule "
-                        + mr.getName() + " with OID " + mr.getOid()
-                        + " has a null normalizer" ) );
+                        + mr.getName() + " in schema " + schema + " with OID "
+                        + mr.getOid() + " has a null normalizer" ) );
                 isSuccess = false;
             }
         }
@@ -252,8 +254,9 @@ public class BootstrapRegistries
 
             if ( mr.getSyntax() == null )
             {
+                String schema = matchingRuleRegistry.getSchemaName( mr.getOid() );
                 errors.add( new NullPointerException( "matchingRule "
-                        + mr.getName() + " with OID " + mr.getOid()
+                        + mr.getName() + " in schema " + schema + " with OID " + mr.getOid()
                         + " has a null Syntax" ) );
                 isSuccess = false;
             }
@@ -339,9 +342,10 @@ public class BootstrapRegistries
 
             if ( at.getSyntax() == null )
             {
+                String schema = attributeTypeRegistry.getSchemaName( at.getOid() );
                 errors.add( new NullPointerException( "attributeType "
-                        + at.getName() + " with OID " + at.getOid()
-                        + " has a null Syntax" ) );
+                        + at.getName() + " in schema " + schema + " with OID "
+                        + at.getOid() + " has a null Syntax" ) );
                 isSuccess = false;
             }
         }
@@ -351,13 +355,23 @@ public class BootstrapRegistries
             isSuccess = false;
         }
 
-        if ( ! hasMatchingRule )
-        {
-            errors.add( new NullPointerException( "attributeType "
-                    + at.getName() + " with OID " + at.getOid()
-                    + " has a no matchingRules defined" ) );
-            isSuccess = false;
-        }
+
+//        try
+//        {
+//            String schema = attributeTypeRegistry.getSchemaName( at.getOid() );
+//            if ( ! hasMatchingRule && at.getSyntax().isHumanReadable() )
+//            {
+//                errors.add( new NullPointerException( "attributeType "
+//                        + at.getName() + " in schema " + schema + " with OID "
+//                        + at.getOid() + " has a no matchingRules defined" ) );
+//                isSuccess = false;
+//            }
+//        }
+//        catch ( NamingException e )
+//        {
+//            errors.add( e );
+//            isSuccess = false;
+//        }
 
         return isSuccess;
     }
