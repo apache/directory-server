@@ -37,7 +37,7 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
     public String authenticatorType;
 
     /**
-     * Create a new Authenticator.
+     * Create a new AuthenticationService.
      *
      * @param type authenticator's type
      */

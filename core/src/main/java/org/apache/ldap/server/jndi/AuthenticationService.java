@@ -51,7 +51,7 @@ import org.apache.ldap.server.authn.*;
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
  */
-public class Authenticator implements Interceptor
+public class AuthenticationService implements Interceptor
 {
     /** short for Context.SECURITY_AUTHENTICATION */
     private static final String AUTH_TYPE = Context.SECURITY_AUTHENTICATION;
@@ -66,7 +66,7 @@ public class Authenticator implements Interceptor
     /**
      * Creates an authentication service interceptor.
      */
-    public Authenticator()
+    public AuthenticationService()
     {
     }
 
@@ -141,11 +141,11 @@ public class Authenticator implements Interceptor
     }
 
     /**
-     * Registers an Authenticator with this AuthenticatorService.  Called by each
-     * Authenticator implementation after it has started to register for
+     * Registers an AuthenticationService with the AuthenticationService.  Called by each
+     * AuthenticationService implementation after it has started to register for
      * authentication operation calls.
      *
-     * @param authenticator Authenticator component to register with this
+     * @param authenticator AuthenticationService component to register with this
      * AuthenticatorService.
      */
     public void register( org.apache.ldap.server.authn.Authenticator authenticator )
@@ -160,13 +160,13 @@ public class Authenticator implements Interceptor
     }
 
     /**
-     * Unregisters an Authenticator with this AuthenticatorService.  Called for each
-     * registered Authenticator right before it is to be stopped.  This prevents
+     * Unregisters an AuthenticationService with the AuthenticationService.  Called for each
+     * registered AuthenticationService right before it is to be stopped.  This prevents
      * protocol server calls from reaching the Backend and effectively puts
      * the ContextPartition's naming context offline.
      *
-     * @param authenticator Authenticator component to unregister with this
-     * AuthenticatorService.
+     * @param authenticator AuthenticationService component to unregister with this
+     * AuthenticationService.
      */
     public void unregister( org.apache.ldap.server.authn.Authenticator authenticator )
     {

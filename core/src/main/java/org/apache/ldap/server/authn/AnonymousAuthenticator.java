@@ -23,7 +23,7 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import javax.naming.NamingException;
 
 /**
- * A default implentation of an Authenticator for handling anonymous connections.
+ * A default implentation of an AuthenticationService for handling anonymous connections.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

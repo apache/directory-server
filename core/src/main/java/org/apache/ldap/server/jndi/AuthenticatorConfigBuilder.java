@@ -42,7 +42,7 @@ public class AuthenticatorConfigBuilder
 
     /**
      * Extracts properties from a Hashtable and builds a configuration bean for
-     * an Authenticator.
+     * an AuthenticationService.
      *
      * @param authenticatorName the name of the authenticator to extract configs for
      * @param env the Hastable containing usually JNDI environment settings

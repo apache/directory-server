@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 /**
  * Defines methods that all Authenticators must implement.
  *
- * <p>An Authenticator is a program that performs client authentication based on the authentication
+ * <p>An AuthenticationService is a program that performs client authentication based on the authentication
  * method/type that the client specifies in the JNDI properties.
  *
  * <p>To implement this interface, you can write an authenticator that extends org.apache.ldap.server.authn.AbstractAuthenticator.

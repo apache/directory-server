@@ -33,7 +33,7 @@ import org.apache.ldap.server.jndi.ServerContext;
 
 
 /**
- * A simple Authenticator that just authenticates clear text passwords
+ * A simple AuthenticationService that just authenticates clear text passwords
  * contained within the <code>userPassword</code> attribute.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

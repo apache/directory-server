@@ -27,7 +27,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.Authenticator;
+import org.apache.ldap.server.jndi.AuthenticationService;
 import org.apache.ldap.server.invocation.Invocation;
 
 
@@ -58,7 +58,7 @@ public class InterceptorChain implements Interceptor
     public static InterceptorChain newDefaultChain()
     {
         InterceptorChain chain = new InterceptorChain();
-        chain.addBefore( NEXT_INTERCEPTOR, "authenticator", new Authenticator() );
+        chain.addBefore( NEXT_INTERCEPTOR, "authenticator", new AuthenticationService() );
         chain.addBefore( NEXT_INTERCEPTOR, "authorizer", new Authorizer() );
         chain.addBefore( NEXT_INTERCEPTOR, "validator", new Validator() );
         chain.addBefore( NEXT_INTERCEPTOR, "schemaManager", new SchemaManager() );
