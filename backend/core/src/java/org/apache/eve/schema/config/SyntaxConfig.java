@@ -23,14 +23,46 @@ import org.apache.eve.schema.SyntaxCheckerRegistry;
 
 
 /**
- * Document me.
+ * A syntax schema object configuration set.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SyntaxConfig implements SyntaxConfigSet
 {
-    public Syntax[] loadSyntaxes( SyntaxCheckerRegistry registry )
+    /** an empty array */
+    private final static String[] EMPTY_ARRAY = new String[0];
+
+
+    // ------------------------------------------------------------------------
+    // Configuration Set Methods
+    // ------------------------------------------------------------------------
+
+
+    public String getOwner()
+    {
+        return "uid=admin,ou=system";
+    }
+
+
+    public String getSchemaName()
+    {
+        return "core";
+    }
+
+
+    public String[] getDependentSchemas()
+    {
+        return EMPTY_ARRAY;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Syntax Configuration Set Methods
+    // ------------------------------------------------------------------------
+
+
+    public Syntax[] load( SyntaxCheckerRegistry registry )
     {
         MutableSyntax[] syntaxes = new MutableSyntax[54];
 
@@ -358,7 +390,7 @@ public class SyntaxConfig implements SyntaxConfigSet
 
 
     /**
-     * Used to access protected mutators.
+     * Used to access protected mutators of BaseSyntax from within this class.
      */
     private static class MutableSyntax extends BaseSyntax
     {

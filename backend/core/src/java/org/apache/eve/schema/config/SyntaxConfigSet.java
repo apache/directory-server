@@ -16,13 +16,18 @@
  */
 package org.apache.eve.schema.config;
 
+
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.eve.schema.SyntaxCheckerRegistry;
+
+
 /**
  * Document me.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory
- *         Project</a>
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxConfigSet
+public interface SyntaxConfigSet extends ConfigSet
 {
+    Syntax[] load( SyntaxCheckerRegistry registry );
 }

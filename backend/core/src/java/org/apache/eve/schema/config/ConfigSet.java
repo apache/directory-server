@@ -24,18 +24,18 @@ package org.apache.eve.schema.config;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ConfigurationSet
+public interface ConfigSet
 {
     /**
      * Gets the name of the owner of the schema objects within this
-     * ConfigurationSet.
+     * ConfigSet.
      *
      * @return the identifier for the owner of this set's objects
      */
     String getOwner();
 
     /**
-     * Gets the name of the logical schema the objects of this ConfigurationSet
+     * Gets the name of the logical schema the objects of this ConfigSet
      * belong to: e.g. krb5-kdc may be the logical LDAP schema name.
      *
      * @return the name of the logical schema
@@ -44,7 +44,7 @@ public interface ConfigurationSet
 
     /**
      * Gets the names of other schemas that this objects within this
-     * ConfigurationSet depends upon.  These dependent schemas are those
+     * ConfigSet depends upon.  These dependent schemas are those
      * whose ConfigurationSets will be processed first.
      *
      * @return the String names of schema dependencies
