@@ -1,18 +1,17 @@
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server.jndi.request.processor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.exception.InterceptorException;
+import org.apache.ldap.server.jndi.request.Request;
 
 /**
- * Manages {@link Interceptor} stack.  The first {@link Interceptor} is
+ * Manages {@link RequestProcessor} stack.  The first {@link RequestProcessor} is
  * invoked and then invocation chain starts.
  * 
  * TODO imeplement me.
@@ -21,9 +20,9 @@ import org.apache.ldap.server.exception.InterceptorException;
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
  */
-public class InterceptorChain
+public class RequestProcessorChain
 {
-    private static final Interceptor FINAL_INTERCEPTOR = new Interceptor()
+    private static final RequestProcessor FINAL_PROCESSOR = new RequestProcessor()
     {
         public void init(Properties config) throws NamingException
         {
@@ -35,7 +34,7 @@ public class InterceptorChain
             // do nothing
         }
 
-        public void invoke(Interceptor nextInterceptor, Invocation invocation)
+        public void process(NextRequestProcessor nextProcessor, Request request)
                 throws NamingException
         {
             // do nothing
@@ -43,74 +42,73 @@ public class InterceptorChain
     };
 
     private final Map name2entry = new HashMap();
-    private final Map interceptor2entry = new IdentityHashMap();
-    private Entry head = new Entry( null, null, "", FINAL_INTERCEPTOR );
+    private Entry head = new Entry( null, null, "", FINAL_PROCESSOR );
     private final Entry tail = head;
 
     /**
-     * Create a new interceptor chain.
+     * Create a new processor chain.
      */
-    public InterceptorChain()
+    public RequestProcessorChain()
     {
     }
 
     /**
-     * Returns the interceptor with the specified <code>name</code>.
+     * Returns the processor with the specified <code>name</code>.
      * 
-     * @return <code>null</code> if there is no interceptor with the specified
+     * @return <code>null</code> if there is no processor with the specified
      *         <code>name</code>.
      */
-    public Interceptor getInterceptor( String name )
+    public RequestProcessor get( String name )
     {
         Entry e = ( Entry ) name2entry.get( name );
         if( e == null )
         {
             return null;
         }
-        return e.interceptor;
+        return e.processor;
     }
 
     /**
-     * Adds the specified interceptor with the specified name at the beginning
+     * Adds the specified processor with the specified name at the beginning
      * of this chain.
      */
-    public synchronized void addInterceptorFirst( String name,
-                                                  Interceptor interceptor )
+    public synchronized void addFirst( String name,
+                                       RequestProcessor processor )
     {
         checkNewName( name );
         
-        Entry newEntry = new Entry( null, head, name, interceptor );
+        Entry newEntry = new Entry( null, head, name, processor );
         head.prevEntry = newEntry;
         head = newEntry;
     }
 
     /**
-     * Adds the specified interceptor with the specified name at the end
+     * Adds the specified processor with the specified name at the end
      * of this chain.
      */
-    public synchronized void addInterceptorLast( String name,
-                                                 Interceptor interceptor )
+    public synchronized void addLast( String name,
+                                      RequestProcessor processor )
     {
         checkNewName( name );
         
-        Entry newEntry = new Entry( tail.prevEntry, tail, name, interceptor );
+        Entry newEntry = new Entry( tail.prevEntry, tail, name, processor );
         tail.prevEntry.nextEntry = newEntry;
         tail.prevEntry = newEntry;
     }
 
     /**
-     * Adds the specified interceptor with the specified name just before
-     * the interceptor whose name is <code>baseName</code> in this chain.
+     * Adds the specified processor with the specified name just before
+     * the processor whose name is <code>baseName</code> in this chain.
      */
-    public synchronized void addInterceptorBefore( String baseName,
-                                                   String name,
-                                                   Interceptor interceptor )
+    public synchronized void addBefore( String baseName,
+                                        String name,
+                                        RequestProcessor processor )
     {
         Entry baseEntry = checkOldName( baseName );
         checkNewName( name );
 
         Entry prevEntry = baseEntry.prevEntry;
-        Entry newEntry = new Entry( prevEntry, baseEntry, name, interceptor );
+        Entry newEntry = new Entry( prevEntry, baseEntry, name, processor );
         if( prevEntry == null )
         {
             head = newEntry;
@@ -125,18 +123,18 @@ public class InterceptorChain
     }
     
     /**
-     * Adds the specified interceptor with the specified name just after
-     * the interceptor whose name is <code>baseName</code> in this chain.
+     * Adds the specified processor with the specified name just after
+     * the processor whose name is <code>baseName</code> in this chain.
      */
-    public synchronized void addInterceptorAfter( String baseName,
-                                                  String name,
-                                                  Interceptor interceptor )
+    public synchronized void addAfter( String baseName,
+                                       String name,
+                                       RequestProcessor processor )
     {
         Entry baseEntry = checkOldName( baseName );
         checkNewName(name);
 
         Entry nextEntry = baseEntry.nextEntry;
-        Entry newEntry = new Entry( baseEntry, nextEntry, name, interceptor );
+        Entry newEntry = new Entry( baseEntry, nextEntry, name, processor );
         if( nextEntry == null )
         {
             throw new IllegalStateException();
@@ -151,9 +149,9 @@ public class InterceptorChain
     }
     
     /**
-     * Removes the interceptor with the specified name from this chain.
+     * Removes the processor with the specified name from this chain.
      */
-    public synchronized void removeInterceptor( String name )
+    public synchronized void remove( String name )
     {
         Entry entry = checkOldName( name );
         Entry prevEntry = entry.prevEntry;
@@ -171,9 +169,9 @@ public class InterceptorChain
     }
 
     /**
-     * Removed all interceptors added to this chain.
+     * Removed all processors added to this chain.
      */
-    public synchronized void removeAllInterceptors()
+    public synchronized void clear()
     {
         tail.prevEntry = null;
         tail.nextEntry = null;
@@ -185,7 +183,7 @@ public class InterceptorChain
         Entry e = ( Entry ) name2entry.get( baseName );
         if( e == null )
         {
-            throw new IllegalArgumentException( "Unknown interceptor name:" +
+            throw new IllegalArgumentException( "Unknown processor name:" +
                                                 baseName );
         }
         return e;
@@ -196,7 +194,7 @@ public class InterceptorChain
         if( name2entry.containsKey( name ) )
         {
             throw new IllegalArgumentException(
-                    "Other interceptor is using name '" + name + "'" );
+                    "Other processor is using name '" + name + "'" );
         }
     }
     
@@ -204,13 +202,13 @@ public class InterceptorChain
      * Start invocation chain with the specified invocation.
      * @throws NamingException if invocation failed
      */
-    public void invoke( Invocation invocation ) throws NamingException
+    public void process( Request request ) throws NamingException
     {
         Entry head = this.head;
         try
         {
-            head.interceptor.invoke(
-                    head.nextInterceptor, invocation );
+            head.processor.process(
+                    head.nextProcessor, request );
         }
         catch( NamingException ne )
         {
@@ -218,22 +216,22 @@ public class InterceptorChain
         }
         catch( Throwable e )
         {
-            throw new InterceptorException( head.interceptor, invocation,
+            throw new RequestProcessorException( head.processor, request,
                                             "Unexpected exception.", e );
         }
     }
 
     /**
-     * Returns the list of interceptors this chain contains in the order of
+     * Returns the list of processors this chain contains in the order of
      * evaluation.
      */
-    public List getAllInterceptors()
+    public List getAll()
     {
         List list = new ArrayList();
         Entry e = head;
         do
         {
-            list.add( e.interceptor );
+            list.add( e.processor );
             e = e.nextEntry;
         }
         while( e != null );
@@ -242,16 +240,16 @@ public class InterceptorChain
     }
 
     /**
-     * Returns the list of interceptors this chain contains in the reversed
+     * Returns the list of processors this chain contains in the reversed
      * order of evaluation.
      */
-    public List getAllInterceptorsReversed()
+    public List getAllReversed()
     {
         List list = new ArrayList();
         Entry e = tail;
         do
         {
-            list.add( e.interceptor );
+            list.add( e.processor );
             e = e.prevEntry;
         }
         while( e != null );
@@ -264,15 +262,15 @@ public class InterceptorChain
         private Entry prevEntry;
         private Entry nextEntry;
         private final String name;
-        private final Interceptor interceptor;
-        private final Interceptor nextInterceptor;
+        private final RequestProcessor processor;
+        private final NextRequestProcessor nextProcessor;
 
         private Entry( Entry prevEntry, Entry nextEntry,
-                       String name, Interceptor interceptor )
+                       String name, RequestProcessor processor )
         {
-            if( interceptor == null )
+            if( processor == null )
             {
-                throw new NullPointerException( "interceptor" );
+                throw new NullPointerException( "processor" );
             }
             if( name == null )
             {
@@ -282,24 +280,16 @@ public class InterceptorChain
             this.prevEntry = prevEntry;
             this.nextEntry = nextEntry;
             this.name = name;
-            this.interceptor = interceptor;
-            this.nextInterceptor = new Interceptor()
+            this.processor = processor;
+            this.nextProcessor = new NextRequestProcessor()
             {
-                public void init(Properties config) throws NamingException {
-                    throw new IllegalStateException();
-                }
-
-                public void destroy() {
-                    throw new IllegalStateException();
-                }
-    
-                public void invoke(Interceptor nextInterceptor, Invocation invocation)
+                public void process(Request request)
                         throws NamingException {
-                    Interceptor interceptor = Entry.this.nextEntry.interceptor;
+                    RequestProcessor processor = Entry.this.nextEntry.processor;
                     try
                     {
-                        interceptor.invoke(
-                                Entry.this.nextEntry.nextInterceptor, invocation );
+                        processor.process(
+                                Entry.this.nextEntry.nextProcessor, request );
                     }
                     catch( NamingException ne )
                     {
@@ -307,8 +297,8 @@ public class InterceptorChain
                     }
                     catch( Throwable e )
                     {
-                        throw new InterceptorException( interceptor, invocation,
-                                                        "Unexpected exception.", e );
+                        throw new RequestProcessorException( processor, request,
+                                                             "Unexpected exception.", e );
                     }
                 }
             };

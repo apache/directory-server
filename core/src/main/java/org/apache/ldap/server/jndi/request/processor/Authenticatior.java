@@ -14,8 +14,15 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server.jndi.request.processor;
 
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -24,15 +31,12 @@ import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.auth.AbstractAuthenticator;
 import org.apache.ldap.server.auth.Authenticator;
-
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
+import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.server.jndi.ServerLdapContext;
+import org.apache.ldap.server.jndi.request.Request;
 
 /**
  * A service used to for authenticating users.
@@ -40,7 +44,7 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AuthenticationService implements Interceptor
+public class Authenticatior implements RequestProcessor
 {
     /** short for Context.SECURITY_AUTHENTICATION */
     private static final String AUTH_TYPE = Context.SECURITY_AUTHENTICATION;
@@ -55,7 +59,7 @@ public class AuthenticationService implements Interceptor
     /**
      * Creates an authentication service interceptor.
      */
-    public AuthenticationService()
+    public Authenticatior()
     {
     }
 
@@ -107,18 +111,20 @@ public class AuthenticationService implements Interceptor
     {
         return (Collection)authenticators.get( type );
     }
-
-    public void invoke( Invocation invocation ) throws NamingException
+    
+    public void init( Properties config )
     {
-        // only handle preinvocation state
-        if ( invocation.getState() != InvocationStateEnum.PREINVOCATION )
-        {
-            return;
-        }
+    }
+    
+    public void destroy()
+    {
+    }
 
+    public void process( NextRequestProcessor nextProcessor, Request request ) throws NamingException
+    {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
-        ServerContext ctx = ( ServerLdapContext ) invocation.getContextStack().peek();
+        ServerContext ctx = ( ServerLdapContext ) request.getContextStack().peek();
         if ( ctx.getPrincipal() != null )
         {
             if ( ctx.getEnvironment().containsKey( CREDS ) )
@@ -126,7 +132,7 @@ public class AuthenticationService implements Interceptor
                 ctx.removeFromEnvironment( CREDS );
             }
 
-            return;
+            nextProcessor.process(request);
         }
 
         String authList = ( String ) ctx.getEnvironment().get( AUTH_TYPE );
@@ -180,7 +186,7 @@ public class AuthenticationService implements Interceptor
 
                 // remove creds so there is no security risk
                 ctx.removeFromEnvironment( CREDS );
-
+                nextProcessor.process(request);
                 return;
             }
             catch ( LdapAuthenticationException e )

@@ -14,11 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server.jndi.request.processor;
 
 import java.util.Properties;
 
 import javax.naming.NamingException;
+
+import org.apache.ldap.server.jndi.request.Request;
 
 /**
  * Processes or filters any directory operations.  You can intercept the
@@ -29,7 +31,7 @@ import javax.naming.NamingException;
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
  */
-public interface Interceptor
+public interface RequestProcessor
 {
     /**
      * Intializes this interceptor.  This is invoked by directory service
@@ -48,12 +50,12 @@ public interface Interceptor
 
     /**
      * Process a particular invocation.  You can pass control to
-     * <code>nextInterceptor</code> by invoking {@link #invoke(Interceptor, Invocation)}. 
+     * <code>nextInterceptor</code> by invoking {@link #invoke(RequestProcessor, Invocation)}. 
      *
-     * @param nextInterceptor the next interceptor in the interceptor chain
+     * @param nextProcessor the next processor in the processor chain
      * @param invocation the invocation to process
-     * @throws NamingException on failures while handling the invokation
+     * @throws NamingException on failures while handling the invocation
      */
-    void invoke( Interceptor nextInterceptor, Invocation invocation )
+    void process( NextRequestProcessor nextProcessor, Request request )
             throws NamingException;
 }

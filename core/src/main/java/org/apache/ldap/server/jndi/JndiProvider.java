@@ -338,7 +338,7 @@ public class JndiProvider implements BackendSubsystem, InvocationHandler
                     break;
                 default:
                     throw new IllegalStateException( "unexpected invocation state: "
-                            + states[ii].getName() );
+                            + states[ii].getBaseName() );
             }
         }
     }
