@@ -44,12 +44,8 @@ public class JndiProvider implements BackendSubsystem, InvocationHandler
     /** Singleton instance of this class */
     private static JndiProvider s_singleton = null;
     
-    /** Interceptor of interceptors in post-invocation pipeline */
-    private InterceptorPipeline after = new FailFastPipeline();
-    /** Interceptor of interceptors in pre-invocation pipeline */
-    private InterceptorPipeline before = new FailFastPipeline();
-    /** Interceptor of interceptors in post-invocation pipeline failure */
-    private InterceptorPipeline afterFailure = new OnErrorPipeline();
+    /** The interceptor chain for this provider */
+    private final InterceptorChain interceptors = new InterceptorChain();
     /** RootNexus as it was given to us by the ServiceManager */
     private RootNexus nexus = null;
     /** PartitionNexus proxy wrapping nexus to inject services */
@@ -146,9 +142,7 @@ public class JndiProvider implements BackendSubsystem, InvocationHandler
         this.nexus.close();
         this.nexus = null;
         this.proxy = null;
-        this.before = null;
-        this.after = null;
-        this.afterFailure = null;
+        this.interceptors.clear();
         this.isShutdown = true;
         s_singleton = null;
     }
