@@ -172,7 +172,7 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
     }
 
 
-    Iterator list()
+    public Iterator list()
     {
         return byOid.values().iterator();
     }

@@ -19,9 +19,11 @@ package org.apache.eve.schema;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.ldap.common.util.JoinIterator;
 
 import org.apache.eve.SystemPartition;
 import org.apache.eve.schema.bootstrap.BootstrapMatchingRuleRegistry;
@@ -173,5 +175,12 @@ public class GlobalMatchingRuleRegistry implements MatchingRuleRegistry
 
         throw new NamingException( "OID " + id + " not found in oid to " +
             "schema name map!" );
+    }
+
+
+    public Iterator list()
+    {
+        return new JoinIterator( new Iterator[]
+            { byOid.values().iterator(),bootstrap.list() } );
     }
 }

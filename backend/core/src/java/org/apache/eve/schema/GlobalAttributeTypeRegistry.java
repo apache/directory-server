@@ -193,7 +193,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     }
 
 
-
     public Iterator list()
     {
         return new JoinIterator( new Iterator[]
