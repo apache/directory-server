@@ -292,6 +292,7 @@ attributeType returns [MutableAttributeType type]
 
 superior [MutableAttributeType type]
 {
+    matchedProduction( "superior()" ) ;
 }
     : "SUP"
     (
@@ -310,6 +311,7 @@ superior [MutableAttributeType type]
 
 equality [MutableAttributeType type]
 {
+    matchedProduction( "equality()" ) ;
 }
     : "EQUALITY"
     (
@@ -328,6 +330,7 @@ equality [MutableAttributeType type]
 
 substr [MutableAttributeType type]
 {
+    matchedProduction( "substr()" ) ;
 }
     : "SUBSTR"
     (
@@ -346,6 +349,7 @@ substr [MutableAttributeType type]
 
 ordering [MutableAttributeType type]
 {
+    matchedProduction( "ordering()" ) ;
 }
     : "ORDERING"
     (
@@ -364,6 +368,7 @@ ordering [MutableAttributeType type]
 
 names [MutableAttributeType type]
 {
+    matchedProduction( "names()" ) ;
     ArrayList list = new ArrayList();
 }
     :
@@ -393,6 +398,7 @@ names [MutableAttributeType type]
 
 syntax [MutableAttributeType type]
 {
+    matchedProduction( "syntax()" ) ;
 }
     : "SYNTAX"
     (
@@ -408,6 +414,7 @@ syntax [MutableAttributeType type]
 
 usage [MutableAttributeType type]
 {
+    matchedProduction( "usage()" ) ;
 }
     :
     "USAGE"

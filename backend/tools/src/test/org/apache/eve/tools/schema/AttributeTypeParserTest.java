@@ -33,7 +33,12 @@ public class AttributeTypeParserTest extends TestCase
 {
     public void testParser() throws Exception
     {
-        String attributeTypeData = "attributetype ( 2.5.4.2 NAME 'someIdentifier' )";
+        String attributeTypeData = "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
+            //"        DESC 'RFC2256: knowledge information'\n" +
+            //"        EQUALITY caseIgnoreMatch\n" +
+            //"        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
+
+            ")";
         ByteArrayInputStream in = new ByteArrayInputStream( attributeTypeData.getBytes() );
         antlrOpenLdapSchemaLexer lexer = new antlrOpenLdapSchemaLexer( in );
         antlrOpenLdapSchemaParser parser = new antlrOpenLdapSchemaParser( lexer );
