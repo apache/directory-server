@@ -40,8 +40,7 @@ public interface EventRouter
      * @param filter an event filter if any to apply
      * @param subscriber the Subscriber to subscribe
      */
-    void subscribe( Class type, Filter filter, 
-                    Subscriber subscriber ) ;
+    void subscribe( Class type, Filter filter, Subscriber subscriber ) ;
     
     /**
      * Subscribes an event subscriber.
