@@ -56,7 +56,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SchemaManager extends BaseInterceptor
+public class SchemaService extends BaseInterceptor
 {
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 
@@ -86,7 +86,7 @@ public class SchemaManager extends BaseInterceptor
     /**
      * Creates a schema service interceptor.
      */
-    public SchemaManager()
+    public SchemaService()
     {
     }
 

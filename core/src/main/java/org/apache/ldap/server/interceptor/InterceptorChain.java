@@ -55,7 +55,7 @@ public class InterceptorChain implements Interceptor
         chain.addBefore( NEXT_INTERCEPTOR, "authenticator", new AuthenticationService() );
         chain.addBefore( NEXT_INTERCEPTOR, "authorizer", new AuthorizationService() );
         chain.addBefore( NEXT_INTERCEPTOR, "validator", new ExceptionService() );
-        chain.addBefore( NEXT_INTERCEPTOR, "schemaManager", new SchemaManager() );
+        chain.addBefore( NEXT_INTERCEPTOR, "schemaManager", new SchemaService() );
         chain.addBefore( NEXT_INTERCEPTOR, "operationalAttributeInterceptor", new OperationalAttributeInterceptor() );
         return chain;
     }
