@@ -248,15 +248,21 @@ public class LeafEvaluator implements Evaluator
         
         // get the attribute associated with the node 
         Attributes attrs = rec.getAttributes();
+
+        if ( attrs == null )
+        {
+            return false;
+        }
+        
         return null != attrs.get( attrId );
     }
-    
+
 
     /**
      * Evaluates a simple equality attribute value assertion on a perspective
      * candidate.
-     * 
-     * @param node the equality node to evaluate 
+     *
+     * @param node the equality node to evaluate
      * @param rec the IndexRecord of the perspective candidate
      * @return the ava evaluation on the perspective candidate
      * @throws NamingException if there is a database access failure
