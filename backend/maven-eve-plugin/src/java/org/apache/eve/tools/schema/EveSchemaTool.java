@@ -18,14 +18,12 @@ package org.apache.eve.tools.schema;
 
 
 import java.io.*;
-import java.util.Properties;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.VelocityContext;
 
 import org.apache.eve.schema.bootstrap.BootstrapSchema;
 import org.apache.eve.schema.bootstrap.ProducerTypeEnum;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 
 
 /**
@@ -65,9 +63,10 @@ public class EveSchemaTool
 
 
 
-    public EveSchemaTool() throws IOException
+    public EveSchemaTool() throws Exception
     {
         parser = new OpenLdapSchemaParser();
+        Velocity.init();
     }
 
 
@@ -119,8 +118,27 @@ public class EveSchemaTool
                 + schema.getSchemaName() + ".schema" );
         parser.parse( in );
 
+        generateSchema();
         generateAttributeTypes();
         generateObjectClasses();
+    }
+
+
+    protected void generateSchema() throws Exception
+    {
+        String schemaCapped =
+            Character.toUpperCase( schema.getSchemaName().charAt( 0 ) )
+            + schema.getSchemaName().substring( 1, schema.getSchemaName().length() );
+
+        VelocityContext context = new VelocityContext();
+
+        context.put( "package", schema.getPackageName() );
+        context.put( "classname", schemaCapped + "Schema" );
+        context.put( "schema", schema.getSchemaName() );
+        context.put( "owner", schema.getOwner() ) ;
+        context.put( "deps", schema.getDependencies()  ) ;
+
+        runVelocity( context, "Schema.template" );
     }
 
 
@@ -147,14 +165,7 @@ public class EveSchemaTool
         context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
         context.put( "attrTypes", attributeTypes );
 
-        FileReader template = getResourceReader( "AttributeTypes.template" );
-
-        FileWriter writer = getResourceWriter( schema.getUnqualifiedClassName(
-                ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER ) );
-        Velocity.init();
-        Velocity.evaluate( context, writer, "LOG", template );
-        writer.flush();
-        writer.close();
+        runVelocity( context, "AttributeTypes.template" );
     }
 
 
@@ -181,11 +192,17 @@ public class EveSchemaTool
         context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
         context.put( "objectClasses", objectClasses );
 
-        FileReader template = getResourceReader( "ObjectClasses.template" );
+        runVelocity( context, "ObjectClasses.template" );
+    }
+
+
+    protected void runVelocity( VelocityContext context, String template )
+            throws Exception
+    {
+        FileReader fileIn = getResourceReader( template );
         FileWriter writer = getResourceWriter( schema.getUnqualifiedClassName(
                 ProducerTypeEnum.OBJECT_CLASS_PRODUCER ) );
-        Velocity.init();
-        Velocity.evaluate( context, writer, "LOG", template );
+        Velocity.evaluate( context, writer, "LOG", fileIn );
         writer.flush();
         writer.close();
     }
