@@ -2,20 +2,24 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <pomVersion>1</pomVersion>
-  <artifactId>eve-backend</artifactId>
+  <artifactId>eve-jndi-provider</artifactId>
   <groupId>incubator-directory</groupId>
-  <id>eve-backend</id>
-  <name>Eve's Backend Subsystem</name>
+  <id>eve-jndi-provider</id>
+  <name>Eve JNDI Provider</name>
   <package>org.apache.eve</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2002</inceptionYear>
-  <shortDescription>Eve's Backend Subsystem</shortDescription>
+  <shortDescription>The Eve JNDI (LDAP Namespace) Provider</shortDescription>
   <description>
-      Eve's backend subsystem, providing a LDAP namespace based backing store
-      using JNDI as the access API.  This deliverable is a JNDI LDAP namespace
-      provider but it does not use the LDAP protocol to access and store 
-      entries.  Instead entries are stored within a custom database 
-      implementation on disk designed for fast reads and hierarchical data.
+      Eve's backend subsystem is a JNDI Provider for the LDAP namespace.  It is not
+      an LDAP provider in the sense the SUN JNDI LDAP provider is for example because
+      the Eve provider does not talk LDAP over the wire.  The Eve JNDI provider 
+      actually isn't even an LDAP client.  In fact the Eve provider is really a server
+      side subsystem.  It translates JNDI operations to backing store operations on the 
+      appropriate Eve database partition assigned to a naming context.  The net result 
+      is a JNDI LDAP namespace provider so please note the inclusion of the word 
+      'namespace'.  There is nothing going on here with respect to the LDAP protocol.  
+      All operations are local upon entries on disk or in memory.
     </description>
   <dependencies>
     <dependency>
