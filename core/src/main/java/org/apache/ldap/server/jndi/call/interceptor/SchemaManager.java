@@ -14,16 +14,15 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.ibs;
+package org.apache.ldap.server.jndi.call.interceptor;
 
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -49,8 +48,12 @@ import org.apache.ldap.common.schema.SchemaUtils;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.jndi.request.interceptor.BaseInterceptor;
+import org.apache.ldap.server.jndi.ServerLdapContext;
+import org.apache.ldap.server.jndi.call.Lookup;
+import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.call.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
@@ -61,16 +64,17 @@ import org.apache.ldap.server.schema.GlobalRegistries;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SchemaService extends BaseInterceptor
+public class SchemaManager extends BaseInterceptor
 {
+    private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
+
     /** the root nexus to all database partitions */
     private final RootNexus nexus;
     /** a binary attribute tranforming filter: String -> byte[] */
     private final BinaryAttributeFilter binaryAttributeFilter;
-    /** the filter service used by the schema service */
-    private final FilterService filterService;
     /** the global schema object registries */
     private final GlobalRegistries globalRegistries;
+    private final AttributeTypeRegistry attributeRegistry;
     /** subschemaSubentry attribute's value from Root DSE */
     private final String subentryDn;
 
@@ -82,8 +86,8 @@ public class SchemaService extends BaseInterceptor
      * @param globalRegistries the global schema object registries
      * @param filterService
      */
-    public SchemaService( RootNexus nexus, GlobalRegistries globalRegistries,
-                          FilterService filterService ) throws NamingException
+    public SchemaManager( RootNexus nexus, GlobalRegistries globalRegistries )
+            throws NamingException
     {
         this.nexus = nexus;
         if ( this.nexus == null )
@@ -97,193 +101,84 @@ public class SchemaService extends BaseInterceptor
             throw new NullPointerException( "the global registries cannot be null" );
         }
 
-        this.filterService = filterService;
-        if ( this.filterService == null )
-        {
-            throw new NullPointerException( "the filter service cannot be null" );
-        }
-
-        binaryAttributeFilter = new BinaryAttributeFilter(
-                globalRegistries.getAttributeTypeRegistry() );
-        filterService.addLookupFilter( binaryAttributeFilter );
-        filterService.addSearchResultFilter( binaryAttributeFilter );
+        attributeRegistry = globalRegistries.getAttributeTypeRegistry();
+        binaryAttributeFilter = new BinaryAttributeFilter();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
         subentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
     }
 
-
-    /**
-     * A special filter over entry attributes which replaces Attribute String
-     * values with their respective byte[] representations using schema
-     * information and the value held in the JNDI environment property:
-     * <code>java.naming.ldap.attributes.binary</code>.
-     *
-     * @see <a href=
-     * "http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#binary">
-     * java.naming.ldap.attributes.binary</a>
-     */
-    private class BinaryAttributeFilter implements LookupFilter, SearchResultFilter
+    public void init( Properties config )
     {
-        private final static String BINARY_KEY =
-                "java.naming.ldap.attributes.binary";
-        private final AttributeTypeRegistry registry;
-
-
-        public BinaryAttributeFilter( AttributeTypeRegistry registry )
-        {
-            this.registry = registry;
-        }
-
-
-        private void doFilter( LdapContext ctx, Attributes entry )
-                throws NamingException
-        {
-            // set of AttributeType objects that are to behave as binaries
-            Set binaries;
-
-            // construct the set for fast lookups while filtering
-            String binaryIds = ( String ) ctx.getEnvironment().get( BINARY_KEY );
-
-            if ( binaryIds == null )
-            {
-                binaries = Collections.EMPTY_SET;
-            }
-            else
-            {
-                String[] binaryArray = binaryIds.split( " " );
-
-                binaries = new HashSet( binaryArray.length );
-
-                for ( int ii = 0; ii < binaryArray.length; ii++ )
-                {
-                    AttributeType type = registry.lookup( binaryArray[ii] );
-
-                    binaries.add( type );
-                }
-            }
-
-            /*
-             * start converting values of attributes to byte[]s which are not
-             * human readable and those that are in the binaries set
-             */
-            NamingEnumeration list = entry.getIDs();
-
-            while ( list.hasMore() )
-            {
-                String id = ( String ) list.next();
-
-                AttributeType type = null;
-
-                boolean asBinary = false;
-
-                if ( registry.hasAttributeType( id ) )
-                {
-                    type = registry.lookup( id );
-                }
-
-                if ( type != null )
-                {
-                    asBinary = ! type.getSyntax().isHumanReadible();
-
-                    asBinary = asBinary || binaries.contains( type );
-                }
-
-                if ( asBinary )
-                {
-                    Attribute attribute = entry.get( id );
-
-                    Attribute binary = new LockableAttributeImpl( id );
-
-                    for ( int ii = 0; ii < attribute.size(); ii++ )
-                    {
-                        Object value = attribute.get( ii );
-
-                        if ( value instanceof String )
-                        {
-                            binary.add( ii, ( ( String ) value ).getBytes() );
-                        }
-                        else
-                        {
-                            binary.add( ii, value );
-                        }
-                    }
-
-                    entry.remove( id );
-
-                    entry.put( binary );
-                }
-            }
-        }
-
-
-        public void filter( LdapContext ctx, Name dn, Attributes entry ) throws NamingException
-        {
-            doFilter( ctx, entry );
-        }
-
-
-        public void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids )
-                throws NamingException
-        {
-            doFilter( ctx, entry );
-        }
-
-
-        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls ) throws NamingException
-        {
-            doFilter( ctx, result.getAttributes() );
-            return true;
-        }
+    }
+    
+    public void destroy()
+    {
     }
 
-
-    protected void search( Name base, Map env, ExprNode filter,
-                           SearchControls searchControls ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
     {
-        Invocation invocation = getInvocation();
-
         // check to make sure the DN searched for is a subentry
-        if ( ! subentryDn.equals( base.toString() ) )
+        if ( ! subentryDn.equals( call.getBaseName().toString() ) )
+        {
+            nextInterceptor.process( call );
+            return;
+        }
+
+        boolean bypass = false;
+        SearchControls searchControls = call.getSearchControls();
+        ExprNode filter = call.getExpressionNode();
+        if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
+             filter instanceof SimpleNode )
+        {
+            SimpleNode node = ( SimpleNode ) filter;
+
+            if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) &&
+                 node.getValue().equalsIgnoreCase( "subschema" ) &&
+                 node.getAssertionType() == SimpleNode.EQUALITY
+               )
+            {
+                // call.setBypass( true );
+                Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
+                SearchResult result = new SearchResult( call.getBaseName().toString(), null, attrs );
+                SingletonEnumeration e = new SingletonEnumeration( result );
+                call.setResponse( e );
+                bypass = true;
+            }
+        }
+        else if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
+                 filter instanceof PresenceNode )
+        {
+            PresenceNode node = ( PresenceNode ) filter;
+
+            if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) )
+            {
+                // call.setBypass( true );
+                Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
+                SearchResult result = new SearchResult( call.getBaseName().toString(), null, attrs );
+                SingletonEnumeration e = new SingletonEnumeration( result );
+                call.setResponse( e );
+                bypass = true;
+            }
+        }
+
+        if( !bypass )
+        {
+            nextInterceptor.process( call );
+        }
+        
+        if ( searchControls.getReturningAttributes() != null )
         {
             return;
         }
 
-        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
-        {
-            if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
-                 filter instanceof SimpleNode )
-            {
-                SimpleNode node = ( SimpleNode ) filter;
-
-                if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) &&
-                     node.getValue().equalsIgnoreCase( "subschema" ) &&
-                     node.getAssertionType() == SimpleNode.EQUALITY
-                   )
-                {
-                    invocation.setBypass( true );
-                    Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
-                    SearchResult result = new SearchResult( base.toString(), null, attrs );
-                    SingletonEnumeration e = new SingletonEnumeration( result );
-                    invocation.setReturnValue( e );
-                }
-            }
-            else if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
-                     filter instanceof PresenceNode )
-            {
-                PresenceNode node = ( PresenceNode ) filter;
-
-                if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) )
-                {
-                    invocation.setBypass( true );
-                    Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
-                    SearchResult result = new SearchResult( base.toString(), null, attrs );
-                    SingletonEnumeration e = new SingletonEnumeration( result );
-                    invocation.setReturnValue( e );
-                }
-            }
-        }
+        NamingEnumeration e ;
+        ResultFilteringEnumeration retval;
+        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
+        e = ( NamingEnumeration ) call.getResponse();
+        retval = new ResultFilteringEnumeration( e, searchControls, ctx, binaryAttributeFilter );
+        call.setResponse( retval );
     }
 
 
@@ -410,5 +305,133 @@ public class SchemaService extends BaseInterceptor
         attrs.put( "cn", "schema" );
 
         return attrs;
+    }
+
+    protected void process(NextInterceptor nextInterceptor, Lookup call) throws NamingException {
+        nextInterceptor.process( call );
+        
+        ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
+        Attributes attributes = ( Attributes ) call.getResponse();
+        Attributes retval = ( Attributes ) attributes.clone();
+        doFilter( ctx, retval );
+        call.setResponse( retval );
+    }
+
+    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds call) throws NamingException {
+        nextInterceptor.process( call );
+
+        ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
+        Attributes attributes = ( Attributes ) call.getResponse();
+        if ( attributes == null )
+        {
+            return;
+        }
+
+        Attributes retval = ( Attributes ) attributes.clone();
+        doFilter( ctx, retval );
+        call.setResponse( retval );
+    }
+
+    private void doFilter( LdapContext ctx, Attributes entry )
+        throws NamingException
+    {
+        // set of AttributeType objects that are to behave as binaries
+        Set binaries;
+        
+        // construct the set for fast lookups while filtering
+        String binaryIds = ( String ) ctx.getEnvironment().get( BINARY_KEY );
+        
+        if ( binaryIds == null )
+        {
+            binaries = Collections.EMPTY_SET;
+        }
+        else
+        {
+            String[] binaryArray = binaryIds.split( " " );
+            
+            binaries = new HashSet( binaryArray.length );
+            
+            for ( int ii = 0; ii < binaryArray.length; ii++ )
+            {
+                AttributeType type = attributeRegistry.lookup( binaryArray[ii] );
+                
+                binaries.add( type );
+            }
+        }
+        
+        /*
+         * start converting values of attributes to byte[]s which are not
+         * human readable and those that are in the binaries set
+         */
+        NamingEnumeration list = entry.getIDs();
+        
+        while ( list.hasMore() )
+        {
+            String id = ( String ) list.next();
+            
+            AttributeType type = null;
+            
+            boolean asBinary = false;
+            
+            if ( attributeRegistry.hasAttributeType( id ) )
+            {
+                type = attributeRegistry.lookup( id );
+            }
+            
+            if ( type != null )
+            {
+                asBinary = ! type.getSyntax().isHumanReadible();
+                
+                asBinary = asBinary || binaries.contains( type );
+            }
+            
+            if ( asBinary )
+            {
+                Attribute attribute = entry.get( id );
+                
+                Attribute binary = new LockableAttributeImpl( id );
+                
+                for ( int ii = 0; ii < attribute.size(); ii++ )
+                {
+                    Object value = attribute.get( ii );
+                    
+                    if ( value instanceof String )
+                    {
+                        binary.add( ii, ( ( String ) value ).getBytes() );
+                    }
+                    else
+                    {
+                        binary.add( ii, value );
+                    }
+                }
+                
+                entry.remove( id );
+                
+                entry.put( binary );
+            }
+        }
+    }
+
+    /**
+     * A special filter over entry attributes which replaces Attribute String
+     * values with their respective byte[] representations using schema
+     * information and the value held in the JNDI environment property:
+     * <code>java.naming.ldap.attributes.binary</code>.
+     *
+     * @see <a href=
+     * "http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#binary">
+     * java.naming.ldap.attributes.binary</a>
+     */
+    private class BinaryAttributeFilter implements SearchResultFilter
+    {
+        public BinaryAttributeFilter( )
+        {
+        }
+
+        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls ) throws NamingException
+        {
+            doFilter( ctx, result.getAttributes() );
+            return true;
+        }
     }
 }

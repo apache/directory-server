@@ -112,10 +112,10 @@ public class DefaultAttributeTagger extends BaseInterceptor
      *
      * @see BaseInterceptor#add(String, Name, Attributes)
      */
-    protected void process( NextInterceptor nextInterceptor, Add request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
     {
-        String principal = getPrincipal( request ).getName();
-        Attributes entry = request.getAttributes();
+        String principal = getPrincipal( call ).getName();
+        Attributes entry = call.getAttributes();
 
         BasicAttribute attribute = new BasicAttribute( "creatorsName" );
         attribute.add( principal );
@@ -125,128 +125,128 @@ public class DefaultAttributeTagger extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
         
-        nextInterceptor.process( request );
+        nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Modify request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
     {
-        nextInterceptor.process( request );
+        nextInterceptor.process( call );
         
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( request ).getName() );
+        attribute.add( getPrincipal( call ).getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( request.getName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( call.getName(), DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyMany request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
     {
-        nextInterceptor.process( request );
+        nextInterceptor.process( call );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( request ).getName() );
+        attribute.add( getPrincipal( call ).getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( request.getName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( call.getName(), DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRN request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
     {
-        nextInterceptor.process( request );
+        nextInterceptor.process( call );
         
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( request ).getName() );
+        attribute.add( getPrincipal( call ).getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        Name newDn = request.getName().getSuffix( 1 ).add( request.getNewRelativeName() );
+        Name newDn = call.getName().getSuffix( 1 ).add( call.getNewRelativeName() );
         nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Move request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
     {
-        nextInterceptor.process( request );
+        nextInterceptor.process( call );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( request ).getName() );
+        attribute.add( getPrincipal( call ).getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( request.getNewParentName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( call.getNewParentName(), DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN request ) throws NamingException
+    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
     {
-        nextInterceptor.process( request );
+        nextInterceptor.process( call );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( request ).getName() );
+        attribute.add( getPrincipal( call ).getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( request.getNewParentName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( call.getNewParentName(), DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process(NextInterceptor nextInterceptor, Lookup request) throws NamingException {
-        nextInterceptor.process( request );
+    protected void process(NextInterceptor nextInterceptor, Lookup call) throws NamingException {
+        nextInterceptor.process( call );
         
-        Attributes attributes = ( Attributes ) request.getResponse();
+        Attributes attributes = ( Attributes ) call.getResponse();
         Attributes retval = ( Attributes ) attributes.clone();
         filter( retval );
-        request.setResponse( retval );
+        call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds request) throws NamingException {
-        nextInterceptor.process( request );
+    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds call) throws NamingException {
+        nextInterceptor.process( call );
         
-        Attributes attributes = ( Attributes ) request.getResponse();
+        Attributes attributes = ( Attributes ) call.getResponse();
         if ( attributes == null )
         {
             return;
         }
 
         Attributes retval = ( Attributes ) attributes.clone();
-        filter( request.getName(), retval, request.getAttributeIds() );
-        request.setResponse( retval );
+        filter( call.getName(), retval, call.getAttributeIds() );
+        call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, Search request) throws NamingException {
-        nextInterceptor.process( request );
+    protected void process(NextInterceptor nextInterceptor, Search call) throws NamingException {
+        nextInterceptor.process( call );
         
-        SearchControls searchControls = request.getSearchControls();
+        SearchControls searchControls = call.getSearchControls();
         if ( searchControls.getReturningAttributes() != null )
         {
             return;
@@ -254,10 +254,10 @@ public class DefaultAttributeTagger extends BaseInterceptor
 
         NamingEnumeration e ;
         ResultFilteringEnumeration retval;
-        LdapContext ctx = ( LdapContext ) request.getContextStack().peek();
-        e = ( NamingEnumeration ) request.getResponse();
+        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
+        e = ( NamingEnumeration ) call.getResponse();
         retval = new ResultFilteringEnumeration( e, searchControls, ctx, SEARCH_FILTER );
-        request.setResponse( retval );
+        call.setResponse( retval );
     }
 
     /**

@@ -67,13 +67,13 @@ import org.apache.ldap.server.jndi.call.Search;
 public abstract class BaseInterceptor implements Interceptor
 {
     /**
-     * Gets the request's current context's Principal.
+     * Gets the call's current context's Principal.
      * 
      * @return the principal making the call
      */
-    public static LdapPrincipal getPrincipal( Call request )
+    public static LdapPrincipal getPrincipal( Call call )
     {
-        ServerContext ctx = ( ServerContext ) request.getContextStack().peek();
+        ServerContext ctx = ( ServerContext ) call.getContextStack().peek();
         return ctx.getPrincipal();
     }
 
@@ -90,76 +90,76 @@ public abstract class BaseInterceptor implements Interceptor
      * analog method that does the work of the Interceptor for that Invocation
      * method.
      */
-    public void process( NextInterceptor nextProcessor, Call request )
+    public void process( NextInterceptor nextInterceptor, Call call )
             throws NamingException
     {
-        if( request instanceof Add )
+        if( call instanceof Add )
         {
-            process( nextProcessor, ( Add ) request );
+            process( nextInterceptor, ( Add ) call );
         }
-        else if( request instanceof Delete )
+        else if( call instanceof Delete )
         {
-            process( nextProcessor, ( Delete ) request );
+            process( nextInterceptor, ( Delete ) call );
         }
-        else if( request instanceof GetMatchedDN )
+        else if( call instanceof GetMatchedDN )
         {
-            process( nextProcessor, ( GetMatchedDN ) request );
+            process( nextInterceptor, ( GetMatchedDN ) call );
         }
-        else if( request instanceof GetSuffix )
+        else if( call instanceof GetSuffix )
         {
-            process( nextProcessor, ( GetSuffix ) request );
+            process( nextInterceptor, ( GetSuffix ) call );
         }
-        else if( request instanceof HasEntry )
+        else if( call instanceof HasEntry )
         {
-            process( nextProcessor, ( HasEntry ) request );
+            process( nextInterceptor, ( HasEntry ) call );
         }
-        else if( request instanceof IsSuffix )
+        else if( call instanceof IsSuffix )
         {
-            process( nextProcessor, ( IsSuffix ) request );
+            process( nextInterceptor, ( IsSuffix ) call );
         }
-        else if( request instanceof List )
+        else if( call instanceof List )
         {
-            process( nextProcessor, ( List ) request );
+            process( nextInterceptor, ( List ) call );
         }
-        else if( request instanceof ListSuffixes )
+        else if( call instanceof ListSuffixes )
         {
-            process( nextProcessor, ( ListSuffixes ) request );
+            process( nextInterceptor, ( ListSuffixes ) call );
         }
-        else if( request instanceof Lookup )
+        else if( call instanceof Lookup )
         {
-            process( nextProcessor, ( Lookup ) request );
+            process( nextInterceptor, ( Lookup ) call );
         }
-        else if( request instanceof LookupWithAttrIds )
+        else if( call instanceof LookupWithAttrIds )
         {
-            process( nextProcessor, ( LookupWithAttrIds ) request );
+            process( nextInterceptor, ( LookupWithAttrIds ) call );
         }
-        else if( request instanceof Modify )
+        else if( call instanceof Modify )
         {
-            process( nextProcessor, ( Modify ) request );
+            process( nextInterceptor, ( Modify ) call );
         }
-        else if( request instanceof ModifyMany )
+        else if( call instanceof ModifyMany )
         {
-            process( nextProcessor, ( ModifyMany ) request );
+            process( nextInterceptor, ( ModifyMany ) call );
         }
-        else if( request instanceof ModifyRN )
+        else if( call instanceof ModifyRN )
         {
-            process( nextProcessor, ( ModifyRN ) request );
+            process( nextInterceptor, ( ModifyRN ) call );
         }
-        else if( request instanceof Move )
+        else if( call instanceof Move )
         {
-            process( nextProcessor, ( Move ) request );
+            process( nextInterceptor, ( Move ) call );
         }
-        else if( request instanceof MoveAndModifyRN )
+        else if( call instanceof MoveAndModifyRN )
         {
-            process( nextProcessor, ( MoveAndModifyRN ) request );
+            process( nextInterceptor, ( MoveAndModifyRN ) call );
         }
-        else if( request instanceof Search )
+        else if( call instanceof Search )
         {
-            process( nextProcessor, ( Search ) request );
+            process( nextInterceptor, ( Search ) call );
         }
         else {
             throw new IllegalArgumentException(
-                    "Unknown request type: " + request.getClass() );
+                    "Unknown call type: " + call.getClass() );
         }
     }
 
@@ -167,99 +167,99 @@ public abstract class BaseInterceptor implements Interceptor
     // Invocation Analogs
     // ------------------------------------------------------------------------
 
-    protected void process( NextInterceptor nextProcessor, Add request )
+    protected void process( NextInterceptor nextInterceptor, Add call )
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, Delete request ) 
+    protected void process( NextInterceptor nextInterceptor, Delete call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, GetMatchedDN request ) 
+    protected void process( NextInterceptor nextInterceptor, GetMatchedDN call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, GetSuffix request ) 
+    protected void process( NextInterceptor nextInterceptor, GetSuffix call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, HasEntry request ) 
+    protected void process( NextInterceptor nextInterceptor, HasEntry call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, IsSuffix request ) 
+    protected void process( NextInterceptor nextInterceptor, IsSuffix call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, List request ) 
+    protected void process( NextInterceptor nextInterceptor, List call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, ListSuffixes request ) 
+    protected void process( NextInterceptor nextInterceptor, ListSuffixes call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, Lookup request ) 
+    protected void process( NextInterceptor nextInterceptor, Lookup call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, LookupWithAttrIds request ) 
+    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, Modify request ) 
+    protected void process( NextInterceptor nextInterceptor, Modify call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, ModifyMany request ) 
+    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, ModifyRN request ) 
+    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, Move request ) 
+    protected void process( NextInterceptor nextInterceptor, Move call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, MoveAndModifyRN request ) 
+    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 
-    protected void process( NextInterceptor nextProcessor, Search request ) 
+    protected void process( NextInterceptor nextInterceptor, Search call ) 
             throws NamingException
     {
-        nextProcessor.process( request );
+        nextInterceptor.process( call );
     }
 }

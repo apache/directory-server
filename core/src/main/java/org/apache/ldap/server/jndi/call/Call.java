@@ -2,13 +2,24 @@ package org.apache.ldap.server.jndi.call;
 
 import java.util.Stack;
 
+import javax.naming.NamingException;
+
+import org.apache.ldap.server.BackingStore;
+
 public abstract class Call {
 
-    private Object response;
-    private Stack contextStack;
+    protected final BackingStore store;
+    protected Object response;
+    protected Stack contextStack;
 
-    protected Call()
+    protected Call( BackingStore store )
     {
+        if( store == null )
+        {
+            throw new NullPointerException( "store" );
+        }
+
+        this.store = store;
     }
     
     /**
@@ -49,4 +60,11 @@ public abstract class Call {
     {
         this.contextStack = contextStack;
     }
+    
+    public void execute() throws NamingException
+    {
+        setResponse( doExecute() );
+    }
+    
+    protected abstract Object doExecute() throws NamingException;
 }

@@ -36,7 +36,7 @@ public class InterceptorException extends LdapNamingException
     private static final long serialVersionUID = 3258690996517746233L;
 
     /** The Invokation the Interceptor failed on */
-    private final Call request;
+    private final Call call;
     /** The Interceptor causing the failure */
     private final Interceptor requestProcessor;
 
@@ -50,7 +50,7 @@ public class InterceptorException extends LdapNamingException
     public InterceptorException( Interceptor requestProcessor, Call request )
     {
         super( ResultCodeEnum.OTHER );
-        this.request = request;
+        this.call = request;
         this.requestProcessor = requestProcessor;
     }
 
@@ -66,7 +66,7 @@ public class InterceptorException extends LdapNamingException
                                       Call request, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
-        this.request = request;
+        this.call = request;
         this.requestProcessor = requestProcessor;
     }
 
@@ -107,9 +107,9 @@ public class InterceptorException extends LdapNamingException
      *
      * @return the invovation object this exception is associated with
      */
-    public Call getRequest()
+    public Call getCall()
     {
-        return request;
+        return call;
     }
 
 

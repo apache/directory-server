@@ -34,7 +34,7 @@ public class InterceptorChain
             // do nothing
         }
 
-        public void process(NextInterceptor nextProcessor, Call request)
+        public void process(NextInterceptor nextProcessor, Call call)
                 throws NamingException
         {
             // do nothing
@@ -199,13 +199,13 @@ public class InterceptorChain
      * Start invocation chain with the specified invocation.
      * @throws NamingException if invocation failed
      */
-    public void process( Call request ) throws NamingException
+    public void process( Call call ) throws NamingException
     {
         Entry head = this.head;
         try
         {
             head.processor.process(
-                    head.nextProcessor, request );
+                    head.nextProcessor, call );
         }
         catch( NamingException ne )
         {
@@ -213,7 +213,7 @@ public class InterceptorChain
         }
         catch( Throwable e )
         {
-            throw new InterceptorException( head.processor, request,
+            throw new InterceptorException( head.processor, call,
                                             "Unexpected exception.", e );
         }
     }
@@ -280,13 +280,13 @@ public class InterceptorChain
             this.processor = processor;
             this.nextProcessor = new NextInterceptor()
             {
-                public void process(Call request)
+                public void process(Call call)
                         throws NamingException {
                     Interceptor processor = Entry.this.nextEntry.processor;
                     try
                     {
                         processor.process(
-                                Entry.this.nextEntry.nextProcessor, request );
+                                Entry.this.nextEntry.nextProcessor, call );
                     }
                     catch( NamingException ne )
                     {
@@ -294,7 +294,7 @@ public class InterceptorChain
                     }
                     catch( Throwable e )
                     {
-                        throw new InterceptorException( processor, request,
+                        throw new InterceptorException( processor, call,
                                                              "Unexpected exception.", e );
                     }
                 }

@@ -85,7 +85,7 @@ public class Authenticatior implements Interceptor
     /**
      * Unregisters an Authenticator with this AuthenticatorService.  Called for each
      * registered Authenticator right before it is to be stopped.  This prevents
-     * protocol server requests from reaching the Backend and effectively puts
+     * protocol server calls from reaching the Backend and effectively puts
      * the ContextPartition's naming context offline.
      *
      * @param authenticator Authenticator component to unregister with this
@@ -120,11 +120,11 @@ public class Authenticatior implements Interceptor
     {
     }
 
-    public void process( NextInterceptor nextProcessor, Call request ) throws NamingException
+    public void process( NextInterceptor nextProcessor, Call call ) throws NamingException
     {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
-        ServerContext ctx = ( ServerLdapContext ) request.getContextStack().peek();
+        ServerContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
         if ( ctx.getPrincipal() != null )
         {
             if ( ctx.getEnvironment().containsKey( CREDS ) )
@@ -132,7 +132,7 @@ public class Authenticatior implements Interceptor
                 ctx.removeFromEnvironment( CREDS );
             }
 
-            nextProcessor.process(request);
+            nextProcessor.process(call);
         }
 
         String authList = ( String ) ctx.getEnvironment().get( AUTH_TYPE );
@@ -186,7 +186,7 @@ public class Authenticatior implements Interceptor
 
                 // remove creds so there is no security risk
                 ctx.removeFromEnvironment( CREDS );
-                nextProcessor.process(request);
+                nextProcessor.process(call);
                 return;
             }
             catch ( LdapAuthenticationException e )

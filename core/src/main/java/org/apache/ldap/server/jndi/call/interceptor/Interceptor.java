@@ -56,6 +56,6 @@ public interface Interceptor
      * @param invocation the invocation to process
      * @throws NamingException on failures while handling the invocation
      */
-    void process( NextInterceptor nextProcessor, Call request )
+    void process( NextInterceptor nextProcessor, Call call )
             throws NamingException;
 }
