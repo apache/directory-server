@@ -312,5 +312,14 @@ extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
         </p>
       </subsection>
     </section>
+
+    <section name="How does alias dereferencing while searching work?">
+      <p>You're going to want to read these documents here:</p>
+
+      <ul>
+        <li><a href="./xldbm.pdf">Paper LDAP database design by Tim Howes</a></li>
+        <li><a href="./alias-dereferencing.pdf">Paper on Eve alias dereferencing mechanism by Alex Karasulu</a></li>
+      </ul>
+    </section>
   </body>
 </document>
