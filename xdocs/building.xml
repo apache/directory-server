@@ -6,11 +6,11 @@
   </properties>
   
   <body>
-    <section name="Building Eve">
+    <section name="Building and Running Eve">
       <p>
         All directory projects use <a href="http://maven.apache.org">Maven</a>
         as the default build tool.  We try to remain current with the production
-        version of Maven.  As of 11/04 we use Maven 1.0.1 on JDK 1.4 and up.
+        version of Maven.  As of 12/04 we use Maven 1.0.2 on JDK 1.4 and up.
       </p>
 
       <p>
@@ -20,8 +20,37 @@
       </p>
 
       <source>
-        maven -Dgoal=clean,jar:jar multiproject:goal
+maven multiproject:install
       </source>
+
+      <p>
+        Once you've built the server you'll find an executable jar file under
+        the main/target directory labeled eve-${version}.jar which can be fired
+        up like so:
+      </p>
+
+<source>
+[akarasulu@newton trunk]$ java -jar main/target/eve-0.8.0-SNAPSHOT.jar
+Eve: using default properties ...
+Eve: standard ldap port 389 is not available, using 1024 instead
+Eve: started in 1368 milliseconds
+</source>
+
+      <p>
+        When you start the server without a properties file arguement default
+        settings are used.  She tries to bind to 389 but this non-root user
+        does not have the needed privledges so Eve tries to bind on the next
+        available port which is 1024.  If you would like a properties file can
+        be used to override and set Eve specific properties to control her
+        behavoir.  Below we use the properties file that comes preconfigured
+        for Apache under the eve/trunk/main directory:
+      </p>
+
+<source>
+[akarasulu@newton trunk]$ java -jar main/target/eve-0.8.0-SNAPSHOT.jar main/eve.properties
+Eve: loading properties from main/eve.properties
+Eve: started in 1449 milliseconds
+</source>
     </section>
 
     <section name="Eve's Maven Modules">
@@ -40,16 +69,36 @@
           <td>Contains an LDAP protocol provider for the SEDA framework.</td>
         </tr>
         <tr>
-          <td>maven-eve-plugin</td>
+          <td>plugin</td>
           <td>Contains a maven plugin used while developing with/for Eve.</td>
         </tr>
         <tr>
-          <td>jndi-provider</td>
-          <td>Contains Eve's JNDI Provider which wraps/is the backend subsystem.</td>
+          <td>dib</td>
+          <td>
+            Contains Eve's DIB (Directory Information Base) which contains the
+            JNDI Provider that wraps/is the backend subsystem.  This name DIB
+            is really a misnomer: the DIB in X.500 terms represents collectively
+            the distributed database of all the entries in a directory system
+            composed of one or more servers.  We just use it cuz it's 3 letters
+            long and we did not know whether we should call it backend, or
+            database, or what.
+          </td>
         </tr>
         <tr>
           <td>shared</td>
           <td>Contains shared classes between modules to prevent cyclic deps.</td>
+        </tr>
+        <tr>
+          <td>optional</td>
+          <td>
+            We might create this project in the near future to contain bundles
+            of optional schema jars.  Eve's maven plugin generates Java class
+            files for OpenLDAP schema files.  These classes create schema
+            objects way faster than parsing a file to dynamically create schema
+            objects.  The optional package will contain all the schema classes
+            for published schemas we can find.  When firing up Eve you can
+            request to load only those schemas you actually use.
+          </td>
         </tr>
       </table>
     </section>

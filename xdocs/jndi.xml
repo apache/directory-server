@@ -162,5 +162,83 @@
 
       </table>
     </section>
+
+    <section name="Embedding Eve">
+      <p>
+        Embedding Eve is really easy.  Just set the JNDI initial context
+        factory and other security settings along with Eve specific properties
+        to fire her up.  Here's a simple example of code that embeds Eve using
+        the minimum configuration information:
+      </p>
+
+<source>
+Hashtable env = new Hashtable();
+env.setProperty( Context.PROVIDER_URL, "ou=system" );
+env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+InitialDirContext ctx = new InitialDirContext( env );
+</source>
+
+      <p>
+        This code snippet starts up Eve on port 389 or the next available port.
+        There is only one partition in the system hanging off of the "ou=system"
+        naming context.  The server allows for anonymous binds and has two users
+        preconfigured: a regular test user, <b>uid=akarasulu,ou=users,ou=system
+        </b> with password <i>test</i>, and the super user <b>uid=admin,ou=system
+        </b>, with password <i>secret</i>.
+      </p>
+
+      <p>
+        <b>WARNING:</b> REMOVE THE TEST USER AND RESET THE PASSWORD ON THE ADMIN
+        USER ACCOUNT AFTER STARTING EVE.
+      </p>
+
+      <p>
+        Here's another more invovled configuration:
+      </p>
+
+<souce>
+Hashtable env = new Hashtable();
+
+// Standard JNDI properties
+env.setProperty( Context.PROVIDER_URL, "ou=system" );
+env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+env.setProperty( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+env.setProperty( Context.SECURITY_CREDENTIALS, "secret" );
+env.setProperty( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
+// Eve specifice JNDI properties
+env.setProperty( EnvKeys.WKDIR, "/var/ldap" );
+env.setProperty( EnvKeys.DISABLE_ANONYMOUS, "true" );
+env.setProperty( EnvKeys.LDAP_PORT, "10389" );
+env.setProperty( EnvKeys.PARTITIONS, "apache" );
+
+// Setup new partition for Apache
+BasicAttributes attrs = new BasicAttributes( true );
+BasicAttribute attr = new BasicAttribute( "objectClass" );
+attr.add( "top" );
+attr.add( "domain" );
+attr.add( "extensibleObject" );
+attrs.put( attr );
+attr = new BasicAttribute( "dc" );
+attr.add( "apache" );
+attrs.put( attr );
+env.put( EnvKeys.SUFFIX + "apache", "dc=apache,dc=org" );     // suffix
+env.put( EnvKeys.INDICES + "apache", "ou uid objectClass" );  // user indices
+env.put( EnvKeys.ATTRIBUTES + "apache", attrs );              // suffix entry
+
+// Fire it up!
+InitialDirContext ctx = new InitialDirContext( env );
+</souce>
+
+      <p>
+        This configuration starts up the server on port 10389 with anonymous
+        binds disabled.  Eve stores its database files under /var/ldap
+        and creates a new application partition for Apache entries off of the
+        <b>dc=apache,dc=org</b> naming context in addition to the system
+        partition.  If you look closely at /var/ldap you'll see a directory
+        names apache where you'll find even more database files.  This is a
+        separate database partition for apache entries.
+      </p>
+    </section>
   </body>
 </document>
