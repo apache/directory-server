@@ -9,18 +9,16 @@
   <package>org.apache.eve</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2002</inceptionYear>
-  <shortDescription>The Eve JNDI (LDAP Namespace) Provider</shortDescription>
+  <shortDescription>The Eve JNDI Provider</shortDescription>
   <description>
-      Eve's backend subsystem is a JNDI Provider for the LDAP namespace.  It is not
-      an LDAP provider in the sense the SUN JNDI LDAP provider is for example because
-      the Eve provider does not talk LDAP over the wire.  The Eve JNDI provider 
-      actually isn't even an LDAP client.  In fact the Eve provider is really a server
-      side subsystem.  It translates JNDI operations to backing store operations on the 
-      appropriate Eve database partition assigned to a naming context.  The net result 
-      is a JNDI LDAP namespace provider so please note the inclusion of the word 
-      'namespace'.  There is nothing going on here with respect to the LDAP protocol.  
-      All operations are local upon entries on disk or in memory.
-    </description>
+    Eve's backend subsystem is a JNDI Provider.  The provider translates JNDI
+    operations to backing store calls on Eve database partitions.  Eve's
+    database partitions may hang off of separate naming contexts.  The provider
+    uses the LDAP namespace but it is not intended to be an LDAP client.  The
+    provider may have to talk LDAP over the wire only when it needs to chase a
+    referral to an LDAP server.  In such cases, Eve may delegate LDAP client
+    behavior to the SUN LDAP JNDI Provider.
+  </description>
   <dependencies>
     <dependency>
       <groupId>regexp</groupId>
