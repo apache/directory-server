@@ -20,6 +20,11 @@ package $package;
 import java.util.ArrayList;
 
 
+#if ( $package != "org.apache.eve.schema.bootstrap" )
+import org.apache.eve.schema.bootstrap.*;
+#end
+
+
 /**
  * Top level $schema schema class.  This code has been automatically generated
  * using the eve schema plugin for maven.

@@ -19,6 +19,10 @@ package $package;
 
 import javax.naming.NamingException;
 
+#if ( $package != "org.apache.eve.schema.bootstrap" )
+import org.apache.eve.schema.bootstrap.*;
+#end
+
 
 /**
  * A producer of $type objects for the $schema schema.  This code has been
