@@ -78,9 +78,37 @@ public class AttributeTypesTemplateTest extends TestCase
 
     public void testGeneration() throws Exception
     {
+        Syntax syntax = new Syntax(){
+            public boolean isHumanReadable()
+            {
+                return false;
+            }
+
+            public String getName()
+            {
+                return null;
+            }
+
+            public String getOid()
+            {
+                return "2.3.3.6";
+            }
+
+            public SyntaxChecker getSyntaxChecker()
+            {
+                return null;
+            }
+
+            public String getDescription()
+            {
+                return null;
+            }
+        };
+
         TestAttributeType[] attributeTypes = new TestAttributeType[2];
         attributeTypes[0] = new TestAttributeType( "1.1.1.1" );
-        attributeTypes[0].setUsage( UsageEnum.DIRECTORYOPERATION );
+        attributeTypes[0].setUsage( UsageEnum.USERAPPLICATIONS );
+        attributeTypes[0].setSyntax( syntax );
 
         attributeTypes[1] = new TestAttributeType( "1.1.1.2" );
         attributeTypes[1].setUsage( UsageEnum.DIRECTORYOPERATION );
@@ -190,6 +218,11 @@ public class AttributeTypesTemplateTest extends TestCase
         public String getEqualityOid()
         {
             return super.getEquality() != null ? super.getEquality().getOid() : null;
+        }
+
+        public String getSyntaxOid()
+        {
+            return super.getSyntax() != null ? super.getSyntax().getOid() : null;
         }
     }
 }

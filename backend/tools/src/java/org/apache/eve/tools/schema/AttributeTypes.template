@@ -17,8 +17,17 @@
 package $package;
 
 
+import java.util.ArrayList;
+import javax.naming.NamingException;
+
 import org.apache.ldap.common.schema.*;
-//import org.apache.eve.schema.config.*;
+
+#if ( $package != "org.apache.eve.schema" )
+import org.apache.eve.schema.*;
+#end
+#if ( $package != "org.apache.eve.schema.config" )
+import org.apache.eve.schema.config.*;
+#end
 
 
 /**
@@ -80,58 +89,33 @@ schemaDeps[$ii] = "$dep";
     // ------------------------------------------------------------------------
 
 
-    public AttributeType[] load( AttributeTypeRegistry attrTypeReg,
-                                 MatchingRuleRegistry mruleReg )
+    public AttributeType[] load( SyntaxRegistry syntaxReg,
+                                 MatchingRuleRegistry mruleReg,
+                                 AttributeTypeRegistry attrTypeReg )
         throws NamingException
     {
-        String usage;
-        String mruleOid;
-        String superiorOid;
-        MatchingRule mrule;
-        AttributeType superior;
-        AttributeType[] attributeTypes = new AttributeType[$attrTypeCount];
+        MutableAttributeType[] attributeTypes = new MutableAttributeType[$attrTypeCount];
 
         #foreach ( $attrType in $attrTypes )
         #set ( $ii = $velocityCount - 1 )
-attributeTypes[$ii] = new MutableAttributeType( "$attrType.getOid()" );
+
+        // --------------------------------------------------------------------
+        // AttributeType $attrType.getOid()
+        // --------------------------------------------------------------------
+
+
+        attributeTypes[$ii] = new MutableAttributeType( "$attrType.getOid()" );
         attributeTypes[$ii].setSingleValue( $attrType.isSingleValue() );
         attributeTypes[$ii].setCollective( $attrType.isCollective() );
         attributeTypes[$ii].setObsolete( $attrType.isObsolete() );
         attributeTypes[$ii].setCanUserModify( $attrType.isCanUserModify() );
         attributeTypes[$ii].setLength( $attrType.getLength() );
-
-        // set the superior attribute type
-        superiorOid = "$!attrType.getSuperiorOid()";
-        if ( ! superiorOid.equals("") )
-        {
-            attributeTypes[$ii].setSuperior( attrTypeReg.lookup( superiorOid ) );
-        }
-
-        // set usage enumeration value
-        usage = "$attrType.getUsage().getName()";
-        attributeTypes[$ii].setUsageEnum( UsageEnum.getUsageEnum( usage ) );
-
-        // set the equality matching rule
-        mruleOid = "$!attrType.getEqualityOid()";
-        if ( ! mruleOid.equals("") )
-        {
-            attributeTypes[$ii].setEquality( mruleReg.lookup( mruleOid ) );
-        }
-
-        // set the substr matching rule
-        mruleOid = "$!attrType.getSubstrOid()";
-        if ( ! mruleOid.equals("") )
-        {
-            attributeTypes[$ii].setSubstr( mruleReg.lookup( mruleOid ) );
-        }
-
-        // set the ordering matching rule
-        mruleOid = "$!attrType.getOrderingOid()";
-        if ( ! mruleOid.equals("") )
-        {
-            attributeTypes[$ii].setOrdering( mruleReg.lookup( mruleOid ) );
-        }
-
+        attributeTypes[$ii].setUsage( UsageEnum.getUsage( "$attrType.getUsage().getName()" ) );
+#if ( $attrType.getSuperiorOid() )        attributeTypes[$ii].setSuperior( attrTypeReg.lookup( "$attrType.getSuperiorOid()" ) ); #end
+#if ( $attrType.getEqualityOid() )        attributeTypes[$ii].setEquality( mruleReg.lookup( "$attrType.getEqualityOid()" ) );#end
+#if ( $attrType.getSubstrOid() )        attributeTypes[$ii].setSubstr( mruleReg.lookup( "$attrType.getSubstrOid()" ) );#end
+#if ( $attrType.getOrderingOid() )        attributeTypes[$ii].setOrdering( mruleReg.lookup( "$attrType.getOrderingOid()" ) );#end
+#if ( $attrType.getSyntaxOid() )        attributeTypes[$ii].setSyntax( syntaxReg.lookup( "$attrType.getSyntaxOid()" ) );#end
 
         #end
 
@@ -144,6 +128,66 @@ attributeTypes[$ii] = new MutableAttributeType( "$attrType.getOid()" );
         public MutableAttributeType( String oid )
         {
             super( oid );
+        }
+
+        protected void setSuperior( AttributeType superior )
+        {
+            super.setSuperior( superior );
+        }
+
+        protected void setNameList( ArrayList nameList )
+        {
+            super.setNameList( nameList );
+        }
+
+        protected void setEquality( MatchingRule equality )
+        {
+            super.setEquality( equality );
+        }
+
+        protected void setSubstr( MatchingRule substr )
+        {
+            super.setSubstr( substr );
+        }
+
+        protected void setOrdering( MatchingRule ordering )
+        {
+            super.setOrdering( ordering );
+        }
+
+        protected void setSyntax( Syntax syntax )
+        {
+            super.setSyntax( syntax );
+        }
+
+        protected void setSingleValue( boolean singleValue )
+        {
+            super.setSingleValue( singleValue );
+        }
+
+        protected void setCollective( boolean collective )
+        {
+            super.setCollective( collective );
+        }
+
+        protected void setCanUserModify( boolean canUserModify )
+        {
+            super.setCanUserModify( canUserModify );
+        }
+
+        protected void setObsolete( boolean obsolete )
+        {
+            super.setObsolete( obsolete );
+        }
+
+        protected void setUsage( UsageEnum usage )
+        {
+            super.setUsage( usage );
+        }
+
+        protected void setLength( int length )
+        {
+            super.setLength( length );
         }
     }
 }
