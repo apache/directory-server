@@ -45,29 +45,24 @@
           
             <j:set var="ownerProp" value="maven.eve.schema.owner.${schema}"/>
             <j:set var="owner" value="${context.getVariable(ownerProp)}"
-            	defaultValue="${maven.eve.schema.ownerDefault}"/>
-			
+                defaultValue="${maven.eve.schema.ownerDefault}"/>
             <j:set var="packageProp" value="maven.eve.schema.package.${schema}"/>
             <j:set var="package" value="${context.getVariable(packageProp)}"
-            	defaultValue="${maven.eve.schema.packageDefault}"/>
-			
+                defaultValue="${maven.eve.schema.packageDefault}"/>
             <j:set var="depsProp" value="maven.eve.schema.deps.${schema}"/>
             <j:set var="deps" value="${context.getVariable(depsProp)}"/>
 
-			<!--
-			<echo>======= schema: ${schema} ======= </echo>
-			<echo>maven.eve.schema.owner.${schema} = ${owner}</echo>
-			<echo>maven.eve.schema.package.${schema} = ${package}</echo>
-			<echo>maven.eve.schema.deps.${schema} = ${deps}</echo>
-			-->
-
                         <!-- Basedir sysprop not set when not forking -->
-                        <j:set var="noop" value="${systemScope.setProperty('basedir', basedir)}"/>
-			<j:useBean var="task" class="org.apache.eve.tools.schema.EveSchemaToolTask" 
-				name="${schema}" owner="${owner}" package="${package}" dependencies="${deps}"/>
+            <j:set var="noop" value="${systemScope.setProperty('basedir', basedir)}"/>
+
+            <j:useBean var="task" class="org.apache.eve.tools.schema.EveSchemaToolTask"
+			    name="${schema}" owner="${owner}" package="${package}" dependencies="${deps}"/>
 			<j:expr value="${task.execute()}"/>
-			<echo>Generated schema producer classes for ${schema}.schema</echo>
-                        <!-- TODO: need to honour failures! -->
+            <j:if test="${task.hasFaulted()}">
+                <fail message="${task.getLastFault().getMessage()}"/>
+            </j:if>
+            <echo>Generated schema producer classes for ${schema}.schema</echo>
+
           </j:forEach>
           
         </j:if>

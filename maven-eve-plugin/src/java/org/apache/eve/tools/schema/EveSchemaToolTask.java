@@ -33,6 +33,7 @@ public class EveSchemaToolTask extends org.apache.tools.ant.Task
     private String name;
     private String owner;
     private String[] dependencies;
+    private BuildException lastFault;
 
 
     public void setPackage( String pkg )
@@ -75,7 +76,8 @@ public class EveSchemaToolTask extends org.apache.tools.ant.Task
         }
         catch ( Exception e )
         {
-            throw new BuildException( "Failed to create schema tool", e );
+            lastFault = new BuildException( "Failed to create schema tool", e );
+            throw lastFault;
         }
 
         AbstractBootstrapSchema schema =
@@ -88,12 +90,25 @@ public class EveSchemaToolTask extends org.apache.tools.ant.Task
         }
         catch ( Exception e )
         {
-            throw new BuildException( "Failed to generate " + name +
+            lastFault = new BuildException( "Failed to generate " + name +
                     " schema classes in package " + pkg, e );
+            throw lastFault;
         }
     }
-    
-    
+
+
+    public BuildException getLastFault()
+    {
+        return lastFault;
+    }
+
+
+    public boolean hasFaulted()
+    {
+        return lastFault != null;
+    }
+
+
     public String toString()
     {
     	StringBuffer buf = new StringBuffer();
