@@ -17,10 +17,17 @@
 package org.apache.eve.protocol;
 
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.ldap.common.message.*;
 
 
 /**
@@ -31,11 +38,40 @@ import org.apache.ldap.common.NotImplementedException;
  */
 public class ModifyHandler extends AbstractSingleReplyHandler
 {
+    private static final ModificationItem[] EMPTY = new ModificationItem[0];
     /**
      * @see org.apache.seda.protocol.SingleReplyHandler#handle(ClientKey,Object)
      */
     public Object handle( ClientKey key, Object request )
     {
-        throw new NotImplementedException( "handle in org.apache.eve.protocol.ModifyHandler not implemented!" );
+        ModifyRequest req = ( ModifyRequest ) request;
+        ModifyResponse resp = new ModifyResponseImpl( req.getMessageId() );
+        resp.setLdapResult( new LdapResultImpl( resp ) );
+        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+
+        try
+        {
+            DirContext ctx = ( DirContext ) ictx.lookup( "" );
+            Object[] mods = req.getModificationItems().toArray( EMPTY );
+            ctx.modifyAttributes( req.getName(), ( ModificationItem[] ) mods );
+        }
+        catch ( NamingException e )
+        {
+            String msg = "failed to add entry " + req.getName() + ":\n";
+            msg += ExceptionUtils.getStackTrace( e );
+            ResultCodeEnum code;
+            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            resp.getLdapResult().setResultCode( code );
+            resp.getLdapResult().setErrorMessage( msg );
+
+            if ( e.getResolvedName() != null )
+            {
+                resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
+            }
+        }
+
+        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+        resp.getLdapResult().setMatchedDn( req.getName() );
+        return resp;
     }
 }
