@@ -7,4 +7,8 @@
   <goal name="multiproject:depoy-callback">
     <attainGoal name="plugin:repository-deploy"/>
   </goal>
+
+  <goal name="plugin:deploy">
+    <attainGoal name="plugin:repository-deploy"/>
+  </goal>
 </project>
