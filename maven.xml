@@ -21,7 +21,7 @@
 
   <goal name="subproject:collectdocs">
     <ant:copy 
-      toDir="../../../sitedocs/trunk/sitedocs/target/docs/subprojects/eve">
+      toDir="../../sitedocs/trunk/target/docs/subprojects/eve">
       
       <ant:fileSet dir="${basedir}/target/docs">
         <ant:include name="**"/>
