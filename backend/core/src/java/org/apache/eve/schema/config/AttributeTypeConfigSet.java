@@ -22,6 +22,8 @@ import org.apache.eve.schema.SyntaxRegistry;
 import org.apache.eve.schema.MatchingRuleRegistry;
 import org.apache.eve.schema.AttributeTypeRegistry;
 
+import javax.naming.NamingException;
+
 
 /**
  * Document me.
@@ -33,5 +35,5 @@ public interface AttributeTypeConfigSet
 {
     AttributeType[] load( SyntaxRegistry syntaxReg, 
                           MatchingRuleRegistry mruleReg,
-                          AttributeTypeRegistry attrTypeReg );
+                          AttributeTypeRegistry attrTypeReg ) throws NamingException;
 }
