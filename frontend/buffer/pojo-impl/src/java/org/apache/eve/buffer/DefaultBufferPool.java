@@ -1,52 +1,19 @@
 /*
-
- ============================================================================
-                   The Apache Software License, Version 1.1
- ============================================================================
-
- Copyright (C) 1999-2002 The Apache Software Foundation. All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modifica-
- tion, are permitted provided that the following conditions are met:
-
- 1. Redistributions of  source code must  retain the above copyright  notice,
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
- 3. The end-user documentation included with the redistribution, if any, must
-    include  the following  acknowledgment:  "This product includes  software
-    developed  by the  Apache Software Foundation  (http://www.apache.org/)."
-    Alternately, this  acknowledgment may  appear in the software itself,  if
-    and wherever such third-party acknowledgments normally appear.
-
- 4. The names "Eve Directory Server", "Apache Directory Project", "Apache Eve" 
-    and "Apache Software Foundation"  must not be used to endorse or promote
-    products derived  from this  software without  prior written
-    permission. For written permission, please contact apache@apache.org.
-
- 5. Products  derived from this software may not  be called "Apache", nor may
-    "Apache" appear  in their name,  without prior written permission  of the
-    Apache Software Foundation.
-
- THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL  THE
- APACHE SOFTWARE  FOUNDATION  OR ITS CONTRIBUTORS  BE LIABLE FOR  ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL  DAMAGES (INCLU-
- DING, BUT NOT LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS
- OF USE, DATA, OR  PROFITS; OR BUSINESS  INTERRUPTION)  HOWEVER CAUSED AND ON
- ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
- (INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- This software  consists of voluntary contributions made  by many individuals
- on  behalf of the Apache Software  Foundation. For more  information on the
- Apache Software Foundation, please see <http://www.apache.org/>.
-
-*/
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.buffer ;
 
 
@@ -65,8 +32,8 @@ import org.apache.eve.ResourceException ;
  * href="http://nagoya.apache.org/jira/secure/ViewIssue.jspa?key=DIR-12">
  * JIRA Issue</a>
  *
- * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
- * @author $Author$
+ * @author <a href="mailto:directory-dev@incubator.apache.org">
+ * Apache Directory Project</a>
  * @version $Rev$
  */
 public class DefaultBufferPool implements BufferPool
@@ -86,16 +53,16 @@ public class DefaultBufferPool implements BufferPool
     /**
      * Creates a BufferPool using a pool configuration bean.
      * 
-     * @param a_config the pool configuration bean
+     * @param config the pool configuration bean
      */
-    public DefaultBufferPool( BufferPoolConfig a_config )
+    public DefaultBufferPool( BufferPoolConfig config )
     {
         super() ;
         
-        m_config = a_config ;
-        m_freeList = new ArrayList( a_config.getMaximumSize() ) ;
-        m_inUseList = new ArrayList( a_config.getMaximumSize() ) ;
-        m_allList = new ArrayList( a_config.getMaximumSize() ) ;
+        m_config = config ;
+        m_freeList = new ArrayList( config.getMaximumSize() ) ;
+        m_inUseList = new ArrayList( config.getMaximumSize() ) ;
+        m_allList = new ArrayList( config.getMaximumSize() ) ;
 
         for( int ii = 0; ii < m_config.getInitialSize(); ii++ )
         {
@@ -109,7 +76,7 @@ public class DefaultBufferPool implements BufferPool
     /* (non-Javadoc)
      * @see org.apache.eve.buffer.BufferPool#getBuffer(java.lang.Object)
      */
-    public synchronized ByteBuffer getBuffer( Object a_party ) 
+    public synchronized ByteBuffer getBuffer( Object party ) 
         throws ResourceException
     {
         BufferListPair l_list = null ;
@@ -127,7 +94,7 @@ public class DefaultBufferPool implements BufferPool
             }
             else
             {    
-                m_monitor.resourceUnavailable( this, a_party ) ;
+                m_monitor.resourceUnavailable( this, party ) ;
                 throw new ResourceException( "Free Buffers unavailable" ) ;
             }
         }
@@ -135,11 +102,11 @@ public class DefaultBufferPool implements BufferPool
         // remove from free list and add to in use list then report to monitir
         l_list = ( BufferListPair ) m_freeList.remove( 0 ) ;
         m_inUseList.add( l_list ) ;
-        m_monitor.bufferTaken( this, l_list.getBuffer(), a_party ) ;
+        m_monitor.bufferTaken( this, l_list.getBuffer(), party ) ;
 
         // claim interest on the buffer automatically then report to monitor
-        l_list.add( a_party ) ;
-        m_monitor.interestClaimed( this, l_list.getBuffer(), a_party ) ;
+        l_list.add( party ) ;
+        m_monitor.interestClaimed( this, l_list.getBuffer(), party ) ;
         return l_list.getBuffer() ;
     }
 
@@ -148,19 +115,19 @@ public class DefaultBufferPool implements BufferPool
      * @see org.apache.eve.buffer.BufferPool#claimInterest(java.nio.ByteBuffer, 
      * java.lang.Object)
      */
-    public synchronized void claimInterest( ByteBuffer a_buffer, 
-                                            Object a_party )
+    public synchronized void claimInterest( ByteBuffer buffer, 
+                                            Object party )
     {
-        BufferListPair l_list = getBufferListPair( a_buffer ) ;
+        BufferListPair l_list = getBufferListPair( buffer ) ;
         
         if ( null == l_list )
         {
-            m_monitor.nonPooledBuffer( this, a_buffer, a_party ) ;
+            m_monitor.nonPooledBuffer( this, buffer, party ) ;
             throw new IllegalStateException( "Not a BufferPool resource" ) ;
         }
         
-        l_list.add( a_party ) ;
-        m_monitor.interestClaimed( this, a_buffer, a_party ) ;
+        l_list.add( party ) ;
+        m_monitor.interestClaimed( this, buffer, party ) ;
     }
 
     
@@ -168,32 +135,32 @@ public class DefaultBufferPool implements BufferPool
      * @see org.apache.eve.buffer.BufferPool#releaseClaim(java.nio.ByteBuffer, 
      * java.lang.Object)
      */
-    public synchronized void releaseClaim( ByteBuffer a_buffer, Object a_party )
+    public synchronized void releaseClaim( ByteBuffer buffer, Object party )
     {
-        BufferListPair l_list = getBufferListPair( a_buffer ) ;
+        BufferListPair l_list = getBufferListPair( buffer ) ;
         
         if ( null == l_list )
         {
-            m_monitor.releaseOfUnclaimed( this, a_buffer, a_party ) ;
+            m_monitor.releaseOfUnclaimed( this, buffer, party ) ;
             throw new IllegalArgumentException( "Not a pooled resource" ) ;
         }
         
-        if ( ! l_list.contains( a_party ) )
+        if ( ! l_list.contains( party ) )
         {
-            m_monitor.unregisteredParty( this, a_buffer, a_party ) ;
+            m_monitor.unregisteredParty( this, buffer, party ) ;
             throw new IllegalStateException( 
                     "Party never registered interest with buffer" ) ;
         }
         
-        l_list.remove( a_party ) ;
-        m_monitor.interestReleased( this, a_buffer, a_party ) ;
+        l_list.remove( party ) ;
+        m_monitor.interestReleased( this, buffer, party ) ;
         
         // if the list of interested parties hits zero then we release buf
         if ( l_list.size() == 0 )
         {
             m_inUseList.remove( l_list ) ;
             m_freeList.add( l_list ) ;
-            m_monitor.bufferReleased( this, a_buffer, a_party ) ;
+            m_monitor.bufferReleased( this, buffer, party ) ;
         }
     }
 
@@ -248,9 +215,9 @@ public class DefaultBufferPool implements BufferPool
      * @see org.apache.eve.buffer.BufferPool#getInterestedCount(
      * java.nio.ByteBuffer)
      */
-    public int getInterestedCount( ByteBuffer a_buffer )
+    public int getInterestedCount( ByteBuffer buffer )
     {
-        BufferListPair l_list = getBufferListPair( a_buffer ) ;
+        BufferListPair l_list = getBufferListPair( buffer ) ;
         Validate.notNull( l_list ) ;
         return l_list.size() ;
     }
@@ -270,11 +237,11 @@ public class DefaultBufferPool implements BufferPool
     /**
      * Sets the monitor.
      * 
-     * @param a_monitor the monitor to set
+     * @param monitor the monitor to set
      */
-    public void setMonitor( BufferPoolMonitor a_monitor )
+    public void setMonitor( BufferPoolMonitor monitor )
     {
-        m_monitor = a_monitor ;
+        m_monitor = monitor ;
     }
     
     
@@ -299,17 +266,17 @@ public class DefaultBufferPool implements BufferPool
      * Finds and returns a BufferListPair by scanning the complete list of 
      * pairs looking for the pair that contains the same buffer.
      * 
-     * @param a_buffer the buffer to search for in the list of pairs
+     * @param buffer the buffer to search for in the list of pairs
      * @return null if the buffer does not exist or the pair containing it
      */
-    BufferListPair getBufferListPair( ByteBuffer a_buffer )
+    BufferListPair getBufferListPair( ByteBuffer buffer )
     {
         BufferListPair l_list = null ;
         
         for ( int ii = 0; ii < m_allList.size(); ii++ )
         {
             l_list = ( BufferListPair ) m_allList.get( ii ) ;
-            if ( a_buffer == l_list.getBuffer() )
+            if ( buffer == l_list.getBuffer() )
             {
                 return l_list ;
             }
@@ -336,16 +303,16 @@ public class DefaultBufferPool implements BufferPool
         }
 
         
-        BufferListPair( ByteBuffer a_buffer )
+        BufferListPair( ByteBuffer buffer )
         {
-            this( new ArrayList( 3 ), a_buffer ) ;
+            this( new ArrayList( 3 ), buffer ) ;
         }
 
         
-        BufferListPair( ArrayList a_list, ByteBuffer a_buffer )
+        BufferListPair( ArrayList list, ByteBuffer buffer )
         {
-            m_list = a_list ;
-            m_buffer = a_buffer ;
+            m_list = list ;
+            m_buffer = buffer ;
         }
         
         
@@ -361,21 +328,21 @@ public class DefaultBufferPool implements BufferPool
         }
         
         
-        void add( Object a_party )
+        void add( Object party )
         {
-            m_list.add( a_party ) ;
+            m_list.add( party ) ;
         }
         
         
-        boolean contains( Object a_party )
+        boolean contains( Object party )
         {
-            return m_list.contains( a_party ) ;
+            return m_list.contains( party ) ;
         }
         
         
-        boolean remove( Object a_party )
+        boolean remove( Object party )
         {
-            return m_list.remove( a_party ) ;
+            return m_list.remove( party ) ;
         }
         
         

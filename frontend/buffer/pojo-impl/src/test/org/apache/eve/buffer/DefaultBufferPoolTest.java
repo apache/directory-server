@@ -63,7 +63,7 @@ public class DefaultBufferPoolTest extends TestCase
         DefaultBufferPoolConfig l_config = new DefaultBufferPoolConfig(
                 "default", 4, 10, 2, 4096 ) ;
         m_bp = new DefaultBufferPool( l_config ) ;
-        m_bp.setMonitor( new BufferPoolConsoleLogger() ) ;
+        m_bp.setMonitor( new LoggingBufferMonitor() ) ;
     }
 
     
