@@ -52,10 +52,7 @@ public class MerlinEventRouter extends AbstractLogEnabled
      * @see org.apache.eve.event.EventRouter#subscribe(java.lang.Class, 
      * org.apache.eve.event.Filter, org.apache.eve.event.Subscriber)
      */
-    public void subscribe(
-        Class type,
-        Filter filter,
-        Subscriber subscriber )
+    public void subscribe( Class type, Filter filter, Subscriber subscriber )
     {
         m_router.subscribe( type, filter, subscriber ) ;
     }
