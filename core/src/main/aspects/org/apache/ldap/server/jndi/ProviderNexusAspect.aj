@@ -18,6 +18,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.jndi.call.Call;
 
 
 /**
@@ -178,9 +179,9 @@ public aspect ProviderNexusAspect
      * 
      * @param invocation the Invocation instantiated
      */
-    pointcut newInvocation( Invocation invocation ):
+    pointcut newInvocation( Call invocation ):
         target( invocation ) &&
-        execution( public Invocation.new() );
+        execution( public Call.new() );
       
         
     // ------------------------------------------------------------------------
@@ -206,7 +207,7 @@ public aspect ProviderNexusAspect
         }
       
         
-    after( Invocation invocation ):
+    after( Call invocation ):
         newInvocation( invocation )
         {
             invocation.setContextStack( getContextStack() );
