@@ -2,5 +2,9 @@
 # Eve Schema
 #
 
-
-
+#attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.1 NAME '_ndn' 
+#	DESC 'A DN whose values are deepTrimToLower() normalized'
+#	SUP distinguishedName 
+#	EQUALITY 1.2.6.1.4.1.18060.1.1.1.2.1
+#	SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+#
