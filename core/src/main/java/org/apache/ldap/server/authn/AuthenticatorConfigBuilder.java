@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server.authn;
 
 
 import java.io.FileInputStream;
@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.authn.GenericAuthenticatorConfig;
+import org.apache.ldap.server.jndi.EnvKeys;
 
 
 /**

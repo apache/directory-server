@@ -37,7 +37,6 @@ import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.ldap.server.jndi.AuthenticatorConfigBuilder;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 

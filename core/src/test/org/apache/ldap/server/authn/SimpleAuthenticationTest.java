@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server.authn;
 
 
 import java.io.File;
@@ -31,6 +31,7 @@ import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.mina.util.AvailablePortFinder;
 
 
