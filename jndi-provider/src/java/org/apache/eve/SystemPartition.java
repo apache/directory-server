@@ -43,6 +43,11 @@ public final class SystemPartition extends AbstractContextPartition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
+    /** the base dn under which all users reside */
+    public final static String USERS_BASE_DN = "ou=users,ou=system";
+    /** the base dn under which all groups reside */
+    public final static String GROUPS_BASE_DN = "ou=groups,ou=system";
+    /** the admin super user uid */
     public final static String ADMIN_UID = "admin";
 
     /**
@@ -56,7 +61,86 @@ public final class SystemPartition extends AbstractContextPartition
     /** The suffix as a name. */
     private final Name suffix ;
 
-    
+
+    // ------------------------------------------------------------------------
+    // S T A T I C   M E T H O D S
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Gets the DN for the base entry under which all non-admin users reside.
+     * A new Name instance is created and returned every time.
+     *
+     * @see #USERS_BASE_DN
+     * @return the users base DN
+     */
+    public static final Name getUsersBaseDn()
+    {
+        Name usersBaseDn = null;
+
+        try
+        {
+            usersBaseDn = new LdapName( USERS_BASE_DN );
+        }
+        catch ( NamingException e )
+        {
+            e.printStackTrace();
+            // should never really happen since names are correct
+        }
+
+        return usersBaseDn;
+    }
+
+
+    /**
+     * Gets the DN for the base entry under which all groups reside.
+     * A new Name instance is created and returned every time.
+     *
+     * @see #GROUPS_BASE_DN
+     * @return the groups base DN
+     */
+    public static final Name getGroupsBaseDn()
+    {
+        Name groupsBaseDn = null;
+
+        try
+        {
+            groupsBaseDn = new LdapName( GROUPS_BASE_DN );
+        }
+        catch ( NamingException e )
+        {
+            e.printStackTrace();
+            // should never really happen since names are correct
+        }
+
+        return groupsBaseDn;
+    }
+
+
+    /**
+     * Gets the DN for the admin user.
+     *
+     * @see #ADMIN_PRINCIPAL
+     * @return the admin user DN
+     */
+    public static final Name getAdminDn()
+    {
+        Name adminDn = null;
+
+        try
+        {
+            adminDn = new LdapName( ADMIN_PRINCIPAL );
+        }
+        catch ( NamingException e )
+        {
+            e.printStackTrace();
+            // should never really happen since names are correct
+        }
+
+        return adminDn;
+    }
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S 
     // ------------------------------------------------------------------------

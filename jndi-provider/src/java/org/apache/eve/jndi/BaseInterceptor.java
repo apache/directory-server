@@ -25,6 +25,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.eve.auth.LdapPrincipal;
 
 
 /**
@@ -74,6 +75,19 @@ public abstract class BaseInterceptor implements Interceptor
     static void setInvocation( Invocation invocation )
     {
         invocations.set( invocation );
+    }
+
+
+    /**
+     * Gets the invocation's current context's Principal.
+     *
+     * @param invocation the current invocation context's principal
+     * @return the principal making the call
+     */
+    public static LdapPrincipal getPrincipal( Invocation invocation )
+    {
+        EveContext ctx = ( EveContext ) invocation.getContextStack().peek();
+        return ctx.getPrincipal();
     }
 
 

@@ -18,14 +18,12 @@ package org.apache.eve.jndi.ibs;
 
 
 import javax.naming.Name;
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
-import org.apache.eve.SystemPartition;
 import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.jndi.Invocation;
@@ -37,7 +35,6 @@ import org.apache.eve.schema.AttributeTypeRegistry;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
-import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -85,7 +82,6 @@ public class OperationalAttributeService extends BaseInterceptor
     /** a service used to filter search and lookup operations */
     private final FilterService filteringService;
     private final AttributeTypeRegistry registry;
-    private static Name usersBaseDn;
 
 
     /**
@@ -118,15 +114,6 @@ public class OperationalAttributeService extends BaseInterceptor
 
         this.filteringService.addLookupFilter( LOOKUP_FILTER );
         this.filteringService.addSearchResultFilter( SEARCH_FILTER );
-
-        try
-        {
-            usersBaseDn = new LdapName( "ou=users,ou=system" );
-        }
-        catch ( NamingException e )
-        {
-            // never gets thrown since the DN used is static and correct
-        }
     }
 
 
@@ -141,15 +128,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
-            String principal;
-            if ( normName.startsWith( usersBaseDn ) && normName.size() > 2 )
-            {
-                principal = upName;
-            }
-            else
-            {
-                principal = getPrincipal( invocation );
-            }
+            String principal = getPrincipal( invocation ).toString();
 
             BasicAttribute attribute = new BasicAttribute( "creatorsName" );
             attribute.add( principal );
@@ -298,18 +277,4 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    /**
-     * Gets the DN of the principal associated with this operation.
-     *
-     * @param invocation the invocation to get the principal for
-     * @return the principal as a String
-     * @throws NamingException if there are problems
-     */
-    private String getPrincipal( Invocation invocation ) throws NamingException
-    {
-        String principal;
-        Context ctx = ( ( Context ) invocation.getContextStack().peek() );
-        principal = ( String ) ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        return principal == null ? SystemPartition.ADMIN_PRINCIPAL : principal;
-    }
 }

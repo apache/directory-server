@@ -98,9 +98,7 @@ public interface BackingStore
      * retrieval.
      *
      * @param base the base distinguished/absolute name for the search/listing
-     * @return a NamingEnumeration containing objects of type 
-     * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
-     * javax/naming/NameClassPair.html">NameClassPair</a>.
+     * @return a NamingEnumeration containing objects of type {@link Index}
      * @throws NamingException if there are any problems
      */
     NamingEnumeration list( Name base ) throws NamingException;

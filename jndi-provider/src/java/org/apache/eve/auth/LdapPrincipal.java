@@ -35,7 +35,7 @@ public class LdapPrincipal implements Principal
     /** the normalized distinguished name of the principal */
     private final Name name;
     /** the no name anonymous user whose DN is the empty String */
-    public static final Principal ANONYMOUS = new LdapPrincipal();
+    public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
 
 
     /**

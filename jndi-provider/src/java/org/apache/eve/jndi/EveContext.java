@@ -18,7 +18,6 @@ package org.apache.eve.jndi;
 
 
 import java.util.Hashtable;
-import java.security.Principal;
 
 import javax.naming.*;
 import javax.naming.ldap.Control;
@@ -31,6 +30,7 @@ import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 
 import org.apache.eve.PartitionNexus;
+import org.apache.eve.auth.LdapPrincipal;
 
 
 /**
@@ -51,7 +51,7 @@ public abstract class EveContext implements Context
     /** The distinguished name of this Context */
     private final LdapName dn;
     /** The Principal associated with this context */
-    private Principal principal;
+    private LdapPrincipal principal;
 
 
     // ------------------------------------------------------------------------
@@ -116,7 +116,7 @@ public abstract class EveContext implements Context
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected EveContext( Principal principal, PartitionNexus nexusProxy,
+    protected EveContext( LdapPrincipal principal, PartitionNexus nexusProxy,
                           Hashtable env, Name dn )
     {
         this.dn = ( LdapName ) dn.clone();
@@ -136,7 +136,7 @@ public abstract class EveContext implements Context
      * Gets the principal of the authenticated user which also happens to own
      * @return
      */
-    public Principal getPrincipal()
+    public LdapPrincipal getPrincipal()
     {
         return principal;
     }
@@ -148,7 +148,7 @@ public abstract class EveContext implements Context
      *
      * @param principal the directory user principal
      */
-    void setPrincipal( Principal principal )
+    void setPrincipal( LdapPrincipal principal )
     {
         this.principal = principal;
     }

@@ -18,7 +18,6 @@ package org.apache.eve.jndi;
 
 
 import java.util.Hashtable;
-import java.security.Principal;
 
 import javax.naming.NamingException;
 import javax.naming.Name;
@@ -30,6 +29,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.ldap.common.NotImplementedException;
 
 import org.apache.eve.PartitionNexus;
+import org.apache.eve.auth.LdapPrincipal;
 
 
 /**
@@ -68,7 +68,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    EveLdapContext( Principal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    EveLdapContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }

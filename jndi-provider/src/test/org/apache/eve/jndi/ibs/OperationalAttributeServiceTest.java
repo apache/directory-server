@@ -125,13 +125,16 @@ public class OperationalAttributeServiceTest extends AbstractJndiTest
      * user even though the admin is creating the user.  This is the basis
      * for some authorization rules to protect passwords.
      *
+     * NOTE THIS CHANGE WAS REVERTED SO WE ADAPTED THE TEST TO MAKE SURE THE
+     * CHANGE DOES NOT PERSIST!
+     *
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-67">JIRA Issue DIREVE-67</a>
      */
     public void testConfirmNonAdminUserDnIsCreatorsName() throws NamingException
     {
         Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users",
                 new String[] { "creatorsName" } );
-        assertEquals( "uid=akarasulu,ou=users,ou=system",
-                attributes.get( "creatorsName" ).get() );
+        assertFalse( "uid=akarasulu,ou=users,ou=system"
+                .equals( attributes.get( "creatorsName" ).get() ) );
     }
 }

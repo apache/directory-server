@@ -68,7 +68,8 @@ public class EveContextFactory implements InitialContextFactory
     // for convenience
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
     private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
-    //private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
+    private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
+    private static final Name ADMIN_NAME = SystemPartition.getAdminDn();
 
     /** property used to shutdown the system */
     public static final String SHUTDOWN_OP_ENV = "eve.operation.shutdown";
@@ -197,8 +198,7 @@ public class EveContextFactory implements InitialContextFactory
                         + "- this is not allowed ONLY the admin can bootstrap" );
             }
             else if ( initialEnv.containsKey( PRINCIPAL ) &&
-                      ! initialEnv.get( PRINCIPAL ).equals(
-                              SystemPartition.ADMIN_PRINCIPAL ) )
+                      ! initialEnv.get( PRINCIPAL ).equals( ADMIN ) )
             {
                 throw new EveConfigurationException( "user "
                         + initialEnv.get( PRINCIPAL )
@@ -230,14 +230,12 @@ public class EveContextFactory implements InitialContextFactory
      */
     private boolean createAdminAccount() throws NamingException
     {
-        Name admin = new LdapName( SystemPartition.ADMIN_PRINCIPAL );
-
         /*
          * If the admin entry is there, then the database was already created
          * before so we just need to lookup the userPassword field to see if
          * the password matches.
          */
-        if ( nexus.hasEntry( admin ) )
+        if ( nexus.hasEntry( ADMIN_NAME ) )
         {
             return false;
         }
@@ -249,7 +247,7 @@ public class EveContextFactory implements InitialContextFactory
         attributes.put( "objectClass", "inetOrgPerson" );
         attributes.put( "uid", SystemPartition.ADMIN_UID );
         attributes.put( "displayName", "Directory Superuser" );
-        attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
+        attributes.put( "creatorsName", ADMIN );
         attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
         attributes.put( "displayName", "Directory Superuser" );
 
@@ -263,7 +261,7 @@ public class EveContextFactory implements InitialContextFactory
             attributes.put( "userPassword", ArrayUtils.EMPTY_BYTE_ARRAY );
         }
 
-        nexus.add( SystemPartition.ADMIN_PRINCIPAL, admin, attributes );
+        nexus.add( ADMIN, ADMIN_NAME, attributes );
         return true;
     }
 

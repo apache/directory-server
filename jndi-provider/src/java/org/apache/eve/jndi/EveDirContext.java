@@ -20,7 +20,6 @@ package org.apache.eve.jndi;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.text.ParseException;
-import java.security.Principal;
 
 import javax.naming.Name;
 import javax.naming.ldap.Control;
@@ -43,6 +42,7 @@ import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.filter.FilterParserImpl;
 
 import org.apache.eve.PartitionNexus;
+import org.apache.eve.auth.LdapPrincipal;
 
 
 /**
@@ -82,7 +82,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected EveDirContext( Principal principal, PartitionNexus nexusProxy,
+    protected EveDirContext( LdapPrincipal principal, PartitionNexus nexusProxy,
                              Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
