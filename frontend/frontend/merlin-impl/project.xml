@@ -5,7 +5,7 @@
     <id>eve-frontend-merlin-impl</id>
   
     <name>Merlin Wrapper for Eve's Frontend</name>
-    <package>org.apache.eve.input</package>
+    <package>org.apache.eve</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>
       

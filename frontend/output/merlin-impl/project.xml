@@ -4,7 +4,7 @@
   <groupId>incubator-directory</groupId>
   <id>eve-frontend-output-merlin-impl</id>
 
-  <name>Eve's Frontend OutputManager Implementation For Merlin</name>
+  <name>Merlin Wrapper for Eve's Frontend Output Manager</name>
   <package>org.apache.eve.output.impl</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2003</inceptionYear>

@@ -4,12 +4,12 @@
     <groupId>incubator-directory</groupId>
     <id>eve-frontend-encoder-spi</id>
   
-    <name>Eve Frontend Encoder SPI</name>
+    <name>Eve Frontend Encoder Manager SPI</name>
     <package>org.apache.eve.encoder</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>
       
-    <shortDescription>Eve Frontend Encoder SPI</shortDescription>
+    <shortDescription>Eve Frontend Encoder Manager SPI</shortDescription>
 
     <description>
     </description>

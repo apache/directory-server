@@ -4,7 +4,7 @@
   <groupId>incubator-directory</groupId>
   <id>eve-frontend-processor-merlin-impl</id>
 
-  <name>Eve's Frontend Request Processor Implementation For Merlin</name>
+  <name>Merlin Wrapper for Eve's Frontend Request Processor</name>
   <package>org.apache.eve.processor.impl</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2003</inceptionYear>

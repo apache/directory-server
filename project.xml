@@ -29,7 +29,7 @@
 
     <repository>
       <connection>
-        scm:svn:http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}
+        scm:svn:http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}:::
       </connection>
 
       <url>

@@ -4,7 +4,7 @@
     <groupId>incubator-directory</groupId>
     <id>eve-frontend-output-pojo-impl</id>
   
-    <name>Eve Frontend  Manager Implementation</name>
+    <name>Eve Frontend Output Manager Implementation</name>
     <package>org.apache.eve.output.impl</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>

@@ -4,7 +4,7 @@
     <groupId>incubator-directory</groupId>
     <id>eve-frontend-decoder-pojo-impl</id>
   
-    <name>Eve Frontend DecoderManager Implementation</name>
+    <name>Eve Frontend Decoder Manager Implementation</name>
     <package>org.apache.eve.decoder.impl</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>

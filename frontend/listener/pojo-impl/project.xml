@@ -4,7 +4,7 @@
     <groupId>incubator-directory</groupId>
     <id>eve-frontend-listener-pojo-impl</id>
   
-    <name>Eve Frontend Listener POJO Implementation</name>
+    <name>Eve Frontend Listener Implementation</name>
     <package>org.apache.eve.listener</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>

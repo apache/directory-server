@@ -4,7 +4,7 @@
     <groupId>incubator-directory</groupId>
     <id>eve-frontend-spi</id>
   
-    <name>Eve Frontend Service SPI</name>
+    <name>Eve Frontend SPI</name>
     <package>org.apache.eve</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>

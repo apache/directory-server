@@ -4,7 +4,7 @@
   <groupId>incubator-directory</groupId>
   <id>eve-frontend-listener-merlin-impl</id>
   
-  <name>Eve Frontend Listener Merlin Wrapper Implementation</name>
+  <name>Merlin Wrapper for Eve's Frontend Listener</name>
   <package>org.apache.eve.listener</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2003</inceptionYear>

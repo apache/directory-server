@@ -4,7 +4,7 @@
     <groupId>incubator-directory</groupId>
     <id>eve-frontend-event-merlin-impl</id>
   
-    <name>Eve Frontend Event Implementation</name>
+    <name>Merlin Wrapper for Eve's Frontend Event Manager</name>
     <package>org.apache.eve.event</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>

@@ -4,7 +4,7 @@
     <groupId>incubator-directory</groupId>
     <id>eve-frontend-buffer-merlin-impl</id>
   
-    <name>Eve Frontend Buffer Pool Implementation</name>
+    <name>Merlin Wrapper for Eve's Frontend Buffer Pool</name>
     <package>org.apache.eve.buffer</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2003</inceptionYear>

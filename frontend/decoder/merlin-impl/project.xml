@@ -4,7 +4,7 @@
   <groupId>incubator-directory</groupId>
   <id>eve-frontend-decoder-merlin-impl</id>
 
-  <name>Eve's Frontend Decoder Manager Implementation For Merlin</name>
+  <name>Merlin Wrapper for Eve's Frontend Decoder Manager</name>
   <package>org.apache.eve.decoder.impl</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2003</inceptionYear>
