@@ -150,6 +150,12 @@ public class FilterServiceImpl extends BaseInterceptor
         {
             LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
             Attributes attributes = ( Attributes ) invocation.getReturnValue();
+
+            if ( attributes == null )
+            {
+                return;
+            }
+
             Attributes retval = ( Attributes ) attributes.clone();
             filter( ctx, dn, retval, ids );
             invocation.setReturnValue( retval );

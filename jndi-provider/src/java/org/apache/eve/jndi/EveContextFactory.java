@@ -32,6 +32,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.ldif.LdifIterator;
@@ -42,6 +43,7 @@ import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
+import org.apache.eve.exception.EveNamingException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
@@ -442,7 +444,7 @@ public class EveContextFactory implements InitialContextFactory
      * subdirectory immediately under the Eve working directory base.
      *
      * @param eveWkdir the base Eve working directory
-     * @throws NamingException if there are problems creating and starting these
+     * @throws javax.naming.NamingException if there are problems creating and starting these
      * new application partitions
      */
     private void startUpAppPartitions( String eveWkdir ) throws NamingException
@@ -526,9 +528,27 @@ public class EveContextFactory implements InitialContextFactory
             // add the nexus context entry
             // ----------------------------------------------------------------
 
-            Attributes rootEntry = ( Attributes ) initialEnv.get(
-                    ATTRIBUTES_BASE_ENV + names[ii] );
-            partition.add( suffix, normSuffix, rootEntry );
+            Attributes rootAttrs;
+            Object rootEntry = initialEnv.get( ATTRIBUTES_BASE_ENV + names[ii] );
+
+            if ( rootEntry instanceof String )
+            {
+                rootAttrs = new LockableAttributesImpl();
+                String ldif = ( ( String ) rootEntry ).trim().replace( '*', '\n' );
+                ( new LdifParserImpl() ).parse( rootAttrs, ldif );
+            }
+            else if ( rootEntry instanceof Attributes )
+            {
+                rootAttrs = ( Attributes ) rootEntry;
+            }
+            else
+            {
+                throw new EveNamingException( "The root entry env property was"
+                        + " not of an expected type!",
+                        ResultCodeEnum.OTHER );
+            }
+
+            partition.add( suffix, normSuffix, rootAttrs );
         }
     }
 
