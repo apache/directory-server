@@ -12,10 +12,10 @@
   <description>Eve Directory Server</description>
   <url href="http://incubator.apache.org/directory/eve/">
   </url>
-  <svn repository="apache-incubator-svn" module="directory/eve/trunk/">
+  <svn dir="directory/eve/trunk/" repository="apache-incubator-svn">
   </svn>
   <project name="eve-shared">
-    <maven goal="jar">
+    <maven goal="jar" basedir="shared">
       <property name="maven.final.name" value="eve-shared-@@DATE@@">
       </property>
     </maven>
@@ -35,7 +35,7 @@
     </nag>
   </project>
   <project name="eve-protocol">
-    <maven goal="jar">
+    <maven goal="jar" basedir="protocol">
       <property name="maven.final.name" value="eve-protocol-@@DATE@@">
       </property>
     </maven>
@@ -65,7 +65,7 @@
     </nag>
   </project>
   <project name="maven-eve-plugin">
-    <maven goal="jar">
+    <maven goal="jar" basedir="plugin">
       <property name="maven.final.name" value="maven-eve-plugin-@@DATE@@">
       </property>
     </maven>
@@ -93,7 +93,7 @@
     </nag>
   </project>
   <project name="eve-dib">
-    <maven goal="jar">
+    <maven goal="jar" basedir="dib">
       <property name="maven.final.name" value="eve-dib-@@DATE@@">
       </property>
     </maven>
@@ -141,7 +141,7 @@
     </nag>
   </project>
   <project name="eve">
-    <maven goal="jar">
+    <maven goal="jar" basedir="main">
       <property name="maven.final.name" value="eve-@@DATE@@">
       </property>
     </maven>
