@@ -27,6 +27,18 @@ import org.apache.ldap.server.jndi.invocation.Invocation;
  * {@link Invocation}s performed on {@link BackingStore}s just like Servlet
  * filters do.
  * 
+ * <h2>Interceptor Naming Convention</h2>
+ * <p>
+ * When you create an implementation of Interceptor, you have to follow
+ * the basic class naming convention to avoid others' confusion:
+ * <ul>
+ *   <li>Class name must be an agent noun or end with '<code>Interceptor</code>'.</li>
+ *   <li>If the role of the interceptor is to add or modify attributes of
+ *       entries, class name must end with '<code>Tagger</code>.' (e.g. EntryUUIDTagger)</li>
+ * </ul>
+ * Plus, placing your interceptor implementations to packages like
+ * '<code>interceptor</code>' would be the best practice.
+ * 
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$

@@ -51,7 +51,9 @@ import org.apache.ldap.server.jndi.invocation.Search;
 
 /**
  * An {@link Interceptor} that controls access to {@link BackingStore}
- * operations.
+ * operations.  If a user tries to perform any operations that requires
+ * permission he or she doesn't have, {@link NamingException} will be thrown
+ * and therefore the current invocation chain will terminate.
  *
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @author Alex Karasulu (akarasulu@apache.org)
