@@ -2,12 +2,33 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Apache Directory Project: SEDA Approach</title>
+    <title>SEDA Approach</title>
   </properties> 
   
   <body>
     <section name="SEDA Approach">
-      <p>Coming soon ...</p>
+      <p>
+        At the present moment, the performance benefits of SEDA are at the
+        top of the list.  Other features which make SEDA based servers more
+        instrumentable, resilient and extensible are not sought after at the
+        present moment.  Under heavy load we would like the server to perform 
+        well without rapid degradation while servicing requests.
+      </p>
+      
+      <p>
+        Furthermore we want to add these features without incurring more 
+        complexity in the server's design.  Keeping things as simple as possible
+        is a driving factor in our approach simple SEDA implementation.  Hence
+        to simple SEDA stage is simply a combination of a event queue, thread 
+        pool, stage handler, and a driver thread.  The one extra feature we do
+        support is the EnquePredicates which might be used to manage load 
+        shedding.
+      </p>
+      
+      <p>
+        The simple SEDA code can be found the common frontend API within the
+        <a href="">org.apache.eve.seda</a> package.
+      </p>
     </section>
   </body>
 </document>
