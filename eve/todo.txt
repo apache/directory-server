@@ -1,0 +1,16 @@
+* Start working on stubbing out the frontend
+
+* Add to the following documentation sections:
+  - frontend->seda.xml
+  - frontend->performance.xml
+  - frontend->pushing-jndi.xml
+  - frontend->resource-pooling.xml
+  
+* Start work on a plugin just for our project
+  - plugin knows directory structure
+  - builds sitedocs
+  	- builds javadocs and sitedocs for a subsystem
+  	- builds special documentation for a server component
+
+  	  
+  	  
