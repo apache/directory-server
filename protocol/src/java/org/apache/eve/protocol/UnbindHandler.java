@@ -35,12 +35,14 @@ public class UnbindHandler extends AbstractNoReplyHandler
 {
     public void handle( ClientKey key, Object request )
     {
-        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
-        SessionRegistry.getSingleton( null ).remove( key );
+        InitialContext ictx = SessionRegistry.getSingleton().get( key );
+        SessionRegistry registry = SessionRegistry.getSingleton();
 
         try
         {
             ictx.close();
+            registry.terminateSession( key );
+            registry.remove( key );
         }
         catch ( NamingException e )
         {

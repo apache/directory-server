@@ -22,6 +22,8 @@ import javax.naming.InitialContext;
 import javax.naming.Context;
 
 import org.apache.seda.listener.ClientKey;
+import org.apache.seda.event.EventRouter;
+import org.apache.seda.event.DisconnectEvent;
 
 
 /**
@@ -33,6 +35,8 @@ import org.apache.seda.listener.ClientKey;
 public class SessionRegistry
 {
     private static SessionRegistry s_singleton;
+    /** a handle on the event router */
+    private final EventRouter router;
     /** the set of client contexts */
     private final Map contexts = new HashMap();
     /** the observer to listen for key expiration */
@@ -45,17 +49,17 @@ public class SessionRegistry
      * Gets the singleton instance for this SessionRegistry.  If the singleton
      * does not exist one is created.
      *
-     * @param env the properties associated with the SessionRegistry if created
      * @return the singleton SessionRegistry instance
      */
-    public static SessionRegistry getSingleton( Hashtable env )
+    public static SessionRegistry getSingleton()
     {
-        if ( s_singleton == null )
-        {
-            s_singleton = new SessionRegistry( env );
-        }
-
         return s_singleton;
+    }
+
+
+    static void releaseSingleton()
+    {
+        s_singleton = null;
     }
 
 
@@ -64,8 +68,20 @@ public class SessionRegistry
      *
      * @param env the properties associated with this SessionRegistry
      */
-    private SessionRegistry( Hashtable env )
+    SessionRegistry( Hashtable env, EventRouter router )
     {
+        this.router = router;
+
+        if ( s_singleton == null )
+        {
+            s_singleton = this;
+        }
+        else
+        {
+            throw new IllegalStateException( "there can only be one singlton" );
+        }
+
+
         if ( env == null )
         {
             this.env = new Hashtable();
@@ -162,5 +178,17 @@ public class SessionRegistry
                 contexts.remove( key );
             }
         }
+    }
+
+
+    /**
+     * Terminates the session by publishing a disconnect event.
+     *
+     * @param key the client key of the client to disconnect
+     */
+    public void terminateSession( ClientKey key )
+    {
+        DisconnectEvent event = new DisconnectEvent( this, key );
+        router.publish( event );
     }
 }

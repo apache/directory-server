@@ -41,7 +41,7 @@ public class AddHandler extends AbstractSingleReplyHandler
         AddRequest req = ( AddRequest ) request;
         AddResponse resp = new AddResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
-        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+        InitialContext ictx = SessionRegistry.getSingleton().get( key );
 
         try
         {

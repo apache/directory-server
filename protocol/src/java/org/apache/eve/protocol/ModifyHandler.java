@@ -47,7 +47,7 @@ public class ModifyHandler extends AbstractSingleReplyHandler
         ModifyRequest req = ( ModifyRequest ) request;
         ModifyResponse resp = new ModifyResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
-        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+        InitialContext ictx = SessionRegistry.getSingleton().get( key );
 
         try
         {

@@ -24,6 +24,7 @@ import javax.naming.Context;
 import org.apache.seda.protocol.ProtocolProvider;
 import org.apache.seda.protocol.RequestHandler;
 import org.apache.seda.listener.ClientKey;
+import org.apache.seda.event.EventRouter;
 
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.message.spi.Provider;
@@ -96,6 +97,8 @@ public class LdapProtocolProvider implements ProtocolProvider
         DEFAULT_HANDLERS = Collections.unmodifiableMap( map );
     }
 
+    /** a handle on the SEDA event router */
+    public final EventRouter router;
     /** the underlying provider decoder factory */
     public final DecoderFactory decoderFactory;
     /** the underlying provider encoder factory */
@@ -115,13 +118,16 @@ public class LdapProtocolProvider implements ProtocolProvider
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
      */
-    public LdapProtocolProvider( Hashtable env ) throws LdapNamingException
+    public LdapProtocolProvider( Hashtable env, EventRouter router )
+            throws LdapNamingException
     {
+        this.router = router;
         Hashtable copy = ( Hashtable ) env.clone();
         this.handlers = new HashMap();
 
         copy.put( Context.PROVIDER_URL, "" );
-        SessionRegistry.getSingleton( copy );
+        SessionRegistry.releaseSingleton();
+        new SessionRegistry( copy, router );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while ( requestTypes.hasNext() )
@@ -176,10 +182,12 @@ public class LdapProtocolProvider implements ProtocolProvider
     /**
      * Creates a SEDA LDAP protocol provider.
      */
-    public LdapProtocolProvider() throws LdapNamingException
+    public LdapProtocolProvider( EventRouter router ) throws LdapNamingException
     {
+        this.router = router;
         this.handlers = new HashMap();
-        SessionRegistry.getSingleton( null );
+        SessionRegistry.releaseSingleton();
+        new SessionRegistry( null, router );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while ( requestTypes.hasNext() )

@@ -45,7 +45,7 @@ public class DeleteHandler extends AbstractSingleReplyHandler
         DeleteRequest req = ( DeleteRequest ) request;
         DeleteResponse resp = new DeleteResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
-        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+        InitialContext ictx = SessionRegistry.getSingleton().get( key );
 
         try
         {

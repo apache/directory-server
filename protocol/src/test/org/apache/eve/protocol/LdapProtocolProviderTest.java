@@ -37,6 +37,8 @@ import org.apache.seda.listener.ClientKey;
  */
 public class LdapProtocolProviderTest extends TestCase
 {
+
+
     /**
      * Tests to make sure all the default handlers are kicking in properly with
      * the right request type.
@@ -46,7 +48,7 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testDefaultOperation() throws LdapNamingException
     {
-        LdapProtocolProvider provider = new LdapProtocolProvider();
+        LdapProtocolProvider provider = new LdapProtocolProvider( null );
         assertNotNull( provider.getDecoderFactory() );
         assertNotNull( provider.getEncoderFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
@@ -126,7 +128,7 @@ public class LdapProtocolProviderTest extends TestCase
         props.setProperty( UnbindRequest.class.getName(), BogusUnbindHandler.class.getName() );
         props.setProperty( UnbindRequestImpl.class.getName(), BogusUnbindHandler.class.getName() );
 
-        LdapProtocolProvider provider = new LdapProtocolProvider( props );
+        LdapProtocolProvider provider = new LdapProtocolProvider( props, null );
         assertNotNull( provider.getDecoderFactory() );
         assertNotNull( provider.getEncoderFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );

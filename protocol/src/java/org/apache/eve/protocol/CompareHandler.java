@@ -45,7 +45,7 @@ public class CompareHandler extends AbstractSingleReplyHandler
         CompareRequest req = ( CompareRequest ) request;
         CompareResponse resp = new CompareResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
-        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+        InitialContext ictx = SessionRegistry.getSingleton().get( key );
 
         try
         {

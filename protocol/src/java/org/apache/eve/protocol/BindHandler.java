@@ -55,7 +55,7 @@ public class BindHandler extends AbstractSingleReplyHandler
 
         String dn = req.getName();
         byte[] creds = req.getCredentials();
-        Hashtable env = SessionRegistry.getSingleton( null ).getEnvironment();
+        Hashtable env = SessionRegistry.getSingleton().getEnvironment();
         InitialContext ictx;
 
         try
@@ -72,7 +72,7 @@ public class BindHandler extends AbstractSingleReplyHandler
             return resp;
         }
 
-        SessionRegistry.getSingleton( null ).put( key, ictx );
+        SessionRegistry.getSingleton().put( key, ictx );
         resp.setLdapResult( new LdapResultImpl( resp ) );
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         resp.getLdapResult().setMatchedDn( req.getName() );

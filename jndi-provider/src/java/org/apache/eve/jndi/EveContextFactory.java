@@ -491,8 +491,6 @@ public class EveContextFactory implements InitialContextFactory
 
     private void startUpWireProtocol() throws NamingException
     {
-        proto = new LdapProtocolProvider( ( Hashtable) initialEnv.clone() );
-
         try
         {
             fe = ( DefaultFrontend ) new DefaultFrontendFactory().create();
@@ -505,6 +503,8 @@ public class EveContextFactory implements InitialContextFactory
             ne.setResolvedName( new LdapName( ( String ) initialEnv.get( Context.PROVIDER_URL ) ) );
             throw ne;
         }
+
+        proto = new LdapProtocolProvider( ( Hashtable) initialEnv.clone(), fe.getEventRouter() );
 
         int port = PropertiesUtils.get( initialEnv, EVE_LDAP_PORT, LDAP_PORT );
         srvEntry = new InetServiceEntry( proto.getName(), port, proto, TransportTypeEnum.TCP );

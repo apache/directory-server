@@ -58,7 +58,7 @@ public class SearchHandler extends AbstractManyReplyHandler
     {
         LdapContext ctx;
         SearchRequest req = ( SearchRequest ) request;
-        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+        InitialContext ictx = SessionRegistry.getSingleton().get( key );
         NamingEnumeration list = null;
 
         // check the attributes to see if a referral's ref attribute is included
