@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.naming.NamingException;
 import javax.naming.Context;
@@ -203,15 +204,37 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
          */
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
+            NamingException target = null;
+
             try
             {
                 Object retVal = method.invoke( nexus, invocation.getParameters() );
                 invocation.setReturnValue( retVal );
                 invocation.setState( InvocationStateEnum.POSTINVOCATION );
             }
-            catch ( Throwable throwable )
+            catch ( InvocationTargetException ite )
             {
-                invocation.setThrowable( throwable );
+                if ( ite.getTargetException() != null )
+                {
+                    if ( ite.getTargetException() instanceof NamingException )
+                    {
+                        target = ( NamingException ) ite.getTargetException();
+                    }
+                }
+                else
+                {
+                    target = new NamingException();
+                    target.setRootCause( ite );
+                }
+                
+                invocation.setThrowable( target );
+                invocation.setState( InvocationStateEnum.FAILUREHANDLING );
+            }
+            catch ( Throwable t )
+            {
+                target = new NamingException();
+                target.setRootCause( t );
+                invocation.setThrowable( target );
                 invocation.setState( InvocationStateEnum.FAILUREHANDLING );
             }
 

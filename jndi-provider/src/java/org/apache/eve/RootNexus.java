@@ -23,14 +23,14 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attributes;
 import javax.naming.NameNotFoundException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.Attribute;
+import javax.naming.directory.*;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
@@ -245,6 +245,25 @@ public class RootNexus implements PartitionNexus
                                      SearchControls searchCtls )
         throws NamingException
     {
+
+        if ( base.size() == 0 )
+        {
+            /*
+             * if basedn is "", filter is "(objectclass=*)" and scope is object
+             * then we have a request for the rootDSE
+             */
+            if ( filter instanceof PresenceNode &&
+                 searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
+                 ( ( PresenceNode ) filter ).getAttribute().equalsIgnoreCase( "objectclass" ) )
+            {
+                Attributes attrs = getRootDSE();
+                SearchResult result = new SearchResult( "", null, attrs, false );
+                return new SingletonEnumeration( result );
+            }
+
+            throw new LdapNameNotFoundException();
+        }
+
         ContextPartition backend = getBackend( base );
         return backend.search( base, env, filter, searchCtls );
     }
