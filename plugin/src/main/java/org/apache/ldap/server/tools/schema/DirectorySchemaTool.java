@@ -42,10 +42,10 @@ public class DirectorySchemaTool
 
     /** property for dir where OpenLDAP schema files and deps file are stored */
     public static final String SCHEMA_SRC_DIR_PROP =
-            "maven.eve.schema.src.dir";
+            "maven.ldap.server.schema.src.dir";
     /** property for dir where the generated class files are created */
     public static final String SCHEMA_TARGET_DIR_PROP =
-            "maven.eve.schema.target.dir";
+            "maven.ldap.server.schema.target.dir";
 
     /** default dir where OpenLDAP schema files and deps file are kept */
     public static final String SCHEMA_SRC_DIR_DEFAULT =
@@ -355,7 +355,7 @@ public class DirectorySchemaTool
         // source directory, if so we return true
         File defaultFile = new File( getJavaSrcDir()
                 + File.separator + getFilePath( defaultClass ) );
-        
+          
         return defaultFile.exists();
     }
 

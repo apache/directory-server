@@ -5,7 +5,7 @@
   <goal name="directory:init">
 	<!-- Dir for generated source files -->
 	<j:set var="targetDir" value="${maven.ldap.server.schema.target.dir}"/>
-	<j:set var="schemaDir" value="${maven.ldap.server..schema.dir}"/>
+	<j:set var="schemaDir" value="${maven.ldap.server.schema.dir}"/>
 	<j:set var="schemas" value="${maven.ldap.server.schemas}"/>
   </goal>
 
