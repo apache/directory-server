@@ -107,6 +107,13 @@ public interface ListenerManagerMonitor
     void selectOccured( Selector a_selector ) ;
     
     /**
+     * Monitors the occurrence of successful select timeouts on a selector
+     * 
+     * @param a_selector
+     */
+    void selectTimedOut( Selector a_selector ) ;
+    
+    /**
      * Monitors bind failures.
      * 
      * @param a_listener the listener whose bind attempt failed
@@ -145,4 +152,11 @@ public interface ListenerManagerMonitor
      * @param a_failure the exception resulting from the failure
      */
     void failedToSelect( Selector a_selector, IOException a_failure ) ;
+    
+    /**
+     * A select call is about to be made.
+     *
+     * @param a_selector the selector on which the select is called
+     */
+    void enteringSelect( Selector a_selector ) ;
 }

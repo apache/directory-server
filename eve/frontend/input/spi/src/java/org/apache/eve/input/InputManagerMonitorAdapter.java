@@ -163,4 +163,22 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
                                      IOException a_fault )
     {
     }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#enteringSelect(
+     * java.nio.channels.Selector)
+     */
+    public void enteringSelect( Selector a_selector )
+    {
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#selectTimedOut(
+     * java.nio.channels.Selector)
+     */
+    public void selectTimedOut( Selector a_selector )
+    {
+    }
 }

@@ -157,4 +157,18 @@ public interface InputManagerMonitor
      * @param a_fault the faulting exception
      */
     void channelCloseFailure( SocketChannel a_channel, IOException a_fault ) ;
+    
+    /**
+     * Monitors the occurrence of successful select timeouts on a selector
+     * 
+     * @param a_selector
+     */
+    void selectTimedOut( Selector a_selector ) ;
+    
+    /**
+     * A select call is about to be made.
+     *
+     * @param a_selector the selector on which the select is called
+     */
+    void enteringSelect( Selector a_selector ) ;
 }

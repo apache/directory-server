@@ -164,4 +164,22 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
     public void failedToSelect( Selector a_selector, IOException a_failure )
     {
     }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.listener.ListenerManagerMonitor#selectTimedOut(
+     * java.nio.channels.Selector)
+     */
+    public void selectTimedOut(Selector a_a_selector)
+    {
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.listener.ListenerManagerMonitor#enteringSelect(
+     * java.nio.channels.Selector)
+     */
+    public void enteringSelect( Selector a_selector )
+    {
+    }
 }

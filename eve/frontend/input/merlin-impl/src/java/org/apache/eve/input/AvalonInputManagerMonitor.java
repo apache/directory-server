@@ -1,76 +1,213 @@
 /*
-
- ============================================================================
-                   The Apache Software License, Version 1.1
- ============================================================================
-
- Copyright (C) 1999-2002 The Apache Software Foundation. All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modifica-
- tion, are permitted provided that the following conditions are met:
-
- 1. Redistributions of  source code must  retain the above copyright  notice,
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
- 3. The end-user documentation included with the redistribution, if any, must
-    include  the following  acknowledgment:  "This product includes  software
-    developed  by the  Apache Software Foundation  (http://www.apache.org/)."
-    Alternately, this  acknowledgment may  appear in the software itself,  if
-    and wherever such third-party acknowledgments normally appear.
-
- 4. The names "Eve Directory Server", "Apache Directory Project", "Apache Eve" 
-    and "Apache Software Foundation"  must not be used to endorse or promote
-    products derived  from this  software without  prior written
-    permission. For written permission, please contact apache@apache.org.
-
- 5. Products  derived from this software may not  be called "Apache", nor may
-    "Apache" appear  in their name,  without prior written permission  of the
-    Apache Software Foundation.
-
- THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL  THE
- APACHE SOFTWARE  FOUNDATION  OR ITS CONTRIBUTORS  BE LIABLE FOR  ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL  DAMAGES (INCLU-
- DING, BUT NOT LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS
- OF USE, DATA, OR  PROFITS; OR BUSINESS  INTERRUPTION)  HOWEVER CAUSED AND ON
- ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
- (INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- This software  consists of voluntary contributions made  by many individuals
- on  behalf of the Apache Software  Foundation. For more  information on the
- Apache Software Foundation, please see <http://www.apache.org/>.
-
-*/
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.input ;
 
 
-import org.apache.avalon.framework.logger.Logger ; 
-import org.apache.avalon.framework.logger.LogEnabled ;
+import java.io.IOException ;
+import java.nio.channels.Selector ;
+import java.nio.channels.SocketChannel ;
+
+import org.apache.avalon.framework.logger.AbstractLogEnabled ;
+
+import org.apache.eve.ResourceException ;
+import org.apache.eve.buffer.BufferPool ;
+import org.apache.eve.listener.ClientKey ;
+import org.apache.eve.listener.KeyExpiryException ;
 
 
 /**
  * A monitor that uses Avolon logging life-cycle an loggers to report events
  * in the InputManager.
  *
- * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author <a href="mailto:directory-dev@incubator.apache.org">
+ * Apache Directory Project</a>
  * @version $Rev: 6373 $
  */
-public class AvalonInputManagerMonitor extends InputManagerMonitorAdapter
-    implements LogEnabled
+public class AvalonInputManagerMonitor extends AbstractLogEnabled
+    implements InputManagerMonitor
 {
-    /** the logger used to log messages */
-    private Logger m_log ;
-    
-    
-    public void enableLogging( Logger a_logger )
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#bufferUnavailable(
+     * org.apache.eve.buffer.BufferPool, org.apache.eve.ResourceException)
+     */
+    public void bufferUnavailable( BufferPool a_bp, ResourceException a_fault )
     {
-        m_log = a_logger ;
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( 
+                    "Failed to acquire buffer resource from buffer pool "
+                    + a_bp, a_fault ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#channelCloseFailure(
+     * java.nio.channels.SocketChannel, java.io.IOException)
+     */
+    public void channelCloseFailure( SocketChannel a_channel, 
+                                     IOException a_fault )
+    {
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( "Could not properly close socket channel " 
+                    + a_channel, a_fault ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#channelRegistrationFailure(
+     * java.nio.channels.Selector, java.nio.channels.SocketChannel, int, 
+     * java.io.IOException)
+     */
+    public void channelRegistrationFailure( Selector a_selector,
+											SocketChannel a_channel,
+											int a_key,
+											IOException a_fault )
+    {
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( "Could not register socket channel " + a_channel 
+                    + " for selector " + a_selector 
+                    + " using selection key mode " + a_key, a_fault ) ;
+        }
+    }
+    
+
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#disconnectedClient(
+     * org.apache.eve.listener.ClientKey)
+     */
+    public void disconnectedClient( ClientKey a_key )
+    {
+        if ( getLogger().isInfoEnabled() )
+        {    
+            getLogger().info( "Disconnected client with key: " + a_key ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#enteringSelect(
+     * java.nio.channels.Selector)
+     */
+    public void enteringSelect( Selector a_selector )
+    {
+        if ( getLogger().isDebugEnabled() )
+        {    
+            getLogger().debug( "About to enter select() on selector " 
+                    + a_selector ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#inputRecieved(
+     * org.apache.eve.listener.ClientKey)
+     */
+    public void inputRecieved( ClientKey a_key )
+    {
+        if ( getLogger().isDebugEnabled() )
+        {
+            getLogger().debug( "Got some input from " + a_key ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#keyExpiryFailure(
+     * org.apache.eve.listener.ClientKey, 
+     * org.apache.eve.listener.KeyExpiryException)
+     */
+    public void keyExpiryFailure( ClientKey a_key, KeyExpiryException a_fault )
+    {
+        if ( getLogger().isInfoEnabled() )
+        {
+            getLogger().info( "While working with client key " + a_key 
+                    + " it was prematurely expired!", a_fault ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#readFailed(
+     * org.apache.eve.listener.ClientKey, java.io.IOException)
+     */
+    public void readFailed( ClientKey a_key, IOException a_fault )
+    {
+        if ( getLogger().isErrorEnabled() )
+        {
+            getLogger().error( "Encountered failure while reading from " 
+                    + a_key, a_fault ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#registeredChannel(
+     * org.apache.eve.listener.ClientKey, java.nio.channels.Selector)
+     */
+    public void registeredChannel( ClientKey a_key, Selector a_selector )
+    {
+        if ( getLogger().isDebugEnabled() )
+        {
+            getLogger().debug( "Succeeded in registering " + a_key 
+                    + " with selector " + a_selector ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#selectFailure(
+     * java.nio.channels.Selector, java.io.IOException)
+     */
+    public void selectFailure( Selector a_selector, IOException a_fault )
+    {
+        if ( getLogger().isErrorEnabled() )
+        {
+            getLogger().error( "Failed on select() of selector " + a_selector, 
+                    a_fault ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#selectorReturned(
+     * java.nio.channels.Selector)
+     */
+    public void selectorReturned( Selector a_selector )
+    {
+        if ( getLogger().isDebugEnabled() )
+        {
+            getLogger().debug( "Select on " + a_selector + " returned" ) ;
+        }
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#selectTimedOut(
+     * java.nio.channels.Selector)
+     */
+    public void selectTimedOut( Selector a_selector )
+    {
+        if ( getLogger().isWarnEnabled() )
+        {
+            getLogger().warn( "Select on " + a_selector + " timed out" ) ;
+        }
     }
 }

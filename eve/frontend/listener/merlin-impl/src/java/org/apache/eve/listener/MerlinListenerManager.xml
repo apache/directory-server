@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <listeners>
+    <listener>
+      <port>389</port>
+      <address>127.0.0.1</address>
+      <backlog>50</backlog>
+      <isSecure>false</isSecure>
+    </listener>
+
+    <listener>
+      <port>636</port>
+      <hostname>localhost</hostname>
+      <backlog>50</backlog>
+      <isSecure>false</isSecure>
+    </listener>
+  </listeners>
+</configuration>

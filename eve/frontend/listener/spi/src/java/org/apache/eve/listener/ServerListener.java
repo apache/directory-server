@@ -82,11 +82,32 @@ public interface ServerListener
      *
      * @return the ip address octets as a String i.e. 127.0.0.1
      */
-    public String getAddress() ;
+    public byte[] getAddress() ;
+    
+    /**
+     * Gets whether or not the listener is for establishing secure connections.
+     * 
+     * @return true if ssl is used to secure the connection, false otherwise.
+     */
+    public boolean isSecure() ;
+    
+    /**
+     * Get whether or not the transport is reliable or not.
+     * 
+     * @return true if it is reliable (TCP), false if it is not.
+     */
+    public boolean isReliable() ;
+    
+    /**
+     * Gets the protocol's URL scheme.
+     * 
+     * @return the URL scheme for the protocol
+     */
+    public String getProtocolUrlScheme() ;
 
     /**
-     * Gets the LDAP URL for this ServerListener using the specified ip address
-     * and the tcp port number listened to.  The ipaddress is resolved to a host
+     * Gets the URL for this ServerListener using the specified ip address and 
+     * the tcp port number listened to.  The ipaddress is resolved to a host 
      * name.
      *
      * @return the LDAP URL like so ldap://localhost:389

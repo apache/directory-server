@@ -91,7 +91,10 @@ public class AvalonListenerManagerMonitor extends AbstractLogEnabled
      */
     public void bindOccured( ServerListener a_listener )
     {
-        getLogger().info( "binding " + a_listener ) ;
+        if ( getLogger().isInfoEnabled() )
+        {    
+            getLogger().info( "binding " + a_listener ) ;
+        }
     }
 
     
@@ -101,7 +104,10 @@ public class AvalonListenerManagerMonitor extends AbstractLogEnabled
      */
     public void unbindOccured( ServerListener a_listener )
     {
-        getLogger().info( "unbinding " + a_listener ) ;
+        if ( getLogger().isInfoEnabled() )
+        {    
+            getLogger().info( "unbinding " + a_listener ) ;
+        }
     }
 
     
@@ -143,8 +149,11 @@ public class AvalonListenerManagerMonitor extends AbstractLogEnabled
      */
     public void failedToBind( ServerListener a_listener, IOException a_failure )
     {
-        getLogger().error( "failed to bind listener to " + a_listener
-                + " encountered exception: " + a_failure.getMessage() ) ;
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( "failed to bind listener to " + a_listener
+                    + " encountered exception: " + a_failure.getMessage() ) ;
+        }
     }
 
 
@@ -155,8 +164,11 @@ public class AvalonListenerManagerMonitor extends AbstractLogEnabled
     public void failedToUnbind( ServerListener a_listener, 
                                 IOException a_failure )
     {
-        getLogger().error( "failed to unbind listener from " + a_listener 
-            + " encountered exception: " + a_failure.getMessage() ) ;
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( "failed to unbind listener from " + a_listener 
+                + " encountered exception: " + a_failure.getMessage() ) ;
+        }
     }
 
     
@@ -166,8 +178,11 @@ public class AvalonListenerManagerMonitor extends AbstractLogEnabled
      */
     public void failedToExpire( ClientKey a_key, IOException a_failure )
     {
-        getLogger().error( "failed to expire client key " + a_key 
-                + " encountered exception: " + a_failure.getMessage() ) ;
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( "failed to expire client key " + a_key 
+                    + " encountered exception: " + a_failure.getMessage() ) ;
+        }
     }
 
     
@@ -177,8 +192,11 @@ public class AvalonListenerManagerMonitor extends AbstractLogEnabled
      */
     public void failedToAccept( SelectionKey a_key, IOException a_failure )
     {
-        getLogger().error( "failed to accept on selection key " + a_key 
-                + " encountered exception: " + a_failure.getMessage() ) ;
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( "failed to accept on selection key " + a_key 
+                    + " encountered exception: " + a_failure.getMessage() ) ;
+        }
     }
 
     
@@ -188,7 +206,37 @@ public class AvalonListenerManagerMonitor extends AbstractLogEnabled
      */
     public void failedToSelect( Selector a_selector, IOException a_failure )
     {
-        getLogger().error( "failed on select of selector " + a_selector 
-                + " encountered exception: " + a_failure.getMessage() ) ;
+        if ( getLogger().isErrorEnabled() )
+        {    
+            getLogger().error( "failed on select of selector " + a_selector 
+                    + " encountered exception: " + a_failure.getMessage() ) ;
+        }
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.listener.ListenerManagerMonitor#selectTimedOut(
+     * java.nio.channels.Selector)
+     */
+    public void selectTimedOut( Selector a_selector )
+    {
+        if ( getLogger().isWarnEnabled() )
+        {    
+            getLogger().warn( "Timed out on selector " + a_selector 
+                    + " select()" ) ;
+        }
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.listener.ListenerManagerMonitor#
+     * enteringSelect(java.nio.channels.Selector)
+     */
+    public void enteringSelect( Selector a_selector ) 
+    {
+        if ( getLogger().isDebugEnabled() )
+        {    
+            getLogger().debug( "About to select on selector " + a_selector ) ;
+        }
     }
 }

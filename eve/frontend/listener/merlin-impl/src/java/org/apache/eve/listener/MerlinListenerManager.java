@@ -51,14 +51,25 @@ package org.apache.eve.listener ;
 
 
 import java.io.IOException ;
+
+import java.net.InetAddress ;
+import java.net.UnknownHostException ;
+
+import java.util.ArrayList ;
 import java.util.EventObject ;
 
+import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.activity.Startable ;
 import org.apache.avalon.framework.service.Serviceable ;
 import org.apache.avalon.framework.activity.Initializable ;
 import org.apache.avalon.framework.service.ServiceManager ;
 import org.apache.avalon.framework.service.ServiceException ;
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;
+import org.apache.avalon.framework.configuration.Configurable ;
+import org.apache.avalon.framework.configuration.Configuration ;
+import org.apache.avalon.framework.configuration.ConfigurationException ;
+
+import org.apache.commons.lang.StringUtils ;
 
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.event.DisconnectEvent ;
@@ -79,13 +90,18 @@ public class MerlinListenerManager extends AbstractLogEnabled
     implements 
     ListenerManager,
     Initializable, 
+    Configurable,
     Serviceable,
     Startable
 {
+    /** the listener manager's avalon based monitor */
+    private AvalonListenerManagerMonitor m_monitor ;
     /** the listener manager implementation wrapped by this service */
     private DefaultListenerManager m_manager ;
     /** a temporary handle on the event router to bridge life-cycle methods */
     private EventRouter m_router ;
+    /** the set of listeners */
+    private ArrayList m_listeners ;
     
     
     // ------------------------------------------------------------------------
@@ -140,13 +156,35 @@ public class MerlinListenerManager extends AbstractLogEnabled
     
     
     /**
+     * Set's up the monitor with a logger.
+     * 
+     * @param a_logger a logger.
+     */
+    public void enableLogging( Logger a_logger ) 
+    {
+        super.enableLogging( a_logger ) ;
+        m_monitor = new AvalonListenerManagerMonitor() ;
+        m_monitor.enableLogging( a_logger ) ;
+    }
+    
+    
+    /**
      * Starts up this module.
      * 
      * @see org.apache.avalon.framework.activity.Startable#start()
      */
     public void start() throws Exception
     {
+        getLogger().debug( 
+                "About to call delegate start() from merlin wrapper!" ) ;
         m_manager.start() ;
+        getLogger().debug( 
+                "Completed call to delegate start() from merlin wrapper!" ) ;
+
+        for( int ii = 0; ii < m_listeners.size(); ii++ )
+        {    
+            m_manager.bind( ( ServerListener ) m_listeners.get( ii ) ) ;
+        }
     }
     
     
@@ -157,7 +195,16 @@ public class MerlinListenerManager extends AbstractLogEnabled
      */
     public void stop() throws Exception
     {
-        m_manager.stop() ;
+        getLogger().debug( 
+                "About to call delegate stop() from merlin wrapper!" ) ;
+        
+        if ( m_manager != null )
+        {    
+            m_manager.stop() ;
+        }
+        
+        getLogger().debug( 
+                "Completed call to delegate stop() from merlin wrapper!" ) ;
     }
     
     
@@ -180,5 +227,88 @@ public class MerlinListenerManager extends AbstractLogEnabled
     public void initialize() throws Exception
     {
         m_manager = new DefaultListenerManager( m_router ) ;
+        m_manager.setMonitor( m_monitor ) ;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.avalon.framework.configuration.Configurable#
+     * configure(org.apache.avalon.framework.configuration.Configuration)
+     */
+    public void configure( Configuration a_config ) 
+        throws ConfigurationException
+    {
+        if ( a_config.getChild( "listeners" ).getChildren().length == 0 )
+        {
+            m_listeners = new ArrayList( 1 ) ;
+            
+            try 
+            {
+                m_listeners.add( new LdapServerListener() ) ;
+            }
+            catch ( UnknownHostException e )
+            {
+                throw new ConfigurationException( "No configuration provided "
+                        + "for listener configuration and default listener "
+                        + "failed due to exception", e ) ;
+            }
+        }
+        
+        Configuration[] l_listeners = a_config
+            .getChild( "listeners" ).getChildren() ;
+        for ( int ii = 0; ii < l_listeners.length; ii++ )
+        {
+            int l_port = l_listeners[ii].getChild( "port" )
+                .getValueAsInteger( 389 ) ;
+            int l_backlog = l_listeners[ii].getChild( "backlog" )
+                .getValueAsInteger( 50 ) ;
+            boolean l_isSecure = l_listeners[ii].getChild( "isSecure" )
+                .getValueAsBoolean( false ) ;
+            String l_host = null ;
+            Configuration l_hostConf = l_listeners[ii]
+                .getChild( "host", false ) ;
+            Configuration l_addressConf = l_listeners[ii]
+                .getChild( "address", false ) ;
+            
+            if ( l_hostConf == null && l_addressConf == null )
+            {
+                try 
+                {
+                    l_host = InetAddress.getLocalHost().getHostName() ;
+                }
+                catch ( UnknownHostException e )
+                {
+                    throw new ConfigurationException( "No configuration address"
+                            + " or hostname provided and using localhost "
+                            + "failed due to exception", e ) ;
+                }
+            }
+            else if ( l_hostConf != null ) 
+            {
+                l_host = l_hostConf.getValue() ;
+            }
+            else if ( l_addressConf != null )
+            {
+                String l_addrStr = l_addressConf.getValue() ;
+                // split appart and build byte array
+                String[] l_octets = StringUtils.split( l_addrStr, '.' ) ;
+                byte[] l_address = new byte[ l_octets.length ] ;
+                for ( int jj =0; jj < l_octets.length; jj++ )
+                {
+                    l_address[jj] = Byte.parseByte( l_octets[jj] ) ;
+                }
+
+                try
+                {
+                    l_host = InetAddress.getByAddress( l_address )
+                        .getHostName() ;
+                }
+                catch ( UnknownHostException e )
+                {
+                    throw new ConfigurationException( "Could not find hostname "
+                            + "for address " + l_addrStr, e ) ;
+                }
+            }
+        }
     }
 }

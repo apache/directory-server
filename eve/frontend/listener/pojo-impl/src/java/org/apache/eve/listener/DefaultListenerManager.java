@@ -56,6 +56,7 @@ import java.util.Iterator ;
 import java.util.EventObject ;
 
 import java.io.IOException ;
+import java.net.InetAddress ;
 import java.net.InetSocketAddress ;
 
 import java.nio.channels.Selector ;
@@ -73,8 +74,6 @@ import org.apache.eve.event.DisconnectSubscriber ;
  * A listener manager that uses non-blocking NIO based constructs to detect
  * client connections on server socket listeners.
  * 
- * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
- * @author $Author$
  * @version $Rev$
  */
 public class DefaultListenerManager 
@@ -97,8 +96,8 @@ public class DefaultListenerManager
     /** the listner manager's monitor */
     private ListenerManagerMonitor m_monitor = 
         new ListenerManagerMonitorAdapter() ;
-    
 
+    
     /**
      * Creates a default listener manager using an event router.
      * 
@@ -120,7 +119,7 @@ public class DefaultListenerManager
      * 
      * @return Returns the monitor.
      */
-    ListenerManagerMonitor getMonitor()
+    public ListenerManagerMonitor getMonitor()
     {
         return m_monitor ;
     }
@@ -131,7 +130,7 @@ public class DefaultListenerManager
      * 
      * @param a_monitor The monitor to set.
      */
-    void setMonitor( ListenerManagerMonitor a_monitor )
+    public void setMonitor( ListenerManagerMonitor a_monitor )
     {
         m_monitor = a_monitor ;
     }
@@ -147,7 +146,7 @@ public class DefaultListenerManager
         {
             ServerSocketChannel l_channel = ServerSocketChannel.open() ;
             InetSocketAddress l_address = new InetSocketAddress( 
-                    a_listener.getAddress(), 
+                    InetAddress.getByAddress( a_listener.getAddress() ), 
                     a_listener.getPort() ) ;
             l_channel.socket().bind( l_address, a_listener.getBacklog() ) ;
             l_channel.configureBlocking( false ) ;
@@ -248,9 +247,10 @@ public class DefaultListenerManager
             
             try
             {
+                m_monitor.enteringSelect( m_selector ) ;
                 if ( 0 == ( l_count = m_selector.select() ) )
                 {
-                    m_monitor.selectOccured( m_selector ) ;
+                    m_monitor.selectTimedOut( m_selector ) ;
                     continue ;
                 }
             } 
@@ -275,6 +275,7 @@ public class DefaultListenerManager
                     try
                     {
                         l_channel = l_server.accept() ;
+                        l_list.remove() ;
                         m_monitor.acceptOccured( l_key ) ;
                     }
                     catch ( IOException e )
@@ -329,6 +330,7 @@ public class DefaultListenerManager
         synchronized( m_hasStarted )
         {
             m_hasStarted = new Boolean( false ) ;
+            m_selector.wakeup() ;
             
             while ( m_thread.isAlive() )
             {
