@@ -147,11 +147,7 @@
     
     <!-- TODO: Clover? -->
     <reports>
-    	<report>maven-jxr-plugin</report>
     	<report>maven-license-plugin</report>
-        <report>maven-changelog-plugin</report>
-        <report>maven-javadoc-plugin</report>
-    	<report>maven-tasklist-plugin</report>
     </reports>
 </project>
 
