@@ -23,7 +23,73 @@ import org.apache.eve.schema.SyntaxCheckerRegistry;
 
 
 /**
- * A syntax schema object configuration set.
+ * A Syntax schema object configuration set for the core LDAP schema in Section
+ * 4.3.2 of <a href="http://www.faqs.org/rfcs/rfc2252.html">RFC2252</a>.
+ * The following table reproduced from RFC2252 shows the syntaxes included
+ * within this SyntaxConfigSet:
+ * <pre>
+ * Index   Value being represented   H-R     OBJECT IDENTIFIER
+ * =====================================================================
+ * 0 ACI Item                         N  1.3.6.1.4.1.1466.115.121.1.1
+ * 1 Access Point                     Y  1.3.6.1.4.1.1466.115.121.1.2
+ * 2 Attribute Type Description       Y  1.3.6.1.4.1.1466.115.121.1.3
+ * 3 Audio                            N  1.3.6.1.4.1.1466.115.121.1.4
+ * 4 Binary                           N  1.3.6.1.4.1.1466.115.121.1.5
+ * 5 Bit String                       Y  1.3.6.1.4.1.1466.115.121.1.6
+ * 6 Boolean                          Y  1.3.6.1.4.1.1466.115.121.1.7
+ * 7 Certificate                      N  1.3.6.1.4.1.1466.115.121.1.8
+ * 8 Certificate List                 N  1.3.6.1.4.1.1466.115.121.1.9
+ * 9 Certificate Pair                 N  1.3.6.1.4.1.1466.115.121.1.10
+ * 10 Country String                  Y  1.3.6.1.4.1.1466.115.121.1.11
+ * 11 DN                              Y  1.3.6.1.4.1.1466.115.121.1.12
+ * 12 Data Quality Syntax             Y  1.3.6.1.4.1.1466.115.121.1.13
+ * 13 Delivery Method                 Y  1.3.6.1.4.1.1466.115.121.1.14
+ * 14 Directory String                Y  1.3.6.1.4.1.1466.115.121.1.15
+ * 15 DIT Content Rule Description    Y  1.3.6.1.4.1.1466.115.121.1.16
+ * 16 DIT Structure Rule Description  Y  1.3.6.1.4.1.1466.115.121.1.17
+ * 17 DL Submit Permission            Y  1.3.6.1.4.1.1466.115.121.1.18
+ * 18 DSA Quality Syntax              Y  1.3.6.1.4.1.1466.115.121.1.19
+ * 19 DSE Type                        Y  1.3.6.1.4.1.1466.115.121.1.20
+ * 20 Enhanced Guide                  Y  1.3.6.1.4.1.1466.115.121.1.21
+ * 21 Facsimile Telephone Number      Y  1.3.6.1.4.1.1466.115.121.1.22
+ * 22 Fax                             N  1.3.6.1.4.1.1466.115.121.1.23
+ * 23 Generalized Time                Y  1.3.6.1.4.1.1466.115.121.1.24
+ * 24 Guide                           Y  1.3.6.1.4.1.1466.115.121.1.25
+ * 25 IA5 String                      Y  1.3.6.1.4.1.1466.115.121.1.26
+ * 26 INTEGER                         Y  1.3.6.1.4.1.1466.115.121.1.27
+ * 27 JPEG                            N  1.3.6.1.4.1.1466.115.121.1.28
+ * 28 Master And Shadow Access Points Y  1.3.6.1.4.1.1466.115.121.1.29
+ * 29 Matching Rule Description       Y  1.3.6.1.4.1.1466.115.121.1.30
+ * 30 Matching Rule Use Description   Y  1.3.6.1.4.1.1466.115.121.1.31
+ * 31 Mail Preference                 Y  1.3.6.1.4.1.1466.115.121.1.32
+ * 32 MHS OR Address                  Y  1.3.6.1.4.1.1466.115.121.1.33
+ * 33 Name And Optional UID           Y  1.3.6.1.4.1.1466.115.121.1.34
+ * 34 Name Form Description           Y  1.3.6.1.4.1.1466.115.121.1.35
+ * 35 Numeric String                  Y  1.3.6.1.4.1.1466.115.121.1.36
+ * 36 Object Class Description        Y  1.3.6.1.4.1.1466.115.121.1.37
+ * 37 OID                             Y  1.3.6.1.4.1.1466.115.121.1.38
+ * 38 Other Mailbox                   Y  1.3.6.1.4.1.1466.115.121.1.39
+ * 39 Octet String                    Y  1.3.6.1.4.1.1466.115.121.1.40
+ * 40 Postal Address                  Y  1.3.6.1.4.1.1466.115.121.1.41
+ * 41 Protocol Information            Y  1.3.6.1.4.1.1466.115.121.1.42
+ * 42 Presentation Address            Y  1.3.6.1.4.1.1466.115.121.1.43
+ * 43 Printable String                Y  1.3.6.1.4.1.1466.115.121.1.44
+ * 44 Subtree Specification           Y  1.3.6.1.4.1.1466.115.121.1.45
+ * 45 Supplier Information            Y  1.3.6.1.4.1.1466.115.121.1.46
+ * 46 Supplier Or Consumer            Y  1.3.6.1.4.1.1466.115.121.1.47
+ * 47 Supplier And Consumer           Y  1.3.6.1.4.1.1466.115.121.1.48
+ * 48 Supported Algorithm             N  1.3.6.1.4.1.1466.115.121.1.49
+ * 49 Telephone Number                Y  1.3.6.1.4.1.1466.115.121.1.50
+ * 50 Teletex Terminal Identifier     Y  1.3.6.1.4.1.1466.115.121.1.51
+ * 51 Telex Number                    Y  1.3.6.1.4.1.1466.115.121.1.52
+ * 52 UTC Time                        Y  1.3.6.1.4.1.1466.115.121.1.53
+ * 53 LDAP Syntax Description         Y  1.3.6.1.4.1.1466.115.121.1.54
+ * 54 Modify Rights                   Y  1.3.6.1.4.1.1466.115.121.1.55
+ * 55 LDAP Schema Definition          Y  1.3.6.1.4.1.1466.115.121.1.56
+ * 56 LDAP Schema Description         Y  1.3.6.1.4.1.1466.115.121.1.57
+ * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
+ * </pre>
+ *
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -34,7 +100,7 @@ public class CoreSyntaxes implements SyntaxConfigSet
     private final static String[] EMPTY_ARRAY = new String[0];
     /** the DN of the owner of the objects within this SyntaxConfigSet */
     private static final String OWNER = "uid=admin,ou=system";
-    /** the logical schema the objects within this SyntaxConfigSet belong to */  
+    /** the logical schema the objects within this SyntaxConfigSet belong to */
     private static final String SCHEMA = "core";
 
 
@@ -185,16 +251,16 @@ public class CoreSyntaxes implements SyntaxConfigSet
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
          * ===================================================================
-         Enhanced Guide                  Y  1.3.6.1.4.1.1466.115.121.1.21
-         Facsimile Telephone Number      Y  1.3.6.1.4.1.1466.115.121.1.22
-         Fax                             N  1.3.6.1.4.1.1466.115.121.1.23
-         Generalized Time                Y  1.3.6.1.4.1.1466.115.121.1.24
-         Guide                           Y  1.3.6.1.4.1.1466.115.121.1.25
-         IA5 String                      Y  1.3.6.1.4.1.1466.115.121.1.26
-         INTEGER                         Y  1.3.6.1.4.1.1466.115.121.1.27
-         JPEG                            N  1.3.6.1.4.1.1466.115.121.1.28
-         Master And Shadow Access Points Y  1.3.6.1.4.1.1466.115.121.1.29
-         Matching Rule Description       Y  1.3.6.1.4.1.1466.115.121.1.30
+         * 20 Enhanced Guide                  Y  1.3.6.1.4.1.1466.115.121.1.21
+         * 21 Facsimile Telephone Number      Y  1.3.6.1.4.1.1466.115.121.1.22
+         * 22 Fax                             N  1.3.6.1.4.1.1466.115.121.1.23
+         * 23 Generalized Time                Y  1.3.6.1.4.1.1466.115.121.1.24
+         * 24 Guide                           Y  1.3.6.1.4.1.1466.115.121.1.25
+         * 25 IA5 String                      Y  1.3.6.1.4.1.1466.115.121.1.26
+         * 26 INTEGER                         Y  1.3.6.1.4.1.1466.115.121.1.27
+         * 27 JPEG                            N  1.3.6.1.4.1.1466.115.121.1.28
+         * 28 Master And Shadow Access Points Y  1.3.6.1.4.1.1466.115.121.1.29
+         * 29 Matching Rule Description       Y  1.3.6.1.4.1.1466.115.121.1.30
          */
         syntaxes[20] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.21" );
         syntaxes[20].setName( "Enhanced Guide" );
@@ -347,7 +413,6 @@ public class CoreSyntaxes implements SyntaxConfigSet
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
          * ==================================================================
-         *
          * 50 Teletex Terminal Identifier     Y  1.3.6.1.4.1.1466.115.121.1.51
          * 51 Telex Number                    Y  1.3.6.1.4.1.1466.115.121.1.52
          * 52 UTC Time                        Y  1.3.6.1.4.1.1466.115.121.1.53
