@@ -27,17 +27,19 @@
       /home/akarasulu/public_html/dist
     </distributionDirectory>
 
+    <gumpRepositoryId>apache-incubator-svn</gumpRepositoryId>
+
     <repository>
       <connection>
-        scm:svn:http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}:::
+        scm:svn:http://cvs.apache.org/repos/asf/incubator/directory:eve/trunk/${module.path}
       </connection>
 
       <url>
-        http://cvs.apache.org/viewcvs.cgi/incubator/directory/ldap/trunk/${module.path}/?root=Apache-SVN
+        http://svn.apache.org/viewcvs.cgi/incubator/directory/eve/trunk/${module.path}/?root=Apache-SVN
       </url>
       
       <developerConnection>
-        http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}
+        https://svn.apache.org/repos/asf/incubator/directory/eve/trunk/${module.path}
       </developerConnection>
     </repository>
   
