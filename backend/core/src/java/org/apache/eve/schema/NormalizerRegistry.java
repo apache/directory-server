@@ -23,7 +23,7 @@ import org.apache.ldap.common.schema.Normalizer;
 
 
 /**
- * Normalizer registry component's service interface.
+ * Normalizer registry service interface.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
