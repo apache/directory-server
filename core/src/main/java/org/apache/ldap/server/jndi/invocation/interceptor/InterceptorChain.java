@@ -17,11 +17,18 @@
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
-import org.apache.ldap.server.jndi.Authenticator;
-import org.apache.ldap.server.jndi.invocation.Invocation;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 import javax.naming.NamingException;
-import java.util.*;
+
+import org.apache.ldap.server.jndi.Authenticator;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 
 
 /**
@@ -39,16 +46,10 @@ import java.util.*;
 public class InterceptorChain implements Interceptor
 {
     /**
-     * 'Preprocess chain' passes the invocation to the next interceptor
-     * of the parent chain after processing children.
+     * The name of default interceptor that passes its control to the
+     * next interceptor in parent chain.
      */
-    public static final ChainType PREPROCESS = new ChainType();
-
-    /**
-     * 'Postprocess chain' passes the invocation to the next interceptor
-     * of the parent chain before processing children.
-     */
-    public static final ChainType POSTPROCESS = new ChainType();
+    public static final String NEXT_INTERCEPTOR = "nextInterceptor";
 
 
     /**
@@ -56,24 +57,35 @@ public class InterceptorChain implements Interceptor
      */
     public static InterceptorChain newDefaultChain()
     {
-        return newDefaultChain( PREPROCESS );
-    }
-
-
-    /**
-     * Returns a new chain of default interceptors required to run core.
-     */
-    public static InterceptorChain newDefaultChain( ChainType type )
-    {
-        InterceptorChain chain = new InterceptorChain( type );
-        chain.addLast( "authenticator", new Authenticator() );
-        chain.addLast( "authorizer", new Authorizer() );
-        chain.addLast( "validator", new Validator() );
-        chain.addLast( "schemaManager", new SchemaManager() );
-        chain.addLast( "operationalAttributeInterceptor", new OperationalAttributeInterceptor() );
+        InterceptorChain chain = new InterceptorChain();
+        chain.addBefore( NEXT_INTERCEPTOR, "authenticator", new Authenticator() );
+        chain.addBefore( NEXT_INTERCEPTOR, "authorizer", new Authorizer() );
+        chain.addBefore( NEXT_INTERCEPTOR, "validator", new Validator() );
+        chain.addBefore( NEXT_INTERCEPTOR, "schemaManager", new SchemaManager() );
+        chain.addBefore( NEXT_INTERCEPTOR, "operationalAttributeInterceptor", new OperationalAttributeInterceptor() );
         return chain;
     }
 
+    private final Interceptor NEXT_INTERCEPTOR0 = new Interceptor()
+    {
+        public void init( InterceptorContext context ) throws NamingException
+        {
+        }
+
+        public void destroy()
+        {
+        }
+
+        public void process( NextInterceptor nextInterceptor, Invocation invocation ) throws NamingException
+        {
+            if( parent != null )
+            {
+                Entry e = ( Entry ) parent.interceptor2entry.get( InterceptorChain.this );
+                e.nextInterceptor.process( invocation );
+            }
+            nextInterceptor.process( invocation );
+        }
+    };
 
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
@@ -106,39 +118,24 @@ public class InterceptorChain implements Interceptor
 
     private InterceptorChain parent;
 
-    private final ChainType type;
-
     private final Map name2entry = new HashMap();
 
     private final Map interceptor2entry = new IdentityHashMap();
 
-    private Entry head = new Entry( null, null, "end", FINAL_INTERCEPTOR );
+    private Entry head = new Entry( null, null, NEXT_INTERCEPTOR, NEXT_INTERCEPTOR0 );
 
-    private final Entry tail = head;
+    private final Entry tail = new Entry( null, null, "end", FINAL_INTERCEPTOR );
 
 
     /**
-     * Create a new interceptor chain whose type is {@link #PREPROCESS}.
+     * Create a new interceptor chain.
      */
     public InterceptorChain()
     {
-        this( PREPROCESS );
+        head.nextEntry = tail;
+        tail.prevEntry = head;
+        register( NEXT_INTERCEPTOR, head );
     }
-
-
-    /**
-     * Creates a new interceptor chain with the specified chain type.
-     */
-    public InterceptorChain( ChainType type )
-    {
-        if ( type == null )
-        {
-            throw new NullPointerException( "type" );
-        }
-
-        this.type = type;
-    }
-
 
     /**
      * Initializes all interceptors this chain contains.
@@ -290,11 +287,13 @@ public class InterceptorChain implements Interceptor
         Entry newEntry = new Entry( prevEntry, baseEntry, name, interceptor );
         if ( prevEntry == null )
         {
+            baseEntry.prevEntry = newEntry;
             head = newEntry;
+            
         }
         else
         {
-            prevEntry.nextEntry.prevEntry = newEntry;
+            baseEntry.prevEntry = newEntry;
             prevEntry.nextEntry = newEntry;
         }
 
@@ -427,23 +426,7 @@ public class InterceptorChain implements Interceptor
         Entry head = this.head;
         try
         {
-            if ( type == PREPROCESS )
-            {
-                head.interceptor.process( head.nextInterceptor, invocation );
-                if ( nextInterceptor != null )
-                {
-                    nextInterceptor.process( invocation );
-                }
-            }
-            else // POSTPROCESS
-            {
-                if ( nextInterceptor != null )
-                {
-                    nextInterceptor.process( invocation );
-                }
-                head.interceptor.process( head.nextInterceptor, invocation );
-            }
-
+            head.interceptor.process( head.nextInterceptor, invocation );
         }
         catch ( NamingException ne )
         {
@@ -546,16 +529,6 @@ public class InterceptorChain implements Interceptor
                     }
                 }
             };
-        }
-    }
-
-    /**
-     * Represents how {@link InterceptorChain} interacts with {@link NextInterceptor}.
-     */
-    public static class ChainType
-    {
-        private ChainType()
-        {
         }
     }
 }

@@ -33,7 +33,7 @@ public class ConfigurationTest extends AbstractServerTest
     {
         rootChain.addLast( "A", interceptorA );
         rootChain.addLast( "child", childChain );
-        childChain.addLast( "B", interceptorB );
+        childChain.addBefore( InterceptorChain.NEXT_INTERCEPTOR, "B", interceptorB );
         rootChain.addLast( "default", InterceptorChain.newDefaultChain() );
 
         extras.put( EnvKeys.INTERCEPTORS, rootChain );

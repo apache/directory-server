@@ -35,8 +35,8 @@ public interface NextInterceptor
     /**
      * Passes the control of current invocation to the next {@link Interceptor} in the {@link InterceptorChain}.
      *
-     * @param call
+     * @param incovation
      * @throws NamingException
      */
-    void process( Invocation call ) throws NamingException;
+    void process( Invocation incovation ) throws NamingException;
 }

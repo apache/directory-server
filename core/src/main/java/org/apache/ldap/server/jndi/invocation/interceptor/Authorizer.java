@@ -17,6 +17,14 @@
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.server.BackingStore;
@@ -24,18 +32,20 @@ import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.invocation.*;
+import org.apache.ldap.server.jndi.invocation.Delete;
+import org.apache.ldap.server.jndi.invocation.HasEntry;
+import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.jndi.invocation.List;
+import org.apache.ldap.server.jndi.invocation.Lookup;
+import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.invocation.Modify;
+import org.apache.ldap.server.jndi.invocation.ModifyMany;
+import org.apache.ldap.server.jndi.invocation.ModifyRN;
+import org.apache.ldap.server.jndi.invocation.Move;
+import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.invocation.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
 
 /**
