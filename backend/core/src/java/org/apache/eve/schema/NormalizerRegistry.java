@@ -51,6 +51,15 @@ public interface NormalizerRegistry
     Normalizer lookup( String oid ) throws NamingException;
 
     /**
+     * Gets the name of the schema this schema object is associated with.
+     *
+     * @param oid the object identifier
+     * @return the schema name
+     * @throws NamingException if the schema object does not exist
+     */
+    String getSchemaName( String oid ) throws NamingException;
+
+    /**
      * Checks to see if a Normalizer exists.  Backing store failures simply 
      * return false.
      * 

@@ -109,4 +109,21 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         return byOid.containsKey( oid );
     }
+
+
+    public String getSchemaName( String oid ) throws NamingException
+    {
+        if ( Character.isDigit( oid.charAt( 0 ) ) )
+        {
+            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        }
+
+        if ( oidToSchema.containsKey( oid ) )
+        {
+            return ( String ) oidToSchema.get( oid );
+        }
+
+        throw new NamingException( "OID " + oid + " not found in oid to " +
+            "schema name map!" );
+    }
 }

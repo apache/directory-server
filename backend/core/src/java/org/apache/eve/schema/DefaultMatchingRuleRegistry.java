@@ -128,6 +128,19 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     }
 
 
+    public String getSchemaName( String id ) throws NamingException
+    {
+        id = oidRegistry.getOid( id );
+        if ( oidToSchema.containsKey( id ) )
+        {
+            return ( String ) oidToSchema.get( id );
+        }
+
+        throw new NamingException( "OID " + id + " not found in oid to " +
+            "schema name map!" );
+    }
+
+
     // ------------------------------------------------------------------------
     // package friendly monitor methods
     // ------------------------------------------------------------------------

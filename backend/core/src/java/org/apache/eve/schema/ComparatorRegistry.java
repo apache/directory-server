@@ -31,6 +31,15 @@ import javax.naming.NamingException;
 public interface ComparatorRegistry
 {
     /**
+     * Gets the name of the schema this schema object is associated with.
+     *
+     * @param oid the object identifier
+     * @return the schema name
+     * @throws NamingException if the schema object does not exist 
+     */
+    String getSchemaName( String oid ) throws NamingException;
+
+    /**
      * Registers a Comparator with this registry.
      * 
      * @param schema the name of the schema the comparator is associated with

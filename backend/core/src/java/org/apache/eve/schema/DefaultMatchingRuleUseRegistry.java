@@ -109,4 +109,16 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     {
         return byName.containsKey( name );
     }
+
+
+    public String getSchemaName( String id ) throws NamingException
+    {
+        if ( nameToSchema.containsKey( id ) )
+        {
+            return ( String ) nameToSchema.get( id );
+        }
+
+        throw new NamingException( "Name " + id + " not found in name to " +
+            "schema name map!" );
+    }
 }

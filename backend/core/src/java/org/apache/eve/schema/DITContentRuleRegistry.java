@@ -50,6 +50,15 @@ public interface DITContentRuleRegistry
     DITContentRule lookup( String id ) throws NamingException;
 
     /**
+     * Gets the name of the schema this schema object is associated with.
+     *
+     * @param id the object identifier or the name
+     * @return the schema name
+     * @throws NamingException if the schema object does not exist
+     */
+    String getSchemaName( String id ) throws NamingException;
+
+    /**
      * Checks to see if a DITContentRule exists.
      * 
      * @param id the object identifier or name of the DITContentRule

@@ -51,6 +51,15 @@ public interface MatchingRuleRegistry
     MatchingRule lookup( String id ) throws NamingException;
 
     /**
+     * Gets the name of the schema this schema object is associated with.
+     *
+     * @param id the object identifier or the name
+     * @return the schema name
+     * @throws NamingException if the schema object does not exist
+     */
+    String getSchemaName( String id ) throws NamingException;
+
+    /**
      * Checks to see if a MatchingRule exists.  Backing store failures simply 
      * return false.
      * 
