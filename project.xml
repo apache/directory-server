@@ -23,10 +23,10 @@
 
     <siteAddress>minotaur.apache.org</siteAddress>
     <siteDirectory>
-      /home/akarasulu/public_html/rsynced-sites/directory/subprojects/server
+      /www/incubator.apache.org/directory/subprojects/server
     </siteDirectory>
     <distributionDirectory>
-      /home/akarasulu/public_html/directory/dist
+      /www/cvs.apache.org/dist/incubator/directory
     </distributionDirectory>
 
     <gumpRepositoryId>apache-incubator-svn</gumpRepositoryId>
