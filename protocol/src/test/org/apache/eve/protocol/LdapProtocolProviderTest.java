@@ -26,7 +26,9 @@ import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.seda.protocol.*;
-import org.apache.seda.listener.ClientKey;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.*;
 
 
 /**

@@ -24,10 +24,13 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.Control;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.seda.listener.ClientKey;
-import org.apache.seda.event.EventRouter;
-import org.apache.seda.event.DisconnectEvent;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.event.EventRouter;
+import org.apache.apseda.event.DisconnectEvent;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.apseda.event.DisconnectEvent;
+import org.apache.apseda.event.EventRouter;
+import org.apache.apseda.listener.ClientKey;
 
 
 /**

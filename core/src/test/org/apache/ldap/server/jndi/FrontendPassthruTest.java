@@ -19,8 +19,10 @@ package org.apache.ldap.server.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.seda.DefaultFrontend;
-import org.apache.seda.DefaultFrontendFactory;
+import org.apache.apseda.DefaultFrontend;
+import org.apache.apseda.DefaultFrontendFactory;
+import org.apache.apseda.DefaultFrontendFactory;
+import org.apache.apseda.DefaultFrontend;
 
 
 /**

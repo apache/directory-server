@@ -17,11 +17,13 @@
 package org.apache.eve.protocol;
 
 
-import org.apache.seda.listener.ClientKey;
-import org.apache.seda.protocol.AbstractNoReplyHandler;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractNoReplyHandler;
 
 import org.apache.ldap.common.message.AbandonRequest;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractNoReplyHandler;
 
 
 /**

@@ -22,12 +22,14 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
 
-import org.apache.seda.protocol.AbstractSingleReplyHandler;
-import org.apache.seda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractSingleReplyHandler;
+import org.apache.apseda.listener.ClientKey;
 
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapException;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 
 
 /**
@@ -39,7 +41,7 @@ import org.apache.ldap.common.exception.LdapException;
 public class CompareHandler extends AbstractSingleReplyHandler
 {
     /**
-     * @see org.apache.seda.protocol.SingleReplyHandler#handle(ClientKey,Object)
+     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(org.apache.apseda.listener.ClientKey,Object)
      */
     public Object handle( ClientKey key, Object request )
     {

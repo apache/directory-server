@@ -21,10 +21,12 @@ import java.util.*;
 
 import javax.naming.Context;
 
-import org.apache.seda.protocol.ProtocolProvider;
-import org.apache.seda.protocol.RequestHandler;
-import org.apache.seda.listener.ClientKey;
-import org.apache.seda.event.EventRouter;
+import org.apache.apseda.protocol.ProtocolProvider;
+import org.apache.apseda.protocol.RequestHandler;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.event.EventRouter;
+import org.apache.apseda.protocol.ProtocolProvider;
+import org.apache.apseda.protocol.RequestHandler;
 
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.message.spi.Provider;

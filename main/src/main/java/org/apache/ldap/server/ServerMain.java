@@ -26,7 +26,8 @@ import javax.naming.directory.InitialDirContext;
 
 import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.seda.listener.AvailablePortFinder;
+import org.apache.apseda.listener.AvailablePortFinder;
+import org.apache.apseda.listener.AvailablePortFinder;
 
 
 /**

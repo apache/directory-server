@@ -57,13 +57,15 @@ import org.apache.ldap.server.jndi.ibs.*;
 import org.apache.ldap.server.schema.*;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.seda.DefaultFrontend;
-import org.apache.seda.DefaultFrontendFactory;
-import org.apache.seda.listener.TCPListenerConfig;
-import org.apache.seda.protocol.DefaultInetServicesDatabase;
-import org.apache.seda.protocol.InetServiceEntry;
-import org.apache.seda.protocol.ProtocolProvider;
-import org.apache.seda.protocol.TransportTypeEnum;
+import org.apache.apseda.DefaultFrontend;
+import org.apache.apseda.DefaultFrontendFactory;
+import org.apache.apseda.listener.TCPListenerConfig;
+import org.apache.apseda.protocol.TransportTypeEnum;
+import org.apache.apseda.listener.TCPListenerConfig;
+import org.apache.apseda.protocol.DefaultInetServicesDatabase;
+import org.apache.apseda.protocol.*;
+import org.apache.apseda.DefaultFrontendFactory;
+import org.apache.apseda.DefaultFrontend;
 
 
 /**

@@ -17,10 +17,11 @@
 package org.apache.eve.protocol;
 
 
-import org.apache.seda.listener.ClientKey;
-import org.apache.seda.protocol.AbstractSingleReplyHandler;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.apseda.listener.ClientKey;
 
 
 /**
@@ -32,7 +33,7 @@ import org.apache.ldap.common.NotImplementedException;
 public class ExtendedHandler extends AbstractSingleReplyHandler
 {
     /**
-     * @see org.apache.seda.protocol.SingleReplyHandler#handle(ClientKey,Object)
+     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
      */
     public Object handle( ClientKey key, Object request )
     {

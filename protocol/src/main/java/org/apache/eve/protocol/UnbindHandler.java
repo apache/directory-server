@@ -21,8 +21,10 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.seda.listener.ClientKey;
-import org.apache.seda.protocol.AbstractNoReplyHandler;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractNoReplyHandler;
+import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractNoReplyHandler;
 
 
 /**

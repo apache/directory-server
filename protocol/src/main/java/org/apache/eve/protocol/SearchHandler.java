@@ -27,13 +27,14 @@ import javax.naming.directory.SearchResult;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
 
-import org.apache.seda.protocol.AbstractManyReplyHandler;
-import org.apache.seda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractManyReplyHandler;
+import org.apache.apseda.listener.ClientKey;
 
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapException;
+import org.apache.apseda.listener.ClientKey;
 
 
 /**
