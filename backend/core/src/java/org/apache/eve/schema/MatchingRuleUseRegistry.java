@@ -23,7 +23,9 @@ import org.apache.ldap.common.schema.MatchingRuleUse;
 
 
 /**
- * An MatchingRuleUse registry service interface.
+ * A MatchingRuleUse registry service interface.  MatchingRuleUse objects are
+ * special in that they do not have unique OID's specifically assigned to them.
+ * Their OID is really the OID of the MatchingRule they refer to.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$

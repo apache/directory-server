@@ -67,27 +67,27 @@ public class CoreMatchingRuleProducer implements BootstrapProducer
         */
 
         mrule = new MutableMatchingRule( "2.5.13.0" );
-        mrule.setName( "objectIdentifierMatch" );
+        mrule.setNames( new String[] { "objectIdentifierMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.38" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.1" );
-        mrule.setName( "distinguishedNameMatch" );
+        mrule.setNames( new String[] { "distinguishedNameMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.2" );
-        mrule.setName( "caseIgnoreMatch" );
+        mrule.setNames( new String[] { "caseIgnoreMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.15" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.3" );
-        mrule.setName( "caseIgnoreOrderingMatch" );
+        mrule.setNames( new String[] { "caseIgnoreOrderingMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.15" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.4" );
-        mrule.setName( "caseIgnoreSubstringsMatch" );
+        mrule.setNames( new String[] { "caseIgnoreSubstringsMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -111,27 +111,27 @@ public class CoreMatchingRuleProducer implements BootstrapProducer
         */
 
         mrule = new MutableMatchingRule( "2.5.13.8" );
-        mrule.setName( "numericStringMatch" );
+        mrule.setNames( new String[] { "numericStringMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.36" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.10" );
-        mrule.setName( "numericStringSubstringsMatch" );
+        mrule.setNames( new String[] { "numericStringSubstringsMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.11" );
-        mrule.setName( "caseIgnoreListMatch" );
+        mrule.setNames( new String[] { "caseIgnoreListMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.41" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.14" );
-        mrule.setName( "integerMatch" );
+        mrule.setNames( new String[] { "integerMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.27" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.16" );
-        mrule.setName( "bitStringMatch" );
+        mrule.setNames( new String[] { "bitStringMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.6" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -155,27 +155,27 @@ public class CoreMatchingRuleProducer implements BootstrapProducer
         */
 
         mrule = new MutableMatchingRule( "2.5.13.20" );
-        mrule.setName( "telephoneNumberMatch" );
+        mrule.setNames( new String[] { "telephoneNumberMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.50" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.21" );
-        mrule.setName( "telephoneNumberSubstringsMatch" );
+        mrule.setNames( new String[] { "telephoneNumberSubstringsMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.22" );
-        mrule.setName( "presentationAddressMatch" );
+        mrule.setNames( new String[] { "presentationAddressMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.43" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.23" );
-        mrule.setName( "uniqueMemberMatch" );
+        mrule.setNames( new String[] { "uniqueMemberMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.34" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.24" );
-        mrule.setName( "protocolInformationMatch" );
+        mrule.setNames( new String[] { "protocolInformationMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.42" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -203,32 +203,32 @@ public class CoreMatchingRuleProducer implements BootstrapProducer
         */
 
         mrule = new MutableMatchingRule( "2.5.13.27" );
-        mrule.setName( "generalizedTimeMatch" );
+        mrule.setNames( new String[] { "generalizedTimeMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.24" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.28" );
-        mrule.setName( "generalizedTimeOrderingMatch" );
+        mrule.setNames( new String[] { "generalizedTimeOrderingMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.24" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.29" );
-        mrule.setName( "integerFirstComponentMatch" );
+        mrule.setNames( new String[] { "integerFirstComponentMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.27" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "2.5.13.30" );
-        mrule.setName( "objectIdentifierFirstComponentMatch" );
+        mrule.setNames( new String[] { "objectIdentifierFirstComponentMatch" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.38" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "1.3.6.1.4.1.1466.109.114.1" );
-        mrule.setName( "caseExactIA5Match" );
+        mrule.setNames( new String[] { "caseExactIA5Match" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.26" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new MutableMatchingRule( "1.3.6.1.4.1.1466.109.114.2" );
-        mrule.setName( "caseIgnoreIA5Match" );
+        mrule.setNames( new String[] { "caseIgnoreIA5Match" } );
         mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.26" ) );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }
@@ -241,9 +241,9 @@ public class CoreMatchingRuleProducer implements BootstrapProducer
             super( oid );
         }
 
-        protected void setName( String name )
+        protected void setNames( String[] names )
         {
-            super.setName( name );
+            super.setNames( names );
         }
 
         protected void setSyntax( Syntax syntax )

@@ -71,15 +71,21 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
-        public void setName( String name )
+        public void setNames( String[] names )
         {
-            super.setName( name );
+            super.setNames( names );
         }
 
 
         public SyntaxChecker getSyntaxChecker( ) throws NamingException
         {
             return registry.lookup( getOid() );
+        }
+
+
+        public boolean isObsolete()
+        {
+            return false;
         }
     }
 }

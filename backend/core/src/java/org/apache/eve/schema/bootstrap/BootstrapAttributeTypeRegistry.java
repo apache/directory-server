@@ -89,10 +89,10 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
             throw e;
         }
 
-        String[] names = attributeType.getAllNames();
+        String[] names = attributeType.getNames();
         for ( int ii = 0; ii < names.length; ii++ )
         {
-            oidRegistry.register( names[0], attributeType.getName() );
+            oidRegistry.register( names[ii], attributeType.getOid() );
         }
 
         oidToSchema.put( attributeType.getOid(), schema );
