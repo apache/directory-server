@@ -390,14 +390,14 @@ public class Authorizer extends BaseInterceptor
                                        SearchControls controls )
                         throws NamingException
                 {
-                    return Authorizer.this.isSearchable( ctx, result, controls );
+                    return Authorizer.this.isSearchable( ctx, result );
                 }
             } );
 
         request.setResponse( retval );
     }
 
-    private boolean isSearchable( LdapContext ctx, SearchResult result, SearchControls controls )
+    private boolean isSearchable( LdapContext ctx, SearchResult result )
             throws NamingException
     {
         Name dn;

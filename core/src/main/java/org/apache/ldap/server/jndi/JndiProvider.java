@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Hashtable;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -31,6 +32,9 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.server.BackendSubsystem;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.jndi.request.interceptor.BaseInterceptor;
+import org.apache.ldap.server.jndi.request.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.request.interceptor.InterceptorChain;
 
 
 /**

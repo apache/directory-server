@@ -17,7 +17,12 @@
 package org.apache.ldap.server.jndi.ibs;
 
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -33,13 +38,19 @@ import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.schema.*;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.DITContentRule;
+import org.apache.ldap.common.schema.DITStructureRule;
+import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.ldap.common.schema.MatchingRuleUse;
+import org.apache.ldap.common.schema.NameForm;
+import org.apache.ldap.common.schema.ObjectClass;
+import org.apache.ldap.common.schema.SchemaUtils;
+import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.jndi.BaseInterceptor;
-import org.apache.ldap.server.jndi.Invocation;
-import org.apache.ldap.server.jndi.InvocationStateEnum;
+import org.apache.ldap.server.jndi.request.interceptor.BaseInterceptor;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 

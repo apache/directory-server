@@ -139,12 +139,9 @@ public class InterceptorChain
         {
             throw new IllegalStateException();
         }
-        else
-        {
-            nextEntry.prevEntry.nextEntry = newEntry;
-            nextEntry.prevEntry = newEntry;
-        }
 
+        nextEntry.prevEntry.nextEntry = newEntry;
+        nextEntry.prevEntry = newEntry;
         name2entry.put( name, newEntry );
     }
     
@@ -261,7 +258,7 @@ public class InterceptorChain
     {
         private Entry prevEntry;
         private Entry nextEntry;
-        private final String name;
+        //private final String name;
         private final Interceptor processor;
         private final NextInterceptor nextProcessor;
 
@@ -279,7 +276,7 @@ public class InterceptorChain
 
             this.prevEntry = prevEntry;
             this.nextEntry = nextEntry;
-            this.name = name;
+            //this.name = name;
             this.processor = processor;
             this.nextProcessor = new NextInterceptor()
             {
