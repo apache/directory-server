@@ -214,9 +214,19 @@ public interface BackingStore
      */
     void move( Name oriChildName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
-    
+
+    /**
+     * Cue to BackingStores with caches to flush entry and index changes to disk.
+     *
+     * @throws NamingException if there are problems flushing caches
+     */
     void sync() throws NamingException;
 
+    /**
+     * Closes or shuts down this BackingStore.
+     *
+     * @throws NamingException if there are problems shutting down
+     */
     void close() throws NamingException;
 }
 
