@@ -11,10 +11,8 @@ import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.eve.schema.bootstrap.BootstrapSyntaxRegistry;
 import org.apache.eve.schema.bootstrap.BootstrapOidRegistry;
-import org.apache.eve.schema.bootstrap.BootstrapOidRegistry;
-import org.apache.eve.schema.bootstrap.BootstrapSyntaxRegistry;
 
-import org.apache.eve.schema.config.CoreSyntaxFactory;
+import org.apache.eve.schema.bootstrap. CoreSyntaxFactory;
 
 
 /**
@@ -76,14 +74,6 @@ public class EveContextFactory implements InitialContextFactory
 
     private EveJndiProvider create( Hashtable env )
     {
-        EveJndiProvider provider = null;
-        Syntax[] syntaxes;
-        BootstrapOidRegistry oidRegistry;
-        CoreSyntaxFactory coreSyntaxes;
-        BootstrapSyntaxRegistry syntaxRegistry;
-
         throw new NotImplementedException( "bootstrap code not yet written" );
-
-        // return provider;
     }
 }
