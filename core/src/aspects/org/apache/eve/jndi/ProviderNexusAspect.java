@@ -26,7 +26,7 @@ import org.apache.eve.ContextPartition;
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
- * @version $Revision: 1.5 $
+ * @version $Revision$
  */
 public aspect ProviderNexusAspect
 {

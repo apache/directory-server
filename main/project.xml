@@ -110,7 +110,7 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-dib</artifactId>
+      <artifactId>eve-core</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>

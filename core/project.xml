@@ -2,18 +2,15 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <artifactId>eve-dib</artifactId>
-  <name>Eve JNDI Provider</name>
+  <name>Eve Core</name>
   <inceptionYear>2002</inceptionYear>
-  <shortDescription>Eve's directory information base</shortDescription>
+  <shortDescription>Eve's Core</shortDescription>
   <description>
-    Eve's backend subsystem or directory information base (DIB) is a JNDI 
-    Provider.  The provider translates JNDI operations to backing store calls 
-    on Eve database partitions which constitute the DIB for the DSA.  Eve's
-    database partitions may hang off of separate naming contexts.  The provider
-    uses the LDAP namespace but it is not intended to be an LDAP client.  The
-    provider may have to talk LDAP over the wire only when it needs to chase a
-    referral to an LDAP server.  In such cases, Eve may delegate LDAP client
-    behavior to the SUN LDAP JNDI Provider.
+    Eve's core contains all of Eve's backend subsystems.  It depends on 
+    protocol and uses it with seda to service LDAP requests.  The core 
+    contains the JNDI provider, interceptor framework, interceptor services,
+    the schema subsystem and the database subsystem.  Hence the core is the
+    heart of the server. 
   </description>
   <dependencies>
     <dependency>
