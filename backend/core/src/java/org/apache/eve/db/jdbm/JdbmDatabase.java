@@ -472,7 +472,7 @@ public class JdbmDatabase implements Database
         BigInteger ancestorId = null;    // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name 
-        normalizer = oneAliasIdx.getAttribute().getNormalizer();
+        normalizer = oneAliasIdx.getAttribute().getEquality().getNormalizer();
         targetDn = new LdapName( ( String ) normalizer.normalize( aliasTarget ) );
            
         /*

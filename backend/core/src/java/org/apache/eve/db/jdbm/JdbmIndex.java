@@ -330,7 +330,7 @@ public class JdbmIndex implements Index
      */    
     private void initTables() throws NamingException
     {
-        Comparator comp = attribute.getComparator(); 
+        Comparator comp = attribute.getEquality().getComparator();
         
         /*
          * The forward key/value map stores attribute values to master table 
@@ -718,7 +718,7 @@ public class JdbmIndex implements Index
 
         if ( null == normalized ) 
         {
-            normalized = attribute.getNormalizer().normalize( attrVal );
+            normalized = attribute.getEquality().getNormalizer().normalize( attrVal );
 
             // Double map it so if we use an already normalized
             // value we can get back the same normalized value.

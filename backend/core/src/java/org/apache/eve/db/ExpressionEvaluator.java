@@ -23,8 +23,9 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.BranchNode;
-import org.apache.eve.schema.NormalizerRegistry;
-import org.apache.eve.schema.ComparatorRegistry;
+
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.AttributeTypeRegistry;
 
 
 /**
@@ -61,20 +62,21 @@ public class ExpressionEvaluator implements Evaluator
      * evaluator which will be created.
      *
      * @param db the database this evaluator operates upon
-     * @param normalizerRegistry the normalizer reg used for value normalization
-     * @param comparatorRegistry the comparator reg used for value comparison
+     * @param oidRegistry the oid reg used for attrID to oid resolution
+     * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
     public ExpressionEvaluator( Database db,
-                                NormalizerRegistry normalizerRegistry,
-                                ComparatorRegistry comparatorRegistry )
+                                OidRegistry oidRegistry,
+                                AttributeTypeRegistry attributeTypeRegistry )
     {
         ScopeEvaluator scopeEvaluator = null;
         SubstringEvaluator substringEvaluator = null;
 
         scopeEvaluator = new ScopeEvaluator( db );
-        substringEvaluator = new SubstringEvaluator( db, normalizerRegistry );
-        leafEvaluator = new LeafEvaluator( db, scopeEvaluator,
-            normalizerRegistry, comparatorRegistry, substringEvaluator );
+        substringEvaluator = new SubstringEvaluator( db, oidRegistry,
+            attributeTypeRegistry );
+        leafEvaluator = new LeafEvaluator( db, oidRegistry,
+            attributeTypeRegistry, scopeEvaluator, substringEvaluator );
     }
 
 
