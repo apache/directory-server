@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory ;
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public class BufferPoolConsoleLogger implements BufferPoolMonitor
+public class LoggingBufferMonitor implements BufferPoolMonitor
 {
     /** the default name for the logging channel */
     private final String DEFAULT = "BufferPool" ;
