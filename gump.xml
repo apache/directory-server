@@ -30,7 +30,7 @@
         <package>org.apache.eve</package>
         <depend project="antlr"/>
         <depend project="aspectjrt"/>
-        <depend project="codec-stateful"/>
+        <depend project="snickers-codec"/>
         <depend project="commons-collections"/>
         <depend project="commons-lang"/>
         <depend project="commons-logging"/>
@@ -72,7 +72,7 @@
         <package>org.apache.eve</package>
         <depend project="antlr"/>
         <depend project="aspectjrt"/>
-        <depend project="codec-stateful"/>
+        <depend project="snickers-codec"/>
         <depend project="commons-logging"/>
         <depend project="commons-io"/>
         <depend project="eve-protocol"/>
@@ -113,7 +113,7 @@
         <depend project="oro"/>
         <depend project="regexp"/>
         <depend project="antlr"/>
-        <depend project="codec-stateful"/>
+        <depend project="snickers-codec"/>
         <depend project="ldap-common"/>
         <depend project="seda"/>
         
