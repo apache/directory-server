@@ -36,7 +36,7 @@ import org.apache.ldap.server.tools.schema.AttributeTypeLiteral;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveSchemaTool
+public class DirectorySchemaTool
 {
     private static String basedir = System.getProperty( "basedir", "." );
 
@@ -74,7 +74,7 @@ public class EveSchemaTool
 
 
 
-    public EveSchemaTool() throws Exception
+    public DirectorySchemaTool() throws Exception
     {
         parser = new OpenLdapSchemaParser();
         Velocity.init();

@@ -22,20 +22,20 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
 import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
-import org.apache.ldap.server.tools.schema.EveSchemaTool;
+import org.apache.ldap.server.tools.schema.DirectorySchemaTool;
 
 
 /**
- * Tests the EveSchemaTool.
+ * Tests the DirectorySchemaTool.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveSchemaToolTest extends TestCase
+public class DirectorySchemaToolTest extends TestCase
 {
     public void testEveSchemaTool() throws Exception
     {
-        EveSchemaTool tool = new EveSchemaTool();
+        DirectorySchemaTool tool = new DirectorySchemaTool();
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
                 "cn=admin,ou=system", "core", null, new String[] { "system", "dep2" }
         ){};

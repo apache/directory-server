@@ -20,7 +20,7 @@ package org.apache.ldap.server.tools.schema;
 import org.apache.tools.ant.BuildException;
 import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
 import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
-import org.apache.ldap.server.tools.schema.EveSchemaTool;
+import org.apache.ldap.server.tools.schema.DirectorySchemaTool;
 
 
 /**
@@ -29,7 +29,7 @@ import org.apache.ldap.server.tools.schema.EveSchemaTool;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveSchemaToolTask extends org.apache.tools.ant.Task
+public class DirectorySchemaToolTask extends org.apache.tools.ant.Task
 {
     private String javaSrc;
     private String pkg;
@@ -77,11 +77,11 @@ public class EveSchemaToolTask extends org.apache.tools.ant.Task
     public void execute() throws BuildException
     {
         super.execute();
-        EveSchemaTool tool;
+        DirectorySchemaTool tool;
 
         try
         {
-            tool = new EveSchemaTool();
+            tool = new DirectorySchemaTool();
         }
         catch ( Exception e )
         {
