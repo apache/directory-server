@@ -17,9 +17,14 @@
 package org.apache.eve.jndi.ibs;
 
 
+import java.util.Map;
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.Attribute;
 
 import org.apache.eve.jndi.*;
 
@@ -27,6 +32,9 @@ import org.apache.eve.RootNexus;
 import org.apache.eve.exception.EveInterceptorException;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.*;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
@@ -59,6 +67,12 @@ public class EveExceptionService extends BaseInterceptor
     }
 
 
+    /**
+     * Before calling super method which delegates to specific method invocation
+     * analogs we make sure the exception for the before failure or after
+     * failure states is one that implements LdapException interface so we
+     * have something that associates an LDAP error code.
+     */
     public void invoke( Invocation invocation ) throws NamingException
     {
         if ( invocation.getState() == InvocationStateEnum.FAILUREHANDLING )
@@ -122,17 +136,93 @@ public class EveExceptionService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
+            // check if the entry already exists
             if ( nexus.hasEntry( normName ) )
             {
                 NamingException ne = new LdapNameAlreadyBoundException();
                 invocation.setBeforeFailure( ne );
+                ne.setResolvedName( new LdapName( upName ) );
                 throw ne;
+            }
+
+            Name parentDn = new LdapName( upName );
+            parentDn = parentDn.getSuffix( 1 );
+
+            // check if we don't have the parent to add to
+            assertHasEntry( "Attempt to add under non-existant parent: ", parentDn, invocation );
+
+            // check if we're trying to add to a parent that is an alias
+            Attributes attrs = nexus.lookup( normName.getSuffix( 1 ) );
+            Attribute objectClass = attrs.get( "objectClass" );
+            if ( objectClass.contains( "alias" ) )
+            {
+                String msg = "Attempt to add entry to alias '" + upName
+                        + "' not allowed.";
+                ResultCodeEnum rc = ResultCodeEnum.ALIASPROBLEM;
+                NamingException e = new LdapNamingException( msg, rc );
+                e.setResolvedName( parentDn );
+                invocation.setBeforeFailure( e );
+                throw e;
             }
         }
     }
 
 
     /**
+     * Checks to make sure the entry being deleted exists, and has no children,
+     * otherwise throws the appropriate LdapException.
+     */
+    protected void delete( Name name ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if entry to delete exists
+            String msg = "Attempt to delete non-existant entry: ";
+            assertHasEntry( msg, name, invocation );
+
+            // check if entry to delete has children (only leaves can be deleted)
+            boolean hasChildren = false;
+            NamingEnumeration list = nexus.list( name );
+            if ( list.hasMore() )
+            {
+                hasChildren = true;
+            }
+
+            list.close();
+            if ( hasChildren )
+            {
+                LdapContextNotEmptyException e = new LdapContextNotEmptyException();
+                e.setResolvedName( name );
+                invocation.setBeforeFailure( e );
+                throw e;
+            }
+        }
+    }
+
+
+    /**
+     * Checks to see the base being searched exists, otherwise throws the
+     * appropriate LdapException.
+     */
+    protected void list( Name base ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if entry to search exists
+            String msg = "Attempt to search under non-existant entry: ";
+            assertHasEntry( msg, base, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to make sure the entry being looked up exists other wise throws
+     * the appropriate LdapException.
+     *
      * @see BaseInterceptor#lookup(javax.naming.Name)
      */
     protected void lookup( Name dn ) throws NamingException
@@ -141,12 +231,167 @@ public class EveExceptionService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
-            if ( ! nexus.hasEntry( dn ) )
+            String msg = "Attempt to lookup non-existant entry: ";
+            assertHasEntry( msg, dn, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to see the base being searched exists, otherwise throws the
+     * appropriate LdapException.
+     */
+    protected void lookup( Name dn, String[] attrIds ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if entry to lookup exists
+            String msg = "Attempt to lookup non-existant entry: ";
+            assertHasEntry( msg, dn, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to see the entry being modified exists, otherwise throws the
+     * appropriate LdapException.
+     */
+    protected void modify( Name dn, int modOp, Attributes mods ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if entry to modify exists
+            String msg = "Attempt to modify non-existant entry: ";
+            assertHasEntry( msg, dn, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to see the entry being modified exists, otherwise throws the
+     * appropriate LdapException.
+     */
+    protected void modify( Name dn, ModificationItem[] mods ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if entry to modify exists
+            String msg = "Attempt to modify non-existant entry: ";
+            assertHasEntry( msg, dn, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to see the entry being renamed exists, otherwise throws the
+     * appropriate LdapException.
+     */
+    protected void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if entry to rename exists
+            String msg = "Attempt to rename non-existant entry: ";
+            assertHasEntry( msg, dn, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to see the entry being moved exists, and so does its parent,
+     * otherwise throws the appropriate LdapException.
+     */
+    protected void move( Name oriChildName, Name newParentName ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if child to move exists
+            String msg = "Attempt to move to non-existant parent: ";
+            assertHasEntry( msg, oriChildName, invocation );
+
+            // check if parent to move to exists
+            msg = "Attempt to move to non-existant parent: ";
+            assertHasEntry( msg, newParentName, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to see the entry being moved exists, and so does its parent,
+     * otherwise throws the appropriate LdapException.
+     */
+    protected void move( Name oriChildName, Name newParentName, String newRdn, boolean deleteOldRdn ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            // check if child to move exists
+            String msg = "Attempt to move to non-existant parent: ";
+            assertHasEntry( msg, oriChildName, invocation );
+
+            // check if parent to move to exists
+            msg = "Attempt to move to non-existant parent: ";
+            assertHasEntry( msg, newParentName, invocation );
+        }
+    }
+
+
+    /**
+     * Checks to see the entry being searched exists, otherwise throws the
+     * appropriate LdapException.
+     */
+    protected void search( Name base, Map env, ExprNode filter,
+                           SearchControls searchControls ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            String msg = "Attempt to search under non-existant entry: ";
+            assertHasEntry( msg, base, invocation );
+        }
+    }
+
+
+    /**
+     * Asserts that an entry is present and as a side effect if it is not,
+     * creates a LdapNameNotFoundException, which is used to set the before
+     * exception on the invocation - eventually the exception is thrown.
+     *
+     * @param msg the message to prefix to the distinguished name for explanation
+     * @param dn the distinguished name of the entry that is asserted
+     * @param invocation the invocation object to alter if the entry does not exist
+     * @throws NamingException if the entry does not exist
+     */
+    private void assertHasEntry( String msg, Name dn, Invocation invocation ) throws NamingException
+    {
+        if ( ! nexus.hasEntry( dn ) )
+        {
+            LdapNameNotFoundException e = null;
+
+            if ( msg != null )
             {
-                NamingException ne = new LdapNameNotFoundException();
-                invocation.setBeforeFailure( ne );
-                throw ne;
+                e = new LdapNameNotFoundException( msg + dn );
             }
+            else
+            {
+                e = new LdapNameNotFoundException( dn.toString() );
+            }
+
+            e.setResolvedName( nexus.getMatchedDn( dn, false ) );
+            invocation.setBeforeFailure( e );
+            throw e;
         }
     }
 }

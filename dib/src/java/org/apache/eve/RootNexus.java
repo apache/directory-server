@@ -143,7 +143,19 @@ public class RootNexus implements PartitionNexus
      */
     public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
     {
-        throw new NotImplementedException();
+        dn = ( Name ) dn.clone();
+
+        while ( dn.size() > 0 )
+        {
+            if ( hasEntry( dn ) )
+            {
+                return dn;
+            }
+
+            dn = dn.getSuffix( 1 );
+        }
+
+        return dn;
     }
 
 
