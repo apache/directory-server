@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.interceptor;
+package org.apache.ldap.server.exception;
 
 
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
@@ -25,6 +25,9 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.InterceptorContext;
+import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.*;
 
 import javax.naming.Name;
