@@ -22,7 +22,7 @@ import org.apache.ldap.common.util.ClassUtils;
 
 
 /**
- * Document me.
+ * Abstract bootstrap schema implementation.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -32,7 +32,7 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     protected static final String[] DEFAULT_DEPS = ArrayUtils.EMPTY_STRING_ARRAY;
     private static final String DEFAULT_OWNER = "uid=admin,ou=system";
     private static final String DEFAULT_SCHEMA_NAME = "default";
-    private static final String DEFAULT_PACKAGE_NAME = "org.apache.eve.schema.bootstrap";
+    private static final String DEFAULT_PACKAGE_NAME = "org.apache.ldap.server.schema.bootstrap";
 
     private final String owner;
     private final String schemaName;
