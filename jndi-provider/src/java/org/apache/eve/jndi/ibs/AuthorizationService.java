@@ -46,6 +46,8 @@ public class AuthorizationService extends BaseInterceptor
     private static final Name ADMIN_DN = SystemPartition.getAdminDn();
     /** the base distinguished {@link Name} for all users */
     private static final Name USER_BASE_DN = SystemPartition.getUsersBaseDn();
+    /** the base distinguished {@link Name} for all groups */
+    private static final Name GROUP_BASE_DN = SystemPartition.getGroupsBaseDn();
 
     /** the name parser used by this service */
     private final DnParser dnParser;
@@ -107,6 +109,15 @@ public class AuthorizationService extends BaseInterceptor
                 msg += name + ". Only the admin can delete user accounts.";
                 throw new EveNoPermissionException( msg );
             }
+
+            if ( name.size() > 2 && name.startsWith( GROUP_BASE_DN )
+                    && ! principalDn.equals( ADMIN_DN ) )
+            {
+                String msg = "User " + principalDn;
+                msg += " does not have permission to delete the group entry: ";
+                msg += name + ". Only the admin can delete groups.";
+                throw new EveNoPermissionException( msg );
+            }
         }
     }
 
@@ -165,21 +176,32 @@ public class AuthorizationService extends BaseInterceptor
         {
             Name principalDn = getPrincipal( invocation ).getDn();
 
-            if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            if ( ! principalDn.equals( ADMIN_DN ) )
             {
-                String msg = "User " + principalDn;
-                msg += " does not have permission to modify the admin account.";
-                throw new EveNoPermissionException( msg );
-            }
+                if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) )
+                {
+                    String msg = "User " + principalDn;
+                    msg += " does not have permission to modify the admin account.";
+                    throw new EveNoPermissionException( msg );
+                }
 
-            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
-            {
-                String msg = "User " + principalDn;
-                msg += " does not have permission to modify the account of the";
-                msg += " user " + dn + ".\nEven the owner of an account cannot";
-                msg += " modify it.\nUser accounts can only be modified by the";
-                msg += " administrator.";
-                throw new EveNoPermissionException( msg );
+                if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
+                {
+                    String msg = "User " + principalDn;
+                    msg += " does not have permission to modify the account of the";
+                    msg += " user " + dn + ".\nEven the owner of an account cannot";
+                    msg += " modify it.\nUser accounts can only be modified by the";
+                    msg += " administrator.";
+                    throw new EveNoPermissionException( msg );
+                }
+
+                if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) )
+                {
+                    String msg = "User " + principalDn;
+                    msg += " does not have permission to modify the group entry ";
+                    msg += dn + ".\nGroups can only be modified by the admin.";
+                    throw new EveNoPermissionException( msg );
+                }
             }
         }
     }
@@ -239,6 +261,14 @@ public class AuthorizationService extends BaseInterceptor
                 msg += " rename user accounts.";
                 throw new EveNoPermissionException( msg );
             }
+
+            if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            {
+                String msg = "User " + principalDn;
+                msg += " does not have permission to move or rename the group entry ";
+                msg += dn + ".\nGroups can only be moved or renamed by the admin.";
+                throw new EveNoPermissionException( msg );
+            }
         }
     }
     
@@ -256,13 +286,21 @@ public class AuthorizationService extends BaseInterceptor
             }
 
             Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
-            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            if ( ! principalDn.equals( ADMIN_DN ) )
             {
-                return false;
-            }
-            else if ( dn.equals( ADMIN_DN ) && ! principalDn.equals( ADMIN_DN ) )
-            {
-                return false;
+                if ( dn.size() > 2  )
+                {
+                    if ( dn.startsWith( USER_BASE_DN ) || dn.startsWith( GROUP_BASE_DN ) )
+                    {
+                        return false;
+                    }
+                }
+
+                if ( dn.equals( ADMIN_DN ) )
+                {
+                    return false;
+                }
+
             }
 
             return true;
@@ -285,19 +323,33 @@ public class AuthorizationService extends BaseInterceptor
         private void filter( LdapContext ctx, Name dn ) throws NamingException
         {
             Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
-            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+
+
+            if ( ! principalDn.equals( ADMIN_DN ) )
             {
-                String msg = "Access to user account '" + dn + "' not permitted";
-                msg += " for user '" + principalDn + "'.  Only the admin can";
-                msg += " access user account information";
-                throw new EveNoPermissionException( msg );
-            }
-            else if ( dn.equals( ADMIN_DN ) && ! principalDn.equals( ADMIN_DN ) )
-            {
-                String msg = "Access to admin account not permitted for user '";
-                msg += principalDn + "'.  Only the admin can";
-                msg += " access admin account information";
-                throw new EveNoPermissionException( msg );
+                if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
+                {
+                    String msg = "Access to user account '" + dn + "' not permitted";
+                    msg += " for user '" + principalDn + "'.  Only the admin can";
+                    msg += " access user account information";
+                    throw new EveNoPermissionException( msg );
+                }
+
+                if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) )
+                {
+                    String msg = "Access to group '" + dn + "' not permitted";
+                    msg += " for user '" + principalDn + "'.  Only the admin can";
+                    msg += " access group information";
+                    throw new EveNoPermissionException( msg );
+                }
+
+                if ( dn.equals( ADMIN_DN ) )
+                {
+                    String msg = "Access to admin account not permitted for user '";
+                    msg += principalDn + "'.  Only the admin can";
+                    msg += " access admin account information";
+                    throw new EveNoPermissionException( msg );
+                }
             }
         }
     }

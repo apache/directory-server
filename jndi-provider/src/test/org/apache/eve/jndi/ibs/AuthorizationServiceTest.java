@@ -17,12 +17,16 @@
 package org.apache.eve.jndi.ibs;
 
 
+import java.util.HashSet;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
 
 import org.apache.eve.jndi.AbstractMultiUserJndiTest;
 import org.apache.eve.exception.EveNoPermissionException;
+import org.apache.eve.db.DbSearchResult;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 
 
@@ -142,5 +146,60 @@ public class AuthorizationServiceTest extends AbstractMultiUserJndiTest
             fail( sysRootAsNonAdminUser.getPrincipal().getDn() +
                     " should not be able to modify attributes on admin" );
         } catch( Exception e ) { }
+    }
+
+
+    /**
+     * Makes sure the admin can see all entries we know of on a subtree search.
+     *
+     * @throws NamingException if there are problems
+     */
+    public void testSearchSubtreeByAdmin() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        HashSet set = new HashSet();
+        NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", controls );
+        while ( list.hasMore() )
+        {
+            DbSearchResult result = ( DbSearchResult ) list.next();
+            set.add( result.getName() );
+        }
+
+        assertTrue( set.contains( "ou=system" ) );
+        assertTrue( set.contains( "ou=groups,ou=system" ) );
+        assertTrue( set.contains( "cn=administrators,ou=groups,ou=system" ) );
+        assertTrue( set.contains( "ou=users,ou=system" ) );
+        assertTrue( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( set.contains( "uid=admin,ou=system" ) );
+    }
+
+
+    /**
+     * Makes sure the admin can see all entries we know of on a subtree search.
+     *
+     * @throws NamingException if there are problems
+     */
+    public void testSearchSubtreeByNonAdmin() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        HashSet set = new HashSet();
+        NamingEnumeration list = sysRootAsNonAdminUser.search( "",
+                "(objectClass=*)", controls );
+        while ( list.hasMore() )
+        {
+            DbSearchResult result = ( DbSearchResult ) list.next();
+            set.add( result.getName() );
+        }
+
+        assertTrue( set.contains( "ou=system" ) );
+        assertTrue( set.contains( "ou=groups,ou=system" ) );
+        assertFalse( set.contains( "cn=administrators,ou=groups,ou=system" ) );
+        assertTrue( set.contains( "ou=users,ou=system" ) );
+        assertFalse( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
+        assertFalse( set.contains( "uid=admin,ou=system" ) );
     }
 }
