@@ -23,8 +23,9 @@ import javax.naming.directory.Attributes;
 
 import org.apache.eve.jndi.*;
 import org.apache.eve.jndi.exception.EveNameNotFoundException;
+import org.apache.eve.jndi.exception.EveNameAlreadyBoundException;
+
 import org.apache.eve.RootNexus;
-import org.apache.eve.exception.EveAttributeInUseException;
 
 
 /**
@@ -42,7 +43,7 @@ import org.apache.eve.exception.EveAttributeInUseException;
  */
 public class EveExceptionService extends BaseInterceptor
 {
-    /** */
+    /** the root nexus of the system */
     private RootNexus nexus = null;
 
 
@@ -72,7 +73,7 @@ public class EveExceptionService extends BaseInterceptor
         {
             if ( nexus.hasEntry( normName ) )
             {
-                NamingException ne = new EveAttributeInUseException();
+                NamingException ne = new EveNameAlreadyBoundException();
                 invocation.setBeforeFailure( ne );
                 throw ne;
             }

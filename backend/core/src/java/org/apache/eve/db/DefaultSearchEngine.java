@@ -102,8 +102,8 @@ public class DefaultSearchEngine implements SearchEngine
 
 
         /*
-         * I the base is not an alias or i alias dereerencing does not
-         * occur on inding the base then we set the eective base to the
+         * If the base is not an alias or if alias dereerencing does not
+         * occur on finding the base then we set the effective base to the
          * given base.
          */
         if ( null == aliasedBase || ! mode.derefFindingBase() )

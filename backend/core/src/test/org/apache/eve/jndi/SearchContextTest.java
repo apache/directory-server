@@ -38,13 +38,20 @@ public class SearchContextTest extends AbstractJndiTest
     {
         super.setUp();
 
-        CreateContextTest createContextTest = new CreateContextTest();
-        createContextTest.setUp();
-        createContextTest.testCreateContexts();
+        try
+        {
+            CreateContextTest createContextTest = new CreateContextTest();
+            createContextTest.setUp();
+            createContextTest.testCreateContexts();
+        }
+        catch( Exception e )
+        {
+            // do nothing
+        }
     }
 
 
-    public void testSearchOneLeve() throws NamingException
+    public void testSearchOneLevel() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -53,7 +60,7 @@ public class SearchContextTest extends AbstractJndiTest
                 DerefAliasesEnum.NEVERDEREFALIASES.getName() );
 
         HashMap map = new HashMap();
-        NamingEnumeration list = sysRoot.search( "", "(ou = *)", new SearchControls() );
+        NamingEnumeration list = sysRoot.search( "", "(ou = *)", controls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -67,7 +74,7 @@ public class SearchContextTest extends AbstractJndiTest
     }
 
 
-    public void testSearchSubTreeLeve() throws NamingException
+    public void testSearchSubTreeLevel() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -76,7 +83,7 @@ public class SearchContextTest extends AbstractJndiTest
                 DerefAliasesEnum.NEVERDEREFALIASES.getName() );
 
         HashMap map = new HashMap();
-        NamingEnumeration list = sysRoot.search( "", "(ou = *)", new SearchControls() );
+        NamingEnumeration list = sysRoot.search( "", "(ou = *)", controls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();

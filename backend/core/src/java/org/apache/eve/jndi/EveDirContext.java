@@ -536,8 +536,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
             throw ne;
         }
         
-        return getNexusProxy().search( target , getEnvironment(),
-            filterNode, new SearchControls() );
+        return getNexusProxy().search( target , getEnvironment(), filterNode, cons );
     }
 
 
