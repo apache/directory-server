@@ -70,4 +70,12 @@ public interface DecoderManager
      * @return the set of keys for decoding sessions
      */
     void decode( ClientKey key, ByteBuffer buffer ) ;
+    
+    /**
+     * All in one shot synchronous decode operation requiring entire set of data
+     * 
+     * @param buffer the buffer containing all the encoded data
+     * @return the decoded object
+     */
+    Object decode( ByteBuffer buffer ) ;
 }
