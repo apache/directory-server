@@ -25,6 +25,13 @@
         <artifactId>ldap-common</artifactId>
         <version>SNAPSHOT</version>
       </dependency>
+
+      <dependency>
+        <groupId>regexp</groupId>
+        <artifactId>regexp</artifactId>
+        <version>1.2</version>
+        <url>http://jakarta.apache.org/regexp/index.html</url>
+      </dependency>
     </dependencies>
 </project>
 

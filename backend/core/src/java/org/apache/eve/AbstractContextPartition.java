@@ -31,8 +31,8 @@ import javax.naming.directory.ModificationItem;
 import org.apache.ldap.common.filter.ExprNode;
 
 import org.apache.eve.db.Database;
-import org.apache.eve.db.search.SearchEngine;
-import org.apache.eve.db.search.SearchResultEnumeration;
+import org.apache.eve.db.SearchEngine;
+import org.apache.eve.db.SearchResultEnumeration;
 
 
 /**
