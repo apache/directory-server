@@ -49,8 +49,8 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         ( 2.5.13.0 NAME 'objectIdentifierMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
          */
-        comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.0", comparator );
+         comparator = new ComparableComparator();
+         cb.schemaObjectProduced( this, "2.5.13.0", comparator );
 
         /*
         ( 2.5.13.1 NAME 'distinguishedNameMatch'

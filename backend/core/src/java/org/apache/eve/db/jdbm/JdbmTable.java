@@ -21,11 +21,9 @@ import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Collections;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
@@ -38,6 +36,7 @@ import org.apache.ldap.common.util.EmptyEnumeration;
 import org.apache.ldap.common.util.SingletonEnumeration;
 
 import org.apache.eve.db.*;
+import org.apache.eve.schema.SerializableComparator;
 
 
 /**
@@ -88,7 +87,7 @@ public class JdbmTable implements Table
         throws NamingException
     {
         this.name = name;
-        recMan = manager;
+        this.recMan = manager;
         this.comparator = comparator;
         this.allowsDuplicates = allowsDuplicates;
 
@@ -107,27 +106,6 @@ public class JdbmTable implements Table
         
         try
         {
-            /*
-             * The comparator passed to us may not be the effective 
-             * comparator if it is not serializable.  In this case a
-             * SerializableComparator will be the effective comparator.
-             */
-            Comparator keyComparator = comparator.getKeyComparator();
-            Comparator effective = null;
-
-            if ( comparator instanceof Serializable )
-            {
-                // Serializable comparators are the effective comparators
-                effective = keyComparator;
-            }
-            else 
-            {
-                /*
-                 * Non-serializable comparators are not effective comparators 
-                 * their wrapping SerializableComparators are effective comps
-                 */
-                effective = new SerializableComparator( keyComparator );
-            }
 
             //            
             // Load existing BTree
@@ -135,30 +113,15 @@ public class JdbmTable implements Table
             
             if ( recId != 0 )
             {
-                /*
-                 * If we have wrapped a non-Serializable Comparator within a 
-                 * SerializingComparator we need to set the non-Serializable 
-                 * ThreadLocal Comparator and attempt to deserialize
-                 */
-                if ( effective instanceof SerializableComparator )
-                {
-                    SerializableComparator.set( keyComparator );
-                    bt = BTree.load( recMan, recId );
-                }
-                else
-                {
-                    bt = BTree.load( recMan, recId );
-                }
-                
+                bt = BTree.load( recMan, recId );
                 recId = recMan.getNamedObject( name + SZSUFFIX );
                 count = ( ( Integer ) recMan.fetch( recId ) ).intValue();
             }
             else
             {
-                bt = BTree.createInstance( recMan, effective );
+                bt = BTree.createInstance( recMan, comparator.getKeyComparator() );
                 recId = bt.getRecid();
                 recMan.setNamedObject( name, recId );
-    
                 recId = recMan.insert( new Integer( 0 ) );
                 recMan.setNamedObject( name + SZSUFFIX, recId );
             }
@@ -182,7 +145,8 @@ public class JdbmTable implements Table
      * @throws NamingException if the table's file cannot be created
      */
     public JdbmTable( String name, RecordManager manager,
-        Comparator keyComparator ) throws NamingException
+                      SerializableComparator keyComparator )
+            throws NamingException
     {
         this( name, false, manager, new KeyOnlyComparator( keyComparator ) );
     }
@@ -543,22 +507,11 @@ public class JdbmTable implements Table
 
         if ( allowsDuplicates ) 
         {
-            Comparator effective = null;
             TreeSet set = ( TreeSet ) getRaw( key );
             
-            if ( comparator.getValueComparator() instanceof Serializable )
+            if ( null == set )
             {
-                effective = comparator.getValueComparator();
-            }
-            else
-            {
-                effective = new SerializableComparator( 
-                    comparator.getValueComparator() );
-            }
-            
-            if ( null == set ) 
-            {
-                set = new TreeSet( effective );
+                set = new TreeSet( comparator.getValueComparator() );
             } 
             else if ( set.contains( value ) ) 
             {
@@ -590,10 +543,9 @@ public class JdbmTable implements Table
         throws NamingException
     {
         TreeSet set = null;
-        Comparator effective = null;
-                
+
         /*
-         * If we do not allow dupliicates call the single add put using the
+         * If we do not allow duplicates call the single add put using the
          * first value in the enumeration if it exists.  If it does not we
          * just return null without doing anything.  If more than one value
          * is in the enumeration than we blow a UnsupportedOperationException.
@@ -624,19 +576,10 @@ public class JdbmTable implements Table
          * if it is we add it and increment the table entry counter.
          */
         set = ( TreeSet ) getRaw( key );
-        if ( comparator.getValueComparator() instanceof Serializable )
-        {
-            effective = comparator.getValueComparator();
-        }
-        else
-        {
-            effective = new SerializableComparator( 
-                comparator.getValueComparator() );
-        }
 
         if ( null == set ) 
         {
-            set = new TreeSet( effective );
+            set = new TreeSet( comparator.getValueComparator() );
         } 
 
         while ( values.hasMore() ) 
@@ -1156,14 +1099,7 @@ public class JdbmTable implements Table
             }
             else 
             {
-                Comparator comparator = this.comparator.getValueComparator();
-                if ( ! ( comparator instanceof Serializable ) )
-                {
-                    SerializableComparator.set( comparator );
-                }
-
                 val = bt.find( key );
-                SerializableComparator.unset();
             }
         }
         catch ( IOException e ) 

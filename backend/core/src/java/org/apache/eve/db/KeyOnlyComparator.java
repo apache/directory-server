@@ -18,7 +18,8 @@ package org.apache.eve.db;
 
 
 import java.io.Serializable;
-import java.util.Comparator;
+
+import org.apache.eve.schema.SerializableComparator;
 
 
 /**
@@ -31,7 +32,7 @@ public class KeyOnlyComparator
     implements TupleComparator, Serializable
 {
     /** TODO */
-    private Comparator keyComparator = null;
+    private SerializableComparator keyComparator = null;
 
 
     /**
@@ -39,7 +40,7 @@ public class KeyOnlyComparator
      *
      * @param comparator  TODO
      */
-    public KeyOnlyComparator( Comparator comparator )
+    public KeyOnlyComparator( SerializableComparator comparator )
     {
         keyComparator = comparator;
     }
@@ -51,7 +52,7 @@ public class KeyOnlyComparator
      *
      * @return the comparator for comparing keys.
      */
-    public Comparator getKeyComparator()
+    public SerializableComparator getKeyComparator()
     {
         return keyComparator;
     }
@@ -63,7 +64,7 @@ public class KeyOnlyComparator
      * @return TODO
      * @throws UnsupportedOperationException every time.
      */
-    public Comparator getValueComparator()
+    public SerializableComparator getValueComparator()
     {
         throw new UnsupportedOperationException();
     }

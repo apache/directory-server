@@ -20,6 +20,7 @@ package org.apache.eve.schema.bootstrap;
 import org.apache.eve.schema.ComparatorRegistry;
 import org.apache.eve.schema.ComparatorRegistryMonitor;
 import org.apache.eve.schema.ComparatorRegistryMonitorAdapter;
+import org.apache.eve.schema.SerializableComparator;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -57,6 +58,8 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
         this.monitor = new ComparatorRegistryMonitorAdapter();
+
+        SerializableComparator.setRegistry( this );
     }
 
 

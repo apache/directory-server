@@ -55,5 +55,13 @@ public class EveNormalizerProducer extends AbstractBootstrapProducer
         normalizer = new NoOpNormalizer();
         cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.1", normalizer );
 
+        // For bigIntegerMatch -> 1.2.6.1.4.1.18060.1.1.1.2.2
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.2", normalizer );
+
+        // For jdbmStringMatch -> 1.2.6.1.4.1.18060.1.1.1.2.3
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.3", normalizer );
+
     }
 }

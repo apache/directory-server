@@ -17,8 +17,9 @@
 package org.apache.eve.db;
 
 
-import java.util.Comparator;
 import java.io.Serializable;
+
+import org.apache.eve.schema.SerializableComparator;
 
 
 /**
@@ -35,7 +36,7 @@ public interface TupleComparator extends Serializable
      *
      * @return the comparator for comparing keys.
      */
-    Comparator getKeyComparator();
+    SerializableComparator getKeyComparator();
 
 
     /**
@@ -44,7 +45,7 @@ public interface TupleComparator extends Serializable
      *
      * @return the binary comparator for comparing values.
      */
-    Comparator getValueComparator();
+    SerializableComparator getValueComparator();
 
 
     /**

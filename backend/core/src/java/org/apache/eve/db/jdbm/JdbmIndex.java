@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 
 import java.math.BigInteger;
-import java.util.Comparator;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
@@ -32,6 +31,7 @@ import org.apache.regexp.RE;
 import org.apache.eve.db.Index;
 import org.apache.eve.db.IndexComparator;
 import org.apache.eve.db.IndexEnumeration;
+import org.apache.eve.schema.SerializableComparator;
 import org.apache.ldap.common.util.LRUMap;
 import org.apache.ldap.common.schema.AttributeType;
 
@@ -135,7 +135,8 @@ public class JdbmIndex implements Index
      */    
     private void initTables() throws NamingException
     {
-        Comparator comp = attribute.getEquality().getComparator();
+        SerializableComparator comp;
+        comp = new SerializableComparator( attribute.getEquality().getOid() );
         
         /*
          * The forward key/value map stores attribute values to master table 

@@ -53,5 +53,14 @@ public class EveMatchingRuleProducer extends AbstractBootstrapProducer
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.12" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
+        mrule = new BootstrapMatchingRule( "1.2.6.1.4.1.18060.1.1.1.2.2", registries );
+        mrule.setNames( new String[] { "bigIntegerMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        mrule = new BootstrapMatchingRule( "1.2.6.1.4.1.18060.1.1.1.2.3", registries );
+        mrule.setNames( new String[] { "jdbmStringMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }
 }

@@ -17,23 +17,31 @@
 package org.apache.eve.db;
 
 
-import java.util.Comparator;
-
 import org.apache.ldap.common.util.BigIntegerComparator;
+
+import org.apache.eve.schema.SerializableComparator;
 
 
 /**
- * Compararator for index records.
+ * TupleComparator for index records.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class IndexComparator implements TupleComparator
 {
+    private static final SerializableComparator BIG_INTEGER_COMPARATOR = 
+        new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.2" )
+        {
+            public int compare( Object o1, Object o2 )
+            {
+                return BigIntegerComparator.INSTANCE.compare( o1, o2 );
+            }
+        };
     /** Whether or not the key/value is swapped */
     private final boolean isForwardMap;
     /** The key comparison to use */
-    private final Comparator keyComp;
+    private final SerializableComparator keyComp;
 
 
     /**
@@ -43,7 +51,7 @@ public class IndexComparator implements TupleComparator
      * @param isForwardMap whether or not the comparator should swap the 
      * key value pair while conducting comparisons.
      */
-    public IndexComparator( Comparator keyComp, boolean isForwardMap )
+    public IndexComparator( SerializableComparator keyComp, boolean isForwardMap )
     {
         this.keyComp = keyComp;
         this.isForwardMap = isForwardMap;
@@ -56,14 +64,14 @@ public class IndexComparator implements TupleComparator
      *
      * @return the comparator for comparing keys.
      */
-    public Comparator getKeyComparator()
+    public SerializableComparator getKeyComparator()
     {
         if ( isForwardMap ) 
         {
             return keyComp;
         }
 
-        return BigIntegerComparator.INSTANCE;
+        return BIG_INTEGER_COMPARATOR;
     }
 
 
@@ -73,11 +81,11 @@ public class IndexComparator implements TupleComparator
      *
      * @return the binary comparator for comparing values.
      */
-    public Comparator getValueComparator()
+    public SerializableComparator getValueComparator()
     {
         if ( isForwardMap ) 
         {
-            return BigIntegerComparator.INSTANCE;
+            return BIG_INTEGER_COMPARATOR;
         }
 
         return keyComp;

@@ -26,6 +26,7 @@ import jdbm.helper.StringComparator;
 
 import org.apache.ldap.common.util.BigIntegerComparator;
 import org.apache.eve.db.MasterTable;
+import org.apache.eve.schema.SerializableComparator;
 
 
 /**
@@ -36,6 +37,23 @@ import org.apache.eve.db.MasterTable;
  */
 public class JdbmMasterTable extends JdbmTable implements MasterTable
 {
+    private static final StringComparator STRCOMP = new StringComparator();
+    private static final SerializableComparator BIG_INTEGER_COMPARATOR =
+        new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.2" )
+        {
+            public int compare( Object o1, Object o2 )
+            {
+                return BigIntegerComparator.INSTANCE.compare( o1, o2 );
+            }
+        };
+    private static final SerializableComparator STRING_COMPARATOR =
+        new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.3" )
+        {
+            public int compare( Object o1, Object o2 )
+            {
+                return STRCOMP.compare( o1, o2 );
+            }
+        };
     /**  */
     private JdbmTable adminTbl = null;
 
@@ -49,8 +67,8 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
     public JdbmMasterTable( RecordManager recMan )
         throws NamingException
     {
-        super( DBF, recMan, new BigIntegerComparator() );
-        adminTbl = new JdbmTable( "admin", recMan, new StringComparator() );
+        super( DBF, recMan, BIG_INTEGER_COMPARATOR );
+        adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR );
         String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
         
         if ( null == seqValue ) 
