@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../../project.xml</extend>
+    <groupId>directory</groupId>
+    <id>eve-backend-schema-oid-impl</id>
+  
+    <name>Eve Backend Schema's OID Registry Implementation</name>
+    <package>org.apache.eve.schema</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2002</inceptionYear>
+      
+    <shortDescription>Eve Backend Schema's OID Registry Implementation</shortDescription>
+
+    <description>
+        Eve's backend subsystem contains several components to manage schema
+        objects.  One of those components is a name to OID registry for all
+        schema entities.  The registry is responsible for adding new names
+        to an OID as well as enabling the lookup of primary and auxillary 
+        names for schema objects with IANA assigned OID numbers.  This 
+        project contains the default OidRegistry implementation used.
+    </description>
+
+    <dependencies>
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>eve-backend-schema-oid-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org/eve/backend/schema/oid/api</url>
+      </dependency>
+
+      <dependency>
+        <groupId>avalon-framework</groupId>
+        <artifactId>avalon-framework-api</artifactId>
+        <version>4.1.5</version>
+        <url>http://avalon.apache.org/framework</url>
+      </dependency>
+    </dependencies>
+</project>
+

@@ -1,0 +1,100 @@
+package id2tc43dpk0yfy5dpk1duqr;
+
+/**
+@version 2.0
+@__modelType diagram 
+*/
+class diagram {
+/**
+@shapeType Hyperlink
+@__modelType link
+@__ref <oiref:java#Class#org.apache.eve.schema.BinarySyntaxChecker:oiref><oihard> 
+*/
+class link {
+}/**
+@shapeType Hyperlink
+@__modelType link
+@__ref <oiref:java#Class#org.apache.eve.schema.DefaultSyntax:oiref><oihard> 
+*/
+class link17 {
+}/**
+@shapeType Hyperlink
+@__modelType link
+@__ref <oiref:java#Class#org.apache.eve.schema.RegexSyntaxChecker:oiref><oihard> 
+*/
+class link18 {
+}/**
+@shapeType Hyperlink
+@__modelType link
+@__ref <oiref:java#Class#org.apache.eve.schema.Syntax:oiref><oihard> 
+*/
+class link19 {
+}/**
+@shapeType Hyperlink
+@__modelType link
+@__ref <oiref:java#Class#org.apache.eve.schema.SyntaxChecker:oiref><oihard> 
+*/
+class link20 {
+}/**
+@__ref <oiref:java#Class#org.apache.eve.schema.BinarySyntaxChecker:oiref><oihard>
+@__modelType reference
+@__imported
+@backgroundColor 255,204,204 
+*/
+class reference {
+}/**
+@__ref <oiref:java#Class#org.apache.eve.schema.DefaultSyntax:oiref><oihard>
+@__modelType reference
+@__imported
+@backgroundColor 255,204,204 
+*/
+class reference21 {
+}/**
+@__ref <oiref:java#Class#org.apache.eve.schema.RegexSyntaxChecker:oiref><oihard>
+@__modelType reference
+@__imported
+@backgroundColor 255,204,204 
+*/
+class reference22 {
+}/**
+@__ref <oiref:java#Class#org.apache.eve.schema.Syntax:oiref><oihard>
+@__modelType reference
+@__imported
+@backgroundColor 255,255,204 
+*/
+class reference23 {
+}/**
+@__ref <oiref:java#Class#org.apache.eve.schema.SyntaxChecker:oiref><oihard>
+@__modelType reference
+@__imported
+@backgroundColor 255,255,204 
+*/
+class reference24 {
+}}/**
+
+@__tags
+@shapeType ClassDiagram 
+*/
+class __tags {
+}/**
+@__options option.diagram.orientedLinkLabels = true
+option.justification = Top
+option.inheritance = Horizontal
+option.dependencyLinks.showBetweenClasses = diagram
+option.links = Direct 
+*/
+class __options {
+}/**
+@__positions <oigroup:<oiref:java#Implements#org.apache.eve.schema.DefaultSyntax#org.apache.eve.schema.Syntax:oiref>=-60,107,-10,107:oigroup>
+<oigroup:<oiref:java#Class#org.apache.eve.schema.Syntax:oiref>=-10,10,200,194,0:oigroup>
+<oigroup:<oiref:java#Class#org.apache.eve.schema.RegexSyntaxChecker:oiref>=510,10,190,190,0:oigroup>
+<oigroup:<oiref:java#Class#org.apache.eve.schema.SyntaxChecker:oiref>=250,10,200,149,0:oigroup>
+<oigroup:MemberLink#<oiref:java#Member#org.apache.eve.schema.DefaultSyntax#m_checker:oiref>=-60,240,220,240,220,120,250,120:oigroup>
+<oigroup:<oiref:java#Class#org.apache.eve.schema.BinarySyntaxChecker:oiref>=250,200,200,133,0:oigroup>
+<oigroup:<oiref:java#Implements#org.apache.eve.schema.RegexSyntaxChecker#org.apache.eve.schema.SyntaxChecker:oiref>=510,84,450,84:oigroup>
+<oigroup:Autodependency<oiref:java#Class#org.apache.eve.schema.Syntax:oiref><Autodependency><oiref:java#Class#org.apache.eve.schema.SyntaxChecker:oiref>=190,84,250,84:oigroup>
+<oigroup:<oiref:java#Class#org.apache.eve.schema.DefaultSyntax:oiref>=-260,10,200,270,1:oigroup>
+<oigroup:<oiref:java#Implements#org.apache.eve.schema.BinarySyntaxChecker#org.apache.eve.schema.SyntaxChecker:oiref>=360,200,360,159:oigroup> 
+*/
+class __positions {
+}

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project>
+    <groupId>directory</groupId>
+    <id>eve-directory-server</id>
+    <name>Eve Directory Server</name>
+    <package>org.apache.eve</package>
+
+    <inceptionYear>2003</inceptionYear>
+    <url>http://directory.apache.org/${module.path}modules</url>
+    <issueTrackingUrl>
+      http://nagoya.apache.org/scarab/servlet/scarab
+    </issueTrackingUrl>
+    <siteAddress>directory.apache.org</siteAddress>
+    <siteDirectory>/home/akarasulu/public_html</siteDirectory>
+    <distributionDirectory>
+      /home/akarasulu/public_html/dist
+    </distributionDirectory>
+
+    <repository>
+      <connection>
+          scm:svn:http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}
+      </connection>
+
+      <url>
+        http://cvs.apache.org/viewcvs.cgi/incubator/directory/ldap/trunk/${module.path}/?root=Apache-SVN
+      </url>
+      
+      <developerConnection>
+        http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}
+      </developerConnection>
+    </repository>
+  
+    <shortDescription>Eve Directory Server</shortDescription>
+      
+    <description>
+      Eve is an embeddable LDAP version 3 directory server based on a SEDA 
+      architecture with support for several IoC containers, including Avalon's 
+      Merlin, and Pheonix containers, and the Jcontainer efforts' Loom, 
+      PicoContainer and Plexus containers.  Eve is designed to be completely 
+      pluggable with several backends and subsystem provider options making it
+      an ideal experimentation platform for LDAP protocol testing, and derived
+      directories like meta directories, and virtual directories.  Eve 
+      introduces for the first time the concept of stored procedures and 
+      triggers into an industrial strength LDAP server.
+    </description>
+
+    <mailingLists>
+      <mailingList>
+        <name>Apache Directory Developement - use [ldap] prefix</name>
+          <subscribe>
+            directory-dev-subscribe@incubator.apache.org
+          </subscribe>
+          <unsubscribe>
+            directory-dev-unsubscribe@incubator.apache.org
+          </unsubscribe>
+          <archive>
+            http://nagoya.apache.org/eyebrowse/SummarizeList?listId=181
+          </archive>
+        </mailingList>
+    </mailingLists>
+    
+    <developers>
+      <developer>
+        <name>Alex Karasulu</name>
+        <id>akarasulu</id>
+        <email>akarasulu at apache.org</email>
+        <roles>
+          <role>PM</role>
+          <role>Chair</role>
+          <role>Founder</role>
+          <role>Developer</role>
+          <role>Architect</role>
+          <role>Lead Developer</role>
+        </roles>
+      </developer>
+      <developer>
+        <name>Robb Penoyer</name>
+        <id>rpenoyer</id>
+        <email>rpenoyer at apache.org</email>
+        <roles>
+          <role>Developer</role>
+        </roles>
+      </developer>
+      <developer>
+        <name>Jeff Machols</name>
+        <id>jmachols</id>
+        <email>jmachols at apache.org</email>
+        <roles>
+          <role>Developer</role>
+          <role>Infrastructure Support</role>
+        </roles>
+      </developer>
+      <developer>
+        <name>Wes McKean</name>
+        <id>wesmckean</id>
+        <email>wesmckean at apache.org</email>
+        <roles>
+          <role>Developer</role>
+        </roles>
+      </developer>
+      <developer>
+        <name>Noel Bergman</name>
+        <id>noeljb</id>
+        <email>noeljb at apache.org</email>
+        <roles>
+          <role>Mentor</role>
+          <role>Advisor</role>
+          <role>Sponsor</role>
+        </roles>
+      </developer>
+      <developer>
+        <name>Stephen McConnell</name>
+        <id>mcconnell</id>
+        <email>mcconnell at apache.org</email>
+        <roles>
+          <role>Mentor</role>
+          <role>Sponsor</role>
+          <role>Advisor</role>
+        </roles>
+      </developer>
+    </developers>
+
+    <licenses>
+      <license>
+        <name>Apache 1.1 License</name>
+        <url>
+http://cvs.apache.org/viewcvs.cgi/incubator/directory/LICENSE.txt?rev=1369&amp;root=Apache-SVN&amp;view=markup
+        </url>
+        <distribution>repo</distribution>
+      </license>
+    </licenses>
+
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>3.8.1</version>
+        <url>http://junit.org</url>
+      </dependency>
+    </dependencies>        
+  
+    <build>
+      <nagEmailAddress>directory-dev@incubator.apache.org</nagEmailAddress>
+      <sourceDirectory>${basedir}/src/java</sourceDirectory>
+      <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
+      <integrationUnitTestSourceDirectory/>
+      <aspectSourceDirectory/>
+
+      <unitTest>
+        <includes>
+          <include>**/*Test*</include>
+          <include>**/*TestCase*</include>
+        </includes>
+              
+        <excludes>
+            <exclude></exclude>
+        </excludes>
+        
+        <resources>
+          <resource>
+            <directory>${basedir}/src/test</directory>
+            <includes> 
+              <include>**/*.dtd</include>
+              <include>**/*.ldif</include>
+              <include>**/*.properties</include>
+              <include>**/*.x*</include>
+              <include>**/*.mf</include>
+              <include>**/*.jar</include>
+            </includes>
+          </resource>
+
+          <resource>
+            <directory>${basedir}/src/test</directory>
+            <includes> 
+              <include>**/*.dtd</include>
+              <include>**/*.ldif</include>
+              <include>**/*.properties</include>
+              <include>**/*.x*</include>
+              <include>**/*.mf</include>
+              <include>**/*.jar</include>
+            </includes>
+          </resource>
+        </resources>
+      </unitTest>
+    
+      <resources>
+        <resource>
+          <directory>${basedir}/src/java</directory>
+          <includes>
+            <include>**/*.dtd</include>
+            <include>**/*.properties</include>
+            <include>**/*.x*</include>
+          </includes>
+        </resource>
+              
+        <resource>
+          <directory>${basedir}/conf</directory>
+          <targetPath>BLOCK-INF</targetPath>
+          <includes>
+            <include>block.xml</include>
+          </includes>
+        </resource>
+      </resources>
+      <jars></jars>
+    </build>
+    
+    <reports>
+    	<report>maven-jxr-plugin</report>
+    	<report>maven-license-plugin</report>
+        <!-- report>maven-changelog-plugin</report -->
+        <report>maven-javadoc-plugin</report>
+    	<report>maven-tasklist-plugin</report>
+    </reports>
+</project>
+
+

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../../project.xml</extend>
+    <groupId>directory</groupId>
+    <id>eve-backend-schema-syntax-checker-api</id>
+  
+    <name>Eve Backend Schema's SyntaxChecker Registry API</name>
+    <package>org.apache.eve.schema</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2002</inceptionYear>
+      
+    <shortDescription>Eve Backend Schema's SyntaxChecker Registry API</shortDescription>
+
+    <description>
+        Eve's backend subsystem contains several components to manage schema
+        objects.  One of those components is a name to SyntaxChecker registry.
+        The registry is responsible for looking up and adding SyntaxCheckers.
+    </description>
+      
+    <dependencies>
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>eve-backend-schema-common-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org/eve/backend/schema/common/api</url>
+      </dependency>
+    </dependencies>
+</project>
+

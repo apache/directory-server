@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../../project.xml</extend>
+    <groupId>directory</groupId>
+    <id>eve-backend-schema-matching-rule-bootstrap-impl</id>
+  
+    <name>Eve Backend Schema's Bootstrap MatchingRule Registry Implementation</name>
+    <package>org.apache.eve.schema</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2002</inceptionYear>
+      
+    <shortDescription>Eve Backend Schema's Bootstrap MatchingRule Registry Implementation</shortDescription>
+
+    <description>
+        Eve's backend subsystem contains several components to manage schema
+        objects.  One of those components is a OID to MatchingRule registry for
+        schema matchingRule.  The registry is responsible for adding new 
+        matchingRules by OID as well as enabling the lookup of matchingRules
+        based on OID.  This project contains the MatchingRuleRegistry 
+        implementation used at server startup rather than the solid state 
+        matchingRule registry.  The reason for the separate services is to 
+        reduce cyclic dependency.
+
+        The bootstrap implementation unlike the solid state implementation 
+        does not depend on the system backend to store matchingRule information.
+        So this version of the component allows the system backend which 
+        depends on schema information to startup without having a cyclic
+        dependency.
+    </description>
+
+    <dependencies>
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>eve-backend-schema-common-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org/eve/backend/schema/common/api</url>
+      </dependency>
+
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>eve-backend-schema-oid-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org/eve/backend/schema/oid/api</url>
+      </dependency>
+
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>eve-backend-schema-syntax-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org/eve/backend/schema/matching-rule/api</url>
+      </dependency>
+
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>eve-backend-schema-matching-rule-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org/eve/backend/schema/matching-rule/api</url>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.0</version>
+        <url>http://jakarta.apache.org/commons/lang</url>
+      </dependency>
+      
+      <dependency>
+        <groupId>avalon-framework</groupId>
+        <artifactId>avalon-framework-api</artifactId>
+        <version>4.1.5</version>
+        <url>http://avalon.apache.org/framework</url>
+      </dependency>
+    </dependencies>
+</project>
+
