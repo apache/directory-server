@@ -1,0 +1,594 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:45:23 $</date>
+                <revdescription>
+                    <para>
+$Log: schema-module.xml,v $
+Revision 1.6  2003/05/03 01:45:23  bearcej
+Refix image URLs
+
+Revision 1.5  2003/05/03 01:43:08  bearcej
+Add maven file to help generate server site.
+Modify graphic links again.
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.4  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.3  2003/04/08 02:29:55  bearcej
+* Clean up project.properties
+* Fix logos in project.xml
+* Fix links to image files in docs
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.3  2003/03/15 17:24:14  bearcej
+Fixed figure tags to conform to simple docbook.
+Modified Files:
+ Tag: ALPHA-0_7
+    schema-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:33  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:22  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.3  2003/03/09 21:50:26  akarasulu
+Ok the schema documentation is done.
+
+Revision 1.1.2.2  2003/03/09 04:59:15  akarasulu
+Checking in a start to the schema manager documentation.
+
+Revision 1.1.2.1  2003/03/03 04:49:25  akarasulu
+Added as placeholders for now.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+            The purpose of the SchemaModule is to parse the various published 
+            schema files storing their contents in a form suitable for answering
+            schema related questions.  Schema checking, value normalization and 
+            filter processing as well as most fundamental backend operations 
+            require schema knowledge.
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+
+    <section>
+        <title>Architecture</title>
+
+        <section>
+            <title>Brief Overview of Schema Operations</title>
+
+            <para>
+                Schema information is critical within the server for schema 
+                checking, value normalization, searching and syntax checking.  
+                To define how the SchemaModule or any SchemaManager 
+                implementation is to be designed we must first define how these 
+                aspects relate to servicing protocol requests.
+            </para>
+            
+            <para>
+                Schema's define a set of objectclasses, attributes, syntaxes 
+                and matching rules.  Schema checking in general can be defined 
+                as applying constraints imposed by these definitions.  For 
+                example attribute values are constrained with respect to their 
+                syntax and cardinality.  Entries for example will be constrained
+                to include the MUST list of attributes in order to conform to 
+                the objectclasses they implement and so on.  Schema checking is 
+                applied by default.  If you attempt to add unknown attributes to
+                an entry whose objectclasses do not allow, the operation will 
+                not be permitted by the server.  Likewise, an attempt to add a 
+                String valued attribute which is defined to only support numeric
+                values will not be permitted.  This is what we mean by schema 
+                checking.  The server hence uses these definitions to constrain 
+                entries and the values of their attributes, rejecting any
+                operation that would violate the imposed constraints.
+            </para>
+            
+            <para>
+                Value normalization is critical for correctly searching the 
+                directory.  When entries are added to the directory the values 
+                of their attributes are stored and returned in the format they 
+                were provided preserving both whitespace and case.  However when
+                users attempt to search the directory they provide search 
+                filters with attribute value assertions like (cn=James Brown).  
+                The entry that we intend to recall may have had the cn attribute 
+                set as " james   BROWN".  Because the original user provided cn 
+                was entered in a different case with several spaces between the 
+                two parts of the full name, the match will not occur and the 
+                intended entry will not be returned.  Failure to retrieve the 
+                entry would be the case if value normalization were not used.
+                Fortunately, value normalization has been implemented yet it 
+                requires attribute schema definitions for correct operation.  
+                LDAP has defined the concept of a matching rule specifically to 
+                assist in value normalization.  The matching rule for an 
+                attribute defines how values of that attribute are to be 
+                compared.  In the case of the cn example above, the matching 
+                rule defined for the attribute is called caseIgnoreMatch.  With 
+                this knowledge the server generates normalized keys for matching
+                attributes based on the matching rule.  For the original user 
+                provided cn value of " james   BROWN" the server will create a 
+                normalized key of "james brown".  Since the attribute type is
+                case indifferent, its safe to arbitarily (yet consistantly) 
+                generate keys in one case only.  Also notice that several spaces 
+                in between the two names were consolidated into one space and 
+                spaces at either ends of the string were stripped off.  This 
+                type of white space normalization preserves value tokenization 
+                while removing unnecessary whitespace.  We call the operation a 
+                deep trim as opposed to a superficial trim that removes 
+                whitespace at both ends only.  Unlike simple trims which leave 
+                inner stretches of whitespace, a deep trim, condenses inner
+                whitespace regions into a single space.  When another directory 
+                user tries to search the directory specifically looking for the
+                James Brown example entry with the filter (cn=James Brown), the 
+                filter attribute values are automatically normalized based on 
+                the matching rules of schema definitions.  The effective 
+                normalized filter would then be (cn=james brown).  The value of 
+                the cn filter assertion is compared against the normalized user 
+                provided cn value of the entry to produce a match and return the
+                correct candidate entry.  Without the use of matching rules 
+                defined in schema definitions, correct normalization would not 
+                be possible resulting in a highly input sensitive directory 
+                server.
+            </para>
+            
+            <para>
+                Syntax checking is the process of validating correct values for
+                attributes.  Attributes will need to be constrained according to
+                format, type and size.  Syntaxes define the manner in which 
+                attribute values should be checked for validity.  Again these 
+                rules are defined within published schemas to constrain possible 
+                values.  Examples of syntaxes are Boolean whose IANA assigned 
+                public object identifier (OID) is 1.3.6.1.4.1.1466.115.121.1.7.  
+                Boolean attributes can only have values of "TRUE" or "FALSE".  
+                Any other value for attribute types with this syntax will result
+                in a schema violation - the server will reject any operation 
+                resulting in this violation.
+            </para>
+            
+            <para>
+                LDAP searches must take into account attribute inheritance.  
+                When a search with a filter of (name=abc) is conducted it should
+                return all entries with attributes derived from name.  Meaning
+                entries where cn or sn equal "abc" should be returned.  The name
+                attribute is the least specific base for cn and sn which derive
+                from name.  Attribute inheritance trees are defined within the
+                schema.  Without this schema information correct matching cannot 
+                occur as specified by the protocol.
+            </para>
+        </section>
+        
+        <section>
+            <title>The LDAP Schema Dilema</title>
+            
+            <para>
+                LDAP defines the concept of a RootDSE entry.  The RootDSE entry
+                is where several attributes specific to the directory server or
+                Directory Server Agent (DSA) are stored.  The RootDSE stands for
+                the root DSA Specific Entry (DSE).  It holds for example the 
+                location of a set of replica servers that can be contacted in 
+                case this server is unavailable or unable to service requests 
+                due to heavy load.  One of the attributes contained within the 
+                RootDSE is the subschemasubentry attribute.  All entries in an 
+                LDAP server can contain what is known as the subentrysubschema 
+                attribute.  The attribute is intended to point to or refer to a 
+                local entry which stores amongst other things the schema 
+                definitions constraining the refering entry.  The 
+                subschemasubentry attribute is single valued so the RootDSE and
+                any other regular entry can only contain a single value for it.
+                This makes sense since an entry should be governed by only one
+                schema.  If more than one set of schema definitions governed the
+                composition of an entry inconsistant definitions could occur.  
+            </para>
+            
+            <para>
+                The intention of having a subschemasubentry within the RootDSE 
+                was to enable the discovery of the governing directory schema.
+                This implies a one to one relationship between a schema and a
+                directory server.  In fact most LDAPv3 servers manage a single
+                common schema for the entire Directory Information Tree (DIT) of
+                the server.  It is a common practice to use cn=schema for the
+                value of the subschemasubentry.  Novell's NDS and the Netscape 
+                Directory Server (a.k.a. SUN One Directory Server) store schema
+                definitions in this entry with a DN of cn=schema.  Serveral 
+                other commercial servers do the same.
+            </para>
+            
+            <para>
+                This is a very limiting aspect to LDAP.  The explosion of
+                published schemas stuffed into the cn=schema entry has conjested 
+                the entry with attributes for objectclasses, attribute 
+                definitions and syntaxes not to mention ACI attributes that are 
+                also injected into the entry.  Pulling down the massive entry 
+                takes far too long incomparison to the average sized entries in
+                the DIT.   Sure filters can be used to bring down subsets of the
+                entry as needed, however this does not resolve the problem fully
+                since several values for attributes exist and entire definition
+                bodies are embedded within these values as large text objects.  
+                Such selective filters on the entry still need to use substring 
+                matching which is the least efficient and accurate manner for 
+                searching the entry other than using the approximate search
+                operator.  Overall the cn=schema entry is massive with hundreds
+                if not thousands of attributes, and it is very difficult to 
+                search the contents of this entry efficiently and accurately to 
+                answer schema related questions.
+            </para>
+            
+            <para>
+                Another limitation imposed by storing all schema information in
+                one place is the implication that only one schema governs the
+                composition of all entries within the directory.  The need to
+                constrain different regions of the tree through the definition
+                of alternative schemas will inevitably arise.  It is very 
+                unreasonable to consolidate and limit all schema definitions to
+                one.  What's the point of having the potential for every entry 
+                to contain a subschemasubentry attribute?  Why enable the 
+                attribute in every entry if there can only be one schema defined
+                for the entire DIT?  By convention, the entry referred to by the
+                DN value stored in the RootDSE's subschemasubentry attribute 
+                could be implied as the one place for the storage of schema 
+                definitions, since only one schema governs the entire directory.
+                This contradiction leads us to believe that the protocol at its
+                inception borrowed too little from its more robust parent, the
+                X.500 directory.  The subschemasubentry concept made its way 
+                into LDAP but not fully.  This is why LDAP servers do not 
+                provide the ability to manage multiple regions governed by 
+                different schema definations.  They do however provide the 
+                ability to have different entries point to multiple schemas by 
+                allowing all to have a subschemasubentry attribute.
+            </para>
+            
+            <para>
+                LDAP never clearly defined a means to managing schema data in 
+                separate regions of the directory tree - this was left up to the
+                server implementation if supported at all.  The notion of 
+                partitioning the directory tree into regions managed by 
+                different schemas was very explicitly defined by the X.500 
+                standard in what they called Subschema Authoritative Areas or
+                SAAs.  These regions were defined at various points in the 
+                DIT to mandate schema constraints.  The coverage of the area
+                was defined using a subtree specification and SAAs could be 
+                located anywhere and occupy any subtree shape imaginable based
+                on the parameters of the specification.  Unlike X.500 LDAP lacks
+                these rich constructs.
+            </para>
+            
+            <para>
+                While designing the SchemaManager service we kept these short
+                falls in mind with the intention of alleviating them if not 
+                irradicating them.  The need to enable multiple schemas 
+                restricted to specific regions of the DIT was too compelling to
+                ignore.  At a bare minimum we wanted to enable different schemas
+                for DIT partitions or in otherwords backends of the server while
+                remaining protocol compliant giving users the same environment
+                they are accostomed to.  Our attempt to do so is incomplete and
+                an ongoing process.  Before the protocol compliant alpha 
+                release we would like to enable a super schema entry at 
+                cn=schema for default schema support in the expected fashion. We
+                would also like to enable each backend to have its own schema
+                for the time being until a more complete mechanism for schema
+                management can be established.  While stuck in this limbo, we
+                can investigate further constructs and mechanisms within X.500
+                which can be incorporated into the server while remaining in 
+                full compliance with the LDAPv3 specifications.  The design 
+                described for now regarding the SchemaManager and its associated
+                helper interfaces is mostly an intermediate design.
+            </para>
+                
+            <para>
+                Rather than implement full blown SAAs we decided to borrow a
+                little from them.  We simply assigned an SAA to a DN and 
+                considered the subtree of the SAA to encompass everything below
+                it.  In the end we fell back on just requiring an SAA to be 
+                defined for every naming context or backend suffix to be 
+                attached to the server.  Hence every backend in the server must 
+                have its own set of schema definitions.  Was this the correct 
+                way to proceed?  Probably not!  But it was done and for the time 
+                being it will stay until we refactor the design into a more 
+                accurate one.  Also note that for the time being no schema entry
+                referred to by the subschemasubentry exists at the present time,
+                so even though schemas are applied one for each backend, they 
+                nor the superset of them are published to the outside world.
+                With these facts noted we shall continue in the next section to
+                describe the interfaces within the schema package.
+            </para>
+        </section>
+        
+        <section>
+            <title>
+                SchemaManager Service Interface And Its Associated Helpers
+            </title>
+            
+            <para>
+                The SchemaModule implements the SchemaManager service interface
+                which declares two methods to access a Schema object: 
+                getSchema() and getCompleteSchema().  The getSchema() method,
+                requires a String argument specifying a distinguished name.  As
+                a consequence of having implementations possibly parse the 
+                String DN argument into a Name, getSchema() throws a 
+                NamingException.  As can be inferred getSchema() retrieves the 
+                Schema instance in effect at a point (or entry) within the 
+                directory specified by DN.  The returned schema is the schema
+                defined by the SAA at that suffix DN.  The other method, 
+                getCompleteSchema() retrieves the union of all the schema object 
+                definitions within the entire directory as one Schema instance.
+                The returned Schema representing the superset of schema 
+                definitions would be equivalent to the content stored by a
+                cn=schema entry if one existed.
+            </para>
+            
+            <para>
+                The role of the SchemaManager service is simple.  It is a 
+                location specific Schema factory.  The Schema interface is the
+                contract through which answers to schema related questions are
+                obtained.
+            </para>
+            
+            <para>
+                Every aspect with regard to the effective schema constraining
+                a point in the directory can be assertained by methods on the 
+                Schema interface.  These methods enable most of the schema 
+                operations required for syntax checking, attribute value 
+                normalization, and schema checking to detect object class 
+                violations.  Access to other interfaces are provided to perform
+                these operations via the Schema.
+            </para>
+            
+            <para>
+                The Schema interface enables access to two types of NameParsers
+                used to parse a String representation of a DN into a Name.  The 
+                getNameParser() method returns a NameParser that does not 
+                normalize name component attribute identifiers or their values.
+                The getNormalizingParser() method returns a NameParser that does
+                normalize attribute identifiers and values based on the 
+                attribute definitions in the Schema instance returning the 
+                parser.  Note that for each name component attribute value pair 
+                within a distinguished name a different normalization function
+                may need to be applied.  The normalizing name parser must lookup
+                the normalizer to use for each of the component attributes.  Of 
+                course this information is available within the Schema that 
+                creates the normalizing name parser.
+            </para>
+            
+            <para>
+                Access is also provided to an LdifParser and an LdifComposer.  
+                These interfaces define methods for taking a MultiMap to and
+                from an LDIF representation.  A MultiMap is a extention on the
+                Map interface to allow a single key to have multiple values 
+                defined for it.  It is ideal for storing attribute values since 
+                attributes can have a single value or have multiple values.  The
+                MultiMap interface is defined within the Apache Commons 
+                Collections package.
+            </para>
+            
+            <para>
+                Another interface accessible through the Schema.getNormalizer()
+                method is Normalizer.  Normalizers are attribute specific.  They
+                transform the values of String attributes according to the 
+                matching rules defined for them.  For example some default 
+                normalizers for case insensitive Strings attributes are defined 
+                to do a deepTrimToLower and others that are for case sensitive 
+                Strings may perform a deepTrim without transforming alpha 
+                characters into lower case.
+            </para>
+            
+            <para>
+                The Schema interface itself defines several other methods that 
+                test, or transform values of a specific attribute type.  Another 
+                Schema method is provided to apply a syntax check on an entire 
+                entry.
+            </para>
+        </section>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <section>
+            <title>Schema Files</title>
+            
+            <para>
+                Presently, schema definitions are stored in schema files.  These
+                static ascii files use the standard <ulink url=
+                "http://ldap.akbkhome.com/attribute/attributeTypes.html"> 
+                Attribute Type Description </ulink> and <ulink url=
+                "http://ldap.akbkhome.com/attribute/objectClasses.html">Object 
+                Class Description</ulink> syntax as specified within <ulink url=
+                "http://www.faqs.org/rfcs/rfc2252.html"> RFC2252</ulink>.  They
+                are slightly modified to facilitate parsing ease by prefixing
+                the descriptions with either a 'attributetype' or 'objectclass' 
+                marker.  The format as well as the various files used were 
+                adopted from the definitions managed by the <ulink url=
+                "http://openldap.org">OpenLdap</ulink> effort.
+            </para>
+            
+            <para>
+                The definitations are categorically separated into separate 
+                files one for each major group of definitions.  For example the
+                core set of definitions in RFC2252 are resident in a schema file
+                named core.schema.  Other popular and published type 
+                descriptions exist like the java schema and the corba support
+                schema.  The contents of these files are parsed and stored in 
+                AttributeSpec and ObjectClassSpec beans.
+            </para>
+        </section>
+        
+        <section>
+            <title>Initialization Time</title>
+            
+            <para>
+                The SchemaModule creates various Schema instances as a 
+                consequence of initialization.  These Schema objects are 
+                accessible using a DN. Their contents are based on the 
+                contents of the parsed schema files and the SchemaManaqer's 
+                configuration section within the config.xml file.  The 
+                configuration for the SchemaManager specifies the set of schema
+                files that can be used to define SAAs.  The files are referred 
+                to within schema elements which assigns a schema name to the
+                file.  At configuration time the very first task performed is
+                the parse of these files.  For each file a Schema object is 
+                populated with AttributeSpec and ObjectClassSpec objects.  While
+                filling the target Schema object, a superset Schema object 
+                returned using the getCompleteSchema() method, is populated as
+                well.  The complete schema not only fulfills the needs for a 
+                complete schema hangling off of the cn=schema entry, but also
+                allows for cross referencing between schema files.  Sometimes
+                an attribute or objectclass is defined using existing core 
+                schema attributes and objectclasses.  Resolution of values using
+                parent objectclasses and attributes is made possible by this
+                complete union schema of all schema definitions stored accross
+                these files.
+            </para>
+        
+            <para>
+                Once all schema files are parsed a normalization configuration
+                element section is used to construct Normalizers for the various
+                matching rules the server must implement.  Next a configuration
+                section for user defined syntax checkers is used to create 
+                syntax mandating elements used by the schema to check attribute
+                values for correct syntax usage.  Finally once all schema 
+                objects have been populated with their specification beans, 
+                required normalizers and syntax checkers the SAAs of the 
+                configuration are created.
+            </para>
+            
+            <para>
+                SAA elements define the set of schema object that are valid 
+                below and at a point within the directory.  Every descendent
+                entry at and under the SAA DN will be constrained by the set
+                of schema objects defined.  The SAA element contains a set of
+                references to the schema files parsed.  For each SAA element a
+                new Schema implementation is instantiated and populated with the
+                AttributeSpec beans, ObjectClassSpec beans, Normalizers and 
+                syntax checkers of the reference Schema objects.  Hence an SAA
+                is just another Schema that is the union of several schema file
+                Schemas.
+            </para>
+        </section>
+        
+        <section>
+            <title>Runtime</title>
+            
+            <para>
+                At runtime several Maps within the SchemaImpl instances are 
+                already populated.  These set of Maps are used to do fast 
+                lookups to access AttributeSpecs,  ObjectClassSpecs, Normalizers
+                and SyntaxCheckers.  The various methods on the Schema interface
+                are implemented using these Maps within the SchemaImpl class.
+            </para>
+        </section>
+        
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+            Eventually we would like to solve the schema dilema for LDAP 
+            elegantly without breaking with protocol requirements.  No matter
+            what the same referrence to the superset of schema elements must be
+            maintained within the entry referred to by the subschemasubentry 
+            attribute in the RootDSE.  At the present moment we have delayed the
+            implementation of this schema administration entry.  It must at some
+            point be implemented to comply with the standard mode of schema 
+            inquire to be familiar to users.  However nothing is stopping us 
+            form making this entry the suffix to an entire backend under which 
+            other entries can reside to yeild specific information in a 
+            searchable format concerning schema objects and SAAs.  For example 
+            if we were to use cn=schema as the value for the subschemasubentry
+            attribute within the RootDSE, then cn=schema can be the suffix of 
+            a backend with entries below.
+        </para>
+
+        <para>
+            At the present time we do not have a clear understanding of exactly
+            how we intend to structure this tree.  We do know that we want to 
+            enable the decomposition of attribute type and objectclass 
+            descriptions into searchable entries.  A special schema can be 
+            defined to store schema information itself.  This way the search 
+            machinery of the backend can be used to answer complicated questions
+            regarding attribute and objectclass relationships in a standard way.
+            Otherwise we will have to devise Maps within the Schema 
+            implementation to correlate descriptions with one another.  We would
+            also like to search descriptions and SAA specifications without 
+            requiring clients to parse their syntactic representation.  Breaking
+            these specifications down into entries solves these problems.  While 
+            supporting these extra features to aid in schema support we would 
+            like to provide the expected constructs for backwards compatability.
+            Eventually we hope that we can persuade the LDAP community to see 
+            the value proposition of schema descriptions specified as entries
+            with a deep schema administration context rooted at cn=schema or 
+            what ever is specified by the subschemasubentry within the RootDSE.
+        </para>
+        
+        <para>
+            Just for fun we envisioned the following DIT structure to a schema
+            administration context.  The diagram below represents the DIT.
+            Imagine for a moment that cn=schema were the root of the schema
+            administration naming context.  Under it would reside containers
+            for entries describing attribute types, objectclasses, syntaxes,
+            and matching rules.  Also located under cn=schema could reside SAA
+            specification describing the subtree of authority and a schema 
+            definition set of the schema objects composing the SAA.  Questions
+            as to which SAA governs the schema of an entry can be used in a 
+            filter to search for the appropriate SAA in charge.  Hence the 
+            effective subschemasubentry value if asked for of an entry can be
+            extracted at entry retrival time by searching the ou=SAA branch.
+        </para>
+        
+        <figure>
+            <title>Speculation on a Administrative Schema DIT Structure</title>
+            <graphic fileref="../images/AdminSchemaContext.gif"/>
+        </figure>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+            Incomplete since the RootDSE subschemasubentry attribute referral to
+            a schema description entry does not exist.  We need a cn=schema 
+            entry to present attributeType and objectClasses attributes in the
+            proper expected syntax.
+        </para>
+        
+        <para>
+            Messy adhoc implementation with maps all over the place.
+        </para>
+        
+        <para>
+            The inheritance thing does not work and there are a number of 
+            bugs where cross schema references do not resolve.
+        </para>
+    </section>
+    
+</article>

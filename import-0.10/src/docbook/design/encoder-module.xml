@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:45:23 $</date>
+                <revdescription>
+                    <para>
+$Log: encoder-module.xml,v $
+Revision 1.6  2003/05/03 01:45:23  bearcej
+Refix image URLs
+
+Revision 1.5  2003/05/03 01:43:08  bearcej
+Add maven file to help generate server site.
+Modify graphic links again.
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.4  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.3  2003/04/08 02:29:55  bearcej
+* Clean up project.properties
+* Fix logos in project.xml
+* Fix links to image files in docs
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.4  2003/03/15 17:34:19  bearcej
+Fix href to ResponseEventHandlerHandleEvent.gif
+
+Revision 1.1.2.3  2003/03/15 17:25:35  bearcej
+Fix figure tags to conform to simple docbook.
+Modified Files:
+ Tag: ALPHA-0_7
+    encoder-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:30  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:19  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.2  2003/03/09 00:36:54  akarasulu
+Finished encoder docs and refactored inner annonymous handler to be a
+named inner class.
+
+Revision 1.1.2.1  2003/03/03 04:49:25  akarasulu
+Added as placeholders for now.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+            The EncoderModule implements the Encoder service interface as a 
+            stage within the server.  It asynchronously processes ResponseEvents
+            in parallel, encoding the contents of the response message envelope
+            packaged into the ResponseEvent.  Effectively the encoder is 
+            responsible for mashaling the contents of the LDAPMessage response
+            envelope filled with Snacc4J compiler generated class instances into
+            a byte buffer.
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            The Encoder service interface extends the ResponseListener interface
+            besides defining extra synchronous processing methods.  The single
+            ResponseListener method, responseComposed(), gives the staged module
+            its event processing character.  The method accepts a ResponseEvent
+            as its argument.  The implementation simply enqueues the event onto
+            the stage event queue and returns immediately.  The stage driver 
+            thread as in all stages with the server, dequeues the event and
+            dedicates a worker thread to process the event.  Again a 
+            intermediate annonymous Runnable implementation is used to have the
+            worker thread drive the call to the stage event handler.
+        </para>
+        
+        <para>
+            A single method is directly defined within the Encoder interface 
+            rather than being inherited from ResponseListener: the encode 
+            method.  The encode method is implemented by the module as a 
+            synchronous call to encode a message.  Meaning a worker thread does
+            not drive the marshaling process.  The thread of the caller drives
+            the encoding.  This synchronous version requires no event hence it
+            is not part of the ResponseListener interface but is defined 
+            directly within the Encoder interface.  The upstream need within the
+            search request processor to synchronously deliver search entry 
+            response message envelopes has resulted in this synchronous method,
+            encode.  It is only utilized within the search request processor of
+            the protocol engine module.
+        </para>
+        
+        <para>
+            Upon the dequeue of a ResponseEvent and the subsequent assignment 
+            of a worker thread to process the event within the event handler,
+            the real work of marshaling the response message envelope can be 
+            done.  A named inner class, ResponseEventHandler, is used to 
+            implement the stage event handler.  The handleEvent() method of this
+            class is used to process the ResponseEvent in the execution context
+            of a stage worker thread.  Below is a sequence diagram showing the
+            high level steps in processing the ResponseEvent within the event
+            handler.
+        </para>
+        
+        <figure>
+            <title>EncoderModule's ResponseEventHandler Sequence Diagram</title>
+            <graphic fileref="../images/ResponseEventHandlerHandleEvent.gif"/>
+        </figure>
+        
+        <para>
+            The client key of the client which generated the ResponseEvent and 
+            the response message envelope are first extracted from the event 
+            argument.  The message is encoded into a byte buffer by calling the
+            synchronous encode method.  Then the resultant marshaled PDU in the
+            byte array is used along with the client key to construct an 
+            OutputEvent.  Before the handler completes and the driving worker 
+            thread dies, the event is delivered to the downstream OutputManager
+            stage to be processed asynchronously via the writeResponse() method
+            on the OutputManager service interface.
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+            The same future enhancements mentioned for the decoder hold for 
+            the encoder.
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+            Find some faults! Believe me you they exist.
+        </para>
+    </section>
+</article>

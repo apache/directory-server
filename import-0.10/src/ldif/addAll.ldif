@@ -1,0 +1,12 @@
+dn: dc=domain,dc=com
+objectclass: dcObject
+dc: domain
+
+
+dn: cn=testuser,dc=domain,dc=com
+objectclass: inetOrgPerson
+cn: testuser
+sn: nobody
+userPassword: dumass
+
+

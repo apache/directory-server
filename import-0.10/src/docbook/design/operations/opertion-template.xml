@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>LDAPv3 Protocol Operation Design And Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.2 $</revnumber>
+                <date>$Date: 2003/05/03 01:21:33 $</date>
+                <revdescription>
+                    <para>
+$Log: opertion-template.xml,v $
+Revision 1.2  2003/05/03 01:21:33  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.1  2003/03/28 05:12:35  akarasulu
+Adding documents to track changes to protocol enhancements.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Comments on Protocol Requirements</title>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+    </section>
+    
+    <section>
+        <title>Design</title>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+        </para>
+
+        <para>
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+        
+        <para>
+        </para>
+    </section>
+    
+</article>

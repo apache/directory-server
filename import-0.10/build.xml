@@ -1,0 +1,759 @@
+<?xml version="1.0"?>
+<project name="eve" default="sars" basedir=".">
+
+	<!-- ============================================================
+                           PROPERTY SETUP
+  ============================================================= -->
+
+	<!-- load properties files -->
+	<property file="${user.home}/build.properties"/>
+	<property file="${user.home}/.ant.properties"/>
+	<property file="${basedir}/ant.properties"/>
+	<property file="${basedir}/../ant.properties"/>
+	<property file="${basedir}/default.properties"/>
+	<property file="${basedir}/../default.properties"/>
+	<property file="${basedir}/../cocoon.properties"/>
+
+	<!-- Set the properties for intermediate directory -->
+	<property name="build.dir" value="build"/>
+	<property name="build.lib" value="${build.dir}/lib"/>
+	<property name="build.xdoclet" value="${build.dir}/xdoclet"/>
+	<property name="build.src" value="${build.dir}/src"/>
+	<property name="build.classes" value="${build.dir}/classes"/>
+	<property name="build.javadocs" value="${build.dir}/javadocs"/>
+	<property name="build.docs" value="${build.dir}/docs"/>
+	<property name="build.context" value="${build.dir}/documentation"/>
+	<property name="build.xdocs" value="${build.context}/content/xdocs"/>
+
+	<!-- Set the properties for source directories -->
+	<property name="src.dir" value="src"/>
+	<property name="java.dir" value="${src.dir}/java"/>
+	<property name="manifest.dir" value="${src.dir}/manifest"/>
+	<property name="conf.dir" value="${src.dir}/conf"/>
+	<property name="xdocs.dir" value="${src.dir}/xdocs"/>
+	<property name="dist.base" value="distributions"/>
+  <property name="remote.repo" value="http://cvs.apache.org/repository"/>
+
+  <property environment="env"/>
+
+  <!-- ============================================================
+                   DEPENDENCY JARS PROPERTY SETUP
+  ============================================================= -->
+
+  <property
+    name="ldap-common.jar"
+    value="ldap-common-SNAPSHOT.jar"/>
+
+	<property
+    name="commons-collections.jar"
+    value="commons-collections-2.1.jar"/>
+
+	<property
+    name="commons-lang.jar"
+    value="commons-lang-2.0.jar"/>
+
+	<property
+    name="snacc.jar"
+    value="snacc-2.3.jar"/>
+
+	<property
+    name="antlr.jar"
+    value="antlr-2.7.2.jar"/>
+
+	<property
+    name="avalon-framework-api.jar"
+    value="avalon-framework-api-4.1.5.jar"/>
+
+  <property
+    name="avalon-framework-impl.jar"
+    value="avalon-framework-impl-4.1.5.jar"/>
+
+  <property
+    name="regexp.jar"
+    value="regexp-1.2.jar"/>
+
+  <property
+    name="ldap-snacc-provider.jar"
+    value="ldap-snacc-provider-SNAPSHOT.jar"/>
+
+  <property
+    name="oro.jar"
+    value="oro-2.0.7.jar"/>
+
+  <property
+    name="cornerstone-threads-api.jar"
+    value="cornerstone-threads-api-2.0.jar" />
+
+  <property
+    name="cornerstone-threads-impl.jar"
+    value="cornerstone-threads-impl-2.0.jar" />
+
+  <property
+    name="excalibur-thread.jar"
+    value="excalibur-thread-1.1.1.jar"/>
+
+  <property
+    name="jdbm.jar"
+    value="jdbm-0.12.jar"/>
+
+  <property
+    name="logkit.jar"
+    value="logkit-1.2.jar"/>
+
+  <!-- ============================================================
+                      TOOLS JARS PROPERTY SETUP
+  ============================================================= -->
+
+  <property
+    name="xdoclet.jar"
+    value="xdoclet-20020825.jar"/>
+
+  <property
+    name="xjavadoc.jar"
+    value="xjavadoc-20020825.jar"/>
+
+  <property
+    name="phoenix-client.jar"
+    value="avalon-phoenix-client-4.0.4.jar"/>
+
+  <property
+    name="commons-logging.jar"
+    value="commons-logging-1.0.3.jar"/>
+
+  <property
+    name="log4j.jar"
+    value="log4j-1.2.7.jar"/>
+
+  <property
+    name="velocity.jar"
+    value="velocity-1.3.jar"/>
+
+  <property
+    name="jdom.jar"
+    value="jdom-b7.jar"/>
+
+  <!-- ============================================================
+                           CLASSPATH SETUP
+  ============================================================= -->
+
+	<!-- Set some class paths -->
+	<path id="project.class.path">
+		<pathelement path="${java.class.path}"/>
+		<pathelement path="${build.classes}"/>
+		<pathelement path="${build.lib}/${ldap-common.jar}"/>
+		<pathelement path="${build.lib}/${commons-lang.jar}"/>
+		<pathelement path="${build.lib}/${snacc.jar}"/>
+		<pathelement path="${build.lib}/${antlr.jar}"/>
+		<pathelement path="${build.lib}/${avalon-framework-api.jar}"/>
+		<pathelement path="${build.lib}/${avalon-framework-impl.jar}"/>
+		<pathelement path="${build.lib}/${commons-collections.jar}"/>
+		<pathelement path="${build.lib}/${regexp.jar}"/>
+		<pathelement path="${build.lib}/${oro.jar}"/>
+		<pathelement path="${build.lib}/${cornerstone-threads-api.jar}"/>
+		<pathelement path="${build.lib}/${cornerstone-threads-impl.jar}"/>
+		<pathelement path="${build.lib}/${phoenix-client.jar}"/>
+    <pathelement path="${build.lib}/${excalibur-thread.jar}"/>
+    <pathelement path="${build.lib}/${jdbm.jar}"/>
+    <pathelement path="${build.lib}/${logkit.jar}"/>
+	</path>
+
+	<path id="tools.class.path">
+		<path refid="project.class.path"/>
+    <pathelement location="${build.lib}/${log4j.jar}"/>
+    <pathelement location="${build.lib}/${commons-logging.jar}"/>
+    <pathelement location="${build.lib}/${xdoclet.jar}"/>
+    <pathelement location="${build.lib}/${xjavadoc.jar}"/>
+    <pathelement location="${build.lib}/${phoenix-client.jar}"/>
+    <pathelement location="${build.lib}/${velocity.jar}"/>
+    <pathelement location="${build.lib}/${jdom.jar}"/>
+	</path>
+
+
+  <target name="get-deps">
+    <mkdir dir="${build.lib}"/>
+
+    <!-- ======================================================================
+                              GET TOOL DEPENDENCY JARS
+    ======================================================================= -->
+
+    <get
+      usetimestamp="true"
+      src="${remote.repo}/log4j/jars/${log4j.jar}"
+      dest="${build.lib}/${log4j.jar}"
+      verbose="true"
+      />
+    <get
+      usetimestamp="true"
+      src="${remote.repo}/commons-logging/jars/${commons-logging.jar}"
+      dest="${build.lib}/${commons-logging.jar}"
+      verbose="true"
+      />
+    <get
+      usetimestamp="true"
+      src="${remote.repo}/xdoclet/jars/${xdoclet.jar}"
+      dest="${build.lib}/${xdoclet.jar}"
+      verbose="true"
+      />
+    <get
+      usetimestamp="true"
+      src="${remote.repo}/xjavadoc/jars/${xjavadoc.jar}"
+      dest="${build.lib}/${xjavadoc.jar}"
+      verbose="true"
+      />
+    <get
+      usetimestamp="true"
+      src="${remote.repo}/avalon-phoenix/jars/${phoenix-client.jar}"
+      dest="${build.lib}/${phoenix-client.jar}"
+      verbose="true"
+      />
+    <get
+      usetimestamp="true"
+      src="${remote.repo}/velocity/jars/${velocity.jar}"
+      dest="${build.lib}/${velocity.jar}"
+      verbose="true"
+      />
+    <get
+      usetimestamp="true"
+      src="${remote.repo}/jdom/jars/${jdom.jar}"
+      dest="${build.lib}/${jdom.jar}"
+      verbose="true"
+      />
+
+    <!-- ======================================================================
+                                GET DEPENDENCY JARS
+    ======================================================================= -->
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/incubator-directory/jars/${ldap-common.jar}"
+      dest="${build.lib}/${ldap-common.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/incubator-directory/jars/${ldap-snacc-provider.jar}"
+      dest="${build.lib}/${ldap-snacc-provider.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/commons-lang/jars/${commons-lang.jar}"
+      dest="${build.lib}/${commons-lang.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="http://ldapd.sourceforge.net/maven/repository/snacc4j/jars/${snacc.jar}"
+      dest="${build.lib}/${snacc.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/antlr/jars/${antlr.jar}"
+      dest="${build.lib}/${antlr.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/avalon-framework/jars/${avalon-framework-api.jar}"
+      dest="${build.lib}/${avalon-framework-api.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/avalon-framework/jars/${avalon-framework-impl.jar}"
+      dest="${build.lib}/${avalon-framework-impl.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/commons-collections/jars/${commons-collections.jar}"
+      dest="${build.lib}/${commons-collections.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/regexp/jars/${regexp.jar}"
+      dest="${build.lib}/${regexp.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/oro/jars/${oro.jar}"
+      dest="${build.lib}/${oro.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/cornerstone-threads/jars/${cornerstone-threads-api.jar}"
+      dest="${build.lib}/${cornerstone-threads-api.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/cornerstone-threads/jars/${cornerstone-threads-impl.jar}"
+      dest="${build.lib}/${cornerstone-threads-impl.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/excalibur-thread/jars/${excalibur-thread.jar}"
+      dest="${build.lib}/${excalibur-thread.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/jdbm/jars/${jdbm.jar}"
+      dest="${build.lib}/${jdbm.jar}"
+      />
+
+    <get verbose="true" usetimestamp="true"
+      src="${remote.repo}/logkit/jars/${logkit.jar}"
+      dest="${build.lib}/${logkit.jar}"
+      />
+  </target>
+
+	<!-- ======================================================
+
+
+			       T A R G E T S
+
+
+	======================================================= -->
+
+
+	<!-- ======================================================
+			    C O M P I L A T I O N
+	======================================================= -->
+
+	
+	<target name="grammars" depends="get-deps">
+		<antlr target="src/antlr/schema.g" 
+			   outputdirectory="src/java/org/apache/eve/schema">
+			<classpath refid="tools.class.path"/>
+		</antlr>
+	</target>
+
+
+	<target name="compile" depends="grammars">
+		<mkdir dir="${build.classes}"/>
+
+		<javac srcdir="${java.dir}"
+      destdir="${build.classes}"
+      debug="${build.debug}"
+      optimize="${build.optimize}"
+      deprecation="${build.deprecation}">
+			<classpath refid="project.class.path"/>
+		</javac>
+
+		<copy todir="${build.classes}">
+			<fileset dir="${java.dir}">
+				<exclude name="**/test/**"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+
+
+	<!-- ======================================================
+	X I N F O   A N D   M A N I F E S T   G E N E R A T I O N 
+	======================================================= -->
+	
+	<target name="test-xdoclet">
+		<available classname="xdoclet.XDocletMain"
+      classpathref="tools.class.path"
+      property="xdoclet.present"/>
+	</target>
+	
+	<target name="phoenix-xdoclet" depends="compile" ><!--if="xdoclet.present"-->
+		<mkdir dir="${build.xdoclet}"/>
+		<taskdef
+      name="phoenix-blocks"
+      classname="org.apache.avalon.phoenix.tools.xdoclet.PhoenixXDoclet"
+      classpathref="tools.class.path"/>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/event/protocol/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/jndi/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/input/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/output/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/encoder/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/security/auth/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/protocol/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/decoder/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/client/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/schema/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/listener/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+		<phoenix-blocks destdir="${build.xdoclet}">
+			<fileset dir="${java.dir}">
+				<include name="org/apache/eve/backend/*.java"/>
+			</fileset>
+			<blockinfo/>
+			<mxinfo/>
+		</phoenix-blocks>
+
+    <phoenix-blocks destdir="${build.xdoclet}">
+      <fileset dir="${java.dir}">
+        <include name="org/apache/eve/backend/jdbm/*.java"/>
+      </fileset>
+      <blockinfo/>
+      <mxinfo/>
+    </phoenix-blocks>
+	</target>
+
+
+	<!-- Make .xinfo and manifest automatically for blocks -->
+	<target name="no-phoenix-xdoclet" depends="compile" unless="xdoclet.present">
+		<mkdir dir="${build.xdoclet}"/>
+		<unzip src="${src.dir}/generated-by-xdoclet.zip" dest="${build.xdoclet}"/>
+	</target>
+
+	<!-- ======================================================
+					        P R O J E C T    J A R S
+	======================================================= -->
+
+	<target name="jars" depends="phoenix-xdoclet">
+    <!--depends="test-xdoclet, phoenix-xdoclet, no-phoenix-xdoclet"-->
+		<mkdir dir="${build.lib}"/>
+
+		<!-- Just jars the individual block packages not the required set of classes 
+			 the core classes need to be jared into a separate core.jar.
+		-->
+
+		<jar jarfile="${build.lib}/core.jar" basedir="${build.classes}">
+			<!-- Include entire package -->
+			<include name="org/apache/eve/**"/>
+
+			<!-- Exclude the blocks jared below -->
+			<exclude name="org/apache/eve/input/*"/>
+			<exclude name="org/apache/eve/output/*"/>
+      <exclude name="org/apache/eve/encoder/*"/>
+			<exclude name="org/apache/eve/event/protocol/*"/>
+			<exclude name="org/apache/eve/security/auth/*"/>
+			<exclude name="org/apache/eve/protocol/*"/>
+			<exclude name="org/apache/eve/decoder/*"/>
+			<exclude name="org/apache/eve/client/*"/>
+			<exclude name="org/apache/eve/schema/*"/>
+			<exclude name="org/apache/eve/listener/*"/>
+			<exclude name="org/apache/eve/backend/*"/>
+		</jar>
+
+		<jar jarfile="${build.lib}/event.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/event/protocol/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/event/protocol/*.xinfo"/>
+				<include name="org/apache/eve/event/protocol/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/jndi.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/jndi/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/jndi/*.xinfo"/>
+				<include name="org/apache/eve/jndi/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/input.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/input/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/input/*.xinfo"/>
+				<include name="org/apache/eve/input/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/output.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/output/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/output/*.xinfo"/>
+				<include name="org/apache/eve/output/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/encoder.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/encoder/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/encoder/*.xinfo"/>
+				<include name="org/apache/eve/encoder/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/authman.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/security/auth/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/security/auth/*.xinfo"/>
+				<include name="org/apache/eve/security/auth/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/protocol.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/protocol/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/protocol/*.xinfo"/>
+				<include name="org/apache/eve/protocol/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/decoder.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/decoder/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/decoder/*.xinfo"/>
+				<include name="org/apache/eve/decoder/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/client.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/client/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/client/*.xinfo"/>
+				<include name="org/apache/eve/client/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/listener.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/listener/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/listener/*.xinfo"/>
+				<include name="org/apache/eve/listener/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/schema.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/schema/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/schema/*.xinfo"/>
+				<include name="org/apache/eve/schema/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+		<jar jarfile="${build.lib}/backend.jar" basedir="${build.classes}">
+			<include name="org/apache/eve/backend/*"/>
+			<fileset dir="${build.xdoclet}">
+				<include name="org/apache/eve/backend/*.xinfo"/>
+				<include name="org/apache/eve/backend/*.mxinfo"/>
+			</fileset>
+		</jar>
+
+    <jar jarfile="${build.lib}/backjdbm.jar" basedir="${build.classes}">
+      <include name="org/apache/eve/backend/jdbm/**"/>
+      <fileset dir="${build.xdoclet}">
+        <include name="org/apache/eve/backend/jdbm/*.xinfo"/>
+        <include name="org/apache/eve/backend/jdbm/*.mxinfo"/>
+      </fileset>
+    </jar>
+	</target>
+
+
+	<!-- ======================================================
+					        C O R E    T A R G E T S
+	======================================================= -->
+
+	<target name="sars" depends="jars">
+    <taskdef name="sar" classname="org.apache.avalon.phoenix.tools.tasks.Sar">
+      <classpath refid="tools.class.path"/>
+    </taskdef>
+
+    <taskdef name="anakia" classname="org.apache.velocity.anakia.AnakiaTask">
+      <classpath refid="tools.class.path"/>
+    </taskdef>
+
+    <sar sarfile="${build.lib}/eve.sar"
+			config="${conf.dir}/config.xml" 
+			environment="${conf.dir}/environment.xml" 
+			assembly="${conf.dir}/assembly.xml">
+
+			<lib dir="src">
+				<include name="schema/**.schema"/>
+			</lib>
+
+			<lib dir="${build.lib}/">
+				<include name="${antlr.jar}"/>
+        <include name="authman.jar"/>
+        <include name="${avalon-framework-api.jar}"/>
+        <include name="${avalon-framework-impl.jar}"/>
+        <include name="${phoenix-client.jar}"/>
+        <include name="backend.jar"/>
+        <include name="backjdbm.jar"/>
+        <include name="client.jar"/>
+        <include name="${commons-collections.jar}"/>
+        <include name="${commons-lang.jar}"/>
+        <include name="${commons-logging.jar}"/>
+        <include name="core.jar"/>
+        <include name="${cornerstone-threads-api.jar}"/>
+        <include name="${cornerstone-threads-impl.jar}"/>
+        <include name="decoder.jar"/>
+        <include name="encoder.jar"/>
+				<include name="event.jar"/>
+        <include name="${excalibur-thread.jar}"/>
+        <include name="input.jar"/>
+        <include name="${jdbm.jar}"/>
+				<include name="jndi.jar"/>
+        <include name="${ldap-common.jar}"/>
+        <include name="${ldap-snacc-provider.jar}"/>
+				<include name="listener.jar"/>
+        <include name="${logkit.jar}"/>
+				<include name="${oro.jar}"/>
+        <include name="output.jar"/>
+        <include name="protocol.jar"/>
+        <include name="${regexp.jar}"/>
+				<include name="schema.jar"/>
+				<include name="${snacc.jar}"/>
+			</lib>
+		</sar>
+
+		<mkdir dir="dist"/>
+		<copy todir="dist">
+			<fileset dir="${build.lib}">
+				<include name="*.sar"/>
+			</fileset>
+		</copy>
+
+		<echo message="done with sars"/>
+	</target>
+
+
+	<!-- ======================================================
+				  I N S T A L L     D E P L O Y
+	======================================================= -->
+
+  <target name="findInstallDir" unless="${install.dir}">
+    <property name="phoenix.home" value="${env.PHOENIX_HOME}"/>
+    <condition property="install.dir" value="${env.PHOENIX_HOME}/apps">
+      <not>
+        <contains string="${phoenix.home}" substring="env.PHOENIX_HOME"/>
+      </not>
+    </condition>
+  </target>
+
+  <target name="doPhoenixInstall"
+    unless="install.dir" depends="findInstallDir" >
+
+    <echo message="PHOENIX_HOME NOT SET!"/>
+    <echo message="CANNOT FIND PHOENIX INSTALLATION!"/>
+    <input
+      message="Would you like to download and install Phoenix into ./dist?"
+      validargs="yes,no"
+      addproperty="install.phoenix"/>
+  </target>
+
+  <target name="installPhoenix" depends="doPhoenixInstall" if="install.phoenix">
+    <get
+      usetimestamp="true" verbose="true"
+      src="${remote.repo}/avalon-phoenix/distributions/phoenix-4.0.4-bin.zip"
+      dest="${dist.dir}/phoenix-4.0.4-bin.zip"/>
+    <unzip src="${dist.dir}/phoenix-4.0.4-bin.zip" dest="${dist.dir}" />
+    <property name="install.dir" value="${dist.dir}/phoenix-4.0.4/apps"/>
+
+    <echo message="+--------------------------------------------------------"/>
+    <echo message=": Set the environment property PHOENIX_HOME: i.e"/>
+    <echo message=": PHOENIX_HOME=${dist.dir}/phoenix-4.0.4"/>
+    <echo message=": export PHOENIX_HOME"/>
+    <echo message=":"/>
+    <echo message=": Start the server using shell scripts or bat files:"/>
+    <echo message=": ${dist.dir}/phoenix-4.0.4/bin/phoenix.sh start"/>
+    <echo message=":"/>
+    <echo message=": NOTE: On UNIX you'll need to chmod +x the shell scripts"/>
+    <echo message="+--------------------------------------------------------"/>
+  </target>
+
+	<target name="install" depends="sars,installPhoenix"
+    description="Installs into Phoenix">
+
+		<echo message="Removing older installation if any from ${install.dir}"/>
+    <delete file="${install.dir}/eve.sar"/>
+    <delete dir="${install.dir}/eve/"/>
+
+    <!-- delete older conflicting thread pool jar -->
+    <delete file="${dist.dir}/phoenix-4.0.4/lib/excalibur-thread-1.1.jar"/>
+
+    <echo message="Installing to ${install.dir}"/>
+		<copy todir="${install.dir}">
+			<fileset dir="${build.lib}">
+				<include name="eve.sar"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="uninstall" depends="findInstallDir"
+    description="Uninstalls from Phoenix">
+		<delete dir="${install.dir}/eve/"/>
+		<delete file="eve.sar" dir="${install.dir}"/>
+	</target>
+
+	<target name="clean" description="Cleans up artifacts from build process">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+    <delete dir="target"/>
+		<delete dir="test"/>
+		<delete>
+			<fileset dir="." includes="**/*~" defaultexcludes="no"/>
+		</delete>
+		<delete>
+			<fileset dir="src/java/org/apache/eve/schema" 
+				includes="antlr*.*" defaultexcludes="no"/>
+		</delete>
+	</target>
+
+</project>

@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:45:23 $</date>
+                <revdescription>
+                    <para>
+$Log: output-module.xml,v $
+Revision 1.6  2003/05/03 01:45:23  bearcej
+Refix image URLs
+
+Revision 1.5  2003/05/03 01:43:08  bearcej
+Add maven file to help generate server site.
+Modify graphic links again.
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.4  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.3  2003/04/08 02:29:55  bearcej
+* Clean up project.properties
+* Fix logos in project.xml
+* Fix links to image files in docs
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.3  2003/03/15 17:18:35  bearcej
+Fixed figure tags to conform to simple docbook.
+Modified Files:
+ Tag: ALPHA-0_7
+    output-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:32  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:21  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.2  2003/03/09 01:33:58  akarasulu
+Completed OuputModule documentation and refactored annon inner class for
+handler into named inner class.
+
+Revision 1.1.2.1  2003/03/03 04:49:25  akarasulu
+Added as placeholders for now.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+        <para>
+            The OutputModule implements the OutputManager service interface used
+            to transmit LDAPv3 ASN.1 BER encoded message responses to clients on
+            a server OutputStream.  The module is implemented as a stage which
+            asynchronously processes OutputEvents carrying the message to 
+            transmit as well as the client key used to identify the client 
+            stream.
+        </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add diagrams.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            The OutputManager interface extends two subinterfaces: 
+            OutputListener and ClientManagerSlave.  The OutputListener interface
+            gives the OutputManager its event processing character by defining
+            a single method called writeResponse to process its OutputEvent
+            argument.  The OutputModule which implements OuputManager, is 
+            implemented as a OutputEvent processing stage.  The OutputEvents are
+            delivered through the OutputListener.writeResponse() method which
+            returns immediately after enqueueing the event onto the stage event
+            queue.
+        </para>
+        
+        <para>
+            The ClientManagerSlave interface is extended by the OutputManager to
+            prevent containers of this module from detecting a cyclic dependency
+            between the ClientManager and eventually this module.  This 
+            interface essentially defines a method that is called by the 
+            ClientManager on initialization to set the handle of these slave on
+            the ClientManager service.  This avoids the use of the conventional
+            service life-cycle method to initialize the handle on the 
+            ClientManager.  If the handle were gotten by the ServiceManager fed
+            into the service method, the cyclic dependency would be caught and
+            the server would not start.  Hence this module is a slave to the 
+            ClientManager since it must have a member handle initialized by it.
+        </para>
+        
+        <para>
+            The OutputManager interface defines three other service methods.  
+            These are: write(), register() and unregister().  The write() method
+            is a special synchronous flush of a response message which bypasses
+            the asynchronous stage processing of the OutputEvent.  It directly
+            requires the client key and the message PDU in the form of an 
+            InputStream with both provided as arguments.  The synchronous write
+            method is a work around to bypass staged processing to facilitate
+            the synchronous delivery of search responses.  The search request 
+            process calls this method to maintain the order of responses in a
+            train of search entry response message envelopes.  The other two 
+            methods are defined to enable the registration and unregistration
+            of client's that must have response messages delivered to them.  
+            When client's connect to the server, the ListenerModule adds the
+            client to the ClientManager.  The ClientManager then on behalf of
+            the listener registers the client's InputStream with the 
+            InputManager and registers the client's OutputStream with the 
+            OutputManager.  This enables the stage pipling to go full circle by
+            recieving input requests, processing then, and returning the 
+            responses to the client.
+        </para>
+        
+        <figure>
+            <title>OutputModule's OutputEventHandler Sequence Diagram</title>
+            <graphic fileref="../images/OutputEventHandlerHandleEvent.gif"/>
+        </figure>
+
+        <para>
+            This stage is extremely simple.  Like other stages its driver 
+            dequeues an incoming event, and creates an annonymous inner Runnable
+            to drive the call to the stage event handler's handleEvent method in
+            the execution context of a stage worker thread.  The OutputEvent is
+            provided as the sole argument to the handleEvent() method on the 
+            EventHandler.  The gist of the work done within the write() method 
+            of the module which is called by the handler.  Essentially the 
+            handler just extracts the client key and the InputStream to the 
+            response buffer from the OutputEvent argument.  It then feeds them 
+            both into the synchronous write() method as arguments.  The same 
+            write() method used by the search request processor to synchronously
+            deliver response messages is used to asynchronously deliver messages
+            when driven by a worker thread.  The trivial eventHandler method is 
+            depicted in the sequence diagram above.
+        </para>
+        
+        <figure>
+            <title>OutputModule's write() Method Sequence Diagram</title>
+            <graphic fileref="../images/OutputModuleWrite.gif"/>
+        </figure>
+        
+        <para>
+            As can be seen from the sequence diagram above depicting the flow of
+            the write() method, the client key is used to lookup the OuputStream
+            of the client.  Then after acquiring a lock on the output lock 
+            object, a while loop is entered which reads from the InputStream 
+            argument.  The InputStream reads from the encoded response message
+            buffer constructed by the upstream encoder stage.  Once the buffer
+            has been consumed or the client key expires the loop terminates.  
+            For all practical purposes it can now be concluded that the reponse
+            message has been delivered to the client.  notifyAll() is then 
+            called to awaken threads blocked waiting for the OutputStream of the
+            client. 
+        </para>
+        
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+            This module is pretty solid.  
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+            None so far.
+        </para>
+    </section>
+    
+</article>

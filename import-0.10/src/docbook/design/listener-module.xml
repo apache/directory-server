@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Listener Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:45:23 $</date>
+                <revdescription>
+                    <para>
+$Log: listener-module.xml,v $
+Revision 1.6  2003/05/03 01:45:23  bearcej
+Refix image URLs
+
+Revision 1.5  2003/05/03 01:43:08  bearcej
+Add maven file to help generate server site.
+Modify graphic links again.
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.4  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.3  2003/04/08 02:29:55  bearcej
+* Clean up project.properties
+* Fix logos in project.xml
+* Fix links to image files in docs
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.3  2003/03/15 17:21:07  bearcej
+Fixed abstract section tag.  Fixed figure tags to conform to simple docbook
+Modified Files:
+ Tag: ALPHA-0_7
+    listener-module.xml
+
+Revision 1.1.2.2  2003/03/10 23:43:32  akarasulu
+Moved links so that image references point to /image/design.  Note that
+references do not have a [.] in front since the maven driven transforms
+automatically append [.] to references.
+
+Revision 1.1.2.1  2003/03/10 23:24:21  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.1  2003/03/09 22:14:08  akarasulu
+moved the listner.xml file to listener-module.xml
+
+Revision 1.1.2.4  2003/03/02 02:14:51  akarasulu
+Added sequence diagram for the listener thread loop.
+
+Revision 1.1.2.3  2003/03/02 00:37:31  akarasulu
+Adjusting spacing.
+
+Revision 1.1.2.2  2003/03/02 00:32:39  akarasulu
+Completed listener documentation but needs some work and added the article
+info tag to both these document.  Also flaged these docs as whitepapers.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+    <para>
+        The listener module is responsible for accepting client connections
+        on a tcp port of an ip interface.  In this sense it listens for 
+        client connections.  The module implements the ServerListener interface.
+    </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add links to other documents refered to
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            Currently the ListenerModule only supports a single server socket
+            connection and does not presently support SSL.  It is a blocking
+            implementation requiring a blocked thread on the accept() method 
+            of the ServerSocket.
+        </para>
+
+        <para>
+            The module is not a stage yet it is not a simple module as defined
+            in the architecture document.  The module is a Runnable module that
+            uses a single thread to detect client connections on the server 
+            socket.  This thread runs until the Module is stopped.  The module
+            starts the listener thread in the start stage of the module.  The 
+            thread is created fresh and started - it is not claimed from a pool.
+        </para>
+        
+        <figure>
+            <title>Listener Thread Loop Sequence Diagram</title>
+            <graphic fileref="../images/ListenerModuleRun.gif"/>
+        </figure>
+
+        <para>
+            Once started the module's driving thread enters a while loop that
+            completes when the hasStarted() status returns false for the module.
+            A call to stop() will statisfy this stop condition.  Upon entering
+            the while loop the thread blocks on the ServerSocket's accept() 
+            method until a client connection is made.  accept() returns with a
+            client Socket which is packaged into a brand new ConnectEvent.  The
+            ConnectEvent is a special ClientManager specific event.  It is a 
+            SEDA event.  Once the ListenerModule creates the ConnectEvent with
+            the Socket inside, a call is made to the ClientManager service's
+            connectPerformed() method with the event as the sole argument.  Once
+            this call completes the thread starts the loop over again providing
+            the module has not been stopped.  It is very important to make sure
+            that ClientManager implementations do not spend too much time 
+            handling the event.  The ClientModule which implements the 
+            ClientManager service interface for this reason is implemented as a 
+            stage.  The idea here is that the cost of the connectPerformed 
+            event handling operation is merely translated into a SEDA stage 
+            enqueue.  The processing is handled later asynchronously by a 
+            ClientModule worker thread.  More details are available in the SEDA
+            Stage implementation document.  The use of a stage for the 
+            ClientModule makes connection handling instantaneous allowing the
+            listener thread to immediately return to listening on the port for
+            new clients.  The inability to quickly complete a loop upon an 
+            accept() return would translate into connection latencies when the 
+            client connection frequency is high.
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+            This module is very primitive and will see several changes as the
+            server matures and is optimized.  At this point we see obvious 
+            changes that merely add features.  At some point before a beta the
+            module will need to support listening for client connections on 
+            multiple ports and ip interfaces.  It must also enable the use of
+            SSL while handling the nuiances to accomodate the StartTLS extended 
+            request implementation.
+        </para>
+
+        <para>
+            Beta releases will optimize the server for various JDK platforms.  
+            There is very little that can be done to optimize the module for the
+            JDK1.3 and lesser platforms however this is not the case for JDK1.4.
+            By using selectable channels we can use a single thread to listen
+            for client connections on any number of ports and ip interfaces 
+            rather than allocating a thread for each tcp port.  This provides
+            better scalability for the server as the number of ports it listens 
+            to increase.  At the end of the day however just how many ports do
+            we expect an LDAP server to be listening to.  So optimization would
+            almost be moot.  Regardless if a commital to optimizing the module
+            is made for the JDK1.4 then a JDK based swapping schema must be 
+            used to switch the implementation.  To have a single code base run
+            on both the JDK1.4 and be compatible for lesser versions, we must
+            swap selectable new IO channels for simple io at server 
+            initialization time when the JDK version can be queried from the
+            system properties.
+        </para>
+    </section>
+</article>

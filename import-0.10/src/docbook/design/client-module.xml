@@ -1,0 +1,496 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+    "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article class="whitepaper">
+    <title>Client Module Implementation</title>
+    
+    <articleinfo>
+        <author><othername>akarasulu</othername></author>
+        <editor><othername>$Author: bearcej $</othername></editor>
+        <revhistory>
+            <revision>
+                <revnumber>$Revision: 1.6 $</revnumber>
+                <date>$Date: 2003/05/03 01:21:32 $</date>
+                <revdescription>
+                    <para>
+$Log: client-module.xml,v $
+Revision 1.6  2003/05/03 01:21:32  bearcej
+Remove tabs from doc files and fix linefeeds.
+
+Revision 1.5  2003/03/26 23:02:46  jmachols
+Added changes to ClientModule implementation to bring us towards a cleaner
+session and client manager.
+
+Revision 1.4  2003/03/26 22:48:54  akarasulu
+Factored some notes back into docs given to Jeff for changes to the Client
+Manager.
+
+Revision 1.3  2003/03/26 03:53:50  jmachols
+Documenting changes and future enhancements.
+
+Revision 1.2  2003/03/23 13:24:46  akarasulu
+Added these files from the ALPHA-0_7 branch.
+
+Revision 1.1.2.3  2003/03/15 17:38:49  bearcej
+cvs causing problems with xml processing
+
+Revision 1.1.2.2  2003/03/15 17:08:42  bearcej
+Add abstract tags around para for abstract description.
+Modified Files:
+ Tag: ALPHA-0_7
+    client-module.xml
+
+Revision 1.1.2.1  2003/03/10 23:24:19  akarasulu
+Moved design documentation from docs/design to src/docbook/design.
+
+Revision 1.1.2.2  2003/03/02 04:41:29  akarasulu
+*** empty log message ***
+
+Revision 1.1.2.1  2003/03/02 04:26:09  akarasulu
+ClientModule implementation document.
+
+                    </para>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </articleinfo>
+
+    <abstract>
+    <para>
+        The ClientManager service is implemented by the ClientModule.  The
+        service is intended for client connection and hence session management.  
+        Session management plays a critical role in managing controls, user
+        profiles, authorization and the tracking of session variables.
+    </para>
+    </abstract>
+    
+    <section>
+        <title>Document TODOs:</title>
+        <itemizedlist>
+            <listitem><para>
+                Add sequence diagrams for the handler.
+            </para></listitem>
+
+            <listitem><para>
+                Add diagrams to show some of the design concepts hit below
+                like the use of the ClientKey as a primary key, the use of
+                a thread context to pass it around etc.  Maybe a good sequence
+                diagram to show the steps to enable the storage of the ClientKey
+                within the thread context is worth while.  Drive this stuff home
+                with some diagrams because its really dry reading at the moment.
+                It puts me to sleep and I wrote it.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+    
+    <section>
+        <title>Design</title>
+        
+        <para>
+            Stateful protocols like LDAP maintain a client socket connection
+            through out the duration of a "session".  Several requests are 
+            issued within the scope of a session.  The socket connection
+            forms the basis to the concept of a client session.  The socket 
+            contains the IO streams and connection parameters which uniquely 
+            identify the connection.  These parameters are the client/server TCP
+            ports and the IP interfaces used to establish the connection.  
+            Connection parameters alone do not encapsulate all the information 
+            needed to complete the notion of an LDAP session.  Protocol oriented 
+            parameters specific to each client's session must be associated 
+            with the connection.  Such parameters include the identy of the
+            session owner, search controls and other operational modifiers.  As
+            stated within the objectives of the LDAPd project, we intend to 
+            provide the community with a rich LDAP application development 
+            environment on par with modern RDBMSs.  A session interface serves
+            as an exposed API, and it enables these goals by allowing user 
+            defined session variables to be read and written.  Our intent on 
+            differentiating between application, session and request scope 
+            parameters drives the design of the server and more specifically 
+            the role of the ClientManager in session state management.
+        </para>
+        
+        <para>
+            Several factors constrain our design.  Among these factors are good
+            architectural principals.  These constraints are itemized below:
+        </para>
+        
+        <itemizedlist>
+            <listitem><para>
+                Maintain a separation of concerns (SOC) to minimize coupling 
+                between subsystems.  This can be achieved by centralizing client 
+                management operations and isolating it within a single server 
+                module if possible or within the subsystem package of the 
+                module.
+            </para></listitem>
+
+            <listitem><para>
+                Recognize session management as a cross cutting aspect of any
+                stateful protocol server which counter acts SOC and increases
+                coupling.  Use design patterns to balance the affects of this 
+                pervasive aspect.
+            </para></listitem>
+            
+            <listitem><para>
+                Use the Inversion of Control (IOC) design pattern to protect
+                sensitive resources while prividing access to privledged 
+                components.
+            </para></listitem>
+
+            <listitem><para>
+                Balance these factors within a SEDA architecture with loosely
+                coupled events between stages.
+            </para></listitem>
+        </itemizedlist>
+        
+        <para>
+            The role of the ClientManager service revolves around the management
+            of clients, their connections and their session parameters.  Before
+            the introduction of core interfaces and classes used to establish 
+            the subsystem facade, the notion of a client and session requires a
+            clear definition.  To a stateful protocol server a client is a 
+            connection.  A process may posses multiple connections to the 
+            server.  Each connection regardless of the source is a client.  So
+            whether connections are made locally, from other hosts, from the
+            same process on a single host, all are treated as separate clients.
+            Each connection maintains session state on the server.  Session 
+            state stores session specific variables that are not directly 
+            related to defining or managing the connection.  For example one 
+            would not expect the identity of the authenticated user to be held
+            within a socket connection object.  The session encapsulates both
+            the connection parameters and other indirectly related session 
+            parameters.  All fall under the umbrella of a client session and are
+            inseperable.  The addition of a client implies the prior creation 
+            of a connection and the subsequent establishment of a client 
+            session.  The drop of a client implies the close of a socket 
+            connection and the destruction of the client's session.  
+            Consequently, all outstanding requests dependent on it are destroyed
+            as well.
+        </para>
+        
+        <para>
+            Design objectives revolve around the abstraction of the client and 
+            the session.  Several associations are loosely managed using a 
+            unique primary key to identify a client.  The final ClientKey class
+            defines the primary key.  It distinctly identifies a client based
+            on an identifier string constructed from connection endpoint 
+            parameters.  Clients may form connections eminating from any host
+            IP interface through any authorized port on that interface.  A 
+            server host may have multiple IP interfaces and the server process 
+            can chose to listen to any number of authorized TCP ports off those
+            interfaces.  Hence a client socket connection on the client host 
+            endpoint is defined by the IP interface and the TCP port used.  The 
+            client socket on the server side is defined by the server host's IP 
+            interface and the TCP ports of the interface on which the connection
+            is established.  Both sets of endpoint parameters are required to 
+            form a unique key distinctly identifing the client.  The primary key
+            identifier of the ClientKey is composed of these four parameters.
+        </para>
+        
+        <para>
+            Sessions and connections can be bound together using the client PK 
+            with associative tables or Maps.  The ClientSession interface 
+            defines the methods to be supported by a session entity.  
+            ClientSession implementation instances are assocated one to one with
+            a ClientKey, and a client Socket.  Depending on the object required
+            the key is used to access the respective Map to return the 
+            associated client resouce.
+        </para>
+        
+        <para>
+            The ClientKey is used as the handle on the client and its session. 
+            From it, associated objects can be looked up using ClientManager
+            methods.  Access to the key and to the ClientManager service are 
+            sufficent to apply operations affecting the state of the client
+            within the server.  For this reason every SEDA event except for the
+            ConnectEvent has a handle on the ClientKey object.  The key is 
+            passed along from stage to stage within the events.  Stage modules
+            that require the need to access client session state or affect 
+            changes to the client connection do so using this key and the 
+            ClientManager service interfaces.
+        </para>
+        
+        <para>
+            The ClientKey object is also critical for client IO synchronization 
+            within and between stages.  The OutputManager and the InputManager 
+            implementations must make sure that only one LDAP PDU is being 
+            recieved or delivered at one time.  A PDU may however be sent while
+            one is being recieved.  These requirements are accomplished by 
+            synchronizing on the ClientKey lock objects used for input and
+            output synchronization.
+        </para>
+        
+        <para>
+            The ClientKey nor the ClientSession or the ClientManager for that
+            matter, ever expose raw constructs used to manage the socket or IO
+            streams.  Meaning the actual client socket or its IO streams are not
+            accessible via API calls.  The encapsulation of the sockets and
+            its IO streams prevents tampering through public APIs.  It also
+            makes it harder for other stages to access these streams to read
+            or write to the client.  Services like the OuputManager and the 
+            InputManager need eventually to write and read from these streams
+            Application of the Inversion of Control design pattern facilitates
+            this without compromizing these sensitive resouces.  Both the 
+            InputManager and the OutputManager expose interfaces to register and
+            unregister a client socket's input and output stream respectively.  
+            The ClientManager is responsible for managing the [un]registration
+            process to enable and disable clients for IO within the server.  In
+            this respect the ClientManager controls what resources are made 
+            available to these IO managers.  It does not expose accessor methods
+            to access these IO streams by ClientKey so that IO managers can look
+            them up.  Doing so would publicly expose the streams to other 
+            unauthorized components within the server thereby bypassing 
+            encapsulation.  By passing only a stream and not the socket the 
+            ClientManager also prevents these IO services from interfering with
+            the physical socket connection.  If sockets were passed rather than
+            IO streams connected to the socket then the socket can be closed
+            without proper cleanup.  With separation of concern this is the 
+            responsibility of the ClientManager service and not that of an 
+            InputManager or an OutputManager.  Streams passed to these IO 
+            managers also need not be the socket streams.  They can instead be
+            wrapper streams that do not close the underlying data stream when
+            close operations take place.  Both managers together are responsible
+            for IO not the open or close of these connections.  Giving them the
+            power to do so would violate several design principals.  With IOC 
+            the IO managers can only mess up what they are expected to do and 
+            no more.  Other parts of the server never see these conduits to the 
+            client.  Only controlled and privledged access to these streams from
+            IO managers are possible.
+        </para>
+        
+        <para>
+            The ClientManager enables the addition of clients and the removal of
+            clients from the server using the add and drop service interfaces
+            methods.  These methods are intended to setup or tear down IO stream
+            registrations and handle session object intialization as discussed. 
+            The add method is called when a connection is initially established
+            even before a bind operation completes.  The session in this case 
+            has an LdapPrincipal with an empty yet valid Dn which connotates an
+            anonymous user.  When binding anonymously the empty string Dn is 
+            used.   The drop method is intended to close a client's connection
+            and invalidate it's ClientSession object.  The mappings used use to 
+            track the Socket by ClientKey are removed and the ClientKey is 
+            used to unregister the client's respective IO streams with both 
+            IO manager modules.  The ClientKey is also expired to prevent its 
+            use for any outstanding requests left in the stage pipeline.  Any
+            outstanding operations in progress or within the stage pipeline must
+            be terminated when the client is dropped: this is a requirement of 
+            the protocol.
+        </para>
+        
+        <para>
+            Some modules within the server are not stages so they do not recieve
+            events with payloads carrying ClientKeys.  Access to the 
+            ClientSession by way of ClientKey is only possible through method 
+            call arguments.  Between stages calls may be made by stage threads
+            to other simple modules which in turn call other simple modules.  
+            The method call chain can be very long especially if recursion is
+            used.  Having every simple module method pass in a ClientKey or 
+            ClientSession argument is impractical.  Just imagine to tunnel the
+            ClientSession down to one method it would have to be carried 
+            through multiple stack frames regardless of whether it is used in
+            the intermediate method call or not.  This would dramatically effect
+            readibility and confuse those trying to decipher the code.  
+        </para>
+        
+        <para>
+            The ClientManager service specifically confronts this issue which 
+            has the possibility of arrising in every stage of processing.  Two
+            interfaces are provided to associate and disassociate stage threads 
+            with ClientKeys.  The threadAssociate() method binds the ClientKey 
+            to the context of the calling Thread.  Subsequence calls to the no
+            argument getClientSession() method extracts the bound ClientKey 
+            from the calling Thread's context to use in a lookup that returns 
+            the associated ClientSession.  This way stages can bind the 
+            ClientKey of incomming events to the contexts of stage worker 
+            Threads right before event processing.  While stage Threads make 
+            calls to other non-staged modules synchronously in the context of
+            the stage worker Thread, the ClientKey will always accompany the
+            method call.  Simple modules use the no argument accessors to 
+            extract the ClientSession associated with the call without having
+            to pass around ClientKeys or handles to the ClientSession.  Once 
+            the stage worker Thread completes event processing it disassociates
+            the ClientKey from its context via a call to threadDisassociate()
+            on the ClientManager.  The facility is provided for all stages that
+            need to take advantage of this aspect of the service.
+        </para>
+        
+        <para>
+            With all these modules having dependencies on the ClientManager 
+            service cyclic dependencies between the ClientManager and other 
+            modules are unavoidable.  The ClientManager service in this sense
+            by far the most congested resource within the entire system.  
+            Microkernel containers like Phoenix, will not allow cyclic 
+            references between blocks or modules.  To avoid these pitfalls down
+            the road precautions were taken to define new channels through which
+            references can be made across modules in a well defined and 
+            constrained fashion without violating cyclic dependency rules within
+            an Avalon container.  Avalon uses the service method and the 
+            ServiceManager interface to facilitate the lifecycle stage where 
+            services acquire handles to other services they depend upon.  To
+            prevent the detection of true cyclic relationships between the the
+            ClientManager and other modules extra interfaces are defined.  These
+            interfaces are intended to be implemented by modules that depend on 
+            the ClientManager yet somewhere down the line the ClientManager 
+            either directly or indirectly depends on them.  So the goal is to
+            have these modules which would raise cyclic dependency errors in
+            Avalon containers obtain their backreference to the ClientManager
+            though a mechanism other than the regular Servicable life-cycle.
+            These modules should be clearly marked as imposing cyclic 
+            dependencies by way of the ClientManager.  Their access to the 
+            ClientManager service handle also needs to be controlled by the
+            ClientManager through Inversion of Control.  The ClientManager 
+            chooses who speaks to it and acts in some respect like a master 
+            module.  The dependent modules act like slaves.  The master slave
+            relationship becomes more apparent by investigating the 
+            ClientManagerSlave interface required of all modules depending on 
+            the ClientManager service.  There is one method that needs to be 
+            implemented which passes the handle to the ClientManager as the sole
+            argument.
+        </para>
+        
+        <para>
+            Up until this point we have explored the intimate details of the
+            ClientManager service role without regard to its implementation.  
+            Before going on to describe the current implementation we list the
+            responsibilities of the role:
+        </para>
+        
+        <itemizedlist>
+            <listitem><para>
+                The ClientManager ties together the various client resources 
+                composing the session of a client.  It does so through the use
+                of the unique ClientKey identifying the client.
+            </para></listitem>
+            
+            <listitem><para>
+                Add and drop methods enable control over the establishment of
+                new clients or closure to an existing client session both in 
+                respect to the socket connection and the session along with all
+                outstanding requests.  This way the service manages session 
+                creation and destruction.
+            </para></listitem>
+            
+            <listitem><para>
+                Services are provided to facilitate ClientKey propagation within
+                Thread contexts across non-staged server modules.
+            </para></listitem>
+            
+            <listitem><para>
+                The service enables a master slave relationship between itself 
+                and other dependent services to avoid cyclic dependency 
+                detection by Avalon containers.
+            </para></listitem>
+            
+        </itemizedlist>
+    </section>
+    
+    
+    <section>
+        <title>Implementation</title>
+        
+        <para>
+            The ClientManager interface implemented by the ClientModule extends
+            the ConnectListener interface.  Hence the ClientModule must 
+            implement the methods declared within ConnectListener.  
+            ConnectListener defines a single void method, connectPerformed, 
+            which takes as its sole argument a ConnectEvent.
+        </para>
+        
+        <para>
+            The signature of the connectPerformed method does not in any way
+            impose requirements on the way the ConnectEvent processing is 
+            implemented.  The ConnectListener implementation can handle the 
+            event asynchronously or synchronously.  The ClientModule is 
+            presently implemented as a stage so the connectPerformed method
+            is implemented as a simple synchronized enqueue operation on the 
+            event queue.  Processing of the event is handled asynchronously
+            using threads from the stage thread pool to drive the event handler.
+            For more information on general stage implementation see the SEDA
+            implementation document. (Make me a link!)
+        </para>
+        
+        <para>
+            ConnectEvents deliver client socket connections to the ClientManager
+            after a successful accept call on a server listner socket.  The 
+            event is enqueued on the stage event queue.  The stage handler 
+            thread awakens to dequeue the event, and hands off the event to a 
+            stage worker thread for processing.  During processing the event's 
+            Socket is extracted, and a unique ClientKey object is generated 
+            using the properties of the client's Socket.  The ClientModule 
+            generates the ClientKey from the Socket's TCP/IP connection 
+            parameters: the client interface, the client port, the server 
+            interface and the server connection port.  The add service method
+            is then called using the ClientKey and the Socket.
+        </para>
+        
+        <para>
+            The add() method implementation makes the association between the
+            ClientKey and the Socket for subsequent lookups.  It also registers
+            the Socket's input and output streams with the respective IO 
+            manager.  The add() method called by the stage worker Thread 
+            finishes off by creating a default ClientSession object for the 
+            client.  The default session uses a user Principal synonymous with 
+            an anonymous user.  The distinguished name is the empty string for
+            this default session.  Later bind operations replace the Principal
+            with the Principal of the authenticated user.  After creating the
+            default ClientSession it is bound to the ClientKey in a Map and 
+            returned.
+        </para>
+        
+        <para>
+            The association of ClientKeys within the context of the calling 
+            thread is made using a ThreadLocal instance within the 
+            threadAssociate() method.  The association enables the lookup of 
+            the ClientSession based on the Thread of execution.  If the 
+            executing Thread is mapped to a ClientKey within the ThreadLocal 
+            object then a getClientSession() call with no arguments easily 
+            retrieves the client's session without the ClientKey.  The 
+            getClientSession() method simply looks up the ClientKey associated
+            with the caller's Thread.  After isolating the the ClientKey a 
+            lookup on the session map using the ClientKey returns the 
+            ClientSession of the calling thread.  This way we avoid passing 
+            around ClientKeys or ClientSession handles in simple modules called 
+            between stages.  Furthermore because the ClientManager is the master
+            module that all other modules can refer to, localization of session 
+            data there is ideal.
+        </para>
+        
+        <para>
+            Why have we implemented socket connection accepts using an event
+            model while making the connection close or dropping of a client a
+            matter of a simple synchronous call? Why not use a DisconnectEvent
+            and a DisconnectListener? Well, this was the case at first but we 
+            found that the operation must proceed synchronously and there was
+            no need to have a stage for this task.  Clients need to be dropped
+            as soon as an unbind request completes destroying all other requests
+            in the pipeline.
+        </para>
+    </section>
+    
+    <section>
+        <title>Future</title>
+        
+        <para>
+            Create InputStream and OutputStream wrappers to disable close 
+            operations on these streams by the respective IO manager.  Right 
+            now the InputModule can close the client's input stream disabling
+            a client connection.  Likewise the OutputModule can do the same with
+            the OuputStream of the client socket connection.
+        </para>
+    </section>
+
+    <section>
+        <title>Faults</title>
+        
+        <para>
+            The module unnecessarily grabs a handle on the Decoder service.
+        </para>
+        
+        <para>
+            The module needs to correctly handle the change of user principals
+            by destroying all outstanding request operations and properly timing
+            out old handles to ClientKeys and ClientSessions.
+        </para>
+    </section>
+</article>

@@ -1,0 +1,376 @@
+<config>
+
+	<!-- ======================================================================
+    			T H R E A D   M A N A G E R   C O N F I G
+    ======================================================================= -->
+
+	<thread-manager>
+
+		<!-- Used by OutputManager for writing to client streams -->
+
+		<thread-group>
+			<name>output</name>
+			<priority>3</priority>
+			<is-daemon>false</is-daemon>
+			<max-threads>5</max-threads>
+			<min-threads>1</min-threads>
+			<min-spare-threads>3</min-spare-threads>
+		</thread-group>
+
+
+
+		<!-- Used by InputManager for monitoring client connections -->
+
+		<thread-group>
+			<name>client</name>
+			<priority>3</priority>
+			<is-daemon>false</is-daemon>
+			<max-threads>5</max-threads>
+			<min-threads>1</min-threads>
+			<min-spare-threads>3</min-spare-threads>
+		</thread-group>
+
+
+
+		<!-- Used by ClientManager Stage -->
+
+		<thread-group>
+			<name>clientstage</name>
+			<priority>3</priority>
+			<is-daemon>false</is-daemon>
+			<max-threads>5</max-threads>
+			<min-threads>1</min-threads>
+			<min-spare-threads>3</min-spare-threads>
+		</thread-group>
+
+
+
+		<!-- Used for the ProtocolEngine processors and should be at least 
+			equal to the 'client' pool if not more -->
+
+		<thread-group>
+			<name>processor</name>
+			<priority>3</priority>
+			<is-daemon>false</is-daemon>
+			<max-threads>5</max-threads>
+			<min-threads>1</min-threads>
+			<min-spare-threads>3</min-spare-threads>
+		</thread-group>
+
+
+
+		<!-- Used for the Encoder and should be at least 
+			equal to the 'client' pool if not more -->
+
+		<thread-group>
+			<name>encoder</name>
+			<priority>3</priority>
+			<is-daemon>false</is-daemon>
+			<max-threads>5</max-threads>
+			<min-threads>1</min-threads>
+			<min-spare-threads>3</min-spare-threads>
+		</thread-group>
+
+
+
+		<!-- Used for the Decoder and should be at least 
+			equal to the 'client' pool if not more -->
+
+		<thread-group>
+			<name>decoder</name>
+			<priority>3</priority>
+			<is-daemon>false</is-daemon>
+			<max-threads>5</max-threads>
+			<min-threads>1</min-threads>
+			<min-spare-threads>3</min-spare-threads>
+		</thread-group>
+
+
+
+		<!-- Everything else -->
+		<thread-group>
+			<name>default</name>
+			<priority>2</priority>
+			<is-daemon>false</is-daemon>
+			<max-threads>4</max-threads>
+			<min-threads>1</min-threads>
+			<min-spare-threads>3</min-spare-threads>
+		</thread-group>
+	</thread-manager>
+
+
+	<!-- ======================================================================
+							S C H E M A   C O N F I G
+    ======================================================================= -->
+
+	<schema-manager>
+    	<!-- S T A G E : I  -->
+		<!-- files are parsed first to build file schemas -->
+
+    	<schema name="our"
+        	filepath="schema/our.schema" />
+    	<schema name="core"
+        	filepath="schema/core.schema" />
+    	<schema name="vendor"
+        	filepath="schema/vendor.schema" />
+    	<schema name="corba"
+        	filepath="schema/corba.schema" />
+    	<schema name="cosine"
+        	filepath="schema/cosine.schema" />
+    	<schema name="java"
+        	filepath="schema/java.schema" />
+    	<schema name="misc"
+        	filepath="schema/misc.schema" />
+
+		<!--
+    	<schema name="nis"
+        	filepath="schema/nis.schema" />
+    	<schema name="krb5-kdc"
+        	filepath="schema/krb5-kdc.schema" />
+		-->
+    	<schema name="inetorgperson"
+        	filepath="schema/inetorgperson.schema" />
+
+    	<!-- S T A G E : II  -->
+		<!-- built-ins: deepTrimToLower, deepTrim, trim, dnNormalize, asis -->
+        <!-- regex version is perl5 -->
+
+		<normalization default="asis">
+        	<normalizer op="deepTrimToLower" rule="caseIgnoreMatch"/>
+        	<normalizer op="deepTrimToLower" rule="caseIgnoreListMatch"/>
+        	<normalizer op="deepTrimToLower" rule="caseIgnoreIA5Match"/>
+			<normalizer op="deepTrimToLower" rule="objectidentifiermatch"/>
+        	<normalizer op="deepTrim" rule="caseExactIA5Match"/>
+        	<normalizer op="deepTrim" rule="telephoneNumberMatch"/>
+        	<normalizer op="dnNormalize" rule="distinguishedNameMatch"/>
+
+            <normalizer rule="someNewBogusRule">
+            	<regex value="s/abc/123/g"/>
+            	<regex value="/ /d"/>
+            	<regex value="y/def/DEF/"/>
+            </normalizer>
+        </normalization>
+
+    	<!-- S T A G E : III  -->
+		<!-- built-ins: accept, . . ., TBA -->
+        <!-- regex version is perl5 -->
+		<syntax-checkers default="accept">
+        	<!-- fictitious: matches yes, Yes, YES etc -->
+			<syntax-checker oid="1.2.34.2.1.2.3.4523.1.56.4.2.34.5345.3">
+            	<regex value="/yes/i"/>
+            </syntax-checker>
+        </syntax-checkers>
+
+        <!-- S T A G E : IV  -->
+        <!-- Subschema Administrative Area Used by backend0 -->
+	    <SAA dn="dc=example,dc=com">
+	        <schema-ref schema="our"/>
+	        <schema-ref schema="core"/>
+	        <schema-ref schema="cosine"/>
+	        <schema-ref schema="corba"/>
+	        <schema-ref schema="java"/>
+	        <schema-ref schema="misc"/>
+	        <schema-ref schema="inetorgperson"/>
+        </SAA>
+    </schema-manager>
+
+
+	<!-- ======================================================================
+			A U T H E N T I C A T I O N   M A N A G E R   C O N F I G
+    ======================================================================= -->
+
+	<authman>
+	</authman>
+
+
+	<!-- ======================================================================
+				U N I F I E D   B A C K E N D   N E X U S   C O N F I G
+    ======================================================================= -->
+
+	<nexus>
+		<RootDSE>
+			<attribute name="namingContexts" value="dc=example,dc=com" />
+
+			<!-- Currently in this config there is no replica 
+			The examples below are of alternative server's that contain
+			the same naming contexts that this server contains.
+			
+			<attribute name="altServer" value="ldap://replica1:389" />
+			<attribute name="altServer" value="ldap://replica2:389" />
+			-->
+
+			<!-- Currently there are no supported extended ops
+			The extention below is RefreshRequest protocol operation defined as an
+			extention for dynamic directories see http://www.ietf.org/rfc/rfc2589.txt
+			for more information.
+
+			<attribute name="supportedExtension" value="1.3.6.1.4.1.1466.101.119.1" />
+			-->
+
+			<!-- Currently there are no supported control ops
+			These below are VLV (Virtual List View) controls and the
+			LDAP Control for a Duplicate Entry Representation of Search Results
+
+			<attribute name="supportedControl" value="2.16.840.1.113730.3.4.9" />
+			<attribute name="supportedControl" value="2.16.840.1.113730.3.4.10" />
+			<attribute name="supportedControl" value="2.16.840.1.113719.1.27.101.1" />
+			<attribute name="supportedControl" value="2.16.840.1.113719.1.27.101.2" />
+			<attribute name="supportedControl" value="2.16.840.1.113719.1.27.101.3" />
+			-->
+
+			<!-- Currently SASL is not implemented yet.
+			The following URL explains more about the SASL mechanisms used:
+			http://www.ietf.org/rfc/rfc2829.txt
+
+			<attribute name="supportedSASLMechanisms" 
+				value="ANONYMOUS PLAIN OTP DIGEST-MD5 CRAM-MD5" />
+			-->
+
+			<attribute name="subschemaSubentry" value="cn=subschema" />
+			<attribute name="supportedLDAPVersion" value="3" />
+			<attribute name="vendorName" value="ASF" />
+			<attribute name="vendorVersion" value="eve-0.01" />
+		</RootDSE>
+	</nexus>
+
+
+	<!-- ======================================================================
+						I N P U T   M O D U L E   C O N F I G
+    ======================================================================= -->
+
+	<output>
+        <stage name="output" poolname="output">
+		</stage>
+	</output>
+
+
+	<!-- ======================================================================
+						I N P U T   M O D U L E   C O N F I G
+    ======================================================================= -->
+
+	<input>
+	</input>
+
+
+	<!-- ======================================================================
+						    D E C O D E R   C O N F I G
+    ======================================================================= -->
+
+	<decoder>
+        <stage name="decoder" poolname="decoder">
+		</stage>
+	</decoder>
+
+
+	<!-- ======================================================================
+				     		E N C O D E R   C O N F I G
+    ======================================================================= -->
+
+	<encoder>
+        <stage name="encoder" poolname="encoder">
+		</stage>
+	</encoder>
+
+
+	<!-- ======================================================================
+				     P R O T O C O L   E N G I N E   C O N F I G
+    ======================================================================= -->
+
+	<protocol>
+        <stage name="protocol" poolname="processor">
+		</stage>
+	</protocol>
+
+
+	<!-- ======================================================================
+					S E R V E R   L I S T E N E R   C O N F I G
+    ======================================================================= -->
+
+		
+ 	<listener>
+		<port>1396</port>
+        <host>localhost</host>
+        <backlog>50</backlog>
+	</listener>
+
+	<!--
+ 	<listener>
+		<port>1396</port>
+        <host>172.18.9.200</host>
+        <backlog>50</backlog>
+	</listener>
+	-->
+
+
+	<!-- ======================================================================
+				C L I E N T   M A N A G E R   S T A G E   C O N F I G
+    ======================================================================= -->
+
+	<client>
+        <stage name="client" poolname="clientstage">
+		</stage>
+	</client>
+
+
+	<!-- ======================================================================
+				J D B M   B A C K E N D   ( 0 )   C O N F I G
+    ======================================================================= -->
+
+	<backend0>
+		<!-- Backend configuration properties -->
+
+
+		<!-- ==================================================================
+		Suffix Entry Definition:
+				
+			 The suffix entry is automatically created for the first time
+			 when the backend is brought up and it is not found.  If it 
+			 already exists then this section is used simply to get the
+			 Dn to the backend.
+
+		=================================================================== -->
+
+		<suffix>
+			<attribute name="distinguishedname" value="dc=example,dc=com" />
+			<attribute name="objectclass" value="top" />
+			<attribute name="objectclass" value="domain" />
+			<attribute name="dc" value="example" />
+		</suffix>
+
+		<adminUserDN>cn=admin,dc=example,dc=com</adminUserDN>
+		<adminUserPassword>jPasswordField1</adminUserPassword>
+		<workingDirPath>var/backend0</workingDirPath>
+		<entryCacheSize>1000</entryCacheSize>
+
+		<!-- Specific To Jdbm DB Backend -->
+		<indices>
+			<index name="l"/>
+			<index name="ou"/>
+			<index name="cn"/>
+			<index name="sn"/>
+			<index name="dc"/>
+			<index name="uid"/>
+			<index name="mail"/>
+			<index name="givenName"/>
+			<index name="roomnumber"/>
+			<index name="objectclass"/>
+		</indices>
+	</backend0>
+
+
+	<!-- ======================================================================
+				J N D I   P R O V I D E R   M O D U L E   C O N F I G
+    ======================================================================= -->
+
+	<jndi>
+	</jndi>
+
+
+	<!-- ======================================================================
+					E V E N T   M O D U L E   C O N F I G
+    ======================================================================= -->
+
+	<event>
+	</event>
+
+</config>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project name="LDAPd">
+	<title>Home</title>
+	<body>
+		<links>
+			<item name="LDAPd" href="http://ldapd.sourceforge.net"/>
+		</links>
+		<menu name="Overview">
+			<item name="Home" href="http://ldapd.sourceforge.net"/>
+		</menu>
+		<menu name="Design Documentation">
+				<item name="Authentication" href="/authentication-module.html"/>
+				<item name="Backend" href="/../../backend-module.html"/>
+				<item name="Client" href="/../../client-module.html"/>
+				<item name="Decoder" href="/../../decoder-module.html"/>
+				<item name="Encoder" href="/../../encoder-module.html"/>
+				<item name="Event" href="/../../event-module.html"/>
+				<item name="Input" href="/../../input-module.html"/>
+				<item name="JNDI Provider" href="/../../jndi-provider-module.html"/>
+				<item name="Listener" href="/../../listener-module.html"/>
+				<item name="Nexus" href="/../../nexus-module.html"/>
+				<item name="Output" href="/../../output-module.html"/>
+				<item name="Protocol" href="/../../protocol-module.html"/>
+				<item name="RootDSE" href="/../../rootdse-/design.html"/>
+				<item name="Schema" href="/../../schema-module.html"/>
+				<item name="SEDA" href="/../../seda-implementation.html"/>
+				<item name="Server Architecture" href="/../../server-architecture.html"/>
+				<item name="Triggers and Procedures" href="/../../triggers-and-procedures.html"/>
+				<item/>
+				<item name="Operations" href="/design/operations/index.html">
+					<item name="Search" href="/design/operations/search-operation.html"/>
+				</item>
+		</menu>
+		<menu name="Other Modules">
+			<item name="Common" href="/../../../module-blank.html"/>
+			<item name="Replication" href="/../../../module-blank.html"/>
+		</menu>
+		<menu name="Backends">
+			<item name="Berkeley" href="/../../../backend-blank.html"/>
+			<item name="JDBC" href="/../../../backend-blank.html"/>
+			<item name="JDBM" href="/../../../backend-blank.html"/>
+		</menu>
+	</body>
+</project>
