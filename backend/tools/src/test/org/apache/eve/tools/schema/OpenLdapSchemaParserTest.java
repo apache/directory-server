@@ -54,10 +54,31 @@ public class OpenLdapSchemaParserTest extends TestCase
         parser = null;
     }
 
-    public void testParser() throws Exception
+
+    public void testSimpleAttributeType() throws Exception
     {
         String attributeTypeData = "# adding a comment  \n" +
             "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
+            "        DESC 'RFC2256: knowledge information'\n" +
+            "        EQUALITY caseIgnoreMatch\n" +
+            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
+        parser.parse( attributeTypeData );
+        Map attributeTypes = parser.getAttributeTypes();
+        AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
+
+        assertNotNull( type );
+        assertEquals( "2.5.4.2", type.getOid() );
+        assertEquals( "knowledgeInformation", type.getNames()[0] );
+        assertEquals( "RFC2256: knowledge information", type.getDescription() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntax() );
+        assertEquals( 32768, type.getLength() );
+    }
+
+
+    public void testComplexAttributeType() throws Exception
+    {
+        String attributeTypeData = "# adding a comment  \n" +
+            "attributetype ( 2.5.4.2 NAME ( 'knowledgeInformation' 'asdf' ) \n" +
             "        DESC 'RFC2256: knowledge information'\n" +
             "        EQUALITY caseIgnoreMatch\n" +
             "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";

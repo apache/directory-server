@@ -436,20 +436,17 @@ names [AttributeTypeLiteral type]
     ArrayList list = new ArrayList();
 }
     :
+        "NAME"
     (
-        "NAME" QUOTE id0:IDENTIFIER QUOTE
-        {
-            list.add( id0.getText() );
-        }
-        |
-        ( OPEN_PAREN QUOTE id1:IDENTIFIER
-        {
-            list.add( id1.getText() );
-        } QUOTE
-        ( QUOTE id2:IDENTIFIER QUOTE
-        {
-            list.add( id2.getText() );
-        } )* CLOSE_PAREN )
+        QUOTE id0:IDENTIFIER QUOTE { list.add( id0.getText() ); } |
+        ( OPEN_PAREN
+            ( QUOTE id1:IDENTIFIER
+                {
+                    list.add( id1.getText() );
+                }
+              QUOTE
+            )+
+        CLOSE_PAREN )
     )
     {
         type.setNames( ( String[] ) list.toArray( EMPTY ) );
