@@ -3,7 +3,7 @@
 <configuration>
   <listeners>
     <listener>
-      <port>389</port>
+      <port>15389</port>
       <host>localhost</host>
       <backlog>250</backlog>
       <isSecure>false</isSecure>
