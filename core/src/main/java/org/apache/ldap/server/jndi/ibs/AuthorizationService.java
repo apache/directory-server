@@ -26,7 +26,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.eve.SystemPartition;
-import org.apache.eve.db.SearchResultFilter;
+import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.name.DnParser;
@@ -34,6 +34,7 @@ import org.apache.ldap.server.jndi.InvocationStateEnum;
 import org.apache.ldap.server.jndi.EveContext;
 import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.server.db.SearchResultFilter;
 
 
 /**

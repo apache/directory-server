@@ -36,10 +36,12 @@ import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 
-import org.apache.eve.db.Database;
-import org.apache.eve.db.SearchEngine;
-import org.apache.eve.db.SearchResultEnumeration;
-import org.apache.eve.db.gui.PartitionViewer;
+import org.apache.ldap.server.db.Database;
+import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.db.SearchResultEnumeration;
+import org.apache.ldap.server.db.SearchResultEnumeration;
+import org.apache.ldap.server.db.gui.PartitionViewer;
 
 
 /**

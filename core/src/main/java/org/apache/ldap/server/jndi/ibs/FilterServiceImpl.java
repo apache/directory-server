@@ -27,8 +27,9 @@ import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
-import org.apache.eve.db.SearchResultFilter;
-import org.apache.eve.db.ResultFilteringEnumeration;
+import org.apache.ldap.server.db.SearchResultFilter;
+import org.apache.ldap.server.db.ResultFilteringEnumeration;
+import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.Invocation;
 import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.InvocationStateEnum;

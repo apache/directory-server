@@ -99,7 +99,7 @@ public interface BackingStore
      *
      * @param base the base distinguished/absolute name for the search/listing
      * @return a NamingEnumeration containing objects of type
-     * {@link org.apache.eve.db.DbSearchResult}
+     * {@link org.apache.ldap.server.db.DbSearchResult}
      * @throws NamingException if there are any problems
      */
     NamingEnumeration list( Name base ) throws NamingException;

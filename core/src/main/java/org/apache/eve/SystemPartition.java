@@ -27,8 +27,9 @@ import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.message.LockableAttributesImpl ;
 
-import org.apache.eve.db.Database;
-import org.apache.eve.db.SearchEngine;
+import org.apache.ldap.server.db.Database;
+import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.db.SearchEngine;
 
 
 /**

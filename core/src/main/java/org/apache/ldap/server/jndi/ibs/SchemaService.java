@@ -31,9 +31,10 @@ import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.Invocation;
 import org.apache.ldap.server.jndi.InvocationStateEnum;
 import org.apache.eve.RootNexus;
-import org.apache.eve.db.SearchResultFilter;
+import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.db.SearchResultFilter;
 
 import org.apache.ldap.common.schema.*;
 import org.apache.ldap.common.message.LockableAttributeImpl;

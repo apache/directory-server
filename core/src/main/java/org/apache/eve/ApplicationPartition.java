@@ -17,8 +17,9 @@
 package org.apache.eve;
 
 
-import org.apache.eve.db.Database;
-import org.apache.eve.db.SearchEngine;
+import org.apache.ldap.server.db.Database;
+import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.common.schema.AttributeType;
 
 import javax.naming.Name ;

@@ -17,7 +17,8 @@
 package org.apache.ldap.server.jndi.ibs;
 
 
-import org.apache.eve.db.SearchResultFilter;
+import org.apache.ldap.server.db.SearchResultFilter;
+import org.apache.ldap.server.db.SearchResultFilter;
 
 
 /**

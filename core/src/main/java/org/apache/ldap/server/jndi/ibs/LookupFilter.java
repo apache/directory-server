@@ -26,7 +26,7 @@ import javax.naming.directory.Attributes;
 /**
  * A simple filter for modifying Attributes as they are returned to the caller
  * following a lookup operation.  For filtering search results see
- * {@link org.apache.eve.db.SearchResultFilter}s.  These filters unlike ResultFilters
+ * {@link org.apache.ldap.server.db.SearchResultFilter}s.  These filters unlike ResultFilters
  * cannot stop an entry from being returned unless they throw exceptions like
  * {@link javax.naming.NameNotFoundException}.  That is why the method is named
  * <code>filter()</code> instead of <code>accept()</code>.  This is also why
