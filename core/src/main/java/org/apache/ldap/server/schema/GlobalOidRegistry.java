@@ -142,16 +142,34 @@ public class GlobalOidRegistry implements OidRegistry
          * returned on a getNameSet.
          */
         String lowerCase = name.trim().toLowerCase();
-        if ( ! name.equals( lowerCase )
-        && byName.containsKey( lowerCase ) )
-        {
-            String oid = ( String ) byName.get( lowerCase );
-            monitor.oidResolved( name, lowerCase, oid );
+        if ( ! name.equals( lowerCase ) )
+		{
+			if ( byName.containsKey( lowerCase ) )
+	        {
+	            String oid = ( String ) byName.get( lowerCase );
+	            monitor.oidResolved( name, lowerCase, oid );
+	
+	            // We expect to see this version of the key again so we add it
+	            byName.put( name, oid );
+	            return oid;
+	        }
+			
+			/*
+			 * Some LDAP servers (MS Active Directory) tend to use some of the
+			 * bootstrap oid names as all caps, like OU. This should resolve that.
+			 * Lets stash this in the byName if we find it.
+			 */
+			
+			if ( bootstrap.hasOid( lowerCase) )
+			{
+	            String oid = bootstrap.getOid( name );
+	            monitor.oidResolved( name, oid );
 
-            // We expect to see this version of the key again so we add it
-            byName.put( name, oid );
-            return oid;
-        }
+	            // We expect to see this version of the key again so we add it
+				byName.put( name, oid );
+	            return oid;
+			}
+		}
 
         NamingException fault = new NamingException ( "OID for name '"
                 + name + "' was not " + "found within the OID registry" );
