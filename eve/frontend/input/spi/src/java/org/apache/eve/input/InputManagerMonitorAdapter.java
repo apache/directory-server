@@ -24,6 +24,8 @@ import java.nio.channels.Selector ;
 import java.nio.channels.SelectionKey ;
 import java.nio.channels.SocketChannel ;
 
+import org.apache.commons.lang.exception.ExceptionUtils ;
+
 import org.apache.eve.ResourceException ;
 import org.apache.eve.buffer.BufferPool ;
 import org.apache.eve.listener.ClientKey ;
@@ -82,6 +84,7 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
      */
     public void selectFailure( Selector selector, IOException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -92,6 +95,7 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
      */
     public void keyExpiryFailure( ClientKey key, KeyExpiryException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -101,6 +105,7 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
      */
     public void readFailed( ClientKey key, IOException fault ) 
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
     
 
@@ -111,6 +116,7 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
      */
     public void bufferUnavailable( BufferPool bp, ResourceException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -122,6 +128,7 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
     public void channelRegistrationFailure( Selector selector,
         SocketChannel channel, int key, IOException fault)
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -132,6 +139,7 @@ public class InputManagerMonitorAdapter implements InputManagerMonitor
     public void channelCloseFailure( SocketChannel channel, 
                                      IOException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
     
     

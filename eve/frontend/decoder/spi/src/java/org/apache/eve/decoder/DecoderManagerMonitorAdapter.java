@@ -19,6 +19,8 @@ package org.apache.eve.decoder ;
 
 import java.util.EventObject ; 
 
+import org.apache.commons.lang.exception.ExceptionUtils ;
+
 import org.apache.eve.event.Subscriber ;
 
 
@@ -40,6 +42,6 @@ public class DecoderManagerMonitorAdapter implements DecoderManagerMonitor
     public void 
         failedOnInform( Subscriber subscriber, EventObject event, Throwable t )
     {
-        throw new RuntimeException( t ) ;
+        System.out.println( ExceptionUtils.getFullStackTrace( t ) )     ;
     }
 }

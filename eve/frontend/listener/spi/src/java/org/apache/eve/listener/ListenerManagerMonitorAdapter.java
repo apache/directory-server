@@ -21,13 +21,15 @@ import java.io.IOException ;
 import java.nio.channels.Selector ;
 import java.nio.channels.SelectionKey ;
 
+import org.apache.commons.lang.exception.ExceptionUtils ;
+
 
 /**
  * Null adapter for the ListenerManagerMonitor.
  *
- * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
- * @author $Author: akarasulu $
- * @version $Rev: 6456 $
+ * @author <a href="mailto:directory-dev@incubator.apache.org">
+ * Apache Directory Project</a>
+ * @version $Rev$
  */
 public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
 {
@@ -53,7 +55,7 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#bindOccured(
      * org.apache.eve.listener.ServerListener)
      */
-    public void bindOccured( ServerListener a_listener )
+    public void bindOccured( ServerListener listener )
     {
     }
 
@@ -62,7 +64,7 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#unbindOccured(
      * org.apache.eve.listener.ServerListener)
      */
-    public void unbindOccured( ServerListener a_listener )
+    public void unbindOccured( ServerListener listener )
     {
     }
 
@@ -72,7 +74,7 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#acceptOccured(
      * java.nio.channels.SelectionKey)
      */
-    public void acceptOccured( SelectionKey a_key ) 
+    public void acceptOccured( SelectionKey key ) 
     {
     }
     
@@ -82,7 +84,7 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#selectOccured(
      * java.nio.channels.Selector)
      */
-    public void selectOccured( Selector a_selector ) 
+    public void selectOccured( Selector selector ) 
     {
     }
     
@@ -91,8 +93,9 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#failedToBind(
      * org.apache.eve.listener.ServerListener, java.io.IOException)
      */
-    public void failedToBind( ServerListener a_listener, IOException a_failure )
+    public void failedToBind( ServerListener listener, IOException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -100,9 +103,10 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#failedToUnbind(
      * org.apache.eve.listener.ServerListener, java.io.IOException)
      */
-    public void failedToUnbind( ServerListener a_listener, 
-                                IOException a_failure )
+    public void failedToUnbind( ServerListener listener, 
+                                IOException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -110,8 +114,9 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#failedToExpire(
      * org.apache.eve.listener.ClientKey, java.io.IOException)
      */
-    public void failedToExpire( ClientKey a_key, IOException a_failure )
+    public void failedToExpire( ClientKey key, IOException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -119,8 +124,9 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#failedToAccept(
      * java.nio.channels.SelectionKey, java.io.IOException)
      */
-    public void failedToAccept( SelectionKey a_key, IOException a_failure )
+    public void failedToAccept( SelectionKey key, IOException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
 
     
@@ -128,8 +134,9 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#failedToSelect(
      * java.nio.channels.Selector, java.io.IOException)
      */
-    public void failedToSelect( Selector a_selector, IOException a_failure )
+    public void failedToSelect( Selector selector, IOException fault )
     {
+        System.err.println( ExceptionUtils.getFullStackTrace( fault ) ) ;
     }
     
     
@@ -137,7 +144,7 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#selectTimedOut(
      * java.nio.channels.Selector)
      */
-    public void selectTimedOut(Selector a_a_selector)
+    public void selectTimedOut( Selector selector )
     {
     }
     
@@ -146,7 +153,7 @@ public class ListenerManagerMonitorAdapter implements ListenerManagerMonitor
      * @see org.apache.eve.listener.ListenerManagerMonitor#enteringSelect(
      * java.nio.channels.Selector)
      */
-    public void enteringSelect( Selector a_selector )
+    public void enteringSelect( Selector selector )
     {
     }
 }
