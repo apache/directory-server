@@ -74,6 +74,11 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
+      <artifactId>eve-shared</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
       <artifactId>maven-eve-plugin</artifactId>
       <version>1.0</version>
       <type>plugin</type>
