@@ -29,6 +29,7 @@ import javax.naming.directory.*;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.common.message.LockableAttributeImpl;
@@ -94,8 +95,24 @@ public class RootNexus implements PartitionNexus
 
         // register will add to the list of namingContexts as well
         register( this.system );
+
+        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
+            public void run()
+            {
+                try
+                {
+                    RootNexus.this.close();
+                }
+                catch ( NamingException e )
+                {
+                    e.printStackTrace();
+                    // @todo again we need to monitor this failure and report
+                    // that it occured on shutdown specifically
+                }
+            }
+        }, "RootNexusShutdownHook" ) );
     }
-    
+
 
     // ------------------------------------------------------------------------
     // BackendNexus Interface Method Implementations
@@ -372,11 +389,35 @@ public class RootNexus implements PartitionNexus
      */
     public void sync() throws NamingException
     {
+        MultiException error = null;
         Iterator list = this.backends.values().iterator();
         while ( list.hasNext() )
         {
             BackingStore store = ( BackingStore ) list.next();
-            store.sync();
+
+            try
+            {
+                store.sync();
+            }
+            catch ( NamingException e )
+            {
+                e.printStackTrace();
+
+                if ( error == null )
+                {
+                    error = new MultiException( "Grouping many exceptions on root nexus sync()" );
+                }
+
+                // @todo really need to send this info to a monitor
+                error.addThrowable( e );
+            }
+        }
+
+        if ( error != null )
+        {
+            NamingException total = new NamingException( "Encountered failures "
+                    + "while performing a sync() operation on backing stores" );
+            total.setRootCause( error );
         }
     }
 
@@ -386,15 +427,43 @@ public class RootNexus implements PartitionNexus
      */
     public void close() throws NamingException
     {
+        MultiException error = null;
         Iterator list = this.backends.values().iterator();
+
+        // make sure this loop is not fail fast so all backing stores can
+        // have an attempt at closing down and synching their cached entries
         while ( list.hasNext() )
         {
             BackingStore store = ( BackingStore ) list.next();
-            store.sync();
-            store.close();
+
+            try
+            {
+                store.sync();
+                store.close();
+            }
+            catch ( NamingException e )
+            {
+                e.printStackTrace();
+
+                if ( error == null )
+                {
+                    error = new MultiException( "Grouping many exceptions on root nexus close()" );
+                }
+
+                // @todo really need to send this info to a monitor
+                error.addThrowable( e );
+            }
         }
 
         s_singleton = null;
+
+
+        if ( error != null )
+        {
+            NamingException total = new NamingException( "Encountered failures " 
+                    + "while performing a close() operation on backing stores" );
+            total.setRootCause( error );
+        }
     }
 
 
