@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.interceptor;
+package org.apache.ldap.server.operational;
 
 
 import org.apache.ldap.server.AbstractServerTest;

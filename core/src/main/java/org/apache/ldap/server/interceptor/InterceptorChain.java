@@ -21,6 +21,7 @@ import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.schema.SchemaService;
+import org.apache.ldap.server.operational.OperationalAttributeService;
 
 import javax.naming.NamingException;
 import java.util.*;
