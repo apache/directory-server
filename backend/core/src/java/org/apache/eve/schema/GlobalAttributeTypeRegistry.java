@@ -14,19 +14,19 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.bootstrap;
+package org.apache.eve.schema;
 
-
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.eve.schema.AttributeTypeRegistry;
-import org.apache.eve.schema.OidRegistry;
-import org.apache.eve.schema.AttributeTypeRegistryMonitor;
-import org.apache.eve.schema.AttributeTypeRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.naming.NamingException;
+
+import org.apache.ldap.common.util.JoinIterator;
+import org.apache.ldap.common.schema.AttributeType;
+
+import org.apache.eve.SystemPartition;
+import org.apache.eve.schema.bootstrap.BootstrapAttributeTypeRegistry;
 
 
 /**
@@ -35,7 +35,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
+public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
 {
     /** maps an OID to an AttributeType */
     private final Map byOid;
@@ -45,6 +45,10 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
     private AttributeTypeRegistryMonitor monitor;
+    /** the underlying bootstrap registry to delegate on misses to */
+    private BootstrapAttributeTypeRegistry bootstrap;
+    /** the system partition where we keep attributeType updates */
+    private SystemPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -53,14 +57,37 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 
 
     /**
-     * Creates an empty BootstrapAttributeTypeRegistry.
+     * Creates a GlobalAttributeTypeRegistry which accesses data stored within
+     * the system partition and within the bootstrapping registry to service
+     * AttributeType lookup requests.
+     *
+     * @param systemPartition the system database partition under ou=system
+     * @param bootstrap the bootstrapping registry to delegate to
      */
-    public BootstrapAttributeTypeRegistry( OidRegistry oidRegistry )
+    public GlobalAttributeTypeRegistry( SystemPartition systemPartition,
+            BootstrapAttributeTypeRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
-        this.oidRegistry = oidRegistry;
         this.monitor = new AttributeTypeRegistryMonitorAdapter();
+
+        this.oidRegistry = oidRegistry;
+        if ( this.oidRegistry == null )
+        {
+            throw new NullPointerException( "the OID registry cannot be null" ) ;
+        }
+
+        this.bootstrap = bootstrap;
+        if ( this.bootstrap == null )
+        {
+            throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
+        }
+
+        this.systemPartition = systemPartition;
+        if ( this.systemPartition == null )
+        {
+            throw new NullPointerException( "the system partition cannot be null" ) ;
+        }
     }
 
 
@@ -82,7 +109,8 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 
     public void register( String schema, AttributeType attributeType ) throws NamingException
     {
-        if ( byOid.containsKey( attributeType.getOid() ) )
+        if ( byOid.containsKey( attributeType.getOid() ) ||
+             bootstrap.hasAttributeType( attributeType.getOid() ) )
         {
             NamingException e = new NamingException( "attributeType w/ OID " +
                 attributeType.getOid() + " has already been registered!" );
@@ -106,7 +134,7 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     {
         id = oidRegistry.getOid( id );
 
-        if ( ! byOid.containsKey( id ) )
+        if ( ! ( byOid.containsKey( id ) || bootstrap.hasAttributeType( id ) ) )
         {
             NamingException e = new NamingException( "attributeType w/ OID "
                 + id + " not registered!" );
@@ -115,6 +143,12 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
         }
 
         AttributeType attributeType = ( AttributeType ) byOid.get( id );
+
+        if ( attributeType == null )
+        {
+            attributeType = bootstrap.lookup( id );
+        }
+
         monitor.lookedUp( attributeType );
         return attributeType;
     }
@@ -122,16 +156,18 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 
     public boolean hasAttributeType( String id )
     {
-        if ( oidRegistry.hasOid( id ) )
+        try
         {
-            try
+
+            if ( oidRegistry.hasOid( id ) )
             {
-                return byOid.containsKey( oidRegistry.getOid( id ) );
+                return byOid.containsKey( oidRegistry.getOid( id ) ) ||
+                       bootstrap.hasAttributeType( id );
             }
-            catch ( NamingException e )
-            {
-                return false;
-            }
+        }
+        catch ( NamingException e )
+        {
+            return false;
         }
 
         return false;
@@ -141,9 +177,15 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     public String getSchemaName( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
+
         if ( oidToSchema.containsKey( id ) )
         {
             return ( String ) oidToSchema.get( id );
+        }
+
+        if ( bootstrap.getSchemaName( id ) != null )
+        {
+            return bootstrap.getSchemaName( id );
         }
 
         throw new NamingException( "OID " + id + " not found in oid to " +
@@ -151,8 +193,10 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
     }
 
 
+
     public Iterator list()
     {
-        return byOid.values().iterator();
+        return new JoinIterator( new Iterator[]
+            { byOid.values().iterator(),bootstrap.list() } );
     }
 }
