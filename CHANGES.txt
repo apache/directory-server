@@ -1,6 +1,11 @@
-Changes 0.8
-===========
+Changes since 0.8
+=================
 
  o added Preferences implementation for system settings (user Prefs not done)
  o added support for JNDI state factories and object factories
+ o added schema support for object and state factories - plugin is prep'd for
+   generating these from schema definitions and domain models: code to do this
+   just needs to be added.
+ o added factory.hints property to help drive the selection of a object
+   factory when there are multiple alternatives
 

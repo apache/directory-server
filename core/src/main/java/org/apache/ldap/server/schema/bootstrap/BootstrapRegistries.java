@@ -30,7 +30,7 @@ import org.apache.ldap.server.schema.*;
 
 
 /**
- * Document me.
+ * A set of boostrap registries used to fire up the server.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -49,6 +49,8 @@ public class BootstrapRegistries implements Registries
     private BootstrapOidRegistry oidRegistry;
     private BootstrapSyntaxCheckerRegistry syntaxCheckerRegistry;
     private BootstrapSyntaxRegistry syntaxRegistry;
+    private BootstrapObjectFactoryRegistry objectFactoryRegistry;
+    private BootstrapStateFactoryRegistry stateFactoryRegistry;
 
 
     public BootstrapRegistries()
@@ -65,6 +67,8 @@ public class BootstrapRegistries implements Registries
         ditStructureRuleRegistry = new BootstrapDitStructureRuleRegistry( getOidRegistry() );
         matchingRuleUseRegistry = new BootstrapMatchingRuleUseRegistry();
         nameFormRegistry = new BootstrapNameFormRegistry( getOidRegistry() );
+        objectFactoryRegistry = new BootstrapObjectFactoryRegistry( getOidRegistry() );
+        stateFactoryRegistry = new BootstrapStateFactoryRegistry();
     }
 
 
@@ -126,6 +130,16 @@ public class BootstrapRegistries implements Registries
     public SyntaxRegistry getSyntaxRegistry()
     {
         return syntaxRegistry;
+    }
+
+    public ObjectFactoryRegistry getObjectFactoryRegistry()
+    {
+        return objectFactoryRegistry;
+    }
+
+    public StateFactoryRegistry getStateFactoryRegistry()
+    {
+        return stateFactoryRegistry;
     }
 
 
@@ -273,6 +287,7 @@ public class BootstrapRegistries implements Registries
     private boolean resolve( AttributeType at, List errors )
     {
         boolean isSuccess = true;
+
         boolean hasMatchingRule = false;
 
         if ( at == null )
@@ -287,6 +302,7 @@ public class BootstrapRegistries implements Registries
         catch ( NamingException e )
         {
             errors.add( e );
+
             isSuccess = false;
         }
 
@@ -302,6 +318,7 @@ public class BootstrapRegistries implements Registries
         catch ( NamingException e )
         {
             errors.add( e );
+
             isSuccess = false;
         }
 
@@ -317,6 +334,7 @@ public class BootstrapRegistries implements Registries
         catch ( NamingException e )
         {
             errors.add( e );
+
             isSuccess = false;
         }
 
@@ -332,6 +350,7 @@ public class BootstrapRegistries implements Registries
         catch ( NamingException e )
         {
             errors.add( e );
+
             isSuccess = false;
         }
 
@@ -342,15 +361,18 @@ public class BootstrapRegistries implements Registries
             if ( at.getSyntax() == null )
             {
                 String schema = attributeTypeRegistry.getSchemaName( at.getOid() );
+
                 errors.add( new NullPointerException( "attributeType "
                         + at.getName() + " in schema " + schema + " with OID "
                         + at.getOid() + " has a null Syntax" ) );
+
                 isSuccess = false;
             }
         }
         catch ( NamingException e )
         {
             errors.add( e );
+
             isSuccess = false;
         }
 
@@ -386,6 +408,7 @@ public class BootstrapRegistries implements Registries
         }
 
         ObjectClass[] superiors = new org.apache.ldap.common.schema.ObjectClass[0];
+
         try
         {
             superiors = oc.getSuperClasses();
@@ -403,6 +426,7 @@ public class BootstrapRegistries implements Registries
         }
 
         AttributeType[] mayList = new org.apache.ldap.common.schema.AttributeType[0];
+
         try
         {
             mayList = oc.getMayList();
@@ -421,6 +445,7 @@ public class BootstrapRegistries implements Registries
 
 
         AttributeType[] mustList = new org.apache.ldap.common.schema.AttributeType[0];
+
         try
         {
             mustList = oc.getMustList();

@@ -50,7 +50,8 @@ public class ProducerTypeEnum extends ValuedEnum
         "NormalizerProducer", "ComparatorProducer", "SyntaxCheckerProducer",
         "SyntaxProducer", "MatchingRuleProducer", "AttributeTypeProducer",
         "ObjectClassProducer", "MatchingRuleUseProducer", "DitContentRuleProducer",
-        "NameFormProducer", "DitStructureRuleProducer"
+        "NameFormProducer", "DitStructureRuleProducer",
+        "StateFactoryProducer", "ObjectFactoryProducer"
     };
 
     /** value for Normalizer BootstrapProducers */
@@ -75,6 +76,10 @@ public class ProducerTypeEnum extends ValuedEnum
     public static final int NAME_FORM_PRODUCER_VAL = 9;
     /** value for DitStructureRule BootstrapProducers */
     public static final int DIT_STRUCTURE_RULE_PRODUCER_VAL = 10;
+    /** value for StateFactory BootstrapProducers */
+    public static final int STATE_FACTORY_PRODUCER_VAL = 11;
+    /** value for ObjectFactory BootstrapProducers */
+    public static final int OBJECT_FACTORY_PRODUCER_VAL = 12;
 
 
     /** enum for BootstrapProducers of Normalizer schema objects */
@@ -110,6 +115,12 @@ public class ProducerTypeEnum extends ValuedEnum
     /** enum for BootstrapProducers of DitStructureRule schema objects */
     public static final ProducerTypeEnum DIT_STRUCTURE_RULE_PRODUCER =
         new ProducerTypeEnum( producers[10], DIT_STRUCTURE_RULE_PRODUCER_VAL );
+    /** enum for BootstrapProducers of StateFactory schema objects */
+    public static final ProducerTypeEnum STATE_FACTORY_PRODUCER =
+        new ProducerTypeEnum( producers[11], STATE_FACTORY_PRODUCER_VAL );
+    /** enum for BootstrapProducers of ObjectFactory schema objects */
+    public static final ProducerTypeEnum OBJECT_FACTORY_PRODUCER =
+        new ProducerTypeEnum( producers[12], OBJECT_FACTORY_PRODUCER_VAL );
 
 
     /**
@@ -177,6 +188,14 @@ public class ProducerTypeEnum extends ValuedEnum
         if ( producerType.equalsIgnoreCase( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER.getName() ) )
         {
             return ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER;
+        }
+        if ( producerType.equalsIgnoreCase( ProducerTypeEnum.STATE_FACTORY_PRODUCER.getName() ) )
+        {
+            return ProducerTypeEnum.STATE_FACTORY_PRODUCER;
+        }
+        if ( producerType.equalsIgnoreCase( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER.getName() ) )
+        {
+            return ProducerTypeEnum.OBJECT_FACTORY_PRODUCER;
         }
 
         throw new IllegalArgumentException( "Unknown ProducerTypeEnum string"

@@ -22,6 +22,8 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.*;
 import org.apache.ldap.server.schema.*;
+import org.apache.ldap.server.jndi.ServerDirStateFactory;
+import org.apache.ldap.server.jndi.ServerDirObjectFactory;
 
 
 /**
@@ -279,6 +281,18 @@ public class BootstrapSchemaLoader
                 DITStructureRuleRegistry ditStructureRuleRegistry;
                 ditStructureRuleRegistry = registries.getDitStructureRuleRegistry();
                 ditStructureRuleRegistry.register( schema.getSchemaName(), ditStructureRule );
+                break;
+            case( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL ):
+                ServerDirStateFactory stateFactory = ( ServerDirStateFactory ) schemaObject;
+                StateFactoryRegistry stateFactoryRegistry;
+                stateFactoryRegistry = registries.getStateFactoryRegistry();
+                stateFactoryRegistry.register( stateFactory );
+                break;
+            case( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL ):
+                ServerDirObjectFactory objectFactory = ( ServerDirObjectFactory ) schemaObject;
+                ObjectFactoryRegistry objectFactoryRegistry;
+                objectFactoryRegistry = registries.getObjectFactoryRegistry();
+                objectFactoryRegistry.register( objectFactory );
                 break;
             default:
                 throw new IllegalStateException( "ProducerTypeEnum is broke!" );

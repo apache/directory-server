@@ -26,8 +26,6 @@ import org.apache.velocity.VelocityContext;
 
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchema;
 import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.ldap.server.tools.schema.AttributeTypeLiteral;
 
 
 /**
@@ -41,22 +39,24 @@ public class DirectorySchemaTool
     private static String basedir = System.getProperty( "basedir", "." );
 
     /** property for dir where OpenLDAP schema files and deps file are stored */
-    public static final String SCHEMA_SRC_DIR_PROP =
-            "maven.ldap.server.schema.src.dir";
+    public static final String SCHEMA_SRC_DIR_PROP = "maven.ldap.server.schema.src.dir";
+
     /** property for dir where the generated class files are created */
-    public static final String SCHEMA_TARGET_DIR_PROP =
-            "maven.ldap.server.schema.target.dir";
+    public static final String SCHEMA_TARGET_DIR_PROP = "maven.ldap.server.schema.target.dir";
 
     /** default dir where OpenLDAP schema files and deps file are kept */
     public static final String SCHEMA_SRC_DIR_DEFAULT =
             basedir + File.separator + "src" + File.separator + "main" 
 		+ File.separator + "schema";
+
     /** default dir where java src files are kept */
     public static final String JAVA_SRC_DIR_DEFAULT =
             basedir + File.separator + "src" + File.separator + "main" 
 		+ File.separator + "java";
+
    /** property for the name of the schema dependency file */
     public static final String SCHEMA_DEP_FILE_DEFAULT = "schema.deps";
+
     /** default dir where the generated class files are created */
     public static final String SCHEMA_TARGET_DIR_DEFAULT =
             basedir + File.separator + "target" + File.separator + "schema";
@@ -64,12 +64,14 @@ public class DirectorySchemaTool
 
     /** the source directory where the schema OpenLDAP source files are kept */
     private String schemaSrcDir = SCHEMA_SRC_DIR_DEFAULT;
+
     /** the directory where we generate schema class files */
     private String schemaTargetDir = SCHEMA_TARGET_DIR_DEFAULT;
+
     private String javaSrcDir = JAVA_SRC_DIR_DEFAULT;
 
-
     private BootstrapSchema schema;
+
     private OpenLdapSchemaParser parser;
 
 
@@ -77,6 +79,7 @@ public class DirectorySchemaTool
     public DirectorySchemaTool() throws Exception
     {
         parser = new OpenLdapSchemaParser();
+
         Velocity.init();
     }
 
@@ -136,36 +139,50 @@ public class DirectorySchemaTool
             throw new NullPointerException( "the schema property must be set" );
         }
 
+        String filePath = schemaSrcDir + File.separator + schema.getSchemaName() + ".schema";
 
-        InputStream in = new FileInputStream( schemaSrcDir + File.separator
-                + schema.getSchemaName() + ".schema" );
+        InputStream in = new FileInputStream( filePath );
+
         parser.parse( in );
 
         generateSchema();
+
         generateAttributeTypes();
+
         generateObjectClasses();
+
         generateRest();
     }
 
 
     protected void generateSchema() throws Exception
     {
-        String schemaCapped =
-            Character.toUpperCase( schema.getSchemaName().charAt( 0 ) )
-            + schema.getSchemaName().substring( 1, schema.getSchemaName().length() );
+        StringBuffer schemaCapped = new StringBuffer();
+
+        schemaCapped.append( Character.toUpperCase( schema.getSchemaName().charAt( 0 ) ) );
+
+        schemaCapped.append( schema.getSchemaName().substring( 1, schema.getSchemaName().length() ) );
 
         VelocityContext context = new VelocityContext();
 
         context.put( "package", schema.getPackageName() );
-        context.put( "classname", schemaCapped + "Schema" );
+
+        context.put( "classname", schemaCapped.toString() + "Schema" );
+
         context.put( "schema", schema.getSchemaName() );
+
         context.put( "owner", schema.getOwner() ) ;
+
         context.put( "deps", schema.getDependencies()  ) ;
 
         Reader fileIn = getResourceReader( "Schema.template" );
+
         Writer writer = getResourceWriter( schema.getUnqualifiedClassName() );
+
         Velocity.evaluate( context, writer, "LOG", fileIn );
+
         writer.flush();
+
         writer.close();
     }
 
@@ -173,9 +190,13 @@ public class DirectorySchemaTool
     protected void generateRest() throws Exception
     {
         List types = new ArrayList();
+
         types.addAll( ProducerTypeEnum.list() );
+
         types.remove( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER );
+
         types.remove( ProducerTypeEnum.OBJECT_CLASS_PRODUCER );
+
         ProducerTypeEnum type = null;
 
         for ( int ii = 0; ii < types.size(); ii++ )
@@ -189,52 +210,97 @@ public class DirectorySchemaTool
 
 
             VelocityContext context = new VelocityContext();
+
             context.put( "package", schema.getPackageName() );
+
             context.put( "classname", schema.getUnqualifiedClassName( type ) );
+
             context.put( "schema", schema.getSchemaName() );
+
             context.put( "owner", schema.getOwner() ) ;
-            context.put( "type", type.getName().substring( 0,
-                    type.getName().length() - 8 ) ) ;
+
+            context.put( "type", type.getName().substring( 0, type.getName().length() - 8 ) ) ;
 
             String typeName = null;
+
             switch( type.getValue() )
             {
                 case( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.COMPARATOR_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.MATCHING_RULE_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.NAME_FORM_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.NORMALIZER_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER";
+
                     break;
+
                 case( ProducerTypeEnum.SYNTAX_PRODUCER_VAL ):
+
                     typeName = "ProducerTypeEnum.SYNTAX_PRODUCER";
+
                     break;
+
+                case( ProducerTypeEnum.STATE_FACTORY_PRODUCER_VAL ):
+
+                    typeName = "ProducerTypeEnum.STATE_FACTORY_PRODUCER";
+
+                    break;
+
+                case( ProducerTypeEnum.OBJECT_FACTORY_PRODUCER_VAL ):
+
+                    typeName = "ProducerTypeEnum.OBJECT_FACTORY_PRODUCER";
+
+                    break;
+
                 default:
-                    throw new IllegalStateException( "Unexpected producer: "
-                        + type.getName() );
+
+                    throw new IllegalStateException( "Unexpected producer: " + type.getName() );
+
             }
 
             context.put( "typeName", typeName ) ;
+
             runVelocity( context, "typeless.template", type );
         }
-
     }
 
 
@@ -249,18 +315,25 @@ public class DirectorySchemaTool
         }
 
         int size = parser.getAttributeTypes().size();
+
         AttributeTypeLiteral[] attributeTypes = new AttributeTypeLiteral[size];
-        attributeTypes = ( AttributeTypeLiteral[] )
-            parser.getAttributeTypes().values().toArray( attributeTypes );
+
+        attributeTypes = ( AttributeTypeLiteral[] ) parser.getAttributeTypes().values().toArray( attributeTypes );
 
         VelocityContext context = new VelocityContext();
+
         context.put( "package", schema.getPackageName() );
-        context.put( "classname",
-            schema.getUnqualifiedClassName( type ) );
+
+        context.put( "classname", schema.getUnqualifiedClassName( type ) );
+
         context.put( "schema", schema.getSchemaName() );
+
         context.put( "owner", schema.getOwner() ) ;
+
         context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
+
         context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
+
         context.put( "attrTypes", attributeTypes );
 
         runVelocity( context, "AttributeTypes.template", type );
@@ -278,31 +351,43 @@ public class DirectorySchemaTool
         }
 
         int size = parser.getObjectClassTypes().size();
+
         ObjectClassLiteral[] objectClasses = new ObjectClassLiteral[size];
-        objectClasses = ( ObjectClassLiteral[] )
-            parser.getObjectClassTypes().values().toArray( objectClasses );
+
+        objectClasses = ( ObjectClassLiteral[] ) parser.getObjectClassTypes().values().toArray( objectClasses );
 
         VelocityContext context = new VelocityContext();
+
         context.put( "package", schema.getPackageName() );
+
         context.put( "classname", schema.getUnqualifiedClassName( type ) );
+
         context.put( "schema", schema.getSchemaName() );
+
         context.put( "owner", schema.getOwner() ) ;
+
         context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
+
         context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
+
         context.put( "objectClasses", objectClasses );
 
         runVelocity( context, "ObjectClasses.template", type );
     }
 
 
-    protected void runVelocity( VelocityContext context, String template,
-                                ProducerTypeEnum type )
+
+    protected void runVelocity( VelocityContext context, String template, ProducerTypeEnum type )
             throws Exception
     {
         Reader fileIn = getResourceReader( template );
+
         Writer writer = getResourceWriter( schema.getUnqualifiedClassName( type ) );
+
         Velocity.evaluate( context, writer, "LOG", fileIn );
+
         writer.flush();
+
         writer.close();
     }
 
@@ -316,6 +401,7 @@ public class DirectorySchemaTool
     protected boolean mkdirs( String base, String path )
     {
         String[] comps = path.split( "/" );
+
         File file = new File( base );
 
         if ( ! file.exists() )
@@ -326,6 +412,7 @@ public class DirectorySchemaTool
         for ( int ii = 0; ii < comps.length; ii++ )
         {
             file = new File( file, comps[ii] );
+
             if ( ! file.exists() )
             {
                 file.mkdirs();
@@ -339,12 +426,18 @@ public class DirectorySchemaTool
     protected FileWriter getResourceWriter( String classname ) throws IOException
     {
         String pkg = schema.getPackageName();
+
         mkdirs( schemaTargetDir, pkg.replace( '.', File.separatorChar ) );
+
         File base = new File( schemaTargetDir );
+
         String relativePath = pkg.replace( '.', File.separatorChar );
+
         File dir = new File( base, relativePath );
+
         return new FileWriter( new File( dir, classname + ".java" ) );
     }
+
 
 
     protected boolean exists( ProducerTypeEnum type )
@@ -353,8 +446,7 @@ public class DirectorySchemaTool
 
         // check to see if any of the classes are available in the java 
         // source directory, if so we return true
-        File defaultFile = new File( getJavaSrcDir()
-                + File.separator + getFilePath( defaultClass ) );
+        File defaultFile = new File( getJavaSrcDir() + File.separator + getFilePath( defaultClass ) );
           
         return defaultFile.exists();
     }
@@ -363,7 +455,9 @@ public class DirectorySchemaTool
     private String getFilePath( String fqcn )
     {
         String path = fqcn.replace( '.', File.separatorChar );
+
         path += ".java";
+
         return path;
     }
 }
