@@ -123,6 +123,140 @@
       </subsection>
     </section>
 
+
+    <section name="How to Integrate">
+      <p>
+        Ok so you want to use the plugin to generate classes for your own
+        schema.  Here's a step wise process you can follow to do that using
+        maven:
+      </p>
+
+      <ol>
+        <li>
+          Place your schema files (i.e. foo.schema) with the schema extension
+          into ${basedir}/src/schema.  If you opt to store it in another
+          location you must override the <code>maven.eve.schema.dir</code>
+          property in your project.properties file.   For each schema file
+          add the file base name to the <code>maven.eve.schemas</code> property
+          which is a comma separated list.
+        </li>
+        <li>
+          The plugin will by default generate java files within the
+          ${basedir}/target/schema directory.  If you would like to
+          generate code elsewhere you must override the <code>
+          maven.eve.schema.target.dir</code> property in your project.properties
+          file.
+        </li>
+        <li>
+          By default the plugin generates code in an Eve schema package:
+          <code>org.apache.eve.schema.bootstrap</code>.  If you want
+          generated code for a schema to be put into a package other than this,
+          then you're going to need to set the package property for the schema.
+          The package property key is composed of the following base, <code>
+          maven.eve.schema.package.</code> with the name of the schema
+          (<b>without</b> the extension) appended to it.  So for schema file
+          foo.schema the following property key would be used: <code>
+          maven.eve.schema.package.foo</code> where foo is the schema name.
+        </li>
+        <li>
+          Using the same pattern above for all schema specific properties you
+          can set other per schema properties as well.  One of these properties
+          is the dependency list for a schema.  Schemas can obviously depend on
+          others.  The schema dependency list is a comma separated list of other
+          schema names.  These schemas need not be present in your project
+          to generate the code for your schema.  The dependent schema classes
+          must however be present within Eve at deploy time in order to load and
+          use your schema.  At the end we list the the default schemas already
+          packaged into the Eve jar.  You can use any one of these schemas as
+          dependencies needed by your schema and not worry about their presence.
+          The property key <b>base</b> for the schema dependency list is <code>
+          maven.eve.schema.deps.</code> and for a foo.schema file the full key
+          would be <code>maven.eve.schema.deps.foo</code>
+        </li>
+        <li>
+          Each schema has an owner associated with it.  If you want the owner to
+          be anything other than the Eve super user you may want to set the
+          owner property for the schema in your project.properties file.  The
+          property key base for the schema is <code>maven.eve.schema.owner.
+          </code> so don't forget to append the schema name to it.
+        </li>
+      </ol>
+
+      <p>
+        Once setup you can invoke maven to generate the schema sources like so:
+      </p>
+
+<source>
+[akarasulu@newton dib]$ maven eve:schema
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
+
+Attempting to download ldap-common-0.8.0-SNAPSHOT.jar.
+Attempting to download eve-shared-0.8.0-SNAPSHOT.jar.
+Attempting to download eve-protocol-0.8.0-SNAPSHOT.jar.
+Attempting to download snickers-codec-0.2.0-SNAPSHOT.jar.
+Attempting to download ldap-snickers-provider-0.8.0-SNAPSHOT.jar.
+Attempting to download snickers-ber-0.2.0-SNAPSHOT.jar.
+Attempting to download seda-0.2.0-SNAPSHOT.jar.
+Attempting to download maven-eve-plugin-0.8.0-SNAPSHOT.jar.
+Attempting to download ldap-common-0.8.0-SNAPSHOT.jar.
+Attempting to download eve-shared-0.8.0-SNAPSHOT.jar.
+build:start:
+
+eve:schema:
+eve:init:
+
+eve:prepare-filesystem:
+
+eve:generate:
+    [echo] Generated schema producer classes for autofs.schema
+    [echo] Generated schema producer classes for core.schema
+    [echo] Generated schema producer classes for cosine.schema
+    [echo] Generated schema producer classes for corba.schema
+    [echo] Generated schema producer classes for eve.schema
+    [echo] Generated schema producer classes for inetorgperson.schema
+    [echo] Generated schema producer classes for java.schema
+    [echo] Generated schema producer classes for krb5kdc.schema
+    [echo] Generated schema producer classes for nis.schema
+    [echo] Generated schema producer classes for system.schema
+    [echo] Generated schema producer classes for scheduleworld.schema
+    [touch] Creating /home/akarasulu/projects/directory/eve/trunk/dib/target/schema/.flagfile
+BUILD SUCCESSFUL
+Total time: 28 seconds
+Finished at: Tue Dec 14 15:26:26 EST 2004
+</source>
+
+      <p>
+        The example above is from Eve.  If you would like to look at how to use
+        this plugin best the Eve <a href="http://figwarra.notlong.com/">
+        project.properties</a> file here is perhaps the best place to look.
+        Also from the output above you can see the schema files that are used
+        and packaged into Eve by default.  This may however change in the
+        future to restrict the set.
+      </p>
+
+      <p>
+        WARNING: As a last bit of advice make note that the plugin may be
+        sensitive to case for keywords in the OpenLDAP file.  For example
+        the prefix before an objectClass or an attributeType must be in all
+        lowercase.  However words like MUST, and MAY and SUP should all be in
+        uppercase.  So if plugin bombs just check out where this happens and
+        play with the case.  Another thing to watch out for is the order of
+        terms.  This we follow the RFC for which is pretty much the same as the
+        OpenLDAP format minus the objectclass and attributetype prefixes to the
+        descriptions.  We figure the OpenLDAP parser is less complex if the
+        prefixes are there (where the parser is told if the description is an
+        objectclass or attributetype and does not have to figure this out).
+        However I have encountered schemas whose formats do not comply with
+        standards in with respect to the order of description fields and had
+        to edit the files.  This issue did not occur when the files were from
+        the OpenLDAP Foundation which means they do it right but overlook
+        schema objects that are not correctly formated.
+      </p>
+    </section>
+
     <section name="Functionality for the Future">
       <ul>
          <li>
