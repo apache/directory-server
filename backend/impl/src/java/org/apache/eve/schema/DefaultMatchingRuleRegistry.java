@@ -32,7 +32,7 @@ import javax.naming.OperationNotSupportedException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
+public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
 {
     /** a map using an OID for the key and a MatchingRule for the value */
     private final Map matchingRules;
@@ -46,13 +46,12 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
     
     
     /**
-     * Creates a BootstrapMatchingRuleRegistry using existing MatchingRulees 
+     * Creates a DefaultMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
      * 
-     * @param matchingRules a map of OIDs to their respective MatchingRule
-     *      objects
+     * @param matchingRules a map of OIDs to their respective MatchingRule objs
      */
-    public BootstrapMatchingRuleRegistry( MatchingRule[] matchingRules,
+    public DefaultMatchingRuleRegistry( MatchingRule[] matchingRules,
                                           OidRegistry registry )
     {
         this ( matchingRules, registry,
@@ -61,13 +60,12 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
 
         
     /**
-     * Creates a BootstrapMatchingRuleRegistry using existing MatchingRulees 
+     * Creates a DefaultMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
      * 
-     * @param matchingRules a map of OIDs to their respective MatchingRule
-     *      objects
+     * @param matchingRules a map of OIDs to their respective MatchingRule objs
      */
-    public BootstrapMatchingRuleRegistry( MatchingRule[] matchingRules,
+    public DefaultMatchingRuleRegistry( MatchingRule[] matchingRules,
                                           OidRegistry registry,
                                           MatchingRuleRegistryMonitor monitor )
     {
@@ -98,7 +96,7 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
     
     
     /**
-     * @see org.apache.eve.schema.MatchingRuleRegistry#lookup(java.lang.String)
+     * @see org.apache.eve.schema.MatchingRuleRegistry#lookup(String)
      */
     public MatchingRule lookup( String oid ) throws NamingException
     {
@@ -132,8 +130,7 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
 
     
     /**
-     * @see org.apache.eve.schema.MatchingRuleRegistry#hasMatchingRule(
-     * java.lang.String)
+     * @see org.apache.eve.schema.MatchingRuleRegistry#hasMatchingRule(String)
      */
     public boolean hasMatchingRule( String oid )
     {
