@@ -43,7 +43,7 @@ import org.apache.eve.db.search.SearchResultEnumeration;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractBackingStore implements ContextPartition
+public abstract class AbstractContextPartition implements ContextPartition
 {
     /**
      * the database used for this backing store which is also initialized during
