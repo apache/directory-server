@@ -19,7 +19,6 @@
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
       <version>SNAPSHOT</version>
-      <type>jar</type>
     </dependency>
   </dependencies>
 </project>
