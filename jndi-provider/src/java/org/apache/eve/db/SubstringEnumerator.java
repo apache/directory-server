@@ -223,6 +223,9 @@ import org.apache.regexp.RESyntaxException;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.SubstringNode;
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.eve.schema.AttributeTypeRegistry;
 
 
 /**
@@ -235,9 +238,11 @@ import org.apache.ldap.common.filter.SubstringNode;
 public class SubstringEnumerator implements Enumerator
 {
     /** Database used */
-    private Database db = null;
+    private final Database db;
     /** Evaluator used is an Avalon dependent object */
-    private SubstringEvaluator evaluator = null;
+    private final SubstringEvaluator evaluator;
+    /** the attribute type registry */
+    private final AttributeTypeRegistry attributeTypeRegistry;
 
 
     /**
@@ -246,10 +251,13 @@ public class SubstringEnumerator implements Enumerator
      * @param db the database
      * @param evaluator a substring evaluator
      */
-    public SubstringEnumerator( Database db, SubstringEvaluator evaluator )
+    public SubstringEnumerator( Database db,
+                                AttributeTypeRegistry attributeTypeRegistry,
+                                SubstringEvaluator evaluator )
     {
         this.db = db;
         this.evaluator = evaluator;
+        this.attributeTypeRegistry = attributeTypeRegistry;
     }
 
 
@@ -268,7 +276,9 @@ public class SubstringEnumerator implements Enumerator
         RE regex = null;
         Index idx = null;
         final SubstringNode snode = ( SubstringNode ) node;
-    
+        AttributeType type = attributeTypeRegistry.lookup( snode.getAttribute() );
+        Normalizer normalizer = type.getSubstr().getNormalizer();
+
         if ( db.hasUserIndexOn( snode.getAttribute() ) )
         {
             /*
@@ -277,7 +287,7 @@ public class SubstringEnumerator implements Enumerator
              */
             try 
             {
-                regex = snode.getRegex();
+                regex = snode.getRegex( normalizer );
             } 
             catch ( RESyntaxException e ) 
             {

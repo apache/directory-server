@@ -29,6 +29,7 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.AssertionNode;
 import org.apache.ldap.common.filter.SubstringNode;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.eve.schema.AttributeTypeRegistry;
 
 import java.util.ArrayList;
 import java.math.BigInteger;
@@ -58,14 +59,17 @@ public class ExpressionEnumerator implements Enumerator
      * @param db database used by this enumerator
      * @param evaluator
      */
-    public ExpressionEnumerator( Database db, ExpressionEvaluator evaluator )
+    public ExpressionEnumerator( Database db,
+                                 AttributeTypeRegistry attributeTypeRegistry,
+                                 ExpressionEvaluator evaluator )
     {
         this.db = db;
         this.evaluator = evaluator;
 
         LeafEvaluator leafEvaluator = evaluator.getLeafEvaluator();
         scopeEnumerator = new ScopeEnumerator( db, leafEvaluator.getScopeEvaluator() );
-        substringEnumerator = new SubstringEnumerator( db, leafEvaluator.getSubstringEvaluator() );
+        substringEnumerator = new SubstringEnumerator( db, attributeTypeRegistry,
+                leafEvaluator.getSubstringEvaluator() );
     }
 
 

@@ -74,6 +74,9 @@ public class SubstringEvaluator implements Evaluator
     {
         RE regex = null; 
         SubstringNode snode = ( SubstringNode ) node;
+        String oid = oidRegistry.getOid( snode.getAttribute() );
+        AttributeType type = attributeTypeRegistry.lookup( oid );
+        Normalizer normalizer = type.getSubstr().getNormalizer();
 
         if ( db.hasUserIndexOn( snode.getAttribute() ) )
         {
@@ -91,7 +94,7 @@ public class SubstringEvaluator implements Evaluator
             // compile the regular expression to search for a matching attribute
             try 
             {
-                regex = snode.getRegex();
+                regex = snode.getRegex( normalizer );
             } 
             catch ( RESyntaxException e ) 
             {
@@ -122,10 +125,6 @@ public class SubstringEvaluator implements Evaluator
         // Index not defined beyond this point
         // --------------------------------------------------------------------
         
-        String oid = oidRegistry.getOid( snode.getAttribute() );
-        AttributeType type = attributeTypeRegistry.lookup( oid );
-        Normalizer normalizer = type.getSubstr().getNormalizer();
-
         // resusitate the entry if it has not been and set entry in IndexRecord
         if ( null == record.getAttributes() )
         {
@@ -145,7 +144,7 @@ public class SubstringEvaluator implements Evaluator
         // compile the regular expression to search for a matching attribute
         try 
         {
-            regex = snode.getRegex();
+            regex = snode.getRegex( normalizer );
         } 
         catch ( RESyntaxException e ) 
         {

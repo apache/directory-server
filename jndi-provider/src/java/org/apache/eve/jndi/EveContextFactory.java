@@ -397,7 +397,7 @@ public class EveContextFactory implements InitialContextFactory
         evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
 
         ExpressionEnumerator enumerator;
-        enumerator = new ExpressionEnumerator( db, evaluator );
+        enumerator = new ExpressionEnumerator( db, attributeTypeRegistry, evaluator );
 
         SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
 
@@ -581,7 +581,7 @@ public class EveContextFactory implements InitialContextFactory
             ExpressionEvaluator evaluator;
             evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
             ExpressionEnumerator enumerator;
-            enumerator = new ExpressionEnumerator( db, evaluator );
+            enumerator = new ExpressionEnumerator( db, attributeTypeRegistry, evaluator );
             SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
 
             // ----------------------------------------------------------------
