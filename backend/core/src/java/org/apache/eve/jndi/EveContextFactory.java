@@ -15,6 +15,7 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.jndi.ibs.EveExceptionService;
+import org.apache.eve.jndi.ibs.OperationalAttributeService;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
 import org.apache.eve.schema.bootstrap.BootstrapRegistries;
@@ -203,9 +204,9 @@ public class EveContextFactory implements InitialContextFactory
          */
         state = new InvocationStateEnum[]{
             InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.FAILUREHANDLING
+            InvocationStateEnum.POSTINVOCATION
         };
-        interceptor = new EveExceptionService( root );
+        interceptor = new OperationalAttributeService( root );
         provider.addInterceptor( interceptor, state );
 
     }

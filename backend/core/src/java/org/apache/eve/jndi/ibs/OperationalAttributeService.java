@@ -20,14 +20,14 @@ package org.apache.eve.jndi.ibs;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.Context;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.*;
 
-import org.apache.eve.jndi.BaseInterceptor;
+import org.apache.eve.RootNexus;
 import org.apache.eve.jndi.Invocation;
+import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.InvocationStateEnum;
 import org.apache.eve.schema.AttributeTypeRegistry;
-import org.apache.ldap.common.schema.AttributeType;
+
 import org.apache.ldap.common.util.DateUtils;
 
 
@@ -42,31 +42,18 @@ public class OperationalAttributeService extends BaseInterceptor
 {
     /** the default user principal or DN */
     private final String DEFAULT_PRINCIPAL = "cn=admin,ou=system";
-    /** the global attributeType registry of the schema subsystem */
-    private final AttributeTypeRegistry registry;
+    /** the root nexus of the system */
+    private final RootNexus nexus;
 
-//    /** the root nexus of the system */
-//    private final RootNexus nexus;
-//
-//
-//    /**
-//     * Creates the operational attribute management service interceptor.
-//     *
-//     * @param nexus the root nexus of the system
-//     */
-//    public OperationalAttributeService( RootNexus nexus )
-//    {
-//        this.nexus = nexus;
-//    }
 
     /**
      * Creates the operational attribute management service interceptor.
      *
-     * @param registry the attributeType registry of the schema subsystem
+     * @param nexus the root nexus of the system
      */
-    public OperationalAttributeService( AttributeTypeRegistry registry)
+    public OperationalAttributeService( RootNexus nexus )
     {
-        this.registry = registry;
+        this.nexus = nexus;
     }
 
 
@@ -81,20 +68,142 @@ public class OperationalAttributeService extends BaseInterceptor
     protected void add( String upName, Name normName, Attributes entry ) throws NamingException
     {
         Invocation invocation = getInvocation();
-        Context ctx = ( ( Context ) invocation.getContextStack().peek() );
-        String principal = ( String ) ctx.getEnvironment().get(
-                Context.SECURITY_PRINCIPAL );
 
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
             BasicAttribute attribute = new BasicAttribute( "creatorsName" );
-            principal = principal == null ? DEFAULT_PRINCIPAL : principal;
-            attribute.add( principal );
+            attribute.add( getPrincipal( invocation ) );
             entry.put( attribute );
 
             attribute = new BasicAttribute( "createTimestamp" );
             attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
             entry.put( attribute );
         }
+    }
+
+
+    protected void modify( Name dn, int modOp, Attributes mods ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        // add operational attributes after call in case the operation fails
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            Attributes attributes = new BasicAttributes();
+            BasicAttribute attribute = new BasicAttribute( "modifiersName" );
+            attribute.add( getPrincipal( invocation ) );
+            attributes.put( attribute );
+
+            attribute = new BasicAttribute( "modifyTimestamp" );
+            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attributes.put( attribute );
+
+            nexus.modify( dn, DirContext.REPLACE_ATTRIBUTE, attributes );
+        }
+    }
+
+
+    protected void modify( Name dn, ModificationItem[] mods ) throws NamingException
+    {
+        super.modify( dn, mods );
+
+        Invocation invocation = getInvocation();
+
+        // add operational attributes after call in case the operation fails
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            Attributes attributes = new BasicAttributes();
+            BasicAttribute attribute = new BasicAttribute( "modifiersName" );
+            attribute.add( getPrincipal( invocation ) );
+            attributes.put( attribute );
+
+            attribute = new BasicAttribute( "modifyTimestamp" );
+            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attributes.put( attribute );
+
+            nexus.modify( dn, DirContext.REPLACE_ATTRIBUTE, attributes );
+        }
+    }
+
+
+    protected void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        // add operational attributes after call in case the operation fails
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            Attributes attributes = new BasicAttributes();
+            BasicAttribute attribute = new BasicAttribute( "modifiersName" );
+            attribute.add( getPrincipal( invocation ) );
+            attributes.put( attribute );
+
+            attribute = new BasicAttribute( "modifyTimestamp" );
+            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attributes.put( attribute );
+
+            Name newDn = ( Name ) dn.clone();
+            newDn.remove( newDn.size() - 1 );
+            newDn.add( newRdn );
+            nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
+        }
+    }
+
+
+    protected void move( Name oriChildName, Name newParentName ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        // add operational attributes after call in case the operation fails
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            Attributes attributes = new BasicAttributes();
+            BasicAttribute attribute = new BasicAttribute( "modifiersName" );
+            attribute.add( getPrincipal( invocation ) );
+            attributes.put( attribute );
+
+            attribute = new BasicAttribute( "modifyTimestamp" );
+            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attributes.put( attribute );
+
+            nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
+        }
+    }
+
+
+    protected void move( Name oriChildName, Name newParentName, String newRdn, boolean deleteOldRdn ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        // add operational attributes after call in case the operation fails
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            Attributes attributes = new BasicAttributes();
+            BasicAttribute attribute = new BasicAttribute( "modifiersName" );
+            attribute.add( getPrincipal( invocation ) );
+            attributes.put( attribute );
+
+            attribute = new BasicAttribute( "modifyTimestamp" );
+            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attributes.put( attribute );
+
+            nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
+        }
+    }
+
+
+    /**
+     * Gets the DN of the principal associated with this operation.
+     *
+     * @param invocation the invocation to get the principal for
+     * @return the principal as a String
+     * @throws NamingException if there are problems
+     */
+    private String getPrincipal( Invocation invocation ) throws NamingException
+    {
+        String principal;
+        Context ctx = ( ( Context ) invocation.getContextStack().peek() );
+        principal = ( String ) ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL );
+        return principal == null ? DEFAULT_PRINCIPAL : principal;
     }
 }
