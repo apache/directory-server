@@ -81,7 +81,7 @@
     </j:if>
   </preGoal>
 
-  <goal name="eve"> 
+  <goal name="eve:schema"> 
     <attainGoal name="eve:init"/>
     <attainGoal name="eve:generate"/>
   </goal> 
