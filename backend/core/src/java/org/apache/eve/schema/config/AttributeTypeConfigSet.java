@@ -23,6 +23,6 @@ package org.apache.eve.schema.config;
  *         Project</a>
  * @version $Rev$
  */
-public class AttributeTypeConfig implements AttributeTypeConfigSet
+public interface AttributeTypeConfigSet
 {
 }
