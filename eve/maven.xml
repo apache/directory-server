@@ -5,4 +5,8 @@
   <preGoal name="javaapp">
     <attainGoal name="java:compile"/>
   </preGoal>
+
+  <goal name="jar:jar">
+    <attainGoal name="javaapp"/>
+  </goal>
 </project>
