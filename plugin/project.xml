@@ -24,7 +24,6 @@
   <id>maven-eve-plugin</id>
   <name>maven-eve-plugin</name>
   <package>org.apache.eve.tools</package>
-  <currentVersion>0.8.0</currentVersion>
   <inceptionYear>2004</inceptionYear>
   <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
   <description>
