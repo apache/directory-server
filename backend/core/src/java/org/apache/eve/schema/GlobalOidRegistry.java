@@ -170,7 +170,9 @@ public class GlobalOidRegistry implements OidRegistry
      */
     public boolean hasOid( String name )
     {
-        return this.byName.contains( name ) || this.byOid.contains( name );
+        return this.byName.containsKey( name ) ||
+               this.byOid.containsKey( name )  ||
+               this.bootstrap.hasOid( name );
     }
 
 

@@ -32,6 +32,7 @@ public class SchemaService extends BaseInterceptor
 {
     /** the root nexus to all database partitions */
     private final RootNexus nexus;
+    private FilterService filterService;
     /** the global schema object registries */
     private final GlobalRegistries globalRegistries;
 
@@ -41,8 +42,10 @@ public class SchemaService extends BaseInterceptor
      *
      * @param nexus the root nexus to access all database partitions
      * @param globalRegistries the global schema object registries
+     * @param filterService
      */
-    public SchemaService( RootNexus nexus, GlobalRegistries globalRegistries )
+    public SchemaService( RootNexus nexus, GlobalRegistries globalRegistries,
+                          FilterService filterService )
     {
         this.nexus = nexus;
         if ( this.nexus == null )
@@ -54,6 +57,12 @@ public class SchemaService extends BaseInterceptor
         if ( this.globalRegistries == null )
         {
             throw new NullPointerException( "the global registries cannot be null" );
+        }
+
+        this.filterService = filterService;
+        if ( this.filterService == null )
+        {
+            throw new NullPointerException( "the filter service cannot be null" );
         }
     }
 }

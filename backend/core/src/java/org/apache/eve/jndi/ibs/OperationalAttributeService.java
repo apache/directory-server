@@ -20,6 +20,7 @@ package org.apache.eve.jndi.ibs;
 import javax.naming.Name;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
@@ -29,8 +30,11 @@ import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.InvocationStateEnum;
 import org.apache.eve.schema.GlobalRegistries;
+import org.apache.eve.schema.AttributeTypeRegistry;
 
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.UsageEnum;
 
 
 /**
@@ -48,6 +52,7 @@ public class OperationalAttributeService extends BaseInterceptor
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( DbSearchResult result, SearchControls controls )
+            throws NamingException
         {
             if ( controls.getReturningAttributes() == null )
             {
@@ -60,7 +65,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /** the lookup filter to register with filter service */
     private final LookupFilter LOOKUP_FILTER = new LookupFilter()
     {
-        public void filter( Name dn, Attributes entry )
+        public void filter( Name dn, Attributes entry ) throws NamingException
         {
             OperationalAttributeService.this.filter( entry );
         }
@@ -76,9 +81,8 @@ public class OperationalAttributeService extends BaseInterceptor
     /** the root nexus of the system */
     private final RootNexus nexus;
     /** a service used to filter search and lookup operations */
-    private FilterService filteringService;
-    /** the global schema object registries */
-    private final GlobalRegistries globalRegistries;
+    private final FilterService filteringService;
+    private final AttributeTypeRegistry registry;
 
 
     /**
@@ -97,11 +101,11 @@ public class OperationalAttributeService extends BaseInterceptor
             throw new NullPointerException( "the nexus cannot be null" );
         }
 
-        this.globalRegistries = globalRegistries;
-        if ( this.globalRegistries == null )
+        if ( globalRegistries == null )
         {
             throw new NullPointerException( "the global registries cannot be null" );
         }
+        this.registry = globalRegistries.getAttributeTypeRegistry();
 
         this.filteringService = filteringService;
         if ( this.filteringService == null )
@@ -254,12 +258,20 @@ public class OperationalAttributeService extends BaseInterceptor
      * @param attributes the resultant attributes to filter
      * @return true always
      */
-    private boolean filter( Attributes attributes )
+    private boolean filter( Attributes attributes ) throws NamingException
     {
-        attributes.remove( "creatorsName" );
-        attributes.remove( "modifiersName" );
-        attributes.remove( "createTimestamp" );
-        attributes.remove( "modifyTimestamp" );
+        NamingEnumeration list = attributes.getIDs();
+
+        while ( list.hasMore() )
+        {
+            String attrId = ( String ) list.next();
+            AttributeType type = registry.lookup( attrId );
+
+            if ( type.getUsage() != UsageEnum.USERAPPLICATIONS )
+            {
+                attributes.remove( attrId );
+            }
+        }
         return true;
     }
 

@@ -235,14 +235,12 @@ public class EveContextFactory implements InitialContextFactory
         provider.addInterceptor( interceptor, state );
 
         /*
-         * Create and add the Eve scheam service interceptor to both the
-         * before and after interceptor chains.
+         * Create and add the Eve schema service interceptor to before chain.
          */
         state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.POSTINVOCATION
+            InvocationStateEnum.PREINVOCATION
         };
-        interceptor = new SchemaService( root, globalRegistries );
+        interceptor = new SchemaService( root, globalRegistries, filterService );
         provider.addInterceptor( interceptor, state );
 
         /*
