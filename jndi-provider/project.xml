@@ -33,6 +33,12 @@
       <url>http://jakarta.apache.org/oro</url>
     </dependency>
     <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+    </dependency>
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.0</version>
@@ -66,6 +72,21 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-shared</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>eve-protocol</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>codec-stateful</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>seda</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>

@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.InputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.naming.*;
 import javax.naming.ldap.LdapContext;
@@ -35,6 +38,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
@@ -43,13 +47,22 @@ import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
+import org.apache.eve.protocol.LdapProtocolProvider;
 import org.apache.eve.exception.EveNamingException;
+import org.apache.eve.exception.EveConfigurationException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
 import org.apache.eve.schema.bootstrap.BootstrapRegistries;
 import org.apache.eve.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.eve.schema.*;
+import org.apache.seda.DefaultFrontend;
+import org.apache.seda.DefaultFrontendFactory;
+import org.apache.seda.listener.TCPListenerConfig;
+import org.apache.seda.protocol.InetServiceEntry;
+import org.apache.seda.protocol.TransportTypeEnum;
+import org.apache.seda.protocol.DefaultInetServicesDatabase;
+import org.apache.seda.protocol.ProtocolProvider;
 
 
 /**
@@ -67,11 +80,18 @@ import org.apache.eve.schema.*;
  */
 public class EveContextFactory implements InitialContextFactory
 {
+    /** the default LDAP port to use */
+    private static final int LDAP_PORT = 389;
+
     // for convenience
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
     private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
     private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
     private static final Name ADMIN_NAME = SystemPartition.getAdminDn();
+
+    // ------------------------------------------------------------------------
+    // Custom JNDI properties
+    // ------------------------------------------------------------------------
 
     /** property used to shutdown the system */
     public static final String SHUTDOWN_OP_ENV = "eve.operation.shutdown";
@@ -88,6 +108,12 @@ public class EveContextFactory implements InitialContextFactory
     /** bootstrap prop: if key is present it enables anonymous users */
     public static final String ANONYMOUS_ENV = "eve.enable.anonymous";
 
+
+    /** key used to disable the networking layer (wire protocol) */
+    public static final String DISABLE_PROTOCOL = "eve.net.disable.protocol";
+    public static final String EVE_LDAP_PORT = "eve.net.ldap.port";
+    public static final String EVE_LDAPS_PORT = "eve.net.ldaps.port";
+
     // ------------------------------------------------------------------------
     // Custom JNDI properties for adding new application partitions
     // ------------------------------------------------------------------------
@@ -100,12 +126,6 @@ public class EveContextFactory implements InitialContextFactory
     public static final String INDICES_BASE_ENV = "eve.db.partition.indices.";
     /** the envprop key base to the Attributes for the context nexus entry */
     public static final String ATTRIBUTES_BASE_ENV = "eve.db.partition.attributes.";
-
-
-    // ------------------------------------------------------------------------
-    //
-    // ------------------------------------------------------------------------
-
     /** default schema classes for the SCHEMAS_ENV property if not set */
     private static final String[] DEFAULT_SCHEMAS = new String[]
     {
@@ -121,6 +141,8 @@ public class EveContextFactory implements InitialContextFactory
         "org.apache.eve.schema.bootstrap.SystemSchema"
     };
 
+
+
     // ------------------------------------------------------------------------
     // Members
     // ------------------------------------------------------------------------
@@ -129,11 +151,15 @@ public class EveContextFactory implements InitialContextFactory
     private EveJndiProvider provider = null;
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable initialEnv;
-
-
     private SystemPartition system;
     private GlobalRegistries globalRegistries;
     private RootNexus nexus;
+
+
+    private DefaultFrontend fe;
+    private InetServiceEntry srvEntry;
+    private ProtocolProvider proto;
+    private TCPListenerConfig tcpConfig;
 
 
     /**
@@ -167,7 +193,8 @@ public class EveContextFactory implements InitialContextFactory
         {
             try
             {
-                provider.shutdown();
+                this.provider.shutdown();
+                this.fe.stop();
             }
             catch( Throwable t )
             {
@@ -226,6 +253,12 @@ public class EveContextFactory implements InitialContextFactory
             if ( createMode )
             {
                 importLdif();
+            }
+
+            // fire up the front end if we have not explicitly disabled it
+            if ( ! initialEnv.containsKey( DISABLE_PROTOCOL ) )
+            {
+                startUpWireProtocol();
             }
         }
 
@@ -439,6 +472,53 @@ public class EveContextFactory implements InitialContextFactory
         if ( initialEnv.get( PARTITIONS_ENV ) != null )
         {
             startUpAppPartitions( wkdir );
+        }
+    }
+
+
+    private void startUpWireProtocol() throws NamingException
+    {
+        proto = new LdapProtocolProvider();
+
+        try
+        {
+            fe = ( DefaultFrontend ) new DefaultFrontendFactory().create();
+        }
+        catch ( Exception e )
+        {
+            String msg = "Failed to initialize the frontend subsystem!";
+            NamingException ne = new EveConfigurationException( msg );
+            ne.setRootCause( e );
+            ne.setResolvedName( new LdapName( ( String ) initialEnv.get( Context.PROVIDER_URL ) ) );
+            throw ne;
+        }
+
+        int port = PropertiesUtils.get( initialEnv, EVE_LDAP_PORT, LDAP_PORT );
+        srvEntry = new InetServiceEntry( proto.getName(), port, proto, TransportTypeEnum.TCP );
+        ( ( DefaultInetServicesDatabase ) fe.getInetServicesDatabase()).addEntry( srvEntry );
+
+        try
+        {
+            tcpConfig = new TCPListenerConfig( InetAddress.getLocalHost(), srvEntry );
+        }
+        catch ( UnknownHostException e )
+        {
+            e.printStackTrace();
+            String msg = "Could not recognize the host!";
+            EveConfigurationException e2 = new EveConfigurationException( msg );
+            e2.setRootCause( e );
+        }
+
+        try
+        {
+            fe.getTCPListenerManager().bind( tcpConfig );
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+            String msg = "We failed to bind to the port!";
+            EveConfigurationException e2 = new EveConfigurationException( msg );
+            e2.setRootCause( e );
         }
     }
 

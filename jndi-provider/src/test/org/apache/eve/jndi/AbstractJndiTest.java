@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
+import org.apache.seda.listener.AvailablePortFinder;
 
 
 /**
@@ -60,6 +61,10 @@ public abstract class AbstractJndiTest extends TestCase
     {
         super.setUp();
         doDelete( new File( "target" + File.separator + "eve" ) );
+
+        extras.put( EveContextFactory.EVE_LDAP_PORT,
+                String.valueOf( AvailablePortFinder.getNextAvailable( 1025 ) ) );
+
         setSysRoot( "uid=admin,ou=system", "testing" );
     }
 
