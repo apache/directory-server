@@ -29,7 +29,7 @@
 
         <tr>
           <td>
-            <a href="../projects/server-core/index.html">core</a>
+            <a href="../projects/apacheds-core/index.html">core</a>
           </td>
           <td>
             The server's core contains all of it's backend subsystems.  The
@@ -43,7 +43,7 @@
 
         <tr>
           <td>
-            <a href="../projects/server-shared/index.html">shared</a>
+            <a href="../projects/apacheds-shared/index.html">shared</a>
           </td>
           <td>
             Code shared by the core and plugin separated to prevent cyclic deps
@@ -52,7 +52,7 @@
 
         <tr>
           <td>
-            <a href="../projects/server-protocol/index.html">protocol</a>
+            <a href="../projects/apacheds-protocol/index.html">protocol</a>
           </td>
           <td>
             The server's LDAP Protocol Provider
