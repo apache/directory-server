@@ -1,0 +1,20 @@
+This is where I am with the migration process into the form we intend to 
+have for the final configuration of Eve's backend.
+
+backend-api/                        - not done
+backend-database-impl/              - not done
+backend-database-spi/               - not done
+backend-database-viewer/            - not done
+backend-nexus-api/                  - not done
+backend-nexus-impl/                 - not done
+bootstrap-attribute-type-manager/   - not done
+bootstrap-matching-rule-manager/    - DONE
+bootstrap-object-class-manager/     - not done
+bootstrap-syntax-manager/           - DONE
+comparator-registry/                - DONE
+default-backend-impl/               - not done
+jndi-provider/                      - not done
+normalizer-registry/                - not done
+oid-registry/                       - DONE
+schema-api/                         - partially
+system-backend-impl/                - not done
