@@ -3,7 +3,7 @@
 <project>
     <groupId>incubator-directory</groupId>
     <artifactId>eve-parent</artifactId>
-    <name>Eve Directory Server</name>
+    <name>Apache Directory Server</name>
     <currentVersion>0.8-SNAPSHOT</currentVersion>
     
     <organization>
@@ -13,13 +13,13 @@
     </organization>
 
     <inceptionYear>2003</inceptionYear>
-    <package>org.apache.eve</package>
+    <package>org.apache.ldap.server</package>
     
     <logo>http://incubator.apache.org/directory/images/apache-directory-logo.png</logo>
 
-    <url>http://incubator.apache.org/directory/eve/</url>
+    <url>http://incubator.apache.org/directory/ads/</url>
     
-    <issueTrackingUrl>http://issues.apache.org/jira/browse/DIREVE</issueTrackingUrl>
+    <issueTrackingUrl>http://issues.apache.org/jira/browse/DIRADS</issueTrackingUrl>
     <siteAddress>directory.apache.org</siteAddress>
     <!-- TODO: ... -->
     <siteDirectory>/home/akarasulu/public_html</siteDirectory>
@@ -31,33 +31,33 @@
 
     <repository>
       <connection>
-        scm:svn:http://svn.apache.org/repos/asf/incubator:directory/eve/trunk/${module.path}
+        scm:svn:http://svn.apache.org/repos/asf/incubator:directory/ads/trunk/${module.path}
       </connection>
 
       <url>
-        http://svn.apache.org/viewcvs.cgi/incubator/directory/eve/trunk/${module.path}/?root=Apache-SVN
+        http://svn.apache.org/viewcvs.cgi/incubator/directory/ads/trunk/${module.path}/?root=Apache-SVN
       </url>
       
       <developerConnection>
-        https://svn.apache.org/repos/asf/incubator/directory/eve/trunk/${module.path}
+        https://svn.apache.org/repos/asf/incubator/directory/ads/trunk/${module.path}
       </developerConnection>
     </repository>
   
-    <shortDescription>Eve Directory Server</shortDescription>
+    <shortDescription>Apache Directory Server</shortDescription>
       
     <description>
-      Eve is an embeddable LDAPv3 directory server based on a SEDA 
-      architecture.  Eve is designed to be completely pluggable in every aspect
+      The Apache Directory Server (ADS) is an embeddable LDAPv3 directory 
+      server. ADS is designed to be completely pluggable in every aspect
       including backends and frontend handlers making making it an ideal 
       experimentation platform for LDAP protocol testing, and for use
       in building other tools like like meta directories, and virtual 
-      directories.  Eve introduces stored procedures, triggers, views, and 
-      queues to the world of LDAP.
+      directories.  ADS aims to introduces stored procedures, triggers, 
+      views, and queues to the world of LDAP.
     </description>
 
     <mailingLists>
       <mailingList>
-        <name>Apache Directory Developement - use [eve] prefix</name>
+        <name>Apache Directory Developement - use [dirserv] prefix</name>
           <subscribe>
             directory-dev-subscribe@incubator.apache.org
           </subscribe>
@@ -99,7 +99,7 @@
               
         <!-- TODO: required? -->
         <excludes>
-            <exclude>**/Abstract*Test*</exclude>
+          <exclude>**/Abstract*Test*</exclude>
         </excludes>
         
         <!-- TODO: are all these required? Should have a src/test/resources directory -->
@@ -119,32 +119,31 @@
       </unitTest>
     
       <!-- TODO: are all these required? Should have a src/main/resources directory -->
-      <resources>
-        <resource>
-          <directory>${basedir}/src/java</directory>
-          <includes>
-            <include>**/*.dtd</include>
-            <include>**/*.gif</include>
-            <include>**/*.properties</include>
-            <include>**/*.ldif</include>
-            <include>**/*.x*</include>
-          </includes>
-        </resource>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.dtd</include>
+          <include>**/*.gif</include>
+          <include>**/*.properties</include>
+          <include>**/*.ldif</include>
+          <include>**/*.x*</include>
+        </includes>
+      </resource>
               
-        <!-- TODO: Is this really appropriate given the svn layout? probably breaks on tags/branches - make a local copy instead -->
-        <resource>
-          <directory>${basedir}/../../../</directory>
-          <targetPath>META-INF</targetPath>
-          <includes>
-            <include>LICENSE.txt</include>
-            <include>NOTICE.txt</include>
-            <include>INCUBATOR-DISCLAIMER.txt</include>
-          </includes>
-        </resource>
+      <resource>
+        <directory>${basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE.txt</include>
+          <include>NOTICE.txt</include>
+          <include>INCUBATOR-DISCLAIMER.txt</include>
+        </includes>
+      </resource>
 
-      </resources>
-      <jars></jars>
-    </build>
+    </resources>
+    <jars></jars>
+  </build>
 
   <developers>
     <developer>
@@ -160,10 +159,10 @@
   </developers>
 
     
-    <!-- TODO: Clover? -->
-    <reports>
-      <report>maven-license-plugin</report>
-    </reports>
+  <!-- TODO: Clover? -->
+  <reports>
+    <report>maven-license-plugin</report>
+  </reports>
 </project>
 
 
