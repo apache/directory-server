@@ -25,9 +25,6 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.jndi.Interceptor;
-import org.apache.ldap.server.jndi.InvocationMethodEnum;
-import org.apache.ldap.server.jndi.EveContext;
 import org.apache.eve.auth.LdapPrincipal;
 
 

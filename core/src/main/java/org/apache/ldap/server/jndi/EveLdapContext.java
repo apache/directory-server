@@ -27,7 +27,6 @@ import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.server.jndi.EveDirContext;
 
 import org.apache.eve.PartitionNexus;
 import org.apache.eve.auth.LdapPrincipal;

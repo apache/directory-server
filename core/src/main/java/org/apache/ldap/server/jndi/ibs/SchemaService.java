@@ -30,7 +30,6 @@ import javax.naming.directory.SearchResult;
 import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.Invocation;
 import org.apache.ldap.server.jndi.InvocationStateEnum;
-import org.apache.ldap.server.jndi.Invocation;
 import org.apache.eve.RootNexus;
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.ldap.server.schema.GlobalRegistries;
@@ -44,9 +43,6 @@ import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.jndi.ibs.FilterService;
-import org.apache.ldap.server.jndi.ibs.LookupFilter;
 
 
 /**

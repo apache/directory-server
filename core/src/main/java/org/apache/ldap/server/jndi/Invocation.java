@@ -26,9 +26,6 @@ import java.util.Collections;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.apache.ldap.server.jndi.InvocationStateEnum;
-import org.apache.ldap.server.jndi.InvocationMethodEnum;
-
 
 /**
  * Object representing a nexus method invocation through the Server Side JNDI

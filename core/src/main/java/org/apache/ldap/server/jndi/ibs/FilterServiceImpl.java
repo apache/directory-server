@@ -34,9 +34,6 @@ import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.jndi.ibs.FilterService;
-import org.apache.ldap.server.jndi.InvocationStateEnum;
-import org.apache.ldap.server.jndi.BaseInterceptor;
 
 
 /**

@@ -34,11 +34,6 @@ import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.GlobalRegistries;
-import org.apache.ldap.server.jndi.ibs.FilterService;
-import org.apache.ldap.server.jndi.ibs.LookupFilter;
-import org.apache.ldap.server.jndi.InvocationStateEnum;
 
 
 /**

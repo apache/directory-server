@@ -22,8 +22,6 @@ import java.util.ArrayList;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.Interceptor;
-
 
 /**
  * An Interceptor composed of a pipeline of interceptors that can be called 
