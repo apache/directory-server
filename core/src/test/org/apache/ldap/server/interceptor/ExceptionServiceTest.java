@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.ibs;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
@@ -37,7 +37,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerExceptionServiceTest extends AbstractServerTest
+public class ExceptionServiceTest extends AbstractServerTest
 {
     // ------------------------------------------------------------------------
     // Search Operation Tests

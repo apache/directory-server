@@ -43,7 +43,7 @@ import java.util.HashSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class OperationalAttributeInterceptor extends BaseInterceptor
+public class OperationalAttributeService extends BaseInterceptor
 {
     /**
      * the database search result filter to register with filter service
@@ -73,7 +73,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Creates the operational attribute management service interceptor.
      */
-    public OperationalAttributeInterceptor()
+    public OperationalAttributeService()
     {
     }
 
@@ -297,7 +297,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )
         {
-            OperationalAttributeInterceptor.this.filter( entry );
+            OperationalAttributeService.this.filter( entry );
             return;
         }
 
