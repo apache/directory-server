@@ -14,42 +14,70 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.protocol;
+package org.apache.ldap.server.protocol;
 
 
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
+import javax.naming.directory.DirContext;
 
 import org.apache.apseda.listener.ClientKey;
 import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 
-import org.apache.ldap.common.message.*;
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapException;
-import org.apache.apseda.listener.ClientKey;
 
 
 /**
- * A single reply handler for {@link org.apache.ldap.common.message.AddRequest}s.
+ * A single reply handler for {@link org.apache.ldap.common.message.ModifyDnRequest}s.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AddHandler extends AbstractSingleReplyHandler
+public class ModifyDnHandler extends AbstractSingleReplyHandler
 {
+    /**
+     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
+     */
     public Object handle( ClientKey key, Object request )
     {
-        AddRequest req = ( AddRequest ) request;
-        AddResponse resp = new AddResponseImpl( req.getMessageId() );
+        ModifyDnRequest req = ( ModifyDnRequest ) request;
+        ModifyDnResponse resp = new ModifyDnResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
 
         try
         {
             InitialLdapContext ictx = SessionRegistry.getSingleton()
                     .getInitialLdapContext( key, null, true );
-            LdapContext ctx = ( LdapContext ) ictx.lookup( "" );
-            ctx.createSubcontext( req.getName(), req.getEntry() );
+            DirContext ctx = ( DirContext ) ictx.lookup( "" );
+            String deleteRDN = String.valueOf( req.getDeleteOldRdn() );
+            ctx.addToEnvironment( "java.naming.ldap.deleteRDN", deleteRDN );
+
+            if ( req.isMove() )
+            {
+                LdapName oldDn = new LdapName( req.getName() );
+                LdapName newDn = new LdapName( req.getNewSuperior() );
+
+                if ( req.getNewRdn() != null )
+                {
+                    newDn.add( req.getNewRdn() );
+                }
+                else
+                {
+                    newDn.add( oldDn.getRdn() );
+                }
+
+                ctx.rename( new LdapName( req.getName() ), newDn );
+            }
+            else
+            {
+                LdapName newDn = new LdapName( req.getName() );
+                newDn.remove( newDn.size() - 1 );
+                newDn.add( req.getNewRdn() );
+                ctx.rename( new LdapName( req.getName() ), newDn );
+            }
         }
         catch ( NamingException e )
         {

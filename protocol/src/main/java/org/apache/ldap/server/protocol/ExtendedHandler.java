@@ -14,36 +14,29 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.protocol;
+package org.apache.ldap.server.protocol;
 
 
 import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractNoReplyHandler;
+import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 
-import org.apache.ldap.common.message.AbandonRequest;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractNoReplyHandler;
 
 
 /**
- * Handler for {@link org.apache.ldap.common.message.AbandonRequest}s.
+ * A single reply handler for {@link org.apache.ldap.common.message.ExtendedRequest}s.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonHandler extends AbstractNoReplyHandler
+public class ExtendedHandler extends AbstractSingleReplyHandler
 {
-    public void handle( ClientKey key, Object request )
+    /**
+     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
+     */
+    public Object handle( ClientKey key, Object request )
     {
-        AbandonRequest req = ( AbandonRequest ) request;
-        int abandonedId = req.getAbandoned();
-
-        if ( abandonedId < 0 )
-        {
-            return;
-        }
-        
-        throw new NotImplementedException( "don't know how to do this just yet" );
+        throw new NotImplementedException( "handle in org.apache.ldap.server.protocol.ExtendedHandler not implemented!" );
     }
 }

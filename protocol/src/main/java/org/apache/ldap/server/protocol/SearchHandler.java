@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.protocol;
+package org.apache.ldap.server.protocol;
 
 
 import java.util.*;
@@ -34,6 +34,7 @@ import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapException;
+import org.apache.ldap.server.protocol.SessionRegistry;
 import org.apache.apseda.listener.ClientKey;
 
 

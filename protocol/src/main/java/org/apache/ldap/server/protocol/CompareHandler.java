@@ -14,39 +14,39 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.protocol;
+package org.apache.ldap.server.protocol;
 
 
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
+import javax.naming.directory.Attribute;
 
-import org.apache.apseda.listener.ClientKey;
 import org.apache.apseda.protocol.AbstractSingleReplyHandler;
+import org.apache.apseda.listener.ClientKey;
 
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.apseda.listener.ClientKey;
+import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 
 
 /**
- * A single reply handler for {@link org.apache.ldap.common.message.ModifyRequest}s.
+ * A single reply handler for {@link org.apache.ldap.common.message.CompareRequest}s.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyHandler extends AbstractSingleReplyHandler
+public class CompareHandler extends AbstractSingleReplyHandler
 {
-    private static final ModificationItem[] EMPTY = new ModificationItem[0];
     /**
-     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
+     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(org.apache.apseda.listener.ClientKey,Object)
      */
     public Object handle( ClientKey key, Object request )
     {
-        ModifyRequest req = ( ModifyRequest ) request;
-        ModifyResponse resp = new ModifyResponseImpl( req.getMessageId() );
+        CompareRequest req = ( CompareRequest ) request;
+        CompareResponse resp = new CompareResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
 
         try
@@ -54,8 +54,20 @@ public class ModifyHandler extends AbstractSingleReplyHandler
             InitialLdapContext ictx = SessionRegistry.getSingleton()
                     .getInitialLdapContext( key, null, true );
             DirContext ctx = ( DirContext ) ictx.lookup( "" );
-            Object[] mods = req.getModificationItems().toArray( EMPTY );
-            ctx.modifyAttributes( req.getName(), ( ModificationItem[] ) mods );
+            Attribute attr = ctx.getAttributes( req.getName() ).get( req.getAttributeId() );
+
+            if ( attr == null )
+            {
+                resp.getLdapResult().setResultCode( ResultCodeEnum.COMPAREFALSE );
+            }
+            else if ( attr.contains( req.getAssertionValue() ) )
+            {
+                resp.getLdapResult().setResultCode( ResultCodeEnum.COMPARETRUE );
+            }
+            else
+            {
+                resp.getLdapResult().setResultCode( ResultCodeEnum.COMPAREFALSE );
+            }
         }
         catch ( NamingException e )
         {
@@ -83,7 +95,6 @@ public class ModifyHandler extends AbstractSingleReplyHandler
             return resp;
         }
 
-        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         resp.getLdapResult().setMatchedDn( req.getName() );
         return resp;
     }

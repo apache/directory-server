@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.protocol;
+package org.apache.ldap.server.protocol;
 
 
 import java.util.*;
@@ -31,6 +31,7 @@ import org.apache.apseda.protocol.RequestHandler;
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.message.spi.Provider;
 import org.apache.ldap.common.exception.LdapNamingException;
+import org.apache.ldap.server.protocol.*;
 
 import org.apache.asn1.codec.stateful.StatefulDecoder;
 import org.apache.asn1.codec.stateful.StatefulEncoder;

@@ -14,45 +14,42 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.protocol;
+package org.apache.ldap.server.protocol;
 
 
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
-import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.apseda.listener.ClientKey;
 import org.apache.apseda.protocol.AbstractSingleReplyHandler;
-import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 
-import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.message.*;
+import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.exception.LdapException;
+import org.apache.apseda.listener.ClientKey;
 
 
 /**
- * A single reply handler for {@link org.apache.ldap.common.message.DeleteRequest}s.
+ * A single reply handler for {@link org.apache.ldap.common.message.AddRequest}s.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeleteHandler extends AbstractSingleReplyHandler
+public class AddHandler extends AbstractSingleReplyHandler
 {
-    /**
-     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
-     */
     public Object handle( ClientKey key, Object request )
     {
-        DeleteRequest req = ( DeleteRequest ) request;
-        DeleteResponse resp = new DeleteResponseImpl( req.getMessageId() );
+        AddRequest req = ( AddRequest ) request;
+        AddResponse resp = new AddResponseImpl( req.getMessageId() );
         resp.setLdapResult( new LdapResultImpl( resp ) );
 
         try
         {
             InitialLdapContext ictx = SessionRegistry.getSingleton()
                     .getInitialLdapContext( key, null, true );
-            DirContext ctx = ( DirContext ) ictx.lookup( "" );
-            ctx.destroySubcontext( req.getName() );
+            LdapContext ctx = ( LdapContext ) ictx.lookup( "" );
+            ctx.createSubcontext( req.getName(), req.getEntry() );
         }
         catch ( NamingException e )
         {

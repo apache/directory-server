@@ -14,29 +14,15 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.protocol;
-
-
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractSingleReplyHandler;
-
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.apseda.listener.ClientKey;
+package org.apache.ldap.server.protocol;
 
 
 /**
- * A single reply handler for {@link org.apache.ldap.common.message.ExtendedRequest}s.
+ * Document this class.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedHandler extends AbstractSingleReplyHandler
+public interface LdapProviderMonitor
 {
-    /**
-     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
-     */
-    public Object handle( ClientKey key, Object request )
-    {
-        throw new NotImplementedException( "handle in org.apache.eve.protocol.ExtendedHandler not implemented!" );
-    }
 }
