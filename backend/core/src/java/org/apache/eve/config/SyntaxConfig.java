@@ -81,15 +81,15 @@ public class SyntaxConfig
         syntaxes[6].setHumanReadible( true );
 
         syntaxes[7] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.8" );
-        syntaxes[7].setName( "" );
+        syntaxes[7].setName( "Certificate" );
         syntaxes[7].setHumanReadible( false );
 
         syntaxes[8] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.9" );
-        syntaxes[8].setName( "" );
+        syntaxes[8].setName( "Certificate List" );
         syntaxes[8].setHumanReadible( false );
 
         syntaxes[9] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.10" );
-        syntaxes[9].setName( "" );
+        syntaxes[9].setName( "Certificate Pair" );
         syntaxes[9].setHumanReadible( false );
 
         /*
