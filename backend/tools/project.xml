@@ -19,63 +19,43 @@
 
 
 <project>
-  <!-- the version of maven's project object model -->
-
-  <pomVersion>3</pomVersion>
-  <!-- a unique name for this project -->
-
-  <id>tools</id>
-  <!-- a short but descriptive name for the project -->
+  <extend>${basedir}/../../project.xml</extend>
+  <groupId>incubator-directory</groupId>
+  <id>eve-tools</id>
 
   <name>Eve Tools</name>
-  <!-- The version of the project under development, e.g.
-       1.1, 1.2, 2.0-SNAPSHOT -->
-
-  <currentVersion>1.0</currentVersion>
-  <!-- details about the organization that 'owns' the project -->
-
-  <organization>
-    <name>Apache Software Foundation</name>
-    <url>http://www.apache.org/</url>
-    <logo>http://maven.apache.org/images/jakarta-logo-blue.gif</logo>
-  </organization>
-  <!-- the year the project started -->
-
-  <inceptionYear>2002</inceptionYear>
   <package>org.apache.eve.tools</package>
-  <logo>http://maven.apache.org/images/maven.jpg</logo>
-  <description>A collection of example projects showing how to use maven in different situations</description>
-  <!-- a short description of what the project does -->
+  <currentVersion>SNAPSHOT</currentVersion>
+  <inceptionYear>2004</inceptionYear>
 
-  <shortDescription>How to use maven in different situations</shortDescription>
-  <!-- the project home page -->
+  <shortDescription>Eve Tools</shortDescription>
 
-  <url>http://maven.apache.org/reference/plugins/examples/</url>
-  <issueTrackingUrl>http://nagoya.apache.org/scarab/servlet/scarab/</issueTrackingUrl>
-  <siteAddress>jakarta.apache.org</siteAddress>
-  <siteDirectory>/www/maven.apache.org/reference/plugins/examples/</siteDirectory>
-  <distributionDirectory>/www/maven.apache.org/builds/</distributionDirectory>
-  <!-- the version control repository and http url for online access
-       the connection element has the form:
-       scm:<system>:<system specific connection string> -->
+  <description>
+    A collection of tools to be used to develop Eve and program for Eve.
+  </description>
 
-  <repository>
-    <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:maven-plugins/examples</connection>
-    <url>http://cvs.apache.org/viewcvs/maven-plugins/examples/</url>
-  </repository>
-  <!-- any mailing lists for the project -->
+  <dependencies>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
 
-  <mailingLists/>
-  <!-- who the developers are for the project -->
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity-dep</artifactId>
+      <version>1.4</version>
+    </dependency>
 
-  <developers/>
-  <!-- jar files the project is dependent on -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+    </dependency>
 
-  <dependencies/>
-  <!-- build information for the project -->
+  </dependencies>
 
   <build>
-    <nagEmailAddress>turbine-maven-dev@jakarta.apache.org</nagEmailAddress>
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
     <unitTest>
