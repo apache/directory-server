@@ -3,17 +3,22 @@ package org.apache.eve.jndi;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.ArrayList;
 import java.io.File;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.Name;
+import javax.naming.directory.Attributes;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.Normalizer;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
+import org.apache.eve.ApplicationPartition;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
@@ -22,6 +27,7 @@ import org.apache.eve.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.eve.schema.AttributeTypeRegistry;
 import org.apache.eve.schema.OidRegistry;
 import org.apache.eve.schema.GlobalRegistries;
+import org.apache.eve.schema.MatchingRuleRegistry;
 
 
 /**
@@ -49,6 +55,11 @@ public class EveContextFactory implements InitialContextFactory
     public static final String DEFAULT_WKDIR = "eve";
     /** a comma separated list of schema class files to load */
     public static final String SCHEMAS_ENV = "eve.schemas";
+
+    // ------------------------------------------------------------------------
+    //
+    // ------------------------------------------------------------------------
+
     /** default schema classes for the SCHEMAS_ENV property if not set */
     private static final String[] DEFAULT_SCHEMAS = new String[]
     {
@@ -64,10 +75,32 @@ public class EveContextFactory implements InitialContextFactory
         "org.apache.eve.schema.bootstrap.SystemSchema"
     };
 
+    // ------------------------------------------------------------------------
+    // Custom JNDI properties for adding new application partitions
+    // ------------------------------------------------------------------------
+
+    /** a comma separated list of partition names */
+    public static final String PARTITIONS_ENV = "eve.db.partitions";
+    /** the envprop key base to the suffix of a partition */
+    public static final String SUFFIX_BASE_ENV = "eve.db.partition.suffix.";
+    /** the envprop key base to the space separated list of indices for a partition */
+    public static final String INDICES_BASE_ENV = "eve.db.partition.indices.";
+    /** the envprop key base to the Attributes for the context root entry */
+    public static final String ATTRIBUTES_BASE_ENV = "eve.db.partition.attributes.";
+
+    // ------------------------------------------------------------------------
+    // Members
+    // ------------------------------------------------------------------------
+
     /** The singleton EveJndiProvider instance */
     private EveJndiProvider provider = null;
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable initialEnv;
+
+
+    private SystemPartition system;
+    private GlobalRegistries globalRegistries;
+    private RootNexus root;
 
 
     /**
@@ -199,9 +232,9 @@ public class EveContextFactory implements InitialContextFactory
             attributeTypeRegistry.lookup( SystemPartition.UPDN_OID )
         };
 
-        SystemPartition system = new SystemPartition( db, eng, attributes );
-        GlobalRegistries globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
-        RootNexus root = new RootNexus( system );
+        system = new SystemPartition( db, eng, attributes );
+        globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
+        root = new RootNexus( system );
         provider = new EveJndiProvider( root );
 
 
@@ -255,6 +288,99 @@ public class EveContextFactory implements InitialContextFactory
                 filterService );
         provider.addInterceptor( interceptor, state );
 
+        if ( initialEnv.get( PARTITIONS_ENV ) != null )
+        {
+            initAppPartitions( wkdir );
+        }
+    }
+
+
+    private void initAppPartitions( String eveWkdir ) throws NamingException
+    {
+        OidRegistry oidRegistry = globalRegistries.getOidRegistry();
+        AttributeTypeRegistry attributeTypeRegistry;
+        attributeTypeRegistry = globalRegistries.getAttributeTypeRegistry();
+        MatchingRuleRegistry reg = globalRegistries.getMatchingRuleRegistry();
+
+        // start getting all the parameters from the initial environment
+        String[] names = ( ( String ) initialEnv.get( PARTITIONS_ENV ) ).split( " " );
+
+        for ( int ii = 0; ii < names.length; ii++ )
+        {
+            // ----------------------------------------------------------------
+            // create working directory under eve directory for app partition
+            // ----------------------------------------------------------------
+
+            String suffix = ( String ) initialEnv.get( SUFFIX_BASE_ENV + names[ii] );
+            String wkdir = eveWkdir + File.separator + names[ii];
+            mkdirs( eveWkdir, names[ii] );
+
+
+            // ----------------------------------------------------------------
+            // create the database/store
+            // ----------------------------------------------------------------
+
+            Name upSuffix = new LdapName( suffix );
+            Normalizer dnNorm = reg.lookup( "distinguishedNameMatch" ).getNormalizer();
+            Name normSuffix = new LdapName( ( String ) dnNorm.normalize( suffix ) );
+            Database db = new JdbmDatabase( upSuffix, wkdir );
+
+            // ----------------------------------------------------------------
+            // create the search engine using db, enumerators and evaluators
+            // ----------------------------------------------------------------
+
+            ExpressionEvaluator evaluator;
+            evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
+            ExpressionEnumerator enumerator;
+            enumerator = new ExpressionEnumerator( db, evaluator );
+            SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
+
+            // ----------------------------------------------------------------
+            // fill up a list with the AttributeTypes for the system indices
+            // ----------------------------------------------------------------
+
+            ArrayList attributeTypeList = new ArrayList();
+            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ) );
+            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ) );
+            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ) );
+            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.NDN_OID ) );
+            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ) );
+            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ) );
+            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.UPDN_OID ) );
+
+            // ----------------------------------------------------------------
+            // if user indices are specified add those attribute types as well
+            // ----------------------------------------------------------------
+
+            if ( initialEnv.containsKey( INDICES_BASE_ENV + names[ii] ) )
+            {
+                String[] indices = ( ( String ) initialEnv.get( INDICES_BASE_ENV
+                        + names[ii] ) ).split( " " );
+
+                for ( int jj = 0; jj < indices.length; jj++ )
+                {
+                    attributeTypeList.add( attributeTypeRegistry.lookup( indices[jj] ) );
+                }
+            }
+
+            // ----------------------------------------------------------------
+            // fire up the appPartition & register it with the next
+            // ----------------------------------------------------------------
+
+            AttributeType[] indexTypes = ( AttributeType[] ) attributeTypeList
+                    .toArray( new AttributeType[attributeTypeList.size()] );
+            ApplicationPartition partition = new ApplicationPartition( upSuffix,
+                    normSuffix, db, eng, indexTypes );
+            root.register( partition );
+
+            // ----------------------------------------------------------------
+            // add the root context entry
+            // ----------------------------------------------------------------
+
+            Attributes rootEntry = ( Attributes ) initialEnv.get(
+                    ATTRIBUTES_BASE_ENV + names[ii] );
+            partition.add( suffix, normSuffix, rootEntry );
+        }
     }
 
 

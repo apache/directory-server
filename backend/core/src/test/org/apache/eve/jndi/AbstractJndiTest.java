@@ -41,6 +41,9 @@ public class AbstractJndiTest extends TestCase
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
+    /** extra environment parameters that can be added before setUp */
+    protected Hashtable extras = new Hashtable();
+
 
     /**
      * Get's the initial context factory for the provider's ou=system context
@@ -63,6 +66,7 @@ public class AbstractJndiTest extends TestCase
         }
 
         Hashtable env = new Hashtable();
+        env.putAll( extras );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
