@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve;
+package org.apache.ldap.server;
 
 
 import java.util.Properties;
@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.ldap.common.util.PropertiesUtils;
-import org.apache.eve.jndi.EnvKeys;
+import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.seda.listener.AvailablePortFinder;
 
 
@@ -53,12 +53,12 @@ public class EveMain
 
         if ( args.length > 0 )
         {
-            System.out.println( "Eve: loading properties from " + args[0] );
+            System.out.println( "server: loading properties from " + args[0] );
             env = PropertiesUtils.getProperties( new File( args[0] ) );
         }
         else
         {
-            System.out.println( "Eve: using default properties ..." );
+            System.out.println( "server: using default properties ..." );
             env = new Properties();
         }
 
@@ -69,7 +69,7 @@ public class EveMain
             if ( ! AvailablePortFinder.available( port ) )
             {
                 port = AvailablePortFinder.getNextAvailable( 1024 );
-                System.out.println( "Eve: standard ldap port " + LDAP_PORT
+                System.out.println( "server: standard ldap port " + LDAP_PORT
                         + " is not available, using " + port + " instead" );
             }
 
@@ -77,7 +77,7 @@ public class EveMain
         }
 
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
-        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
 
         try
         {
@@ -88,7 +88,7 @@ public class EveMain
             e.printStackTrace();
         }
 
-        System.out.println( "Eve: started in "
+        System.out.println( "server: started in "
                 + ( System.currentTimeMillis() - startTime )
                 + " milliseconds");
 
