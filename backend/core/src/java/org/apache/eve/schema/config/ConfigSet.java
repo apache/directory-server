@@ -49,5 +49,5 @@ public interface ConfigSet
      *
      * @return the String names of schema dependencies
      */
-    String[] getDependentSchemas();
+    String[] getDependencies();
 }

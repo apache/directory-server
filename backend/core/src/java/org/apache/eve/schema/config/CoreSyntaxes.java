@@ -121,7 +121,7 @@ public class CoreSyntaxes implements SyntaxConfigSet
     }
 
 
-    public String[] getDependentSchemas()
+    public String[] getDependencies()
     {
         return EMPTY_ARRAY;
     }
