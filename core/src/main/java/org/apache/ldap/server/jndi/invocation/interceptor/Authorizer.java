@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.call.interceptor;
+package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
 import java.util.Properties;
@@ -35,18 +35,18 @@ import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.call.Call;
-import org.apache.ldap.server.jndi.call.Delete;
-import org.apache.ldap.server.jndi.call.HasEntry;
-import org.apache.ldap.server.jndi.call.List;
-import org.apache.ldap.server.jndi.call.Lookup;
-import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.call.Modify;
-import org.apache.ldap.server.jndi.call.ModifyMany;
-import org.apache.ldap.server.jndi.call.ModifyRN;
-import org.apache.ldap.server.jndi.call.Move;
-import org.apache.ldap.server.jndi.call.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.call.Search;
+import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.jndi.invocation.Delete;
+import org.apache.ldap.server.jndi.invocation.HasEntry;
+import org.apache.ldap.server.jndi.invocation.List;
+import org.apache.ldap.server.jndi.invocation.Lookup;
+import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.invocation.Modify;
+import org.apache.ldap.server.jndi.invocation.ModifyMany;
+import org.apache.ldap.server.jndi.invocation.ModifyRN;
+import org.apache.ldap.server.jndi.invocation.Move;
+import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.invocation.Search;
 
 
 /**
@@ -88,7 +88,7 @@ public class Authorizer extends BaseInterceptor
     {
     }
     
-    public void process( NextInterceptor nextInterceptor, Call call ) throws NamingException
+    public void process( NextInterceptor nextInterceptor, Invocation call ) throws NamingException
     {
         super.process( nextInterceptor, call );
     }
@@ -187,7 +187,7 @@ public class Authorizer extends BaseInterceptor
     }
 
 
-    private void protectModifyAlterations( Call call, Name dn ) throws LdapNoPermissionException
+    private void protectModifyAlterations( Invocation call, Name dn ) throws LdapNoPermissionException
     {
         Name principalDn = getPrincipal( call ).getDn();
 
@@ -258,7 +258,7 @@ public class Authorizer extends BaseInterceptor
     }
 
 
-    private void protectDnAlterations( Call call, Name dn ) throws LdapNoPermissionException
+    private void protectDnAlterations( Invocation call, Name dn ) throws LdapNoPermissionException
     {
         Name principalDn = getPrincipal( call ).getDn();
 

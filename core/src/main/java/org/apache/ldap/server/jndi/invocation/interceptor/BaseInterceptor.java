@@ -14,30 +14,30 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.call.interceptor;
+package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.call.Add;
-import org.apache.ldap.server.jndi.call.Call;
-import org.apache.ldap.server.jndi.call.Delete;
-import org.apache.ldap.server.jndi.call.GetMatchedDN;
-import org.apache.ldap.server.jndi.call.GetSuffix;
-import org.apache.ldap.server.jndi.call.HasEntry;
-import org.apache.ldap.server.jndi.call.IsSuffix;
-import org.apache.ldap.server.jndi.call.List;
-import org.apache.ldap.server.jndi.call.ListSuffixes;
-import org.apache.ldap.server.jndi.call.Lookup;
-import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.call.Modify;
-import org.apache.ldap.server.jndi.call.ModifyMany;
-import org.apache.ldap.server.jndi.call.ModifyRN;
-import org.apache.ldap.server.jndi.call.Move;
-import org.apache.ldap.server.jndi.call.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.call.Search;
+import org.apache.ldap.server.jndi.invocation.Add;
+import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.jndi.invocation.Delete;
+import org.apache.ldap.server.jndi.invocation.GetMatchedDN;
+import org.apache.ldap.server.jndi.invocation.GetSuffix;
+import org.apache.ldap.server.jndi.invocation.HasEntry;
+import org.apache.ldap.server.jndi.invocation.IsSuffix;
+import org.apache.ldap.server.jndi.invocation.List;
+import org.apache.ldap.server.jndi.invocation.ListSuffixes;
+import org.apache.ldap.server.jndi.invocation.Lookup;
+import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.invocation.Modify;
+import org.apache.ldap.server.jndi.invocation.ModifyMany;
+import org.apache.ldap.server.jndi.invocation.ModifyRN;
+import org.apache.ldap.server.jndi.invocation.Move;
+import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.invocation.Search;
 
 
 /**
@@ -71,7 +71,7 @@ public abstract class BaseInterceptor implements Interceptor
      * 
      * @return the principal making the call
      */
-    public static LdapPrincipal getPrincipal( Call call )
+    public static LdapPrincipal getPrincipal( Invocation call )
     {
         ServerContext ctx = ( ServerContext ) call.getContextStack().peek();
         return ctx.getPrincipal();
@@ -90,7 +90,7 @@ public abstract class BaseInterceptor implements Interceptor
      * analog method that does the work of the Interceptor for that Invocation
      * method.
      */
-    public void process( NextInterceptor nextInterceptor, Call call )
+    public void process( NextInterceptor nextInterceptor, Invocation call )
             throws NamingException
     {
         if( call instanceof Add )

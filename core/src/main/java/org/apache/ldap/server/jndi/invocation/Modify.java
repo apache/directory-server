@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.call;
+package org.apache.ldap.server.jndi.invocation;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -6,7 +6,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.ldap.server.BackingStore;
 
-public class Modify extends Call {
+public class Modify extends Invocation {
 
     private final Name name;
     private final int modOp;

@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.call;
+package org.apache.ldap.server.jndi.invocation;
 
 import java.util.Stack;
 
@@ -6,12 +6,12 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
-public abstract class Call {
+public abstract class Invocation {
 
     protected Object response;
     protected Stack contextStack;
 
-    protected Call()
+    protected Invocation()
     {
     }
     

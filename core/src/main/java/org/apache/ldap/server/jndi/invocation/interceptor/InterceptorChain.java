@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.call.interceptor;
+package org.apache.ldap.server.jndi.invocation.interceptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.Properties;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.jndi.call.Call;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 
 /**
  * Manages {@link Interceptor} stack.  The first {@link Interceptor} is
@@ -35,7 +35,7 @@ public class InterceptorChain
             // do nothing
         }
 
-        public void process(NextInterceptor nextInterceptor, Call call)
+        public void process(NextInterceptor nextInterceptor, Invocation call)
                 throws NamingException
         {
             call.execute( store );
@@ -218,7 +218,7 @@ public class InterceptorChain
      * Start invocation chain with the specified invocation.
      * @throws NamingException if invocation failed
      */
-    public void process( Call call ) throws NamingException
+    public void process( Invocation call ) throws NamingException
     {
         Entry head = this.head;
         try
@@ -299,7 +299,7 @@ public class InterceptorChain
             this.interceptor = interceptor;
             this.nextInterceptor = new NextInterceptor()
             {
-                public void process(Call call)
+                public void process(Invocation call)
                         throws NamingException {
                     Interceptor interceptor = Entry.this.nextEntry.interceptor;
                     try

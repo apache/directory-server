@@ -34,24 +34,24 @@ import org.apache.ldap.server.BackendSubsystem;
 import org.apache.ldap.server.ContextPartition;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.jndi.call.Add;
-import org.apache.ldap.server.jndi.call.Call;
-import org.apache.ldap.server.jndi.call.Delete;
-import org.apache.ldap.server.jndi.call.GetMatchedDN;
-import org.apache.ldap.server.jndi.call.GetSuffix;
-import org.apache.ldap.server.jndi.call.HasEntry;
-import org.apache.ldap.server.jndi.call.IsSuffix;
-import org.apache.ldap.server.jndi.call.List;
-import org.apache.ldap.server.jndi.call.ListSuffixes;
-import org.apache.ldap.server.jndi.call.Lookup;
-import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.call.Modify;
-import org.apache.ldap.server.jndi.call.ModifyMany;
-import org.apache.ldap.server.jndi.call.ModifyRN;
-import org.apache.ldap.server.jndi.call.Move;
-import org.apache.ldap.server.jndi.call.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.call.Search;
-import org.apache.ldap.server.jndi.call.interceptor.InterceptorChain;
+import org.apache.ldap.server.jndi.invocation.Add;
+import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.jndi.invocation.Delete;
+import org.apache.ldap.server.jndi.invocation.GetMatchedDN;
+import org.apache.ldap.server.jndi.invocation.GetSuffix;
+import org.apache.ldap.server.jndi.invocation.HasEntry;
+import org.apache.ldap.server.jndi.invocation.IsSuffix;
+import org.apache.ldap.server.jndi.invocation.List;
+import org.apache.ldap.server.jndi.invocation.ListSuffixes;
+import org.apache.ldap.server.jndi.invocation.Lookup;
+import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.invocation.Modify;
+import org.apache.ldap.server.jndi.invocation.ModifyMany;
+import org.apache.ldap.server.jndi.invocation.ModifyRN;
+import org.apache.ldap.server.jndi.invocation.Move;
+import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorChain;
 
 
 /**
@@ -172,7 +172,7 @@ public class JndiProvider implements BackendSubsystem
     }
 
 
-    public Object invoke( Call call ) throws NamingException
+    public Object invoke( Invocation call ) throws NamingException
     {
         interceptors.process( call );
         return call.getResponse();

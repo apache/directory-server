@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.call.interceptor;
+package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
 import java.util.Collections;
@@ -51,10 +51,10 @@ import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerLdapContext;
-import org.apache.ldap.server.jndi.call.List;
-import org.apache.ldap.server.jndi.call.Lookup;
-import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.call.Search;
+import org.apache.ldap.server.jndi.invocation.List;
+import org.apache.ldap.server.jndi.invocation.Lookup;
+import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.invocation.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 

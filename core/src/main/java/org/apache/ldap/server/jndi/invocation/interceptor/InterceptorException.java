@@ -14,13 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.call.interceptor;
+package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.jndi.call.Call;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 
 
 /**
@@ -36,7 +36,7 @@ public class InterceptorException extends LdapNamingException
     private static final long serialVersionUID = 3258690996517746233L;
 
     /** The Invokation the Interceptor failed on */
-    private final Call call;
+    private final Invocation call;
     /** The Interceptor causing the failure */
     private final Interceptor requestProcessor;
 
@@ -47,7 +47,7 @@ public class InterceptorException extends LdapNamingException
      * @param requestProcessor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      */
-    public InterceptorException( Interceptor requestProcessor, Call request )
+    public InterceptorException( Interceptor requestProcessor, Invocation request )
     {
         super( ResultCodeEnum.OTHER );
         this.call = request;
@@ -63,7 +63,7 @@ public class InterceptorException extends LdapNamingException
      * @param explanation String explanation of why the Interceptor failed
      */
     public InterceptorException( Interceptor requestProcessor,
-                                      Call request, String explanation )
+                                      Invocation request, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
         this.call = request;
@@ -79,7 +79,7 @@ public class InterceptorException extends LdapNamingException
      * @param rootCause the root cause of this exception
      */
     public InterceptorException( Interceptor requestProcessor,
-                                      Call request, Throwable rootCause )
+                                      Invocation request, Throwable rootCause )
     {
         this( requestProcessor, request );
         super.setRootCause( rootCause );
@@ -94,7 +94,7 @@ public class InterceptorException extends LdapNamingException
      * @param rootCause the root cause of this exception
      */
     public InterceptorException( Interceptor requestProcessor,
-                                      Call request,
+                                      Invocation request,
                                       String explanation,
                                       Throwable rootCause )
     {
@@ -107,7 +107,7 @@ public class InterceptorException extends LdapNamingException
      *
      * @return the invovation object this exception is associated with
      */
-    public Call getCall()
+    public Invocation getInvocation()
     {
         return call;
     }

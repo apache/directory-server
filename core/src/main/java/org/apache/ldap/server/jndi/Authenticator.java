@@ -32,15 +32,17 @@ import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.LdapPrincipal;
-import org.apache.ldap.server.jndi.call.Call;
-import org.apache.ldap.server.jndi.call.interceptor.Interceptor;
-import org.apache.ldap.server.jndi.call.interceptor.NextInterceptor;
+import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.invocation.interceptor.NextInterceptor;
 
 /**
- * A service used to for authenticating users.
+ * An {@link Interceptor} that authenticates users.
  *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @author Apache Directory Project (dev@directory.apache.org)
+ * @author Alex Karasulu (akarasulu@apache.org)
+ * @author Trustin Lee (trustin@apache.org)
+ * @version $Rev$, $Date$
  */
 public class Authenticator implements Interceptor
 {
@@ -118,7 +120,7 @@ public class Authenticator implements Interceptor
     {
     }
 
-    public void process( NextInterceptor nextProcessor, Call call ) throws NamingException
+    public void process( NextInterceptor nextProcessor, Invocation call ) throws NamingException
     {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context

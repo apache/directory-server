@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.call;
+package org.apache.ldap.server.jndi.invocation;
 
 import java.util.Map;
 
@@ -9,7 +9,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.BackingStore;
 
-public class Search extends Call {
+public class Search extends Invocation {
 
     private final Name baseName;
     private final Map environment;

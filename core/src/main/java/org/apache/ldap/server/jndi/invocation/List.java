@@ -1,11 +1,11 @@
-package org.apache.ldap.server.jndi.call;
+package org.apache.ldap.server.jndi.invocation;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
-public class List extends Call {
+public class List extends Invocation {
 
     private final Name baseName;
     

@@ -1,11 +1,11 @@
-package org.apache.ldap.server.jndi.call;
+package org.apache.ldap.server.jndi.invocation;
 
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.PartitionNexus;
 
-public class ListSuffixes extends Call {
+public class ListSuffixes extends Invocation {
 
     private final boolean normalized;
     

@@ -14,13 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.call.interceptor;
+package org.apache.ldap.server.jndi.invocation.interceptor;
 
 import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.call.Call;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 
 /**
  * Processes or filters any directory operations.  You can intercept the
@@ -56,6 +56,6 @@ public interface Interceptor
      * @param invocation the invocation to process
      * @throws NamingException on failures while handling the invocation
      */
-    void process( NextInterceptor nextProcessor, Call call )
+    void process( NextInterceptor nextProcessor, Invocation call )
             throws NamingException;
 }

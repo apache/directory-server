@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.call;
+package org.apache.ldap.server.jndi.invocation;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -6,7 +6,7 @@ import javax.naming.NamingException;
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.PartitionNexus;
 
-public class GetMatchedDN extends Call {
+public class GetMatchedDN extends Invocation {
 
     private final Name name;
     private final boolean normalized;
