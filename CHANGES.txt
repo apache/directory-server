@@ -1,0 +1,6 @@
+Changes 0.8
+===========
+
+ o added Preferences implementation for system settings (user Prefs not done)
+ o added support for JNDI state factories and object factories
+

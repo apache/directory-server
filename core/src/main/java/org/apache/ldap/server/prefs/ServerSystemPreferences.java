@@ -17,10 +17,7 @@
 package org.apache.ldap.server.prefs;
 
 
-import java.util.Hashtable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
@@ -33,6 +30,7 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.ldap.common.Lockable;
+import org.apache.ldap.common.util.PreferencesDictionary;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.jndi.ServerContextFactory;
@@ -129,6 +127,22 @@ public class ServerSystemPreferences extends AbstractPreferences
     // ------------------------------------------------------------------------
 
 
+    /**
+     * Wrapps this Preferences object as a Dictionary.
+     *
+     * @return a Dictionary that uses this Preferences object as the underlying backing store
+     */
+    public Dictionary wrapAsDictionary()
+    {
+        return new PreferencesDictionary( this );
+    }
+
+
+    /**
+     * Gets access to the LDAP context associated with this Preferences node.
+     *
+     * @return the LDAP context associate with this Preferences node
+     */
     LdapContext getLdapContext()
     {
         return ctx;
