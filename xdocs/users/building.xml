@@ -25,12 +25,12 @@ maven multiproject:install
 
       <p>
         Once you've built the server you'll find an executable jar file under
-        the main/target directory labeled server-main-${version}.jar which can
+        the main/target directory labeled apacheds-main-${version}.jar which can
         be fired up like so:
       </p>
 
 <source>
-[akarasulu@newton trunk]$ java -jar main/target/server-main-0.8.0-SNAPSHOT.jar
+[akarasulu@newton trunk]$ java -jar main/target/apacheds-main-0.8.0-SNAPSHOT.jar
 server: using default properties ...
 server: standard ldap port 389 is not available, using 1024 instead
 server: started in 1368 milliseconds
@@ -48,7 +48,7 @@ server: started in 1368 milliseconds
       </p>
 
 <source>
-[akarasulu@newton trunk]$ java -jar main/target/server-main-0.8.0-SNAPSHOT.jar main/server.properties
+[akarasulu@newton trunk]$ java -jar main/target/apacheds-main-0.8.0-SNAPSHOT.jar main/server.properties
 server: loading properties from main/eve.properties
 server: started in 1449 milliseconds
 </source>

@@ -192,15 +192,15 @@
 |_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
 
 Attempting to download ldap-common-0.8.0-SNAPSHOT.jar.
-Attempting to download server-shared-0.8.0-SNAPSHOT.jar.
-Attempting to download server-protocol-0.8.0-SNAPSHOT.jar.
+Attempting to download apacheds-shared-0.8.0-SNAPSHOT.jar.
+Attempting to download apacheds-protocol-0.8.0-SNAPSHOT.jar.
 Attempting to download snickers-codec-0.2.0-SNAPSHOT.jar.
 Attempting to download ldap-snickers-provider-0.8.0-SNAPSHOT.jar.
 Attempting to download snickers-ber-0.2.0-SNAPSHOT.jar.
 Attempting to download seda-0.2.0-SNAPSHOT.jar.
 Attempting to download maven-directory-plugin-0.8.0-SNAPSHOT.jar.
 Attempting to download ldap-common-0.8.0-SNAPSHOT.jar.
-Attempting to download server-shared-0.8.0-SNAPSHOT.jar.
+Attempting to download apacheds-shared-0.8.0-SNAPSHOT.jar.
 build:start:
 
 directory:schema:
@@ -229,7 +229,7 @@ Finished at: Tue Dec 14 15:26:26 EST 2004
       <p>
         The example above is from the server's core project.  If you would like
         to look at how to use this plugin best the server core
-        <a href="http://dumfount.notlong.com/">project.properties</a> file here
+        <a href="http://svn.apache.org/viewcvs.cgi/incubator/directory/apacheds/trunk/core/project.properties?rev=125094&view=auto">project.properties</a> file here
         is perhaps the best place to look. Also from the output above you can
         see the schema files that are used and packaged into the server by
         default.  This may however change in the future to restrict the set.
