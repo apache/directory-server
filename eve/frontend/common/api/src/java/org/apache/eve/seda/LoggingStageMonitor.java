@@ -33,9 +33,9 @@ import org.apache.commons.logging.LogFactory ;
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
- * @version $Rev: 9537 $
+ * @version $Rev$
  */
-public class StderrLoggingStageMonitor implements StageMonitor
+public class LoggingStageMonitor implements StageMonitor
 {
     private final Log log ;
     
@@ -43,7 +43,7 @@ public class StderrLoggingStageMonitor implements StageMonitor
     /**
      * Presumes the logged class is the DefaultStage.
      */
-    public StderrLoggingStageMonitor()
+    public LoggingStageMonitor()
     {
         log = LogFactory.getLog( DefaultStage.class ) ;
     }
@@ -55,7 +55,7 @@ public class StderrLoggingStageMonitor implements StageMonitor
      * @param clazz the class of the stage
      * @throws IllegalArgumentException if clazz does not implement Stage
      */
-    public StderrLoggingStageMonitor( Class clazz )
+    public LoggingStageMonitor( Class clazz )
     {
         Validate.isTrue( ClassUtils.isAssignable( clazz, Stage.class ),
                 clazz.getName() + " does not implement the Stage interface" ) ;
@@ -260,7 +260,7 @@ public class StderrLoggingStageMonitor implements StageMonitor
     {
         if ( log.isErrorEnabled() )
         {
-            log.debug( stage.getConfig().getName() 
+            log.error( stage.getConfig().getName() 
                     + "'s driver failed", fault ) ; 
         }
     }
@@ -274,7 +274,7 @@ public class StderrLoggingStageMonitor implements StageMonitor
     {
         if ( log.isErrorEnabled() )
         {
-            log.debug( stage.getConfig().getName() 
+            log.error( stage.getConfig().getName() 
                     + "'s handler failed", fault ) ; 
         }
     }

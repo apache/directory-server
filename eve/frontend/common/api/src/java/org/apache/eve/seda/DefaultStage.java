@@ -136,7 +136,7 @@ public class DefaultStage implements Stage
      * The runnable driving the main thread of this Stage.
      *
      * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
-     * @author $Author$
+     * @author $Author: akarasulu $
      * @version $Revision$
      */
     class StageDriver implements Runnable
@@ -184,7 +184,7 @@ public class DefaultStage implements Stage
      * The runnable driving the work of this Stage's handler.
      *
      * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
-     * @author $Author$
+     * @author $Author: akarasulu $
      * @version $Revision$
      */
     class ExecutableHandler implements Runnable
@@ -202,12 +202,14 @@ public class DefaultStage implements Stage
             
             try 
             {
-                if ( config.getHandler() != null )
+                if ( config.getHandler() == null )
+                {
+                    monitor.handlerMissing( DefaultStage.this ) ;
+                }
+                else
                 {
                     config.getHandler().handleEvent( m_event ) ;
                 }
-                
-                monitor.handlerMissing( DefaultStage.this ) ;
             } 
             catch( Throwable t ) 
             {
