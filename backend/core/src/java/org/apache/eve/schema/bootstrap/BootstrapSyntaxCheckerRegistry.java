@@ -14,10 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.SyntaxChecker;
+import org.apache.eve.schema.SyntaxCheckerRegistry;
+import org.apache.eve.schema.SyntaxCheckerRegistryMonitor;
+import org.apache.eve.schema.SyntaxCheckerRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,7 +33,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
+public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 {
     /** a map by OID of SyntaxCheckers */
     private final Map byOid;
@@ -46,9 +49,9 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 
 
     /**
-     * Creates an instance of a DefaultSyntaxRegistry.
+     * Creates an instance of a BootstrapSyntaxRegistry.
      */
-    public DefaultSyntaxCheckerRegistry()
+    public BootstrapSyntaxCheckerRegistry()
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
