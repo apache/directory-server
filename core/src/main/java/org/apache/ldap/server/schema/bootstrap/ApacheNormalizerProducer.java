@@ -17,26 +17,23 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import java.util.Comparator;
 import javax.naming.NamingException;
 
-import jdbm.helper.StringComparator;
-import org.apache.ldap.common.schema.ComparableComparator;
-import org.apache.ldap.common.util.BigIntegerComparator;
-
+import org.apache.ldap.common.schema.NoOpNormalizer;
+import org.apache.ldap.common.schema.Normalizer;
 
 
 /**
- * A producer of Comparator objects for the eve schema.
+ * A producer of Normalizer objects for the eve schema.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveComparatorProducer extends AbstractBootstrapProducer
+public class ApacheNormalizerProducer extends AbstractBootstrapProducer
 {
-    public EveComparatorProducer()
+    public ApacheNormalizerProducer()
     {
-        super( ProducerTypeEnum.COMPARATOR_PRODUCER );
+        super( ProducerTypeEnum.NORMALIZER_PRODUCER );
     }
 
 
@@ -46,24 +43,24 @@ public class EveComparatorProducer extends AbstractBootstrapProducer
 
 
     /**
-     * @see org.apache.ldap.server.schema.bootstrap.BootstrapProducer#produce(org.apache.ldap.server.schema.bootstrap.BootstrapRegistries, ProducerCallback)
+     * @see org.apache.ldap.server.schema.bootstrap.BootstrapProducer#produce(org.apache.ldap.server.schema.bootstrap.BootstrapRegistries, org.apache.ldap.server.schema.bootstrap.ProducerCallback)
      */
     public void produce( BootstrapRegistries registries, ProducerCallback cb )
         throws NamingException
     {
-        Comparator comparator;
+        Normalizer normalizer;
 
         // For exactDnAsStringMatch -> 1.2.6.1.4.1.18060.1.1.1.2.1
-        comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.1", comparator );
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.1", normalizer );
 
         // For bigIntegerMatch -> 1.2.6.1.4.1.18060.1.1.1.2.2
-        comparator = new BigIntegerComparator();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.2", comparator );
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.2", normalizer );
 
         // For jdbmStringMatch -> 1.2.6.1.4.1.18060.1.1.1.2.3
-        comparator = new StringComparator();
-        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.3", comparator );
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.2.6.1.4.1.18060.1.1.1.2.3", normalizer );
 
     }
 }

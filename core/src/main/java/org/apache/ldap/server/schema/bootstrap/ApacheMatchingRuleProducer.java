@@ -26,9 +26,9 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveMatchingRuleProducer extends AbstractBootstrapProducer
+public class ApacheMatchingRuleProducer extends AbstractBootstrapProducer
 {
-    public EveMatchingRuleProducer()
+    public ApacheMatchingRuleProducer()
     {
         super( ProducerTypeEnum.MATCHING_RULE_PRODUCER );
     }
