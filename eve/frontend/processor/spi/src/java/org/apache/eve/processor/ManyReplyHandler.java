@@ -20,6 +20,7 @@ package org.apache.eve.processor ;
 import java.util.Iterator ;
 
 import org.apache.ldap.common.message.ManyReplyRequest ;
+import org.apache.ldap.common.message.ResultResponse;
 
 
 /**
@@ -39,4 +40,11 @@ public interface ManyReplyHandler extends RequestHandler
      * @return an enumeration over the responses
      */
     Iterator handle( ManyReplyRequest request ) ;
+    
+    /**
+     * Gets the terminating response.
+     * 
+     * @return the finishing response that carries the result
+     */
+    ResultResponse getDoneResponse( int id ) ;
 }

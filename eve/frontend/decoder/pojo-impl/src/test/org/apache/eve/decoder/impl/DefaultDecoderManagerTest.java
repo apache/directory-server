@@ -17,8 +17,6 @@
 package org.apache.eve.decoder.impl ;
 
 
-import java.math.BigInteger ;
-
 import java.nio.ByteBuffer ;
 import java.util.EventObject ;
 
@@ -130,8 +128,8 @@ public class DefaultDecoderManagerTest extends TestCase implements
     
     public void testDefaultDecoderManager() throws Exception
     {
-        AbandonRequest request = new AbandonRequestImpl( new BigInteger("6") ) ;
-        request.setAbandoned( new BigInteger("44") ) ;
+        AbandonRequest request = new AbandonRequestImpl( 6 ) ;
+        request.setAbandoned( 44 ) ;
         MessageEncoder encoder = new MessageEncoder() ;
         
         byte [] encoded = encoder.encode( request ) ;

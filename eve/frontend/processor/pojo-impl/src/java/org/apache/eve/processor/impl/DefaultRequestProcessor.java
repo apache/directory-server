@@ -18,8 +18,10 @@ package org.apache.eve.processor.impl ;
 
 
 import java.util.EventObject ;
+import java.util.Iterator;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils ;
+
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.event.RequestEvent ;
 import org.apache.eve.event.ResponseEvent ;
@@ -28,6 +30,7 @@ import org.apache.eve.event.AbstractSubscriber ;
 
 import org.apache.eve.listener.ClientKey ;
 
+import org.apache.eve.seda.DefaultStageConfig;
 import org.apache.eve.seda.StageConfig ;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.seda.StageHandler ;
@@ -43,6 +46,7 @@ import org.apache.eve.processor.RequestProcessorMonitor ;
 import org.apache.eve.processor.RequestProcessorMonitorAdapter ;
 
 import org.apache.ldap.common.message.Request ;
+import org.apache.ldap.common.message.Response ;
 import org.apache.ldap.common.message.LdapResult ;
 import org.apache.ldap.common.message.ResultCodeEnum ;
 import org.apache.ldap.common.message.ResultResponse ;
@@ -85,6 +89,9 @@ public class DefaultRequestProcessor extends DefaultStage
                                     HandlerRegistry hooks )
     {
         super( config ) ;
+        
+        DefaultStageConfig defaultConfig = ( DefaultStageConfig ) config ;
+        defaultConfig.setHandler( new ProcessorStageHandler() ) ;
         
         this.hooks = hooks ;
         this.router = router ;
@@ -168,9 +175,38 @@ public class DefaultRequestProcessor extends DefaultStage
      * @param handler the handler that generates the responses
      * @param request the request responded to
      */
-    private void reply( ManyReplyHandler handler, ManyReplyRequest request,
+    private void reply( ManyReplyHandler handler, 
+                        ManyReplyRequest request,
                         ClientKey key )
     {
+        Response response = null ;
+        LdapResult result = null ;
+
+        try
+         {
+             Iterator list = handler.handle( request ) ;
+             while ( list.hasNext() ) 
+             {
+                 response = ( Response ) list.next() ;
+             }
+         }
+
+         // If the individual handlers do not do a global catch and report this
+         // will sheild the server from complete failure on a request reporting
+         // at a minimum the stack trace that cause the request to fail.
+         catch( Throwable t )
+         {
+             monitor.failedOnSingleReply( key, request, t ) ;
+            
+             ResultResponse resultResponse = handler.getDoneResponse( 
+                     request.getMessageId() ) ;
+             result = new LdapResultImpl( response ) ;
+             result.setMatchedDn( "" ) ;
+             result.setErrorMessage( ExceptionUtils.getFullStackTrace( t ) ) ;
+             result.setResultCode( ResultCodeEnum.OPERATIONSERROR ) ;
+             resultResponse.setLdapResult( result ) ;
+             router.publish( new ResponseEvent( this, key, resultResponse ) ) ;
+         }
     }
     
     

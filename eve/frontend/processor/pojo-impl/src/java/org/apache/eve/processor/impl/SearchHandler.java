@@ -17,11 +17,17 @@
 package org.apache.eve.processor.impl ;
 
 
+import java.util.Iterator;
+
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.eve.processor.RequestHandler ;
+
 import org.apache.eve.processor.HandlerTypeEnum ;
-import org.apache.ldap.common.message.SearchRequest ;
+import org.apache.eve.processor.ManyReplyHandler ;
+
+import org.apache.ldap.common.message.ResultResponse ;
 import org.apache.ldap.common.message.MessageTypeEnum ;
+import org.apache.ldap.common.message.ManyReplyRequest ;
+import org.apache.ldap.common.message.SearchResponseDoneImpl ;
 
 
 /**
@@ -31,7 +37,7 @@ import org.apache.ldap.common.message.MessageTypeEnum ;
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchHandler implements RequestHandler
+public class SearchHandler implements ManyReplyHandler
 {
     // ------------------------------------------------------------------------
     // Constructor
@@ -56,9 +62,15 @@ public class SearchHandler implements RequestHandler
      *
      * @param a_request the SearchRequest to handle
      */
-    public void handle( SearchRequest a_request )
+    public Iterator handle( ManyReplyRequest a_request )
     {
         throw new NotImplementedException( "STUB" ) ;
+    }
+    
+    
+    public ResultResponse getDoneResponse( int id )
+    {
+        return new SearchResponseDoneImpl( id ) ;
     }
 
 

@@ -16,7 +16,6 @@
  */
 package org.apache.eve.decoder.impl;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import org.apache.avalon.merlin.unit.AbstractMerlinTestCase ;
@@ -72,9 +71,8 @@ public class MerlinDecoderManagerTest extends AbstractMerlinTestCase
     
     public void testDecoderByteBuffer() throws Exception
     {
-        AbandonRequestImpl req = new AbandonRequestImpl( 
-                new BigInteger( "7" ) ) ;
-        req.setAbandoned( BigInteger.ONE ) ;
+        AbandonRequestImpl req = new AbandonRequestImpl( 7 ) ;
+        req.setAbandoned( 1 ) ;
         MessageEncoder encoder = new MessageEncoder() ;
         ByteBuffer buf = ByteBuffer.wrap( encoder.encode( req ) ) ;
         AbandonRequestImpl regen = (AbandonRequestImpl) decman.decode( buf ) ;

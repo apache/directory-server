@@ -65,10 +65,4 @@ public class MerlinRequestProcessorTest extends AbstractMerlinTestCase
         super.tearDown() ;
         processor = null ;
     }
-
-
-    public void testDummy()
-    {
-        processor.dummy() ;
-    }
 }
