@@ -68,7 +68,7 @@
     <depend project="antlr" />
     <depend project="ldap-common" />
     <depend project="eve-shared" />
-    <depend project="velocity-dep" />
+    <depend property="maven.jar.velocity-dep" project="jakarta-velocity" id="velocity" />
     
     <home nested="plugin" />
 
@@ -87,14 +87,14 @@
       <property name="maven.final.name" value="eve-dib-@@DATE@@"/>
     </maven>
 
-    <depend project="regexp" />
+    <depend project="jakarta-regexp" property="maven.jar.regexp" />
     <depend project="jakarta-oro" property="maven.jar.oro" />
     <depend project="commons-logging" />
     <depend project="commons-io" />
     <depend project="antlr" />
     <depend project="jdbm" />
     <depend project="ldap-common" />
-    <depend project="aspectjrt" />
+    <depend property="aspectjrt.jar" project="aspectj" id="aspectjrt"/>
     <depend project="eve-shared" />
     <depend project="eve-protocol" />
     <depend project="snickers-codec" />
@@ -130,7 +130,7 @@
     <depend project="antlr" />
     <depend project="jdbm" />
     <depend project="ldap-common" />
-    <depend project="aspectjrt" />
+    <depend property="aspectjrt.jar" project="aspectj" id="aspectjrt"/>
     <depend project="eve-shared" />
     <depend project="eve-protocol" />
     <depend project="snickers-codec" />
