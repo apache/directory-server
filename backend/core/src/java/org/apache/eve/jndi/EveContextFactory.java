@@ -14,9 +14,7 @@ import org.apache.ldap.common.schema.AttributeType;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
-import org.apache.eve.jndi.ibs.EveExceptionService;
-import org.apache.eve.jndi.ibs.OperationalAttributeService;
-import org.apache.eve.jndi.ibs.SchemaService;
+import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
 import org.apache.eve.schema.bootstrap.BootstrapRegistries;
@@ -217,10 +215,23 @@ public class EveContextFactory implements InitialContextFactory
          * before and onError interceptor chains.
          */
         InvocationStateEnum[] state = new InvocationStateEnum[]{
+            InvocationStateEnum.POSTINVOCATION
+        };
+        Interceptor interceptor;
+        ResultFilteringService resultFilteringService =
+                new ResultFilteringServiceImpl();
+        interceptor = ( Interceptor ) resultFilteringService;
+        provider.addInterceptor( interceptor, state );
+
+        /*
+         * Create and add the Eve Exception service interceptor to both the
+         * before and onError interceptor chains.
+         */
+        state = new InvocationStateEnum[]{
             InvocationStateEnum.PREINVOCATION,
             InvocationStateEnum.FAILUREHANDLING
         };
-        Interceptor interceptor = new EveExceptionService( root );
+        interceptor = new EveExceptionService( root );
         provider.addInterceptor( interceptor, state );
 
         /*
@@ -242,7 +253,8 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.PREINVOCATION,
             InvocationStateEnum.POSTINVOCATION
         };
-        interceptor = new OperationalAttributeService( root );
+        interceptor = new OperationalAttributeService( root, globalRegistries,
+                resultFilteringService );
         provider.addInterceptor( interceptor, state );
 
     }

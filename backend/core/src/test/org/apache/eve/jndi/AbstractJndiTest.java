@@ -52,6 +52,16 @@ public class AbstractJndiTest extends TestCase
     {
         super.setUp();
 
+        if ( doDelete == true )
+        {
+            File file = new File( "target/eve" );
+
+            if ( file.exists() )
+            {
+                FileUtils.deleteDirectory( file );
+            }
+        }
+
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
@@ -84,11 +94,5 @@ public class AbstractJndiTest extends TestCase
         }
 
         sysRoot = null;
-
-        if ( doDelete == true )
-        {
-            File file = new File( "target/eve" );
-            FileUtils.deleteDirectory( file );
-        }
     }
 }

@@ -18,6 +18,7 @@ package org.apache.eve.db;
 
 
 import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
 
 
 /**
@@ -29,15 +30,17 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ResultFilter
+public interface SearchResultFilter
 {
     /**
      * Filters the contents of search results on the way out the door to client
      * callers.  These filters can and do produce side-effects on the results if
      * if need be the attributes or names within the result should be cloned.
      *
+     * @param result the database search result to return
+     * @param controls search controls associated with the invocation
      * @return true if the result is to be returned, false if it is to be
      * discarded from the result set
      */
-    boolean accept( DbSearchResult result ) throws NamingException;
+    boolean accept( DbSearchResult result, SearchControls controls ) throws NamingException;
 }

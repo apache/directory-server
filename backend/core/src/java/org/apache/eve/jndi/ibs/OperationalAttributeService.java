@@ -17,23 +17,20 @@
 package org.apache.eve.jndi.ibs;
 
 
-import java.util.Map;
 import javax.naming.Name;
-import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
-import org.apache.eve.db.SearchResultEnumeration;
 import org.apache.eve.db.DbSearchResult;
-import org.apache.eve.db.ResultFilteringEnumeration;
-import org.apache.eve.db.ResultFilter;
+import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.InvocationStateEnum;
+import org.apache.eve.schema.GlobalRegistries;
 
 import org.apache.ldap.common.util.DateUtils;
-import org.apache.ldap.common.filter.ExprNode;
 
 
 /**
@@ -47,18 +44,73 @@ public class OperationalAttributeService extends BaseInterceptor
 {
     /** the default user principal or DN */
     private final String DEFAULT_PRINCIPAL = "cn=admin,ou=system";
+    /** the database search result filter to register with filter service */
+    private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
+    {
+        public boolean accept( DbSearchResult result, SearchControls controls )
+        {
+            if ( controls.getReturningAttributes() == null )
+            {
+                return filter( result.getAttributes() );
+            }
+
+            return true;
+        }
+    };
+    /** the lookup filter to register with filter service */
+    private final LookupFilter LOOKUP_FILTER = new LookupFilter()
+    {
+        public void filter( Name dn, Attributes entry )
+        {
+            OperationalAttributeService.this.filter( entry );
+        }
+
+        public void filter( Name dn, Attributes entry, String[] ids )
+        {
+            // do nothing since this explicity specifies which attributes
+            // to include - backends will automatically populate with right
+            // set of attributes
+        }
+    };
+
     /** the root nexus of the system */
     private final RootNexus nexus;
+    /** a service used to filter search and lookup operations */
+    private ResultFilteringService filteringService;
+    /** the global schema object registries */
+    private final GlobalRegistries globalRegistries;
 
 
     /**
      * Creates the operational attribute management service interceptor.
      *
      * @param nexus the root nexus of the system
+     * @param globalRegistries the global schema object registries
      */
-    public OperationalAttributeService( RootNexus nexus )
+    public OperationalAttributeService( RootNexus nexus,
+                                        GlobalRegistries globalRegistries,
+                                        ResultFilteringService filteringService )
     {
         this.nexus = nexus;
+        if ( this.nexus == null )
+        {
+            throw new NullPointerException( "the nexus cannot be null" );
+        }
+
+        this.globalRegistries = globalRegistries;
+        if ( this.globalRegistries == null )
+        {
+            throw new NullPointerException( "the global registries cannot be null" );
+        }
+
+        this.filteringService = filteringService;
+        if ( this.filteringService == null )
+        {
+            throw new NullPointerException( "the filter service cannot be null" );
+        }
+
+        this.filteringService.addLookupFilter( LOOKUP_FILTER );
+        this.filteringService.addSearchResultFilter( SEARCH_FILTER );
     }
 
 
@@ -191,48 +243,6 @@ public class OperationalAttributeService extends BaseInterceptor
             attributes.put( attribute );
 
             nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
-        }
-    }
-
-
-    protected void lookup( Name dn ) throws NamingException
-    {
-        Invocation invocation = getInvocation();
-
-        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
-        {
-            Attributes attributes = ( Attributes ) invocation.getReturnValue();
-            Attributes retval = ( Attributes ) attributes.clone();
-            filter( retval );
-            invocation.setReturnValue( retval );
-        }
-    }
-
-
-    protected void search( Name base, Map env, ExprNode filter,
-                           SearchControls searchControls )
-            throws NamingException
-    {
-        Invocation invocation = getInvocation();
-
-        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
-        {
-            if ( searchControls.getReturningAttributes() != null )
-            {
-                return;
-            }
-
-            SearchResultEnumeration enum ;
-            ResultFilteringEnumeration retval;
-            enum = ( SearchResultEnumeration ) invocation.getReturnValue();
-            retval = new ResultFilteringEnumeration( enum );
-            retval.addResultFilter( new ResultFilter() {
-                public boolean accept( DbSearchResult result )
-                {
-                    return filter( result.getAttributes() );
-                }
-            } );
-            invocation.setReturnValue( retval );
         }
     }
 

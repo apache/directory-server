@@ -23,13 +23,14 @@ import java.util.Collections;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.SearchControls;
 
 
 /**
  * A enumeration decorator which filters database search results as they are
  * being enumerated back to the client caller.
  *
- * @see ResultFilter
+ * @see SearchResultFilter
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -44,6 +45,8 @@ public class ResultFilteringEnumeration implements NamingEnumeration
     private DbSearchResult prefetched;
     /** flag storing closed state of this naming enumeration */
     private boolean isClosed = false;
+    /** the controls associated with the search operation */
+    private final SearchControls searchControls;
 
 
     // ------------------------------------------------------------------------
@@ -56,10 +59,13 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      * underlying enumeration.
      *
      * @param decorated the underlying decorated enumeration
+     * @param searchControls
      */
-    public ResultFilteringEnumeration( NamingEnumeration decorated )
+    public ResultFilteringEnumeration( NamingEnumeration decorated,
+                                       SearchControls searchControls )
             throws NamingException
     {
+        this.searchControls = searchControls;
         this.filters = new ArrayList();
         this.decorated = decorated;
 
@@ -74,7 +80,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
 
 
     // ------------------------------------------------------------------------
-    // New ResultFilter management methods
+    // New SearchResultFilter management methods
     // ------------------------------------------------------------------------
 
 
@@ -86,7 +92,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      * @param filter a filter to apply to the results
      * @return the result of {@link List#add(Object)}
      */
-    public boolean addResultFilter( ResultFilter filter )
+    public boolean addResultFilter( SearchResultFilter filter )
     {
         return filters.add( filter );
     }
@@ -99,7 +105,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      * @param filter a filter to remove from the filter list
      * @return the result of {@link List#remove(Object)}
      */
-    public boolean removeResultFilter( ResultFilter filter )
+    public boolean removeResultFilter( SearchResultFilter filter )
     {
         return filters.remove( filter );
     }
@@ -202,7 +208,8 @@ public class ResultFilteringEnumeration implements NamingEnumeration
             }
             else if ( filters.size() == 1 )
             {
-                accepted = ( ( ResultFilter ) filters.get( 0 ) ).accept( tmp );
+                accepted = ( ( SearchResultFilter ) filters.get( 0 ) )
+                        .accept( tmp, searchControls );
                 this.prefetched = tmp;
                 return;
             }
@@ -210,8 +217,8 @@ public class ResultFilteringEnumeration implements NamingEnumeration
             // apply all filters shorting their application on result denials
             for ( int ii = 0; ii < filters.size(); ii ++ )
             {
-                ResultFilter filter = ( ResultFilter ) filters.get( ii );
-                accepted &= filter.accept( tmp );
+                SearchResultFilter filter = ( SearchResultFilter ) filters.get( ii );
+                accepted &= filter.accept( tmp, searchControls );
 
                 if ( ! accepted )
                 {

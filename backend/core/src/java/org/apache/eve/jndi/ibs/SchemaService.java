@@ -36,7 +36,6 @@ public class SchemaService extends BaseInterceptor
     private final GlobalRegistries globalRegistries;
 
 
-
     /**
      * Creates a schema service interceptor.
      *
@@ -46,6 +45,15 @@ public class SchemaService extends BaseInterceptor
     public SchemaService( RootNexus nexus, GlobalRegistries globalRegistries )
     {
         this.nexus = nexus;
+        if ( this.nexus == null )
+        {
+            throw new NullPointerException( "the nexus cannot be null" );
+        }
+
         this.globalRegistries = globalRegistries;
+        if ( this.globalRegistries == null )
+        {
+            throw new NullPointerException( "the global registries cannot be null" );
+        }
     }
 }
