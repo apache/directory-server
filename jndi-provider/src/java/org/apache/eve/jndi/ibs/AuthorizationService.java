@@ -224,8 +224,8 @@ public class AuthorizationService extends BaseInterceptor
 
             if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) )
             {
-                String msg = "User " + principalDn;
-                msg += " does not have permission to move or rename the admin";
+                String msg = "User '" + principalDn;
+                msg += "' does not have permission to move or rename the admin";
                 msg += " account.  No one not even the admin can move or";
                 msg += " rename " + dn + "!";
                 throw new EveNoPermissionException( msg );
@@ -233,8 +233,8 @@ public class AuthorizationService extends BaseInterceptor
 
             if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
             {
-                String msg = "User " + principalDn;
-                msg += " does not have permission to move or rename the user";
+                String msg = "User '" + principalDn;
+                msg += "' does not have permission to move or rename the user";
                 msg += " account: " + dn + ". Only the admin can move or";
                 msg += " rename user accounts.";
                 throw new EveNoPermissionException( msg );
@@ -287,15 +287,15 @@ public class AuthorizationService extends BaseInterceptor
             Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
             if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
             {
-                String msg = "Access to user account " + dn + " not permitted";
-                msg += " for user " + principalDn + ".  Only the admin can";
+                String msg = "Access to user account '" + dn + "' not permitted";
+                msg += " for user '" + principalDn + "'.  Only the admin can";
                 msg += " access user account information";
                 throw new EveNoPermissionException( msg );
             }
             else if ( dn.equals( ADMIN_DN ) && ! principalDn.equals( ADMIN_DN ) )
             {
-                String msg = "Access to admin account " + dn + " not permitted";
-                msg += " for user " + principalDn + ".  Only the admin can";
+                String msg = "Access to admin account not permitted for user '";
+                msg += principalDn + "'.  Only the admin can";
                 msg += " access admin account information";
                 throw new EveNoPermissionException( msg );
             }

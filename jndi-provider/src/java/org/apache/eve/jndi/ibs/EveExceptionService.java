@@ -64,9 +64,12 @@ public class EveExceptionService extends BaseInterceptor
     {
         if ( invocation.getState() == InvocationStateEnum.FAILUREHANDLING )
         {
+            Throwable t = null;
+
             if ( invocation.getBeforeFailure() != null )
             {
-                Throwable t = invocation.getBeforeFailure();
+                t = invocation.getBeforeFailure();
+
                 if ( t instanceof EveInterceptorException )
                 {
                     EveInterceptorException eie = ( EveInterceptorException ) t;
@@ -79,6 +82,25 @@ public class EveExceptionService extends BaseInterceptor
                     else if ( eie.getCause() != null && ( eie instanceof EveException ) )
                     {
                         invocation.setBeforeFailure( eie.getCause() );
+                    }
+                }
+            }
+            else if ( invocation.getAfterFailure() != null )
+            {
+                t = invocation.getAfterFailure();
+
+                if ( t instanceof EveInterceptorException )
+                {
+                    EveInterceptorException eie = ( EveInterceptorException ) t;
+
+                    if ( eie.getRootCause() != null && ( eie instanceof EveException ) )
+                    {
+                        invocation.setAfterFailure( eie.getRootCause() );
+                    }
+
+                    else if ( eie.getCause() != null && ( eie instanceof EveException ) )
+                    {
+                        invocation.setAfterFailure( eie.getCause() );
                     }
                 }
             }
