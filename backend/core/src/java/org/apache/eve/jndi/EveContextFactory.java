@@ -1,10 +1,10 @@
 package org.apache.eve.jndi;
 
 
-import java.util.Hashtable ;
+import java.util.Hashtable;
 
-import javax.naming.Context ;
-import javax.naming.NamingException ;
+import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.common.NotImplementedException;
@@ -12,19 +12,19 @@ import org.apache.ldap.common.NotImplementedException;
 
 /**
  * An LDAPd server-side provider implementation of a InitialContextFactory.
- *
- *         Hashtable env = new Hashtable() ;
-        env.put( Context.PROVIDER_URL, "ou=system" ) ;
-        env.put( Context.INITIAL_CONTEXT_FACTORY,
-                "org.apache.eve.jndi.EveContextFactory" ) ;
-        InitialContext initialContext = new InitialContext( env ) ;
-
+ * Can be utilized via JNDI API in the standard fashion:
+ * <code>
+ * Hashtable env = new Hashtable();
+ * env.put( Context.PROVIDER_URL, "ou=system" );
+ * env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+ * InitialContext initialContext = new InitialContext( env );
+ * </code>
  * @see javax.naming.spi.InitialContextFactory
  */
 public class EveContextFactory implements InitialContextFactory
 {
     /** The singleton EveJndiProvider instance */
-    private EveJndiProvider m_provider = null ;
+    private EveJndiProvider provider = null;
 
     
     /**
@@ -32,7 +32,7 @@ public class EveContextFactory implements InitialContextFactory
      */
     public EveContextFactory()
     {
-        EveJndiProvider.setProviderOn( this ) ;
+        EveJndiProvider.setProviderOn( this );
     }
     
     
@@ -44,7 +44,7 @@ public class EveContextFactory implements InitialContextFactory
      */
     void setProvider( EveJndiProvider a_provider )
     {
-        m_provider = a_provider ;
+        provider = a_provider;
     }
     
     
@@ -56,11 +56,11 @@ public class EveContextFactory implements InitialContextFactory
         throws NamingException
     {
         // fire up the backend subsystem if we need to
-        if ( null == m_provider )
+        if ( null == provider )
         {
-            throw new NotImplementedException() ;
+            throw new NotImplementedException();
         }
         
-        return m_provider.getLdapContext( an_envoronment ) ;
+        return provider.getLdapContext( an_envoronment );
     }
 }
