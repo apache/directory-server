@@ -16,12 +16,14 @@
  */
 package org.apache.eve.tools.schema;
 
+
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
 
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.eve.schema.DefaultOidRegistry;
+
 
 /**
  * Tests the parser for AttributeTypes.
@@ -33,7 +35,8 @@ public class AttributeTypeParserTest extends TestCase
 {
     public void testParser() throws Exception
     {
-        String attributeTypeData = "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
+        String attributeTypeData = "# adding a comment  \n" +
+            "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
             "        DESC 'RFC2256: knowledge information'\n" +
             "        EQUALITY caseIgnoreMatch\n" +
             "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
