@@ -29,9 +29,11 @@
       /www/cvs.apache.org/dist/directory
     </distributionDirectory>
 
+    <gumpRepositoryId>directory</gumpRepositoryId>
+
     <repository>
       <connection>
-        scm:svn:http://svn.apache.org/repos/asf:directory/apacheds/trunk/${module.path}
+        scm:svn:http://svn.apache.org/repos/asf/directory:apacheds/trunk/${module.path}
       </connection>
 
       <url>
