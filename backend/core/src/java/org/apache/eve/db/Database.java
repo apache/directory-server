@@ -31,6 +31,7 @@ import org.apache.ldap.common.schema.AttributeType;
 
 
 /**
+ * A database for storing attributes.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
