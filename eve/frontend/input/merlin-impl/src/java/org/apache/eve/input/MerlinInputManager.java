@@ -27,6 +27,7 @@ import org.apache.avalon.framework.activity.Initializable ;
 import org.apache.avalon.framework.service.ServiceManager ;
 import org.apache.avalon.framework.service.ServiceException ;
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;
+import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
 
 import org.apache.eve.buffer.BufferPool ;
 import org.apache.eve.event.EventRouter ;
@@ -51,6 +52,8 @@ public class MerlinInputManager extends AbstractLogEnabled
     Startable,
     Initializable
 {
+    /** the thread manager we get thread pools from */
+    private ThreadManager m_tm = null ;
     /** the buffer pool to get buffers from */
     private BufferPool m_bp = null ;
     /** event router used to decouple source to sink relationships */
@@ -58,7 +61,7 @@ public class MerlinInputManager extends AbstractLogEnabled
     /** selector used to select a ready socket channel */
     private Selector m_selector = null ;
     /** the wrapped input manager implementation */
-    private DefaultInputManager m_inputManager = null ;
+    private DefaultInputManager m_delegate = null ;
     
     
     // ------------------------------------------------------------------------
@@ -66,29 +69,32 @@ public class MerlinInputManager extends AbstractLogEnabled
     // ------------------------------------------------------------------------
     
     
-    /**
+    /*
      * @see org.apache.eve.event.ConnectListener#
      * connectPerformed(org.apache.eve.event.ConnectEvent)
      */
     public void inform( ConnectEvent an_event )
     {
+        m_delegate.inform( an_event ) ;
     }
 
     
-    /**
+    /*
      * @see org.apache.eve.event.DisconnectListener#
      * inform(org.apache.eve.event.DisconnectEvent)
      */
     public void inform( DisconnectEvent an_event )
     {
+        m_delegate.inform( an_event ) ;
     }
     
     
-    /**
-     * 
+    /*
+     * @see org.apache.eve.event.Subscriber#inform(java.util.EventObject)
      */
     public void inform( EventObject an_event )
     {
+        m_delegate.inform( an_event ) ;
     }
     
 
@@ -104,7 +110,11 @@ public class MerlinInputManager extends AbstractLogEnabled
      */
     public void start() throws Exception
     {
-        m_inputManager.start() ;
+        getLogger().debug( 
+                "Merlin wrapper about to invoke delegate start()" ) ;
+        m_delegate.start() ;
+        getLogger().debug( 
+                "Merlin wrapper invoked delegate start()" ) ;
     }
     
     
@@ -115,7 +125,14 @@ public class MerlinInputManager extends AbstractLogEnabled
      */
     public void stop() throws Exception
     {
-        m_inputManager.stop() ;
+        if ( m_delegate != null )
+        {    
+            getLogger().debug( 
+                    "Merlin wrapper about to invoke delegate stop()" ) ;
+            m_delegate.stop() ;
+            getLogger().debug( 
+                    "Merlin wrapper invoked delegate stop()" ) ;
+        }
     }
     
     
@@ -124,22 +141,25 @@ public class MerlinInputManager extends AbstractLogEnabled
      */
     public void initialize() throws Exception
     {
-        m_inputManager = new DefaultInputManager( m_router, m_bp ) ;
-        
+        getLogger().debug( "Delegate constructed" ) ;
+        m_delegate = new DefaultInputManager( m_router, m_bp ) ;
     }
 
     
     /**
      * @avalon.dependency type="org.apache.eve.event.EventRouter"
-     *         key="event-router" version="1.0" 
+     *      key="event-router" version="1.0" 
      * @avalon.dependency type="org.apache.eve.buffer.BufferPool"
-     *         key="buffer-pool" version="1.0" 
+     *      key="buffer-pool" version="1.0" 
+     * @avalon.dependency key="thread-manager" 
+     *      type="org.apache.avalon.cornerstone.services.threads.ThreadManager"
      * 
      * @see org.apache.avalon.framework.service.Serviceable#service(
      * org.apache.avalon.framework.service.ServiceManager)
      */
     public void service( ServiceManager a_manager ) throws ServiceException
     {
+        m_tm = ( ThreadManager ) a_manager.lookup( "thread-manager" ) ;
         m_bp = ( BufferPool ) a_manager.lookup( "buffer-pool" ) ;
         m_router = ( EventRouter ) a_manager.lookup( "event-router" ) ;
     }

@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<container name="server">
+<container name="frontend">
 
   <classloader>
     <classpath>
       <repository>
+        <resource id="commons-collections:commons-collections" version="2.1"/>
+        <resource id="cornerstone-threads:cornerstone-threads-api" version="1.0"/>
+        <resource id="cornerstone-threads:cornerstone-threads-impl" version="1.0"/>
+        <resource id="excalibur-thread:excalibur-thread" version="1.1.1"/>
+        <resource id="excalibur-pool:excalibur-pool" version="1.2"/>
+        <resource id="excalibur-event:excalibur-event" version="1.0.3"/>
         <resource id="avalon-framework:avalon-framework-api" version="4.1.5"/>
+        <resource id="avalon-framework:avalon-framework-impl" version="4.1.5"/>
         <resource id="directory:eve-frontend-common-api" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-event-spi" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-event-pojo-impl" version="SNAPSHOT"/>
@@ -15,9 +22,25 @@
         <resource id="directory:eve-frontend-buffer-merlin-impl" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-input-spi" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-input-pojo-impl" version="SNAPSHOT"/>
+        <resource id="directory:eve-frontend-input-merlin-impl" version="SNAPSHOT"/>
       </repository>
     </classpath>
   </classloader>
+
+   <component name="thread-manager" 
+      class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager">
+     <configuration>
+       <thread-group>
+         <name>default</name>
+         <priority>5</priority> 
+         <is-daemon>false</is-daemon>
+         <max-threads>5</max-threads>
+         <min-threads>2</min-threads>
+         <min-spare-threads>1</min-spare-threads>
+       </thread-group>
+     </configuration>
+   </component>
+
 
   <component
     name="event-router" 

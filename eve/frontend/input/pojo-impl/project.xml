@@ -65,7 +65,7 @@
 
         <dependency>
             <groupId>directory</groupId>
-            <artifactId>eve-frontend-buffer-impl</artifactId>
+            <artifactId>eve-frontend-buffer-pojo-impl</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org</url>
         </dependency>

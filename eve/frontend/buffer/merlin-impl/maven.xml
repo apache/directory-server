@@ -1,4 +1,5 @@
-<project default="java:compile"
+<project 
+  default="jar:install"
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"

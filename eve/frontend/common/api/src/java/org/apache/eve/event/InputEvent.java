@@ -51,7 +51,6 @@ package org.apache.eve.event ;
 
 
 import java.nio.ByteBuffer ;
-import java.util.EventObject ;
 
 import org.apache.eve.listener.ClientKey ;
 
@@ -70,10 +69,10 @@ import org.apache.eve.listener.ClientKey ;
  * @author $Author$
  * @version $Rev$
  */
-public abstract class InputEvent extends EventObject
+public abstract class InputEvent extends ClientEvent
 {
     /** the buffer used to store the read input */
-    protected final ByteBuffer m_buffer ;
+    private final ByteBuffer m_buffer ;
     
 
     /**
@@ -82,9 +81,10 @@ public abstract class InputEvent extends EventObject
      * @param a_client
      * @param a_buffer
      */
-    public InputEvent( ClientKey a_client, ByteBuffer a_buffer )
+    public InputEvent( Object a_source, ClientKey a_client, 
+                       ByteBuffer a_buffer )
     {
-        super( a_client ) ;
+        super( a_source, a_client ) ;
         m_buffer = a_buffer ;
     }
 
@@ -107,5 +107,16 @@ public abstract class InputEvent extends EventObject
      * @param a_party the party that originally claimed interest
      */
     public abstract void releaseInterest( Object a_party ) ;
+
+    
+    /**
+     * Gets the underlying byte buffer associated with this InputEvent.
+     * 
+     * @return the underlying byte buffer
+     */
+    protected ByteBuffer getBuffer()
+    {
+        return m_buffer ;
+    }
 }
 

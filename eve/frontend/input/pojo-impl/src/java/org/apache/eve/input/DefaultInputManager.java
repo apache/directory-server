@@ -193,14 +193,10 @@ public class DefaultInputManager implements InputManager
         }
         catch ( KeyExpiryException e )
         {
-            String l_msg = "Attempting session creation using expired key for "
-                + an_event.getClientKey() ;
             m_monitor.keyExpiryFailure( l_key, e ) ;
         }
         catch ( IOException e )
         {
-            String l_msg = "Input managmer registration failure for " +
-                an_event.getClientKey() + " due to exception." ;
             m_monitor.channelRegistrationFailure( m_selector, l_channel, 
                     SelectionKey.OP_READ, e ) ;
         }
@@ -290,7 +286,10 @@ public class DefaultInputManager implements InputManager
                 ByteBuffer l_buf = null ;
                 SocketChannel l_channel = ( SocketChannel ) l_key.channel() ;
 
-                // claim a buffer and read & return buffer on errors 
+                /*
+                 * claim a buffer, read from channel into it and remove 
+                 * the current selection key from selected set
+                 */ 
                 try
                 {
                     l_buf = m_bp.getBuffer( this ) ;
@@ -309,7 +308,14 @@ public class DefaultInputManager implements InputManager
                     continue ;
                 }
                     
-                // report to monitor, create the event, and publish it
+                /*
+                 * Monitor input and create the event publishing it.  Note that
+                 * releasing claim to the buffer does not free it.  It just 
+                 * removes this object as an interested party from the list
+                 * of interested parties.  After synchronously publishing the 
+                 * input event there are other interesed parties that have 
+                 * increased the reference count.
+                 */ 
                 m_monitor.inputRecieved( l_client ) ;
                 InputEvent l_event = new ConcreteInputEvent( l_client, l_buf ) ;
                 m_router.publish( l_event ) ;
@@ -331,18 +337,18 @@ public class DefaultInputManager implements InputManager
     {
         ConcreteInputEvent( ClientKey a_key, ByteBuffer a_buffer )
         {
-            super( a_key, a_buffer ) ;
+            super( DefaultInputManager.this, a_key, a_buffer ) ;
         }
         
         public ByteBuffer claimInterest( Object a_party )
         {
-            m_bp.claimInterest( m_buffer, a_party ) ;
-            return m_buffer.asReadOnlyBuffer() ;
+            m_bp.claimInterest( getBuffer(), a_party ) ;
+            return getBuffer().asReadOnlyBuffer() ;
         }
         
         public void releaseInterest( Object a_party )
         {
-            m_bp.releaseClaim( m_buffer, a_party ) ;
+            m_bp.releaseClaim( getBuffer(), a_party ) ;
         }
     }
     
