@@ -19,13 +19,16 @@ package org.apache.eve.processor.impl ;
 
 import java.util.EventObject ;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.event.RequestEvent ;
 import org.apache.eve.event.RequestSubscriber ;
+import org.apache.eve.event.ResponseEvent;
 import org.apache.eve.listener.ClientKey;
 import org.apache.eve.processor.HandlerRegistry;
 import org.apache.eve.processor.HandlerTypeEnum;
+import org.apache.eve.processor.ManyReplyHandler;
 import org.apache.eve.processor.NoReplyHandler;
 import org.apache.eve.processor.RequestHandler;
 import org.apache.eve.processor.RequestProcessor ;
@@ -35,7 +38,13 @@ import org.apache.eve.processor.SingleReplyHandler;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.seda.StageConfig ;
 import org.apache.eve.seda.StageHandler;
+import org.apache.ldap.common.message.LdapResult;
+import org.apache.ldap.common.message.LdapResultImpl;
+import org.apache.ldap.common.message.ManyReplyRequest;
+import org.apache.ldap.common.message.MessageTypeEnum;
 import org.apache.ldap.common.message.Request;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.message.ResultResponse;
 import org.apache.ldap.common.message.SingleReplyRequest;
 
 
@@ -100,14 +109,6 @@ public class DefaultRequestProcessor extends DefaultStage
     }
 
     
-    /* (non-Javadoc)
-     * @see org.apache.eve.processor.RequestProcessor#dummy()
-     */
-    public void dummy()
-    {
-    }
-    
-    
     class ProcessorStageHandler implements StageHandler
     {
         /**
@@ -115,51 +116,111 @@ public class DefaultRequestProcessor extends DefaultStage
          *
          * @param event the RequestEvent to process.
          */
-        public void handleEvent( EventObject event )
+        public void handleEvent( EventObject unspecific )
         {
-            Request l_request = null ;
-            ClientKey l_clientKey = null ;
+            RequestEvent event = ( RequestEvent ) unspecific ;
+            Request request = event.getRequest() ;
+            ClientKey key = event.getClientKey() ;
+            RequestHandler handler = hooks.lookup( request.getType() ) ;
 
-            // Throw protocol exception if the event is not a request event.
-            if( ! ( event instanceof RequestEvent ) )
+            if( handler == null )
             {
-                throw new ProtocolException( "Unrecognized event: " + event ) ;
+                throw new IllegalArgumentException( 
+                        "Unknown request message type: "
+                        + request.getType().getName() ) ;
             }
 
-            // Extract the ClientKey and Request parameters from the event
-            l_request = ( ( RequestEvent ) event ).getRequest() ;
-            l_clientKey = ( ClientKey )
-                ( ( RequestEvent ) event ).getSource() ;
-
-            // Get the handler if we have one defined.
-            RequestHandler l_handler = ( RequestHandler )
-                m_handlers.get( l_request.getType() ) ;
-            if( l_handler == null )
-            {
-                throw new ProtocolException( "Unknown request message type: "
-                    + l_request.getType().getName() ) ;
-            }
-
-            // Based on the handler type start request handling.
-            switch( l_handler.getHandlerType().getValue() )
+            switch( handler.getHandlerType().getValue() )
             {
             case( HandlerTypeEnum.NOREPLY_VAL ):
-                NoReplyHandler l_noreply = ( NoReplyHandler ) l_handler ;
-                l_noreply.handle( l_request ) ;
+                NoReplyHandler noreply = ( NoReplyHandler ) handler ;
+                noreply.handle( request ) ;
                 break ;
             case( HandlerTypeEnum.SINGLEREPLY_VAL ):
-                SingleReplyHandler l_single = ( SingleReplyHandler ) l_handler ;
-                doSingleReply( l_single, ( SingleReplyRequest ) l_request ) ;
+                SingleReplyHandler single = ( SingleReplyHandler ) handler ;
+                reply( single, ( SingleReplyRequest ) request, key ) ;
                 break ;
-            case( HandlerTypeEnum.SEARCH_VAL ):
-                SearchHandler l_search = ( SearchHandler ) l_handler ;
-                l_search.handle( ( SearchRequest ) l_request ) ;
+            case( HandlerTypeEnum.MANYREPLY_VAL ):
+                ManyReplyHandler many = ( ManyReplyHandler ) handler ;
+                reply( many, ( ManyReplyRequest ) request, key ) ;
                 break ;
             default:
-                throw new ProtocolException( "Unrecognized handler type: "
-                    + l_handler.getRequestType().getName() ) ;
+                throw new IllegalArgumentException( "Unrecognized type: "
+                    + handler.getRequestType().getName() ) ;
+            }
+        }
+    }
+    
+
+    /**
+     * Handles the generation and return of multiple responses.
+     * 
+     * @param handler the handler that generates the responses
+     * @param request the request responded to
+     */
+    private void reply( ManyReplyHandler handler, ManyReplyRequest request,
+                        ClientKey key )
+    {
+    }
+    
+    
+    /**
+     * Handles the generation and return of a single response.
+     * 
+     * @param handler the handler that generates the single response
+     * @param request the request responded to
+     */
+    private void reply( SingleReplyHandler handler, SingleReplyRequest request,
+                        ClientKey key )
+    {
+        int id = request.getMessageId() ;
+        LdapResult result = null ;
+        ResultResponse response = null ;
+
+        try
+        {
+            response = handler.handle( request ) ;
+        }
+
+        // If the individual handlers do not do a global catch and report this
+        // will sheild the server from complete failure on a request reporting
+        // at a minimum the stack trace that cause the request to fail.
+        catch( Throwable t )
+        {
+            switch( request.getResponseType().getValue() )
+            {
+            case( MessageTypeEnum.ADDRESPONSE_VAL ):
+                response = new AddResponseImpl( id ) ;
+                break ;
+            case( MessageTypeEnum.BINDRESPONSE_VAL ):
+                response = new BindResponseImpl( id ) ;
+                break ;
+            case( MessageTypeEnum.COMPARERESPONSE_VAL ):
+                response = new CompareResponseImpl( id ) ;
+                break ;
+            case( MessageTypeEnum.DELRESPONSE_VAL ):
+                response = new DeleteResponseImpl( id ) ;
+                break ;
+            case( MessageTypeEnum.EXTENDEDRESP_VAL ):
+                response = new ExtendedResponseImpl( id ) ;
+                break ;
+            case( MessageTypeEnum.MODDNRESPONSE_VAL ):
+                response = new ModifyDnResponseImpl( id ) ;
+                break ;
+            case( MessageTypeEnum.MODIFYRESPONSE_VAL ):
+                response = new ModifyResponseImpl( id ) ;
+                break ;
             }
 
+            monitor.failedOnSingleReply( key, request, t ) ;
+            
+            result = new LdapResultImpl( response ) ;
+            result.setMatchedDn( "" ) ;
+            result.setErrorMessage( "STUBBED OUT FOR NOW!" ) ;
+            result.setResultCode( ResultCodeEnum.OPERATIONSERROR ) ;
+            response.setLdapResult( result ) ;
         }
+
+        router.publish( new ResponseEvent( this, key, response ) ) ;
     }
 }
