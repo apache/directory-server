@@ -17,9 +17,21 @@
 package org.apache.eve.encoder.impl ;
 
 
+import java.util.EventObject;
+
 import org.apache.avalon.merlin.unit.AbstractMerlinTestCase ;
 
 import org.apache.eve.encoder.EncoderManager ;
+import org.apache.eve.event.AbstractSubscriber;
+import org.apache.eve.event.EventRouter;
+import org.apache.eve.event.OutputEvent;
+import org.apache.eve.event.OutputSubscriber;
+import org.apache.eve.event.ResponseEvent;
+import org.apache.ldap.common.message.AddResponse;
+import org.apache.ldap.common.message.AddResponseImpl;
+import org.apache.ldap.common.message.LdapResult;
+import org.apache.ldap.common.message.LdapResultImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
@@ -30,8 +42,11 @@ import org.apache.eve.encoder.EncoderManager ;
  * @version $Rev$
  */
 public class MerlinEncoderManagerTest extends AbstractMerlinTestCase
+    implements OutputSubscriber
 {
     EncoderManager encman = null ;
+    OutputEvent event = null ;
+    EventRouter router = null ;
 
     
     public MerlinEncoderManagerTest( String a_name )
@@ -54,6 +69,9 @@ public class MerlinEncoderManagerTest extends AbstractMerlinTestCase
         super.setUp() ;
         encman = ( EncoderManager ) 
             resolve( "/server/encoder-manager" ) ; 
+        router = ( EventRouter )
+            resolve( "/server/event-router" ) ; 
+        router.subscribe( OutputEvent.class, this ) ;
     }
 
     
@@ -64,11 +82,53 @@ public class MerlinEncoderManagerTest extends AbstractMerlinTestCase
     {
         super.tearDown() ;
         encman = null ;
+        router = null ;
+        event = null ;
     }
 
-
-    public void testDummy()
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.event.Subscriber#inform(java.util.EventObject)
+     */
+    public void inform( EventObject event )
     {
-        encman.dummy() ;
+        try
+        {
+            AbstractSubscriber.inform( this, event ) ;
+        }
+        catch( Throwable t )
+        {
+            t.printStackTrace() ;
+        }
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.event.OutputSubscriber#
+     * inform(org.apache.eve.event.OutputEvent)
+     */
+    public void inform( OutputEvent event )
+    {
+        this.event = event ;
+    }
+    
+
+    /**
+     * Tests the encoding of a response to an add request.
+     *
+     */
+    public void testAddResponse() throws Exception 
+    {
+        AddResponse response = new AddResponseImpl( 5 ) ;
+        LdapResult result = new LdapResultImpl( response ) ;
+        result.setErrorMessage( "Server is stubbed out" ) ;
+        result.setMatchedDn( "uid=akarasulu,dc=example,dc=com" ) ;
+        result.setResultCode( ResultCodeEnum.UNWILLINGTOPERFORM ) ;
+        response.setLdapResult( result ) ;
+        ResponseEvent event = new ResponseEvent( this, null, response ) ;
+        router.publish( event ) ;
+        
+        Thread.sleep(1000) ;
+        assertNotNull( this.event ) ;
     }
 }

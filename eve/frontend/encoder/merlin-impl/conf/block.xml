@@ -27,6 +27,7 @@
         <resource id="commons-collections:commons-collections" version="3.0"/>
         <resource id="commons-primitives:commons-primitives" version="1.1-dev"/>
         <resource id="commons-lang:commons-lang" version="2.0"/>
+        <resource id="commons-logging:commons-logging" version="1.0.3"/>
   
         <!-- Directory Dependencies -->
 

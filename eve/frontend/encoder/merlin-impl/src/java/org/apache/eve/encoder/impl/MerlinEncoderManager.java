@@ -17,11 +17,14 @@
 package org.apache.eve.encoder.impl ;
 
 
+import org.apache.commons.codec.EncoderException ;
+
 import org.apache.eve.thread.ThreadPool ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStageConfig ;
 
 import org.apache.eve.encoder.EncoderManager ;
+import org.apache.ldap.common.message.Response;
 
 import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.logger.LogEnabled ;
@@ -75,10 +78,12 @@ public class MerlinEncoderManager
 
 
     /* (non-Javadoc)
-     * @see org.apache.eve.processor.RequestProcessor#dummy()
+     * @see org.apache.eve.encoder.EncoderManager#encode(
+     * org.apache.ldap.common.message.Response)
      */
-    public void dummy()
+    public byte[] encode( Response response ) throws EncoderException
     {
+        return encoderManager.encode( response ) ;
     }
     
     
@@ -142,7 +147,7 @@ public class MerlinEncoderManager
      */
     public void initialize() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        encoderManager = new DefaultEncoderManager( router, stageConfig ) ;
     }
     
     
@@ -151,7 +156,7 @@ public class MerlinEncoderManager
      */
     public void start() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        encoderManager.start() ;
     }
     
     
@@ -160,6 +165,6 @@ public class MerlinEncoderManager
      */
     public void stop() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        encoderManager.stop() ;
     }
 }
