@@ -24,7 +24,6 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
-import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.BaseInterceptor;
@@ -162,7 +161,7 @@ public class OperationalAttributeService extends BaseInterceptor
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
-            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attribute.add( DateUtils.getGeneralizedTime() );
             attributes.put( attribute );
 
             nexus.modify( dn, DirContext.REPLACE_ATTRIBUTE, attributes );
@@ -185,7 +184,7 @@ public class OperationalAttributeService extends BaseInterceptor
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
-            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attribute.add( DateUtils.getGeneralizedTime() );
             attributes.put( attribute );
 
             nexus.modify( dn, DirContext.REPLACE_ATTRIBUTE, attributes );
@@ -206,7 +205,7 @@ public class OperationalAttributeService extends BaseInterceptor
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
-            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attribute.add( DateUtils.getGeneralizedTime() );
             attributes.put( attribute );
 
             Name newDn = dn.getSuffix( 1 ).add( newRdn );
@@ -228,7 +227,7 @@ public class OperationalAttributeService extends BaseInterceptor
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
-            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attribute.add( DateUtils.getGeneralizedTime() );
             attributes.put( attribute );
 
             nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
@@ -250,7 +249,7 @@ public class OperationalAttributeService extends BaseInterceptor
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
-            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attribute.add( DateUtils.getGeneralizedTime() );
             attributes.put( attribute );
 
             nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
