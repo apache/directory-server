@@ -186,7 +186,7 @@ public class JndiProvider implements BackendSubsystem
     public Object invoke( Invocation call ) throws NamingException
     {
         interceptor.process( null, call );
-        return call.getResponse();
+        return call.getReturnValue();
     }
 
     /**

@@ -296,7 +296,7 @@ public class Authorizer extends BaseInterceptor
     {
         super.process( nextInterceptor, call );
 
-        Attributes attributes = ( Attributes ) call.getResponse();
+        Attributes attributes = ( Attributes ) call.getReturnValue();
         if ( attributes == null )
         {
             return;
@@ -305,7 +305,7 @@ public class Authorizer extends BaseInterceptor
         Attributes retval = ( Attributes ) attributes.clone();
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         protectLookUp( ctx, call.getName() );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -313,7 +313,7 @@ public class Authorizer extends BaseInterceptor
     {
         super.process( nextInterceptor, call );
 
-        Attributes attributes = ( Attributes ) call.getResponse();
+        Attributes attributes = ( Attributes ) call.getReturnValue();
         if ( attributes == null )
         {
             return;
@@ -322,7 +322,7 @@ public class Authorizer extends BaseInterceptor
         Attributes retval = ( Attributes ) attributes.clone();
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         protectLookUp( ctx, call.getName() );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -390,7 +390,7 @@ public class Authorizer extends BaseInterceptor
         NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getResponse();
+        e = ( NamingEnumeration ) call.getReturnValue();
         retval = new ResultFilteringEnumeration( e, searchControls, ctx,
                 new SearchResultFilter()
                 {
@@ -402,7 +402,7 @@ public class Authorizer extends BaseInterceptor
                     }
                 } );
 
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -413,7 +413,7 @@ public class Authorizer extends BaseInterceptor
         NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getResponse();
+        e = ( NamingEnumeration ) call.getReturnValue();
         retval = new ResultFilteringEnumeration( e, null, ctx,
             new SearchResultFilter()
             {
@@ -425,7 +425,7 @@ public class Authorizer extends BaseInterceptor
                 }
             } );
 
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 

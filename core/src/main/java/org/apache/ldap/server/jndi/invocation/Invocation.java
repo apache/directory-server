@@ -36,7 +36,7 @@ import java.util.Stack;
 public abstract class Invocation
 {
 
-    protected Object response;
+    protected Object returnValue;
 
     protected Stack contextStack;
 
@@ -50,20 +50,20 @@ public abstract class Invocation
 
 
     /**
-     * Returns the response object for this invocation.
+     * Returns the returnValue object for this invocation.
      */
-    public Object getResponse()
+    public Object getReturnValue()
     {
-        return response;
+        return returnValue;
     }
 
 
     /**
-     * Sets the response object for this invocation.
+     * Sets the returnValue object for this invocation.
      */
-    public void setResponse( Object response )
+    public void setReturnValue( Object returnValue )
     {
-        this.response = response;
+        this.returnValue = returnValue;
     }
 
 
@@ -94,19 +94,19 @@ public abstract class Invocation
     /**
      * Executes this invocation on the specified <code>store</code>. The default
      * implementation calls an abstract method {@link #doExecute(BackingStore)}
-     * and sets the <code>response</code> property of this invocation to its return value.
+     * and sets the <code>returnValue</code> property of this invocation to its return value.
      *
      * @throws NamingException if the operation failed
      */
     public void execute( BackingStore store ) throws NamingException
     {
-        setResponse( doExecute( store ) );
+        setReturnValue( doExecute( store ) );
     }
 
 
     /**
      * Implement this method to invoke the appropriate operation on the specified
-     * <code>store</code>.  Returned value will be set as the <code>response</code> proeprty of this invocation.
+     * <code>store</code>.  Returned value will be set as the <code>returnValue</code> proeprty of this invocation.
      *
      * @throws NamingException if the operation failed
      */

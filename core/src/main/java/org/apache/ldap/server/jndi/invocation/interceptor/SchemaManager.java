@@ -120,9 +120,9 @@ public class SchemaManager extends BaseInterceptor
         NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getResponse();
+        e = ( NamingEnumeration ) call.getReturnValue();
         retval = new ResultFilteringEnumeration( e, new SearchControls(), ctx, binaryAttributeFilter );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -152,7 +152,7 @@ public class SchemaManager extends BaseInterceptor
                 Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
                 SearchResult result = new SearchResult( call.getBaseName().toString(), null, attrs );
                 SingletonEnumeration e = new SingletonEnumeration( result );
-                call.setResponse( e );
+                call.setReturnValue( e );
                 bypass = true;
             }
         }
@@ -167,7 +167,7 @@ public class SchemaManager extends BaseInterceptor
                 Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
                 SearchResult result = new SearchResult( call.getBaseName().toString(), null, attrs );
                 SingletonEnumeration e = new SingletonEnumeration( result );
-                call.setResponse( e );
+                call.setReturnValue( e );
                 bypass = true;
             }
         }
@@ -185,9 +185,9 @@ public class SchemaManager extends BaseInterceptor
         NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getResponse();
+        e = ( NamingEnumeration ) call.getReturnValue();
         retval = new ResultFilteringEnumeration( e, searchControls, ctx, binaryAttributeFilter );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -322,10 +322,10 @@ public class SchemaManager extends BaseInterceptor
         nextInterceptor.process( call );
 
         ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
-        Attributes attributes = ( Attributes ) call.getResponse();
+        Attributes attributes = ( Attributes ) call.getReturnValue();
         Attributes retval = ( Attributes ) attributes.clone();
         doFilter( ctx, retval );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -334,7 +334,7 @@ public class SchemaManager extends BaseInterceptor
         nextInterceptor.process( call );
 
         ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
-        Attributes attributes = ( Attributes ) call.getResponse();
+        Attributes attributes = ( Attributes ) call.getReturnValue();
         if ( attributes == null )
         {
             return;
@@ -342,7 +342,7 @@ public class SchemaManager extends BaseInterceptor
 
         Attributes retval = ( Attributes ) attributes.clone();
         doFilter( ctx, retval );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 

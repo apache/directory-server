@@ -207,10 +207,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         nextInterceptor.process( call );
 
-        Attributes attributes = ( Attributes ) call.getResponse();
+        Attributes attributes = ( Attributes ) call.getReturnValue();
         Attributes retval = ( Attributes ) attributes.clone();
         filter( retval );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -218,7 +218,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         nextInterceptor.process( call );
 
-        Attributes attributes = ( Attributes ) call.getResponse();
+        Attributes attributes = ( Attributes ) call.getReturnValue();
         if ( attributes == null )
         {
             return;
@@ -226,7 +226,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         Attributes retval = ( Attributes ) attributes.clone();
         filter( call.getName(), retval, call.getAttributeIds() );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -237,9 +237,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getResponse();
+        e = ( NamingEnumeration ) call.getReturnValue();
         retval = new ResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
@@ -256,9 +256,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getResponse();
+        e = ( NamingEnumeration ) call.getReturnValue();
         retval = new ResultFilteringEnumeration( e, searchControls, ctx, SEARCH_FILTER );
-        call.setResponse( retval );
+        call.setReturnValue( retval );
     }
 
 
