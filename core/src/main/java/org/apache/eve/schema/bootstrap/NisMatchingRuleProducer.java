@@ -19,6 +19,8 @@ package org.apache.eve.schema.bootstrap;
 
 import javax.naming.NamingException;
 
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
+
 
 /**
  * A producer of MatchingRule objects for the nis schema.  This code has been

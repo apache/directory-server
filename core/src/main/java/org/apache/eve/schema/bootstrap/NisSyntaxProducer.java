@@ -20,6 +20,7 @@ package org.apache.eve.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.eve.schema.SyntaxCheckerRegistry;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 
 
 

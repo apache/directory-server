@@ -22,6 +22,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.ComparableComparator;
 import org.apache.ldap.common.util.BigIntegerComparator;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 import jdbm.helper.StringComparator;
 
 

@@ -20,6 +20,7 @@ package org.apache.eve.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.*;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.eve.schema.ConcreteNameComponentNormalizer;
 
 

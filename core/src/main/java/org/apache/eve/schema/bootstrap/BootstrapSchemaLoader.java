@@ -23,6 +23,8 @@ import javax.naming.NamingException;
 
 import org.apache.eve.schema.*;
 import org.apache.ldap.common.schema.*;
+import org.apache.ldap.server.schema.bootstrap.BootstrapSchema;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 
 
 /**

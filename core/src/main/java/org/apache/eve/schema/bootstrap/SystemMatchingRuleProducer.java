@@ -19,6 +19,8 @@ package org.apache.eve.schema.bootstrap;
 
 import javax.naming.NamingException;
 
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
+
 
 /**
  * A simple maching rule configuration where objects and java code are used

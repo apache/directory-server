@@ -21,6 +21,7 @@ import java.util.Comparator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.*;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.eve.schema.ConcreteNameComponentNormalizer;
 
 

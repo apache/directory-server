@@ -17,7 +17,8 @@
 package org.apache.eve.tools.schema;
 
 
-import org.apache.eve.schema.bootstrap.AbstractBootstrapSchema;
+import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
+import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
 
 
 /**

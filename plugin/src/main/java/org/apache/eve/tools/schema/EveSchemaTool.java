@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.VelocityContext;
 
-import org.apache.eve.schema.bootstrap.BootstrapSchema;
-import org.apache.eve.schema.bootstrap.ProducerTypeEnum;
+import org.apache.ldap.server.schema.bootstrap.BootstrapSchema;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 
 
 /**

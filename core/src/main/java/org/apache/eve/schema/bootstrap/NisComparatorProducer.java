@@ -24,6 +24,7 @@ import org.apache.ldap.common.schema.NormalizingComparator;
 import org.apache.ldap.common.schema.CachingNormalizer;
 import org.apache.ldap.common.schema.DeepTrimNormalizer;
 import org.apache.ldap.common.schema.ComparableComparator;
+import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 
 
 

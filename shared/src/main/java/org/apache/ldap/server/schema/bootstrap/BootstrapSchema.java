@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.bootstrap;
+package org.apache.ldap.server.schema.bootstrap;
 
 
 /**
