@@ -24,7 +24,7 @@
       <item name="Developer's Guide" href="../../developers/index.html"/>
       <item name="Eve Projects" href="../../projects/index.html">
         <item name="main" href="../../projects/eve/index.html"/>
-        <item name="dib" href="../../projects/eve-dib/index.html"/>
+        <item name="core" href="../../projects/eve-core/index.html"/>
         <item name="shared" href="../../projects/eve-shared/index.html"/>
         <item name="protocol" href="../../projects/eve-protocol/index.html"/>
         <item name="plugin" href="/index.html"/>

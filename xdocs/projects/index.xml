@@ -29,7 +29,7 @@
 
         <tr>
           <td>
-            <a href="../projects/eve-core/index.html">dib</a>
+            <a href="../projects/eve-core/index.html">core</a>
           </td>
           <td>
             Eve's core contains all of Eve's backend subsystems.  It depends on
