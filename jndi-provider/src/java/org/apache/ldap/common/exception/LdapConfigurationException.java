@@ -14,32 +14,51 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.exception;
+package org.apache.ldap.common.exception;
 
 
-import javax.naming.AuthenticationException;
+import javax.naming.ConfigurationException;
 
-import org.apache.eve.exception.LdapException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
- * The Eve version of an {@link AuthenticationException} which associates the
- * {@link ResultCodeEnum.INVALIDCREDENTIALS} value with it.  
+ * A ConfigurationException which associates a resultCode namely the
+ * {@link ResultCodeEnum#OTHER} resultCode with the exception.
  *
+ * @see LdapException
+ * @see javax.naming.ConfigurationException
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapAuthenticationException extends AuthenticationException
+public class LdapConfigurationException extends ConfigurationException
         implements LdapException
 {
     /**
-     * Gets ResultCodeEnum.INVALIDCREDENTIALS every time.
+     * @see javax.naming.NoPermissionException#NoPermissionException()
+     */
+    public LdapConfigurationException()
+    {
+        super();
+    }
+
+
+    /**
+     * @see javax.naming.NoPermissionException#NoPermissionException(String)
+     */
+    public LdapConfigurationException( String explanation )
+    {
+        super( explanation );
+    }
+
+
+    /**
+     * Always returns {@link org.apache.ldap.common.message.ResultCodeEnum#OTHER}
      *
-     * @return ResultCodeEnum.INVALIDCREDENTIALS
+     * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.INVALIDCREDENTIALS;
+        return ResultCodeEnum.OTHER;
     }
 }

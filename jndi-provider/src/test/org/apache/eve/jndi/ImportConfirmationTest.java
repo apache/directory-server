@@ -30,7 +30,8 @@ import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.eve.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapConfigurationException;
 
 
 /**

@@ -19,7 +19,8 @@ package org.apache.eve.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.eve.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
 
 
 /**

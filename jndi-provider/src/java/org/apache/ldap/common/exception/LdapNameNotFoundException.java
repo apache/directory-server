@@ -14,12 +14,12 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.exception;
+package org.apache.ldap.common.exception;
 
 
 import javax.naming.NameNotFoundException;
 
-import org.apache.eve.exception.LdapException;
+import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 

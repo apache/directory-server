@@ -37,11 +37,12 @@ import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
+import org.apache.ldap.common.exception.LdapConfigurationException;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
-import org.apache.eve.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;

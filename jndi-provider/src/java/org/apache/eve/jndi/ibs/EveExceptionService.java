@@ -22,12 +22,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.eve.jndi.*;
-import org.apache.eve.exception.LdapNameNotFoundException;
-import org.apache.eve.exception.LdapNameAlreadyBoundException;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.exception.EveInterceptorException;
-import org.apache.eve.exception.LdapException;
+import org.apache.ldap.common.exception.LdapException;
+import org.apache.ldap.common.exception.*;
 
 
 /**

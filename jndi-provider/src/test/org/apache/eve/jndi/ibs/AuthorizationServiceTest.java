@@ -25,9 +25,10 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 
 import org.apache.eve.jndi.AbstractMultiUserJndiTest;
-import org.apache.eve.exception.LdapNoPermissionException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.eve.db.DbSearchResult;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 
 /**

@@ -19,8 +19,6 @@ package org.apache.eve.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.eve.exception.EveInterceptorException;
-
 
 /**
  * The Interceptor is a component through which invocations pass thru.  In 

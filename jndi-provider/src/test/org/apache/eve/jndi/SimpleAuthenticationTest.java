@@ -26,8 +26,10 @@ import javax.naming.*;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.eve.exception.LdapNoPermissionException;
-import org.apache.eve.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 
 /**

@@ -28,10 +28,11 @@ import javax.naming.directory.SearchControls;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.db.DbSearchResult;
-import org.apache.eve.exception.LdapNoPermissionException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.eve.jndi.*;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 
 /**

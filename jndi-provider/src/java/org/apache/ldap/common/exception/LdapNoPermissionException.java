@@ -14,31 +14,52 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.exception;
+package org.apache.ldap.common.exception;
 
 
-import javax.naming.NameAlreadyBoundException;
+import javax.naming.NoPermissionException;
 
-import org.apache.eve.exception.LdapException;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.exception.LdapException;
 
 
 /**
- * An Eve specific NameAlreadyBoundException.
+ * A NoPermissionException which associates a resultCode namely the
+ * {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS} resultCode with the exception.
  *
+ * @see LdapException
+ * @see NoPermissionException
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapNameAlreadyBoundException extends NameAlreadyBoundException
+public class LdapNoPermissionException extends NoPermissionException
         implements LdapException
 {
     /**
-     * Always returns ResultCodeEnum.ENTRYALREADYEXISTS.
+     * @see NoPermissionException#NoPermissionException()
+     */
+    public LdapNoPermissionException()
+    {
+        super();
+    }
+
+
+    /**
+     * @see NoPermissionException#NoPermissionException(String)
+     */
+    public LdapNoPermissionException( String explanation )
+    {
+        super( explanation );
+    }
+
+
+    /**
+     * Always returns {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS}
      *
      * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.ENTRYALREADYEXISTS;
+        return ResultCodeEnum.INSUFFICIENTACCESSRIGHTS;
     }
 }

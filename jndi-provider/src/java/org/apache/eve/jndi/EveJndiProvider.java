@@ -20,7 +20,7 @@ package org.apache.eve.jndi;
 import org.apache.eve.RootNexus;
 import org.apache.eve.PartitionNexus;
 import org.apache.eve.EveBackendSubsystem;
-import org.apache.eve.exception.LdapNamingException;
+import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 import java.util.Hashtable;
