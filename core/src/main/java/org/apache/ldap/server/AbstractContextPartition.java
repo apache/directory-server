@@ -57,31 +57,31 @@ public abstract class AbstractContextPartition implements ContextPartition
 
        1.2.6.1.4.1.18060.1.1
 
-     The following branch is reserved for eve:
+     The following branch is reserved for the apache directory server:
 
        1.2.6.1.4.1.18060.1.1.1
 
-      The following branch is reserved for use by eve Syntaxes:
+      The following branch is reserved for use by apache directory server Syntaxes:
 
         1.2.6.1.4.1.18060.1.1.1.1
 
-      The following branch is reserved for use by eve MatchingRules:
+      The following branch is reserved for use by apache directory server MatchingRules:
 
         1.2.6.1.4.1.18060.1.1.1.2
 
-      The following branch is reserved for use by even AttributeTypes:
+      The following branch is reserved for use by apache directory server AttributeTypes:
 
         1.2.6.1.4.1.18060.1.1.1.3
 
-          * 1.2.6.1.4.1.18060.1.1.1.3.1 - eveNdn
-          * 1.2.6.1.4.1.18060.1.1.1.3.2 - eveUpdn
-          * 1.2.6.1.4.1.18060.1.1.1.3.3 - eveExistance
-          * 1.2.6.1.4.1.18060.1.1.1.3.4 - eveHierarchy
-          * 1.2.6.1.4.1.18060.1.1.1.3.5 - eveOneAlias
-          * 1.2.6.1.4.1.18060.1.1.1.3.6 - eveSubAlias
-          * 1.2.6.1.4.1.18060.1.1.1.3.7 - eveAlias
+          * 1.2.6.1.4.1.18060.1.1.1.3.1 - apacheNdn
+          * 1.2.6.1.4.1.18060.1.1.1.3.2 - apacheUpdn
+          * 1.2.6.1.4.1.18060.1.1.1.3.3 - apacheExistance
+          * 1.2.6.1.4.1.18060.1.1.1.3.4 - apacheHierarchy
+          * 1.2.6.1.4.1.18060.1.1.1.3.5 - apacheOneAlias
+          * 1.2.6.1.4.1.18060.1.1.1.3.6 - apacheSubAlias
+          * 1.2.6.1.4.1.18060.1.1.1.3.7 - apacheAlias
 
-      The following branch is reserved for use by eve ObjectClasses:
+      The following branch is reserved for use by apache directory server ObjectClasses:
 
         1.2.6.1.4.1.18060.1.1.1.4
 

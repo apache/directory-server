@@ -2,21 +2,21 @@
 #                                    Eve Schema
 # =============================================================================
 #
-#                 +-----------------------------+--------------+
-#                 |    Eve AttributeType OID    |     name     |
-#                 +-----------------------------+--------------+
-#                 | 1.2.6.1.4.1.18060.1.1.1.3.1 | eveNdn       |
-#                 | 1.2.6.1.4.1.18060.1.1.1.3.2 | eveUpdn      |
-#                 | 1.2.6.1.4.1.18060.1.1.1.3.3 | eveExistance |
-#                 | 1.2.6.1.4.1.18060.1.1.1.3.4 | eveHierarchy |
-#                 | 1.2.6.1.4.1.18060.1.1.1.3.5 | eveOneAlias  |
-#                 | 1.2.6.1.4.1.18060.1.1.1.3.6 | eveSubAlias  |
-#                 | 1.2.6.1.4.1.18060.1.1.1.3.7 | eveAlias     |
-#                 +-----------------------------+--------------+
+#              +-----------------------------+-----------------+
+#              |    Eve AttributeType OID    |       name      |
+#              +-----------------------------+-----------------+
+#              | 1.2.6.1.4.1.18060.1.1.1.3.1 | apacheNdn       |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.2 | apacheUpdn      |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.3 | apacheExistance |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.4 | apacheHierarchy |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.5 | apacheOneAlias  |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.6 | apacheSubAlias  |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.7 | apacheAlias     |
+#              +-----------------------------+-----------------+
 # =============================================================================
 
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.1 NAME 'eveNdn'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.1 NAME 'apacheNdn'
     DESC 'Index attribute DN whose values are normalized based on schema'
     SUP distinguishedName
     EQUALITY distinguishedNameMatch
@@ -25,7 +25,7 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.1 NAME 'eveNdn'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.2 NAME 'eveUpdn'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.2 NAME 'apacheUpdn'
     DESC 'Index attribute for DN whose values are NOT normalized in any way'
     EQUALITY exactDnAsStringMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
@@ -33,7 +33,7 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.2 NAME 'eveUpdn'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.3 NAME 'eveExistance'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.3 NAME 'apacheExistance'
     DESC 'Index attribute used to track the existence of attributes'
     SUP name
     EQUALITY caseIgnoreMatch
@@ -41,28 +41,28 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.3 NAME 'eveExistance'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.4 NAME 'eveHierarchy'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.4 NAME 'apacheHierarchy'
     DESC 'Index attribute used to track the DIT hierarchy'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.5 NAME 'eveOnealias'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.5 NAME 'apacheOnealias'
     DESC 'Index attribute used to track single level aliases'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.6 NAME 'eveSubalias'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.6 NAME 'apacheSubalias'
     DESC 'Index attribute used to track single level aliases'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.7 NAME 'eveAlias'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.7 NAME 'apacheAlias'
     DESC 'asdf'
     SUP distinguishedName
     EQUALITY distinguishedNameMatch
