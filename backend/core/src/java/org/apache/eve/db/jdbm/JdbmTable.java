@@ -847,7 +847,7 @@ public class JdbmTable implements Table
         
         try 
         {
-            DefaultTupleBrowser browser = new DefaultTupleBrowser( bt.browse() );
+            JdbmTupleBrowser browser = new JdbmTupleBrowser( bt.browse() );
             list = new NoDupsEnumeration( browser, true );
         }
         catch ( IOException e ) 
@@ -913,8 +913,8 @@ public class JdbmTable implements Table
         {
             if ( isGreaterThan ) 
             {
-                DefaultTupleBrowser browser = 
-                    new DefaultTupleBrowser( bt.browse( key ) ); 
+                JdbmTupleBrowser browser =
+                    new JdbmTupleBrowser( bt.browse( key ) );
                 list = new NoDupsEnumeration( browser, isGreaterThan );
             } 
             else 
@@ -945,7 +945,7 @@ public class JdbmTable implements Table
 
                 // If greaterKey != key above then it will not be returned.
                 list = new NoDupsEnumeration( 
-                    new DefaultTupleBrowser( browser ), isGreaterThan );
+                    new JdbmTupleBrowser( browser ), isGreaterThan );
             }
         } 
         catch ( IOException e ) 

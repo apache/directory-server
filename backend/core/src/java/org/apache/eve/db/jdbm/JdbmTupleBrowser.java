@@ -1,3 +1,19 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.db.jdbm;
 
 
@@ -12,9 +28,10 @@ import javax.naming.NamingException;
 /**
  * TupleBrowser wrapper for Jdbm based TupleBrowsers.
  *
- * @todo rename this to JdbmTupleBrowser
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
-public class DefaultTupleBrowser implements TupleBrowser
+public class JdbmTupleBrowser implements TupleBrowser
 {
     /** underlying wrapped jdbm.helper.TupleBrowser */
     private jdbm.helper.TupleBrowser jdbmBrowser;
@@ -23,11 +40,11 @@ public class DefaultTupleBrowser implements TupleBrowser
     
     
     /**
-     * Creates a DefaultTupleBrowser.
+     * Creates a JdbmTupleBrowser.
      *
      * @param jdbmBrowser JDBM browser to wrap.
      */
-    public DefaultTupleBrowser( jdbm.helper.TupleBrowser jdbmBrowser )
+    public JdbmTupleBrowser( jdbm.helper.TupleBrowser jdbmBrowser )
     {
         this.jdbmBrowser = jdbmBrowser;
     }
