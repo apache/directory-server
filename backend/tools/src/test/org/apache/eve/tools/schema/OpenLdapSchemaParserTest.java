@@ -29,7 +29,7 @@ import java.io.ByteArrayInputStream;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AttributeTypeParserTest extends TestCase
+public class OpenLdapSchemaParserTest extends TestCase
 {
     public void testParser() throws Exception
     {
