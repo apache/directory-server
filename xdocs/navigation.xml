@@ -13,49 +13,20 @@
       <item name="Naming" href="../directory-naming/index.html"/>
       <item name="Janus" href="../janus/index.html"/>
       <item name="Snickers" href="../snickers/index.html"/>
+      <item name="Kerberos" href="../kerberos/index.html"/>
+      <item name="SEDA" href="../seda/index.html"/>
     </links>
 
     <menu name="Eve">
       <item name="Overview" href="/index.html"/>
       <item name="Features" href="/features.html"/>
-      <item name="Source Layout" href="/source-layout.html"/>
-      <item name="Component Design" href="/components.html"/>
       <item name="Building" href="/building.html"/>
-      <item name="Deploying" href="/deploying.html"/>
-      <item name="Backend Design" href="/backend/index.html"/>
-      <item name="Frontend Design" href="/frontend/index.html" collapse="true">
-            <item name="Requirements" href="/frontend/requirements.html"/>
-            <item name="X.500 and LDAP" href="/frontend/x.500-ldap.html"/>
-            <item name="SEDA Approach" href="/frontend/seda.html"/>
-            <item name="HiPerformance" href="/frontend/performance.html"/>
-            <item name="Event Decoupling" href="/frontend/events.html"/>
-            <item name="Resource Pooling" href="/frontend/resource-pooling.html"/>
-            <item name="Pushing the JNDI" href="/frontend/pushing-jndi.html"/>
-            <item name="Components" href="/frontend/components/index.html" collapse="true">
-              <item name="Common APIs"
-                href="/frontend/components/common/index.html"/>
-              <item name="buffer" 
-                href="/frontend/components/buffer/index.html"/>
-              <item name="event" 
-                href="/frontend/components/event/index.html"/>
-              <item name="input" 
-                href="/frontend/components/input/index.html"/>
-              <item name="listener" 
-                href="/frontend/components/listener/index.html"/>
-              <item name="encoder" 
-                href="/frontend/components/encoder/index.html"/>
-              <item name="decoder" 
-                href="/frontend/components/decoder/index.html"/>
-              <item name="output" 
-                href="/frontend/components/output/index.html"/>
-              <item name="client" 
-                href="/frontend/components/client/index.html"/>
-              <item name="processor" 
-                href="/frontend/components/processor/index.html"/>
-            </item>
-            <item name="Miscellaneous" href="/frontend/misc.html"/>
-            <item name="Current Status" href="/frontend/status.html"/>
-       </item>
+      <item name="User's Guide" href="/users-guide.html"/>
+      <item name="Roadmap" href="/roadmap.html"/>
+      <item name="Architecture" href="/architecture.html"/>
+      <item name="Components" href="/components.html"/>
+      <item name="Protocol" href="/protocol.html"/>
+      <item name="JNDI" href="/jndi.html"/>
     </menu>
     
     <menu name="Project Information">

@@ -2,7 +2,7 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Apache Directory Project: Eve Directory Server</title>
+    <title>Eve Directory Server</title>
   </properties>
   
   <body>
@@ -10,9 +10,9 @@
       <p>Welcome to the Eve Directory Server Homepage!</p>
 
       <p>
-        Eve is a modular LDAP server written in pure Java. The Eve server is 
-        being completely designed from the ground up here within the incubator 
-        and will gain from the experience of building the old LDAPd server. 
+        Eve is an embeddable LDAP server written in Java.  It has been designed
+        to introduce triggers, stored procedures, queues and views to the world
+        of LDAP which has lacked these rich constructs.
       </p>
       
       <table>
@@ -29,63 +29,71 @@
             Eve's existing and planned features
           </td>
         </tr>
-        
-        <tr>
-          <td>
-            <a href="./source-layout.html">Source Layout</a>
-          </td>
-          <td>
-            Software configuration management is crittical with large systems.
-            This section documents the layout of the source code repository.
-          </td>
-        </tr>
-        
-        <tr>
-          <td>
-            <a href="./components.html">Component Design</a>
-          </td>
-          <td>
-            Eve is a system made up of several components.  The aspects 
-            associated with Eve's component based design are discussed here.
-          </td>
-        </tr>
-        
+
         <tr>
           <td>
             <a href="./building.html">Building</a>
           </td>
           <td>
             Describes how to build Eve from the source.  Should be real simple
-            thanks to Maven.  But this should go off on how the build is 
+            thanks to Maven.  But this should go off on how the build is
             structured as well for developers.
           </td>
         </tr>
-        
+
         <tr>
           <td>
-            <a href="./deploying.html">Deploying</a>
+            <a href="./users-guide.html">User's Guide</a>
           </td>
           <td>
-            Configuring, and installing Eve with various kernels may require
-            an entire section to be dedicated to it when the time comes.
+            Configuring, installing and embedding Eve.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./roadmap.html">Roadmap</a>
+          </td>
+          <td>
+            A roadmap for Eve development
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./architecture.html">Architecture</a>
+          </td>
+          <td>
+            An ApacheCon presentation showing in detail Eve's architecture.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./components.html">Components</a>
+          </td>
+          <td>
+            Eve is a system made up of several components.  Some aspects
+            associated with Eve's component based design are discussed here.
           </td>
         </tr>
         
         <tr>
           <td>
-            <a href="./frontend/index.html">Frontend Design</a>
+            <a href="./protocol.html">Protocol</a>
           </td>
           <td>
-            Server's frontend subsystem design documentation.
+            Documentation regarding Eve's frontend protocol subsystem.
           </td>
         </tr>
         
         <tr>
           <td>
-            <a href="./backend/index.html">Backend Design</a>
+            <a href="./jndi.html">Eve JNDI</a>
           </td>
           <td>
-            Server's backend subsystem design documentation.
+            Documentation regarding Eve's backend subsystem which is a JNDI
+            provider.
           </td>
         </tr>
         
