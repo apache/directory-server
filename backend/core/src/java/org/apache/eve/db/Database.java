@@ -269,8 +269,7 @@ public interface Database
      * @param entry TODO
      * @throws NamingException TODO
      */
-    void add( String updn, Name dn, Attributes entry )
-        throws NamingException;
+    void add( String updn, Name dn, Attributes entry ) throws NamingException;
 
     /**
      * TODO Document me!
@@ -383,8 +382,7 @@ public interface Database
      * @param mods TODO
      * @throws NamingException TODO
      */
-    void modify( Name dn, int modOp, Attributes mods )
-        throws NamingException;
+    void modify( Name dn, int modOp, Attributes mods ) throws NamingException;
     
     /**
      * TODO Document me!
@@ -393,8 +391,7 @@ public interface Database
      * @param mods TODO
      * @throws NamingException TODO
      */
-    void modify( Name dn, ModificationItem [] mods )
-        throws NamingException;
+    void modify( Name dn, ModificationItem [] mods ) throws NamingException;
 
     /**
      * TODO Document me!
@@ -404,8 +401,7 @@ public interface Database
      * @param deleteOldRdn TODO
      * @throws NamingException TODO
      */
-    void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn )
-        throws NamingException;
+    void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException;
 
     /**
      * TODO Document me!
@@ -428,7 +424,7 @@ public interface Database
      * @throws NamingException if a database failure results
      */
     void move( Name oldChildDn, Name newParentDn, String newRdn,
-        boolean deleteOldRdn ) throws NamingException;
+               boolean deleteOldRdn ) throws NamingException;
 
     /**
      * Gets the count of the total number of entries in the database.

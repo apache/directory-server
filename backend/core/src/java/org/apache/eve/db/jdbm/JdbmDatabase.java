@@ -105,8 +105,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#addIndexOn(AttributeType)
      */
-    public void addIndexOn( AttributeType spec )
-        throws NamingException
+    public void addIndexOn( AttributeType spec ) throws NamingException
     {
         Index idx = new JdbmIndex( spec, wkdir );
         indices.put( spec.getName().toLowerCase(), idx );
@@ -325,8 +324,7 @@ public class JdbmDatabase implements Database
      * 
      * @see Database#getEntryId(String)
      */
-    public Index getSystemIndex( String indexName )
-        throws IndexNotFoundException
+    public Index getSystemIndex( String indexName ) throws IndexNotFoundException
     {
         String lowerCased = indexName.toLowerCase();
 
@@ -349,8 +347,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#getEntryId(String)
      */
-    public BigInteger getEntryId( String dn )
-        throws NamingException
+    public BigInteger getEntryId( String dn ) throws NamingException
     {
         return ndnIdx.forwardLookup( dn );
     }
@@ -359,8 +356,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#getEntryDn(java.math.BigInteger)
      */
-    public String getEntryDn( BigInteger id )
-        throws NamingException
+    public String getEntryDn( BigInteger id ) throws NamingException
     {
         return ( String ) ndnIdx.reverseLookup( id );
     }
@@ -369,8 +365,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#getParentId(String)
      */
-    public BigInteger getParentId( String dn )
-        throws  NamingException
+    public BigInteger getParentId( String dn ) throws NamingException
     {
         BigInteger childId = ndnIdx.forwardLookup( dn );
         return ( BigInteger ) heirarchyIdx.reverseLookup( childId );
@@ -378,20 +373,18 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#getParentId(java.math.BigInteger)
+     * @see Database#getParentId(BigInteger)
      */
-    public BigInteger getParentId( BigInteger childId )
-        throws NamingException
+    public BigInteger getParentId( BigInteger childId ) throws NamingException
     {
         return ( BigInteger ) heirarchyIdx.reverseLookup( childId );
     }
     
     
     /**
-     * @see Database#getEntryUpdn(java.math.BigInteger)
+     * @see Database#getEntryUpdn(BigInteger)
      */
-    public String getEntryUpdn( BigInteger id )
-        throws NamingException
+    public String getEntryUpdn( BigInteger id ) throws NamingException
     {
         return ( String ) updnIdx.reverseLookup( id );
     }
@@ -400,8 +393,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#getEntryUpdn(String)
      */
-    public String getEntryUpdn( String dn )
-        throws NamingException
+    public String getEntryUpdn( String dn ) throws NamingException
     {
         BigInteger id = ndnIdx.forwardLookup( dn );
         return ( String ) updnIdx.reverseLookup( id );
@@ -472,7 +464,6 @@ public class JdbmDatabase implements Database
      */
     private void addAliasIndices( BigInteger aliasId, Name aliasDn, 
         String aliasTarget ) throws NamingException
-        // Attributes aliasEntry ) throws NamingException
     {
         Name targetDn = null;            // Name value of aliasedObjectName
         BigInteger targetId = null;      // Id of the aliasedObjectName
@@ -605,8 +596,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#add(String,Name,Attributes)
      */
-    public void add( String updn, Name dn, Attributes entry )
-        throws NamingException
+    public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
         BigInteger id = master.getNextId();
         BigInteger parentId = null;
@@ -663,7 +653,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#lookup(java.math.BigInteger)
+     * @see Database#lookup(BigInteger)
      */
     public Attributes lookup( BigInteger id ) throws NamingException
     {
@@ -672,10 +662,9 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#delete(java.math.BigInteger)
+     * @see Database#delete(BigInteger)
      */
-    public void delete( BigInteger id )
-        throws  NamingException
+    public void delete( BigInteger id ) throws  NamingException
     {
         Attributes entry = lookup( id );
         BigInteger parentId = getParentId( id ); 
@@ -721,8 +710,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#list(java.math.BigInteger)
      */
-    public NamingEnumeration list( BigInteger id )
-        throws  NamingException
+    public NamingEnumeration list( BigInteger id ) throws  NamingException
     {
         return heirarchyIdx.listIndices( id );
     }
@@ -731,8 +719,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#getChildCount(java.math.BigInteger)
      */
-    public int getChildCount( BigInteger id )
-        throws  NamingException
+    public int getChildCount( BigInteger id ) throws NamingException
     {
         return heirarchyIdx.count( id );
     }
@@ -750,8 +737,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#getSuffixEntry()
      */
-    public Attributes getSuffixEntry()
-        throws  NamingException
+    public Attributes getSuffixEntry() throws NamingException
     {
         BigInteger id = getEntryId( suffix.toString() );
 
@@ -767,8 +753,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#sync()
      */
-    public void sync()
-        throws NamingException
+    public void sync() throws NamingException
     {
         ArrayList array = new ArrayList();
         array.addAll( indices.values() );
@@ -830,8 +815,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#close()
      */
-    public void close()
-        throws NamingException
+    public void close() throws NamingException
     {
         ArrayList array = new ArrayList();
         array.addAll( indices.values() );
@@ -945,8 +929,7 @@ public class JdbmDatabase implements Database
     /**
      * @see Database#getProperty(String)
      */
-    public String getProperty( String propertyName )
-        throws NamingException
+    public String getProperty( String propertyName ) throws NamingException
     {
         return master.getProperty( propertyName );
     }
@@ -1114,8 +1097,8 @@ public class JdbmDatabase implements Database
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void replace( BigInteger id, Attributes entry, 
-        Attribute mods ) throws NamingException
+    private void replace( BigInteger id, Attributes entry, Attribute mods )
+        throws NamingException
     {
         if ( hasUserIndexOn( mods.getID() ) )
         {
@@ -1156,8 +1139,7 @@ public class JdbmDatabase implements Database
      * @see Database#modify(javax.naming.Name, int,
      * javax.naming.directory.Attributes)
      */
-    public void modify( Name dn, int modOp, Attributes mods ) 
-        throws NamingException 
+    public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
         NamingEnumeration attrs = null;
         BigInteger id = getEntryId( dn.toString() );
@@ -1211,8 +1193,7 @@ public class JdbmDatabase implements Database
      * @see Database#modify(javax.naming.Name,
      * javax.naming.directory.ModificationItem[])
      */
-    public void modify( Name dn, ModificationItem [] mods ) 
-        throws NamingException 
+    public void modify( Name dn, ModificationItem [] mods ) throws NamingException
     {
         BigInteger id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
@@ -1449,8 +1430,7 @@ public class JdbmDatabase implements Database
      * @see Database#move(javax.naming.Name,
      * javax.naming.Name)
      */
-    public void move( Name oldChildDn, Name newParentDn ) 
-        throws NamingException 
+    public void move( Name oldChildDn, Name newParentDn ) throws NamingException
     {
         // Get the child and the new parent to be entries and Ids
         BigInteger childId = getEntryId( oldChildDn.toString() );
@@ -1497,8 +1477,7 @@ public class JdbmDatabase implements Database
      * @param movedBase the base at which the move occured - the moved node
      * @throws NamingException if system indices fail
      */
-    private void dropMovedAliasIndices( final Name movedBase )
-        throws NamingException
+    private void dropMovedAliasIndices( final Name movedBase ) throws NamingException
     {
         // Find all the aliases from movedBase down
         IndexAssertion isBaseDescendant = new IndexAssertion()

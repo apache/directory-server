@@ -36,15 +36,15 @@ import org.apache.ldap.common.filter.BranchNode;
 public class DisjunctionEnumerator implements Enumerator
 {
     /** Top level expression enumerator - non Avalon dependency avaoids cycle */
-    private Enumerator enumerator;
+    private ExpressionEnumerator enumerator;
 
 
     /**
      * Creates a disjunction enumerator using a top level enumerator.
-     *
+     *                
      * @param enumerator the top level enumerator
      */
-    public DisjunctionEnumerator( Enumerator enumerator )
+    public DisjunctionEnumerator( ExpressionEnumerator enumerator )
     {
         this.enumerator = enumerator;
     }

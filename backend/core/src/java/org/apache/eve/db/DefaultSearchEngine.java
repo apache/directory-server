@@ -47,9 +47,9 @@ public class DefaultSearchEngine implements SearchEngine
     /** the Database this DefaultSearchEngine operates on */
     private Database db;
     /** Evaluator flyweight used for filter expression assertions */
-    private Evaluator evaluator;
+    private ExpressionEvaluator evaluator;
     /** Enumerator flyweight that creates enumerations on filter expressions */
-    private Enumerator enumerator;
+    private ExpressionEnumerator enumerator;
     
 
     // ------------------------------------------------------------------------
@@ -61,7 +61,9 @@ public class DefaultSearchEngine implements SearchEngine
      * Creates a DefaultSearchEngine for searching a Database without setting
      * up the database.
      */
-    public DefaultSearchEngine( Database db, Evaluator evaluator, Enumerator enumerator )
+    public DefaultSearchEngine( Database db,
+                                ExpressionEvaluator evaluator,
+                                ExpressionEnumerator enumerator )
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -84,8 +86,8 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * @see SearchEngine#search(Name, Map, ExprNode,SearchControls)
      */
-    public NamingEnumeration search( Name base, Map env,
-        ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration search( Name base, Map env, ExprNode filter,
+                                     SearchControls searchCtls )
         throws NamingException
     {
         Name effectiveBase = null;

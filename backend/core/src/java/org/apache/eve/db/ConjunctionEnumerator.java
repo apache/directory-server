@@ -37,9 +37,9 @@ import org.apache.ldap.common.filter.BranchNode;
 public class ConjunctionEnumerator implements Enumerator
 {
     /** Top level evaluator Avalon dependency */
-    private Evaluator evaluator;
+    private ExpressionEvaluator evaluator;
     /** Top level expression enumerator - non Avalon dependency avaoids cycle */
-    private Enumerator enumerator;
+    private ExpressionEnumerator enumerator;
 
 
     /**
@@ -48,7 +48,8 @@ public class ConjunctionEnumerator implements Enumerator
      * @param enumerator the top level expression enumerator
      * @param evaluator the top level expression evaluator
      */
-    public ConjunctionEnumerator( Enumerator enumerator, Evaluator evaluator )
+    public ConjunctionEnumerator( ExpressionEnumerator enumerator,
+                                  ExpressionEvaluator evaluator )
     {
         this.enumerator = enumerator;
         this.evaluator = evaluator;

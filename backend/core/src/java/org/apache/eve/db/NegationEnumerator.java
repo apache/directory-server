@@ -37,7 +37,7 @@ public class NegationEnumerator implements Enumerator
     /** Database this conjunction is applied upon */
     private Database db = null;
     /** Top level expression evaluator */
-    private Evaluator evaluator;
+    private ExpressionEvaluator evaluator;
 
 
     /**
@@ -46,7 +46,7 @@ public class NegationEnumerator implements Enumerator
      * @param db the database to use for enumerations
      * @param evaluator the top level evaluator
      */
-    public NegationEnumerator( Database db, Evaluator evaluator )
+    public NegationEnumerator( Database db, ExpressionEvaluator evaluator )
     {
         this.db = db;
         this.evaluator = evaluator;
