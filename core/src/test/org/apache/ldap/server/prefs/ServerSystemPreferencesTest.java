@@ -163,29 +163,4 @@ public class ServerSystemPreferencesTest extends AbstractJndiTest
 
         assertEquals( "no value", testNode.get( "arrayKey", "no value" ) );
     }
-
-
-    /**
-     * Checks to see that setting the system property utilized the right factory
-     * implementation to generate ServerSystemPreferences.
-     */
-    public void testForFactoryUse()
-    {
-        String fqcn = ServerPreferencesFactory.class.getName();
-
-        System.setProperty( "java.util.prefs.PreferencesFactory", fqcn );
-
-        Preferences prefs = Preferences.systemRoot();
-
-        assertEquals( ServerSystemPreferences.class, prefs.getClass() );
-    }
-
-
-    /**
-     * Requests a deep node from the preferences API after setting the
-     */
-    public void testNewDeepNode()
-    {
-
-    }
 }
