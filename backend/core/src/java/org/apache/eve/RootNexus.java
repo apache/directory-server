@@ -39,10 +39,10 @@ import org.apache.ldap.common.NotImplementedException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PartitionNexusImpl implements PartitionNexus
+public class RootNexus implements PartitionNexus
 {
     /** Handle on the singleton instance of this class within the entire JVM. */
-    private static PartitionNexusImpl s_singleton = null;
+    private static RootNexus s_singleton = null;
     
     /** the system backend */
     private ContextPartition system;
@@ -54,7 +54,7 @@ public class PartitionNexusImpl implements PartitionNexus
      * Default constructor that checks to make sure that there is only one
      * instance of this class within the entire JVM.
      */
-    public PartitionNexusImpl( ContextPartition system )
+    public RootNexus( ContextPartition system )
     {
         if ( null != s_singleton )
         {
