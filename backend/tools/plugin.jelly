@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>  
  
-<project> 
-    <goal name="schema"> 
-        <echo>Schema plugin not implemented yet!</echo> 
-    </goal> 
+<project
+  xmlns:j="jelly:core"
+  xmlns:multiproject="multiproject"
+  xmlns:ant="jelly:ant"
+  xmlns:util="jelly:util"
+  xmlns:maven="jelly:maven">
+
+  <goal name="schema"> 
+    <echo>Schema plugin not implemented yet!</echo> 
+  </goal> 
+
+  <goal name="schema:find">
+    <echo>Schema plugin not implemented yet!</echo> 
+  </goal> 
+  
 </project> 
 
