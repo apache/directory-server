@@ -63,7 +63,7 @@ public abstract class AbstractJndiTest extends TestCase
         super.setUp();
         doDelete( new File( "target" + File.separator + "eve" ) );
 
-        extras.put( EnvKeys.EVE_LDAP_PORT,
+        extras.put( EnvKeys.LDAP_PORT,
                 String.valueOf( AvailablePortFinder.getNextAvailable( 1024 ) ) );
 
         setSysRoot( "uid=admin,ou=system", "secret" );

@@ -36,7 +36,7 @@ public class EnvKeys
 
 
     // ------------------------------------------------------------------------
-    // Properties for
+    // Properties for setting working directory, schemas and allowing anon binds
     // ------------------------------------------------------------------------
 
     /** bootstrap prop: path to eve's working directory - relative or absolute */
@@ -47,10 +47,18 @@ public class EnvKeys
     public static final String DISABLE_ANONYMOUS = "eve.disable.anonymous";
 
 
+    // ------------------------------------------------------------------------
+    // Properties for protocol/network settings
+    // ------------------------------------------------------------------------
+
     /** key used to disable the networking layer (wire protocol) */
     public static final String DISABLE_PROTOCOL = "eve.net.disable.protocol";
-    public static final String EVE_LDAP_PORT = "eve.net.ldap.port";
-    public static final String EVE_LDAPS_PORT = "eve.net.ldaps.port";
+    /** key used to hold the frontend to use rather than creating one */
+    public static final String PASSTHRU = "eve.net.passthru";
+    /** key for port setting for ldap requests beside default 389 */
+    public static final String LDAP_PORT = "eve.net.ldap.port";
+    /** key for port setting for secure ldap requests besides default 636 */
+    public static final String LDAPS_PORT = "eve.net.ldaps.port";
 
     // ------------------------------------------------------------------------
     // Properties for partition configuration

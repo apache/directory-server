@@ -81,17 +81,16 @@ import org.apache.seda.protocol.ProtocolProvider;
  */
 public class EveContextFactory implements InitialContextFactory
 {
-    /** the default LDAP port to use */
-    private static final int LDAP_PORT = 389;
-    /** default path to working directory if WKDIR_ENV property is not set */
-    public static final String DEFAULT_WKDIR = "eve";
-
-    // for convenience
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
     private static final String CREDS = Context.SECURITY_CREDENTIALS;
     private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
     private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
     private static final Name ADMIN_NAME = SystemPartition.getAdminDn();
+
+    /** the default LDAP port to use */
+    private static final int LDAP_PORT = 389;
+    /** default path to working directory if WKDIR_ENV property is not set */
+    public static final String DEFAULT_WKDIR = "eve-work";
 
     /** default schema classes for the SCHEMAS_ENV property if not set */
     private static final String[] DEFAULT_SCHEMAS = new String[]
@@ -534,22 +533,36 @@ public class EveContextFactory implements InitialContextFactory
 
     private void startUpWireProtocol() throws NamingException
     {
-        try
+        if ( initialEnv.containsKey( EnvKeys.PASSTHRU ) )
         {
-            fe = ( DefaultFrontend ) new DefaultFrontendFactory().create();
+            fe = ( DefaultFrontend ) initialEnv.get( EnvKeys.PASSTHRU );
+
+            if ( fe != null )
+            {
+                initialEnv.put( EnvKeys.PASSTHRU, "Handoff Succeeded!" );
+            }
         }
-        catch ( Exception e )
+
+
+        if ( fe == null )
         {
-            String msg = "Failed to initialize the frontend subsystem!";
-            NamingException ne = new EveConfigurationException( msg );
-            ne.setRootCause( e );
-            ne.setResolvedName( new LdapName( ( String ) initialEnv.get( Context.PROVIDER_URL ) ) );
-            throw ne;
+            try
+            {
+                fe = ( DefaultFrontend ) new DefaultFrontendFactory().create();
+            }
+            catch ( Exception e )
+            {
+                String msg = "Failed to initialize the frontend subsystem!";
+                NamingException ne = new EveConfigurationException( msg );
+                ne.setRootCause( e );
+                ne.setResolvedName( new LdapName( ( String ) initialEnv.get( Context.PROVIDER_URL ) ) );
+                throw ne;
+            }
         }
 
         proto = new LdapProtocolProvider( ( Hashtable) initialEnv.clone(), fe.getEventRouter() );
 
-        int port = PropertiesUtils.get( initialEnv, EnvKeys.EVE_LDAP_PORT, LDAP_PORT );
+        int port = PropertiesUtils.get( initialEnv, EnvKeys.LDAP_PORT, LDAP_PORT );
         srvEntry = new InetServiceEntry( proto.getName(), port, proto, TransportTypeEnum.TCP );
         ( ( DefaultInetServicesDatabase ) fe.getInetServicesDatabase()).addEntry( srvEntry );
 
