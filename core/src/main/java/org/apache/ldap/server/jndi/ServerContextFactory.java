@@ -97,7 +97,7 @@ public class ServerContextFactory implements InitialContextFactory
     {
         "org.apache.ldap.server.schema.bootstrap.CoreSchema",
         "org.apache.ldap.server.schema.bootstrap.CosineSchema",
-        "org.apache.ldap.server.schema.bootstrap.EveSchema",
+        "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
         "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
         "org.apache.ldap.server.schema.bootstrap.JavaSchema",
         "org.apache.ldap.server.schema.bootstrap.SystemSchema"

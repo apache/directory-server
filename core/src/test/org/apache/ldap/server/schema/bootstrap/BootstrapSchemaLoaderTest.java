@@ -59,7 +59,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
             "org.apache.ldap.server.schema.bootstrap.CoreSchema",
             "org.apache.ldap.server.schema.bootstrap.CosineSchema",
             "org.apache.ldap.server.schema.bootstrap.CorbaSchema",
-            "org.apache.ldap.server.schema.bootstrap.EveSchema",
+            "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
             "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
             "org.apache.ldap.server.schema.bootstrap.JavaSchema",
             "org.apache.ldap.server.schema.bootstrap.Krb5kdcSchema",
@@ -86,7 +86,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
         assertNotNull( type );
 
         // from eve.schema
-        type = registries.getAttributeTypeRegistry().lookup( "eveAlias" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
         assertNotNull( type );
 
         // from inetorgperson.schema
@@ -130,22 +130,22 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testEveSchemaLoad() throws NamingException
+    public void testApacheSchemaLoad() throws NamingException
     {
         testSystemSchemaLoad();
 
-        EveSchema eveSchema = new EveSchema();
+        ApacheSchema apacheSchema = new ApacheSchema();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        loader.load( eveSchema, registries );
+        loader.load( apacheSchema, registries );
 
         AttributeType type;
-        type = registries.getAttributeTypeRegistry().lookup( "eveNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
         assertNotNull( type );
 
-        type = registries.getAttributeTypeRegistry().lookup( "eveAlias" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
         assertNotNull( type );
 
-        type = registries.getAttributeTypeRegistry().lookup( "eveUpdn" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
         assertNotNull( type );
     }
 
@@ -154,18 +154,18 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
-            "org.apache.ldap.server.schema.bootstrap.EveSchema",
+            "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
             "org.apache.ldap.server.schema.bootstrap.SystemSchema"
         };
         loader.load( schemaClasses, registries );
         AttributeType type;
-        type = registries.getAttributeTypeRegistry().lookup( "eveNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
         assertNotNull( type );
 
-        type = registries.getAttributeTypeRegistry().lookup( "eveAlias" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
         assertNotNull( type );
 
-        type = registries.getAttributeTypeRegistry().lookup( "eveUpdn" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
         assertNotNull( type );
     }
 
@@ -255,20 +255,20 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
-            "org.apache.ldap.server.schema.bootstrap.EveSchema",
+            "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
             "org.apache.ldap.server.schema.bootstrap.CoreSchema",
             "org.apache.ldap.server.schema.bootstrap.JavaSchema",
             "org.apache.ldap.server.schema.bootstrap.SystemSchema"
         };
         loader.load( schemaClasses, registries );
         AttributeType type;
-        type = registries.getAttributeTypeRegistry().lookup( "eveAlias" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
         assertNotNull( type );
 
-        type = registries.getAttributeTypeRegistry().lookup( "eveNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
         assertNotNull( type );
 
-        type = registries.getAttributeTypeRegistry().lookup( "eveUpdn" );
+        type = registries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
         assertNotNull( type );
     }
 
