@@ -24,7 +24,6 @@ import org.apache.ldap.common.schema.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
 
 
 /**
@@ -109,6 +108,7 @@ public class AttributeTypesTemplateTest extends TestCase
         attributeTypes[0] = new TestAttributeType( "1.1.1.1" );
         attributeTypes[0].setUsage( UsageEnum.USERAPPLICATIONS );
         attributeTypes[0].setSyntax( syntax );
+        attributeTypes[0].setAllNames( new String[] { "commonName", "cn", "abc" } );
 
         attributeTypes[1] = new TestAttributeType( "1.1.1.2" );
         attributeTypes[1].setUsage( UsageEnum.DIRECTORYOPERATION );
@@ -145,9 +145,9 @@ public class AttributeTypesTemplateTest extends TestCase
             super.setSuperior( superior );
         }
 
-        protected void setNameList( ArrayList nameList )
+        protected void setAllNames( String[] names )
         {
-            super.setNameList( nameList );
+            super.setAllNames( names );
         }
 
         protected void setEquality( MatchingRule equality )

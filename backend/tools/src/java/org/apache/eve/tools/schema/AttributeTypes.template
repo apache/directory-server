@@ -41,6 +41,8 @@ import org.apache.eve.schema.config.*;
  */
 public class $classname implements AttributeTypeConfigSet
 {
+    /** a reused empty String array */
+    private static final String[] EMPTY = new String[0];
     /** the DN of the owner of the objects within this SyntaxConfigSet */
     private static final String OWNER = "$owner";
     /** the logical schema the objects within this SyntaxConfigSet belong to */
@@ -72,12 +74,10 @@ public class $classname implements AttributeTypeConfigSet
         if ( schemaDeps == null )
         {
             schemaDeps = new String[$schemaDepCount];
-
             #foreach ( $dep in $schemaDeps )
             #set ( $ii = $velocityCount - 1 )
 schemaDeps[$ii] = "$dep";
             #end
-
         }
 
         return schemaDeps;
@@ -94,13 +94,14 @@ schemaDeps[$ii] = "$dep";
                                  AttributeTypeRegistry attrTypeReg )
         throws NamingException
     {
+        ArrayList names = new ArrayList();
         MutableAttributeType[] attributeTypes = new MutableAttributeType[$attrTypeCount];
 
         #foreach ( $attrType in $attrTypes )
         #set ( $ii = $velocityCount - 1 )
 
         // --------------------------------------------------------------------
-        // AttributeType $attrType.getOid()
+        // AttributeType $attrType.getOid() $!attrType.getName()
         // --------------------------------------------------------------------
 
 
@@ -116,6 +117,13 @@ schemaDeps[$ii] = "$dep";
 #if ( $attrType.getSubstrOid() )        attributeTypes[$ii].setSubstr( mruleReg.lookup( "$attrType.getSubstrOid()" ) );#end
 #if ( $attrType.getOrderingOid() )        attributeTypes[$ii].setOrdering( mruleReg.lookup( "$attrType.getOrderingOid()" ) );#end
 #if ( $attrType.getSyntaxOid() )        attributeTypes[$ii].setSyntax( syntaxReg.lookup( "$attrType.getSyntaxOid()" ) );#end
+
+        #if ( $attrType.getAllNames() )
+names.clear();
+       #foreach ( $name in $attrType.getAllNames() ) names.add( "$name" );
+       #end
+ attributeTypes[$ii].setAllNames( ( String[] ) names.toArray( EMPTY ) );
+        #end
 
         #end
 
@@ -135,9 +143,9 @@ schemaDeps[$ii] = "$dep";
             super.setSuperior( superior );
         }
 
-        protected void setNameList( ArrayList nameList )
+        protected void setAllNames( String[] nameArray )
         {
-            super.setNameList( nameList );
+            super.setAllNames( nameArray );
         }
 
         protected void setEquality( MatchingRule equality )
