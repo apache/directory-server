@@ -35,6 +35,7 @@ import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.InvocationStateEnum;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -64,6 +65,7 @@ public class FilterServiceImpl extends BaseInterceptor
     private final List resultFilters = new ArrayList();
     /** the set of registered entry filters for lookup operations */
     private final List lookupFilters = new ArrayList();
+    private final static SearchControls LIST_CONTROLS = new SearchControls();
 
 
     // ------------------------------------------------------------------------
@@ -92,6 +94,35 @@ public class FilterServiceImpl extends BaseInterceptor
     // ------------------------------------------------------------------------
     // BaseInterceptor Overrides
     // ------------------------------------------------------------------------
+
+
+    protected void list( final Name base ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            SearchResultEnumeration enum ;
+            ResultFilteringEnumeration retval;
+            LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
+            enum = ( SearchResultEnumeration ) invocation.getReturnValue();
+            retval = new ResultFilteringEnumeration( enum, LIST_CONTROLS, ctx,
+                new SearchResultFilter()
+                {
+                    public boolean accept( LdapContext ctx, DbSearchResult result,
+                                           SearchControls controls )
+                            throws NamingException
+                    {
+                        String rdn = new LdapName( result.getName() ).getRdn();
+                        result.setName( rdn );
+                        result.setObject( ctx.lookup( rdn ) );
+                        result.setRelative( true );
+                        return FilterServiceImpl.this.accept( ctx, result, controls );
+                    }
+                } );
+            invocation.setReturnValue( retval );
+        }
+    }
 
 
     /**

@@ -33,6 +33,7 @@ import javax.naming.directory.Attribute;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.util.ArrayUtils;
 
 import org.apache.eve.db.Database;
 import org.apache.eve.db.SearchEngine;
@@ -274,7 +275,10 @@ public abstract class AbstractContextPartition implements ContextPartition
      */
     public NamingEnumeration list( Name base ) throws NamingException
     {
-        return db.list( db.getEntryId( base.toString() ) );
+        SearchResultEnumeration list;
+        list = new SearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY,
+                db.list( db.getEntryId( base.toString() ) ), db );
+        return list;
     }
     
     

@@ -46,7 +46,7 @@ public class SearchResultEnumeration implements NamingEnumeration
     /** underlying enumeration over IndexRecords */
     private final NamingEnumeration underlying;
 
-    
+
     /**
      * Creates an enumeration that returns entries packaged within SearchResults
      * using the search parameters supplied to a search call.

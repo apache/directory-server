@@ -98,7 +98,8 @@ public interface BackingStore
      * retrieval.
      *
      * @param base the base distinguished/absolute name for the search/listing
-     * @return a NamingEnumeration containing objects of type {@link Index}
+     * @return a NamingEnumeration containing objects of type
+     * {@link org.apache.eve.db.DbSearchResult}
      * @throws NamingException if there are any problems
      */
     NamingEnumeration list( Name base ) throws NamingException;
