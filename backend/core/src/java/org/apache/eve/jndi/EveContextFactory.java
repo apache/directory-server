@@ -8,6 +8,11 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.eve.schema.DefaultSyntaxCheckerRegistry;
+import org.apache.eve.schema.DefaultSyntaxRegistry;
+import org.apache.eve.schema.DefaultOidRegistry;
+import org.apache.eve.config.SyntaxConfig;
 
 
 /**
@@ -25,8 +30,10 @@ public class EveContextFactory implements InitialContextFactory
 {
     /** The singleton EveJndiProvider instance */
     private EveJndiProvider provider = null;
+    /** the initial context environment that fired up the backend subsystem */
+    private Hashtable initialEnv;
 
-    
+
     /**
      * Default constructor that sets the provider of this EveContextFactory.
      */
@@ -52,15 +59,34 @@ public class EveContextFactory implements InitialContextFactory
      * @see javax.naming.spi.InitialContextFactory#getInitialContext(
      * java.util.Hashtable)
      */
-    public Context getInitialContext( Hashtable an_envoronment )
-        throws NamingException
+    public Context getInitialContext( Hashtable env ) throws NamingException
     {
         // fire up the backend subsystem if we need to
         if ( null == provider )
         {
+            this.initialEnv = env;
             throw new NotImplementedException();
         }
         
-        return provider.getLdapContext( an_envoronment );
+        return provider.getLdapContext( env );
+    }
+
+
+    private EveJndiProvider create( Hashtable env )
+    {
+        EveJndiProvider provider;
+        Syntax[] syntaxes;
+        DefaultOidRegistry oidRegistry;
+        SyntaxConfig syntaxConfig;
+        DefaultSyntaxRegistry syntaxRegistry;
+
+        syntaxConfig = new SyntaxConfig();
+        syntaxes = syntaxConfig.loadSyntaxes( null );
+        oidRegistry = new DefaultOidRegistry();
+        syntaxRegistry = new DefaultSyntaxRegistry( syntaxes, oidRegistry );
+
+        
+
+        return provider;
     }
 }
