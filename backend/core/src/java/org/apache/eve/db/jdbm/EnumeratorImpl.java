@@ -30,7 +30,7 @@ public class EnumeratorImpl implements Enumerator
     /** Enumerator flyweight for evaulating filter substring assertions */
     private SubstringEnumerator substringEnumerator;
     /** Enumerator flyweight for evaulating filter conjunction assertions */
-    private ConjunctionEnumeratorImpl conjunctionEnumerator;
+    private ConjunctionEnumerator conjunctionEnumerator;
     /** Enumerator flyweight for evaulating filter disjunction assertions */
     private DisjunctionEnumerator disjunctionEnumerator;
     /** Enumerator flyweight for evaulating filter negation assertions */
@@ -45,7 +45,7 @@ public class EnumeratorImpl implements Enumerator
         this.db = db;
         scopeEnumerator = new ScopeEnumeratorImpl();
         substringEnumerator = new SubstringEnumeratorImpl();
-        conjunctionEnumerator = new ConjunctionEnumeratorImpl( this, topEvaluator );
+        conjunctionEnumerator = new ConjunctionEnumerator( this, topEvaluator );
         disjunctionEnumerator = new DisjunctionEnumeratorImpl( this );
         negationEnumerator = new NegationEnumeratorImpl();
     }

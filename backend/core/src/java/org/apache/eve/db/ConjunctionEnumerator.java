@@ -1,4 +1,4 @@
-package org.apache.eve.db.jdbm;
+package org.apache.eve.db;
 
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import org.apache.eve.db.*;
  * candidates satisfying a filter expression of AND'ed filter sub-expressions.
  * 
  */
-public class ConjunctionEnumeratorImpl implements Enumerator
+public class ConjunctionEnumerator implements Enumerator
 {
     /** Top level evaluator Avalon dependency */
     private Evaluator evaluator;
@@ -32,7 +32,7 @@ public class ConjunctionEnumeratorImpl implements Enumerator
      * @param enumerator the top level expression enumerator
      * @param evaluator the top level expression evaluator
      */
-    public ConjunctionEnumeratorImpl( Enumerator enumerator, Evaluator evaluator )
+    public ConjunctionEnumerator( Enumerator enumerator, Evaluator evaluator )
     {
         this.enumerator = enumerator;
         this.evaluator = evaluator;
