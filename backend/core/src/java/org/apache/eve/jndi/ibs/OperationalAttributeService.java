@@ -21,6 +21,7 @@ import javax.naming.Name;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
@@ -51,7 +52,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /** the database search result filter to register with filter service */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
-        public boolean accept( DbSearchResult result, SearchControls controls )
+        public boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls )
             throws NamingException
         {
             if ( controls.getReturningAttributes() == null )
@@ -65,12 +66,13 @@ public class OperationalAttributeService extends BaseInterceptor
     /** the lookup filter to register with filter service */
     private final LookupFilter LOOKUP_FILTER = new LookupFilter()
     {
-        public void filter( Name dn, Attributes entry ) throws NamingException
+        public void filter( LdapContext ctx, Name dn, Attributes entry )
+                throws NamingException
         {
             OperationalAttributeService.this.filter( entry );
         }
 
-        public void filter( Name dn, Attributes entry, String[] ids )
+        public void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids )
         {
             // do nothing since this explicity specifies which attributes
             // to include - backends will automatically populate with right

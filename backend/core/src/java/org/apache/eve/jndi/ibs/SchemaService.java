@@ -17,9 +17,18 @@
 package org.apache.eve.jndi.ibs;
 
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.RootNexus;
+import org.apache.eve.db.SearchResultFilter;
+import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.schema.GlobalRegistries;
+import org.apache.ldap.common.NotImplementedException;
 
 
 /**
@@ -63,6 +72,28 @@ public class SchemaService extends BaseInterceptor
         if ( this.filterService == null )
         {
             throw new NullPointerException( "the filter service cannot be null" );
+        }
+    }
+
+
+    private class BinaryAttributeFilter implements LookupFilter, SearchResultFilter
+    {
+        public void filter( LdapContext ctx, Name dn, Attributes entry )
+                throws NamingException
+        {
+            throw new NotImplementedException( "filter in org.apache.eve.jndi.ibs.SchemaService.BinaryAttributeFilter not implemented!" );
+        }
+
+
+        public void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids ) throws NamingException
+        {
+            throw new NotImplementedException( "filter in org.apache.eve.jndi.ibs.SchemaService.BinaryAttributeFilter not implemented!" );
+        }
+
+
+        public boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls ) throws NamingException
+        {
+            throw new NotImplementedException( "accept in org.apache.eve.jndi.ibs.SchemaService.BinaryAttributeFilter not implemented!" );
         }
     }
 }

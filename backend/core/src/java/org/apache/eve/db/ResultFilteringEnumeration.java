@@ -23,6 +23,7 @@ import java.util.Collections;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.SearchControls;
 
 
@@ -47,6 +48,8 @@ public class ResultFilteringEnumeration implements NamingEnumeration
     private boolean isClosed = false;
     /** the controls associated with the search operation */
     private final SearchControls searchControls;
+    /** the LDAP context that made the search creating this enumeration */
+    private final LdapContext ctx;
 
 
     // ------------------------------------------------------------------------
@@ -59,13 +62,18 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      * underlying enumeration.
      *
      * @param decorated the underlying decorated enumeration
-     * @param searchControls
+     * @param searchControls the search controls associated with the search
+     * creating this enumeration
+     * @param ctx the LDAP context that made the search creating this
+     * enumeration
      */
     public ResultFilteringEnumeration( NamingEnumeration decorated,
-                                       SearchControls searchControls )
+                                       SearchControls searchControls,
+                                       LdapContext ctx )
             throws NamingException
     {
         this.searchControls = searchControls;
+        this.ctx = ctx;
         this.filters = new ArrayList();
         this.decorated = decorated;
 
@@ -209,7 +217,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
             else if ( filters.size() == 1 )
             {
                 accepted = ( ( SearchResultFilter ) filters.get( 0 ) )
-                        .accept( tmp, searchControls );
+                        .accept( ctx, tmp, searchControls );
                 this.prefetched = tmp;
                 return;
             }
@@ -218,7 +226,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
             for ( int ii = 0; ii < filters.size(); ii ++ )
             {
                 SearchResultFilter filter = ( SearchResultFilter ) filters.get( ii );
-                accepted &= filter.accept( tmp, searchControls );
+                accepted &= filter.accept( ctx, tmp, searchControls );
 
                 if ( ! accepted )
                 {

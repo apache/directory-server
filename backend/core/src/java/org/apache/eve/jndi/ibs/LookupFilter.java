@@ -19,6 +19,7 @@ package org.apache.eve.jndi.ibs;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 
 
@@ -46,7 +47,8 @@ public interface LookupFilter
      * @throws NamingException if there are any errors while trying to apply
      * the filter
      */
-    void filter( Name dn, Attributes entry ) throws NamingException;
+    void filter( LdapContext ctx, Name dn, Attributes entry )
+            throws NamingException;
 
     /**
      * Filters attributes to be returned from
@@ -58,5 +60,6 @@ public interface LookupFilter
      * @throws NamingException if there are any errors while trying to apply
      * the filter
      */
-    void filter( Name dn, Attributes entry, String[] ids ) throws NamingException;
+    void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids )
+            throws NamingException;
 }

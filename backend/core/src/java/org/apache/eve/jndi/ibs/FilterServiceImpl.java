@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
 import org.apache.eve.db.SearchResultFilter;
@@ -104,7 +105,8 @@ public class FilterServiceImpl extends BaseInterceptor
         {
             Attributes attributes = ( Attributes ) invocation.getReturnValue();
             Attributes retval = ( Attributes ) attributes.clone();
-            filter( dn, retval );
+            LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
+            filter( ctx, dn, retval );
             invocation.setReturnValue( retval );
         }
     }
@@ -119,9 +121,10 @@ public class FilterServiceImpl extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
         {
+            LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
             Attributes attributes = ( Attributes ) invocation.getReturnValue();
             Attributes retval = ( Attributes ) attributes.clone();
-            filter( dn, retval, ids );
+            filter( ctx, dn, retval, ids );
             invocation.setReturnValue( retval );
         }
     }
@@ -145,14 +148,16 @@ public class FilterServiceImpl extends BaseInterceptor
 
             SearchResultEnumeration enum ;
             ResultFilteringEnumeration retval;
+            LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
             enum = ( SearchResultEnumeration ) invocation.getReturnValue();
-            retval = new ResultFilteringEnumeration( enum, searchControls );
+            retval = new ResultFilteringEnumeration( enum, searchControls, ctx );
             retval.addResultFilter( new SearchResultFilter()
             {
-                public boolean accept( DbSearchResult result, SearchControls controls )
+                public boolean accept( LdapContext ctx, DbSearchResult result,
+                                       SearchControls controls )
                         throws NamingException
                 {
-                    return FilterServiceImpl.this.accept( result, controls );
+                    return FilterServiceImpl.this.accept( ctx, result, controls );
                 }
             } );
             invocation.setReturnValue( retval );
@@ -172,12 +177,13 @@ public class FilterServiceImpl extends BaseInterceptor
      * @param result the copy of the database search result to accep, modify,
      * or reject before being returned
      * @param controls the search controls associated with the invocation
+     * @param ctx the LDAP context that made the search call
      * @return true if this result should not be returned to the callers of a
      * search result enumeration
      * @throws NamingException if there are errors while applying the linear
      * composition of filters
      */
-    private boolean accept( DbSearchResult result, SearchControls controls )
+    private boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls )
             throws NamingException
     {
         boolean isAccepted = true;
@@ -186,7 +192,7 @@ public class FilterServiceImpl extends BaseInterceptor
         {
             SearchResultFilter filter = ( SearchResultFilter ) resultFilters.get( ii );
 
-            if ( ! ( isAccepted &= filter.accept( result, controls ) ) )
+            if ( ! ( isAccepted &= filter.accept( ctx, result, controls ) ) )
             {
                 break;
             }
@@ -200,16 +206,17 @@ public class FilterServiceImpl extends BaseInterceptor
      * Applies the linear stack of entry filters to the entry looked up and
      * eventually returned a caller of the lookup methods.
      *
+     * @param ctx the LDAP context that made the lookup call
      * @param dn the distinguished name of the lookup entry being filtered
      * @param entry the attributes of the entry being filtered
      * @throws NamingException if there are errors while applying the linear
      * composition of filters
      */
-    private void filter( Name dn, Attributes entry ) throws NamingException
+    private void filter( LdapContext ctx, Name dn, Attributes entry ) throws NamingException
     {
         for ( int ii = 0; ii < lookupFilters.size(); ii++ )
         {
-            ( ( LookupFilter ) lookupFilters.get( ii ) ).filter( dn, entry );
+            ( ( LookupFilter ) lookupFilters.get( ii ) ).filter( ctx, dn, entry );
         }
     }
 
@@ -218,6 +225,7 @@ public class FilterServiceImpl extends BaseInterceptor
      * Applies the linear stack of entry filters to the entry looked up and
      * eventually returned a caller of the lookup methods.
      *
+     * @param ctx the LDAP context that made the lookup call
      * @param dn the distinguished name of the lookup entry being filtered
      * @param entry the attributes of the entry being filtered
      * @param ids the attributes of the the lookup operation is supposed to
@@ -225,11 +233,12 @@ public class FilterServiceImpl extends BaseInterceptor
      * @throws NamingException if there are errors while applying the linear
      * composition of filters
      */
-    private void filter( Name dn, Attributes entry, String[] ids ) throws NamingException
+    private void filter( LdapContext ctx, Name dn, Attributes entry, String[] ids )
+            throws NamingException
     {
         for ( int ii = 0; ii < lookupFilters.size(); ii++ )
         {
-            ( ( LookupFilter ) lookupFilters.get( ii ) ).filter( dn, entry, ids );
+            ( ( LookupFilter ) lookupFilters.get( ii ) ).filter( ctx, dn, entry, ids );
         }
     }
 }
