@@ -27,7 +27,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
 
 import org.apache.eve.RootNexus;
-import org.apache.eve.exception.EveInterceptorException;
+import org.apache.ldap.server.exception.EveInterceptorException;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.filter.ExprNode;
@@ -36,6 +36,7 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.server.jndi.InvocationStateEnum;
 import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.server.exception.EveInterceptorException;
 
 
 /**

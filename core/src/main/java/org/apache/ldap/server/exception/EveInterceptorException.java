@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.exception;
+package org.apache.ldap.server.exception;
 
 
 import org.apache.ldap.common.message.ResultCodeEnum;
