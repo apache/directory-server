@@ -18,7 +18,6 @@ package org.apache.eve;
 
 
 import java.util.Properties;
-import java.io.FileInputStream;
 import java.io.File;
 
 import javax.naming.Context;

@@ -24,6 +24,7 @@ import org.apache.seda.protocol.RequestHandler;
 import org.apache.seda.listener.ClientKey;
 
 import org.apache.ldap.common.message.*;
+import org.apache.ldap.common.message.spi.Provider;
 import org.apache.ldap.common.exception.LdapNamingException;
 
 import org.apache.commons.codec.stateful.DecoderFactory;
@@ -112,7 +113,7 @@ public class LdapProtocolProvider implements ProtocolProvider
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
      */
-    public LdapProtocolProvider( Properties env ) throws LdapNamingException
+    public LdapProtocolProvider( Hashtable env ) throws LdapNamingException
     {
         this.handlers = new HashMap();
         SessionRegistry.getSingleton( env );
@@ -128,7 +129,7 @@ public class LdapProtocolProvider implements ProtocolProvider
             {
                 try
                 {
-                    clazz = Class.forName( env.getProperty( type ) );
+                    clazz = Class.forName( ( String ) env.get( type ) );
                 }
                 catch ( ClassNotFoundException e )
                 {
@@ -268,7 +269,7 @@ public class LdapProtocolProvider implements ProtocolProvider
      */
     private static final class DecoderFactoryImpl implements DecoderFactory
     {
-        final Properties env;
+        final Hashtable env;
 
 
         public DecoderFactoryImpl()
@@ -277,7 +278,7 @@ public class LdapProtocolProvider implements ProtocolProvider
         }
 
 
-        DecoderFactoryImpl( Properties env )
+        DecoderFactoryImpl( Hashtable env )
         {
             this.env = env;
         }
@@ -285,7 +286,7 @@ public class LdapProtocolProvider implements ProtocolProvider
 
         public StatefulDecoder createDecoder()
         {
-            if ( env == null )
+            if ( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
             {
                 return new MessageDecoder();
             }
@@ -302,7 +303,7 @@ public class LdapProtocolProvider implements ProtocolProvider
      */
     private static final class EncoderFactoryImpl implements EncoderFactory
     {
-        final Properties env;
+        final Hashtable env;
 
 
         public EncoderFactoryImpl()
@@ -311,7 +312,7 @@ public class LdapProtocolProvider implements ProtocolProvider
         }
 
 
-        public EncoderFactoryImpl( Properties env )
+        public EncoderFactoryImpl( Hashtable env )
         {
             this.env = env;
         }
@@ -319,7 +320,7 @@ public class LdapProtocolProvider implements ProtocolProvider
 
         public StatefulEncoder createEncoder()
         {
-            if ( env == null )
+            if ( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
             {
                 return new MessageEncoder();
             }

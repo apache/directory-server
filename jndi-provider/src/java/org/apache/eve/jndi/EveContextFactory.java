@@ -491,7 +491,7 @@ public class EveContextFactory implements InitialContextFactory
 
     private void startUpWireProtocol() throws NamingException
     {
-        proto = new LdapProtocolProvider();
+        proto = new LdapProtocolProvider( initialEnv );
 
         try
         {
