@@ -40,7 +40,7 @@ public aspect ProviderNexusAspect
      * backend nexus calls made by the JndiProvider's contexts within the same 
      * thread of execution.
      */
-    private static ThreadLocal EveJndiProvider.s_contextStacks = new ThreadLocal();
+    private static ThreadLocal JndiProvider.s_contextStacks = new ThreadLocal();
     
     
     // ------------------------------------------------------------------------
@@ -54,7 +54,7 @@ public aspect ProviderNexusAspect
      * 
      * @param context the caller or the current context for the nexus call
      */
-    private static void EveJndiProvider.push( LdapContext context )
+    private static void JndiProvider.push( LdapContext context )
     {
         Stack stack = ( Stack ) s_contextStacks.get();
         
@@ -74,7 +74,7 @@ public aspect ProviderNexusAspect
      * 
      * @return the last LdapContext or caller
      */
-    private static LdapContext EveJndiProvider.pop()
+    private static LdapContext JndiProvider.pop()
     {
         Stack stack = ( Stack ) s_contextStacks.get();
         
@@ -92,7 +92,7 @@ public aspect ProviderNexusAspect
      * 
      * @return the current LdapContext or caller
      */
-    static LdapContext EveJndiProvider.peek()
+    static LdapContext JndiProvider.peek()
     {
         Stack stack = ( Stack ) s_contextStacks.get();
         
@@ -117,7 +117,7 @@ public aspect ProviderNexusAspect
      */    
     private static Stack getContextStack()
     {
-        Stack stack = ( Stack ) EveJndiProvider.s_contextStacks.get();
+        Stack stack = ( Stack ) JndiProvider.s_contextStacks.get();
         
         if ( null == stack )
         {
@@ -191,7 +191,7 @@ public aspect ProviderNexusAspect
     before( Context caller ):
         jndiNexusCalls( caller )
         {
-    		EveJndiProvider.push( ( LdapContext ) caller );
+    		JndiProvider.push( ( LdapContext ) caller );
             //System.out.println( "\npushed " + a_caller + " for join point "
             //    + thisJoinPoint );
         }
@@ -200,7 +200,7 @@ public aspect ProviderNexusAspect
     after( Context caller ):
         jndiNexusCalls( caller ) 
         {
-            LdapContext head = EveJndiProvider.pop();
+            LdapContext head = JndiProvider.pop();
             //System.out.println( "\npopped " + a_caller + " for join point "
             //    + thisJoinPoint );
         }

@@ -55,16 +55,16 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
-            "org.apache.eve.schema.bootstrap.AutofsSchema",
-            "org.apache.eve.schema.bootstrap.CoreSchema",
-            "org.apache.eve.schema.bootstrap.CosineSchema",
-            "org.apache.eve.schema.bootstrap.CorbaSchema",
-            "org.apache.eve.schema.bootstrap.EveSchema",
-            "org.apache.eve.schema.bootstrap.InetorgpersonSchema",
-            "org.apache.eve.schema.bootstrap.JavaSchema",
-            "org.apache.eve.schema.bootstrap.Krb5kdcSchema",
-            "org.apache.eve.schema.bootstrap.NisSchema",
-            "org.apache.eve.schema.bootstrap.SystemSchema"
+            "org.apache.ldap.server.schema.bootstrap.AutofsSchema",
+            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
+            "org.apache.ldap.server.schema.bootstrap.CosineSchema",
+            "org.apache.ldap.server.schema.bootstrap.CorbaSchema",
+            "org.apache.ldap.server.schema.bootstrap.EveSchema",
+            "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
+            "org.apache.ldap.server.schema.bootstrap.JavaSchema",
+            "org.apache.ldap.server.schema.bootstrap.Krb5kdcSchema",
+            "org.apache.ldap.server.schema.bootstrap.NisSchema",
+            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
         };
         loader.load( schemaClasses, registries );
         AttributeType type;
@@ -154,8 +154,8 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
-            "org.apache.eve.schema.bootstrap.EveSchema",
-            "org.apache.eve.schema.bootstrap.SystemSchema"
+            "org.apache.ldap.server.schema.bootstrap.EveSchema",
+            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
         };
         loader.load( schemaClasses, registries );
         AttributeType type;
@@ -194,8 +194,8 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
-            "org.apache.eve.schema.bootstrap.CoreSchema",
-            "org.apache.eve.schema.bootstrap.SystemSchema"
+            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
+            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
         };
         loader.load( schemaClasses, registries );
         AttributeType type;
@@ -234,9 +234,9 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
-            "org.apache.eve.schema.bootstrap.CoreSchema",
-            "org.apache.eve.schema.bootstrap.JavaSchema",
-            "org.apache.eve.schema.bootstrap.SystemSchema"
+            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
+            "org.apache.ldap.server.schema.bootstrap.JavaSchema",
+            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
         };
         loader.load( schemaClasses, registries );
         AttributeType type;
@@ -255,10 +255,10 @@ public class BootstrapSchemaLoaderTest extends TestCase
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
-            "org.apache.eve.schema.bootstrap.EveSchema",
-            "org.apache.eve.schema.bootstrap.CoreSchema",
-            "org.apache.eve.schema.bootstrap.JavaSchema",
-            "org.apache.eve.schema.bootstrap.SystemSchema"
+            "org.apache.ldap.server.schema.bootstrap.EveSchema",
+            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
+            "org.apache.ldap.server.schema.bootstrap.JavaSchema",
+            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
         };
         loader.load( schemaClasses, registries );
         AttributeType type;
@@ -313,3 +313,4 @@ public class BootstrapSchemaLoaderTest extends TestCase
         assertTrue( buf.toString(), errors.isEmpty() );
     }
 }
+                                   

@@ -78,7 +78,7 @@ public class ServerMain
         }
 
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
-        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
+        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
         try
         {
