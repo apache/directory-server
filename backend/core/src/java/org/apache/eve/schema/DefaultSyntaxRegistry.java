@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
 
 
 /**
@@ -36,10 +35,10 @@ import javax.naming.OperationNotSupportedException;
 public class DefaultSyntaxRegistry implements SyntaxRegistry
 {
     /** a map of entries using an OID for the key and a Syntax for the value */
-    private final Map syntaxes;
-    /** the OID registry this registry uses to register new syntax OIDs */
-    private final OidRegistry registry;
-    /** a monitor used to track noteable registry events */
+    private final Map byOid;
+    /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
+    private final OidRegistry oidRegistry;
+    /** a monitor used to track noteable oidRegistry events */
     private SyntaxRegistryMonitor monitor = null;
     
     
@@ -49,43 +48,13 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     
     
     /**
-     * Creates a DefaultSyntaxRegistry using existing Syntaxes for lookups.
-     * 
-     * @param syntaxes a map of OIDs to their respective Syntax objects
+     * Creates a DefaultSyntaxRegistry.
      */
-    public DefaultSyntaxRegistry( Syntax[] syntaxes, OidRegistry registry )
+    public DefaultSyntaxRegistry( OidRegistry registry )
     {
-        this ( syntaxes, registry, new SyntaxRegistryMonitorAdapter() );
-    }
-
-        
-    /**
-     * Creates a DefaultSyntaxRegistry using existing Syntaxes for lookups.
-     * 
-     * @param syntaxes a map of OIDs to their respective Syntax objects
-     */
-    public DefaultSyntaxRegistry( Syntax[] syntaxes,
-                                    OidRegistry registry,
-                                    SyntaxRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-        this.registry = registry;
-        this.syntaxes = new HashMap();
-        
-        for ( int ii = 0; ii < syntaxes.length; ii++ )
-        {
-            this.syntaxes.put( syntaxes[ii].getOid(), syntaxes[ii] );
-            
-            registry.register( syntaxes[ii].getOid(),
-                    syntaxes[ii].getOid() );
-            if ( syntaxes[ii].getName() != null )
-            {    
-                registry.register( syntaxes[ii].getName(),
-                        syntaxes[ii].getOid() );
-            }
-            
-            monitor.registered( syntaxes[ii] );
-        }
+        this.monitor = new SyntaxRegistryMonitorAdapter();
+        this.oidRegistry = registry;
+        this.byOid = new HashMap();
     }
     
 
@@ -95,43 +64,62 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     
     
     /**
-     * @see org.apache.eve.schema.SyntaxRegistry#lookup(java.lang.String)
+     * @see SyntaxRegistry#lookup(java.lang.String)
      */
-    public Syntax lookup( String oid ) throws NamingException
+    public Syntax lookup( String id ) throws NamingException
     {
-        if ( syntaxes.containsKey( oid ) )
+        id = oidRegistry.getOid( id );
+
+        if ( byOid.containsKey( id ) )
         {
-            Syntax syntax = ( Syntax ) syntaxes.get( oid );
+            Syntax syntax = ( Syntax ) byOid.get( id );
             monitor.lookedUp( syntax );
             return syntax;
         }
         
-        NamingException fault = new NamingException( "Unknown syntax OID "
-                + oid );
-        monitor.lookupFailed( oid, fault );
+        NamingException fault = new NamingException( "Unknown syntax OID " + id );
+        monitor.lookupFailed( id, fault );
         throw fault;
     }
     
 
     /**
-     * @see org.apache.eve.schema.SyntaxRegistry#register(Syntax)
+     * @see SyntaxRegistry#register(Syntax)
      */
     public void register( Syntax syntax ) throws NamingException
     {
-        NamingException fault = new OperationNotSupportedException(
-                "Syntax registration on read-only bootstrap SyntaxRegistry not "
-                + "supported." );
-        monitor.registerFailed( syntax, fault );
-        throw fault;
+        if ( byOid.containsKey( syntax.getOid() ) )
+        {
+            NamingException e = new NamingException( "syntax w/ OID " +
+                syntax.getOid() + " has already been registered!" );
+            monitor.registerFailed( syntax, e );
+            throw e;
+        }
+
+        oidRegistry.register( syntax.getName(), syntax.getOid() );
+        byOid.put( syntax.getOid(), syntax );
+        monitor.registered( syntax );
     }
 
     
     /**
-     * @see org.apache.eve.schema.SyntaxRegistry#hasSyntax(java.lang.String)
+     * @see SyntaxRegistry#hasSyntax(java.lang.String)
      */
-    public boolean hasSyntax( String oid )
+    public boolean hasSyntax( String id )
     {
-        return syntaxes.containsKey( oid );
+        if ( oidRegistry.hasOid( id ) )
+        {
+            try
+            {
+                return byOid.containsKey( oidRegistry.getOid( id ) );
+            }
+            catch ( NamingException e )
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 
 
@@ -141,7 +129,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     
     
     /**
-     * Gets the monitor for this registry.
+     * Gets the monitor for this oidRegistry.
      * 
      * @return the monitor
      */
@@ -152,7 +140,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
 
     
     /**
-     * Sets the monitor for this registry.
+     * Sets the monitor for this oidRegistry.
      * 
      * @param monitor the monitor to set
      */

@@ -34,6 +34,8 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 {
     /** maps an OID to an AttributeType */
     private final Map byOid;
+    /** the registry used to resolve names to OIDs */
+    private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
     private AttributeTypeRegistryMonitor monitor;
 
@@ -46,10 +48,11 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     /**
      * Creates an empty DefaultAttributeTypeRegistry.
      */
-    public DefaultAttributeTypeRegistry()
+    public DefaultAttributeTypeRegistry( OidRegistry oidRegistry )
     {
-        byOid = new HashMap();
-        monitor = new AttributeTypeRegistryMonitorAdapter();
+        this.byOid = new HashMap();
+        this.oidRegistry = oidRegistry;
+        this.monitor = new AttributeTypeRegistryMonitorAdapter();
     }
 
 
@@ -79,29 +82,49 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             throw e;
         }
 
+        String[] names = attributeType.getAllNames();
+        for ( int ii = 0; ii < names.length; ii++ )
+        {
+            oidRegistry.register( names[0], attributeType.getName() );
+        }
+
         byOid.put( attributeType.getOid(), attributeType );
         monitor.registered( attributeType );
     }
 
 
-    public AttributeType lookup( String oid ) throws NamingException
+    public AttributeType lookup( String id ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        id = oidRegistry.getOid( id );
+
+        if ( ! byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "attributeType w/ OID "
-                + oid + " not registered!" );
-            monitor.lookupFailed( oid, e );
+                + id + " not registered!" );
+            monitor.lookupFailed( id, e );
             throw e;
         }
 
-        AttributeType attributeType = ( AttributeType ) byOid.get( oid );
+        AttributeType attributeType = ( AttributeType ) byOid.get( id );
         monitor.lookedUp( attributeType );
         return attributeType;
     }
 
 
-    public boolean hasAttributeType( String oid )
+    public boolean hasAttributeType( String id )
     {
-        return byOid.containsKey( oid );
+        if ( oidRegistry.hasOid( id ) )
+        {
+            try
+            {
+                return byOid.containsKey( oidRegistry.getOid( id ) );
+            }
+            catch ( NamingException e )
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

@@ -17,9 +17,11 @@
 package org.apache.eve.schema.config;
 
 
-import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.schema.BaseSyntax;
 import org.apache.eve.schema.SyntaxCheckerRegistry;
+
+import java.util.Map;
+import java.util.HashMap;
 
 
 /**
@@ -102,9 +104,10 @@ public class CoreSyntaxFactory implements SyntaxFactory
     // ------------------------------------------------------------------------
 
 
-    public Syntax[] getSyntaxes( SyntaxCheckerRegistry registry )
+    public Map getSyntaxes( SyntaxCheckerRegistry registry )
     {
-        MutableSyntax[] syntaxes = new MutableSyntax[54];
+        MutableSyntax syntax;
+        Map syntaxes = new HashMap( 54 );
 
         /*
          * From RFC 2252 Section 4.3.2. on Syntax Object Identifiers
@@ -124,45 +127,55 @@ public class CoreSyntaxFactory implements SyntaxFactory
          * 8 Certificate List                N  1.3.6.1.4.1.1466.115.121.1.9
          * 9 Certificate Pair                N  1.3.6.1.4.1.1466.115.121.1.10
          */
-        syntaxes[0] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.1" );
-        syntaxes[0].setName( "ACI Item" );
-        syntaxes[0].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.1" );
+        syntax.setName( "ACI Item" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[1] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.2" );
-        syntaxes[1].setName( "Access Point" );
-        syntaxes[1].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.2" );
+        syntax.setName( "Access Point" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[2] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.3" );
-        syntaxes[2].setName( "Attribute Type Description" );
-        syntaxes[2].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.3" );
+        syntax.setName( "Attribute Type Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[3] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.4" );
-        syntaxes[3].setName( "Audio" );
-        syntaxes[3].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.4" );
+        syntax.setName( "Audio" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[4] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.5" );
-        syntaxes[4].setName( "Binary" );
-        syntaxes[4].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.5" );
+        syntax.setName( "Binary" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[5] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.6" );
-        syntaxes[5].setName( "Bit String" );
-        syntaxes[5].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.6" );
+        syntax.setName( "Bit String" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[6] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.7" );
-        syntaxes[6].setName( "Boolean" );
-        syntaxes[6].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.7" );
+        syntax.setName( "Boolean" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[7] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.8" );
-        syntaxes[7].setName( "Certificate" );
-        syntaxes[7].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.8" );
+        syntax.setName( "Certificate" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[8] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.9" );
-        syntaxes[8].setName( "Certificate List" );
-        syntaxes[8].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.9" );
+        syntax.setName( "Certificate List" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[9] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.10" );
-        syntaxes[9].setName( "Certificate Pair" );
-        syntaxes[9].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.10" );
+        syntax.setName( "Certificate Pair" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -178,45 +191,55 @@ public class CoreSyntaxFactory implements SyntaxFactory
          * 18 DSA Quality Syntax              Y  1.3.6.1.4.1.1466.115.121.1.19
          * 19 DSE Type                        Y  1.3.6.1.4.1.1466.115.121.1.20
          */
-        syntaxes[10] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.11" );
-        syntaxes[10].setName( "Country String" );
-        syntaxes[10].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.11" );
+        syntax.setName( "Country String" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[11] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.12" );
-        syntaxes[11].setName( "DN" );
-        syntaxes[11].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.12" );
+        syntax.setName( "DN" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[12] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.13" );
-        syntaxes[12].setName( "Data Quality Syntax" );
-        syntaxes[12].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.13" );
+        syntax.setName( "Data Quality Syntax" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[13] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.14" );
-        syntaxes[13].setName( "Delivery Method" );
-        syntaxes[13].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.14" );
+        syntax.setName( "Delivery Method" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[14] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.15" );
-        syntaxes[14].setName( "Directory String" );
-        syntaxes[14].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.15" );
+        syntax.setName( "Directory String" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[15] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.16" );
-        syntaxes[15].setName( "DIT Content Rule Description" );
-        syntaxes[15].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.16" );
+        syntax.setName( "DIT Content Rule Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[16] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.17" );
-        syntaxes[16].setName( "DIT Structure Rule Description" );
-        syntaxes[16].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.17" );
+        syntax.setName( "DIT Structure Rule Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[17] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.18" );
-        syntaxes[17].setName( "DL Submit Permission" );
-        syntaxes[17].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.18" );
+        syntax.setName( "DL Submit Permission" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[18] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.19" );
-        syntaxes[18].setName( "DSA Quality Syntax" );
-        syntaxes[18].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.19" );
+        syntax.setName( "DSA Quality Syntax" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[19] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.20" );
-        syntaxes[19].setName( "DSE Type" );
-        syntaxes[19].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.20" );
+        syntax.setName( "DSE Type" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -232,45 +255,55 @@ public class CoreSyntaxFactory implements SyntaxFactory
          * 28 Master And Shadow Access Points Y  1.3.6.1.4.1.1466.115.121.1.29
          * 29 Matching Rule Description       Y  1.3.6.1.4.1.1466.115.121.1.30
          */
-        syntaxes[20] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.21" );
-        syntaxes[20].setName( "Enhanced Guide" );
-        syntaxes[20].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.21" );
+        syntax.setName( "Enhanced Guide" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[21] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.22" );
-        syntaxes[21].setName( "Facsimile Telephone Number" );
-        syntaxes[21].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.22" );
+        syntax.setName( "Facsimile Telephone Number" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[22] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.23" );
-        syntaxes[22].setName( "Fax" );
-        syntaxes[22].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.23" );
+        syntax.setName( "Fax" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[23] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.24" );
-        syntaxes[23].setName( "Generalized Time" );
-        syntaxes[23].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.24" );
+        syntax.setName( "Generalized Time" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[24] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.25" );
-        syntaxes[24].setName( "Guide" );
-        syntaxes[24].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.25" );
+        syntax.setName( "Guide" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[25] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.26" );
-        syntaxes[25].setName( "IA5 String" );
-        syntaxes[25].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.26" );
+        syntax.setName( "IA5 String" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[26] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.27" );
-        syntaxes[26].setName( "INTEGER" );
-        syntaxes[26].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.27" );
+        syntax.setName( "INTEGER" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[27] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.28" );
-        syntaxes[27].setName( "JPEG" );
-        syntaxes[27].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.28" );
+        syntax.setName( "JPEG" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[28] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.29" );
-        syntaxes[28].setName( "Master And Shadow Access Points" );
-        syntaxes[28].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.29" );
+        syntax.setName( "Master And Shadow Access Points" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[29] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.30" );
-        syntaxes[29].setName( "Matching Rule Description" );
-        syntaxes[29].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.30" );
+        syntax.setName( "Matching Rule Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -286,45 +319,55 @@ public class CoreSyntaxFactory implements SyntaxFactory
          * 38 Other Mailbox                   Y  1.3.6.1.4.1.1466.115.121.1.39
          * 39 Octet String                    Y  1.3.6.1.4.1.1466.115.121.1.40
          */
-        syntaxes[30] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.31" );
-        syntaxes[30].setName( "Matching Rule Use Description" );
-        syntaxes[30].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.31" );
+        syntax.setName( "Matching Rule Use Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[31] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.32" );
-        syntaxes[31].setName( "Mail Preference" );
-        syntaxes[31].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.32" );
+        syntax.setName( "Mail Preference" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[32] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.33" );
-        syntaxes[32].setName( "MHS OR Address" );
-        syntaxes[32].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.33" );
+        syntax.setName( "MHS OR Address" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[33] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.34" );
-        syntaxes[33].setName( "Name And Optional UID" );
-        syntaxes[33].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.34" );
+        syntax.setName( "Name And Optional UID" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[34] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.35" );
-        syntaxes[34].setName( "Name Form Description" );
-        syntaxes[34].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.35" );
+        syntax.setName( "Name Form Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[35] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.36" );
-        syntaxes[35].setName( "Numeric String" );
-        syntaxes[35].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.36" );
+        syntax.setName( "Numeric String" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[36] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.37" );
-        syntaxes[36].setName( "Object Class Description" );
-        syntaxes[36].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.37" );
+        syntax.setName( "Object Class Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[37] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.38" );
-        syntaxes[37].setName( "OID" );
-        syntaxes[37].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.38" );
+        syntax.setName( "OID" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[38] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.39" );
-        syntaxes[38].setName( "Other Mailbox" );
-        syntaxes[38].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.39" );
+        syntax.setName( "Other Mailbox" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[39] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.40" );
-        syntaxes[39].setName( "Octet String" );
-        syntaxes[39].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.40" );
+        syntax.setName( "Octet String" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -340,45 +383,55 @@ public class CoreSyntaxFactory implements SyntaxFactory
          * 48 Supported Algorithm             N  1.3.6.1.4.1.1466.115.121.1.49
          * 49 Telephone Number                Y  1.3.6.1.4.1.1466.115.121.1.50
          */
-        syntaxes[40] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.41" );
-        syntaxes[40].setName( "Postal Address" );
-        syntaxes[40].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.41" );
+        syntax.setName( "Postal Address" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[41] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.42" );
-        syntaxes[41].setName( "Protocol Information" );
-        syntaxes[41].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.42" );
+        syntax.setName( "Protocol Information" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[42] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.43" );
-        syntaxes[42].setName( "Presentation Address" );
-        syntaxes[42].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.43" );
+        syntax.setName( "Presentation Address" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[43] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.44" );
-        syntaxes[43].setName( "Printable String" );
-        syntaxes[43].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.44" );
+        syntax.setName( "Printable String" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[44] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.45" );
-        syntaxes[44].setName( "Subtree Specification" );
-        syntaxes[44].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.45" );
+        syntax.setName( "Subtree Specification" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[45] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.46" );
-        syntaxes[45].setName( "Supplier Information" );
-        syntaxes[45].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.46" );
+        syntax.setName( "Supplier Information" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[46] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.47" );
-        syntaxes[46].setName( "Supplier Or Consumer" );
-        syntaxes[46].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.47" );
+        syntax.setName( "Supplier Or Consumer" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[47] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.48" );
-        syntaxes[47].setName( "Supplier And Consumer" );
-        syntaxes[47].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.48" );
+        syntax.setName( "Supplier And Consumer" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[48] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.49" );
-        syntaxes[48].setName( "Supported Algorithm" );
-        syntaxes[48].setHumanReadible( false );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.49" );
+        syntax.setName( "Supported Algorithm" );
+        syntax.setHumanReadible( false );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[49] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.50" );
-        syntaxes[49].setName( "Telephone Number" );
-        syntaxes[49].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.50" );
+        syntax.setName( "Telephone Number" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -392,37 +445,45 @@ public class CoreSyntaxFactory implements SyntaxFactory
          * 56 LDAP SchemaGrouping Description         Y  1.3.6.1.4.1.1466.115.121.1.57
          * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
          */
-        syntaxes[50] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.51" );
-        syntaxes[50].setName( "Teletex Terminal Identifier" );
-        syntaxes[50].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.51" );
+        syntax.setName( "Teletex Terminal Identifier" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[51] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.52" );
-        syntaxes[51].setName( "Telex Number" );
-        syntaxes[51].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.52" );
+        syntax.setName( "Telex Number" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[52] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.53" );
-        syntaxes[52].setName( "UTC Time" );
-        syntaxes[52].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.53" );
+        syntax.setName( "UTC Time" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[53] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.54" );
-        syntaxes[53].setName( "LDAP Syntax Description" );
-        syntaxes[53].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.54" );
+        syntax.setName( "LDAP Syntax Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[54] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.55" );
-        syntaxes[54].setName( "Modify Rights" );
-        syntaxes[54].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.55" );
+        syntax.setName( "Modify Rights" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[55] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.56" );
-        syntaxes[55].setName( "LDAP SchemaGrouping Definition" );
-        syntaxes[55].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.56" );
+        syntax.setName( "LDAP SchemaGrouping Definition" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[56] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.57" );
-        syntaxes[56].setName( "LDAP SchemaGrouping Description" );
-        syntaxes[56].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.57" );
+        syntax.setName( "LDAP SchemaGrouping Description" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
-        syntaxes[57] = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.58" );
-        syntaxes[57].setName( "Substring Assertion" );
-        syntaxes[57].setHumanReadible( true );
+        syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.58" );
+        syntax.setName( "Substring Assertion" );
+        syntax.setHumanReadible( true );
+        syntaxes.put( syntax.getOid(), syntax );
 
         return syntaxes;
     }

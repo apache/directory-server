@@ -31,14 +31,14 @@ import org.apache.ldap.common.schema.Syntax;
 public interface SyntaxRegistry
 {
     /**
-     * Looks up a Syntax by its unique Object Identifier.
+     * Looks up a Syntax by its unique Object Identifier or by name.
      * 
-     * @param oid the object identifier
-     * @return the Syntax for the oid
+     * @param id the object identifier or name
+     * @return the Syntax for the id
      * @throws NamingException if there is a backing store failure or the Syntax
      * does not exist.
      */
-    Syntax lookup( String oid ) throws NamingException;
+    Syntax lookup( String id ) throws NamingException;
     
     /**
      * Registers a Syntax with this registry.  
@@ -53,8 +53,8 @@ public interface SyntaxRegistry
      * Checks to see if a Syntax exists.  Backing store failures simply return
      * false.
      * 
-     * @param oid the object identifier
-     * @return true if a Syntax definition exists for the oid, false otherwise
+     * @param id the object identifier or name
+     * @return true if a Syntax definition exists for the id, false otherwise
      */
-    boolean hasSyntax( String oid );
+    boolean hasSyntax( String id );
 }

@@ -23,7 +23,7 @@ import org.apache.ldap.common.schema.DITStructureRule;
 
 
 /**
- * An DITStructureRule registry's service interface.
+ * An DITStructureRule registry service interface.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -31,29 +31,30 @@ import org.apache.ldap.common.schema.DITStructureRule;
 public interface DITStructureRuleRegistry
 {
     /**
-     * Registers a Comparator with this registry.
+     * Registers a DITStructureRule with this registry.
      * 
      * @param dITStructureRule the dITStructureRule to register
-     * @throws NamingException if the DITStructureRule is already
-     * registered or the registration operation is not supported
+     * @throws NamingException if the DITStructureRule is already registered
+     * or the registration operation is not supported
      */
     void register( DITStructureRule dITStructureRule ) throws NamingException;
     
     /**
-     * Looks up an dITStructureRule by its unique Object Identifier.
+     * Looks up an dITStructureRule by its unique Object IDentifier or by its
+     * name.
      * 
-     * @param oid the object identifier
-     * @return the DITStructureRule instance for the oid
+     * @param id the object identifier, or the name
+     * @return the DITStructureRule instance for the id
      * @throws NamingException if the DITStructureRule does not exist
      */
-    DITStructureRule lookup( String oid ) throws NamingException;
+    DITStructureRule lookup( String id ) throws NamingException;
 
     /**
      * Checks to see if an dITStructureRule exists.
      * 
-     * @param oid the object identifier
-     * @return true if an dITStructureRule definition exists for the oid, false
+     * @param id the object identifier, or the name
+     * @return true if an dITStructureRule definition exists for the id, false
      * otherwise
      */
-    boolean hasDITStructureRule( String oid );
+    boolean hasDITStructureRule( String id );
 }

@@ -23,7 +23,7 @@ import org.apache.ldap.common.schema.MatchingRuleUse;
 
 
 /**
- * An MatchingRuleUse registry's service interface.
+ * An MatchingRuleUse registry service interface.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -31,20 +31,20 @@ import org.apache.ldap.common.schema.MatchingRuleUse;
 public interface MatchingRuleUseRegistry
 {
     /**
-     * Registers a Comparator with this registry.
+     * Registers a MatchingRuleUse with this registry.
      *
      * @param name the name of the matchingRuleUse
      * @param matchingRuleUse the matchingRuleUse to register
-     * @throws NamingException if the MatchingRuleUse is already
-     * registered or the registration operation is not supported
+     * @throws NamingException if the MatchingRuleUse is already registered or
+     * the registration operation is not supported
      */
     void register( String name, MatchingRuleUse matchingRuleUse ) throws NamingException;
     
     /**
-     * Looks up an matchingRuleUse by its unique Object Identifier.
+     * Looks up an matchingRuleUse by its name.
      * 
      * @param name the name of the matchingRuleUse
-     * @return the MatchingRuleUse instance for the oid
+     * @return the MatchingRuleUse instance for the name
      * @throws NamingException if the MatchingRuleUse does not exist
      */
     MatchingRuleUse lookup( String name ) throws NamingException;
@@ -53,7 +53,7 @@ public interface MatchingRuleUseRegistry
      * Checks to see if an matchingRuleUse exists.
      * 
      * @param name the name of the matchingRuleUse
-     * @return true if an matchingRuleUse definition exists for the oid, false
+     * @return true if an matchingRuleUse definition exists for the name, false
      * otherwise
      */
     boolean hasMatchingRuleUse( String name );

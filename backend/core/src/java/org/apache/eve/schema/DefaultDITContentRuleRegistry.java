@@ -34,6 +34,8 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
 {
     /** maps an OID to an DITContentRule */
     private final Map byOid;
+    /** the registry used to resolve names to OIDs */
+    private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
     private DITContentRuleRegistryMonitor monitor;
 
@@ -46,10 +48,11 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
     /**
      * Creates an empty DefaultDITContentRuleRegistry.
      */
-    public DefaultDITContentRuleRegistry()
+    public DefaultDITContentRuleRegistry( OidRegistry oidRegistry )
     {
-        byOid = new HashMap();
-        monitor = new DITContentRuleRegistryMonitorAdapter();
+        this.byOid = new HashMap();
+        this.oidRegistry = oidRegistry;
+        this.monitor = new DITContentRuleRegistryMonitorAdapter();
     }
 
 
@@ -79,29 +82,44 @@ public class DefaultDITContentRuleRegistry implements DITContentRuleRegistry
             throw e;
         }
 
+        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
         byOid.put( dITContentRule.getOid(), dITContentRule );
         monitor.registered( dITContentRule );
     }
 
 
-    public DITContentRule lookup( String oid ) throws NamingException
+    public DITContentRule lookup( String id ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        id = oidRegistry.getOid( id );
+
+        if ( ! byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "dITContentRule w/ OID "
-                + oid + " not registered!" );
-            monitor.lookupFailed( oid, e );
+                + id + " not registered!" );
+            monitor.lookupFailed( id, e );
             throw e;
         }
 
-        DITContentRule dITContentRule = ( DITContentRule ) byOid.get( oid );
+        DITContentRule dITContentRule = ( DITContentRule ) byOid.get( id );
         monitor.lookedUp( dITContentRule );
         return dITContentRule;
     }
 
 
-    public boolean hasDITContentRule( String oid )
+    public boolean hasDITContentRule( String id )
     {
-        return byOid.containsKey( oid );
+        if ( oidRegistry.hasOid( id ) )
+        {
+            try
+            {
+                return byOid.containsKey( oidRegistry.getOid( id ) );
+            }
+            catch ( NamingException e )
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

@@ -20,14 +20,22 @@ package org.apache.eve.schema.config;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.eve.schema.SyntaxCheckerRegistry;
 
+import java.util.Map;
+
 
 /**
- * Document me.
+ * Factory that creates an OID String to Syntax map.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface SyntaxFactory
 {
-    Syntax[] getSyntaxes( SyntaxCheckerRegistry registry );
+    /**
+     * Creates a Syntax OID String to Syntax object map.
+     *
+     * @param registry a registry of SyntaxChecker objects
+     * @return a Map of Syntax OID Strings to Syntax objects
+     */
+    Map getSyntaxes( SyntaxCheckerRegistry registry );
 }

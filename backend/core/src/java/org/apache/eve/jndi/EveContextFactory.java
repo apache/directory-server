@@ -80,11 +80,6 @@ public class EveContextFactory implements InitialContextFactory
         CoreSyntaxFactory coreSyntaxes;
         DefaultSyntaxRegistry syntaxRegistry;
 
-        coreSyntaxes = new CoreSyntaxFactory();
-        syntaxes = coreSyntaxes.getSyntaxes( null );
-        oidRegistry = new DefaultOidRegistry();
-        syntaxRegistry = new DefaultSyntaxRegistry( syntaxes, oidRegistry );
-
         throw new NotImplementedException( "bootstrap code not yet written" );
 
         // return provider;

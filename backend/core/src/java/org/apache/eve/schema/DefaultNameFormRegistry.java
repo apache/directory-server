@@ -34,6 +34,8 @@ public class DefaultNameFormRegistry implements NameFormRegistry
 {
     /** maps an OID to an NameForm */
     private final Map byOid;
+    /** the registry used to resolve names to OIDs */
+    private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
     private NameFormRegistryMonitor monitor;
 
@@ -46,10 +48,11 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     /**
      * Creates an empty DefaultNameFormRegistry.
      */
-    public DefaultNameFormRegistry()
+    public DefaultNameFormRegistry( OidRegistry oidRegistry )
     {
-        byOid = new HashMap();
-        monitor = new NameFormRegistryMonitorAdapter();
+        this.byOid = new HashMap();
+        this.oidRegistry = oidRegistry;
+        this.monitor = new NameFormRegistryMonitorAdapter();
     }
 
 
@@ -79,29 +82,44 @@ public class DefaultNameFormRegistry implements NameFormRegistry
             throw e;
         }
 
+        oidRegistry.register( nameForm.getName(), nameForm.getOid() );
         byOid.put( nameForm.getOid(), nameForm );
         monitor.registered( nameForm );
     }
 
 
-    public NameForm lookup( String oid ) throws NamingException
+    public NameForm lookup( String id ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        id = oidRegistry.getOid( id );
+
+        if ( ! byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "nameForm w/ OID "
-                + oid + " not registered!" );
-            monitor.lookupFailed( oid, e );
+            NamingException e = new NamingException( "nameForm w/ OID " + id
+                + " not registered!" );
+            monitor.lookupFailed( id, e );
             throw e;
         }
 
-        NameForm nameForm = ( NameForm ) byOid.get( oid );
+        NameForm nameForm = ( NameForm ) byOid.get( id );
         monitor.lookedUp( nameForm );
         return nameForm;
     }
 
 
-    public boolean hasNameForm( String oid )
+    public boolean hasNameForm( String id )
     {
-        return byOid.containsKey( oid );
+        if ( oidRegistry.hasOid( id ) )
+        {
+            try
+            {
+                return byOid.containsKey( oidRegistry.getOid( id ) );
+            }
+            catch ( NamingException e )
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

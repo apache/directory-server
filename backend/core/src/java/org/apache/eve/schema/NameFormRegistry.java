@@ -23,7 +23,7 @@ import org.apache.ldap.common.schema.NameForm;
 
 
 /**
- * An NameForm registry's service interface.
+ * An NameForm registry service interface.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -31,29 +31,29 @@ import org.apache.ldap.common.schema.NameForm;
 public interface NameFormRegistry
 {
     /**
-     * Registers a Comparator with this registry.
+     * Registers a NameForm with this registry.
      * 
      * @param nameForm the nameForm to register
-     * @throws javax.naming.NamingException if the NameForm is already
-     * registered or the registration operation is not supported
+     * @throws NamingException if the NameForm is already registered or the
+     * registration operation is not supported
      */
     void register( NameForm nameForm ) throws NamingException;
     
     /**
-     * Looks up an nameForm by its unique Object Identifier.
+     * Looks up a nameForm by its unique Object Identifier or by name.
      * 
-     * @param oid the object identifier
-     * @return the NameForm instance for the oid
-     * @throws javax.naming.NamingException if the NameForm does not exist
+     * @param id the object identifier or name
+     * @return the NameForm instance for the id
+     * @throws NamingException if the NameForm does not exist
      */
-    NameForm lookup( String oid ) throws NamingException;
+    NameForm lookup( String id ) throws NamingException;
 
     /**
      * Checks to see if an nameForm exists.
      * 
-     * @param oid the object identifier
+     * @param id the object identifier or name
      * @return true if an nameForm definition exists for the oid, false
      * otherwise
      */
-    boolean hasNameForm( String oid );
+    boolean hasNameForm( String id );
 }

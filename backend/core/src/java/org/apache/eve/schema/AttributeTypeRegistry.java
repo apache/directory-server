@@ -23,7 +23,7 @@ import org.apache.ldap.common.schema.AttributeType;
 
 
 /**
- * An AttributeType registry's service interface.
+ * An AttributeType registry service interface.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -31,29 +31,30 @@ import org.apache.ldap.common.schema.AttributeType;
 public interface AttributeTypeRegistry
 {
     /**
-     * Registers a Comparator with this registry.
+     * Registers a new AttributeType with this registry.
      * 
-     * @param attributeType the attributeType to register
-     * @throws javax.naming.NamingException if the AttributeType is already
-     * registered or the registration operation is not supported
+     * @param attributeType the AttributeType to register
+     * @throws NamingException if the AttributeType is already registered or
+     * the registration operation is not supported
      */
     void register( AttributeType attributeType ) throws NamingException;
     
     /**
-     * Looks up an attributeType by its unique Object Identifier.
+     * Looks up an AttributeType by its unique Object Identifier or by its
+     * unique name.
      * 
-     * @param oid the object identifier
+     * @param id the object identifier or name of the AttributeType
      * @return the AttributeType instance for the oid
-     * @throws javax.naming.NamingException if the AttributeType does not exist
+     * @throws NamingException if the AttributeType does not exist
      */
-    AttributeType lookup( String oid ) throws NamingException;
+    AttributeType lookup( String id ) throws NamingException;
 
     /**
-     * Checks to see if an attributeType exists.
+     * Checks to see if an AttributeType exists.
      * 
-     * @param oid the object identifier
-     * @return true if an attributeType definition exists for the oid, false
+     * @param id the object identifier or name of the AttributeType
+     * @return true if an AttributeType definition exists for the oid, false
      * otherwise
      */
-    boolean hasAttributeType( String oid );
+    boolean hasAttributeType( String id );
 }

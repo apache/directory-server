@@ -17,6 +17,7 @@
 package org.apache.eve.schema.config;
 
 import org.apache.ldap.common.schema.*;
+import org.apache.eve.schema.*;
 
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public interface SchemaGrouping
     String[] getDependencies();
 
     /**
-     * Gets the set of comparators
+     * Gets a map of comparators
      *
      * @return
      */
@@ -64,21 +65,21 @@ public interface SchemaGrouping
 
     Map getNormalizers();
 
-    SyntaxChecker[] getSyntaxCheckers();
+    Map getSyntaxCheckers();
 
-    Syntax[] getSyntaxes();
+    Map getSyntaxes();
 
-    MatchingRule[] getMatchingRules();
+    Map getMatchingRules();
 
-    AttributeType[] getAttributeTypes();
+    Map getAttributeTypes();
 
-    ObjectClass[] getObjectClasses();
+    Map getObjectClasses();
 
-    DITContentRule[] getDITContentRules();
+    Map getDITContentRules();
 
-    DITStructureRule[] getDITStructureRules();
+    Map getDITStructureRules();
 
-    NameForm[] getNameForms();
+    Map getNameForms();
 
     Map getMatchingRuleUses();
 }

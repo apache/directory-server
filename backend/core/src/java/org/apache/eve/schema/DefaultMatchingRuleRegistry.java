@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
 
 
 /**
@@ -35,7 +34,9 @@ import javax.naming.OperationNotSupportedException;
 public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
 {
     /** a map using an OID for the key and a MatchingRule for the value */
-    private final Map matchingRules;
+    private final Map byOid;
+    /** the registry used to resolve names to OIDs */
+    private final OidRegistry oidRegistry;
     /** a monitor used to track noteable registry events */
     private MatchingRuleRegistryMonitor monitor = null;
     
@@ -49,43 +50,12 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
      * Creates a DefaultMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
      * 
-     * @param matchingRules a map of OIDs to their respective MatchingRule objs
      */
-    public DefaultMatchingRuleRegistry( MatchingRule[] matchingRules,
-                                        OidRegistry registry )
+    public DefaultMatchingRuleRegistry( OidRegistry oidRegistry )
     {
-        this ( matchingRules, registry, new MatchingRuleRegistryMonitorAdapter() );
-    }
-
-        
-    /**
-     * Creates a DefaultMatchingRuleRegistry using existing MatchingRulees
-     * for lookups.
-     * 
-     * @param matchingRules a map of OIDs to their respective MatchingRule objs
-     */
-    public DefaultMatchingRuleRegistry( MatchingRule[] matchingRules,
-                                        OidRegistry registry,
-                                        MatchingRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-        this.matchingRules = new HashMap();
-        
-        for ( int ii = 0; ii < matchingRules.length; ii++ )
-        {
-            this.matchingRules.put( matchingRules[ii].getOid(),
-                matchingRules[ii] );
-            registry.register( matchingRules[ii].getOid(),
-                matchingRules[ii].getOid() );
-
-            if ( matchingRules[ii].getName() != null )
-            {    
-                registry.register( matchingRules[ii].getName(),
-                    matchingRules[ii].getOid() );
-            }
-            
-            monitor.registered( matchingRules[ii] );
-        }
+        this.oidRegistry = oidRegistry;
+        this.byOid = new HashMap();
+        this.monitor = new MatchingRuleRegistryMonitorAdapter();
     }
     
 
@@ -97,41 +67,60 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     /**
      * @see org.apache.eve.schema.MatchingRuleRegistry#lookup(String)
      */
-    public MatchingRule lookup( String oid ) throws NamingException
+    public MatchingRule lookup( String id ) throws NamingException
     {
-        if ( matchingRules.containsKey( oid ) )
+        id = oidRegistry.getOid( id );
+
+        if ( byOid.containsKey( id ) )
         {
-            MatchingRule MatchingRule = ( MatchingRule ) matchingRules.get( oid );
+            MatchingRule MatchingRule = ( MatchingRule ) byOid.get( id );
             monitor.lookedUp( MatchingRule );
             return MatchingRule;
         }
         
-        NamingException fault = new NamingException( "Unknown MatchingRule OID " + oid );
-        monitor.lookupFailed( oid, fault );
+        NamingException fault = new NamingException( "Unknown MatchingRule OID " + id );
+        monitor.lookupFailed( id, fault );
         throw fault;
     }
     
 
     /**
-     * @see org.apache.eve.schema.MatchingRuleRegistry#register(
-     * org.apache.ldap.common.schema.MatchingRule)
+     * @see MatchingRuleRegistry#register(MatchingRule)
      */
-    public void register( MatchingRule MatchingRule ) throws NamingException
+    public void register( MatchingRule matchingRule ) throws NamingException
     {
-        NamingException fault = new OperationNotSupportedException(
-                "MatchingRule registration on read-only bootstrap " +
-                "MatchingRuleRegistry not supported." );
-        monitor.registerFailed( MatchingRule, fault );
-        throw fault;
+        if ( byOid.containsKey( matchingRule.getOid() ) )
+        {
+            NamingException e = new NamingException( "matchingRule w/ OID " +
+                matchingRule.getOid() + " has already been registered!" );
+            monitor.registerFailed( matchingRule, e );
+            throw e;
+        }
+
+        oidRegistry.register( matchingRule.getName(), matchingRule.getOid() );
+        byOid.put( matchingRule.getOid(), matchingRule );
+        monitor.registered( matchingRule );
     }
 
     
     /**
      * @see org.apache.eve.schema.MatchingRuleRegistry#hasMatchingRule(String)
      */
-    public boolean hasMatchingRule( String oid )
+    public boolean hasMatchingRule( String id )
     {
-        return matchingRules.containsKey( oid );
+        if ( oidRegistry.hasOid( id ) )
+        {
+            try
+            {
+                return byOid.containsKey( oidRegistry.getOid( id ) );
+            }
+            catch ( NamingException e )
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 
 

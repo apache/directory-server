@@ -31,29 +31,29 @@ import org.apache.ldap.common.schema.DITContentRule;
 public interface DITContentRuleRegistry
 {
     /**
-     * Registers a Comparator with this registry.
+     * Registers a DITContentRule with this registry.
      * 
-     * @param dITContentRule the dITContentRule to register
-     * @throws NamingException if the DITContentRule is already
-     * registered or the registration operation is not supported
+     * @param dITContentRule the DITContentRule to register
+     * @throws NamingException if the DITContentRule is already registered or
+     * the registration operation is not supported
      */
     void register( DITContentRule dITContentRule ) throws NamingException;
     
     /**
-     * Looks up an dITContentRule by its unique Object Identifier.
+     * Looks up a DITContentRule by its object identifier or by its name.
      * 
-     * @param oid the object identifier
-     * @return the DITContentRule instance for the oid
+     * @param id the object identifier or name of the DITContentRule
+     * @return the DITContentRule instance for the id
      * @throws NamingException if the DITContentRule does not exist
      */
-    DITContentRule lookup( String oid ) throws NamingException;
+    DITContentRule lookup( String id ) throws NamingException;
 
     /**
-     * Checks to see if an dITContentRule exists.
+     * Checks to see if a DITContentRule exists.
      * 
-     * @param oid the object identifier
-     * @return true if an dITContentRule definition exists for the oid, false
+     * @param id the object identifier or name of the DITContentRule
+     * @return true if a DITContentRule definition exists for the id, false
      * otherwise
      */
-    boolean hasDITContentRule( String oid );
+    boolean hasDITContentRule( String id );
 }

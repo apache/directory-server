@@ -52,8 +52,7 @@ public class DefaultOidRegistry implements OidRegistry
          * OID is another name for the object referred to by OID and the
          * caller does not know that the argument is an OID String.
          */
-        if ( Character.isDigit( name.charAt( 0 ) )
-            && byOid.containsKey( name ) )
+        if ( Character.isDigit( name.charAt( 0 ) ) )
         {
             monitor.getOidWithOid( name );
             return name;
@@ -66,12 +65,12 @@ public class DefaultOidRegistry implements OidRegistry
             monitor.oidResolved( name, oid );
             return oid;
         }
-        
+
         /*
          * As a last resort we check if name is not normalized and if the
          * normalized version used as a key returns an OID.  If the normalized
-         * name works add the normalized name as a key with its OID to the 
-         * byName lookup.  BTW these normalized versions of the key are not 
+         * name works add the normalized name as a key with its OID to the
+         * byName lookup.  BTW these normalized versions of the key are not
          * returned on a getNameSet.
          */
          String lowerCase = name.trim().toLowerCase();
@@ -80,16 +79,25 @@ public class DefaultOidRegistry implements OidRegistry
          {
              String oid = ( String ) byName.get( lowerCase );
              monitor.oidResolved( name, lowerCase, oid );
-             
-             // We expect to see this version of the key again so we add it 
+
+             // We expect to see this version of the key again so we add it
              byName.put( name, oid );
              return oid;
          }
-         
+
          NamingException fault = new NamingException ( "OID for name '"
                  + name + "' was not " + "found within the OID registry" );
          monitor.oidResolutionFailed( name, fault );
          throw fault;
+    }
+
+
+    /**
+     * @see org.apache.eve.schema.OidRegistry#hasOid(java.lang.String)
+     */
+    public boolean hasOid( String name )
+    {
+        return this.byName.contains( name ) || this.byOid.contains( name );
     }
 
 
@@ -161,6 +169,12 @@ public class DefaultOidRegistry implements OidRegistry
      */
     public void register( String name, String oid )
     {
+        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        {
+            throw new RuntimeException( "Swap the parameter order: the oid " +
+                "does not start with a digit!" );
+        }
+
         /*
          * Add the entry for the given name as is and its lowercased version if
          * the lower cased name is different from the given name name.  

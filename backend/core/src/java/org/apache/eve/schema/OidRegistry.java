@@ -32,14 +32,23 @@ import javax.naming.NamingException;
 public interface OidRegistry
 {
     /**
-     * Gets the object identifier using a common name
+     * Gets the object identifier for a common name or returns the argument
+     * as-is if it is an object identifier.
      * 
      * @param name the name to lookup an OID for
      * @return the OID string associated with a name
      * @throws NamingException if name does not map to an OID
      */
     String getOid( String name ) throws NamingException;
-    
+
+    /**
+     * Checks to see if an identifier, oid or name exists within this registry.
+     *
+     * @param id the oid or name to look for
+     * @return true if the id exists false otherwise
+     */
+    boolean hasOid( String id );
+
     /**
      * Gets the primary name associated with an OID.  The primary name is the
      * first name specified for the OID.

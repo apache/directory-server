@@ -34,6 +34,8 @@ public class DefaultDITStructureRuleRegistry implements DITStructureRuleRegistry
 {
     /** maps an OID to an DITStructureRule */
     private final Map byOid;
+    /** the registry used to resolve names to OIDs */
+    private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
     private DITStructureRuleRegistryMonitor monitor;
 
@@ -46,10 +48,11 @@ public class DefaultDITStructureRuleRegistry implements DITStructureRuleRegistry
     /**
      * Creates an empty DefaultDITStructureRuleRegistry.
      */
-    public DefaultDITStructureRuleRegistry()
+    public DefaultDITStructureRuleRegistry( OidRegistry oidRegistry )
     {
-        byOid = new HashMap();
-        monitor = new DITStructureRuleRegistryMonitorAdapter();
+        this.byOid = new HashMap();
+        this.monitor = new DITStructureRuleRegistryMonitorAdapter();
+        this.oidRegistry = oidRegistry;
     }
 
 
@@ -79,29 +82,44 @@ public class DefaultDITStructureRuleRegistry implements DITStructureRuleRegistry
             throw e;
         }
 
+        oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() );
         byOid.put( dITStructureRule.getOid(), dITStructureRule );
         monitor.registered( dITStructureRule );
     }
 
 
-    public DITStructureRule lookup( String oid ) throws NamingException
+    public DITStructureRule lookup( String id ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        id = oidRegistry.getOid( id );
+
+        if ( ! byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "dITStructureRule w/ OID "
-                + oid + " not registered!" );
-            monitor.lookupFailed( oid, e );
+                + id + " not registered!" );
+            monitor.lookupFailed( id, e );
             throw e;
         }
 
-        DITStructureRule dITStructureRule = ( DITStructureRule ) byOid.get( oid );
+        DITStructureRule dITStructureRule = ( DITStructureRule ) byOid.get( id );
         monitor.lookedUp( dITStructureRule );
         return dITStructureRule;
     }
 
 
-    public boolean hasDITStructureRule( String oid )
+    public boolean hasDITStructureRule( String id )
     {
-        return byOid.containsKey( oid );
+        if ( oidRegistry.hasOid( id ) )
+        {
+            try
+            {
+                return byOid.containsKey( oidRegistry.getOid( id ) );
+            }
+            catch ( NamingException e )
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

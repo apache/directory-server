@@ -34,6 +34,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 {
     /** maps an OID to an ObjectClass */
     private final Map byOid;
+    /** the registry used to resolve names to OIDs */
+    private final OidRegistry oidRegistry;
     /** monitor notified via callback events */
     private ObjectClassRegistryMonitor monitor;
 
@@ -46,10 +48,11 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     /**
      * Creates an empty DefaultObjectClassRegistry.
      */
-    public DefaultObjectClassRegistry()
+    public DefaultObjectClassRegistry( OidRegistry oidRegistry )
     {
-        byOid = new HashMap();
-        monitor = new ObjectClassRegistryMonitorAdapter();
+        this.byOid = new HashMap();
+        this.oidRegistry = oidRegistry;
+        this.monitor = new ObjectClassRegistryMonitorAdapter();
     }
 
 
@@ -79,29 +82,44 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
             throw e;
         }
 
+        oidRegistry.register( objectClass.getName(), objectClass.getOid() );
         byOid.put( objectClass.getOid(), objectClass );
         monitor.registered( objectClass );
     }
 
 
-    public ObjectClass lookup( String oid ) throws NamingException
+    public ObjectClass lookup( String id ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        id = oidRegistry.getOid( id );
+
+        if ( ! byOid.containsKey( id ) )
         {
             NamingException e = new NamingException( "objectClass w/ OID "
-                + oid + " not registered!" );
-            monitor.lookupFailed( oid, e );
+                + id + " not registered!" );
+            monitor.lookupFailed( id, e );
             throw e;
         }
 
-        ObjectClass objectClass = ( ObjectClass ) byOid.get( oid );
+        ObjectClass objectClass = ( ObjectClass ) byOid.get( id );
         monitor.lookedUp( objectClass );
         return objectClass;
     }
 
 
-    public boolean hasObjectClass( String oid )
+    public boolean hasObjectClass( String id )
     {
-        return byOid.containsKey( oid );
+        if ( oidRegistry.hasOid( id ) )
+        {
+            try
+            {
+                return byOid.containsKey( oidRegistry.getOid( id ) );
+            }
+            catch ( NamingException e )
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

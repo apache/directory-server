@@ -40,20 +40,20 @@ public interface ObjectClassRegistry
     void register( ObjectClass objectClass ) throws NamingException;
 
     /**
-     * Looks up an objectClass by its unique Object Identifier.
+     * Looks up an objectClass by its unique Object Identifier or by name.
      *
-     * @param oid the object identifier
-     * @return the ObjectClass instance for the oid
+     * @param id the object identifier or name
+     * @return the ObjectClass instance for the id
      * @throws NamingException if the ObjectClass does not exist
      */
-    ObjectClass lookup( String oid ) throws NamingException;
+    ObjectClass lookup( String id ) throws NamingException;
 
     /**
      * Checks to see if an objectClass exists.
      *
-     * @param oid the object identifier
-     * @return true if an objectClass definition exists for the oid, false
+     * @param id the object identifier or name
+     * @return true if an objectClass definition exists for the id, false
      * otherwise
      */
-    boolean hasObjectClass( String oid );
+    boolean hasObjectClass( String id );
 }

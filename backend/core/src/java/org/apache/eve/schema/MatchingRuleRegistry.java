@@ -40,14 +40,14 @@ public interface MatchingRuleRegistry
     void register( MatchingRule matchingRule ) throws NamingException;
     
     /**
-     * Looks up a MatchingRule by its unique Object Identifier.
+     * Looks up a MatchingRule by its unique Object Identifier or by name.
      * 
-     * @param oid the object identifier
-     * @return the MatchingRule for the oid
+     * @param id the object identifier or the name identifier
+     * @return the MatchingRule for the id
      * @throws NamingException if there is a backing store failure or the 
      * MatchingRule does not exist.
      */
-    MatchingRule lookup( String oid ) throws NamingException;
+    MatchingRule lookup( String id ) throws NamingException;
 
     /**
      * Checks to see if a MatchingRule exists.  Backing store failures simply 
