@@ -24,7 +24,7 @@
   <id>maven-eve-plugin</id>
   <name>maven-eve-plugin</name>
   <package>org.apache.eve.tools</package>
-  <currentVersion>1.0</currentVersion>
+  <currentVersion>0.8.0</currentVersion>
   <inceptionYear>2004</inceptionYear>
   <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
   <description>
@@ -39,10 +39,7 @@
     <dependency>
       <groupId>ant</groupId>
       <artifactId>ant</artifactId>
-      <!--
-      <version>1.6.2</version>
-      -->
-      <version>1.5.3-1</version> <!-- In 1.0.1 it's all you get anyway, so will avoid a nasty surprise if using 1.6 features -->
+      <version>1.5.3-1</version>
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
@@ -52,12 +49,12 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-shared</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>velocity</groupId>

@@ -7,7 +7,6 @@
   <id>eve-protocol</id>
   <name>Eve SEDA Protocol Provider</name>
   <package>org.apache.eve</package>
-  <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2002</inceptionYear>
   <shortDescription>The Eve SEDA Protocol Provider</shortDescription>
   <description>
@@ -38,18 +37,21 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>codec-stateful</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>snickers-codec</artifactId>
+      <version>0.2.0</version>
+      <url>http://incubator.apache.org/directory/subprojects/snickers/codec</url>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>seda</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.2.0</version>
+      <url>http://incubator.apache.org/directory/subprojects/seda</url>
     </dependency>
   </dependencies>
 </project>
