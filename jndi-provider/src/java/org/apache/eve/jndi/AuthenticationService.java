@@ -98,7 +98,7 @@ public class AuthenticationService implements Interceptor
             }
             else
             {
-                throw new LdapNoPermissionException( "" );
+                throw new LdapNoPermissionException( "Anonymous bind NOT permitted!" );
             }
         }
 

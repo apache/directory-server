@@ -63,9 +63,9 @@ public class FailFastPipeline extends InterceptorPipeline
             }
             catch ( Throwable throwable )
             {
-                if ( throwable instanceof EveInterceptorException )
+                if ( throwable instanceof NamingException )
                 {
-                    throw ( EveInterceptorException ) throwable;
+                    throw ( NamingException ) throwable;
                 }
                 
                 EveInterceptorException ie;
