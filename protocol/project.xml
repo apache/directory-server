@@ -38,9 +38,18 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
+      <artifactId>codec-stateful</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
       <version>SNAPSHOT</version>
-      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>seda</artifactId>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
