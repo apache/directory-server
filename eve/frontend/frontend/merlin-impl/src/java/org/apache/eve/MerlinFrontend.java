@@ -17,15 +17,20 @@
 package org.apache.eve ;
 
 
-import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
 import org.apache.avalon.framework.service.Serviceable ;
 import org.apache.avalon.framework.service.ServiceManager ;
 import org.apache.avalon.framework.service.ServiceException ;
 
+import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
+
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.buffer.BufferPool ;
 import org.apache.eve.input.InputManager ;
+import org.apache.eve.output.OutputManager ;
+import org.apache.eve.decoder.DecoderManager ;
+import org.apache.eve.encoder.EncoderManager ;
 import org.apache.eve.listener.ListenerManager ;
+import org.apache.eve.processor.RequestProcessor ;
 
 
 /**
@@ -46,10 +51,14 @@ public class MerlinFrontend
     Serviceable
 {
     BufferPool m_bufferPool = null ;
-    ThreadManager m_threadManager = null ;
     EventRouter m_eventRouter = null ;
-    ListenerManager m_listenerManager = null ;
     InputManager m_inputManager = null ;
+    OutputManager m_outputManager = null ;
+    ThreadManager m_threadManager = null ;
+    EncoderManager m_encoderManager = null ;
+    DecoderManager m_decoderManager = null ;
+    ListenerManager m_listenerManager = null ;
+    RequestProcessor m_requestProcessor = null ;
     
     
     // ------------------------------------------------------------------------
@@ -68,6 +77,14 @@ public class MerlinFrontend
      *      key="listener-manager" version="1.0" 
      * @avalon.dependency type="org.apache.eve.input.InputManager"
      *      key="input-manager" version="1.0"
+     * @avalon.dependency type="org.apache.eve.output.OutputManager"
+     *      key="output-manager" version="1.0"
+     * @avalon.dependency type="org.apache.eve.decoder.DecoderManager"
+     *      key="decoder-manager" version="1.0"
+     * @avalon.dependency type="org.apache.eve.encoder.EncoderManager"
+     *      key="encoder-manager" version="1.0"
+     * @avalon.dependency type="org.apache.eve.processor.RequestProcessor"
+     *      key="request-processor" version="1.0"
      * 
      * @see org.apache.avalon.framework.service.Serviceable#service(
      * org.apache.avalon.framework.service.ServiceManager)
@@ -88,5 +105,17 @@ public class MerlinFrontend
 
         m_inputManager = ( InputManager ) a_manager
             .lookup( "input-manager" ) ;
+        
+        m_outputManager = ( OutputManager ) a_manager
+            .lookup( "output-manager" ) ;
+
+        m_decoderManager = ( DecoderManager ) a_manager
+            .lookup( "decoder-manager" ) ;
+
+        m_encoderManager = ( EncoderManager ) a_manager
+            .lookup( "encoder-manager" ) ;
+
+        m_requestProcessor = ( RequestProcessor ) a_manager
+            .lookup( "request-processor" ) ;
     }
 }
