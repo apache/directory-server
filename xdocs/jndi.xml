@@ -36,7 +36,7 @@
 
     <section name="Eve Specific JNDI Properties">
       <table>
-        <th><td>key</td><td>optional</td><td>description</td></th>
+        <tr><th>key</th><th>optional</th><th>description</th></tr>
         <tr>
           <td>eve.wkdir</td>
           <td>true</td>
@@ -129,7 +129,7 @@
 
         <tr>
           <td>eve.db.partition.suffix.</td>
-          <td>false</td>
+          <td>false when adding partitions</td>
           <td>
             A key base for listing the suffixes of database partitions.  The
             identifier for the partition is appended to this base to form the
@@ -149,7 +149,7 @@
 
         <tr>
           <td>eve.db.partition.attributes.</td>
-          <td>false</td>
+          <td>false when adding partitions</td>
           <td>
             A key base for listing the attributes and values for the suffix
             entries of partitions.  The identifier for the partition is
