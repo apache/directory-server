@@ -36,6 +36,12 @@ public class AbandonHandler extends AbstractNoReplyHandler
     {
         AbandonRequest req = ( AbandonRequest ) request;
         int abandonedId = req.getAbandoned();
+
+        if ( abandonedId < 0 )
+        {
+            return;
+        }
+        
         throw new NotImplementedException( "don't know how to do this just yet" );
     }
 }
