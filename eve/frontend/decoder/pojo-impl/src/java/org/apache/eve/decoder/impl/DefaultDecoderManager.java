@@ -43,8 +43,8 @@ import org.apache.eve.event.ConnectSubscriber ;
 import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.DisconnectSubscriber ;
 import org.apache.eve.decoder.DecoderManagerMonitor ;
+import org.apache.ldap.common.message.BindRequestImpl ;
 import org.apache.eve.decoder.DecoderManagerMonitorAdapter ;
-import org.apache.ldap.common.message.BindRequestImpl;
 
 import org.apache.commons.codec.DecoderException ;
 import org.apache.commons.codec.stateful.DecoderMonitor ;

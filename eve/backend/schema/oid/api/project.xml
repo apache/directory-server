@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
     <extend>${basedir}/../../../../project.xml</extend>
-    <groupId>directory</groupId>
+    <groupId>incubator-directory</groupId>
     <id>eve-backend-schema-oid-api</id>
   
     <name>Eve Backend Schema's OID Registry API</name>

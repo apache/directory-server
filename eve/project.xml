@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <project>
-    <groupId>directory</groupId>
+    <groupId>incubator-directory</groupId>
     <id>eve-directory-server</id>
     <name>Eve Directory Server</name>
+    <version>SNAPSHOT</version>
     
     <organization>
       <name>The Apache Incubator</name>

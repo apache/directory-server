@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
     <extend>${basedir}/../../../project.xml</extend>
-    <groupId>directory</groupId>
+    <groupId>incubator-directory</groupId>
     <id>eve-frontend-buffer-spi</id>
   
     <name>Eve Frontend Buffer Pool Service SPI</name>
@@ -20,7 +20,7 @@
       
     <dependencies>
         <dependency>
-            <groupId>directory</groupId>
+            <groupId>incubator-directory</groupId>
             <artifactId>eve-frontend-common-api</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org/ldap/eve/frontend/common/api</url>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
     <extend>${basedir}/../../../project.xml</extend>
-    <groupId>directory</groupId>
+    <groupId>incubator-directory</groupId>
     <id>eve-frontend-decoder-spi</id>
   
     <name>Eve Frontend Decoder SPI</name>
@@ -24,14 +24,21 @@
         <version>SNAPSHOT</version>
         <url>http://jakarta.apache.org/commons/codec</url>
       </dependency>
+      
       <dependency>
-        <groupId>directory</groupId>
+        <groupId>incubator-directory</groupId>
+        <artifactId>codec-stateful</artifactId>
+        <version>SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
         <artifactId>eve-frontend-common-api</artifactId>
         <version>SNAPSHOT</version>
         <url>http://incubator.apache.org/directory/subprojects/eve/frontend/common/api</url>
       </dependency>
       <dependency>
-        <groupId>directory</groupId>
+        <groupId>incubator-directory</groupId>
         <artifactId>ldap-common</artifactId>
         <version>SNAPSHOT</version>
         <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>

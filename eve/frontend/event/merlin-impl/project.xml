@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
     <extend>${basedir}/../../../project.xml</extend>
-    <groupId>directory</groupId>
+    <groupId>incubator-directory</groupId>
     <id>eve-frontend-event-merlin-impl</id>
   
     <name>Eve Frontend Event Implementation</name>
@@ -26,21 +26,21 @@
         </dependency>
 
         <dependency>
-            <groupId>directory</groupId>
+            <groupId>incubator-directory</groupId>
             <artifactId>eve-frontend-common-api</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org</url>
         </dependency>
 
         <dependency>
-            <groupId>directory</groupId>
+            <groupId>incubator-directory</groupId>
             <artifactId>eve-frontend-event-spi</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org</url>
         </dependency>
 
         <dependency>
-            <groupId>directory</groupId>
+            <groupId>incubator-directory</groupId>
             <artifactId>eve-frontend-event-pojo-impl</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org</url>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
     <extend>${basedir}/../../../project.xml</extend>
-    <groupId>directory</groupId>
+    <groupId>incubator-directory</groupId>
     <id>eve-frontend-input-spi</id>
   
     <name>Eve Frontend Input Manager SPI</name>
@@ -27,14 +27,14 @@
         </dependency>
 
         <dependency>
-            <groupId>directory</groupId>
+            <groupId>incubator-directory</groupId>
             <artifactId>eve-frontend-common-api</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org/eve/frontend/common/api</url>
         </dependency>
 
         <dependency>
-            <groupId>directory</groupId>
+            <groupId>incubator-directory</groupId>
             <artifactId>eve-frontend-buffer-spi</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org/eve/frontend/buffer/spi</url>
