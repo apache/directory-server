@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.config;
+package org.apache.eve.schema.config;
 
 /**
  * Document me.
