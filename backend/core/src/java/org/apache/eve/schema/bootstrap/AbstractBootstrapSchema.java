@@ -41,6 +41,8 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     private transient String baseName;
     private transient String defaultBaseName;
 
+    private transient String schemaNameCapped;
+
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -89,17 +91,20 @@ public class AbstractBootstrapSchema implements BootstrapSchema
         }
 
         StringBuffer buf = new StringBuffer();
-        buf.append( DEFAULT_PACKAGE_NAME );
-        buf.append( ClassUtils.PACKAGE_SEPARATOR_CHAR );
         buf.append( Character.toUpperCase( schemaName.charAt( 0 ) ) );
         buf.append( schemaName.substring( 1, schemaName.length() ) );
+        schemaNameCapped = buf.toString();
+
+        buf.setLength( 0 );
+        buf.append( DEFAULT_PACKAGE_NAME );
+        buf.append( ClassUtils.PACKAGE_SEPARATOR_CHAR );
+        buf.append( schemaNameCapped );
         defaultBaseName = buf.toString();
 
         buf.setLength( 0 );
         buf.append( packageName );
         buf.append( ClassUtils.PACKAGE_SEPARATOR_CHAR );
-        buf.append( Character.toUpperCase( schemaName.charAt( 0 ) ) );
-        buf.append( schemaName.substring( 1, schemaName.length() ) );
+        buf.append( schemaNameCapped );
         baseName = buf.toString();
     }
 
@@ -131,6 +136,24 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     public String getDefaultBaseClassName()
     {
         return defaultBaseName;
+    }
+
+
+    public String getFullClassName( ProducerTypeEnum type )
+    {
+        return baseName + type.getName();
+    }
+
+
+    public String getFullDefaultBaseClassName( ProducerTypeEnum type )
+    {
+        return defaultBaseName + type.getName();
+    }
+
+
+    public String getUnqualifiedClassName( ProducerTypeEnum type )
+    {
+        return schemaNameCapped + type.getName();
     }
 
 

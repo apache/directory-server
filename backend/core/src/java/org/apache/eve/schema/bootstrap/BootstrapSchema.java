@@ -69,11 +69,25 @@ public interface BootstrapSchema
     String getBaseClassName();
 
     /**
+     * Gets the class name for bootstrap Schema class producer type.
+     *
+     * @return the bootstrap schema class name for a producer type in this schema
+     */
+    String getFullClassName( ProducerTypeEnum type );
+
+    /**
      * If the base class name for the target class does not resolve, we attempt
      * to load another backup class using this default base class name which
      * tries another package for the target class factory to load.
      *
      * @return the default base class name
      */
-    String getDefaultBaseClassName();
+    String getFullDefaultBaseClassName( ProducerTypeEnum type );
+
+    /**
+     * Gets the unqualified class name for bootstrap Schema class producer type.
+     *
+     * @return the bootstrap schema class name for a producer type in this schema
+     */
+    String getUnqualifiedClassName( ProducerTypeEnum type );
 }
