@@ -34,7 +34,7 @@ import org.apache.eve.seda.StageConfig ;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.seda.StageHandler ;
 import org.apache.eve.seda.DefaultStageConfig ;
-import org.apache.eve.seda.StderrLoggingStageMonitor;
+import org.apache.eve.seda.LoggingStageMonitor;
 
 import org.apache.eve.processor.NoReplyHandler ;
 import org.apache.eve.processor.RequestHandler ;
@@ -93,7 +93,7 @@ public class DefaultRequestProcessor extends DefaultStage
         
         DefaultStageConfig defaultConfig = ( DefaultStageConfig ) config ;
         defaultConfig.setHandler( new ProcessorStageHandler() ) ;
-        super.setMonitor( new StderrLoggingStageMonitor( getClass() ) ) ;
+        super.setMonitor( new LoggingStageMonitor( getClass() ) ) ;
         
         this.hooks = hooks ;
         this.router = router ;
