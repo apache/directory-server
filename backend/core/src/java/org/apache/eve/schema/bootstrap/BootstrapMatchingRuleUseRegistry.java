@@ -14,10 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.MatchingRuleUse;
+import org.apache.eve.schema.MatchingRuleUseRegistry;
+import org.apache.eve.schema.MatchingRuleUseRegistryMonitor;
+import org.apache.eve.schema.MatchingRuleUseRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,7 +33,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
+public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 {
     /** maps a name to an MatchingRuleUse */
     private final Map byName;
@@ -46,9 +49,9 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 
 
     /**
-     * Creates an empty DefaultMatchingRuleUseRegistry.
+     * Creates an empty BootstrapMatchingRuleUseRegistry.
      */
-    public DefaultMatchingRuleUseRegistry()
+    public BootstrapMatchingRuleUseRegistry()
     {
         this.byName = new HashMap();
         this.nameToSchema = new HashMap();

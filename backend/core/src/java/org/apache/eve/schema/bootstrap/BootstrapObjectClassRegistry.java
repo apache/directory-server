@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import java.util.Map;
@@ -22,6 +22,10 @@ import java.util.HashMap;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.ObjectClass;
+import org.apache.eve.schema.ObjectClassRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.ObjectClassRegistryMonitor;
+import org.apache.eve.schema.ObjectClassRegistryMonitorAdapter;
 
 
 /**
@@ -30,7 +34,7 @@ import org.apache.ldap.common.schema.ObjectClass;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultObjectClassRegistry implements ObjectClassRegistry
+public class BootstrapObjectClassRegistry implements ObjectClassRegistry
 {
     /** maps an OID to an ObjectClass */
     private final Map byOid;
@@ -48,9 +52,9 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 
 
     /**
-     * Creates an empty DefaultObjectClassRegistry.
+     * Creates an empty BootstrapObjectClassRegistry.
      */
-    public DefaultObjectClassRegistry( OidRegistry oidRegistry )
+    public BootstrapObjectClassRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
