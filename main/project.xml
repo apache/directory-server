@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>eve</artifactId>
-  <name>Eve Main</name>
+  <artifactId>server-main</artifactId>
+  <name>Directory server Main</name>
   <inceptionYear>2003</inceptionYear>
-  <shortDescription>A single executable Eve jar</shortDescription>
+  <shortDescription>A single executable server jar</shortDescription>
 
   <description>
-    A single executable Eve jar containing all dependencies.  This jar can
-    be used as the JNDI provider or to fire up the standalone Eve server.
+    A single executable server jar containing all dependencies.  This jar can
+    be used as the JNDI provider or to fire up the standalone directory server.
   </description>
 
   <!-- Need to have all dependencies here so appjar bundles them -->
@@ -84,12 +84,12 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-shared</artifactId>
+      <artifactId>server-shared</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-protocol</artifactId>
+      <artifactId>server-protocol</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -114,7 +114,7 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-core</artifactId>
+      <artifactId>server-core</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
