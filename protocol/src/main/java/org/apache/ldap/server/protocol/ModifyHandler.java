@@ -18,17 +18,19 @@ package org.apache.ldap.server.protocol;
 
 
 import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.apseda.listener.ClientKey;
 import org.apache.apseda.protocol.AbstractSingleReplyHandler;
-
-import org.apache.ldap.common.util.ExceptionUtils;
-import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapException;
-import org.apache.apseda.listener.ClientKey;
+import org.apache.ldap.common.message.LdapResultImpl;
+import org.apache.ldap.common.message.ModifyRequest;
+import org.apache.ldap.common.message.ModifyResponse;
+import org.apache.ldap.common.message.ModifyResponseImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.util.ExceptionUtils;
 
 
 /**

@@ -17,25 +17,35 @@
 package org.apache.ldap.server.protocol;
 
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
+import org.apache.apseda.listener.ClientKey;
 import org.apache.apseda.protocol.AbstractManyReplyHandler;
-import org.apache.apseda.listener.ClientKey;
-
-import org.apache.ldap.common.util.ExceptionUtils;
-import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.exception.LdapException;
-import org.apache.ldap.server.protocol.SessionRegistry;
-import org.apache.apseda.listener.ClientKey;
+import org.apache.ldap.common.message.LdapResultImpl;
+import org.apache.ldap.common.message.ReferralImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.message.SearchRequest;
+import org.apache.ldap.common.message.SearchResponseDone;
+import org.apache.ldap.common.message.SearchResponseDoneImpl;
+import org.apache.ldap.common.message.SearchResponseEntry;
+import org.apache.ldap.common.message.SearchResponseEntryImpl;
+import org.apache.ldap.common.message.SearchResponseReference;
+import org.apache.ldap.common.message.SearchResponseReferenceImpl;
+import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.common.util.ExceptionUtils;
 
 
 /**

@@ -19,9 +19,7 @@ package org.apache.ldap.server.protocol;
 
 import org.apache.apseda.listener.ClientKey;
 import org.apache.apseda.protocol.AbstractSingleReplyHandler;
-
 import org.apache.ldap.common.NotImplementedException;
-import org.apache.apseda.listener.ClientKey;
 
 
 /**
