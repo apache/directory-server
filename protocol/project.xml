@@ -39,9 +39,9 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>snickers-codec</artifactId>
+      <artifactId>asn1-codec</artifactId>
       <version>0.2-SNAPSHOT</version>
-      <url>http://incubator.apache.org/directory/subprojects/snickers/codec</url>
+      <url>http://incubator.apache.org/directory/subprojects/asn1/codec</url>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>

@@ -90,17 +90,17 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>snickers-codec</artifactId>
+      <artifactId>asn1-codec</artifactId>
       <version>0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>ldap-snickers-provider</artifactId>
+      <artifactId>apache-ldapber-provider</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>snickers-ber</artifactId>
+      <artifactId>asn1-ber</artifactId>
       <version>0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
