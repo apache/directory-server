@@ -2,17 +2,17 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <pomVersion>1</pomVersion>
-  <artifactId>eve-jndi-provider</artifactId>
+  <artifactId>eve-dib</artifactId>
   <groupId>incubator-directory</groupId>
-  <id>eve-jndi-provider</id>
+  <id>eve-dib</id>
   <name>Eve JNDI Provider</name>
   <package>org.apache.eve</package>
-  <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2002</inceptionYear>
-  <shortDescription>The Eve JNDI Provider</shortDescription>
+  <shortDescription>Eve's directory information base</shortDescription>
   <description>
-    Eve's backend subsystem is a JNDI Provider.  The provider translates JNDI
-    operations to backing store calls on Eve database partitions.  Eve's
+    Eve's backend subsystem or directory information base (DIB) is a JNDI 
+    Provider.  The provider translates JNDI operations to backing store calls 
+    on Eve database partitions which constitute the DIB for the DSA.  Eve's
     database partitions may hang off of separate naming contexts.  The provider
     uses the LDAP namespace but it is not intended to be an LDAP client.  The
     provider may have to talk LDAP over the wire only when it needs to chase a
@@ -53,58 +53,55 @@
     <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
-      <version>SNAPSHOT</version>
-      <type>jar</type>
+      <version>0.20-dev</version>
       <url>http://jdbm.sourceforge.net</url>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>SNAPSHOT</version>
-      <type>jar</type>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
       <version>1.2</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-shared</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-protocol</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>codec-stateful</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>snickers-codec</artifactId>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>ldap-ber-provider</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>ldap-snickers-provider</artifactId>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>snickers-ber-codec</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>snickers-ber</artifactId>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>seda</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.2.0</version>
     </dependency>
 
     <!-- The Eve Maven Plugin -->
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>maven-eve-plugin</artifactId>
-      <version>1.0</version>
+      <version>0.8.0</version>
       <type>plugin</type>
     </dependency>
   </dependencies>

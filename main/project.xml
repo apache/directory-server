@@ -7,7 +7,6 @@
   <id>eve</id>
   <name>Eve</name>
   <package>org.apache.eve</package>
-  <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2003</inceptionYear>
   <shortDescription>A single executable Eve jar</shortDescription>
 
@@ -52,7 +51,7 @@
     <dependency>
       <groupId>commons-primitives</groupId>
       <artifactId>commons-primitives</artifactId>
-      <version>SNAPSHOT</version>
+      <version>20041207.202534</version>
       <url>http://jakarta.apache.org/commons/primitives</url>
     </dependency>
     <dependency>
@@ -64,56 +63,53 @@
     <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
-      <version>SNAPSHOT</version>
-      <type>jar</type>
+      <version>0.20-dev</version>
       <url>http://jdbm.sourceforge.net</url>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>SNAPSHOT</version>
-      <type>jar</type>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
       <version>1.2</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-shared</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-protocol</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>codec-stateful</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>snickers-codec</artifactId>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>ldap-ber-provider</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>ldap-snickers-provider</artifactId>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>snickers-ber-codec</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>snickers-ber</artifactId>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>seda</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-jndi-provider</artifactId>
-      <version>SNAPSHOT</version>
+      <artifactId>eve-dib</artifactId>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>maven-plugins</groupId>
