@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.request.Call;
+import org.apache.ldap.server.jndi.call.Call;
 
 /**
  * Manages {@link Interceptor} stack.  The first {@link Interceptor} is

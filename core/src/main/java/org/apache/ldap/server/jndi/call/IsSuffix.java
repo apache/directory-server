@@ -1,12 +1,12 @@
-package org.apache.ldap.server.jndi.request;
+package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
 
-public class HasEntry extends Call {
+public class IsSuffix extends Call {
 
     private final Name name;
     
-    public HasEntry( Name name )
+    public IsSuffix( Name name )
     {
         if( name == null )
         {

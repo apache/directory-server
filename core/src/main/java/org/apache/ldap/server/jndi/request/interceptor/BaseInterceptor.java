@@ -21,23 +21,23 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.request.Add;
-import org.apache.ldap.server.jndi.request.Delete;
-import org.apache.ldap.server.jndi.request.GetMatchedDN;
-import org.apache.ldap.server.jndi.request.GetSuffix;
-import org.apache.ldap.server.jndi.request.HasEntry;
-import org.apache.ldap.server.jndi.request.IsSuffix;
-import org.apache.ldap.server.jndi.request.List;
-import org.apache.ldap.server.jndi.request.ListSuffixes;
-import org.apache.ldap.server.jndi.request.Lookup;
-import org.apache.ldap.server.jndi.request.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.request.ModifyMany;
-import org.apache.ldap.server.jndi.request.ModifyRN;
-import org.apache.ldap.server.jndi.request.Modify;
-import org.apache.ldap.server.jndi.request.Move;
-import org.apache.ldap.server.jndi.request.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.request.Call;
-import org.apache.ldap.server.jndi.request.Search;
+import org.apache.ldap.server.jndi.call.Add;
+import org.apache.ldap.server.jndi.call.Call;
+import org.apache.ldap.server.jndi.call.Delete;
+import org.apache.ldap.server.jndi.call.GetMatchedDN;
+import org.apache.ldap.server.jndi.call.GetSuffix;
+import org.apache.ldap.server.jndi.call.HasEntry;
+import org.apache.ldap.server.jndi.call.IsSuffix;
+import org.apache.ldap.server.jndi.call.List;
+import org.apache.ldap.server.jndi.call.ListSuffixes;
+import org.apache.ldap.server.jndi.call.Lookup;
+import org.apache.ldap.server.jndi.call.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.call.Modify;
+import org.apache.ldap.server.jndi.call.ModifyMany;
+import org.apache.ldap.server.jndi.call.ModifyRN;
+import org.apache.ldap.server.jndi.call.Move;
+import org.apache.ldap.server.jndi.call.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.call.Search;
 
 
 /**

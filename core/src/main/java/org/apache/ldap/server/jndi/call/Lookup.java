@@ -1,12 +1,12 @@
-package org.apache.ldap.server.jndi.request;
+package org.apache.ldap.server.jndi.call;
 
 import javax.naming.Name;
 
-public class Delete extends Call {
+public class Lookup extends Call {
 
     private final Name name;
     
-    public Delete( Name name )
+    public Lookup( Name name )
     {
         if( name == null )
         {

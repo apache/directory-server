@@ -20,7 +20,7 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.request.Call;
+import org.apache.ldap.server.jndi.call.Call;
 
 /**
  * Processes or filters any directory operations.  You can intercept the

@@ -36,7 +36,7 @@ import org.apache.ldap.server.auth.Authenticator;
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.ServerLdapContext;
-import org.apache.ldap.server.jndi.request.Call;
+import org.apache.ldap.server.jndi.call.Call;
 
 /**
  * A service used to for authenticating users.

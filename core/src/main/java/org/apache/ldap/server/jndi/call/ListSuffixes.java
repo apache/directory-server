@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.request;
+package org.apache.ldap.server.jndi.call;
 
 public class ListSuffixes extends Call {
 

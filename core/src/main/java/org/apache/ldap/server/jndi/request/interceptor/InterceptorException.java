@@ -20,7 +20,7 @@ package org.apache.ldap.server.jndi.request.interceptor;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.jndi.request.Call;
+import org.apache.ldap.server.jndi.call.Call;
 
 
 /**
