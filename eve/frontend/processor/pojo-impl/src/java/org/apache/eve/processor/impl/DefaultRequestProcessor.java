@@ -14,18 +14,27 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.processor ;
+package org.apache.eve.processor.impl ;
+
+
+import org.apache.eve.processor.RequestProcessor ;
 
 
 /**
- * A service designed to process request events which denote the arrival, 
- * read, and decode of a client request ready to be handled.
+ * Default RequestProcessor service implemented as a POJO.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public interface RequestProcessor
+public class DefaultRequestProcessor implements RequestProcessor
 {
-    void dummy() ;
+    /* (non-Javadoc)
+     * @see org.apache.eve.processor.RequestProcessor#dummy()
+     */
+    public void dummy()
+    {
+        // @todo Auto-generated method stub
+
+    }
 }

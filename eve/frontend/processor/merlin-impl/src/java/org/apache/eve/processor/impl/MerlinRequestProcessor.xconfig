@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <stage-name>request-processor</stage-name>
+  <thread-pool>request-processor</thread-pool>
+</configuration>
