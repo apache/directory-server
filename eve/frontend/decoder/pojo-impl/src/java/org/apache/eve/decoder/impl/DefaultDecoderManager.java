@@ -27,7 +27,6 @@ import org.apache.snickers.SnickersDecoder ;
 import org.apache.ldap.common.message.Request ;
 
 import org.apache.eve.event.InputEvent ;
-import org.apache.eve.event.Subscriber ;
 import org.apache.eve.seda.StageConfig ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStage ;
@@ -38,7 +37,6 @@ import org.apache.eve.decoder.ClientDecoder ;
 import org.apache.eve.event.DisconnectEvent ;
 import org.apache.eve.event.InputSubscriber ;
 import org.apache.eve.decoder.DecoderManager ;
-import org.apache.eve.event.SubscriberMonitor ;
 import org.apache.eve.event.ConnectSubscriber ;
 import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.DisconnectSubscriber ;
@@ -49,7 +47,6 @@ import org.apache.commons.codec.DecoderException ;
 import org.apache.commons.codec.stateful.DecoderMonitor ;
 import org.apache.commons.codec.stateful.DecoderCallback ;
 import org.apache.commons.codec.stateful.StatefulDecoder ;
-import org.apache.commons.codec.stateful.DecoderMonitorAdapter ;
 
 
 /**
@@ -73,10 +70,6 @@ public class DefaultDecoderManager extends DefaultStage
     private final Map decoders = new HashMap() ;
     /** the monitor used for this decoder manager */
     private DecoderManagerMonitor monitor ;
-    /** the monitor used for this subscriber */
-    private SubscriberMonitor subscriberMonitor ;
-    /** the monitor for this decoder */
-    private DecoderMonitor decoderMonitor ;
 
 
     /**
@@ -91,22 +84,6 @@ public class DefaultDecoderManager extends DefaultStage
         
         this.router = router ;
         this.monitor = new DecoderManagerMonitorAdapter() ;
-        this.subscriberMonitor = new SubscriberMonitor()
-        {
-            public void failedOnInform( Subscriber subscriber, 
-                                        EventObject eventObject,
-										Throwable throwable ) 
-            {
-                if ( monitor == null )
-                {    
-                    return ;
-                }
-                
-                monitor.failedOnInform( subscriber, eventObject, throwable ) ;
-            }
-        } ;
-        
-        this.decoderMonitor = new DecoderMonitorAdapter() ;
 
         router.subscribe( InputEvent.class, this ) ;
         router.subscribe( ConnectEvent.class, this ) ;
