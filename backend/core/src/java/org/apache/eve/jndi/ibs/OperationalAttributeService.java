@@ -17,18 +17,23 @@
 package org.apache.eve.jndi.ibs;
 
 
+import java.util.Map;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
+import org.apache.eve.db.SearchResultEnumeration;
+import org.apache.eve.db.DbSearchResult;
+import org.apache.eve.db.ResultFilteringEnumeration;
+import org.apache.eve.db.ResultFilter;
 import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.InvocationStateEnum;
-import org.apache.eve.schema.AttributeTypeRegistry;
 
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.filter.ExprNode;
 
 
 /**
@@ -59,9 +64,6 @@ public class OperationalAttributeService extends BaseInterceptor
 
     /**
      * Adds extra operational attributes to the entry before it is added.
-     *
-     * @todo add mechanism to find the identity of the caller so we can
-     * properly set the owner/modifier of the entry
      *
      * @see BaseInterceptor#add(String, Name, Attributes)
      */
@@ -171,7 +173,8 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    protected void move( Name oriChildName, Name newParentName, String newRdn, boolean deleteOldRdn ) throws NamingException
+    protected void move( Name oriChildName, Name newParentName, String newRdn,
+                         boolean deleteOldRdn ) throws NamingException
     {
         Invocation invocation = getInvocation();
 
@@ -189,6 +192,57 @@ public class OperationalAttributeService extends BaseInterceptor
 
             nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
         }
+    }
+
+
+    protected void lookup( Name dn ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            filter( ( Attributes ) invocation.getReturnValue() );
+        }
+    }
+
+
+    protected void search( Name base, Map env, ExprNode filter,
+                           SearchControls searchControls )
+            throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
+        {
+            SearchResultEnumeration enum ;
+            ResultFilteringEnumeration retval;
+            enum = ( SearchResultEnumeration ) invocation.getReturnValue();
+            retval = new ResultFilteringEnumeration( enum );
+            retval.addResultFilter( new ResultFilter() {
+                public boolean accept( DbSearchResult result )
+                {
+                    return filter( result.getAttributes() );
+                }
+            } );
+            invocation.setReturnValue( retval );
+        }
+    }
+
+
+    /**
+     * Filters out the operational attributes within a search results
+     * attributes.  The attributes are directly modified.
+     *
+     * @param attributes the resultant attributes to filter
+     * @return true always
+     */
+    private boolean filter( Attributes attributes )
+    {
+        attributes.remove( "creatorsName" );
+        attributes.remove( "modifiersName" );
+        attributes.remove( "createTimestamp" );
+        attributes.remove( "modifyTimestamp" );
+        return true;
     }
 
 

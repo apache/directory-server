@@ -137,6 +137,19 @@ public interface BackingStore
     Attributes lookup( Name name ) throws NamingException;
 
     /**
+     * Looks up an entry by distinguished name.  This is a simplified version
+     * of the search operation used to point read an entry used for convenience
+     * with a set of attributes to return.  If the attributes are null or emty
+     * this defaults to the lookup opertion without the attributes.
+     *
+     * @param dn the normalized distinguished name of the object to lookup
+     * @param attrIds the set of attributes to return
+     * @return an Attributes object representing the entry
+     * @throws NamingException if there are any problems
+     */
+    Attributes lookup( Name dn, String [] attrIds ) throws NamingException;
+
+    /**
      * Fast operation to check and see if a particular entry exists.
      *
      * @param name the normalized distinguished/absolute name of the object to

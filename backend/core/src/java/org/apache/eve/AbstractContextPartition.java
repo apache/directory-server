@@ -28,9 +28,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.ContextNotEmptyException;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.Attribute;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.message.LockableAttributesImpl;
 
 import org.apache.eve.db.Database;
 import org.apache.eve.db.SearchEngine;
@@ -298,6 +300,33 @@ public abstract class AbstractContextPartition implements ContextPartition
     public Attributes lookup( Name dn ) throws NamingException
     {
         return db.lookup( db.getEntryId( dn.toString() ) );
+    }
+
+
+    /**
+     * @see BackingStore#lookup(Name,String[])
+     */
+    public Attributes lookup( Name dn, String [] attrIds ) throws NamingException
+    {
+        if ( attrIds == null || attrIds.length == 0 )
+        {
+            return lookup( dn );
+        }
+
+        Attributes entry = lookup( dn );
+        Attributes retval = new LockableAttributesImpl();
+
+        for ( int ii = 0; ii < attrIds.length; ii++ )
+        {
+            Attribute attr = entry.get( attrIds[0] );
+
+            if ( attr != null )
+            {
+                retval.put( attr );
+            }
+        }
+
+        return retval;
     }
 
 

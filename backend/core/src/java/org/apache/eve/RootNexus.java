@@ -220,21 +220,22 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see BackingStore#lookup(Name)
-     */
-    public Attributes lookup( Name dn, String [] attrIds ) throws NamingException
-    {
-        throw new NotImplementedException();
-    }
-
-
-    /**
      * @see BackingStore#lookup(javax.naming.Name)
      */
     public Attributes lookup( Name dn )  throws NamingException
     {
         ContextPartition backend = getBackend( dn );
         return backend.lookup( dn );
+    }
+
+
+    /**
+     * @see BackingStore#lookup(javax.naming.Name, String[])
+     */
+    public Attributes lookup( Name dn, String[] attrIds )  throws NamingException
+    {
+        ContextPartition backend = getBackend( dn );
+        return backend.lookup( dn, attrIds );
     }
 
 

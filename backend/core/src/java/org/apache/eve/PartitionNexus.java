@@ -22,7 +22,6 @@ import java.util.Iterator;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
-import javax.naming.directory.Attributes;
 
 
 /**
@@ -94,25 +93,6 @@ public interface PartitionNexus extends BackingStore
      * @throws NamingException if there are any problems
      */
     Iterator listSuffixes( boolean normalized ) throws NamingException;
-
-    /**
-     * Looks up an entry by distinguished name.  This is a simplified version 
-     * of the search operation used to point read an entry used for convenience
-     * with a set of attributes to return.  If the attributes are null or emty
-     * this defaults to the lookup opertion without the attributes.
-     * 
-     * NOTE: This method is here in the nexus and not within the Backend 
-     * interface.  This is due to the fact that attribute selection by name 
-     * using the second parameter attrIds will be implemented after the call
-     * to a backend.  Hence selection of the correct set of attributes to return
-     * is not a responsibility of a Backend module.
-     *
-     * @param dn the normalized distinguished name of the object to lookup
-     * @param attrIds the set of attributes to return
-     * @return an Attributes object representing the entry
-     * @throws NamingException if there are any problems
-     */
-    Attributes lookup( Name dn, String [] attrIds ) throws NamingException;
 
     /**
      * Registers an ContextPartition with this BackendManager.  Called by each
