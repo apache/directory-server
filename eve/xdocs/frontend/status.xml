@@ -7,13 +7,87 @@
   
   <body>
     <section name="Frontend Status">
-      <p>Coming soon ...</p>
-        
+      <p>
+        Status should be on a per component basis and should be summarized for
+        the entire server here.  At the present moment we have not evaluated
+        the overall status of the server.
+      </p>
+      
+      <p>
+        Please also note that most of these components were at one point 
+        complete in Eve's precursor written under the <a 
+        href="http://sourceforge.net/projects/ldapd">LDAPd project</a>.  
+        They are being rewritten with the frontend redesign while in the
+        incubator.
+      </p>
+        <table><tr><th>Status On: $LastChangedDate$</th></tr></table>
         <table>
           <tr>
             <th>Component</th>
             <th>State</th>
+            <th>Short Description</th>
           </tr>
+          
+          <tr>
+            <td>buffer</td>
+            <td>DONE</td>
+            <td>Direct memory buffer pool service</td>
+          </tr>
+          
+          <tr>
+            <td>client</td>
+            <td>TBA</td>
+            <td>Client session manager service</td>
+          </tr>
+          
+          <tr>
+            <td>common API</td>
+            <td>WORK IN PROGRESS</td>
+            <td>Not a component but a common API</td>
+          </tr>
+          
+          <tr>
+            <td>decoder</td>
+            <td>TBD</td>
+            <td>BER message decoding service</td>
+          </tr>
+          
+          <tr>
+            <td>encoder</td>
+            <td>TBD</td>
+            <td>BER message encoding service</td>
+          </tr>
+          
+          <tr>
+            <td>event</td>
+            <td>DONE</td>
+            <td>Event notifier service</td>
+          </tr>
+          
+          <tr>
+            <td>input</td>
+            <td>TBA</td>
+            <td>Input detection and reader service</td>
+          </tr>
+          
+          <tr>
+            <td>listener</td>
+            <td>DONE</td>
+            <td>TCP port listener endpoint service</td>
+          </tr>
+          
+          <tr>
+            <td>output</td>
+            <td>TBA</td>
+            <td>Output sender service</td>
+          </tr>
+          
+          <tr>
+            <td>processor</td>
+            <td>TBA</td>
+            <td>Request processing handler service</td>
+          </tr>
+          
         </table>
 
     </section>
