@@ -18,13 +18,14 @@
  -->
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>maven-eve-plugin</artifactId>
-  <name>Eve build plugin for Maven</name>
-  <package>org.apache.eve.tools</package>
+  <artifactId>maven-directory-server-plugin</artifactId>
+  <name>Server plugin for Maven</name>
+  <package>org.apache.ldap.server.tools</package>
   <inceptionYear>2004</inceptionYear>
-  <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
+  <shortDescription>A collection of server tools as a maven plugin</shortDescription>
   <description>
-    A collection of tools as plugins to be used to develop Eve and for Eve.
+    A collection of tools as plugins to manage various tasks associated with 
+    the directory server.
   </description>
   <dependencies>
     <dependency>
@@ -49,7 +50,7 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-shared</artifactId>
+      <artifactId>server-shared</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -62,13 +63,13 @@
     </dependency>
   </dependencies>
   <build>
-    <sourceDirectory>src/java</sourceDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
     <unitTest>
       <resources>
         <resource>
-          <directory>src/schema</directory>
-          <targetPath>org/apache/eve/tools/schema</targetPath>
+          <directory>src/main/schema</directory>
+          <targetPath>org/apache/ldap/server/tools/schema</targetPath>
           <includes>
             <include>**/*.schema</include>
           </includes>
@@ -82,14 +83,14 @@
     <resources>
       <resources>
         <resource>
-          <directory>src/java</directory>
+          <directory>src/main/java</directory>
           <includes>
             <include>**/*.template</include>
           </includes>
         </resource>
       </resources>
       <resource>
-        <directory>${basedir}/src/plugin-resources</directory>
+        <directory>${basedir}/src/main/plugin-resources</directory>
         <targetPath>plugin-resources</targetPath>
         <filtering>false</filtering>
       </resource>
@@ -104,10 +105,9 @@
         <filtering>false</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/src/java</directory>
+        <directory>${basedir}/src/main/java</directory>
         <includes>
           <include>**/*.template</include>
-          <include>**/*.dtd</include>
           <include>**/*.properties</include>
           <include>**/*.x*</include>
         </includes>
