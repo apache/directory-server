@@ -2,7 +2,7 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <artifactId>server-protocol</artifactId>
-  <name>Protocol Provider</name>
+  <name>Server Protocol</name>
   <inceptionYear>2002</inceptionYear>
   <shortDescription>The Protocol Provider</shortDescription>
   <description>
