@@ -1,52 +1,19 @@
 /*
-
- ============================================================================
-                   The Apache Software License, Version 1.1
- ============================================================================
-
- Copyright (C) 1999-2002 The Apache Software Foundation. All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modifica-
- tion, are permitted provided that the following conditions are met:
-
- 1. Redistributions of  source code must  retain the above copyright  notice,
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
- 3. The end-user documentation included with the redistribution, if any, must
-    include  the following  acknowledgment:  "This product includes  software
-    developed  by the  Apache Software Foundation  (http://www.apache.org/)."
-    Alternately, this  acknowledgment may  appear in the software itself,  if
-    and wherever such third-party acknowledgments normally appear.
-
- 4. The names "Eve Directory Server", "Apache Directory Project", "Apache Eve" 
-    and "Apache Software Foundation"  must not be used to endorse or promote
-    products derived  from this  software without  prior written
-    permission. For written permission, please contact apache@apache.org.
-
- 5. Products  derived from this software may not  be called "Apache", nor may
-    "Apache" appear  in their name,  without prior written permission  of the
-    Apache Software Foundation.
-
- THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL  THE
- APACHE SOFTWARE  FOUNDATION  OR ITS CONTRIBUTORS  BE LIABLE FOR  ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL  DAMAGES (INCLU-
- DING, BUT NOT LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS
- OF USE, DATA, OR  PROFITS; OR BUSINESS  INTERRUPTION)  HOWEVER CAUSED AND ON
- ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
- (INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- This software  consists of voluntary contributions made  by many individuals
- on  behalf of the Apache Software  Foundation. For more  information on the
- Apache Software Foundation, please see <http://www.apache.org/>.
-
-*/
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.eve.event ;
 
 
@@ -71,21 +38,30 @@ public class DefaultEventRouter implements EventRouter
     private EventRouterMonitor m_monitor = new EventRouterMonitorAdapter() ;
     
     
-    /**
+    /* (non-Javadoc)
+     * @see org.apache.eve.event.EventRouter#subscribe(java.lang.Class, 
+     * org.apache.eve.event.Subscriber)
+     */
+    public void subscribe( Class type, Subscriber subscriber )
+    {
+        subscribe( type, null, subscriber ) ;
+    }
+
+    
+    /*
      * @see org.apache.eve.event.EventRouter#subscribe(java.lang.Class, 
      * org.apache.eve.event.Filter, org.apache.eve.event.Subscriber)
      */
-    public void subscribe( Class a_type, Filter a_filter,
-                           Subscriber a_subscriber )
+    public void subscribe( Class type, Filter filter, Subscriber subscriber )
     {
-        if ( ! EventObject.class.isAssignableFrom( a_type ) ) 
+        if ( ! EventObject.class.isAssignableFrom( type ) ) 
         {
             throw new IllegalArgumentException( "Invalid event class: " 
-                    + a_type.getName() ) ;
+                    + type.getName() ) ;
         }
 
         Subscription l_subscription = 
-            new Subscription( a_type, a_filter, a_subscriber ) ;
+            new Subscription( type, filter, subscriber ) ;
 
         if ( ! m_subscriptions.contains( l_subscription ) )
         {
@@ -103,7 +79,7 @@ public class DefaultEventRouter implements EventRouter
      * @see org.apache.eve.event.EventRouter#unsubscribe(
      * org.apache.eve.event.Subscriber)
      */
-    public void unsubscribe( Subscriber a_subscriber )
+    public void unsubscribe( Subscriber subscriber )
     {
         Iterator l_list = m_subscriptions.iterator() ;
         
@@ -112,7 +88,7 @@ public class DefaultEventRouter implements EventRouter
             while ( l_list.hasNext() )
             {
                 Subscription l_subscription = ( Subscription ) l_list.next() ;
-                if ( a_subscriber == l_subscription.getSubscriber() )
+                if ( subscriber == l_subscription.getSubscriber() )
                 {
                     l_list.remove() ;
                     m_monitor.removedSubscription( l_subscription ) ;
@@ -127,7 +103,7 @@ public class DefaultEventRouter implements EventRouter
      * @see org.apache.eve.event.EventRouter#unsubscribe(java.lang.Class, 
      * org.apache.eve.event.Subscriber)
      */
-    public void unsubscribe( Class a_type, Subscriber a_subscriber )
+    public void unsubscribe( Class type, Subscriber subscriber )
     {
         Iterator l_list = m_subscriptions.iterator() ;
         
@@ -136,8 +112,8 @@ public class DefaultEventRouter implements EventRouter
             while ( l_list.hasNext() )
             {
                 Subscription l_subscription = ( Subscription ) l_list.next() ;
-                if ( a_subscriber == l_subscription.getSubscriber()
-                  && a_type.equals( l_subscription.getType() ) )
+                if ( subscriber == l_subscription.getSubscriber()
+                  && type.equals( l_subscription.getType() ) )
                 {
                     l_list.remove() ;
                     m_monitor.removedSubscription( l_subscription ) ;
@@ -152,17 +128,17 @@ public class DefaultEventRouter implements EventRouter
      * @see org.apache.eve.event.EventRouter#unsubscribe(java.lang.Class, 
      * org.apache.eve.event.Subscriber)
      */
-    public void unsubscribe( Class a_type, Filter a_filter, 
-                             Subscriber a_subscriber )
+    public void unsubscribe( Class type, Filter filter, 
+                             Subscriber subscriber )
     {
-        if ( ! EventObject.class.isAssignableFrom( a_type ) ) 
+        if ( ! EventObject.class.isAssignableFrom( type ) ) 
         {
             throw new IllegalArgumentException( "Invalid event class: " 
-                    + a_type.getName() ) ;
+                    + type.getName() ) ;
         }
         
-        final Subscription l_subscription = new Subscription( a_type, a_filter, 
-                a_subscriber ) ;
+        final Subscription l_subscription = new Subscription( type, filter, 
+                subscriber ) ;
         
         synchronized ( m_subscriptions )
         {
@@ -175,7 +151,7 @@ public class DefaultEventRouter implements EventRouter
      * (non-Javadoc)
      * @see org.apache.eve.event.EventRouter#publish(org.apache.eve.event.Event)
      */
-    public void publish( EventObject a_event ) 
+    public void publish( EventObject event ) 
     {
         final Subscription [] l_subscriptions ;
         
@@ -188,7 +164,7 @@ public class DefaultEventRouter implements EventRouter
         for ( int ii = 0; ii < l_subscriptions.length; ii++ )
         {
             boolean isAssignable = l_subscriptions[ii].getType()
-                .isAssignableFrom( a_event.getClass() ) ;
+                .isAssignableFrom( event.getClass() ) ;
             
             if ( ! isAssignable )
             {
@@ -197,11 +173,11 @@ public class DefaultEventRouter implements EventRouter
             
             if ( l_subscriptions[ii].getFilter() == null )
             {
-                l_subscriptions[ii].getSubscriber().inform( a_event ) ;
+                l_subscriptions[ii].getSubscriber().inform( event ) ;
             }
-            else if ( l_subscriptions[ii].getFilter().apply( a_event ) )  
+            else if ( l_subscriptions[ii].getFilter().accept( event ) )  
             {
-                l_subscriptions[ii].getSubscriber().inform( a_event ) ;
+                l_subscriptions[ii].getSubscriber().inform( event ) ;
             }
         }
     }
@@ -210,11 +186,11 @@ public class DefaultEventRouter implements EventRouter
     /**
      * Sets the event router's monitor.
      * 
-     * @param a_monitor the monitor
+     * @param monitor the monitor
      */
-    public void setMonitor( EventRouterMonitor a_monitor )
+    public void setMonitor( EventRouterMonitor monitor )
     {
-        m_monitor = a_monitor ;
+        m_monitor = monitor ;
     }
     
     
