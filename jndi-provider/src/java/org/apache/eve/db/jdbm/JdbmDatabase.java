@@ -1357,7 +1357,7 @@ public class JdbmDatabase implements Database
         {
             String oldRdn = updn.get( updn.size() - 1 );
             String oldRdnAttr = NamespaceTools.getRdnAttribute( oldRdn );
-            String oldRdnValue = NamespaceTools.getRdnAttribute( oldRdn );
+            String oldRdnValue = NamespaceTools.getRdnValue( oldRdn );
             
             entry.get( oldRdnAttr ).remove( oldRdnValue );
 
