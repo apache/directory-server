@@ -18,14 +18,6 @@
 
   <dependencies>
 
-        <!-- THE DEPENDENCY KEEPING USE IN INCUBATOR -->
-        <dependency>
-          <groupId>snacc4j</groupId>
-          <artifactId>snacc</artifactId>
-          <version>2.3</version>
-        </dependency>
-        <!-- THE DEPENDENCY KEEPING USE IN INCUBATOR -->
-
     <dependency>
       <groupId>concurrent</groupId>
       <artifactId>concurrent</artifactId>
@@ -48,6 +40,13 @@ http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
       <artifactId>commons-lang</artifactId>
       <version>2.0</version>
       <url>http://jakarta.apache.org/commons/lang</url>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/primitives</url>
     </dependency>
 
     <dependency>
@@ -117,10 +116,10 @@ http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
 
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>ldap-snacc-provider</artifactId>
+      <artifactId>ldap-ber-provider</artifactId>
       <version>SNAPSHOT</version>
       <url>
-        http://incubator.apache.org/directory/subprojects/ldap/snacc-provider
+        http://incubator.apache.org/directory/subprojects/ldap/ber-provider
       </url>
     </dependency>
 

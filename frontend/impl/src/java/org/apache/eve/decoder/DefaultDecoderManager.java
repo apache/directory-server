@@ -23,8 +23,8 @@ import java.util.EventObject ;
 
 import java.nio.ByteBuffer ;
 
-import org.apache.snickers.SnickersDecoder ;
 import org.apache.ldap.common.message.Request ;
+import org.apache.ldap.common.message.MessageDecoder;
 
 import org.apache.eve.event.InputEvent ;
 import org.apache.eve.seda.StageConfig ;
@@ -33,16 +33,12 @@ import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.listener.ClientKey ;
 import org.apache.eve.event.ConnectEvent ;
 import org.apache.eve.event.RequestEvent ;
-import org.apache.eve.decoder.ClientDecoder ;
 import org.apache.eve.event.DisconnectEvent ;
 import org.apache.eve.event.InputSubscriber ;
-import org.apache.eve.decoder.DecoderManager ;
 import org.apache.eve.event.ConnectSubscriber ;
 import org.apache.eve.seda.LoggingStageMonitor ;
 import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.DisconnectSubscriber ;
-import org.apache.eve.decoder.DecoderManagerMonitor ;
-import org.apache.eve.decoder.DecoderManagerMonitorAdapter ;
 
 import org.apache.commons.codec.DecoderException ;
 import org.apache.commons.codec.stateful.DecoderMonitor ;
@@ -60,7 +56,6 @@ import org.apache.commons.codec.stateful.StatefulDecoder ;
 public class DefaultDecoderManager extends DefaultStage
     implements 
     DecoderManager,
-    DecoderCallback, 
     InputSubscriber,
     ConnectSubscriber, 
     DisconnectSubscriber
@@ -77,7 +72,7 @@ public class DefaultDecoderManager extends DefaultStage
      * Creates a instance of the default decoder manager implementation.
      * 
      * @param router the event bus or router component depended upon
-     * @param bp the buffer this decoder depends upon
+     * @param config the stage configuration
      */
     public DefaultDecoderManager( EventRouter router, StageConfig config )
     {
@@ -102,9 +97,8 @@ public class DefaultDecoderManager extends DefaultStage
      * Routes the event to the appropriate typed <code>inform()</code> method.
      * 
      * @see org.apache.eve.event.Subscriber#inform(java.util.EventObject)
-     * @see org.apache.eve.event.AbstractSubscriber.inform( 
-     * org.apache.eve.event.Subscriber, java.util.EventObject, 
-     * org.apache.eve.event.SubscriberMonitor ) ;
+     * @see org.apache.eve.event.AbstractSubscriber#inform(
+     *      org.apache.eve.event.Subscriber, java.util.EventObject)
      */
     public void inform( EventObject event )
     {
@@ -128,7 +122,7 @@ public class DefaultDecoderManager extends DefaultStage
     public void inform( InputEvent event )
     {
         // claim interest and release after asynchronous processing of event
-        ByteBuffer buffer = event.claimInterest( this ) ;
+        event.claimInterest( this ) ;
         enqueue( event ) ;
     }
     
@@ -155,32 +149,28 @@ public class DefaultDecoderManager extends DefaultStage
     public void inform( ConnectEvent event )
     {
         ClientKey key = event.getClientKey() ;
-        StatefulDecoder snickers = new SnickersDecoder() ;
-        StatefulDecoder decoder = new ClientDecoder( key, snickers ) ; 
-        decoder.setCallback( this ) ;
+        StatefulDecoder decoder = new ClientDecoder( key, new MessageDecoder() ) ;
+
+        /*
+         * Here the decoder informs us that a unit of data is decoded.  In the
+         * case of the snickers decoder we're decoding an LDAP message envelope
+         * for a request.  We use this request to create a RequestEvent and
+         * publish the event on the queue.
+         */
+        decoder.setCallback( new DecoderCallback()
+        {
+            public void decodeOccurred( StatefulDecoder decoder,
+                                        Object decoded )
+            {
+                ClientKey key = ( ( ClientDecoder ) decoder ).getClientKey() ;
+                RequestEvent event = new RequestEvent( this, key,
+                        ( Request ) decoded );
+                router.publish( event ) ;
+            }
+        });
         decoders.put( key, decoder ) ;
     }
-    
-    
-    /**
-     * Here the decoder informs us that a unit of data is decoded.  In the case
-     * of the snickers decoder we're using decoding an LDAP message envelope 
-     * for a request.  We use this request to create a RequestEvent and publish
-     * the event on the queue.
-     * 
-     * We are just hard coding the generation of a bind request for the moment.
-     * 
-     * @see org.apache.commons.codec.stateful.DecoderCallback#decodeOccurred(
-     * org.apache.commons.codec.stateful.StatefulDecoder, java.lang.Object)
-     */
-    public void decodeOccurred( StatefulDecoder decoder, Object decoded )
-    {
-        Request req = ( Request ) decoded ;
-        ClientKey key = ( ( ClientDecoder ) decoder ).getClientKey() ;
-        RequestEvent event = new RequestEvent( this, key, ( Request ) decoded );
-        router.publish( event ) ;
-    }
-    
+
 
     // ------------------------------------------------------------------------
     // Service Interface Methods
@@ -240,7 +230,7 @@ public class DefaultDecoderManager extends DefaultStage
     public Object decode( ByteBuffer buffer ) throws DecoderException
     {
         // replace this decoder with a real one later
-        StatefulDecoder decoder = new SnickersDecoder() ;
+        StatefulDecoder decoder = null;//new SnickersDecoder() ;
         // used array to set a value on final variable and get by compiler
         final Object[] decoded = new Object[1] ;
         
@@ -259,7 +249,7 @@ public class DefaultDecoderManager extends DefaultStage
         if ( decoded[0] == null )
         {
             throw new DecoderException( "Expected a complete encoded unit of "
-                    + "data but got a partial" ) ;
+                    + "data but got a partial encoding in buffer arg" ) ;
         }
         
         return decoded[0] ;
