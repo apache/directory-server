@@ -144,12 +144,14 @@
         </resource>
               
         <resource>
-          <directory>${basedir}/conf</directory>
-          <targetPath>BLOCK-INF</targetPath>
+          <directory>${basedir}/../../../</directory>
+          <targetPath>META-INF</targetPath>
           <includes>
-            <include>block.xml</include>
+            <include>LICENSE.txt</include>
+            <include>INCUBATOR-DISCLAIMER.txt</include>
           </includes>
         </resource>
+
       </resources>
       <jars></jars>
     </build>
