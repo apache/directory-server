@@ -38,7 +38,9 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
@@ -682,13 +684,22 @@ public class JdbmDatabase implements Database
         // don't keep going if we cannot find the parent Id
         if ( parentId == null )
         {
-            throw new LdapNameNotFoundException( "Id for parent '" +
-                    dn.getSuffix( 1 ).toString() + "' not found!" );
+            throw new LdapNameNotFoundException( "Id for parent '" + dn.getSuffix( 1 ).toString() + "' not found!" );
+        }
+
+        Attribute objectClass = entry.get( "objectClass" );
+
+        if ( objectClass == null )
+        {
+            String msg = "Entry " + updn + " contains no objectClass attribute: " + entry;
+
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECTCLASSVIOLATION );
         }
 
         // Start adding the system indices
         // Why bother doing a lookup if this is not an alias.
-        if ( entry.get( "objectClass" ).contains( ALIAS_OBJECT ) ) 
+
+        if ( entry.get( "objectClass" ).contains( ALIAS_OBJECT ) )
         {
             addAliasIndices( id, dn, ( String ) entry.get( ALIAS_ATTRIBUTE ).get() );
         }

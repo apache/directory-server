@@ -128,9 +128,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
 
     /**
-     * Wrapps this Preferences object as a Dictionary.
+     * Wrapps this ServerPreferences object as a Dictionary.
      *
-     * @return a Dictionary that uses this Preferences object as the underlying backing store
+     * @return a Dictionary that uses this ServerPreferences object as the underlying backing store
      */
     public Dictionary wrapAsDictionary()
     {
@@ -139,9 +139,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
 
     /**
-     * Gets access to the LDAP context associated with this Preferences node.
+     * Gets access to the LDAP context associated with this ServerPreferences node.
      *
-     * @return the LDAP context associate with this Preferences node
+     * @return the LDAP context associate with this ServerPreferences node
      */
     LdapContext getLdapContext()
     {
@@ -150,10 +150,10 @@ public class ServerSystemPreferences extends AbstractPreferences
 
 
     /**
-     * Sets up a new Preferences node by injecting the required information
+     * Sets up a new ServerPreferences node by injecting the required information
      * such as the node name attribute and the objectClass attribute.
      *
-     * @param name the name of the new Preferences node.
+     * @param name the name of the new ServerPreferences node.
      */
     private void setUpNode( String name ) throws NamingException
     {
