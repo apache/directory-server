@@ -14,31 +14,33 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.exception;
+package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.jndi.Interceptor;
-import org.apache.ldap.server.jndi.Invocation;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 
 
 /**
- * Exception thrown by an Interceptor while intercepting an Invocation.
- * Interceptor failures caught from the method are bundled as
- * InterceptorExceptions and rethrown.
+ * A {@link LdapNamingException} that wraps uncaught runtime exceptions thrown from {@link Interceptor}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev$, $Date$
  */
 public class InterceptorException extends LdapNamingException
 {
     private static final long serialVersionUID = 3258690996517746233L;
 
-    /** The Invokation the Interceptor failed on */
+    /**
+     * The Invocation the Interceptor failed on
+     */
     private final Invocation invocation;
-    /** The Interceptor causing the failure */
+
+    /**
+     * The Interceptor causing the failure
+     */
     private final Interceptor interceptor;
 
 
@@ -46,7 +48,7 @@ public class InterceptorException extends LdapNamingException
      * Creates an InterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
-     * @param invocation the Invocation the Interceptor failed on
+     * @param invocation  the Invocation the Interceptor failed on
      */
     public InterceptorException( Interceptor interceptor, Invocation invocation )
     {
@@ -60,11 +62,11 @@ public class InterceptorException extends LdapNamingException
      * Creates an InterceptorException with a custom message.
      *
      * @param interceptor the Interceptor causing the failure
-     * @param invocation the Invocation the Interceptor failed on
+     * @param invocation  the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      */
     public InterceptorException( Interceptor interceptor,
-                                    Invocation invocation, String explanation )
+                                 Invocation invocation, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
         this.invocation = invocation;
@@ -76,13 +78,31 @@ public class InterceptorException extends LdapNamingException
      * Creates an InterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
-     * @param invocation the Invocation the Interceptor failed on
-     * @param rootCause the root cause of this exception
+     * @param invocation  the Invocation the Interceptor failed on
+     * @param rootCause   the root cause of this exception
      */
     public InterceptorException( Interceptor interceptor,
-                                    Invocation invocation, Throwable rootCause )
+                                 Invocation invocation, Throwable rootCause )
     {
         this( interceptor, invocation );
+        super.setRootCause( rootCause );
+    }
+
+
+    /**
+     * Creates an InterceptorException without a message.
+     *
+     * @param interceptor the Interceptor causing the failure
+     * @param invocation  the Invocation the Interceptor failed on
+     * @param explanation String explanation of why the Interceptor failed
+     * @param rootCause   the root cause of this exception
+     */
+    public InterceptorException( Interceptor interceptor,
+                                 Invocation invocation,
+                                 String explanation,
+                                 Throwable rootCause )
+    {
+        this( interceptor, invocation, explanation );
         super.setRootCause( rootCause );
     }
 
@@ -110,8 +130,7 @@ public class InterceptorException extends LdapNamingException
 
 
     /**
-     * Will return the resultCode of the root cause if the root cause
-     * implements LdapException.
+     * Will return the resultCode of the root cause if the root cause implements LdapException.
      *
      * @see org.apache.ldap.common.exception.LdapException#getResultCode()
      */

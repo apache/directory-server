@@ -39,22 +39,21 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.*;
-import org.apache.ldap.server.auth.*;
+import org.apache.ldap.server.ApplicationPartition;
+import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.ContextPartitionConfig;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.DefaultSearchEngine;
 import org.apache.ldap.server.db.ExpressionEnumerator;
 import org.apache.ldap.server.db.ExpressionEvaluator;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
-import org.apache.ldap.server.jndi.ibs.AuthorizationService;
-import org.apache.ldap.server.jndi.ibs.FilterService;
-import org.apache.ldap.server.jndi.ibs.FilterServiceImpl;
-import org.apache.ldap.server.jndi.ibs.OperationalAttributeService;
-import org.apache.ldap.server.jndi.ibs.SchemaService;
-import org.apache.ldap.server.jndi.ibs.ServerExceptionService;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorChain;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorConfigBuilder;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorContext;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.MatchingRuleRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
@@ -491,151 +490,16 @@ public class CoreContextFactory implements InitialContextFactory
         // --------------------------------------------------------------------
         // Adding interceptors
         // --------------------------------------------------------------------
-
-        /*
-         * Create and add the Authentication service interceptor to before
-         * interceptor chain.
-         */
-        InvocationStateEnum[] state = new InvocationStateEnum[]{InvocationStateEnum.PREINVOCATION};
-
-        boolean allowAnonymous = !initialEnv.containsKey( EnvKeys.DISABLE_ANONYMOUS );
-
-        AuthenticationService authenticationService = new AuthenticationService();
-
-        // create authenticator context
-        AuthenticatorContext authenticatorContext = new AuthenticatorContext();
-
-        authenticatorContext.setRootNexus( nexus );
-
-        authenticatorContext.setAllowAnonymous( allowAnonymous );
-
-        try // initialize default authenticators
-        {
-            // create anonymous authenticator
-            AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig();
-
-            authenticatorConfig.setAuthenticatorName( "none" );
-
-            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
-
-            AbstractAuthenticator authenticator = new AnonymousAuthenticator();
-
-            authenticator.init( authenticatorConfig );
-
-            authenticationService.register( authenticator );
-
-            // create simple authenticator
-            authenticatorConfig = new AuthenticatorConfig();
-
-            authenticatorConfig.setAuthenticatorName( "simple" );
-
-            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
-
-            authenticator = new SimpleAuthenticator();
-
-            authenticator.init( authenticatorConfig );
-
-            authenticationService.register( authenticator );
-        }
-        catch ( Exception e )
-        {
-            throw new NamingException( e.getMessage() );
+        InterceptorChain interceptor = (InterceptorChain) initialEnv.get( EnvKeys.INTERCEPTORS );
+        if( interceptor == null ) {
+            // If custom interceptor is not specified, use defaule one.
+            interceptor = InterceptorChain.newDefaultChain();
         }
 
-        AuthenticatorConfig[] configs = null;
-
-        configs = AuthenticatorConfigBuilder.getAuthenticatorConfigs( initialEnv );
-
-        for ( int ii = 0; ii < configs.length; ii++ )
-        {
-            try
-            {
-                configs[ii].setAuthenticatorContext( authenticatorContext );
-
-                String authenticatorClass = configs[ii].getAuthenticatorClass();
-
-                Class clazz = Class.forName( authenticatorClass );
-
-                Constructor constructor = clazz.getConstructor( new Class[] { } );
-
-                AbstractAuthenticator authenticator = ( AbstractAuthenticator ) constructor.newInstance( new Object[] { } );
-
-                authenticator.init( configs[ii] );
-
-                authenticationService.register( authenticator );
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-            }
-        }
-
-        provider.addInterceptor( authenticationService, state );
-
-        /*
-         * Create and add the Eve Exception service interceptor to both the
-         * before and onError interceptor chains.
-         */
-        state = new InvocationStateEnum[]{InvocationStateEnum.POSTINVOCATION};
-
-        FilterService filterService = new FilterServiceImpl();
-
-        Interceptor interceptor = ( Interceptor ) filterService;
-
-        provider.addInterceptor( interceptor, state );
-
-        /*
-         * Create and add the Authorization service interceptor to before
-         * interceptor chain.
-         */
-        state = new InvocationStateEnum[] {InvocationStateEnum.PREINVOCATION};
-
-        ConcreteNameComponentNormalizer normalizer;
-
-        AttributeTypeRegistry atr = globalRegistries.getAttributeTypeRegistry();
-
-        normalizer = new ConcreteNameComponentNormalizer( atr );
-
-        interceptor = new AuthorizationService( normalizer, filterService );
-
-        provider.addInterceptor( interceptor, state );
-
-        /*
-         * Create and add the Eve Exception service interceptor to both the
-         * before and onError interceptor chains.
-         */
-        state = new InvocationStateEnum[]
-        {
-            InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.FAILUREHANDLING
-        };
-
-        interceptor = new ServerExceptionService( nexus );
-
-        provider.addInterceptor( interceptor, state );
-
-        /*
-         * Create and add the Eve schema service interceptor to before chain.
-         */
-        state = new InvocationStateEnum[] {InvocationStateEnum.PREINVOCATION};
-
-        interceptor = new SchemaService( nexus, globalRegistries, filterService );
-
-        provider.addInterceptor( interceptor, state );
-
-        /*
-         * Create and add the Eve operational attribute managment service
-         * interceptor to both the before and after interceptor chains.
-         */
-        state = new InvocationStateEnum[]
-        {
-            InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.POSTINVOCATION
-        };
-
-        interceptor = new OperationalAttributeService( nexus, globalRegistries, filterService );
-
-        provider.addInterceptor( interceptor, state );
+        interceptor.init( new InterceptorContext(
+                initialEnv, system, globalRegistries, nexus,
+                InterceptorConfigBuilder.build( initialEnv, EnvKeys.INTERCEPTORS ) ) );
+        provider.setInterceptor( interceptor );
 
         // fire up the app partitions now!
         if ( initialEnv.get( EnvKeys.PARTITIONS ) != null )
@@ -643,7 +507,6 @@ public class CoreContextFactory implements InitialContextFactory
             startUpAppPartitions( wkdir );
         }
     }
-
 
     /**
      * Starts up all the application partitions that will be attached to naming contexts in the system.  Partition
@@ -664,7 +527,6 @@ public class CoreContextFactory implements InitialContextFactory
         MatchingRuleRegistry reg = globalRegistries.getMatchingRuleRegistry();
 
         // start getting all the parameters from the initial environment
-
         ContextPartitionConfig[] configs = null;
 
         configs = PartitionConfigBuilder.getContextPartitionConfigs( initialEnv );

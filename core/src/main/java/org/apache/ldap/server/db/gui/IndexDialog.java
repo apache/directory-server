@@ -336,7 +336,7 @@ public class IndexDialog extends JDialog
                 l_row[1] = l_rec.getEntryId() ;
                 l_model.addRow( l_row ) ;
                 l_count++ ;
-            } ;
+            }
 
             m_resultsTbl.setModel( l_model ) ;
             m_resultsPnl.setBorder(

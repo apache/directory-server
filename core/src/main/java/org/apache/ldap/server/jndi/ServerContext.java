@@ -60,7 +60,6 @@ public abstract class ServerContext implements Context
     /** The Principal associated with this context */
     private LdapPrincipal principal;
 
-
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
@@ -161,10 +160,8 @@ public abstract class ServerContext implements Context
 
 
     /**
-     * Package friendly setter to alter the principal.  It is very important
-     * for security's sake to keep this package friendly and not public.
-     *
-     * @param principal the directory user principal
+     * Sets the principal of the authenticated user which also happens to own.
+     * This method can be invoked only once to keep this property safe.
      */
     void setPrincipal( LdapPrincipal principal )
     {

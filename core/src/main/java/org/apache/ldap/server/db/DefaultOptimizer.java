@@ -87,7 +87,6 @@ public class DefaultOptimizer implements Optimizer
              * will cost us.  Anyway it defaults to a maximum scan count if a
              * scan count is not specified by the implementation.
              */
-          ;
         }
         else if ( node.isLeaf() ) 
         {

@@ -17,6 +17,14 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -24,23 +32,26 @@ import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.auth.AbstractAuthenticator;
-import org.apache.ldap.server.auth.Authenticator;
-
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
+import org.apache.ldap.server.auth.AnonymousAuthenticator;
+import org.apache.ldap.server.auth.AuthenticatorConfig;
+import org.apache.ldap.server.auth.AuthenticatorContext;
+import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.auth.SimpleAuthenticator;
+import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorContext;
+import org.apache.ldap.server.jndi.invocation.interceptor.NextInterceptor;
 
 /**
- * A service used to for authenticating users.
+ * An {@link Interceptor} that authenticates users.
  *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @author Apache Directory Project (dev@directory.apache.org)
+ * @author Alex Karasulu (akarasulu@apache.org)
+ * @author Trustin Lee (trustin@apache.org)
+ * @version $Rev$, $Date$
  */
-public class AuthenticationService implements Interceptor
+public class Authenticator implements Interceptor
 {
     /** short for Context.SECURITY_AUTHENTICATION */
     private static final String AUTH_TYPE = Context.SECURITY_AUTHENTICATION;
@@ -55,8 +66,78 @@ public class AuthenticationService implements Interceptor
     /**
      * Creates an authentication service interceptor.
      */
-    public AuthenticationService()
+    public Authenticator()
     {
+    }
+
+    public void init( InterceptorContext ctx ) throws NamingException
+    {
+        /*
+         * Create and add the Authentication service interceptor to before
+         * interceptor chain.
+         */
+        boolean allowAnonymous = !ctx.getEnvironment().containsKey( EnvKeys.DISABLE_ANONYMOUS );
+
+        // create authenticator context
+        AuthenticatorContext authenticatorContext = new AuthenticatorContext();
+        authenticatorContext.setPartitionNexus( ctx.getRootNexus() );
+        authenticatorContext.setAllowAnonymous( allowAnonymous );
+
+        try // initialize default authenticators
+        {
+            // create anonymous authenticator
+            AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig();
+            authenticatorConfig.setAuthenticatorName( "none" );
+            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
+
+            org.apache.ldap.server.auth.Authenticator authenticator = new AnonymousAuthenticator();
+            authenticator.init( authenticatorConfig );
+            this.register( authenticator );
+
+            // create simple authenticator
+            authenticatorConfig = new AuthenticatorConfig();
+            authenticatorConfig.setAuthenticatorName( "simple" );
+            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
+
+            authenticator = new SimpleAuthenticator();
+            authenticator.init( authenticatorConfig );
+            this.register( authenticator );
+        }
+        catch ( Exception e )
+        {
+            throw new NamingException( e.getMessage() );
+        }
+
+        AuthenticatorConfig[] configs = null;
+        configs = AuthenticatorConfigBuilder
+                .getAuthenticatorConfigs( new Hashtable( ctx.getEnvironment() ) );
+
+        for ( int ii = 0; ii < configs.length; ii++ )
+        {
+            try
+            {
+                configs[ii].setAuthenticatorContext( authenticatorContext );
+
+                String authenticatorClass = configs[ii].getAuthenticatorClass();
+                Class clazz = Class.forName( authenticatorClass );
+                Constructor constructor = clazz.getConstructor( new Class[] { } );
+
+                AbstractAuthenticator authenticator = ( AbstractAuthenticator ) constructor.newInstance( new Object[] { } );
+                authenticator.init( configs[ii] );
+
+                this.register( authenticator );
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+            }
+        }
+
+    }
+    
+    public void destroy()
+    {
+        authenticators.clear();
     }
 
     /**
@@ -67,7 +148,7 @@ public class AuthenticationService implements Interceptor
      * @param authenticator Authenticator component to register with this
      * AuthenticatorService.
      */
-    public void register( AbstractAuthenticator authenticator )
+    public void register( org.apache.ldap.server.auth.Authenticator authenticator )
     {
         Collection authenticatorList = getAuthenticators( authenticator.getType() );
         if ( authenticatorList == null )
@@ -81,13 +162,13 @@ public class AuthenticationService implements Interceptor
     /**
      * Unregisters an Authenticator with this AuthenticatorService.  Called for each
      * registered Authenticator right before it is to be stopped.  This prevents
-     * protocol server requests from reaching the Backend and effectively puts
+     * protocol server calls from reaching the Backend and effectively puts
      * the ContextPartition's naming context offline.
      *
      * @param authenticator Authenticator component to unregister with this
      * AuthenticatorService.
      */
-    public void unregister( Authenticator authenticator )
+    public void unregister( org.apache.ldap.server.auth.Authenticator authenticator )
     {
         Collection authenticatorList = getAuthenticators( authenticator.getType() );
         if ( authenticatorList == null )
@@ -107,18 +188,12 @@ public class AuthenticationService implements Interceptor
     {
         return (Collection)authenticators.get( type );
     }
-
-    public void invoke( Invocation invocation ) throws NamingException
+    
+    public void process( NextInterceptor nextProcessor, Invocation call ) throws NamingException
     {
-        // only handle preinvocation state
-        if ( invocation.getState() != InvocationStateEnum.PREINVOCATION )
-        {
-            return;
-        }
-
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
-        ServerContext ctx = ( ServerLdapContext ) invocation.getContextStack().peek();
+        ServerContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
         if ( ctx.getPrincipal() != null )
         {
             if ( ctx.getEnvironment().containsKey( CREDS ) )
@@ -126,6 +201,7 @@ public class AuthenticationService implements Interceptor
                 ctx.removeFromEnvironment( CREDS );
             }
 
+            nextProcessor.process(call);
             return;
         }
 
@@ -170,7 +246,8 @@ public class AuthenticationService implements Interceptor
         {
             try
             {
-                Authenticator authenticator = ( Authenticator ) i.next();
+                org.apache.ldap.server.auth.Authenticator authenticator =
+                        ( org.apache.ldap.server.auth.Authenticator ) i.next();
 
                 // perform the authentication
                 LdapPrincipal authorizationId = authenticator.authenticate( ctx );
@@ -180,7 +257,7 @@ public class AuthenticationService implements Interceptor
 
                 // remove creds so there is no security risk
                 ctx.removeFromEnvironment( CREDS );
-
+                nextProcessor.process(call);
                 return;
             }
             catch ( LdapAuthenticationException e )

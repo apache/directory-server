@@ -46,7 +46,9 @@ import org.apache.ldap.common.util.ValuedEnum;
  */
 public class ProducerTypeEnum extends ValuedEnum
 {
-    private static final String[] producers = {
+	private static final long serialVersionUID = 3257284725524475954L;
+
+	private static final String[] producers = {
         "NormalizerProducer", "ComparatorProducer", "SyntaxCheckerProducer",
         "SyntaxProducer", "MatchingRuleProducer", "AttributeTypeProducer",
         "ObjectClassProducer", "MatchingRuleUseProducer", "DitContentRuleProducer",

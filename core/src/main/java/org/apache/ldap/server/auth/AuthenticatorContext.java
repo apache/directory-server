@@ -17,7 +17,7 @@
 package org.apache.ldap.server.auth;
 
 
-import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.PartitionNexus;
 
 
 /**
@@ -30,7 +30,7 @@ public class AuthenticatorContext
 {
 
     /** the root nexus to all database partitions */
-    private RootNexus rootNexus;
+    private PartitionNexus partitionNexus;
     /** whether or not to allow anonymous users */
     private boolean allowAnonymous = false;
 
@@ -41,13 +41,13 @@ public class AuthenticatorContext
     {
     }
 
-    public RootNexus getRootNexus()
+    public PartitionNexus getPartitionNexus()
     {
-        return rootNexus;
+        return partitionNexus;
     }
-    public void setRootNexus( RootNexus rootNexus )
+    public void setPartitionNexus( PartitionNexus rootNexus )
     {
-        this.rootNexus = rootNexus;
+        this.partitionNexus = rootNexus;
     }
 
     public boolean getAllowAnonymous()

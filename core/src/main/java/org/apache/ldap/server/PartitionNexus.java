@@ -100,7 +100,7 @@ public interface PartitionNexus extends BackingStore
      * ContextPartition's naming context online.
      *
      * Operations against the naming context should result in an LDAP BUSY
-     * result code in the response if the naming context is not online.
+     * result code in the returnValue if the naming context is not online.
      *
      * @param partition ContextPartition component to register with this
      * BackendNexus.
@@ -114,7 +114,7 @@ public interface PartitionNexus extends BackingStore
      * the ContextPartition's naming context offline.
      *
      * Operations against the naming context should result in an LDAP BUSY
-     * result code in the response if the naming context is not online.
+     * result code in the returnValue if the naming context is not online.
      *
      * @param partition ContextPartition component to unregister with this
      * BackendNexus.

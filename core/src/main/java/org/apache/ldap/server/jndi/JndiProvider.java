@@ -16,21 +16,43 @@
  */
 package org.apache.ldap.server.jndi;
 
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.ldap.common.exception.LdapNamingException;
-import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.BackendSubsystem;
+import org.apache.ldap.server.ContextPartition;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.jndi.invocation.Add;
+import org.apache.ldap.server.jndi.invocation.Delete;
+import org.apache.ldap.server.jndi.invocation.GetMatchedDN;
+import org.apache.ldap.server.jndi.invocation.GetSuffix;
+import org.apache.ldap.server.jndi.invocation.HasEntry;
+import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.jndi.invocation.IsSuffix;
+import org.apache.ldap.server.jndi.invocation.List;
+import org.apache.ldap.server.jndi.invocation.ListSuffixes;
+import org.apache.ldap.server.jndi.invocation.Lookup;
+import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.jndi.invocation.Modify;
+import org.apache.ldap.server.jndi.invocation.ModifyMany;
+import org.apache.ldap.server.jndi.invocation.ModifyRN;
+import org.apache.ldap.server.jndi.invocation.Move;
+import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorChain;
 
 
 /**
@@ -39,21 +61,17 @@ import org.apache.ldap.server.RootNexus;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JndiProvider implements BackendSubsystem, InvocationHandler
+public class JndiProvider implements BackendSubsystem
 {
     /** Singleton instance of this class */
-    private static JndiProvider s_singleton = null;
+    private static JndiProvider s_singleton;
     
-    /** Interceptor of interceptors in post-invocation pipeline */
-    private InterceptorPipeline after = new FailFastPipeline();
-    /** Interceptor of interceptors in pre-invocation pipeline */
-    private InterceptorPipeline before = new FailFastPipeline();
-    /** Interceptor of interceptors in post-invocation pipeline failure */
-    private InterceptorPipeline afterFailure = new OnErrorPipeline();
+    /** The interceptor (or interceptor chain) for this provider */
+    private Interceptor interceptor;
     /** RootNexus as it was given to us by the ServiceManager */
-    private RootNexus nexus = null;
+    private RootNexus nexus;
     /** PartitionNexus proxy wrapping nexus to inject services */
-    private PartitionNexus proxy = null;
+    private PartitionNexus proxy;
 
     /** whether or not this instance has been shutdown */
     private boolean isShutdown = false;
@@ -81,10 +99,8 @@ public class JndiProvider implements BackendSubsystem, InvocationHandler
 
         s_singleton = this;
         this.nexus = nexus;
-        this.proxy = ( PartitionNexus ) Proxy.newProxyInstance(
-            nexus.getClass().getClassLoader(),
-            nexus.getClass().getInterfaces(), this );
-
+        this.interceptor = new InterceptorChain();
+        this.proxy = new PartitionNexusImpl();
     }
 
 
@@ -146,209 +162,32 @@ public class JndiProvider implements BackendSubsystem, InvocationHandler
         this.nexus.close();
         this.nexus = null;
         this.proxy = null;
-        this.before = null;
-        this.after = null;
-        this.afterFailure = null;
+        this.interceptor.destroy();
+        this.interceptor = null;
         this.isShutdown = true;
         s_singleton = null;
     }
-
-
-    // ------------------------------------------------------------------------
-    // Invokation Handler Implementation
-    // ------------------------------------------------------------------------
-
-
-    /**
-     * @see java.lang.reflect.InvocationHandler#invoke(Object,Method,Object[])
-     */
-    public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable
+    
+    public Interceptor getInterceptor()
     {
-        // Setup the invocation and populate: remember aspect sets context stack
-        Invocation invocation = new Invocation();
-        invocation.setMethod( method );
-        invocation.setProxy( proxy );
-        invocation.setParameters( args );
+        return interceptor;
+    }
 
-        // used for an optimization
-        BaseInterceptor.setInvocation( invocation );
-
-        try
+    public void setInterceptor( Interceptor interceptor )
+    {
+        if( interceptor == null )
         {
-            before.invoke( invocation );
+            throw new NullPointerException( "interceptor" );
         }
-        catch ( Throwable throwable )
-        {
-            /*
-             * On errors we need to continue into the failure handling state
-             * of Invocation processing and not throw anything just record it.
-             */
-            if ( invocation.getBeforeFailure() == null )
-            {
-                invocation.setBeforeFailure( throwable );
-            }
-
-            invocation.setState( InvocationStateEnum.FAILUREHANDLING );
-        }
-
-        
-        /*
-         * If before pipeline succeeds invoke the target and change state to 
-         * POSTINVOCATION on success but on failure record exception and set 
-         * state to FAILUREHANDLING.
-         * 
-         * If before pipeline failed then we invoke the after failure pipeline
-         * and throw the before failure exception.
-         */
-        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
-        {
-            NamingException target = null;
-
-            try
-            {
-                /*
-                 * If the invocation is not bypassed, we invoke on the proxied
-                 * object and set the return value on invocation.  If we do
-                 * bypass, its because a before chain service set the bypass
-                 * flag.  If the invoked method has a return value it's the
-                 * responsibility of the bypass triggering interceptor to set
-                 * the value to return.
-                 */
-
-                if ( ! invocation.doBypass() )
-                {
-                    Object retVal = method.invoke( nexus, invocation.getParameters() );
-                    invocation.setReturnValue( retVal );
-                }
-
-                // even if invocation is bypassed state is now post invocation 
-                invocation.setState( InvocationStateEnum.POSTINVOCATION );
-            }
-            catch ( InvocationTargetException ite )
-            {
-                if ( ite.getTargetException() != null )
-                {
-                    if ( ite.getTargetException() instanceof NamingException )
-                    {
-                        target = ( NamingException ) ite.getTargetException();
-                    }
-                    else
-                    {
-                        target = new NamingException();
-                        target.setRootCause( ite.getTargetException() );
-                    }
-                }
-                else
-                {
-                    target = new NamingException();
-                    target.setRootCause( ite );
-                }
-
-                invocation.setThrowable( target );
-                invocation.setState( InvocationStateEnum.FAILUREHANDLING );
-            }
-            catch ( Throwable t )
-            {
-                target = new NamingException();
-                target.setRootCause( t );
-                invocation.setThrowable( target );
-                invocation.setState( InvocationStateEnum.FAILUREHANDLING );
-            }
-
-            invocation.setComplete( true );
-        }
-        else if ( invocation.getState() == InvocationStateEnum.FAILUREHANDLING )
-        {
-            afterFailure.invoke( invocation );
-            BaseInterceptor.setInvocation( null );
-            throw invocation.getBeforeFailure();
-        }
-
-
-        /*
-         * If we have gotten this far then the before pipeline succeeded.  If
-         * the target invocation succeeded then we should be in the
-         * POSTINVOCATION state in which case we invoke the after pipeline.
-         *
-         * If the target invocation failed then we should run the after failure
-         * pipeline since we will be in the FAILUREHANDLINE state and after
-         * doing so we throw the original throwable raised by the target.
-         */
-        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
-        {
-            try
-            {
-                after.invoke( invocation );
-                BaseInterceptor.setInvocation( null );
-                return invocation.getReturnValue();
-            }
-            catch ( Throwable throwable )
-            {
-                invocation.setState( InvocationStateEnum.FAILUREHANDLING );
-                
-                if ( invocation.getAfterFailure() == null )
-                {
-                    invocation.setAfterFailure( throwable );
-                }
-
-                afterFailure.invoke( invocation );
-                BaseInterceptor.setInvocation( null );
-                throw invocation.getAfterFailure();
-            }
-        }
-        else if ( invocation.getState() == InvocationStateEnum.FAILUREHANDLING )
-        {
-            afterFailure.invoke( invocation );
-
-            if ( invocation.getThrowable() == null )
-            {
-                throw new LdapNamingException( "Interceptor Framework Failure: "
-                        + "failures on the proxied call should have a non null "
-                        + "throwable associated with the Invocation object.",
-                        ResultCodeEnum.OTHER );
-            }
-
-            BaseInterceptor.setInvocation( null );
-            throw invocation.getThrowable();
-        }
-
-        // used for an optimization
-        BaseInterceptor.setInvocation( null );
-        throw new LdapNamingException( "Interceptor Framework Failure: "
-                + "invocation handling should never have reached this line",
-                ResultCodeEnum.OTHER );
+        this.interceptor = interceptor;
     }
 
 
-    /**
-     * Allows the addition of an interceptor to pipelines based on invocation
-     * processing states.
-     *
-     * @param interceptor the interceptor to add to pipelines
-     * @param states the states (pipelines) where the interceptor should be applied
-     */
-    public void addInterceptor( Interceptor interceptor, InvocationStateEnum states[] )
+    public Object invoke( Invocation call ) throws NamingException
     {
-        for ( int ii = 0; ii < states.length; ii++ )
-        {
-            switch( states[ii].getValue() )
-            {
-                case( InvocationStateEnum.PREINVOCATION_VAL ):
-                    before.add( interceptor );
-                    break;
-                case( InvocationStateEnum.POSTINVOCATION_VAL ):
-                    after.add( interceptor );
-                    break;
-                case( InvocationStateEnum.FAILUREHANDLING_VAL ):
-                    afterFailure.add( interceptor );
-                    break;
-                default:
-                    throw new IllegalStateException( "unexpected invocation state: "
-                            + states[ii].getName() );
-            }
-        }
+        interceptor.process( null, call );
+        return call.getReturnValue();
     }
-
 
     /**
      * A dead context is requested and returned when we shutdown the system. It
@@ -360,5 +199,98 @@ public class JndiProvider implements BackendSubsystem, InvocationHandler
     public Context getDeadContext()
     {
         return new DeadContext();
+    }
+    
+    private class PartitionNexusImpl implements PartitionNexus
+    {
+
+        public LdapContext getLdapContext() {
+            return nexus.getLdapContext();
+        }
+
+        public Name getMatchedDn(Name dn, boolean normalized) throws NamingException {
+            return ( Name ) JndiProvider.this.invoke( new GetMatchedDN( dn, normalized ) );
+        }
+
+        public Name getSuffix(Name dn, boolean normalized) throws NamingException {
+            return ( Name ) JndiProvider.this.invoke( new GetSuffix( dn, normalized ) );
+        }
+
+        public Iterator listSuffixes(boolean normalized) throws NamingException {
+            return ( Iterator ) JndiProvider.this.invoke( new ListSuffixes( normalized ) );
+        }
+
+        public void register(ContextPartition partition) {
+            nexus.register( partition );
+        }
+
+        public void unregister(ContextPartition partition) {
+            nexus.unregister( partition );
+        }
+
+        public void delete(Name name) throws NamingException {
+            JndiProvider.this.invoke( new Delete( name ) );
+        }
+
+        public void add(String upName, Name normName, Attributes entry) throws NamingException {
+            JndiProvider.this.invoke( new Add( upName, normName, entry ) );
+        }
+
+        public void modify(Name name, int modOp, Attributes mods) throws NamingException {
+            JndiProvider.this.invoke( new Modify( name, modOp, mods ) );
+        }
+
+        public void modify(Name name, ModificationItem[] mods) throws NamingException {
+            JndiProvider.this.invoke( new ModifyMany( name, mods ) );
+        }
+
+        public NamingEnumeration list(Name base) throws NamingException {
+            return ( NamingEnumeration ) JndiProvider.this.invoke( new List( base ) );
+        }
+
+        public NamingEnumeration search(Name base, Map env, ExprNode filter, SearchControls searchCtls) throws NamingException {
+            return ( NamingEnumeration ) JndiProvider.this.invoke( new Search( base, env, filter, searchCtls ) );
+        }
+
+        public Attributes lookup(Name name) throws NamingException {
+            return ( Attributes ) JndiProvider.this.invoke( new Lookup( name ) );
+        }
+
+        public Attributes lookup(Name dn, String[] attrIds) throws NamingException {
+            return ( Attributes ) JndiProvider.this.invoke( new LookupWithAttrIds( dn, attrIds ) );
+        }
+
+        public boolean hasEntry(Name name) throws NamingException {
+            return Boolean.TRUE.equals( JndiProvider.this.invoke( new HasEntry( name ) ) );
+        }
+
+        public boolean isSuffix(Name name) throws NamingException {
+            return Boolean.TRUE.equals( JndiProvider.this.invoke( new IsSuffix( name ) ) );
+        }
+
+        public void modifyRn(Name name, String newRn, boolean deleteOldRn) throws NamingException {
+            JndiProvider.this.invoke( new ModifyRN( name, newRn, deleteOldRn ) );
+        }
+
+        public void move(Name oriChildName, Name newParentName) throws NamingException {
+            JndiProvider.this.invoke( new Move( oriChildName, newParentName ) );
+        }
+
+        public void move(Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn) throws NamingException {
+            JndiProvider.this.invoke( new MoveAndModifyRN( oriChildName, newParentName, newRn, deleteOldRn ) );
+        }
+
+        public void sync() throws NamingException {
+            nexus.sync();
+        }
+
+        public void close() throws NamingException {
+            nexus.close();
+        }
+
+        public boolean isClosed() {
+            return nexus.isClosed();
+        }
+        
     }
 }

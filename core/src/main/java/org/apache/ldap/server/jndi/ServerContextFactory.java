@@ -22,18 +22,18 @@ import java.io.InputStream;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.ldap.common.util.PropertiesUtils;
+import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
-import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
@@ -53,14 +53,31 @@ public class ServerContextFactory extends CoreContextFactory
 {
     /** the default LDAP port to use */
     private static final int LDAP_PORT = 389;
+    
+    private static final ServiceRegistry DEFAULT_MINA_REGISTRY;
+    
+    private static Service minaService;
+
+    private static ServiceRegistry minaRegistry;
+
+    static
+    {
+        ServiceRegistry tmp = null;
+        try
+        {
+            tmp = new SimpleServiceRegistry();
+        }
+        catch( IOException e )
+        {
+            e.printStackTrace();
+        }
+        
+        DEFAULT_MINA_REGISTRY = tmp;
+    }
 
     // ------------------------------------------------------------------------
     // Members
     // ------------------------------------------------------------------------
-
-    private static Service minaService;
-
-    private static ServiceRegistry minaRegistry;
 
 
     /**
@@ -68,7 +85,6 @@ public class ServerContextFactory extends CoreContextFactory
      */
     public ServerContextFactory()
     {
-        super();
     }
 
 
@@ -87,14 +103,20 @@ public class ServerContextFactory extends CoreContextFactory
             {
                 this.provider.shutdown();
 
-                if ( minaRegistry != null )
+                if ( this.minaRegistry != null )
                 {
-                    minaRegistry.unbind( minaService );
+                    this.minaRegistry.unbind( minaService );
                 }
             }
-            catch ( Throwable t )
+            catch( NamingException ne )
             {
-                t.printStackTrace();
+                throw ne;
+            }
+            catch( Throwable t )
+            {
+                NamingException ne = new NamingException( "Failed to shutdown." );
+                ne.setRootCause( t );
+                throw ne;
             }
             finally
             {
@@ -145,26 +167,28 @@ public class ServerContextFactory extends CoreContextFactory
 
         try
         {
+            if( DEFAULT_MINA_REGISTRY == null )
+            {
+                throw new NamingException( "Default MINA service registry is not available." );
+            }
+
             if( registry == null )
             {
-                registry = new SimpleServiceRegistry();
+                registry = DEFAULT_MINA_REGISTRY;
             }
 
             registry.bind( service, new LdapProtocolProvider( ( Hashtable ) initialEnv.clone() ) );
             
             minaService = service;
-
             minaRegistry = registry;
         }
         catch ( IOException e )
         {
-            e.printStackTrace();
-
             String msg = "Failed to bind the service to the service registry: " + service;
 
-            LdapConfigurationException e2 = new LdapConfigurationException( msg );
-
-            e2.setRootCause( e );
+            LdapConfigurationException lce = new LdapConfigurationException( msg );
+            lce.setRootCause( e );
+            throw lce;
         }
     }
 

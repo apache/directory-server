@@ -30,6 +30,7 @@ import javax.naming.directory.ModificationItem;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
@@ -88,6 +89,11 @@ public class RootDSETest extends TestCase
         env.put( EnvKeys.SHUTDOWN, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         try { new InitialContext( env ); } catch( Exception e ) {}
     }
 
@@ -106,6 +112,11 @@ public class RootDSETest extends TestCase
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
     }
@@ -125,6 +136,11 @@ public class RootDSETest extends TestCase
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
 
@@ -149,6 +165,11 @@ public class RootDSETest extends TestCase
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
 
@@ -173,6 +194,11 @@ public class RootDSETest extends TestCase
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
 
@@ -207,6 +233,11 @@ public class RootDSETest extends TestCase
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
 
@@ -241,6 +272,11 @@ public class RootDSETest extends TestCase
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
 
@@ -277,6 +313,11 @@ public class RootDSETest extends TestCase
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
 

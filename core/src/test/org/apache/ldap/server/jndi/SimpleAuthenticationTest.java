@@ -18,6 +18,7 @@ package org.apache.ldap.server.jndi;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
@@ -33,6 +34,7 @@ import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.AbstractServerTest;
+import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
@@ -46,8 +48,9 @@ public class SimpleAuthenticationTest extends AbstractServerTest
 {
     /**
      * Cleans up old database files on creation.
+     * @throws IOException 
      */
-    public SimpleAuthenticationTest()
+    public SimpleAuthenticationTest() throws IOException
     {
         doDelete( new File( "target" + File.separator + "eve" ) );
     }
@@ -184,6 +187,10 @@ public class SimpleAuthenticationTest extends AbstractServerTest
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
 
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         try
         {
             setSysRoot( env );
@@ -195,6 +202,9 @@ public class SimpleAuthenticationTest extends AbstractServerTest
 
         // ok this should start up the system now as admin
         Hashtable anonymous = new Hashtable();
+
+        anonymous.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+
         InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( anonymous );
         assertNotNull( ctx );
 

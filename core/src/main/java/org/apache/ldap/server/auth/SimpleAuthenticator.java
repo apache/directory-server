@@ -17,17 +17,17 @@
 package org.apache.ldap.server.auth;
 
 
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.common.exception.LdapNameNotFoundException;
-import org.apache.ldap.common.exception.LdapAuthenticationException;
-import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.common.name.LdapName;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
+import org.apache.ldap.common.exception.LdapAuthenticationException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.jndi.ServerContext;
 
 
 /**
@@ -100,7 +100,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         LdapName principalDn = new LdapName( principal );
 
-        RootNexus rootNexus = getAuthenticatorContext().getRootNexus();
+        PartitionNexus rootNexus = getAuthenticatorContext().getPartitionNexus();
 
         Attributes userEntry = rootNexus.lookup( principalDn );
 

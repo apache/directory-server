@@ -18,6 +18,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 
 
 /**
@@ -180,7 +181,7 @@ public aspect ProviderNexusAspect
      */
     pointcut newInvocation( Invocation invocation ):
         target( invocation ) &&
-        execution( public Invocation.new() );
+        execution( Invocation.new(..) );
       
         
     // ------------------------------------------------------------------------
@@ -192,7 +193,7 @@ public aspect ProviderNexusAspect
         jndiNexusCalls( caller )
         {
     		JndiProvider.push( ( LdapContext ) caller );
-            //System.out.println( "\npushed " + a_caller + " for join point "
+            //System.out.println( "\npushed " + caller + " for join point "
             //    + thisJoinPoint );
         }
         
@@ -201,7 +202,7 @@ public aspect ProviderNexusAspect
         jndiNexusCalls( caller ) 
         {
             LdapContext head = JndiProvider.pop();
-            //System.out.println( "\npopped " + a_caller + " for join point "
+            //System.out.println( "\npopped " + caller + " for join point "
             //    + thisJoinPoint );
         }
       
@@ -215,4 +216,3 @@ public aspect ProviderNexusAspect
             //    + thisJoinPoint );
         }
 }
-
