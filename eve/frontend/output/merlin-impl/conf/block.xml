@@ -27,6 +27,7 @@
         <resource id="commons-collections:commons-collections" version="3.0"/>
         <resource id="commons-primitives:commons-primitives" version="1.1-dev"/>
         <resource id="commons-lang:commons-lang" version="2.0"/>
+        <resource id="commons-logging:commons-logging" version="1.0.3"/>
   
         <!-- Directory Dependencies -->
 
@@ -38,7 +39,7 @@
         <resource id="incubator-directory:eve-frontend-event-pojo-impl" version="SNAPSHOT"/>
         <resource id="incubator-directory:eve-frontend-event-merlin-impl" version="SNAPSHOT"/>
 
-        <!-- Eve Decoder -->
+        <!-- Eve Output -->
         <resource id="incubator-directory:eve-frontend-output-spi" version="SNAPSHOT"/>
         <resource id="incubator-directory:eve-frontend-output-pojo-impl" version="SNAPSHOT"/>
         

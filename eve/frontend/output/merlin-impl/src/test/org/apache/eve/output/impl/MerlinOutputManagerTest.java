@@ -67,8 +67,7 @@ public class MerlinOutputManagerTest extends AbstractMerlinTestCase
     }
 
 
-    public void testDummy()
+    public void testPlacebo()
     {
-        outman.dummy() ;
     }
 }

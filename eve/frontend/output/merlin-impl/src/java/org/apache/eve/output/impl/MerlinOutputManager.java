@@ -17,11 +17,8 @@
 package org.apache.eve.output.impl ;
 
 
-import org.apache.eve.thread.ThreadPool ;
-import org.apache.eve.event.EventRouter ;
-import org.apache.eve.seda.DefaultStageConfig ;
-
-import org.apache.eve.output.OutputManager ;
+import java.io.IOException ;
+import java.nio.ByteBuffer ;
 
 import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.logger.LogEnabled ;
@@ -36,9 +33,15 @@ import org.apache.avalon.framework.configuration.ConfigurationException ;
 
 import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
 
+import org.apache.eve.thread.ThreadPool ;
+import org.apache.eve.event.EventRouter ;
+import org.apache.eve.listener.ClientKey ;
+import org.apache.eve.output.OutputManager ;
+import org.apache.eve.seda.DefaultStageConfig ;
+
 
 /**
- * A Merlin output manager. 
+ * A Merlin output manager wrapper. 
  * 
  * @avalon.component name="output-manager" lifestyle="singleton"
  * @avalon.service type="org.apache.eve.output.OutputManager" 
@@ -75,10 +78,12 @@ public class MerlinOutputManager
 
 
     /* (non-Javadoc)
-     * @see org.apache.eve.output.OuputManager#dummy()
+     * @see org.apache.eve.output.OutputManager#write(
+     * org.apache.eve.listener.ClientKey, java.nio.ByteBuffer)
      */
-    public void dummy()
+    public void write( ClientKey key, ByteBuffer buf ) throws IOException
     {
+        outputManager.write( key, buf ) ;
     }
     
     
@@ -142,7 +147,7 @@ public class MerlinOutputManager
      */
     public void initialize() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        outputManager = new DefaultOutputManager( router, stageConfig ) ;
     }
     
     
@@ -151,7 +156,7 @@ public class MerlinOutputManager
      */
     public void start() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        outputManager.start() ;
     }
     
     
@@ -160,6 +165,6 @@ public class MerlinOutputManager
      */
     public void stop() throws Exception
     {
-        //throw new NotImplementedException( "STUB" ) ;
+        outputManager.stop() ;
     }
 }
