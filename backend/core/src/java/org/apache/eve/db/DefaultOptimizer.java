@@ -1,4 +1,20 @@
-package org.apache.eve.db.jdbm;
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.db;
 
 
 import java.util.ArrayList;
@@ -15,17 +31,16 @@ import org.apache.ldap.common.filter.BranchNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.AssertionNode;
 
-import org.apache.eve.db.Index;
-import org.apache.eve.db.Database;
-import org.apache.eve.db.Optimizer;
-
 
 /**
  * Optimizer that annotates the filter using scan counts.
  * 
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class DefaultOptimizer implements Optimizer
 {
+    /** the maximum size for a count Integer.MAX_VALUE as a BigInteger */
     private static final BigInteger MAX = BigInteger.valueOf( Integer.MAX_VALUE );
     /** the database this optimizer operates on */
     private Database db;
@@ -50,8 +65,7 @@ public class DefaultOptimizer implements Optimizer
      *
      * @see Optimizer#annotate(ExprNode)
      */
-    public void annotate( ExprNode node )
-        throws NamingException
+    public void annotate( ExprNode node ) throws NamingException
     {
         // Start off with the worst case unless scan count says otherwise.
         BigInteger count = MAX;
@@ -89,7 +103,7 @@ public class DefaultOptimizer implements Optimizer
             switch ( leaf.getAssertionType() ) 
             {
             case( LeafNode.APPROXIMATE ):
-                /** TODO Not implemented so we just use equality matching */
+                /** Feature not implemented so we just use equality matching */
                 count = getEqualityScan( ( SimpleNode ) leaf );
                 break;
             case( LeafNode.EQUALITY ):
@@ -161,8 +175,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the calculated scan count
      * @throws NamingException if there is an error
      */
-    private BigInteger getConjunctionScan( BranchNode node )
-        throws NamingException
+    private BigInteger getConjunctionScan( BranchNode node ) throws NamingException
     {
         BigInteger count = BigInteger.valueOf( Integer.MAX_VALUE );  
         ArrayList children = node.getChildren(); 
@@ -192,8 +205,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count
      * @throws NamingException if there is an error
      */
-    private BigInteger getNegationScan( BranchNode node )
-        throws NamingException
+    private BigInteger getNegationScan( BranchNode node ) throws NamingException
     {
         ExprNode onlyChild = ( ExprNode ) node.getChildren().get( 0 );
         
@@ -222,8 +234,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count on the OR node
      * @throws NamingException if there is an error
      */
-    private BigInteger getDisjunctionScan( BranchNode node )
-        throws NamingException
+    private BigInteger getDisjunctionScan( BranchNode node ) throws NamingException
     {
         ArrayList children = node.getChildren();
         BigInteger total = BigInteger.ZERO;
@@ -316,8 +327,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the number of entries matched for the presence of an attribute
      * @throws NamingException if errors result
      */
-    private BigInteger getPresenceScan( PresenceNode node ) 
-        throws NamingException
+    private BigInteger getPresenceScan( PresenceNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -337,8 +347,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count for scope
      * @throws NamingException if any errors result
      */
-    private BigInteger getScopeScan( ScopeNode node )
-        throws NamingException
+    private BigInteger getScopeScan( ScopeNode node ) throws NamingException
     {
         switch ( node.getScope() )
         {
@@ -350,9 +359,8 @@ public class DefaultOptimizer implements Optimizer
             case ( SearchControls.SUBTREE_SCOPE ):
                 return BigInteger.valueOf( db.count() );
             default:
-                throw new IllegalArgumentException( 
-                    "Unrecognized search scope value for filter scope node" );
+                throw new IllegalArgumentException( "Unrecognized search scope "
+                    + "value for filter scope node" );
         }
-        
     }
 }
