@@ -33,7 +33,7 @@ public interface Interceptor
 {
     /**
      * Intializes this interceptor.  This is invoked by directory service
-     * provider when this intercepter is loaded into invocation chain.
+     * provider when this intercepter is loaded into interceptor chain.
      * 
      * @param config the configuration properties for this interceptor
      * @throws NamingException if failed to initialize this interceptor
@@ -42,7 +42,7 @@ public interface Interceptor
 
     /**
      * Deinitialized this interceptor.  This is invoked by directory service
-     * provider when this intercepter is unloaded from invocation chain.
+     * provider when this intercepter is unloaded from interceptor chain.
      */
     void destroy();
 
