@@ -208,8 +208,22 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
             try
             {
-                Object retVal = method.invoke( nexus, invocation.getParameters() );
-                invocation.setReturnValue( retVal );
+                /*
+                 * If the invocation is not bypassed, we invoke on the proxied
+                 * object and set the return value on invocation.  If we do
+                 * bypass, its because a before chain service set the bypass
+                 * flag.  If the invoked method has a return value it's the
+                 * responsibility of the bypass triggering interceptor to set
+                 * the value to return.
+                 */
+
+                if ( ! invocation.doBypass() )
+                {
+                    Object retVal = method.invoke( nexus, invocation.getParameters() );
+                    invocation.setReturnValue( retVal );
+                }
+
+                // even if invocation is bypassed state is now post invocation 
                 invocation.setState( InvocationStateEnum.POSTINVOCATION );
             }
             catch ( InvocationTargetException ite )
@@ -231,7 +245,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
                     target = new NamingException();
                     target.setRootCause( ite );
                 }
-                
+
                 invocation.setThrowable( target );
                 invocation.setState( InvocationStateEnum.FAILUREHANDLING );
             }
@@ -254,12 +268,12 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
 
         /*
-         * If we have gotten this far then the before pipeline succeeded.  If 
-         * the target invocation succeeded then we should be in the 
+         * If we have gotten this far then the before pipeline succeeded.  If
+         * the target invocation succeeded then we should be in the
          * POSTINVOCATION state in which case we invoke the after pipeline.
-         * 
+         *
          * If the target invocation failed then we should run the after failure
-         * pipeline since we will be in the FAILUREHANDLINE state and after 
+         * pipeline since we will be in the FAILUREHANDLINE state and after
          * doing so we throw the original throwable raised by the target.
          */
         if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )

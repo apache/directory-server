@@ -53,7 +53,12 @@ public class Invocation implements Serializable
      * The invokation state: when call has completed isCompleted will be true
      */
     private boolean isComplete = false;
-    
+
+    /**
+     * When set to true the invocation on the target is bypassed.
+     */
+    private boolean bypass = false;
+
     /**
      * Thrown by the first interceptor to fail within the before invocation
      * InterceptorPipeline which is fail fast.
@@ -131,10 +136,10 @@ public class Invocation implements Serializable
 
 
     /**
-     * Gets the completion state of this invokation.  
+     * Gets the completion state of this invokation.
      *
-     * @return true if the call on the proxied object has returned, false 
-     * otherwise 
+     * @return true if the call on the proxied object has returned, false
+     * otherwise
      */
     public boolean isComplete()
     {
@@ -153,7 +158,30 @@ public class Invocation implements Serializable
     {
         this.isComplete = isComplete;
     }
-    
+
+
+    /**
+     * Gets whether or not this invokation is to be bypassed.
+     *
+     * @return true if the call on the proxied object is to be bypassed, false
+     * otherwise
+     */
+    public boolean doBypass()
+    {
+        return bypass;
+    }
+
+
+    /**
+     * Sets the whether or not the invocation on the proxied object is bypassed.
+     *
+     * @param bypass whether or not the call on the proxied object is bypassed
+     */
+    void setBypass( boolean bypass )
+    {
+        this.bypass = bypass;
+    }
+
 
     /**
      * Lists the Throwables thrown by interceptors within the failure pipeline
