@@ -46,7 +46,7 @@ public interface DecoderManager
      * @param cb the decoder callback used to deliver decode events to
      */
     void setCallback( ClientKey key, DecoderCallback cb ) ;
-    
+
     /**
      * Sets a client decoder's error handler.
      * 
@@ -54,14 +54,14 @@ public interface DecoderManager
      * @param cb the callback used to deliver error events
      */
     void setErrorHandler( ClientKey key, ErrorHandler handler ) ;
-    
+
     /**
      * Disables callback events for a client destroying decoding state if any.
      * 
      * @param key the unique key associated with the client
      */
     boolean disable( ClientKey key ) ;
-    
+
     /**
      * Decodes a buffer of encoded data.
      * 
