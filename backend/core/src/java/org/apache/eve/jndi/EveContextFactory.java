@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
 
 import javax.naming.Name;
 import javax.naming.Context;
@@ -19,10 +21,12 @@ import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.ldif.LdifIterator;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
+import org.apache.eve.exception.EveConfigurationException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
@@ -167,13 +171,13 @@ public class EveContextFactory implements InitialContextFactory
                 String msg = "Ambiguous configuration: " + TYPE;
                 msg += " is set to none and the security principal";
                 msg += " is set using " + PRINCIPAL + " as well";
-                throw new ConfigurationException( msg );
+                throw new EveConfigurationException( msg );
             }
             else if ( ! initialEnv.containsKey( PRINCIPAL ) &&
                    initialEnv.containsKey( TYPE ) &&
                    initialEnv.get( TYPE ).equals( "none" ) )
             {
-                throw new ConfigurationException( "using authentication type none "
+                throw new EveConfigurationException( "using authentication type none "
                         + "for anonymous binds while trying to bootstrap Eve "
                         + "- this is not allowed ONLY the admin can bootstrap" );
             }
@@ -181,7 +185,7 @@ public class EveContextFactory implements InitialContextFactory
                       ! initialEnv.get( PRINCIPAL ).equals(
                               SystemPartition.ADMIN_PRINCIPAL ) )
             {
-                throw new ConfigurationException( "user "
+                throw new EveConfigurationException( "user "
                         + initialEnv.get( PRINCIPAL )
                         + " is not allowed to bootstrap the system. ONLY the "
                         + "admin can bootstrap" );
@@ -499,5 +503,20 @@ public class EveContextFactory implements InitialContextFactory
         }
 
         return file.exists();
+    }
+
+
+    protected void importLdif() throws NamingException
+    {
+        InputStream in = ( InputStream ) getClass().getResourceAsStream( "system.ldif" );
+
+        try
+        {
+            LdifIterator iterator = new LdifIterator( in );
+        }
+        catch ( IOException e )
+        {
+            NamingException ne = new EveConfigurationException();
+        }
     }
 }

@@ -19,9 +19,8 @@ package org.apache.eve.jndi;
 
 import java.util.Hashtable;
 import java.io.IOException;
-import javax.naming.NamingException;
 import javax.naming.Context;
-import javax.naming.ConfigurationException;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
 
@@ -30,6 +29,7 @@ import org.apache.eve.SystemPartition;
 import org.apache.eve.auth.LdapPrincipal;
 import org.apache.eve.exception.EveNoPermissionException;
 import org.apache.eve.exception.EveNamingException;
+import org.apache.eve.exception.EveConfigurationException;
 import org.apache.eve.jndi.exception.EveAuthenticationNotSupportedException;
 import org.apache.eve.jndi.exception.EveNameNotFoundException;
 import org.apache.eve.jndi.exception.EveAuthenticationException;
@@ -205,7 +205,7 @@ public class AuthenticationService implements Interceptor
             }
 
             // blow chuncks if we see any other authtype values
-            throw new ConfigurationException( "Unknown value for property " + TYPE + ": " + val );
+            throw new EveConfigurationException( "Unknown value for property " + TYPE + ": " + val );
         }
 
         // both are set
@@ -219,7 +219,7 @@ public class AuthenticationService implements Interceptor
                 String msg = "Ambiguous configuration: " + TYPE;
                 msg += " is set to none and the security principal";
                 msg += " is set using " + PRINCIPAL + " as well";
-                throw new ConfigurationException( msg );
+                throw new EveConfigurationException( msg );
             }
             // princial is set to the admin user if authType is "simple"
             else if ( "simple".equalsIgnoreCase( ( String ) val ) )
@@ -228,7 +228,7 @@ public class AuthenticationService implements Interceptor
             }
 
             // blow chuncks if we see any other authtype values
-            throw new ConfigurationException( "Unknown value for property " + TYPE + ": " + val );
+            throw new EveConfigurationException( "Unknown value for property " + TYPE + ": " + val );
         }
 
         // we have the principal key so we set that as the value
