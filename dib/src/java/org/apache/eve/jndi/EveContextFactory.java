@@ -48,8 +48,8 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
+import org.apache.eve.ContextPartitionConfig;
 import org.apache.eve.protocol.LdapProtocolProvider;
-import org.apache.eve.exception.EveNamingException;
 import org.apache.eve.exception.EveConfigurationException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
@@ -107,7 +107,6 @@ public class EveContextFactory implements InitialContextFactory
         "org.apache.eve.schema.bootstrap.NisSchema",
         "org.apache.eve.schema.bootstrap.SystemSchema"
     };
-
 
 
     // ------------------------------------------------------------------------
@@ -597,25 +596,25 @@ public class EveContextFactory implements InitialContextFactory
         MatchingRuleRegistry reg = globalRegistries.getMatchingRuleRegistry();
 
         // start getting all the parameters from the initial environment
-        String[] names = ( ( String ) initialEnv.get( EnvKeys.PARTITIONS ) ).split( " " );
+        ContextPartitionConfig[] configs = null;
+        configs = PartitionConfigBuilder.getContextPartitionConfigs( initialEnv );
 
-        for ( int ii = 0; ii < names.length; ii++ )
+        for ( int ii = 0; ii < configs.length; ii++ )
         {
             // ----------------------------------------------------------------
             // create working directory under eve directory for app partition
             // ----------------------------------------------------------------
 
-            String suffix = ( String ) initialEnv.get( EnvKeys.SUFFIX + names[ii] );
-            String wkdir = eveWkdir + File.separator + names[ii];
-            mkdirs( eveWkdir, names[ii] );
+            String wkdir = eveWkdir + File.separator + configs[ii].getId();
+            mkdirs( eveWkdir, configs[ii].getId() );
 
             // ----------------------------------------------------------------
             // create the database/store
             // ----------------------------------------------------------------
 
-            Name upSuffix = new LdapName( suffix );
+            Name upSuffix = new LdapName( configs[ii].getSuffix() );
             Normalizer dnNorm = reg.lookup( "distinguishedNameMatch" ).getNormalizer();
-            Name normSuffix = new LdapName( ( String ) dnNorm.normalize( suffix ) );
+            Name normSuffix = new LdapName( ( String ) dnNorm.normalize( configs[ii].getSuffix() ) );
             Database db = new JdbmDatabase( upSuffix, wkdir );
 
             // ----------------------------------------------------------------
@@ -645,19 +644,13 @@ public class EveContextFactory implements InitialContextFactory
             // if user indices are specified add those attribute types as well
             // ----------------------------------------------------------------
 
-            if ( initialEnv.containsKey( EnvKeys.INDICES + names[ii] ) )
+            for ( int jj = 0; jj < configs[ii].getIndices().length; jj++ )
             {
-                String[] indices = ( ( String ) initialEnv.get( EnvKeys.INDICES
-                        + names[ii] ) ).split( " " );
-
-                for ( int jj = 0; jj < indices.length; jj++ )
-                {
-                    attributeTypeList.add( attributeTypeRegistry.lookup( indices[jj] ) );
-                }
+                attributeTypeList.add( attributeTypeRegistry.lookup( configs[ii].getIndices()[jj] ) );
             }
 
             // ----------------------------------------------------------------
-            // fire up the appPartition & register it with the next
+            // fire up the appPartition & register it with the nexus
             // ----------------------------------------------------------------
 
             AttributeType[] indexTypes = ( AttributeType[] ) attributeTypeList
@@ -670,27 +663,7 @@ public class EveContextFactory implements InitialContextFactory
             // add the nexus context entry
             // ----------------------------------------------------------------
 
-            Attributes rootAttrs;
-            Object rootEntry = initialEnv.get( EnvKeys.ATTRIBUTES + names[ii] );
-
-            if ( rootEntry instanceof String )
-            {
-                rootAttrs = new LockableAttributesImpl();
-                String ldif = ( ( String ) rootEntry ).trim().replace( '*', '\n' );
-                ( new LdifParserImpl() ).parse( rootAttrs, ldif );
-            }
-            else if ( rootEntry instanceof Attributes )
-            {
-                rootAttrs = ( Attributes ) rootEntry;
-            }
-            else
-            {
-                throw new EveNamingException( "The root entry env property was"
-                        + " not of an expected type: " + rootEntry,
-                        ResultCodeEnum.OTHER );
-            }
-
-            partition.add( suffix, normSuffix, rootAttrs );
+            partition.add( configs[ii].getSuffix(), normSuffix, configs[ii].getAttributes() );
         }
     }
 

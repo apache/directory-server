@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 import org.apache.eve.ContextPartitionConfig;
 import org.apache.ldap.common.message.LockableAttributesImpl;
@@ -98,9 +99,28 @@ public class PartitionConfigBuilder
         // --------------------------------------------------------------------
 
         buf.setLength( 0 );
-        buf.append( EnvKeys.ATTRIBUTES ).append( id ).append( "." );
+        buf.append( EnvKeys.ATTRIBUTES ).append( id );
 
+        /*
+         * before going on to extract attributes check to see if the
+         * attributes base plus id has an Attributes object set.  Users
+         * can programatically use Attributes objects rather than
+         * wrestle with individual key value pairs.
+         */
         String keyBase = buf.toString();
+        if ( env.containsKey( keyBase ) )
+        {
+            config.setAttributes( ( Attributes ) env.get( keyBase ) );
+            return config;
+        }
+
+        /*
+         * looks like the environment attributes were not set programatically
+         * with an Attributes object for the base.  So we now add the extra
+         * '.' and go on to try and detect all the keys and their attributes.
+         */
+        buf.append( "." );
+        keyBase = buf.toString();
         for ( Enumeration list = env.keys(); list.hasMoreElements(); )
         {
             String attrKey = ( String ) list.nextElement();
