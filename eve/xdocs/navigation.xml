@@ -21,12 +21,15 @@
       <item name="Overview" href="../../index.html"/>
       <item name="Community" href="../../community/index.html"/>
       <item name="Latest News" href="../../news.html"/>
-      <item name="Sub-Projects" href="../../subprojects/index.html">
+      <item name="Subprojects" href="../../subprojects/index.html">
         <item name="Eve" href="/index.html">
-          <item name="Design" href="/design/index.html"/>
           <item name="Features" href="/features.html"/>
-          <item name="Backend" href="/backend/index.html"/>
-          <item name="Frontend" href="/frontend/index.html"/>
+          <item name="Source Layout" href="/source-layout.html"/>
+          <item name="Components" href="/components.html"/>
+          <item name="Building" href="/building.html"/>
+          <item name="Deploying" href="/deploying.html"/>
+          <item name="Backend Subsystem" href="/backend/index.html"/>
+          <item name="Frontend Subsystem" href="/frontend/index.html"/>
         </item>
         <item name="LDAP" href="../ldap/index.html"/>
         <item name="Janus" href="../janus/index.html"/>
@@ -38,6 +41,7 @@
     </menu>
 
     <menu name="Resources">
+      <item name="IRC" href="../../irc.html"/>
       <item name="Jira" href=
         "http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10400"/>
       <item name="Wiki" href="http://wiki.apache.org/directory"/>

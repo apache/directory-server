@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Building Eve</title>
+  </properties>
+  
+  <body>
+    <section name="TODO">
+      <ul>
+        <li>
+          Describe Maven based build and use of POM extension with reactor.
+        </li>
+        
+        <li>
+          Describe the organization of projects from the POV of the POM.
+        </li>
+        
+        <li>
+          Discuss use of a component documentation plugin that uses our 
+          layout and some container information to automatically generate 
+          component documentation.
+        </li>
+        
+        <li>
+          Document goals in maven.xml and what they do.
+        </li>
+        
+        <li>
+          Discuss per project document generation and how that integrates with
+          subproject documents.
+        </li>
+      </ul>
+    </section>
+
+    <section name="Building Eve">
+      <p>
+        Coming soon ...
+      </p>
+    </section>
+  </body>
+</document>

@@ -21,7 +21,7 @@
       <item name="Overview" href="../../index.html"/>
       <item name="Community" href="../../community/index.html"/>
       <item name="Latest News" href="../../news.html"/>
-      <item name="Sub-Projects" href="../../subprojects/index.html">
+      <item name="Subprojects" href="../../subprojects/index.html">
         <item name="Eve" href="/index.html">
           <item name="Design" href="/design/index.html"/>
           <item name="Features" href="/features.html"/>
@@ -38,6 +38,7 @@
     </menu>
 
     <menu name="Resources">
+      <item name="IRC" href="../../irc.html"/>
       <item name="Jira" href=
         "http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10400"/>
       <item name="Wiki" href="http://wiki.apache.org/directory"/>
