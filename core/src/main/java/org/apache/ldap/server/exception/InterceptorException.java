@@ -32,7 +32,7 @@ import org.apache.ldap.server.jndi.Invocation;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveInterceptorException extends LdapNamingException
+public class InterceptorException extends LdapNamingException
 {
     /** The Invokation the Interceptor failed on */
     private final Invocation invocation;
@@ -41,12 +41,12 @@ public class EveInterceptorException extends LdapNamingException
 
 
     /**
-     * Creates an EveInterceptorException without a message.
+     * Creates an InterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      */
-    public EveInterceptorException( Interceptor interceptor, Invocation invocation )
+    public InterceptorException( Interceptor interceptor, Invocation invocation )
     {
         super( ResultCodeEnum.OTHER );
         this.invocation = invocation;
@@ -55,13 +55,13 @@ public class EveInterceptorException extends LdapNamingException
 
 
     /**
-     * Creates an EveInterceptorException with a custom message.
+     * Creates an InterceptorException with a custom message.
      *
      * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      */
-    public EveInterceptorException( Interceptor interceptor,
+    public InterceptorException( Interceptor interceptor,
                                     Invocation invocation, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
@@ -71,13 +71,13 @@ public class EveInterceptorException extends LdapNamingException
 
 
     /**
-     * Creates an EveInterceptorException without a message.
+     * Creates an InterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      * @param rootCause the root cause of this exception
      */
-    public EveInterceptorException( Interceptor interceptor,
+    public InterceptorException( Interceptor interceptor,
                                     Invocation invocation, Throwable rootCause )
     {
         this( interceptor, invocation );

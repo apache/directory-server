@@ -115,7 +115,7 @@ public class AboutDialog extends JDialog
         new java.awt.Insets(5, 5, 5, 0), 0, 0));
 
         image.setText("Eve");
-        image.setIcon( new ImageIcon( getClass().getResource( "eve.gif" ) ) );
+        image.setIcon( new ImageIcon( getClass().getResource( "server.gif" ) ) );
 
         image.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         image.setMinimumSize(new java.awt.Dimension(98,44));

@@ -72,14 +72,14 @@ import org.apache.seda.protocol.TransportTypeEnum;
  * <code>
  * Hashtable env = new Hashtable();
  * env.put( Context.PROVIDER_URL, "ou=system" );
- * env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
+ * env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
  * InitialContext initialContext = new InitialContext( env );
  * </code>
  * @see javax.naming.spi.InitialContextFactory
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveContextFactory implements InitialContextFactory
+public class ServerContextFactory implements InitialContextFactory
 {
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
     private static final String CREDS = Context.SECURITY_CREDENTIALS;
@@ -90,17 +90,17 @@ public class EveContextFactory implements InitialContextFactory
     /** the default LDAP port to use */
     private static final int LDAP_PORT = 389;
     /** default path to working directory if WKDIR_ENV property is not set */
-    public static final String DEFAULT_WKDIR = "eve-work";
+    public static final String DEFAULT_WKDIR = "server-work";
 
     /** default schema classes for the SCHEMAS_ENV property if not set */
     private static final String[] DEFAULT_SCHEMAS = new String[]
     {
-        "org.apache.eve.schema.bootstrap.CoreSchema",
-        "org.apache.eve.schema.bootstrap.CosineSchema",
-        "org.apache.eve.schema.bootstrap.EveSchema",
-        "org.apache.eve.schema.bootstrap.InetorgpersonSchema",
-        "org.apache.eve.schema.bootstrap.JavaSchema",
-        "org.apache.eve.schema.bootstrap.SystemSchema"
+        "org.apache.ldap.server.schema.bootstrap.CoreSchema",
+        "org.apache.ldap.server.schema.bootstrap.CosineSchema",
+        "org.apache.ldap.server.schema.bootstrap.EveSchema",
+        "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
+        "org.apache.ldap.server.schema.bootstrap.JavaSchema",
+        "org.apache.ldap.server.schema.bootstrap.SystemSchema"
     };
 
 
@@ -108,8 +108,8 @@ public class EveContextFactory implements InitialContextFactory
     // Members
     // ------------------------------------------------------------------------
 
-    /** The singleton EveJndiProvider instance */
-    private EveJndiProvider provider = null;
+    /** The singleton JndiProvider instance */
+    private JndiProvider provider = null;
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable initialEnv;
     private SystemPartition system;
@@ -124,21 +124,21 @@ public class EveContextFactory implements InitialContextFactory
 
 
     /**
-     * Default constructor that sets the provider of this EveContextFactory.
+     * Default constructor that sets the provider of this ServerContextFactory.
      */
-    public EveContextFactory()
+    public ServerContextFactory()
     {
-        EveJndiProvider.setProviderOn( this );
+        JndiProvider.setProviderOn( this );
     }
     
     
     /**
-     * Enables this EveContextFactory with a handle to the EveJndiProvider
+     * Enables this ServerContextFactory with a handle to the JndiProvider
      * singleton.
      * 
-     * @param a_provider the system's singleton EveBackendSubsystem service.
+     * @param a_provider the system's singleton BackendSubsystem service.
      */
-    void setProvider( EveJndiProvider a_provider )
+    void setProvider( JndiProvider a_provider )
     {
         provider = a_provider;
     }
@@ -226,7 +226,7 @@ public class EveContextFactory implements InitialContextFactory
             }
         }
 
-        ctx = ( EveContext ) provider.getLdapContext( env );
+        ctx = ( ServerContext ) provider.getLdapContext( env );
         return ctx;
     }
 
@@ -453,7 +453,7 @@ public class EveContextFactory implements InitialContextFactory
         system = new SystemPartition( db, eng, attributes );
         globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
         nexus = new RootNexus( system, new LockableAttributesImpl() );
-        provider = new EveJndiProvider( nexus );
+        provider = new JndiProvider( nexus );
 
 
         // --------------------------------------------------------------------
@@ -500,7 +500,7 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.PREINVOCATION,
             InvocationStateEnum.FAILUREHANDLING
         };
-        interceptor = new EveExceptionService( nexus );
+        interceptor = new ServerExceptionService( nexus );
         provider.addInterceptor( interceptor, state );
 
         /*

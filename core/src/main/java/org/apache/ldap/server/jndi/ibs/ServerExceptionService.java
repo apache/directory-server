@@ -31,7 +31,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.exception.EveInterceptorException;
+import org.apache.ldap.server.exception.InterceptorException;
 import org.apache.ldap.server.jndi.BaseInterceptor;
 import org.apache.ldap.server.jndi.Invocation;
 import org.apache.ldap.server.jndi.InvocationStateEnum;
@@ -50,7 +50,7 @@ import org.apache.ldap.server.jndi.InvocationStateEnum;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveExceptionService extends BaseInterceptor
+public class ServerExceptionService extends BaseInterceptor
 {
     /** the root nexus of the system */
     private RootNexus nexus = null;
@@ -61,7 +61,7 @@ public class EveExceptionService extends BaseInterceptor
      *
      * @param nexus the root partition nexus
      */
-    public EveExceptionService( RootNexus nexus )
+    public ServerExceptionService( RootNexus nexus )
     {
         this.nexus = nexus;
     }
@@ -83,9 +83,9 @@ public class EveExceptionService extends BaseInterceptor
             {
                 t = invocation.getBeforeFailure();
 
-                if ( t instanceof EveInterceptorException )
+                if ( t instanceof InterceptorException )
                 {
-                    EveInterceptorException eie = ( EveInterceptorException ) t;
+                    InterceptorException eie = ( InterceptorException ) t;
 
                     if ( eie.getRootCause() != null && ( eie instanceof LdapException ) )
                     {
@@ -102,9 +102,9 @@ public class EveExceptionService extends BaseInterceptor
             {
                 t = invocation.getAfterFailure();
 
-                if ( t instanceof EveInterceptorException )
+                if ( t instanceof InterceptorException )
                 {
-                    EveInterceptorException eie = ( EveInterceptorException ) t;
+                    InterceptorException eie = ( InterceptorException ) t;
 
                     if ( eie.getRootCause() != null && ( eie instanceof LdapException ) )
                     {

@@ -30,9 +30,9 @@ import javax.naming.directory.*;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveContextFactoryTest extends AbstractJndiTest
+public class ServerContextFactoryTest extends AbstractJndiTest
 {
-    public EveContextFactoryTest()
+    public ServerContextFactoryTest()
     {
         BasicAttributes attrs = new BasicAttributes( true );
         BasicAttribute attr = new BasicAttribute( "objectClass" );
@@ -109,7 +109,7 @@ public class EveContextFactoryTest extends AbstractJndiTest
         env.put( Context.PROVIDER_URL, "dc=example" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
@@ -130,7 +130,7 @@ public class EveContextFactoryTest extends AbstractJndiTest
         env.put( Context.PROVIDER_URL, "ou=testing" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );

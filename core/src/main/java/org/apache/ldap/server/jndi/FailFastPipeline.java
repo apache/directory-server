@@ -19,7 +19,7 @@ package org.apache.ldap.server.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.exception.EveInterceptorException;
+import org.apache.ldap.server.exception.InterceptorException;
 
 
 /**
@@ -45,9 +45,9 @@ public class FailFastPipeline extends InterceptorPipeline
 
     /**
      * This invoke method fails and throws at the first failure within the 
-     * pipeline.  If an unexpected Throwable other than an EveInterceptorException
+     * pipeline.  If an unexpected Throwable other than an InterceptorException
      * results this method catches it and wraps it within an 
-     * EveInterceptorException and rethrows the new exception.
+     * InterceptorException and rethrows the new exception.
      *
      * @see Interceptor#invoke(Invocation)
      */
@@ -68,8 +68,8 @@ public class FailFastPipeline extends InterceptorPipeline
                     throw ( NamingException ) throwable;
                 }
                 
-                EveInterceptorException ie;
-                ie = new EveInterceptorException( service, invocation );
+                InterceptorException ie;
+                ie = new InterceptorException( service, invocation );
                 ie.setRootCause( throwable );
                 throw ie;
             }

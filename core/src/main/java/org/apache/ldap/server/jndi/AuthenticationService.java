@@ -76,7 +76,7 @@ public class AuthenticationService implements Interceptor
 
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
-        EveContext ctx = ( EveLdapContext ) invocation.getContextStack().peek();
+        ServerContext ctx = ( ServerLdapContext ) invocation.getContextStack().peek();
         if ( ctx.getPrincipal() != null )
         {
             if ( ctx.getEnvironment().containsKey( CREDS ) )
@@ -122,7 +122,7 @@ public class AuthenticationService implements Interceptor
     }
 
 
-    private void doAuthSasl( EveContext ctx ) throws NamingException
+    private void doAuthSasl( ServerContext ctx ) throws NamingException
     {
         ctx.getEnvironment(); // shut's up idea's yellow light
         ResultCodeEnum rc = ResultCodeEnum.AUTHMETHODNOTSUPPORTED; 
@@ -130,7 +130,7 @@ public class AuthenticationService implements Interceptor
     }
 
 
-    private void doAuthNone( EveContext ctx ) throws NamingException
+    private void doAuthNone( ServerContext ctx ) throws NamingException
     {
         if ( allowAnonymous )
         {
@@ -143,7 +143,7 @@ public class AuthenticationService implements Interceptor
     }
 
 
-    private void doAuthSimple( EveContext ctx ) throws NamingException
+    private void doAuthSimple( ServerContext ctx ) throws NamingException
     {
         Object creds = ctx.getEnvironment().get( CREDS );
 

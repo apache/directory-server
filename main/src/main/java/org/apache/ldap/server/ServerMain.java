@@ -30,12 +30,13 @@ import org.apache.seda.listener.AvailablePortFinder;
 
 
 /**
- * Document this class.
+ * The command line main for the server.  Warning this used to be a simple test
+ * case so there really is not much here.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveMain
+public class ServerMain
 {
     /** the default LDAP port to use */
     private static final int LDAP_PORT = 389;

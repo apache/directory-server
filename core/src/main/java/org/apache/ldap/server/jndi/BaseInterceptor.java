@@ -86,7 +86,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public static LdapPrincipal getPrincipal( Invocation invocation )
     {
-        EveContext ctx = ( EveContext ) invocation.getContextStack().peek();
+        ServerContext ctx = ( ServerContext ) invocation.getContextStack().peek();
         return ctx.getPrincipal();
     }
 

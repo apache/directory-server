@@ -127,7 +127,7 @@ public abstract class AbstractJndiTest extends TestCase
         envFinal.putAll( env );
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
         envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "eve" );
-        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
+        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         envFinal.putAll( overrides );
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
@@ -143,7 +143,7 @@ public abstract class AbstractJndiTest extends TestCase
         super.tearDown();
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         env.put( EnvKeys.SHUTDOWN, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );

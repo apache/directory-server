@@ -30,7 +30,7 @@ import javax.naming.InitialContext;
  */
 public abstract class AbstractMultiUserJndiTest extends AbstractJndiTest
 {
-    protected EveLdapContext sysRootAsNonAdminUser;
+    protected ServerLdapContext sysRootAsNonAdminUser;
 
 
     /**
@@ -46,11 +46,11 @@ public abstract class AbstractMultiUserJndiTest extends AbstractJndiTest
         // authenticate as akarasulu
         Hashtable env = new Hashtable( );
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.EveContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
         InitialContext ictx = new InitialContext( env );
-        sysRootAsNonAdminUser = ( EveLdapContext ) ictx.lookup( "" );
+        sysRootAsNonAdminUser = ( ServerLdapContext ) ictx.lookup( "" );
     }
 
 

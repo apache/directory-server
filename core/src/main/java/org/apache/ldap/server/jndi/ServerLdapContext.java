@@ -36,7 +36,7 @@ import org.apache.ldap.server.auth.LdapPrincipal;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveLdapContext extends EveDirContext implements LdapContext
+public class ServerLdapContext extends ServerDirContext implements LdapContext
 {
     private static final Control[] EMPTY_CONTROLS = new Control[0];
     private Control[] requestControls = EMPTY_CONTROLS;
@@ -45,20 +45,20 @@ public class EveLdapContext extends EveDirContext implements LdapContext
 
 
     /**
-     * Creates an instance of an EveLdapContext.
+     * Creates an instance of an ServerLdapContext.
      *
      * @param nexusProxy the proxy to a partition nexus
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public EveLdapContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerLdapContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
         super( nexusProxy, env );
     }
 
 
     /**
-     * Creates a new EveDirContext with a distinguished name which is used to
+     * Creates a new ServerDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
      *
      * @param principal the directory user principal that is propagated
@@ -66,7 +66,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    EveLdapContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    ServerLdapContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }
@@ -89,7 +89,7 @@ public class EveLdapContext extends EveDirContext implements LdapContext
     public LdapContext newInstance( Control[] requestControls )
         throws NamingException
     {
-        EveLdapContext ctx = new EveLdapContext( getPrincipal(), getNexusProxy(),
+        ServerLdapContext ctx = new ServerLdapContext( getPrincipal(), getNexusProxy(),
                 getEnvironment(), getDn() );
         ctx.setRequestControls( requestControls );
         return ctx;

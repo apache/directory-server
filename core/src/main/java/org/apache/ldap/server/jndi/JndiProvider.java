@@ -28,21 +28,21 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.EveBackendSubsystem;
+import org.apache.ldap.server.BackendSubsystem;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.RootNexus;
 
 
 /**
- * The EveBackendSubsystem service implementation.
+ * The BackendSubsystem service implementation.
  * 
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
+public class JndiProvider implements BackendSubsystem, InvocationHandler
 {
     /** Singleton instance of this class */
-    private static EveJndiProvider s_singleton = null;
+    private static JndiProvider s_singleton = null;
     
     /** Interceptor of interceptors in post-invocation pipeline */
     private InterceptorPipeline after = new FailFastPipeline();
@@ -65,18 +65,18 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
 
     /**
-     * Creates a singlton instance of the EveBackendSubsystem.  In the words of
+     * Creates a singlton instance of the BackendSubsystem.  In the words of
      * the Highlander, "there can only be one."
      *
-     * @throws IllegalStateException if another EveJndiProvider has already
+     * @throws IllegalStateException if another JndiProvider has already
      * been instantiated.
      */
-    public EveJndiProvider( RootNexus nexus )
+    public JndiProvider( RootNexus nexus )
     {
         if ( s_singleton != null )
         {
             throw new IllegalStateException(
-                "Cannot instantiate more than one EveJndiProvider!" );
+                "Cannot instantiate more than one JndiProvider!" );
         }
 
         s_singleton = this;
@@ -94,24 +94,24 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
 
     /**
-     * Enables a EveContextFactory with a handle to the system wide
-     * EveJndiProvider instance.
+     * Enables a ServerContextFactory with a handle to the system wide
+     * JndiProvider instance.
      *
-     * @param factory the EveContextFactory to enable
+     * @param factory the ServerContextFactory to enable
      */
-    static void setProviderOn( EveContextFactory factory )
+    static void setProviderOn( ServerContextFactory factory )
     {
         factory.setProvider( s_singleton );
     }
 
 
     // ------------------------------------------------------------------------
-    // EveBackendSubsystem Interface Method Implemetations
+    // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
 
 
     /**
-     * @see org.apache.ldap.server.EveBackendSubsystem#getLdapContext(Hashtable)
+     * @see org.apache.ldap.server.BackendSubsystem#getLdapContext(Hashtable)
      */
     public LdapContext getLdapContext( Hashtable env ) throws NamingException
     {
@@ -120,7 +120,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
             throw new IllegalStateException( "Eve has been shutdown!" );
         }
 
-        return new EveLdapContext( proxy, env );
+        return new ServerLdapContext( proxy, env );
     }
 
 

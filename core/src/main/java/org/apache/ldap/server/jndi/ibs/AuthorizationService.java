@@ -31,7 +31,7 @@ import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.BaseInterceptor;
-import org.apache.ldap.server.jndi.EveContext;
+import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.Invocation;
 import org.apache.ldap.server.jndi.InvocationStateEnum;
 
@@ -295,7 +295,7 @@ public class AuthorizationService extends BaseInterceptor
                 dn = dnParser.parse( result.getName() );
             }
 
-            Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
+            Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getDn();
             if ( ! principalDn.equals( ADMIN_DN ) )
             {
                 if ( dn.size() > 2  )
@@ -332,7 +332,7 @@ public class AuthorizationService extends BaseInterceptor
 
         private void filter( LdapContext ctx, Name dn ) throws NamingException
         {
-            Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
+            Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getDn();
 
             if ( ! principalDn.equals( ADMIN_DN ) )
             {

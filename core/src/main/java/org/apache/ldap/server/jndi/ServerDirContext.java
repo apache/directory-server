@@ -39,7 +39,7 @@ import org.apache.ldap.server.auth.LdapPrincipal;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class EveDirContext extends EveContext implements DirContext
+public abstract class ServerDirContext extends ServerContext implements DirContext
 {
     
     
@@ -48,21 +48,21 @@ public abstract class EveDirContext extends EveContext implements DirContext
     // ------------------------------------------------------------------------
     
     /**
-     * Creates a new EveDirContext by reading the PROVIDER_URL to resolve the
+     * Creates a new ServerDirContext by reading the PROVIDER_URL to resolve the
      * distinguished name for this context.
      *
      * @param nexusProxy the proxy to the backend nexus
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public EveDirContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerDirContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
         super( nexusProxy, env );
     }
 
 
     /**
-     * Creates a new EveDirContext with a distinguished name which is used to
+     * Creates a new ServerDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
      *
      * @param principal the principal which is propagated
@@ -70,7 +70,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected EveDirContext( LdapPrincipal principal, PartitionNexus nexusProxy,
+    protected ServerDirContext( LdapPrincipal principal, PartitionNexus nexusProxy,
                              Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
@@ -204,7 +204,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
         // Need to perform serialization of object into a copy of attrs
         else 
         {
-            if ( obj instanceof EveLdapContext )
+            if ( obj instanceof ServerLdapContext )
             {
                 throw new IllegalArgumentException( "Cannot bind a directory context object!" );
             }
@@ -287,10 +287,10 @@ public abstract class EveDirContext extends EveContext implements DirContext
         getNexusProxy().add( target.toString(), target, attributes );
 
         // Initialize the new context
-        EveLdapContext ctx = new EveLdapContext( getPrincipal(), getNexusProxy(),
+        ServerLdapContext ctx = new ServerLdapContext( getPrincipal(), getNexusProxy(),
                 getEnvironment(), target );
 
-        Control [] controls = ( ( EveLdapContext ) this ).getRequestControls();
+        Control [] controls = ( ( ServerLdapContext ) this ).getRequestControls();
         if ( controls != null )
         {
         	controls = ( Control[] ) controls.clone();

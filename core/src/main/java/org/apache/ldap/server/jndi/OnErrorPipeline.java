@@ -19,7 +19,7 @@ package org.apache.ldap.server.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.exception.EveInterceptorException;
+import org.apache.ldap.server.exception.InterceptorException;
 
 
 /**
@@ -46,8 +46,8 @@ public class OnErrorPipeline extends InterceptorPipeline
     /**
      * This invoke method does not fail and throw exceptions until all 
      * Interceptors within the pipeline have been invoked.  If an unexpected 
-     * Throwable other than an EveInterceptorException results this method
-     * catches it and wraps it within an EveInterceptorException and adds it to
+     * Throwable other than an InterceptorException results this method
+     * catches it and wraps it within an InterceptorException and adds it to
      * the Invocation's list of afterFailure exceptions.  The last error if any
      * to result after all Interceptors have run is thrown.
      *
@@ -68,21 +68,21 @@ public class OnErrorPipeline extends InterceptorPipeline
             catch ( Throwable throwable )
             {
                 /*
-                 * If exception is EveInterceptorException we add it to the list
+                 * If exception is InterceptorException we add it to the list
                  * of afterFailure exceptions on the Invocation.  Otherwise we
-                 * wrap the unexpected exception as an EveInterceptorException and
+                 * wrap the unexpected exception as an InterceptorException and
                  * add it to the list of afterFailure exceptions on the 
                  * Invocation
                  */
 
-                if ( throwable instanceof EveInterceptorException )
+                if ( throwable instanceof InterceptorException )
                 {
-                    last = ( EveInterceptorException ) throwable;
+                    last = ( InterceptorException ) throwable;
                     invocation.addFailure( last );
                 }
                 else
                 {
-                    last = new EveInterceptorException( service, invocation );
+                    last = new InterceptorException( service, invocation );
                     last.setRootCause( throwable );
                     invocation.addFailure( last );
                 }

@@ -32,12 +32,12 @@ import org.apache.ldap.server.jndi.AbstractJndiTest;
 
 
 /**
- * Tests the correct operation of the EveExceptionService.
+ * Tests the correct operation of the ServerExceptionService.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveExceptionServiceTest extends AbstractJndiTest
+public class ServerExceptionServiceTest extends AbstractJndiTest
 {
     // ------------------------------------------------------------------------
     // Search Operation Tests
