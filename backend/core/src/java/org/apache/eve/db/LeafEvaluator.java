@@ -30,11 +30,13 @@ import org.apache.ldap.common.filter.LeafNode;
 import org.apache.ldap.common.filter.ScopeNode;
 import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.NotImplementedException;
 
-import org.apache.eve.schema.NormalizerRegistry;
-import org.apache.eve.schema.ComparatorRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.AttributeTypeRegistry;
 
 
 /**
@@ -45,12 +47,20 @@ import org.apache.eve.schema.ComparatorRegistry;
  */
 public class LeafEvaluator implements Evaluator
 {
+    /** equality matching type constant */
+    private static final int EQUALITY_MATCH = 0;
+    /** ordering matching type constant */
+    private static final int ORDERING_MATCH = 1;
+    /** substring matching type constant */
+    private static final int SUBSTRING_MATCH = 3;
+
+
     /** Database used to evaluate leaf with */
     private Database db;
-    /** Normalizer registry for up value normalization */
-    private NormalizerRegistry normalizerRegistry;
-    /** Comparator registry for comparing normalized values */
-    private ComparatorRegistry comparatorRegistry;
+    /** Oid Registry used to translate attributeIds to OIDs */
+    private OidRegistry oidRegistry;
+    /** AttributeType registry needed for normalizing and comparing values */
+    private AttributeTypeRegistry attributeTypeRegistry;
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
     /** ScopeNode evaluator we depend on */
@@ -62,20 +72,17 @@ public class LeafEvaluator implements Evaluator
      *
      * @param db
      * @param scopeEvaluator
-     * @param normalizerRegistry
-     * @param comparatorRegistry
      * @param substringEvaluator
      */
-    public LeafEvaluator( Database db,
+    public LeafEvaluator( Database db, OidRegistry oidRegistry,
+                          AttributeTypeRegistry attributeTypeRegistry,
                           ScopeEvaluator scopeEvaluator,
-                          NormalizerRegistry normalizerRegistry,
-                          ComparatorRegistry comparatorRegistry,
                           SubstringEvaluator substringEvaluator )
     {
         this.db = db;
+        this.oidRegistry = oidRegistry;
+        this.attributeTypeRegistry = attributeTypeRegistry;
         this.scopeEvaluator = scopeEvaluator;
-        this.normalizerRegistry = normalizerRegistry;
-        this.comparatorRegistry = comparatorRegistry;
         this.substringEvaluator = substringEvaluator;
     }
 
@@ -83,18 +90,6 @@ public class LeafEvaluator implements Evaluator
     public ScopeEvaluator getScopeEvaluator()
     {
         return scopeEvaluator;
-    }
-
-
-    public NormalizerRegistry getNormalizerRegistry()
-    {
-        return normalizerRegistry;
-    }
-
-
-    public ComparatorRegistry getComparatorRegistry()
-    {
-        return comparatorRegistry;
     }
 
 
@@ -186,8 +181,8 @@ public class LeafEvaluator implements Evaluator
          * We need to iterate through all values and for each value we normalize
          * and use the comparator to determine if a match exists.
          */
-        Normalizer normalizer = normalizerRegistry.getEquality( attrId );
-        Comparator comparator = comparatorRegistry.getEquality( attrId );
+        Normalizer normalizer = getNormalizer( attrId );
+        Comparator comparator = getComparator( attrId );
         Object filterValue = normalizer.normalize( node.getValue() );
         NamingEnumeration list = attr.getAll();
         
@@ -275,8 +270,8 @@ public class LeafEvaluator implements Evaluator
             return idx.hasValue( node.getValue(), rec.getEntryId() );
         }
 
-        Normalizer normalizer = normalizerRegistry.getEquality( node.getAttribute() );
-        Comparator comparator = comparatorRegistry.getEquality( node.getAttribute() );
+        Normalizer normalizer = getNormalizer( node.getAttribute() );
+        Comparator comparator = getComparator( node.getAttribute() );
 
         /*
          * Get the attribute and if it is not set in rec then resusitate it
@@ -334,5 +329,66 @@ public class LeafEvaluator implements Evaluator
         
         // no match so return false
         return false;
+    }
+
+
+    /**
+     * Gets the comparator for equality matching.
+     *
+     * @param attrId the attribute identifier
+     * @return the comparator for equality matching
+     * @throws NamingException if there is a failure
+     */
+    private Comparator getComparator( String attrId ) throws NamingException
+    {
+        MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        return mrule.getComparator();
+    }
+
+
+    /**
+     * Gets the normalizer for equality matching.
+     *
+     * @param attrId the attribute identifier
+     * @return the normalizer for equality matching
+     * @throws NamingException if there is a failure
+     */
+    private Normalizer getNormalizer( String attrId ) throws NamingException
+    {
+        MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+        return mrule.getNormalizer();
+    }
+
+
+    /**
+     * Gets the matching rule for an attributeType.
+     *
+     * @param attrId the attribute identifier
+     * @return the matching rule
+     * @throws NamingException if there is a failure
+     */
+    private MatchingRule getMatchingRule( String attrId, int matchType )
+        throws NamingException
+    {
+        MatchingRule mrule = null;
+        String oid = oidRegistry.getOid( attrId );
+        AttributeType type = attributeTypeRegistry.lookup( oid );
+
+        switch( matchType )
+        {
+            case( EQUALITY_MATCH ):
+                mrule = type.getEquality();
+                break;
+            case( SUBSTRING_MATCH ):
+                mrule = type.getSubstr();
+                break;
+            case( ORDERING_MATCH ):
+                mrule = type.getOrdering();
+                break;
+            default:
+                throw new NamingException( "Unknown match type: " + matchType );
+        }
+
+        return mrule;
     }
 }

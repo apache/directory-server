@@ -187,7 +187,7 @@ public abstract class AbstractContextPartition implements ContextPartition
         
         underlying = engine.search( base, env, filter, searchCtls );
         
-        return new SearchResultEnumeration( attrIds, underlying );
+        return new SearchResultEnumeration( attrIds, underlying, db );
     }
 
 

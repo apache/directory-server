@@ -27,9 +27,11 @@ import org.apache.regexp.RESyntaxException;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.filter.SubstringNode;
 
-import org.apache.eve.schema.NormalizerRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.AttributeTypeRegistry;
 
 
 /**
@@ -42,14 +44,25 @@ public class SubstringEvaluator implements Evaluator
 {
     /** Database used while evaluating candidates */
     private Database db;
-    /** Normalizer registry for up value normalization */
-    private NormalizerRegistry normalizerRegistry;
+    /** Oid Registry used to translate attributeIds to OIDs */
+    private OidRegistry oidRegistry;
+    /** AttributeType registry needed for normalizing and comparing values */
+    private AttributeTypeRegistry attributeTypeRegistry;
 
 
-    public SubstringEvaluator( Database db, NormalizerRegistry normReg )
+    /**
+     * Creates a new SubstringEvaluator for substring expressions.
+     *
+     * @param db the database this evaluator uses
+     * @param oidRegistry the OID registry for name to OID mapping
+     * @param attributeTypeRegistry the attributeType registry
+     */
+    public SubstringEvaluator( Database db, OidRegistry oidRegistry,
+                               AttributeTypeRegistry attributeTypeRegistry )
     {
         this.db = db;
-        this.normalizerRegistry = normReg;
+        this.oidRegistry = oidRegistry;
+        this.attributeTypeRegistry = attributeTypeRegistry;
     }
 
 
@@ -110,7 +123,9 @@ public class SubstringEvaluator implements Evaluator
         // --------------------------------------------------------------------
         
         Attribute attr = null;
-        Normalizer normalizer = normalizerRegistry.getSubstring( snode.getAttribute() );
+        String oid = oidRegistry.getOid( attr.getID() );
+        AttributeType type = attributeTypeRegistry.lookup( oid );
+        Normalizer normalizer = type.getSubstr().getNormalizer();
 
         // resusitate the entry if it has not been and set entry in IndexRecord
         if ( null == record.getAttributes() )
