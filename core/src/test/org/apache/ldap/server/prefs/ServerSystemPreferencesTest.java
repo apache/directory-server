@@ -65,14 +65,12 @@ public class ServerSystemPreferencesTest extends AbstractJndiTest
     }
 
 
-
-
     /**
      * Tests the creation and use of a new preferences node.
      *
      * @throws BackingStoreException if there are failures with the store
      */
-    public void testCreateAndDestroy() throws BackingStoreException
+    public void testCreateAndSet() throws BackingStoreException
     {
         Preferences prefs = new ServerSystemPreferences();
 
@@ -99,5 +97,95 @@ public class ServerSystemPreferencesTest extends AbstractJndiTest
         testNode = prefs.node( "testNode" );
 
         assertEquals( true, testNode.getBoolean( "boolKey", false ) );
+
+        assertTrue( 3.14 == testNode.getDouble( "doubleKey", 9.20 ) );
+
+        assertTrue( (float) 3.14 == testNode.getFloat( "floatKey", (float) 3.90 ) );
+
+        assertEquals( 345, testNode.getInt( "intKey", 87 ) );
+
+        assertEquals( 75449559185447L, testNode.getLong( "longKey", 75449547L ) );
+    }
+
+
+    /**
+     * Tests the creation and use of a new preferences node.
+     *
+     * @throws BackingStoreException if there are failures with the store
+     */
+    public void testCreateAndRemove() throws BackingStoreException
+    {
+        Preferences prefs = new ServerSystemPreferences();
+
+        Preferences testNode = prefs.node( "testNode" );
+
+        testNode.put( "testNodeKey", "testNodeValue" );
+
+        testNode.sync();
+
+        testNode.putBoolean( "boolKey", true );
+
+        testNode.putByteArray( "arrayKey", new byte[10] );
+
+        testNode.putDouble( "doubleKey", 3.14 );
+
+        testNode.putFloat( "floatKey", ( float ) 3.14 );
+
+        testNode.putInt( "intKey", 345 );
+
+        testNode.putLong( "longKey", 75449559185447L );
+
+        testNode.sync();
+
+        testNode = prefs.node( "testNode" );
+
+        assertEquals( true, testNode.getBoolean( "boolKey", false ) );
+
+        assertTrue( 3.14 == testNode.getDouble( "doubleKey", 9.20 ) );
+
+        assertTrue( (float) 3.14 == testNode.getFloat( "floatKey", (float) 3.90 ) );
+
+        assertEquals( 345, testNode.getInt( "intKey", 87 ) );
+
+        assertEquals( 75449559185447L, testNode.getLong( "longKey", 75449547L ) );
+
+        testNode.remove( "doubleKey" );
+
+        testNode.remove( "arrayKey" );
+
+        assertEquals( "no value", testNode.get( "doubleKey", "no value" ) );
+
+        assertEquals( "no value", testNode.get( "arrayKey", "no value" ) );
+
+        testNode.sync();
+
+        assertEquals( "no value", testNode.get( "doubleKey", "no value" ) );
+
+        assertEquals( "no value", testNode.get( "arrayKey", "no value" ) );
+    }
+
+
+    /**
+     * Checks to see that setting the system property utilized the right factory
+     * implementation to generate ServerSystemPreferences.
+     */
+    public void testForFactoryUse()
+    {
+        String fqcn = ServerPreferencesFactory.class.getName();
+
+        System.setProperty( "java.util.prefs.PreferencesFactory", fqcn );
+
+        Preferences prefs = Preferences.systemRoot();
+
+        assertEquals( ServerSystemPreferences.class, prefs.getClass() );
+    }
+
+
+    /**
+     * Requests a deep node from the preferences API after setting the
+     */
+    public void testNewDeepNode()
+    {
+
     }
 }

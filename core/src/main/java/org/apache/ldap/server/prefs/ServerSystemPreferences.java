@@ -19,6 +19,8 @@ package org.apache.ldap.server.prefs;
 
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
@@ -57,6 +59,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     /** the changes (ModificationItems) representing cached alterations to preferences */
     private ArrayList changes = new ArrayList(3);
+
+    /** maps changes based on key: key->list of mods (on same key) */
+    private HashMap keyToChange = new HashMap(3);
 
 
     /**
@@ -194,6 +199,8 @@ public class ServerSystemPreferences extends AbstractPreferences
         }
 
         changes.clear();
+
+        keyToChange.clear();
     }
 
 
@@ -211,6 +218,8 @@ public class ServerSystemPreferences extends AbstractPreferences
         ctx = null;
 
         changes.clear();
+
+        keyToChange.clear();
     }
 
 
@@ -237,6 +246,8 @@ public class ServerSystemPreferences extends AbstractPreferences
         }
 
         changes.clear();
+
+        keyToChange.clear();
     }
 
 
@@ -305,7 +316,30 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         ModificationItem mi = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
 
+        addDelta( mi );
+    }
+
+
+    private void addDelta( ModificationItem mi )
+    {
+        String key = mi.getAttribute().getID();
+
+        List deltas = null;
+
         changes.add( mi );
+
+        if ( keyToChange.containsKey( key ) )
+        {
+            deltas = ( List ) keyToChange.get( key );
+        }
+        else
+        {
+            deltas = new ArrayList();
+        }
+
+        deltas.add( mi );
+
+        keyToChange.put( key, deltas );
     }
 
 
@@ -316,6 +350,25 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             Attribute attr = ctx.getAttributes( "" ).get( key );
+
+            if ( keyToChange.containsKey( key ) )
+            {
+                List mods = ( List ) keyToChange.get( key );
+
+                for ( int ii = 0; ii < mods.size(); ii++ )
+                {
+                    ModificationItem mi = ( ModificationItem ) mods.get( ii );
+
+                    if ( mi.getModificationOp() == DirContext.REMOVE_ATTRIBUTE )
+                    {
+                        attr = null;
+                    }
+                    else
+                    {
+                        attr = mi.getAttribute();
+                    }
+                }
+            }
 
             if ( attr == null )
             {
@@ -341,7 +394,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         ModificationItem mi = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
 
-        changes.add( mi );
+        addDelta( mi );
     }
 
 
