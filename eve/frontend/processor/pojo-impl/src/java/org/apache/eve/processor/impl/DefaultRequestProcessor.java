@@ -20,32 +20,43 @@ package org.apache.eve.processor.impl ;
 import java.util.EventObject ;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.event.RequestEvent ;
+import org.apache.eve.event.ResponseEvent ;
 import org.apache.eve.event.RequestSubscriber ;
-import org.apache.eve.event.ResponseEvent;
-import org.apache.eve.listener.ClientKey;
-import org.apache.eve.processor.HandlerRegistry;
-import org.apache.eve.processor.HandlerTypeEnum;
-import org.apache.eve.processor.ManyReplyHandler;
-import org.apache.eve.processor.NoReplyHandler;
-import org.apache.eve.processor.RequestHandler;
-import org.apache.eve.processor.RequestProcessor ;
-import org.apache.eve.processor.RequestProcessorMonitor;
-import org.apache.eve.processor.RequestProcessorMonitorAdapter;
-import org.apache.eve.processor.SingleReplyHandler;
-import org.apache.eve.seda.DefaultStage ;
+import org.apache.eve.event.AbstractSubscriber ;
+
+import org.apache.eve.listener.ClientKey ;
+
 import org.apache.eve.seda.StageConfig ;
-import org.apache.eve.seda.StageHandler;
-import org.apache.ldap.common.message.LdapResult;
-import org.apache.ldap.common.message.LdapResultImpl;
-import org.apache.ldap.common.message.ManyReplyRequest;
-import org.apache.ldap.common.message.MessageTypeEnum;
-import org.apache.ldap.common.message.Request;
-import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.message.ResultResponse;
-import org.apache.ldap.common.message.SingleReplyRequest;
+import org.apache.eve.seda.DefaultStage ;
+import org.apache.eve.seda.StageHandler ;
+
+import org.apache.eve.processor.NoReplyHandler ;
+import org.apache.eve.processor.RequestHandler ;
+import org.apache.eve.processor.HandlerRegistry ;
+import org.apache.eve.processor.HandlerTypeEnum ;
+import org.apache.eve.processor.ManyReplyHandler ;
+import org.apache.eve.processor.RequestProcessor ;
+import org.apache.eve.processor.SingleReplyHandler ;
+import org.apache.eve.processor.RequestProcessorMonitor ;
+import org.apache.eve.processor.RequestProcessorMonitorAdapter ;
+
+import org.apache.ldap.common.message.Request ;
+import org.apache.ldap.common.message.LdapResult ;
+import org.apache.ldap.common.message.ResultCodeEnum ;
+import org.apache.ldap.common.message.ResultResponse ;
+import org.apache.ldap.common.message.LdapResultImpl ;
+import org.apache.ldap.common.message.MessageTypeEnum ;
+import org.apache.ldap.common.message.AddResponseImpl ;
+import org.apache.ldap.common.message.ManyReplyRequest ;
+import org.apache.ldap.common.message.BindResponseImpl ;
+import org.apache.ldap.common.message.ModifyResponseImpl ;
+import org.apache.ldap.common.message.SingleReplyRequest ;
+import org.apache.ldap.common.message.DeleteResponseImpl ;
+import org.apache.ldap.common.message.CompareResponseImpl ;
+import org.apache.ldap.common.message.ExtendedResponseImpl ;
+import org.apache.ldap.common.message.ModifyDnResponseImpl ;
 
 
 /**
@@ -88,7 +99,6 @@ public class DefaultRequestProcessor extends DefaultStage
      */
     public void inform( RequestEvent event )
     {
-        // @todo do something with the monitor here
         enqueue( event ) ;
     }
     
@@ -216,7 +226,7 @@ public class DefaultRequestProcessor extends DefaultStage
             
             result = new LdapResultImpl( response ) ;
             result.setMatchedDn( "" ) ;
-            result.setErrorMessage( "STUBBED OUT FOR NOW!" ) ;
+            result.setErrorMessage( ExceptionUtils.getFullStackTrace( t ) ) ;
             result.setResultCode( ResultCodeEnum.OPERATIONSERROR ) ;
             response.setLdapResult( result ) ;
         }
