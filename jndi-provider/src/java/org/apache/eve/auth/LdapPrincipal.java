@@ -19,6 +19,7 @@ package org.apache.eve.auth;
 
 import javax.naming.Name;
 import java.security.Principal;
+import java.io.Serializable;
 
 import org.apache.ldap.common.name.LdapName;
 
@@ -30,7 +31,7 @@ import org.apache.ldap.common.name.LdapName;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapPrincipal implements Principal
+public class LdapPrincipal implements Principal, Serializable
 {
     /** the normalized distinguished name of the principal */
     private final Name name;

@@ -63,6 +63,13 @@ public class AuthorizationServiceTest extends AbstractJndiTest
     }
 
 
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+        sysRootAsNonRootUser = null;
+    }
+
+
     /**
      * Makes sure the admin cannot delete the admin account.
      *
@@ -155,20 +162,20 @@ public class AuthorizationServiceTest extends AbstractJndiTest
     }
 
 
-//    /**
-//     * Makes sure the a non-admin user cannot rename the admin account.
-//     */
-//    public void testModifyOnAdminByNonAdmin()
-//    {
-//        Attributes attributes = new LockableAttributesImpl();
-//        attributes.put( "userPassword", "replaced" );
-//
-//        try
-//        {
-//            sysRootAsNonRootUser.modifyAttributes( "uid=admin",
-//                    DirContext.REPLACE_ATTRIBUTE, attributes );
-//            fail( sysRootAsNonRootUser.getPrincipal().getDn() +
-//                    " should not be able to modify attributes on admin" );
-//        } catch( Exception e ) { }
-//    }
+    /**
+     * Makes sure the a non-admin user cannot rename the admin account.
+     */
+    public void testModifyOnAdminByNonAdmin()
+    {
+        Attributes attributes = new LockableAttributesImpl();
+        attributes.put( "userPassword", "replaced" );
+
+        try
+        {
+            sysRootAsNonRootUser.modifyAttributes( "uid=admin",
+                    DirContext.REPLACE_ATTRIBUTE, attributes );
+            fail( sysRootAsNonRootUser.getPrincipal().getDn() +
+                    " should not be able to modify attributes on admin" );
+        } catch( Exception e ) { }
+    }
 }

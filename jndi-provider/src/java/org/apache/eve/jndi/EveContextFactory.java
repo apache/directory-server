@@ -162,9 +162,20 @@ public class EveContextFactory implements InitialContextFactory
     {
         if ( env.containsKey( SHUTDOWN_OP_ENV ) )
         {
-            provider.shutdown();
-            provider = null;
-            initialEnv = null;
+            try
+            {
+                provider.shutdown();
+            }
+            catch( Throwable t )
+            {
+                t.printStackTrace();
+            }
+            finally
+            {
+                provider = null;
+                initialEnv = null;
+            }
+
             return null;
         }
 

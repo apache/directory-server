@@ -137,15 +137,7 @@ public class AbstractJndiTest extends TestCase
         env.put( EveContextFactory.SHUTDOWN_OP_ENV, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "testing" );
-
-        try
-        {
-            new InitialContext( env );
-        }
-        catch( Exception e )
-        {
-        }
-
+        try { new InitialContext( env ); } catch( Exception e ) {}
         sysRoot = null;
     }
 }
