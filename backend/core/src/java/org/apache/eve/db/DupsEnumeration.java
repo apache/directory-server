@@ -38,8 +38,7 @@ import javax.naming.NamingEnumeration;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DupsEnumeration
-    implements NamingEnumeration
+public class DupsEnumeration implements NamingEnumeration
 {
     /** Marker for whether or not next() will return successfully */
     private boolean hasMore = true;

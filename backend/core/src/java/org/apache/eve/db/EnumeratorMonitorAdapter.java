@@ -19,8 +19,7 @@ package org.apache.eve.db;
 /**
  * Document me.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory
- *         Project</a>
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class EnumeratorMonitorAdapter implements EnumeratorMonitor

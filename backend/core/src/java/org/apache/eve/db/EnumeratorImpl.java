@@ -59,11 +59,11 @@ public class EnumeratorImpl implements Enumerator
                            LeafEvaluator leafEvaluator )
     {
         this.db = db;
-        scopeEnumerator = new ScopeEnumeratorImpl();
-        substringEnumerator = new SubstringEnumeratorImpl();
+        scopeEnumerator = new ScopeEnumerator();
+        substringEnumerator = new SubstringEnumerator();
         conjunctionEnumerator = new ConjunctionEnumerator( this, topEvaluator );
         disjunctionEnumerator = new DisjunctionEnumerator( this );
-        negationEnumerator = new NegationEnumeratorImpl();
+        negationEnumerator = new NegationEnumerator();
     }
 
 
