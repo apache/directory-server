@@ -89,6 +89,8 @@ public class CompareHandler extends AbstractSingleReplyHandler
             {
                 resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
             }
+
+            return resp;
         }
 
         resp.getLdapResult().setMatchedDn( req.getName() );

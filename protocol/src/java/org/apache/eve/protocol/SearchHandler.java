@@ -153,8 +153,6 @@ public class SearchHandler extends AbstractManyReplyHandler
 
             return Collections.singleton( resp ).iterator();
         }
-
-
     }
 
 

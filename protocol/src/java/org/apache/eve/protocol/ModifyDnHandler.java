@@ -101,6 +101,8 @@ public class ModifyDnHandler extends AbstractSingleReplyHandler
             {
                 resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
             }
+
+            return resp;
         }
 
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
