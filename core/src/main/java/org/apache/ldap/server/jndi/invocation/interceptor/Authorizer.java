@@ -50,10 +50,14 @@ import org.apache.ldap.server.jndi.invocation.Search;
 
 
 /**
- * A service used for applying access controls to backing store operations.
+ * An {@link Interceptor} that controls access to {@link BackingStore}
+ * operations.
  *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @author Alex Karasulu (akarasulu@apache.org)
+ * @author Trustin Lee (trustin@apache.org)
+ *  
+ * @version $Rev$, $Date$
  */
 public class Authorizer extends BaseInterceptor
 {

@@ -52,11 +52,15 @@ import org.apache.ldap.server.schema.GlobalRegistries;
 
 
 /**
- * An interceptor based service which manages the creation and modification of
- * operational attributes as operations are performed.
+ * An {@link Interceptor} that adds or modifies the default attributes of entries.
+ * There are four default attributes for now;<code>'creatorsName'</code>,
+ * <code>'createTimestamp'</code>, <code>'modifiersName'</code>, and
+ * <code>'modifyTimestamp'</code>.
  *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @author Alex Karasulu (akarasulu@apache.org)
+ * @author Trustin Lee (trustin@apache.org)
+ * @version $Rev$, $Date$
  */
 public class DefaultAttributeTagger extends BaseInterceptor
 {

@@ -46,14 +46,11 @@ import org.apache.ldap.server.jndi.invocation.Search;
 
 
 /**
- * An interceptor based service used to detect, raise and handle eve exceptions
- * in one place.  This interceptor has two modes of operation.  The first mode
- * is as a before chain interceptor where it raises exceptions.  An example
- * where this interceptor raises an exception is when an entry already exists
- * at a DN and is added once again to the same DN.  The other mode is as an on
- * error chain interceptor.  In this mode the service may wrap exceptions and
- * add extra information to an exception which is to be thrown back at the
- * caller.
+ * An {@link Interceptor} that detects any operations that breaks
+ * integrity of {@link BackingStore} and terminates the current
+ * invocation chain by throwing a {@link NamingException}.
+ * Those operations include when an entry already exists at a DN and is
+ * added once again to the same DN.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

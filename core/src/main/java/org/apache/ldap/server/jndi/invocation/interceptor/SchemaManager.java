@@ -60,10 +60,13 @@ import org.apache.ldap.server.schema.GlobalRegistries;
 
 
 /**
- * A schema management and enforcement interceptor service.
+ * An {@link Interceptor} that manages and enforces schemas.
+ * TODO Better interceptor description required.
  *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @author The Apache Directory Project (dev@directory.apache.org)
+ * @author Alex Karasulu (akarasulu@apache.org)
+ * @author Trustin Lee (trustin@apache.org)
+ * @version $Rev$, $Date$
  */
 public class SchemaManager extends BaseInterceptor
 {
