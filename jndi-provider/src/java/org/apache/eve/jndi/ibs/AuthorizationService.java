@@ -34,7 +34,7 @@ import org.apache.ldap.common.name.DnParser;
 
 
 /**
- * A service used to for applying access controls to backing store operations.
+ * A service used for applying access controls to backing store operations.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -119,7 +119,7 @@ public class AuthorizationService extends BaseInterceptor
 
     /**
      * Note that we do nothing here. First because this is not an externally
-     * exposed function via the JNDI interfaces.  It is used internally be the
+     * exposed function via the JNDI interfaces.  It is used internally by the
      * provider for optimization purposes so there is no reason for us to start
      * to constrain it.
      *
@@ -330,7 +330,6 @@ public class AuthorizationService extends BaseInterceptor
         private void filter( LdapContext ctx, Name dn ) throws NamingException
         {
             Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
-
 
             if ( ! principalDn.equals( ADMIN_DN ) )
             {
