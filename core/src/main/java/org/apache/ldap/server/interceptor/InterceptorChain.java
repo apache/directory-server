@@ -20,6 +20,7 @@ package org.apache.ldap.server.interceptor;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.authz.AuthorizationService;
+import org.apache.ldap.server.schema.SchemaService;
 
 import javax.naming.NamingException;
 import java.util.*;

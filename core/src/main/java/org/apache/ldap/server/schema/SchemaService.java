@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.interceptor;
+package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.filter.ExprNode;
@@ -26,6 +26,9 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.*;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.InterceptorContext;
+import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.invocation.List;
