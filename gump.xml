@@ -38,8 +38,8 @@
       <property name="maven.final.name" value="eve-protocol-@@DATE@@"/>
     </maven>
 
-    <depend project="oro" />
-    <depend project="regexp" />
+    <depend property="maven.regexp.jar" project="jakarta-regexp">
+    <depend property="maven.oro.jar" project="jakarta-oro">
     <depend project="antlr" />
     <depend project="snickers-codec" />
     <depend project="ldap-common" />
@@ -68,7 +68,7 @@
     <depend project="antlr" />
     <depend project="ldap-common" />
     <depend project="eve-shared" />
-    <depend project="velocity-dep" />
+    <depend property="maven.velocity-dep.jar" project="velocity" />
     
     <home nested="plugin" />
 
@@ -87,8 +87,8 @@
       <property name="maven.final.name" value="eve-dib-@@DATE@@"/>
     </maven>
 
-    <depend project="regexp" />
-    <depend project="oro" />
+    <depend property="maven.regexp.jar" project="jakarta-regexp">
+    <depend property="maven.oro.jar" project="jakarta-oro">
     <depend project="commons-logging" />
     <depend project="commons-io" />
     <depend project="antlr" />
@@ -121,8 +121,8 @@
       <property name="maven.final.name" value="eve-@@DATE@@"/>
     </maven>
 
-    <depend project="regexp" />
-    <depend project="oro" />
+    <depend property="maven.regexp.jar" project="jakarta-regexp">
+    <depend property="maven.oro.jar" project="jakarta-oro">
     <depend project="commons-lang" />
     <depend project="commons-logging" />
     <depend project="commons-collections" />
