@@ -15,9 +15,8 @@ import org.apache.eve.db.MasterTable;
 /**
  * The master table used to store the Attributes of entries.
  *
- * @todo rename to JdbmMasterTable
  */
-public class DefaultMasterTable extends DefaultTable implements MasterTable
+public class JdbmMasterTable extends DefaultTable implements MasterTable
 {
     /**  */
     private DefaultTable adminTbl = null;
@@ -29,7 +28,7 @@ public class DefaultMasterTable extends DefaultTable implements MasterTable
      * @param recMan the jdbm record manager
      * @throws NamingException if there is an error opening the Db file.
      */
-    public DefaultMasterTable( RecordManager recMan )
+    public JdbmMasterTable( RecordManager recMan )
         throws NamingException
     {
         super( DBF, recMan, new BigIntegerComparator() );

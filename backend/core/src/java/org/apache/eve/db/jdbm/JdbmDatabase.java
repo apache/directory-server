@@ -47,7 +47,7 @@ public class JdbmDatabase implements Database
     /** the working directory to use for files */
     private final String wkdir;
     /** the master table storing entries by primary key */
-    private final DefaultMasterTable master;
+    private final JdbmMasterTable master;
     /** a map of attribute names to user indices */
     private final Map indices;
     /** a map of index names to system indices */
@@ -96,7 +96,7 @@ public class JdbmDatabase implements Database
             throw ne;
         }
 
-        master = new DefaultMasterTable( recMan );
+        master = new JdbmMasterTable( recMan );
         indices = new HashMap();
         sysIndices = new HashMap();
     }
