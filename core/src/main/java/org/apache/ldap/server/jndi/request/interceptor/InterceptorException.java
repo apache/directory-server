@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.request.processor;
+package org.apache.ldap.server.jndi.request.interceptor;
 
 
 import org.apache.ldap.common.exception.LdapException;
@@ -31,14 +31,14 @@ import org.apache.ldap.server.jndi.request.Request;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RequestProcessorException extends LdapNamingException
+public class InterceptorException extends LdapNamingException
 {
     private static final long serialVersionUID = 3258690996517746233L;
 
     /** The Invokation the Interceptor failed on */
     private final Request request;
     /** The Interceptor causing the failure */
-    private final RequestProcessor requestProcessor;
+    private final Interceptor requestProcessor;
 
 
     /**
@@ -47,7 +47,7 @@ public class RequestProcessorException extends LdapNamingException
      * @param requestProcessor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      */
-    public RequestProcessorException( RequestProcessor requestProcessor, Request request )
+    public InterceptorException( Interceptor requestProcessor, Request request )
     {
         super( ResultCodeEnum.OTHER );
         this.request = request;
@@ -62,7 +62,7 @@ public class RequestProcessorException extends LdapNamingException
      * @param invocation the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      */
-    public RequestProcessorException( RequestProcessor requestProcessor,
+    public InterceptorException( Interceptor requestProcessor,
                                       Request request, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
@@ -78,7 +78,7 @@ public class RequestProcessorException extends LdapNamingException
      * @param invocation the Invocation the Interceptor failed on
      * @param rootCause the root cause of this exception
      */
-    public RequestProcessorException( RequestProcessor requestProcessor,
+    public InterceptorException( Interceptor requestProcessor,
                                       Request request, Throwable rootCause )
     {
         this( requestProcessor, request );
@@ -93,7 +93,7 @@ public class RequestProcessorException extends LdapNamingException
      * @param explanation String explanation of why the Interceptor failed
      * @param rootCause the root cause of this exception
      */
-    public RequestProcessorException( RequestProcessor requestProcessor,
+    public InterceptorException( Interceptor requestProcessor,
                                       Request request,
                                       String explanation,
                                       Throwable rootCause )
@@ -118,7 +118,7 @@ public class RequestProcessorException extends LdapNamingException
      *
      * @return the interceptor this exception is associated with
      */
-    public RequestProcessor getRequestProcessor()
+    public Interceptor getRequestProcessor()
     {
         return requestProcessor;
     }

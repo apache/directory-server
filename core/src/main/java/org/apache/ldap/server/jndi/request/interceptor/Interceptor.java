@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.request.processor;
+package org.apache.ldap.server.jndi.request.interceptor;
 
 import java.util.Properties;
 
@@ -31,7 +31,7 @@ import org.apache.ldap.server.jndi.request.Request;
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
  */
-public interface RequestProcessor
+public interface Interceptor
 {
     /**
      * Intializes this interceptor.  This is invoked by directory service
@@ -56,6 +56,6 @@ public interface RequestProcessor
      * @param invocation the invocation to process
      * @throws NamingException on failures while handling the invocation
      */
-    void process( NextRequestProcessor nextProcessor, Request request )
+    void process( NextInterceptor nextProcessor, Request request )
             throws NamingException;
 }

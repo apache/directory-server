@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.request.processor;
+package org.apache.ldap.server.jndi.request.interceptor;
 
 
 import java.util.Properties;
@@ -55,7 +55,7 @@ import org.apache.ldap.server.jndi.request.SearchRequest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class Authorizer extends BaseRequestProcessor
+public class Authorizer extends BaseInterceptor
 {
     /** the administrator's distinguished {@link Name} */
     private static final Name ADMIN_DN = SystemPartition.getAdminDn();
@@ -92,7 +92,7 @@ public class Authorizer extends BaseRequestProcessor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    protected void process( NextRequestProcessor nextProcessor, DeleteRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, DeleteRequest request ) throws NamingException
     {
         Name name = request.getName();
         Name principalDn = getPrincipal( request ).getDn();
@@ -141,7 +141,7 @@ public class Authorizer extends BaseRequestProcessor
      *
      * @see org.apache.ldap.server.jndi.BaseInterceptor#hasEntry(Name)
      */
-    protected void process( NextRequestProcessor nextProcessor, HasEntryRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, HasEntryRequest request ) throws NamingException
     {
         super.process( nextProcessor, request );
     }
@@ -160,7 +160,7 @@ public class Authorizer extends BaseRequestProcessor
      *
      * @see BaseInterceptor#modify(Name, int, Attributes)
      */
-    protected void process( NextRequestProcessor nextProcessor, ModifyRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, ModifyRequest request ) throws NamingException
     {
         protectModifyAlterations( request, request.getName() );
         nextProcessor.process( request );
@@ -175,7 +175,7 @@ public class Authorizer extends BaseRequestProcessor
      *
      * @see BaseInterceptor#modify(Name, ModificationItem[])
      */
-    protected void process( NextRequestProcessor nextProcessor, ModifyManyRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, ModifyManyRequest request ) throws NamingException
     {
         protectModifyAlterations( request, request.getName() );
         nextProcessor.process( request );
@@ -232,21 +232,21 @@ public class Authorizer extends BaseRequestProcessor
     // ------------------------------------------------------------------------
 
 
-    protected void process( NextRequestProcessor nextProcessor, ModifyRelativeNameRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, ModifyRelativeNameRequest request ) throws NamingException
     {
         protectDnAlterations( request, request.getName() );
         nextProcessor.process( request );
     }
 
 
-    protected void process( NextRequestProcessor nextProcessor, MoveRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, MoveRequest request ) throws NamingException
     {
         protectDnAlterations( request, request.getName() );
         nextProcessor.process( request );
     }
 
 
-    protected void process( NextRequestProcessor nextProcessor, MoveWithNewRelativeNameRequest request ) throws NamingException
+    protected void process( NextInterceptor nextProcessor, MoveWithNewRelativeNameRequest request ) throws NamingException
     {
         protectDnAlterations( request, request.getName() );
         nextProcessor.process( request );
@@ -290,7 +290,7 @@ public class Authorizer extends BaseRequestProcessor
         }
     }
     
-    protected void process(NextRequestProcessor nextProcessor, LookUpRequest request) throws NamingException {
+    protected void process(NextInterceptor nextProcessor, LookUpRequest request) throws NamingException {
         super.process(nextProcessor, request);
         
         Attributes attributes = ( Attributes ) request.getResponse();
@@ -305,7 +305,7 @@ public class Authorizer extends BaseRequestProcessor
         request.setResponse( retval );
     }
 
-    protected void process(NextRequestProcessor nextProcessor, LookUpWithAttributeIdsRequest request) throws NamingException {
+    protected void process(NextInterceptor nextProcessor, LookUpWithAttributeIdsRequest request) throws NamingException {
         super.process(nextProcessor, request);
         
         Attributes attributes = ( Attributes ) request.getResponse();
@@ -370,7 +370,7 @@ public class Authorizer extends BaseRequestProcessor
         }
     }
     
-    protected void process(NextRequestProcessor nextProcessor, SearchRequest request) throws NamingException {
+    protected void process(NextInterceptor nextProcessor, SearchRequest request) throws NamingException {
         super.process(nextProcessor, request);
         
         SearchControls searchControls = request.getSearchControls();

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.request.processor;
+package org.apache.ldap.server.jndi.request.interceptor;
 
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import org.apache.ldap.server.jndi.request.Request;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class Authenticatior implements RequestProcessor
+public class Authenticatior implements Interceptor
 {
     /** short for Context.SECURITY_AUTHENTICATION */
     private static final String AUTH_TYPE = Context.SECURITY_AUTHENTICATION;
@@ -120,7 +120,7 @@ public class Authenticatior implements RequestProcessor
     {
     }
 
-    public void process( NextRequestProcessor nextProcessor, Request request ) throws NamingException
+    public void process( NextInterceptor nextProcessor, Request request ) throws NamingException
     {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context

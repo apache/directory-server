@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.request.processor;
+package org.apache.ldap.server.jndi.request.interceptor;
 
 
 import javax.naming.NamingException;
@@ -64,7 +64,7 @@ import org.apache.ldap.server.jndi.request.SearchRequest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class BaseRequestProcessor implements RequestProcessor
+public abstract class BaseInterceptor implements Interceptor
 {
     /**
      * Gets the request's current context's Principal.
@@ -77,7 +77,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor
         return ctx.getPrincipal();
     }
 
-    protected BaseRequestProcessor()
+    protected BaseInterceptor()
     {
     }
 
@@ -90,7 +90,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor
      * analog method that does the work of the Interceptor for that Invocation
      * method.
      */
-    public void process( NextRequestProcessor nextProcessor, Request request )
+    public void process( NextInterceptor nextProcessor, Request request )
             throws NamingException
     {
         if( request instanceof AddRequest )
@@ -167,97 +167,97 @@ public abstract class BaseRequestProcessor implements RequestProcessor
     // Invocation Analogs
     // ------------------------------------------------------------------------
 
-    protected void process( NextRequestProcessor nextProcessor, AddRequest request )
+    protected void process( NextInterceptor nextProcessor, AddRequest request )
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, DeleteRequest request ) 
+    protected void process( NextInterceptor nextProcessor, DeleteRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, GetMatchedNameRequest request ) 
+    protected void process( NextInterceptor nextProcessor, GetMatchedNameRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, GetSuffixRequest request ) 
+    protected void process( NextInterceptor nextProcessor, GetSuffixRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, HasEntryRequest request ) 
+    protected void process( NextInterceptor nextProcessor, HasEntryRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, IsSuffixRequest request ) 
+    protected void process( NextInterceptor nextProcessor, IsSuffixRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, ListRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ListRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, ListSuffixesRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ListSuffixesRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, LookUpRequest request ) 
+    protected void process( NextInterceptor nextProcessor, LookUpRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, LookUpWithAttributeIdsRequest request ) 
+    protected void process( NextInterceptor nextProcessor, LookUpWithAttributeIdsRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, ModifyRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ModifyRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, ModifyManyRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ModifyManyRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, ModifyRelativeNameRequest request ) 
+    protected void process( NextInterceptor nextProcessor, ModifyRelativeNameRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, MoveRequest request ) 
+    protected void process( NextInterceptor nextProcessor, MoveRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, MoveWithNewRelativeNameRequest request ) 
+    protected void process( NextInterceptor nextProcessor, MoveWithNewRelativeNameRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );
     }
 
-    protected void process( NextRequestProcessor nextProcessor, SearchRequest request ) 
+    protected void process( NextInterceptor nextProcessor, SearchRequest request ) 
             throws NamingException
     {
         nextProcessor.process( request );

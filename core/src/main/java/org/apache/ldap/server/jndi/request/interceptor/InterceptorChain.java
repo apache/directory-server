@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.request.processor;
+package org.apache.ldap.server.jndi.request.interceptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import javax.naming.NamingException;
 import org.apache.ldap.server.jndi.request.Request;
 
 /**
- * Manages {@link RequestProcessor} stack.  The first {@link RequestProcessor} is
+ * Manages {@link Interceptor} stack.  The first {@link Interceptor} is
  * invoked and then invocation chain starts.
  * 
  * TODO imeplement me.
@@ -20,9 +20,9 @@ import org.apache.ldap.server.jndi.request.Request;
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
  */
-public class RequestProcessorChain
+public class InterceptorChain
 {
-    private static final RequestProcessor FINAL_PROCESSOR = new RequestProcessor()
+    private static final Interceptor FINAL_PROCESSOR = new Interceptor()
     {
         public void init(Properties config) throws NamingException
         {
@@ -34,7 +34,7 @@ public class RequestProcessorChain
             // do nothing
         }
 
-        public void process(NextRequestProcessor nextProcessor, Request request)
+        public void process(NextInterceptor nextProcessor, Request request)
                 throws NamingException
         {
             // do nothing
@@ -48,7 +48,7 @@ public class RequestProcessorChain
     /**
      * Create a new processor chain.
      */
-    public RequestProcessorChain()
+    public InterceptorChain()
     {
     }
 
@@ -58,7 +58,7 @@ public class RequestProcessorChain
      * @return <code>null</code> if there is no processor with the specified
      *         <code>name</code>.
      */
-    public RequestProcessor get( String name )
+    public Interceptor get( String name )
     {
         Entry e = ( Entry ) name2entry.get( name );
         if( e == null )
@@ -73,7 +73,7 @@ public class RequestProcessorChain
      * of this chain.
      */
     public synchronized void addFirst( String name,
-                                       RequestProcessor processor )
+                                       Interceptor processor )
     {
         checkNewName( name );
         
@@ -87,7 +87,7 @@ public class RequestProcessorChain
      * of this chain.
      */
     public synchronized void addLast( String name,
-                                      RequestProcessor processor )
+                                      Interceptor processor )
     {
         checkNewName( name );
         
@@ -102,7 +102,7 @@ public class RequestProcessorChain
      */
     public synchronized void addBefore( String baseName,
                                         String name,
-                                        RequestProcessor processor )
+                                        Interceptor processor )
     {
         Entry baseEntry = checkOldName( baseName );
         checkNewName( name );
@@ -128,7 +128,7 @@ public class RequestProcessorChain
      */
     public synchronized void addAfter( String baseName,
                                        String name,
-                                       RequestProcessor processor )
+                                       Interceptor processor )
     {
         Entry baseEntry = checkOldName( baseName );
         checkNewName(name);
@@ -216,7 +216,7 @@ public class RequestProcessorChain
         }
         catch( Throwable e )
         {
-            throw new RequestProcessorException( head.processor, request,
+            throw new InterceptorException( head.processor, request,
                                             "Unexpected exception.", e );
         }
     }
@@ -262,11 +262,11 @@ public class RequestProcessorChain
         private Entry prevEntry;
         private Entry nextEntry;
         private final String name;
-        private final RequestProcessor processor;
-        private final NextRequestProcessor nextProcessor;
+        private final Interceptor processor;
+        private final NextInterceptor nextProcessor;
 
         private Entry( Entry prevEntry, Entry nextEntry,
-                       String name, RequestProcessor processor )
+                       String name, Interceptor processor )
         {
             if( processor == null )
             {
@@ -281,11 +281,11 @@ public class RequestProcessorChain
             this.nextEntry = nextEntry;
             this.name = name;
             this.processor = processor;
-            this.nextProcessor = new NextRequestProcessor()
+            this.nextProcessor = new NextInterceptor()
             {
                 public void process(Request request)
                         throws NamingException {
-                    RequestProcessor processor = Entry.this.nextEntry.processor;
+                    Interceptor processor = Entry.this.nextEntry.processor;
                     try
                     {
                         processor.process(
@@ -297,7 +297,7 @@ public class RequestProcessorChain
                     }
                     catch( Throwable e )
                     {
-                        throw new RequestProcessorException( processor, request,
+                        throw new InterceptorException( processor, request,
                                                              "Unexpected exception.", e );
                     }
                 }
