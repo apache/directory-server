@@ -20,10 +20,7 @@ package org.apache.eve.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.*;
-import org.apache.eve.schema.SyntaxRegistry;
-import org.apache.eve.schema.MatchingRuleRegistry;
-import org.apache.eve.schema.SyntaxCheckerRegistry;
-import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.eve.schema.*;
 
 
 /**
@@ -34,6 +31,8 @@ import org.apache.eve.schema.AttributeTypeRegistry;
  */
 public abstract class AbstractBootstrapProducer implements BootstrapProducer
 {
+    /** a reused empty String array */
+    protected static final String[] EMPTY = new String[0];
     /** the producer type */
     private final ProducerTypeEnum type;
 
@@ -214,5 +213,148 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         {
             super.setLength( length );
         }
+    }
+
+
+    /**
+     * A concrete mutable objectClass implementation for bootstrapping which
+     * uses registries for dynamically resolving dependent objects.
+     */
+    protected class BootstrapObjectClass extends AbstractSchemaObject
+        implements ObjectClass
+    {
+        private final ObjectClassRegistry objectClassRegistry;
+        private final AttributeTypeRegistry attributeTypeRegistry;
+
+        private String[] superClassIds = EMPTY;
+        private ObjectClass[] superClasses;
+        private ObjectClassTypeEnum type = ObjectClassTypeEnum.STRUCTURAL;
+
+        private String[] mayListIds = EMPTY;
+        private AttributeType[] mayList;
+
+        private String[] mustListIds = EMPTY;
+        private AttributeType[] mustList;
+
+
+        /**
+         * Creates a mutable ObjectClass for the bootstrap process.
+         *
+         * @param oid the OID of the new objectClass
+         * @param registries the bootstrap registries to use for resolving dependent objects
+         */
+        public BootstrapObjectClass( String oid, BootstrapRegistries registries )
+        {
+            super( oid );
+
+            objectClassRegistry = registries.getObjectClassRegistry();
+            attributeTypeRegistry = registries.getAttributeTypeRegistry();
+        }
+
+
+        // --------------------------------------------------------------------
+        // ObjectClass Accessors
+        // --------------------------------------------------------------------
+
+
+        public ObjectClass[] getSuperClasses() throws NamingException
+        {
+            if ( superClasses == null )
+            {
+                superClasses = new ObjectClass[superClassIds.length];
+            }
+
+            for( int ii = 0; ii < superClassIds.length; ii++ )
+            {
+                superClasses[ii] = objectClassRegistry.lookup( superClassIds[ii] );
+            }
+
+            return superClasses;
+        }
+
+
+        public void setSuperClassIds( String[] superClassIds )
+        {
+            this.superClassIds = superClassIds;
+        }
+
+
+        public ObjectClassTypeEnum getType()
+        {
+            return type;
+        }
+
+
+        protected void setType( ObjectClassTypeEnum type )
+        {
+            this.type = type;
+        }
+
+
+        public AttributeType[] getMustList() throws NamingException
+        {
+            if ( mustList == null )
+            {
+                mustList = new AttributeType[mustListIds.length];
+            }
+
+            for( int ii = 0; ii < mustListIds.length; ii++ )
+            {
+                mustList[ii] = attributeTypeRegistry.lookup( mustListIds[ii] );
+            }
+
+            return mustList;
+        }
+
+
+        public void setMustListIds( String[] mustListIds )
+        {
+            this.mustListIds = mustListIds;
+        }
+
+
+        public AttributeType[] getMayList() throws NamingException
+        {
+            if ( mayList == null )
+            {
+                mayList = new AttributeType[mayListIds.length];
+            }
+
+            for( int ii = 0; ii < mayListIds.length; ii++ )
+            {
+                mayList[ii] = attributeTypeRegistry.lookup( mayListIds[ii] );
+            }
+
+            return mayList;
+        }
+
+
+        public void setMayListIds( String[] mayListIds )
+        {
+            this.mayListIds = mayListIds;
+        }
+
+
+        // --------------------------------------------------------------------
+        // SchemaObject Mutators
+        // --------------------------------------------------------------------
+
+
+        protected void setObsolete( boolean obsolete )
+        {
+            super.setObsolete( obsolete );
+        }
+
+        protected void setNames( String[] names )
+        {
+            super.setNames( names );
+        }
+
+        protected void setDescription( String description )
+        {
+            super.setDescription( description );
+        }
+
+
     }
 }
