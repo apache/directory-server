@@ -67,7 +67,7 @@ public class SearchContextTest extends AbstractJndiTest
             map.put( result.getName(), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect!", 3, map.size() );
+        assertEquals( "Expected number of results returned was incorrect!", 5, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
@@ -90,7 +90,7 @@ public class SearchContextTest extends AbstractJndiTest
             map.put( result.getName(), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect", 5, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 9, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
