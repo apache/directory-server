@@ -62,7 +62,7 @@ import org.apache.ldap.server.schema.GlobalRegistries;
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
  */
-public class DefaultAttributeTagger extends BaseInterceptor
+public class OperationalAttributeInterceptor extends BaseInterceptor
 {
     /** the database search result filter to register with filter service */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
@@ -90,8 +90,8 @@ public class DefaultAttributeTagger extends BaseInterceptor
      * @param nexus the root nexus of the system
      * @param globalRegistries the global schema object registries
      */
-    public DefaultAttributeTagger( RootNexus nexus,
-                                   GlobalRegistries globalRegistries )
+    public OperationalAttributeInterceptor( RootNexus nexus,
+                                            GlobalRegistries globalRegistries )
     {
         this.nexus = nexus;
         if ( this.nexus == null )
@@ -312,7 +312,7 @@ public class DefaultAttributeTagger extends BaseInterceptor
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )
         {
-            DefaultAttributeTagger.this.filter( entry );
+            OperationalAttributeInterceptor.this.filter( entry );
             return;
         }
         

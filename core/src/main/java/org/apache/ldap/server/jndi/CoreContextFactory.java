@@ -56,7 +56,7 @@ import org.apache.ldap.server.db.ExpressionEvaluator;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
 import org.apache.ldap.server.jndi.invocation.interceptor.Authorizer;
-import org.apache.ldap.server.jndi.invocation.interceptor.DefaultAttributeTagger;
+import org.apache.ldap.server.jndi.invocation.interceptor.OperationalAttributeInterceptor;
 import org.apache.ldap.server.jndi.invocation.interceptor.SchemaManager;
 import org.apache.ldap.server.jndi.invocation.interceptor.Validator;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
@@ -620,7 +620,7 @@ public class CoreContextFactory implements InitialContextFactory
          * Create and add the Eve operational attribute managment service
          * interceptor to both the before and after interceptor chains.
          */
-        DefaultAttributeTagger tagger = new DefaultAttributeTagger( nexus, globalRegistries );
+        OperationalAttributeInterceptor tagger = new OperationalAttributeInterceptor( nexus, globalRegistries );
         provider.getInterceptorChain().addLast( "defaultAttributeTagger", tagger );
     }
 

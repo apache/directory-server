@@ -76,8 +76,6 @@ import org.apache.ldap.server.jndi.invocation.Invocation;
  * the basic class naming convention to avoid others' confusion:
  * <ul>
  *   <li>Class name must be an agent noun or end with '<code>Interceptor</code>'.</li>
- *   <li>If the role of the interceptor is to add or modify attributes of
- *       entries, class name must end with '<code>Tagger</code>.' (e.g. EntryUUIDTagger)</li>
  * </ul>
  * Plus, placing your interceptor implementations to packages like
  * '<code>interceptor</code>' would be the best practice.
