@@ -37,6 +37,7 @@ import org.apache.eve.schema.AttributeTypeRegistry;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
+import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -84,6 +85,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /** a service used to filter search and lookup operations */
     private final FilterService filteringService;
     private final AttributeTypeRegistry registry;
+    private static Name usersBaseDn;
 
 
     /**
@@ -116,6 +118,15 @@ public class OperationalAttributeService extends BaseInterceptor
 
         this.filteringService.addLookupFilter( LOOKUP_FILTER );
         this.filteringService.addSearchResultFilter( SEARCH_FILTER );
+
+        try
+        {
+            usersBaseDn = new LdapName( "ou=users,ou=system" );
+        }
+        catch ( NamingException e )
+        {
+            // never gets thrown since the DN used is static and correct
+        }
     }
 
 
@@ -130,12 +141,22 @@ public class OperationalAttributeService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
+            String principal;
+            if ( normName.startsWith( usersBaseDn ) && normName.size() > 2 )
+            {
+                principal = upName;
+            }
+            else
+            {
+                principal = getPrincipal( invocation );
+            }
+
             BasicAttribute attribute = new BasicAttribute( "creatorsName" );
-            attribute.add( getPrincipal( invocation ) );
+            attribute.add( principal );
             entry.put( attribute );
 
             attribute = new BasicAttribute( "createTimestamp" );
-            attribute.add( DateUtils.getGeneralizedTime( System.currentTimeMillis() ) );
+            attribute.add( DateUtils.getGeneralizedTime() );
             entry.put( attribute );
         }
     }
