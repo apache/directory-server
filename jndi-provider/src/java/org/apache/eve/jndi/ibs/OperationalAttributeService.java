@@ -128,7 +128,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
-            String principal = getPrincipal( invocation ).toString();
+            String principal = getPrincipal( invocation ).getName();
 
             BasicAttribute attribute = new BasicAttribute( "creatorsName" );
             attribute.add( principal );
@@ -150,7 +150,7 @@ public class OperationalAttributeService extends BaseInterceptor
         {
             Attributes attributes = new BasicAttributes();
             BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-            attribute.add( getPrincipal( invocation ) );
+            attribute.add( getPrincipal( invocation ).getName() );
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
@@ -173,7 +173,7 @@ public class OperationalAttributeService extends BaseInterceptor
         {
             Attributes attributes = new BasicAttributes();
             BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-            attribute.add( getPrincipal( invocation ) );
+            attribute.add( getPrincipal( invocation ).getName() );
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
@@ -194,7 +194,7 @@ public class OperationalAttributeService extends BaseInterceptor
         {
             Attributes attributes = new BasicAttributes();
             BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-            attribute.add( getPrincipal( invocation ) );
+            attribute.add( getPrincipal( invocation ).getName() );
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
@@ -218,7 +218,7 @@ public class OperationalAttributeService extends BaseInterceptor
         {
             Attributes attributes = new BasicAttributes();
             BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-            attribute.add( getPrincipal( invocation ) );
+            attribute.add( getPrincipal( invocation ).getName() );
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
@@ -240,7 +240,7 @@ public class OperationalAttributeService extends BaseInterceptor
         {
             Attributes attributes = new BasicAttributes();
             BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-            attribute.add( getPrincipal( invocation ) );
+            attribute.add( getPrincipal( invocation ).getName() );
             attributes.put( attribute );
 
             attribute = new BasicAttribute( "modifyTimestamp" );
