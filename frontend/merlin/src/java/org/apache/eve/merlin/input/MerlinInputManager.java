@@ -30,6 +30,8 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
 
 import org.apache.eve.buffer.BufferPool ;
 import org.apache.eve.event.EventRouter ;
+import org.apache.eve.input.DefaultInputManager;
+import org.apache.eve.input.InputManager;
 
 
 /**
@@ -44,7 +46,7 @@ import org.apache.eve.event.EventRouter ;
  */
 public class MerlinInputManager extends AbstractLogEnabled 
     implements
-    InputManager,
+        InputManager,
     Serviceable,
     Startable,
     Initializable

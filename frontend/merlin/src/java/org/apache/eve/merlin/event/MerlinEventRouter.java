@@ -21,6 +21,7 @@ import java.util.EventObject ;
 
 import org.apache.avalon.framework.activity.Initializable ;
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;
+import org.apache.eve.event.*;
 
 
 /**
@@ -35,9 +36,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled ;
  * @version $Rev$
  */
 public class MerlinEventRouter extends AbstractLogEnabled 
-    implements 
-    EventRouter,
-    Initializable
+    implements EventRouter, Initializable
 {
     /** the default EventRouter implementation we wrap */ 
     private DefaultEventRouter m_router ;

@@ -37,6 +37,7 @@ import org.apache.eve.thread.ThreadPool ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.listener.ClientKey ;
 import org.apache.eve.output.OutputManager ;
+import org.apache.eve.output.DefaultOutputManager;
 import org.apache.eve.seda.DefaultStageConfig ;
 
 

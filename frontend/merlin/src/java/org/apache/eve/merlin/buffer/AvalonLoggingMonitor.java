@@ -21,6 +21,8 @@ import java.nio.ByteBuffer ;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.eve.buffer.BufferPoolMonitor;
+import org.apache.eve.buffer.BufferPool;
 
 
 /**

@@ -27,6 +27,8 @@ import org.apache.eve.thread.ThreadPool ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.listener.ClientKey ;
 import org.apache.eve.decoder.DecoderManager ;
+import org.apache.eve.decoder.DefaultDecoderManager;
+import org.apache.eve.decoder.DecodeStageHandler;
 import org.apache.eve.seda.DefaultStageConfig ;
 
 import org.apache.avalon.framework.logger.Logger ;

@@ -20,6 +20,10 @@ package org.apache.eve.merlin.buffer ;
 import java.nio.ByteBuffer ;
 
 import org.apache.eve.ResourceException ;
+import org.apache.eve.buffer.BufferPool;
+import org.apache.eve.buffer.DefaultBufferPool;
+import org.apache.eve.buffer.BufferPoolConfig;
+import org.apache.eve.buffer.DefaultBufferPoolConfig;
 
 import org.apache.avalon.framework.activity.Initializable ;
 import org.apache.avalon.framework.logger.AbstractLogEnabled ;
@@ -172,7 +176,7 @@ public class MerlinBufferPool
         int l_size = Integer.parseInt( a_config
                 .getChild( "bufferSize" ).getValue() ) ;
         
-        m_config = new DefaultBufferPoolConfig( l_name, l_inc, l_max, 
+        m_config = new DefaultBufferPoolConfig( l_name, l_inc, l_max,
                 l_ini, l_size ) ;
         
         if ( getLogger().isInfoEnabled() )

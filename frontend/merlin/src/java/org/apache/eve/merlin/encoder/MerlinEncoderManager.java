@@ -24,6 +24,7 @@ import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStageConfig ;
 
 import org.apache.eve.encoder.EncoderManager ;
+import org.apache.eve.encoder.DefaultEncoderManager;
 import org.apache.ldap.common.message.Response;
 
 import org.apache.avalon.framework.logger.Logger ;

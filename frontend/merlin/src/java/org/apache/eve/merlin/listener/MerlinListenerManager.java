@@ -71,6 +71,10 @@ import org.apache.avalon.framework.configuration.ConfigurationException ;
 import org.apache.commons.lang.StringUtils ;
 
 import org.apache.eve.event.EventRouter ;
+import org.apache.eve.listener.LdapServerListener;
+import org.apache.eve.listener.ListenerManager;
+import org.apache.eve.listener.DefaultListenerManager;
+import org.apache.eve.listener.ServerListener;
 
 
 /**
@@ -85,8 +89,8 @@ import org.apache.eve.event.EventRouter ;
  * @version $Rev$
  */
 public class MerlinListenerManager extends AbstractLogEnabled
-    implements 
-    ListenerManager,
+    implements
+        ListenerManager,
     Initializable, 
     Configurable,
     Serviceable,
@@ -108,8 +112,8 @@ public class MerlinListenerManager extends AbstractLogEnabled
     
     
     /**
-     * @see org.apache.eve.listener.ListenerManager#register(org.apache.eve.
-     * listener.ServerListener)
+     * @see org.apache.eve.listener.ListenerManager#
+     * bind(org.apache.eve.listener.ServerListener)
      */
     public void bind( ServerListener a_listener ) throws IOException
     {
@@ -118,8 +122,8 @@ public class MerlinListenerManager extends AbstractLogEnabled
     
     
     /**
-     * @see org.apache.eve.listener.ListenerManager#unregister(org.apache.eve.
-     * listener.ServerListener)
+     * @see org.apache.eve.listener.ListenerManager#
+     * unbind(org.apache.eve.listener.ServerListener) 
      */
     public void unbind( ServerListener a_listener ) throws IOException
     {

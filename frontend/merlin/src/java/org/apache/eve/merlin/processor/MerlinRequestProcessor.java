@@ -22,6 +22,9 @@ import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStageConfig ;
 import org.apache.eve.seda.StageMonitorAdapter;
 import org.apache.eve.seda.LoggingStageMonitor;
+import org.apache.eve.processor.DefaultRequestProcessor;
+import org.apache.eve.processor.RequestProcessor;
+import org.apache.eve.processor.DefaultHandlerRegistry;
 
 import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.logger.LogEnabled ;
@@ -50,8 +53,8 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
  * @version $Rev$
  */
 public class MerlinRequestProcessor
-    implements 
-    RequestProcessor, 
+    implements
+        RequestProcessor,
     LogEnabled, 
     Initializable, 
     Configurable,

@@ -31,6 +31,7 @@ import org.apache.eve.decoder.DecoderManager ;
 import org.apache.eve.encoder.EncoderManager ;
 import org.apache.eve.listener.ListenerManager ;
 import org.apache.eve.processor.RequestProcessor ;
+import org.apache.eve.Frontend;
 
 
 /**
@@ -46,8 +47,8 @@ import org.apache.eve.processor.RequestProcessor ;
  * @version $Rev$
  */
 public class MerlinFrontend 
-    implements 
-    Frontend,
+    implements
+        Frontend,
     Serviceable
 {
     BufferPool m_bufferPool = null ;
