@@ -18,11 +18,8 @@ package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.BaseSyntax;
-import org.apache.eve.schema.SyntaxCheckerRegistry;
 
 import javax.naming.NamingException;
-import java.util.Map;
-import java.util.HashMap;
 
 
 /**

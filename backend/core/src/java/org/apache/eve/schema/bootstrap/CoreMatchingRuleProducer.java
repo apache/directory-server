@@ -19,12 +19,9 @@ package org.apache.eve.schema.bootstrap;
 
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.schema.BaseMatchingRule;
 
 import org.apache.eve.schema.SyntaxRegistry;
-import org.apache.eve.schema.NormalizerRegistry;
-import org.apache.eve.schema.ComparatorRegistry;
 
 import java.util.Comparator;
 import javax.naming.NamingException;
@@ -37,14 +34,18 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreMatchingRuleProducer
+public class CoreMatchingRuleProducer implements BootstrapProducer
 {
-    public MatchingRule[] loadMatchingRules( SyntaxRegistry registry,
-                                             NormalizerRegistry normRegistry,
-                                             ComparatorRegistry compRegistry )
+    public ProducerTypeEnum getType()
+    {
+        return null;
+    }
+
+    public void produce( BootstrapRegistries registries, ProducerCallback cb )
         throws NamingException
     {
-        MutableMatchingRule[] mrules = new MutableMatchingRule[21];
+        SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
+        MutableMatchingRule mrule = null;
 
         /*
          * Straight out of RFC 2252: Section 8
@@ -65,25 +66,30 @@ public class CoreMatchingRuleProducer
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
         */
 
-        mrules[0] = new MutableMatchingRule( "2.5.13.0" );
-        mrules[0].setName( "objectIdentifierMatch" );
-        mrules[0].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.38" ) );
+        mrule = new MutableMatchingRule( "2.5.13.0" );
+        mrule.setName( "objectIdentifierMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.38" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[1] = new MutableMatchingRule( "2.5.13.1" );
-        mrules[1].setName( "distinguishedNameMatch" );
-        mrules[1].setSyntax( registry.lookup( "" ) );
+        mrule = new MutableMatchingRule( "2.5.13.1" );
+        mrule.setName( "distinguishedNameMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[2] = new MutableMatchingRule( "2.5.13.2" );
-        mrules[2].setName( "caseIgnoreMatch" );
-        mrules[2].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.15" ) );
+        mrule = new MutableMatchingRule( "2.5.13.2" );
+        mrule.setName( "caseIgnoreMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.15" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[3] = new MutableMatchingRule( "2.5.13.3" );
-        mrules[3].setName( "caseIgnoreOrderingMatch" );
-        mrules[3].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.15" ) );
+        mrule = new MutableMatchingRule( "2.5.13.3" );
+        mrule.setName( "caseIgnoreOrderingMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.15" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[4] = new MutableMatchingRule( "2.5.13.4" );
-        mrules[4].setName( "caseIgnoreSubstringsMatch" );
-        mrules[4].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
+        mrule = new MutableMatchingRule( "2.5.13.4" );
+        mrule.setName( "caseIgnoreSubstringsMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
          * Straight out of RFC 2252: Section 8
@@ -104,25 +110,30 @@ public class CoreMatchingRuleProducer
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
         */
 
-        mrules[5] = new MutableMatchingRule( "2.5.13.8" );
-        mrules[5].setName( "numericStringMatch" );
-        mrules[5].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.36" ) );
+        mrule = new MutableMatchingRule( "2.5.13.8" );
+        mrule.setName( "numericStringMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.36" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[6] = new MutableMatchingRule( "2.5.13.10" );
-        mrules[6].setName( "numericStringSubstringsMatch" );
-        mrules[6].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
+        mrule = new MutableMatchingRule( "2.5.13.10" );
+        mrule.setName( "numericStringSubstringsMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[7] = new MutableMatchingRule( "2.5.13.11" );
-        mrules[7].setName( "caseIgnoreListMatch" );
-        mrules[7].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.41" ) );
+        mrule = new MutableMatchingRule( "2.5.13.11" );
+        mrule.setName( "caseIgnoreListMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.41" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[8] = new MutableMatchingRule( "2.5.13.14" );
-        mrules[8].setName( "integerMatch" );
-        mrules[8].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.27" ) );
+        mrule = new MutableMatchingRule( "2.5.13.14" );
+        mrule.setName( "integerMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.27" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[9] = new MutableMatchingRule( "2.5.13.16" );
-        mrules[9].setName( "bitStringMatch" );
-        mrules[9].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.6" ) );
+        mrule = new MutableMatchingRule( "2.5.13.16" );
+        mrule.setName( "bitStringMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.6" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
          * Straight out of RFC 2252: Section 8
@@ -143,25 +154,30 @@ public class CoreMatchingRuleProducer
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.42 )
         */
 
-        mrules[10] = new MutableMatchingRule( "2.5.13.20" );
-        mrules[10].setName( "telephoneNumberMatch" );
-        mrules[10].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.50" ) );
+        mrule = new MutableMatchingRule( "2.5.13.20" );
+        mrule.setName( "telephoneNumberMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.50" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[11] = new MutableMatchingRule( "2.5.13.21" );
-        mrules[11].setName( "telephoneNumberSubstringsMatch" );
-        mrules[11].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
+        mrule = new MutableMatchingRule( "2.5.13.21" );
+        mrule.setName( "telephoneNumberSubstringsMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.58" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[12] = new MutableMatchingRule( "2.5.13.22" );
-        mrules[12].setName( "presentationAddressMatch" );
-        mrules[12].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.43" ) );
+        mrule = new MutableMatchingRule( "2.5.13.22" );
+        mrule.setName( "presentationAddressMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.43" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[13] = new MutableMatchingRule( "2.5.13.23" );
-        mrules[13].setName( "uniqueMemberMatch" );
-        mrules[13].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.34" ) );
+        mrule = new MutableMatchingRule( "2.5.13.23" );
+        mrule.setName( "uniqueMemberMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.34" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[14] = new MutableMatchingRule( "2.5.13.24" );
-        mrules[14].setName( "protocolInformationMatch" );
-        mrules[14].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.42" ) );
+        mrule = new MutableMatchingRule( "2.5.13.24" );
+        mrule.setName( "protocolInformationMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.42" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
          * Straight out of RFC 2252: Section 8
@@ -186,31 +202,35 @@ public class CoreMatchingRuleProducer
 
         */
 
-        mrules[15] = new MutableMatchingRule( "2.5.13.27" );
-        mrules[15].setName( "generalizedTimeMatch" );
-        mrules[15].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.24" ) );
+        mrule = new MutableMatchingRule( "2.5.13.27" );
+        mrule.setName( "generalizedTimeMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.24" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[16] = new MutableMatchingRule( "2.5.13.28" );
-        mrules[16].setName( "generalizedTimeOrderingMatch" );
-        mrules[16].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.24" ) );
+        mrule = new MutableMatchingRule( "2.5.13.28" );
+        mrule.setName( "generalizedTimeOrderingMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.24" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[17] = new MutableMatchingRule( "2.5.13.29" );
-        mrules[17].setName( "integerFirstComponentMatch" );
-        mrules[17].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.27" ) );
+        mrule = new MutableMatchingRule( "2.5.13.29" );
+        mrule.setName( "integerFirstComponentMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.27" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[18] = new MutableMatchingRule( "2.5.13.30" );
-        mrules[18].setName( "objectIdentifierFirstComponentMatch" );
-        mrules[18].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.38" ) );
+        mrule = new MutableMatchingRule( "2.5.13.30" );
+        mrule.setName( "objectIdentifierFirstComponentMatch" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.38" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[19] = new MutableMatchingRule( "1.3.6.1.4.1.1466.109.114.1" );
-        mrules[19].setName( "caseExactIA5Match" );
-        mrules[19].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.26" ) );
+        mrule = new MutableMatchingRule( "1.3.6.1.4.1.1466.109.114.1" );
+        mrule.setName( "caseExactIA5Match" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.26" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrules[20] = new MutableMatchingRule( "1.3.6.1.4.1.1466.109.114.2" );
-        mrules[20].setName( "caseIgnoreIA5Match" );
-        mrules[20].setSyntax( registry.lookup( "1.3.6.1.4.1.1466.115.121.1.26" ) );
-
-        return mrules;
+        mrule = new MutableMatchingRule( "1.3.6.1.4.1.1466.109.114.2" );
+        mrule.setName( "caseIgnoreIA5Match" );
+        mrule.setSyntax( syntaxRegistry.lookup( "1.3.6.1.4.1.1466.115.121.1.26" ) );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }
 
 
