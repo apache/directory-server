@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>server-shared</artifactId>
-  <name>Server Shared</name>
+  <artifactId>apacheds-shared</artifactId>
+  <name>ApacheDS Shared</name>
   <inceptionYear>2003</inceptionYear>
 
   <shortDescription>Shared server resources, and classes</shortDescription>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>server-protocol</artifactId>
-  <name>Server Protocol</name>
+  <artifactId>apacheds-protocol</artifactId>
+  <name>ApacheDS Protocol</name>
   <inceptionYear>2002</inceptionYear>
   <shortDescription>The Protocol Provider</shortDescription>
   <description>

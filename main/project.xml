@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>server-main</artifactId>
-  <name>Server Main</name>
+  <artifactId>apacheds-main</artifactId>
+  <name>ApacheDS Main</name>
   <inceptionYear>2003</inceptionYear>
   <shortDescription>A single executable server jar</shortDescription>
 
@@ -84,12 +84,12 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>server-shared</artifactId>
+      <artifactId>apacheds-shared</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>server-protocol</artifactId>
+      <artifactId>apacheds-protocol</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -114,7 +114,7 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>server-core</artifactId>
+      <artifactId>apacheds-core</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
     <dependency>
