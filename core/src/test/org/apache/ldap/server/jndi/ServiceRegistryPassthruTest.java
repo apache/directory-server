@@ -18,6 +18,8 @@ package org.apache.ldap.server.jndi;
 
 
 import org.apache.ldap.server.AbstractServerTest;
+import org.apache.mina.registry.ServiceRegistry;
+import org.apache.mina.registry.SimpleServiceRegistry;
 
 
 /**
@@ -26,40 +28,40 @@ import org.apache.ldap.server.AbstractServerTest;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class FrontendPassthruTest extends AbstractServerTest
+public class ServiceRegistryPassthruTest extends AbstractServerTest
 {
-//    DefaultFrontend fe;
+    private ServiceRegistry registry;
 
 
     protected void setUp() throws Exception
     {
-//        if ( getName().equals( "testUsePassthru" ) )
-//        {
-//            fe = ( DefaultFrontend ) new DefaultFrontendFactory().create();
-//            super.extras.put( EnvKeys.PASSTHRU, fe );
-//        }
-//
-//        super.setUp();
+        if ( getName().equals( "testUsePassthru" ) )
+        {
+            registry = new SimpleServiceRegistry();
+            super.extras.put( EnvKeys.PASSTHRU, registry );
+        }
+
+        super.setUp();
     }
 
 
     protected void tearDown() throws Exception
     {
-//        super.tearDown();
-//        fe = null;
+        super.tearDown();
+        registry = null;
     }
 
 
     public void testUsePassthru() throws Exception
     {
-//        assertTrue( sysRoot.getEnvironment().containsKey( EnvKeys.PASSTHRU ) );
-//        assertEquals( String.class, sysRoot.getEnvironment().get( EnvKeys.PASSTHRU ).getClass() );
-//        assertEquals( "Handoff Succeeded!", sysRoot.getEnvironment().get( EnvKeys.PASSTHRU ) );
+        assertTrue( sysRoot.getEnvironment().containsKey( EnvKeys.PASSTHRU ) );
+        assertEquals( String.class, sysRoot.getEnvironment().get( EnvKeys.PASSTHRU ).getClass() );
+        assertEquals( "Handoff Succeeded!", sysRoot.getEnvironment().get( EnvKeys.PASSTHRU ) );
     }
 
 
     public void testDoNotUsePassthru() throws Exception
     {
-//        assertFalse( sysRoot.getEnvironment().containsKey( EnvKeys.PASSTHRU ) );
+        assertFalse( sysRoot.getEnvironment().containsKey( EnvKeys.PASSTHRU ) );
     }
 }
