@@ -69,7 +69,7 @@
       <url>http://jdbm.sourceforge.net</url>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>
@@ -93,17 +93,17 @@
       <version>0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory-asn1</groupId>
       <artifactId>asn1-codec</artifactId>
       <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory-shared</groupId>
       <artifactId>apache-ldapber-provider</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory-asn1</groupId>
       <artifactId>asn1-ber</artifactId>
       <version>0.3-SNAPSHOT</version>
     </dependency>

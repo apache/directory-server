@@ -44,7 +44,7 @@
       <version>2.7.2</version>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>

@@ -14,7 +14,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>

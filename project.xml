@@ -8,28 +8,26 @@
     
     <organization>
       <name>The Apache Incubator</name>
-      <url>http://incubator.apache.org</url>
-      <logo>http://incubator.apache.org/directory/images/apache-incubator-logo.png</logo>
+      <url>http://directory.apache.org</url>
+      <logo>http://directory.apache.org/images/apache-directory-logo.png</logo>
     </organization>
 
     <inceptionYear>2003</inceptionYear>
     <package>org.apache.ldap.server</package>
     
-    <logo>http://incubator.apache.org/directory/images/apache-directory-logo.png</logo>
+    <logo>http://directory.apache.org/images/apache-directory-logo.png</logo>
 
-    <url>http://incubator.apache.org/directory/apacheds/</url>
+    <url>http://directory.apache.org/apacheds/</url>
     
     <issueTrackingUrl>http://issues.apache.org/jira/browse/DIREVE</issueTrackingUrl>
 
     <siteAddress>minotaur.apache.org</siteAddress>
     <siteDirectory>
-      /www/incubator.apache.org/directory/subprojects/apacheds
+      /www/directory.apache.org/subprojects/apacheds
     </siteDirectory>
     <distributionDirectory>
       /www/cvs.apache.org/dist/directory
     </distributionDirectory>
-
-    <gumpRepositoryId>apache-incubator-svn</gumpRepositoryId>
 
     <repository>
       <connection>
@@ -61,10 +59,10 @@
       <mailingList>
         <name>Apache Directory Developement - use [ApacheDS] prefix</name>
         <subscribe>
-          directory-dev-subscribe@incubator.apache.org
+          dev-subscribe@directory.apache.org
         </subscribe>
         <unsubscribe>
-          directory-dev-unsubscribe@incubator.apache.org
+          dev-unsubscribe@directory.apache.org
         </unsubscribe>
         <archive>
           http://issues.apache.org/eyebrowse/SummarizeList?listId=181
@@ -90,7 +88,7 @@
     </dependencies>        
   
     <build>
-      <nagEmailAddress>directory-dev@incubator.apache.org</nagEmailAddress>
+      <nagEmailAddress>dev@directory.apache.org</nagEmailAddress>
       <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
       <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
 
@@ -131,7 +129,6 @@
         <includes>
           <include>LICENSE.txt</include>
           <include>NOTICE.txt</include>
-          <include>INCUBATOR-DISCLAIMER.txt</include>
         </includes>
       </resource>
     </resources>
