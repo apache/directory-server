@@ -19,8 +19,11 @@ package org.apache.eve.tools.schema;
 import junit.framework.TestCase;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.apache.ldap.common.schema.BaseAttributeType;
 
 import java.io.StringWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 
 /**
@@ -33,13 +36,36 @@ public class AttributeTypesTemplateTest extends TestCase
 {
     public void testGeneration() throws Exception
     {
+        TestAttributeType[] attributeTypes = new TestAttributeType[2];
+        attributeTypes[0] = new TestAttributeType( "1.1.1.1" );
+        attributeTypes[1] = new TestAttributeType( "1.1.1.2" );
+
         VelocityContext context = new VelocityContext();
-        context.put( "args", new String[] { "uno", "dos", "tres" } );
-        String template = "args = #foreach($arg in $args)$arg #end";
-        StringWriter writer = new StringWriter();
+        context.put( "package", "org.apache.eve.schema.config" );
+        context.put( "classname", "CoreAttributeTypes" );
+        context.put( "schema", "core" );
+        context.put( "owner", "uid=admin,ou=system" ) ;
+        context.put( "schemaDepCount", new Integer( 2 ) );
+        context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
+        context.put( "attrTypeCount", new Integer( attributeTypes.length ) );
+        context.put( "attrTypes", attributeTypes );
+
+        FileReader template = new FileReader(
+            "c:\\projects\\home\\akarasulu\\projects\\directory\\eve\\trunk\\backend\\tools\\src\\template\\AttributeTypes.template" );
+        FileWriter writer = new FileWriter(
+            "c:\\projects\\home\\akarasulu\\projects\\directory\\eve\\trunk\\backend\\tools\\src\\java\\org\\apache\\eve\\schema\\config\\CoreAttributeTypes.java" );
         Velocity.init();
         Velocity.evaluate( context, writer, "LOG", template );
-        String generated = writer.getBuffer().toString();
-        assertEquals( "args = uno dos tres", generated.trim() );
+        writer.flush();
+        writer.close();
+    }
+
+
+    class TestAttributeType extends BaseAttributeType
+    {
+        protected TestAttributeType( String oid )
+        {
+            super( oid );
+        }
     }
 }

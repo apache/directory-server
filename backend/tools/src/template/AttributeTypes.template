@@ -14,20 +14,31 @@
  *   limitations under the License.
  *
  */
-package $PACKAGE$;
+package $package;
+
+
+import org.apache.ldap.common.schema.*;
+//import org.apache.eve.schema.config.*;
+
 
 /**
- * Document me.
+ * A configuration set of schema attributeType definations for the $schema
+ * schema.  This code has been automatically generated from velocity templates
+ * and the OpenLDAP syntax specified $schema.schema file.  This has been done
+ * to facilitate Eve<->OpenLDAP schema interoperability.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version \$Rev\$
  */
-public class $SCHEMA$AttributeTypes implements AttributeTypeConfigSet
+public class $classname implements AttributeTypeConfigSet
 {
     /** the DN of the owner of the objects within this SyntaxConfigSet */
-    private static final String OWNER = "$OWNER$";
+    private static final String OWNER = "$owner";
     /** the logical schema the objects within this SyntaxConfigSet belong to */
-    private static final String SCHEMA = "$SCHEMA$";
+    private static final String SCHEMA = "$schema";
+
+
+    private String[] schemaDeps;
 
 
     // ------------------------------------------------------------------------
@@ -49,7 +60,18 @@ public class $SCHEMA$AttributeTypes implements AttributeTypeConfigSet
 
     public String[] getDependentSchemas()
     {
-        return EMPTY_ARRAY;
+        if ( schemaDeps == null )
+        {
+            schemaDeps = new String[$schemaDepCount];
+
+            #foreach ( $dep in $schemaDeps )
+            #set ( $ii = $velocityCount - 1 )
+schemaDeps[$ii] = "$dep";
+            #end
+
+        }
+
+        return schemaDeps;
     }
 
 
@@ -60,13 +82,22 @@ public class $SCHEMA$AttributeTypes implements AttributeTypeConfigSet
 
     public AttributeType[] load()
     {
-        AttributeType[] attributeTypes = new AttributeType[$COUNT$];
+        AttributeType[] attributeTypes = new AttributeType[$attrTypeCount];
 
-        $CODE$
+        #foreach ( $attrType in $attrTypes )
+        #set ( $ii = $velocityCount - 1 )
+attributeTypes[$ii] = new MutableAttributeType( "$attrType.getOid()" );
+        #end
 
         return attributeTypes;
     }
 
 
-
+    private static class MutableAttributeType extends BaseAttributeType
+    {
+        public MutableAttributeType( String oid )
+        {
+            super( oid );
+        }
+    }
 }
