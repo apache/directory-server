@@ -50,7 +50,7 @@ public class ImportConfirmationTest extends AbstractServerTest
      */
     public void testConfirmImportedEntries() throws Exception
     {
-        InputStream in = ( InputStream ) getClass().getResourceAsStream( "system.ldif" );
+        InputStream in = getClass().getResourceAsStream( "system.ldif" );
         LdifParser parser = new LdifParserImpl();
 
         try

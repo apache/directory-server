@@ -17,22 +17,9 @@
 package org.apache.ldap.server.prefs;
 
 
-import java.util.Hashtable;
 import java.util.prefs.Preferences;
-import java.io.File;
-import java.io.IOException;
-import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.NamingException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
-import junit.framework.TestCase;
-import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.ldap.server.AbstractServerTest;
-import org.apache.ldap.server.AbstractServerTest;
-import org.apache.apseda.listener.AvailablePortFinder;
-import org.apache.commons.io.FileUtils;
 
 
 /**

@@ -17,10 +17,9 @@
 package org.apache.ldap.server.prefs;
 
 
-import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
-import org.apache.ldap.server.AbstractServerTest;
 import org.apache.ldap.server.AbstractServerTest;
 
 

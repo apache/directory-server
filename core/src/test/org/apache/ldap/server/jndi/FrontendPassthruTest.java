@@ -21,8 +21,6 @@ import javax.naming.NamingException;
 
 import org.apache.apseda.DefaultFrontend;
 import org.apache.apseda.DefaultFrontendFactory;
-import org.apache.apseda.DefaultFrontendFactory;
-import org.apache.apseda.DefaultFrontend;
 import org.apache.ldap.server.AbstractServerTest;
 
 

@@ -19,10 +19,15 @@ package org.apache.ldap.server.jndi.ibs;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.ldap.common.message.DerefAliasesEnum;
-import org.apache.ldap.server.AbstractServerTest;
 import org.apache.ldap.server.AbstractServerTest;
 
 
@@ -73,7 +78,7 @@ public class OperationalAttributeServiceTest extends AbstractServerTest
         sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP,
                 DerefAliasesEnum.NEVERDEREFALIASES_NAME );
         NamingEnumeration list;
-        list = ( NamingEnumeration ) sysRoot.search( "", "(ou=testing00)", ctls );
+        list = sysRoot.search( "", "(ou=testing00)", ctls );
         SearchResult result = ( SearchResult ) list.next();
         list.close();
 
