@@ -23,6 +23,8 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.BranchNode;
+import org.apache.eve.schema.NormalizerRegistry;
+import org.apache.eve.schema.ComparatorRegistry;
 
 
 /**
@@ -115,5 +117,28 @@ public class ExpressionEvaluator implements Evaluator
             throw new NamingException( "Unrecognized branch node operator: "
                 + node.getOperator() );
         }
+    }
+
+
+    public LeafEvaluator getLeafEvaluator()
+    {
+        return leafEvaluator;
+    }
+
+
+    public static ExpressionEvaluator create( Database db,
+                                              NormalizerRegistry normReg,
+                                              ComparatorRegistry compReg )
+    {
+        LeafEvaluator leafEvaluator = null;
+        ScopeEvaluator scopeEvaluator = null;
+        SubstringEvaluator substringEvaluator = null;
+
+        scopeEvaluator = new ScopeEvaluator( db );
+        substringEvaluator = new SubstringEvaluator( db, normReg );
+        leafEvaluator = new LeafEvaluator( db, scopeEvaluator, normReg,
+            compReg, substringEvaluator );
+
+        return new ExpressionEvaluator( leafEvaluator );
     }
 }

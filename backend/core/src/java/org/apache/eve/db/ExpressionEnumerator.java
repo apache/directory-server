@@ -30,6 +30,9 @@ import org.apache.ldap.common.filter.AssertionNode;
 import org.apache.ldap.common.filter.SubstringNode;
 import org.apache.ldap.common.NotImplementedException;
 
+import java.util.ArrayList;
+import java.math.BigInteger;
+
 
 /**
  * Enumerates over candidates that satisfy a filter expression.
@@ -45,31 +48,24 @@ public class ExpressionEnumerator implements Enumerator
     private ScopeEnumerator scopeEnumerator;
     /** Enumerator flyweight for evaulating filter substring assertions */
     private SubstringEnumerator substringEnumerator;
-    /** Enumerator flyweight for evaulating filter conjunction assertions */
-    private ConjunctionEnumerator conjunctionEnumerator;
-    /** Enumerator flyweight for evaulating filter disjunction assertions */
-    private DisjunctionEnumerator disjunctionEnumerator;
-    /** Enumerator flyweight for evaulating filter negation assertions */
-    private NegationEnumerator negationEnumerator;
-    /** Evaluator dependency on a LeafNode leafEvaluator */
-    private LeafEvaluator leafEvaluator;
+    /** Evaluator dependency on a ExpressionEvaluator */
+    private ExpressionEvaluator evaluator;
 
 
-    public ExpressionEnumerator( Database db,
-                           LeafEvaluator leafEvaluator,
-                           ScopeEnumerator scopeEnumerator,
-                           NegationEnumerator negationEnumerator,
-                           SubstringEnumerator substringEnumerator,
-                           ConjunctionEnumerator conjunctionEnumerator,
-                           DisjunctionEnumerator disjunctionEnumerator )
+    /**
+     * Creates an expression tree enumerator.
+     *
+     * @param db database used by this enumerator
+     * @param evaluator
+     */
+    public ExpressionEnumerator( Database db, ExpressionEvaluator evaluator )
     {
         this.db = db;
-        this.leafEvaluator = leafEvaluator;
-        this.scopeEnumerator = scopeEnumerator;
-        this.negationEnumerator = negationEnumerator;
-        this.substringEnumerator = substringEnumerator;
-        this.conjunctionEnumerator = conjunctionEnumerator;
-        this.disjunctionEnumerator = disjunctionEnumerator;
+        this.evaluator = evaluator;
+
+        LeafEvaluator leafEvaluator = evaluator.getLeafEvaluator();
+        scopeEnumerator = new ScopeEnumerator( db, leafEvaluator.getScopeEvaluator() );
+        substringEnumerator = new SubstringEnumerator( db, leafEvaluator.getSubstringEvaluator() );
     }
 
 
@@ -133,13 +129,13 @@ public class ExpressionEnumerator implements Enumerator
             switch( branch.getOperator() )
             {
             case( BranchNode.AND ):
-                list = conjunctionEnumerator.enumerate( branch );
+                list = enumConj( branch );
                 break;
             case( BranchNode.NOT ):
-                list = negationEnumerator.enumerate( branch );
+                list = enumNeg( branch );
                 break;
             case( BranchNode.OR ):
-                list = disjunctionEnumerator.enumerate( branch );
+                list = enumDisj( branch );
                 break;
             default:
                 throw new IllegalArgumentException( 
@@ -150,7 +146,126 @@ public class ExpressionEnumerator implements Enumerator
         return list;
     }
 
-    
+
+    /**
+     *
+     */
+    public NamingEnumeration enumDisj( ExprNode node ) throws NamingException
+    {
+        ArrayList children = ( ( BranchNode ) node ).getChildren();
+        NamingEnumeration [] childEnumerations = new NamingEnumeration [children.size()];
+
+        // Recursively create NamingEnumerations for each child expression node
+        for ( int ii = 0; ii < childEnumerations.length; ii++ )
+        {
+            childEnumerations[ii] = enumerate( ( ExprNode ) children.get( ii ) );
+        }
+
+        return new DisjunctionEnumeration( childEnumerations );
+    }
+
+
+    /**
+     *
+     */
+    private NamingEnumeration enumNeg( final BranchNode node ) throws NamingException
+    {
+        Index idx = null;
+        NamingEnumeration childEnumeration = null;
+        NamingEnumeration enumeration = null;
+
+        // Iterates over entire set of index values
+        if ( node.getChild().isLeaf() )
+        {
+            LeafNode child = ( LeafNode ) node.getChild();
+            idx = db.getUserIndex( child.getAttribute() );
+            childEnumeration = idx.listIndices();
+        }
+        // Iterates over the entire set of entries
+        else
+        {
+            idx = db.getNdnIndex();
+            childEnumeration = idx.listIndices();
+        }
+
+
+        IndexAssertion assertion = new IndexAssertion()
+        {
+            public boolean assertCandidate( IndexRecord rec ) throws NamingException
+            {
+                // NOTICE THE ! HERE
+                // The candidate is valid if it does not pass assertion. A
+                // candidate that passes assertion is therefore invalid.
+                return ! evaluator.evaluate( node.getChild(), rec );
+            }
+        };
+
+        enumeration = new IndexAssertionEnumeration( childEnumeration, assertion, true );
+        return enumeration;
+    }
+
+
+    /**
+     *
+     */
+    private NamingEnumeration enumConj( final BranchNode node ) throws NamingException
+    {
+        int minIndex = 0;
+        int minValue = Integer.MAX_VALUE;
+        int value = Integer.MAX_VALUE;
+
+        /*
+         * We scan the child nodes of a branch node searching for the child
+         * expression node with the smallest scan count.  This is the child
+         * we will use for iteration by creating a NamingEnumeration over its
+         * expression.
+         */
+        final ArrayList children = node.getChildren();
+        for ( int ii = 0; ii < children.size(); ii++ )
+        {
+            ExprNode child = ( ExprNode ) children.get( ii );
+            value = ( ( BigInteger ) child.get( "count" ) ).intValue();
+            minValue = Math.min( minValue, value );
+
+            if ( minValue == value )
+            {
+                minIndex = ii;
+            }
+        }
+
+        // Once found we build the child enumeration & the wrapping enum
+        final ExprNode minChild = ( ExprNode ) children.get( minIndex );
+        IndexAssertion assertion = new IndexAssertion()
+        {
+            public boolean assertCandidate( IndexRecord rec ) throws NamingException
+            {
+                for ( int ii = 0; ii < children.size(); ii++ )
+                {
+                    ExprNode child = ( ExprNode ) children.get( ii );
+
+                    // Skip the child (with min scan count) chosen for enum
+                    if ( child == minChild )
+                    {
+                        continue;
+                    }
+                    else if ( ! evaluator.evaluate( child, rec ) )
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        };
+
+        // Do recursive call to build child enumeration then wrap and return
+        NamingEnumeration underlying = enumerate( minChild );
+        IndexAssertionEnumeration iae;
+        iae = new IndexAssertionEnumeration( underlying, assertion );
+        return iae;
+    }
+
+
     /**
      * Returns an enumeration over candidates that satisfy a presence attribute 
      * value assertion.
@@ -240,7 +355,7 @@ public class ExpressionEnumerator implements Enumerator
             public boolean assertCandidate( IndexRecord record ) 
                 throws NamingException
             {
-                return leafEvaluator.evaluate( node, record );
+                return evaluator.getLeafEvaluator().evaluate( node, record );
             }
         };
         

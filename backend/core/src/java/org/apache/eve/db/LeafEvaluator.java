@@ -80,11 +80,34 @@ public class LeafEvaluator implements Evaluator
     }
 
 
+    public ScopeEvaluator getScopeEvaluator()
+    {
+        return scopeEvaluator;
+    }
+
+
+    public NormalizerRegistry getNormalizerRegistry()
+    {
+        return normalizerRegistry;
+    }
+
+
+    public ComparatorRegistry getComparatorRegistry()
+    {
+        return comparatorRegistry;
+    }
+
+
+    public SubstringEvaluator getSubstringEvaluator()
+    {
+        return substringEvaluator;
+    }
+
+
     /**
      * @see org.apache.eve.db.Evaluator#evaluate(ExprNode, IndexRecord)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record )
-        throws NamingException
+    public boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException
     {
         if ( node instanceof ScopeNode )
         {
