@@ -18,10 +18,10 @@ import javax.naming.ldap.LdapContext ;
  * JndiProvider service implementing block.
  * 
  */
-public class JndiProviderModule implements JndiProvider, InvocationHandler
+public class EveJndiProvider implements JndiProvider, InvocationHandler
 {
     /** Singleton instance of this class */
-    private static JndiProviderModule s_singleton = null ;
+    private static EveJndiProvider s_singleton = null ;
     
     /** Interceptor of interceptors in post-invocation pipeline */
     private InterceptorPipeline m_after = new FailFastPipeline() ;
@@ -44,15 +44,15 @@ public class JndiProviderModule implements JndiProvider, InvocationHandler
      * Creates a singlton instance of the JndiProvider.  In the words of the 
      * Highlander, "there can only be one."
      *
-     * @throws IllegalStateException if another JndiProviderModule has already 
+     * @throws IllegalStateException if another EveJndiProvider has already
      * been instantiated.
      */
-    public JndiProviderModule( RootNexus nexus )
+    public EveJndiProvider( RootNexus nexus )
     {
         if ( s_singleton != null )
         {
             throw new IllegalStateException(
-                "Cannot instantiate more than one JndiProviderModule!" ) ;
+                "Cannot instantiate more than one EveJndiProvider!" ) ;
         }
 
         s_singleton = this ;
@@ -71,7 +71,7 @@ public class JndiProviderModule implements JndiProvider, InvocationHandler
 
     /**
      * Enables a ServerContextFactory with a handle to the system wide 
-     * JndiProviderModule instance.
+     * EveJndiProvider instance.
      *
      * @param a_factory the ServerContextFactory to enable
      */
@@ -228,7 +228,7 @@ public class JndiProviderModule implements JndiProvider, InvocationHandler
             }
         }
         
-        throw new IllegalStateException( "The JndiProviderModule's invocation "
+        throw new IllegalStateException( "The EveJndiProvider's invocation "
             + "handler method invoke should never have reached this line" ) ;
     }
 }

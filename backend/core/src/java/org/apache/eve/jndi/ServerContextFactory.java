@@ -23,8 +23,8 @@ import org.apache.ldap.common.NotImplementedException;
  */
 public class ServerContextFactory implements InitialContextFactory
 {
-    /** The singleton JndiProviderModule instance */
-    private JndiProviderModule m_provider = null ;
+    /** The singleton EveJndiProvider instance */
+    private EveJndiProvider m_provider = null ;
 
     
     /**
@@ -32,17 +32,17 @@ public class ServerContextFactory implements InitialContextFactory
      */
     public ServerContextFactory()
     {
-        JndiProviderModule.setProviderOn( this ) ;
+        EveJndiProvider.setProviderOn( this ) ;
     }
     
     
     /**
-     * Enables this ServerContextFactory with a handle to the JndiProviderModule
+     * Enables this ServerContextFactory with a handle to the EveJndiProvider
      * singleton.
      * 
      * @param a_provider the system's singleton JndiProvider service.
      */
-    void setProvider( JndiProviderModule a_provider )
+    void setProvider( EveJndiProvider a_provider )
     {
         m_provider = a_provider ;
     }
@@ -55,7 +55,7 @@ public class ServerContextFactory implements InitialContextFactory
     public Context getInitialContext( Hashtable an_envoronment )
         throws NamingException
     {
-        // fire up the Merlin kernel if we need to
+        // fire up the backend subsystem if we need to
         if ( null == m_provider )
         {
             throw new NotImplementedException() ;
