@@ -40,6 +40,7 @@ import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.jndi.EnvKeys;
+import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
@@ -82,8 +83,7 @@ public abstract class AbstractServerTest extends TestCase
             doDelete( new File( "target" + File.separator + "apacheds" ) );
         }
 
-//        int port = AvailablePortFinder.getNextAvailable( 1024 );
-        int port = 1024;
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
 
         extras.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
 
