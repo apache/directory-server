@@ -2,6 +2,7 @@
 
 <project>
     <groupId>directory</groupId>
+    <artifactId>directory</artifactId>
     <currentVersion>0.9-SNAPSHOT</currentVersion>
     <name>Apache Directory Project</name>
     <url>http://directory.apache.org</url>

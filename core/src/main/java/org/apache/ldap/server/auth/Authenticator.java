@@ -23,16 +23,22 @@ import javax.naming.NamingException;
 
 
 /**
- * Endi when you have a chance please document this class with the proper javadocs.
+ * Defines methods that all Authenticators must implement.
  *
+ * <p>An Authenticator is a program that performs client authentication based on the authentication
+ * method/type that the client specifies in the JNDI properties.
+ *
+ * <p>To implement this interface, you can write an authenticator that extends org.apache.ldap.server.auth.AbstractAuthenticator.
+ *
+ * @see AbstractAuthenticator
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Authenticator
 {
-    AuthenticatorContext getAuthenticatorContext();
+    public AuthenticatorConfig getAuthenticatorConfig();
 
-    String getType();
+    public String getAuthenticatorType();
 
     /**
      * Called by the authenticator container to indicate that the authenticator is being placed into service.
@@ -40,12 +46,7 @@ public interface Authenticator
      * @param authenticatorConfig
      * @throws NamingException
      */
-    void init( AuthenticatorConfig authenticatorConfig ) throws NamingException;
-
-    /**
-     * A convenience method which can be overridden so that there's no need to call super.init( authenticatorConfig ).
-     */
-    void init() throws NamingException;
+    public void init( AuthenticatorConfig authenticatorConfig ) throws NamingException;
 
     /**
      * Perform the authentication operation and return the authorization id if successfull.
@@ -54,5 +55,5 @@ public interface Authenticator
      * @return the authorization id
      * @throws NamingException
      */
-    LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
+    public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
 }

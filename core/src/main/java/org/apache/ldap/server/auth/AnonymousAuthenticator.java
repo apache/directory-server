@@ -22,7 +22,7 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import javax.naming.NamingException;
 
 /**
- * Endi can you please javadoc this code.
+ * A default implentation of an Authenticator for handling anonymous connections.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -34,11 +34,10 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
     }
 
 
-    public void init() throws NamingException
-    {
-    }
-
-
+    /**
+     * This will be called when the authentication is set to "none" on the client.
+     * If server is not configured to allow anonymous connections, it throws an exception.
+     */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {
         if ( getAuthenticatorContext().getAllowAnonymous() )

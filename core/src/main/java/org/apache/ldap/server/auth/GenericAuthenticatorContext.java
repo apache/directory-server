@@ -21,23 +21,43 @@ import org.apache.ldap.server.PartitionNexus;
 
 
 /**
- * Defines a set of methods that an authenticator uses to communicate with its container,
- * for example, to get the partition nexus, or whether the server is configured to accept
- * anonymous connection.
+ * Default implementation of AuthenticatorContext.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 124525 $
  */
-public interface AuthenticatorContext
+public class GenericAuthenticatorContext implements AuthenticatorContext
 {
 
-    /**
-     * Returns a reference to the PartitionNexus.
-     */
-    public PartitionNexus getPartitionNexus();
+    /** the root nexus to all database partitions */
+    private PartitionNexus partitionNexus;
+    /** whether or not to allow anonymous users */
+    private boolean allowAnonymous = false;
 
     /**
-     * Returns the value of server.disable.anonymous JNDI Property.
+     * Create a new AuthenticatorContext.
      */
-    public boolean getAllowAnonymous();
+    public GenericAuthenticatorContext()
+    {
+    }
+
+    public PartitionNexus getPartitionNexus()
+    {
+        return partitionNexus;
+    }
+    public void setPartitionNexus( PartitionNexus rootNexus )
+    {
+        this.partitionNexus = rootNexus;
+    }
+
+    public boolean getAllowAnonymous()
+    {
+        return allowAnonymous;
+    }
+
+    public void setAllowAnonymous( boolean allowAnonymous )
+    {
+        this.allowAnonymous = allowAnonymous;
+    }
+
 }

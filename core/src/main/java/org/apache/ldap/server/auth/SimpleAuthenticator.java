@@ -49,16 +49,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
 
     /**
-     * Does nothing!
-     *
-     * @see Authenticator#init()
-     */
-    public void init() throws NamingException
-    {
-    }
-
-
-    /**
      * Uses the userPassword field of the user to authenticate.
      *
      * @see Authenticator#authenticate(org.apache.ldap.server.jndi.ServerContext)

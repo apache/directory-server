@@ -34,8 +34,8 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.AbstractAuthenticator;
 import org.apache.ldap.server.auth.AnonymousAuthenticator;
-import org.apache.ldap.server.auth.AuthenticatorConfig;
-import org.apache.ldap.server.auth.AuthenticatorContext;
+import org.apache.ldap.server.auth.GenericAuthenticatorConfig;
+import org.apache.ldap.server.auth.GenericAuthenticatorContext;
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.auth.SimpleAuthenticator;
 import org.apache.ldap.server.jndi.invocation.Invocation;
@@ -79,14 +79,14 @@ public class Authenticator implements Interceptor
         boolean allowAnonymous = !ctx.getEnvironment().containsKey( EnvKeys.DISABLE_ANONYMOUS );
 
         // create authenticator context
-        AuthenticatorContext authenticatorContext = new AuthenticatorContext();
+        GenericAuthenticatorContext authenticatorContext = new GenericAuthenticatorContext();
         authenticatorContext.setPartitionNexus( ctx.getRootNexus() );
         authenticatorContext.setAllowAnonymous( allowAnonymous );
 
         try // initialize default authenticators
         {
             // create anonymous authenticator
-            AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig();
+            GenericAuthenticatorConfig authenticatorConfig = new GenericAuthenticatorConfig();
             authenticatorConfig.setAuthenticatorName( "none" );
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
@@ -95,7 +95,7 @@ public class Authenticator implements Interceptor
             this.register( authenticator );
 
             // create simple authenticator
-            authenticatorConfig = new AuthenticatorConfig();
+            authenticatorConfig = new GenericAuthenticatorConfig();
             authenticatorConfig.setAuthenticatorName( "simple" );
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
@@ -108,7 +108,7 @@ public class Authenticator implements Interceptor
             throw new NamingException( e.getMessage() );
         }
 
-        AuthenticatorConfig[] configs = null;
+        GenericAuthenticatorConfig[] configs = null;
         configs = AuthenticatorConfigBuilder
                 .getAuthenticatorConfigs( new Hashtable( ctx.getEnvironment() ) );
 
@@ -150,11 +150,11 @@ public class Authenticator implements Interceptor
      */
     public void register( org.apache.ldap.server.auth.Authenticator authenticator )
     {
-        Collection authenticatorList = getAuthenticators( authenticator.getType() );
+        Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
         if ( authenticatorList == null )
         {
             authenticatorList = new ArrayList();
-            authenticators.put( authenticator.getType(), authenticatorList );
+            authenticators.put( authenticator.getAuthenticatorType(), authenticatorList );
         }
         authenticatorList.add( authenticator );
     }
@@ -170,7 +170,7 @@ public class Authenticator implements Interceptor
      */
     public void unregister( org.apache.ldap.server.auth.Authenticator authenticator )
     {
-        Collection authenticatorList = getAuthenticators( authenticator.getType() );
+        Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
         if ( authenticatorList == null )
         {
             return;

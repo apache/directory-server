@@ -17,68 +17,32 @@
 package org.apache.ldap.server.auth;
 
 import java.util.Enumeration;
-import java.util.Properties;
 
 /**
- * A configuration bean for Authenticators. 
+ * An authenticator configuration object used by the server to pass information to an authenticator
+ * during initialization.
  *
- * @todo Endi this class needs javadocs for the methods
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AuthenticatorConfig {
+public interface AuthenticatorConfig {
 
-    private String authenticatorName;
-    private String authenticatorClass;
-    private AuthenticatorContext authenticatorContext;
-    private Properties properties = new Properties();
+    /**
+     * Returns the name of this authenticator instance.
+     */
+    public String getAuthenticatorName();
 
-    public String getAuthenticatorName()
-    {
-        return authenticatorName;
-    }
+    /**
+     * Returns a String containing the value of the named initialization parameter, or null if the parameter does not exist.
+     */
+    public String getInitParameter( String name );
 
-    public void setAuthenticatorName( String authenticatorName )
-    {
-        this.authenticatorName = authenticatorName;
-    }
+    /**
+     * Returns the names of the servlet's initialization parameters as an Enumeration of String objects, or an empty Enumeration if the servlet has no initialization parameters.
+     */
+    public Enumeration getInitParameterNames();
 
-    public String getAuthenticatorClass()
-    {
-        return authenticatorClass;
-    }
-
-    public void setAuthenticatorClass( String authenticatorClass )
-    {
-        this.authenticatorClass = authenticatorClass;
-    }
-
-    public Properties getProperties()
-    {
-        return properties;
-    }
-
-    public void setProperties( Properties properties )
-    {
-        this.properties = properties;
-    }
-
-    public String getInitParameter( String name )
-    {
-        return properties.getProperty( name );
-    }
-
-    public Enumeration getInitParameterNames()
-    {
-        return properties.keys();
-    }
-
-    public AuthenticatorContext getAuthenticatorContext()
-    {
-        return authenticatorContext;
-    }
-
-    public void setAuthenticatorContext( AuthenticatorContext authenticatorContext )
-    {
-        this.authenticatorContext = authenticatorContext;
-    }
+    /**
+     * Returns a reference to the AuthenticatorContext.
+     */
+    public AuthenticatorContext getAuthenticatorContext();
 }

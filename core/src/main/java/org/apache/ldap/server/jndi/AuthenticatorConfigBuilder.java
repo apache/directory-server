@@ -24,7 +24,7 @@ import java.util.Properties;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.auth.AuthenticatorConfig;
+import org.apache.ldap.server.auth.GenericAuthenticatorConfig;
 
 
 /**
@@ -36,7 +36,7 @@ import org.apache.ldap.server.auth.AuthenticatorConfig;
 public class AuthenticatorConfigBuilder
 {
     /** keep this so we do not have create empty ones over and over again */
-    private final static AuthenticatorConfig[] EMPTY = new AuthenticatorConfig[0];
+    private final static GenericAuthenticatorConfig[] EMPTY = new GenericAuthenticatorConfig[0];
 
 
     /**
@@ -48,11 +48,11 @@ public class AuthenticatorConfigBuilder
      * @return the extracted configuration object
      * @throws javax.naming.NamingException
      */
-    public static AuthenticatorConfig getAuthenticatorConfig( String authenticatorName, Hashtable env )
+    public static GenericAuthenticatorConfig getAuthenticatorConfig( String authenticatorName, Hashtable env )
             throws NamingException
     {
         final StringBuffer buf = new StringBuffer();
-        final AuthenticatorConfig config = new AuthenticatorConfig();
+        final GenericAuthenticatorConfig config = new GenericAuthenticatorConfig();
 
         // --------------------------------------------------------------------
         // set id for authenticator
@@ -107,7 +107,7 @@ public class AuthenticatorConfigBuilder
      * @return all the extracted configuration objects configured
      * @throws javax.naming.NamingException
      */
-    public static AuthenticatorConfig[] getAuthenticatorConfigs( Hashtable env )
+    public static GenericAuthenticatorConfig[] getAuthenticatorConfigs( Hashtable env )
             throws NamingException
     {
         String idList = ( String ) env.get( EnvKeys.AUTHENTICATORS );
@@ -120,7 +120,7 @@ public class AuthenticatorConfigBuilder
 
         idList = StringTools.deepTrim( idList );
         final String[] ids = idList.split( " " );
-        final AuthenticatorConfig[] configs = new AuthenticatorConfig[ids.length];
+        final GenericAuthenticatorConfig[] configs = new GenericAuthenticatorConfig[ids.length];
         for ( int ii = 0; ii < configs.length; ii++ )
         {
             configs[ii] = getAuthenticatorConfig( ids[ii], env );

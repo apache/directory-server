@@ -166,6 +166,90 @@ ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s o
         </p>
       </subsection>
 
+      <subsection name="Custom Authenticator">
+        <p>
+          Authenticator SPI provides a way to implement your own authentication mechanism,
+          for instance simple mechanism using password encryption such as MD5 or SHA1, or
+          SASL mechanism. See the following example:
+        </p>
+
+        <source>
+import javax.naming.NamingException;
+
+import org.apache.ldap.server.auth.AbstractAuthenticator;
+import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.name.LdapName;
+
+public class MyAuthenticator extends AbstractAuthenticator {
+
+    public MyAuthenticator( )
+    {
+        // create authenticator that will handle "simple" authentication mechanism
+        super( "simple" );
+    }
+
+    public void init() throws NamingException
+    {
+        ...
+    }
+
+    public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
+    {
+        ...
+
+        // return the authorization id
+        LdapName principalDn = new LdapName( dn );
+        return new LdapPrincipal( principalDn );
+    }
+}
+          </source>
+
+          <p>
+            The authenticator class has to extend the org.apache.ldap.server.auth.AbstractAuthenticator.
+            This class needs to have a no-argument constructor that calls the super()
+            constructor with parameter the authentication mechanism it is going to handle.
+            In the above example, MyAuthenticator class is going to handle the simple
+            authentication mechanism. To implement a SASL mechanism you need to call super()
+            with the name of the SASL mechanism, e.g. super( "DIGEST-MD5" ).
+          </p>
+
+          <p>
+            You can optionally implement the init() method to initialize your authenticator class.
+            This will be called when the authenticator is loaded by ApacheDS during start-up.
+          </p>
+
+          <p>
+            When a client performs an authentication, ApacheDS will call the authenticate() method.
+            You can get the client authentication info from the server context. After you authenticate
+            the client, you need to return the authorization id. If the authentication fails, you
+            should throw an LdapNoPermissionException.
+          </p>
+
+          <p>
+            When there are multiple authenticators registered with the same authentication type,
+            ApacheDS will try to use them in the order it was registered. If one fails it will use
+            the next one, until it finds one that successfully authenticates the client.
+          </p>
+
+          <p>
+            To tell ApacheDS to load your custom authenticators, you need to specify it in the JNDI
+            Properties. You can also optionally specify the location of a .properties file containing
+            the initialization parameters. See the following example:
+          </p>
+
+          <source>
+server.authenticators=myauthenticator yourauthenticator
+
+server.authenticator.class.myauthenticator=com.mycompany.MyAuthenticator
+server.authenticator.properties.myauthenticator=myauthenticator.properties
+
+server.authenticator.class.yourauthenticator=com.yourcompany.YourAuthenticator
+server.authenticator.properties.yourauthenticator=yourauthenticator.properties
+          </source>
+      </subsection>
+
     </section>
   </body>
 </document>

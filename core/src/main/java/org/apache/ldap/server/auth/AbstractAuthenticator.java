@@ -17,7 +17,10 @@
 package org.apache.ldap.server.auth;
 
 
+import org.apache.ldap.server.jndi.ServerContext;
+
 import javax.naming.NamingException;
+import java.util.Enumeration;
 
 
 /**
@@ -25,15 +28,13 @@ import javax.naming.NamingException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractAuthenticator implements Authenticator
+public abstract class AbstractAuthenticator implements Authenticator, AuthenticatorConfig
 {
 
     /** authenticator config */
     public AuthenticatorConfig authenticatorConfig;
-    /** authenticator context */
-    public AuthenticatorContext authenticatorContext;
     /** authenticator type */
-    public String type;
+    public String authenticatorType;
 
     /**
      * Create a new Authenticator.
@@ -42,28 +43,78 @@ public abstract class AbstractAuthenticator implements Authenticator
      */
     public AbstractAuthenticator( String type )
     {
-        this.type = type;
+        this.authenticatorType = type;
     }
 
 
+    /**
+     * Returns a reference to the AuthenticatorContext in which this authenticator is running.
+     */
     public AuthenticatorContext getAuthenticatorContext()
     {
-        return authenticatorContext;
+        return authenticatorConfig.getAuthenticatorContext();
     }
 
-
-    public String getType()
+    /**
+     * Returns this authenticator's type.
+     */
+    public String getAuthenticatorType()
     {
-        return type;
+        return authenticatorType;
     }
 
+    /**
+     * Return this authenticator's AuthenticatorConfig object.
+     */
+    public AuthenticatorConfig getAuthenticatorConfig()
+    {
+        return authenticatorConfig;
+    }
 
+    /**
+     * Called by the server to indicate to an authenticator that the authenticator is being placed into service.
+     */
     public void init( AuthenticatorConfig authenticatorConfig ) throws NamingException
     {
         this.authenticatorConfig = authenticatorConfig;
 
-        this.authenticatorContext = authenticatorConfig.getAuthenticatorContext();
-
         init();
     }
+
+    /**
+     * A convenience method which can be overridden so that there's no need to call super.init( authenticatorConfig ).
+     */
+    public void init() throws NamingException
+    {
+    }
+
+    /**
+     * Perform the authentication operation and return the authorization id if successfull.
+     */
+    public abstract LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
+
+    /**
+     * Returns the name of this authenticator instance.
+     */
+    public String getAuthenticatorName()
+    {
+        return authenticatorConfig.getAuthenticatorName();
+    }
+
+    /**
+     * Returns a String containing the value of the named initialization parameter, or null if the parameter does not exist.
+     */
+    public String getInitParameter( String name )
+    {
+        return authenticatorConfig.getInitParameter( name );
+    }
+
+    /**
+     * Returns the names of the servlet's initialization parameters as an Enumeration of String objects, or an empty Enumeration if the servlet has no initialization parameters.
+     */
+    public Enumeration getInitParameterNames()
+    {
+        return authenticatorConfig.getInitParameterNames();
+    }
+
 }
