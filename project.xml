@@ -19,7 +19,7 @@
 
     <url>http://incubator.apache.org/directory/eve/</url>
     
-    <issueTrackingUrl>http://issues.apache.org/browse/DIREVE</issueTrackingUrl>
+    <issueTrackingUrl>http://issues.apache.org/jira/browse/DIREVE</issueTrackingUrl>
     <siteAddress>directory.apache.org</siteAddress>
     <!-- TODO: ... -->
     <siteDirectory>/home/akarasulu/public_html</siteDirectory>
@@ -31,7 +31,7 @@
 
     <repository>
       <connection>
-        scm:svn:http://cvs.apache.org/repos/asf/incubator:directory/eve/trunk/${module.path}
+        scm:svn:http://svn.apache.org/repos/asf/incubator:directory/eve/trunk/${module.path}
       </connection>
 
       <url>
