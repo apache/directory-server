@@ -17,6 +17,7 @@
 package org.apache.eve.schema;
 
 
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.DITContentRule;
@@ -66,4 +67,11 @@ public interface DITContentRuleRegistry
      * otherwise
      */
     boolean hasDITContentRule( String id );
+
+    /**
+     * Lists all the DITContentRules within this registry.
+     *
+     * @return Iterator over all the DITContentRules within this registry
+     */
+    Iterator list();
 }

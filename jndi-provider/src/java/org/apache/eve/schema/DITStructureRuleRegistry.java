@@ -17,6 +17,7 @@
 package org.apache.eve.schema;
 
 
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.DITStructureRule;
@@ -67,4 +68,11 @@ public interface DITStructureRuleRegistry
      * otherwise
      */
     boolean hasDITStructureRule( String id );
+
+    /**
+     * Lists all the DITStructureRules within this registry.
+     *
+     * @return an Iterator over all the DITStructureRules within this registry
+     */
+    Iterator list();
 }

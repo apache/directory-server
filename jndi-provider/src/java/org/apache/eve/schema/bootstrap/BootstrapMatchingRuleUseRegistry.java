@@ -24,6 +24,7 @@ import org.apache.eve.schema.MatchingRuleUseRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 
@@ -123,5 +124,11 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 
         throw new NamingException( "Name " + id + " not found in name to " +
             "schema name map!" );
+    }
+
+
+    public Iterator list()
+    {
+        return byName.values().iterator();
     }
 }

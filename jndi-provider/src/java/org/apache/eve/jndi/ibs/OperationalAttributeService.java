@@ -49,7 +49,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /** the database search result filter to register with filter service */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
-        public boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls )
+        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
             throws NamingException
         {
             if ( controls.getReturningAttributes() == null )

@@ -177,7 +177,7 @@ public class Invocation implements Serializable
      *
      * @param bypass whether or not the call on the proxied object is bypassed
      */
-    void setBypass( boolean bypass )
+    public void setBypass( boolean bypass )
     {
         this.bypass = bypass;
     }

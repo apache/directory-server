@@ -148,9 +148,8 @@ public class RootDSETest extends TestCase
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
         Attributes attributes = ctx.getAttributes( "",
                 new String[]{ "namingContexts", "vendorName" });
-        assertEquals( 2, attributes.size() );
+        assertEquals( 3, attributes.size() );
         assertEquals( "Apache Software Foundation", attributes.get( "vendorName" ).get() );
-        assertTrue( attributes.get( "namingContexts" ).contains( "" ) );
         assertTrue( attributes.get( "namingContexts" ).contains( "ou=system" ) );
     }
 

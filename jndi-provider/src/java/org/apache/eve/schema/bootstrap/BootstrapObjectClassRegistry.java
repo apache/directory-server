@@ -146,11 +146,6 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
     }
 
 
-    /**
-     * Open up a back door for some tests.
-     *
-     * @return an iteration over the set of ObjectClasses within this registry.
-     */
     public Iterator list()
     {
         return byOid.values().iterator();

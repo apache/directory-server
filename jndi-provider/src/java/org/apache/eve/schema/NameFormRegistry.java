@@ -17,6 +17,7 @@
 package org.apache.eve.schema;
 
 
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.NameForm;
@@ -66,4 +67,11 @@ public interface NameFormRegistry
      * otherwise
      */
     boolean hasNameForm( String id );
+
+    /**
+     * Lists all the NameForms within this registry.
+     *
+     * @return an Iterator over all the NameForms within this registry
+     */ 
+    Iterator list();
 }

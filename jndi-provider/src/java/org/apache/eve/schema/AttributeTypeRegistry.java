@@ -17,6 +17,7 @@
 package org.apache.eve.schema;
 
 
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.AttributeType;
@@ -67,4 +68,11 @@ public interface AttributeTypeRegistry
      * otherwise
      */
     boolean hasAttributeType( String id );
+
+    /**
+     * Gets an Iterator over the AttributeTypes within this registry.
+     *
+     * @return an iterator over all AttributeTypes in registry
+     */
+    Iterator list();
 }

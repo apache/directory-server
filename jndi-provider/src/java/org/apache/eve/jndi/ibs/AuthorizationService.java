@@ -23,10 +23,10 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.eve.SystemPartition;
 import org.apache.eve.db.SearchResultFilter;
-import org.apache.eve.db.DbSearchResult;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.eve.jndi.*;
 import org.apache.ldap.common.name.NameComponentNormalizer;
@@ -282,7 +282,7 @@ public class AuthorizationService extends BaseInterceptor
     
     private class AuthorizationFilter implements SearchResultFilter, LookupFilter
     {
-        public boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls )
+        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
                 throws NamingException
         {
             Name dn;

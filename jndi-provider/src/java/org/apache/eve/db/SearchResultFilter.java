@@ -20,6 +20,7 @@ package org.apache.eve.db;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 
 /**
@@ -43,6 +44,6 @@ public interface SearchResultFilter
      * @return true if the result is to be returned, false if it is to be
      * discarded from the result set
      */
-    boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls )
+    boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
         throws NamingException;
 }

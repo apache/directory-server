@@ -17,9 +17,7 @@
 package org.apache.eve.jndi.ibs;
 
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
+import java.util.*;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
@@ -27,16 +25,24 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.SearchResult;
 
 import org.apache.eve.jndi.BaseInterceptor;
+import org.apache.eve.jndi.Invocation;
+import org.apache.eve.jndi.InvocationStateEnum;
 import org.apache.eve.RootNexus;
 import org.apache.eve.db.SearchResultFilter;
-import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.schema.GlobalRegistries;
 import org.apache.eve.schema.AttributeTypeRegistry;
 
-import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.*;
 import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.SimpleNode;
+import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -55,6 +61,8 @@ public class SchemaService extends BaseInterceptor
     private final FilterService filterService;
     /** the global schema object registries */
     private final GlobalRegistries globalRegistries;
+    /** subschemaSubentry attribute's value from Root DSE */
+    private final String subentryDn;
 
 
     /**
@@ -65,7 +73,7 @@ public class SchemaService extends BaseInterceptor
      * @param filterService
      */
     public SchemaService( RootNexus nexus, GlobalRegistries globalRegistries,
-                          FilterService filterService )
+                          FilterService filterService ) throws NamingException
     {
         this.nexus = nexus;
         if ( this.nexus == null )
@@ -89,6 +97,10 @@ public class SchemaService extends BaseInterceptor
                 globalRegistries.getAttributeTypeRegistry() );
         filterService.addLookupFilter( binaryAttributeFilter );
         filterService.addSearchResultFilter( binaryAttributeFilter );
+
+        // stuff for dealing with subentries (garbage for now)
+        String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
+        subentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
     }
 
 
@@ -187,10 +199,184 @@ public class SchemaService extends BaseInterceptor
         }
 
 
-        public boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls ) throws NamingException
+        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls ) throws NamingException
         {
             doFilter( ctx, result.getAttributes() );
             return true;
         }
+    }
+
+
+    protected void search( Name base, Map env, ExprNode filter,
+                           SearchControls searchControls ) throws NamingException
+    {
+        Invocation invocation = getInvocation();
+
+        // check to make sure the DN searched for is a subentry
+        if ( ! subentryDn.equals( base.toString() ) )
+        {
+            return;
+        }
+
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
+        {
+            if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
+                 filter instanceof SimpleNode )
+            {
+                SimpleNode node = ( SimpleNode ) filter;
+
+                if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) &&
+                     node.getValue().equalsIgnoreCase( "subschema" ) &&
+                     node.getAssertionType() == SimpleNode.EQUALITY
+                   )
+                {
+                    invocation.setBypass( true );
+                    Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
+                    SearchResult result = new SearchResult( base.toString(), null, attrs );
+                    SingletonEnumeration enum = new SingletonEnumeration( result );
+                    invocation.setReturnValue( enum );
+                }
+            }
+            else if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
+                     filter instanceof PresenceNode )
+            {
+                PresenceNode node = ( PresenceNode ) filter;
+
+                if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) )
+                {
+                    invocation.setBypass( true );
+                    Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
+                    SearchResult result = new SearchResult( base.toString(), null, attrs );
+                    SingletonEnumeration enum = new SingletonEnumeration( result );
+                    invocation.setReturnValue( enum );
+                }
+            }
+        }
+    }
+
+
+    private Attributes getSubschemaEntry( String[] ids ) throws NamingException
+    {
+        if ( ids == null )
+        {
+            return new LockableAttributesImpl();
+        }
+
+        HashSet set = new HashSet( ids.length );
+        LockableAttributesImpl attrs = new LockableAttributesImpl();
+        LockableAttributeImpl attr = null;
+
+        for ( int ii = 0; ii < ids.length; ii++ )
+        {
+            set.add( ids[ii].toLowerCase() );
+        }
+
+
+        if ( set.contains( "objectclasses" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "objectClasses" );
+            Iterator list = globalRegistries.getObjectClassRegistry().list();
+            while ( list.hasNext() )
+            {
+                ObjectClass oc = ( ObjectClass ) list.next();
+                attr.add( SchemaUtils.render( oc ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        if ( set.contains( "attributetypes" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "attributeTypes" );
+            Iterator list = globalRegistries.getAttributeTypeRegistry().list();
+            while ( list.hasNext() )
+            {
+                AttributeType at = ( AttributeType ) list.next();
+                attr.add( SchemaUtils.render( at ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        if ( set.contains( "matchingrules" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "matchingRules" );
+            Iterator list = globalRegistries.getMatchingRuleRegistry().list();
+            while ( list.hasNext() )
+            {
+                MatchingRule mr = ( MatchingRule ) list.next();
+                attr.add( SchemaUtils.render( mr ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        if ( set.contains( "matchingruleuse" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "matchingRuleUse" );
+            Iterator list = globalRegistries.getMatchingRuleUseRegistry().list();
+            while ( list.hasNext() )
+            {
+                MatchingRuleUse mru = ( MatchingRuleUse ) list.next();
+                attr.add( SchemaUtils.render( mru ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        if ( set.contains( "ldapsyntaxes" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "ldapSyntaxes" );
+            Iterator list = globalRegistries.getSyntaxRegistry().list();
+            while ( list.hasNext() )
+            {
+                Syntax syntax = ( Syntax ) list.next();
+                attr.add( SchemaUtils.render( syntax ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        if ( set.contains( "ditcontentrules" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "dITContentRules" );
+            Iterator list = globalRegistries.getDitContentRuleRegistry().list();
+            while ( list.hasNext() )
+            {
+                DITContentRule dcr = ( DITContentRule ) list.next();
+                attr.add( SchemaUtils.render( dcr ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        if ( set.contains( "ditstructurerules" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "dITStructureRules" );
+            Iterator list = globalRegistries.getDitStructureRuleRegistry().list();
+            while ( list.hasNext() )
+            {
+                DITStructureRule dsr = ( DITStructureRule ) list.next();
+                attr.add( SchemaUtils.render( dsr ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        if ( set.contains( "nameforms" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "nameForms" );
+            Iterator list = globalRegistries.getNameFormRegistry().list();
+            while ( list.hasNext() )
+            {
+                NameForm nf = ( NameForm ) list.next();
+                attr.add( SchemaUtils.render( nf ).toString() );
+            }
+            attrs.put( attr );
+        }
+
+        // add the objectClass attribute
+        attr = new LockableAttributeImpl( attrs, "objectClass" );
+        attr.add( "top" );
+        attr.add( "subschema" );
+        attrs.put( attr );
+
+        // add the cn attribute as required for the RDN
+        attrs.put( "cn", "schema" );
+
+        return attrs;
     }
 }

@@ -181,6 +181,6 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
     public Iterator list()
     {
         return new JoinIterator( new Iterator[]
-            { byOid.values().iterator(),bootstrap.list() } );
+            { byOid.values().iterator(), bootstrap.list() } );
     }
 }

@@ -17,6 +17,7 @@
 package org.apache.eve.schema;
 
 
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.MatchingRule;
@@ -68,4 +69,11 @@ public interface MatchingRuleRegistry
      * otherwise
      */
     boolean hasMatchingRule( String oid );
+
+    /**
+     * Gets an Iterator over the MatchingRules within this registry.
+     *
+     * @return an iterator over all MatchingRules in registry
+     */
+    Iterator list();
 }

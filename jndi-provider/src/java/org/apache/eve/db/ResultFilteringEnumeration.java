@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 
 /**
@@ -43,7 +44,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
     private final NamingEnumeration decorated;
 
     /** the first accepted search result that is prefetched */
-    private DbSearchResult prefetched;
+    private SearchResult prefetched;
     /** flag storing closed state of this naming enumeration */
     private boolean isClosed = false;
     /** the controls associated with the search operation */
@@ -184,7 +185,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
 
     public Object next() throws NamingException
     {
-        DbSearchResult retVal = this.prefetched;
+        SearchResult retVal = this.prefetched;
         prefetch();
         return retVal;
     }
@@ -203,7 +204,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
 
     public Object nextElement()
     {
-        DbSearchResult retVal = this.prefetched;
+        SearchResult retVal = this.prefetched;
 
         try
         {
@@ -235,12 +236,12 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      */
     private void prefetch() throws NamingException
     {
-        DbSearchResult tmp = null;
+        SearchResult tmp = null;
 
         while( decorated.hasMore() )
         {
             boolean accepted = true;
-            tmp = ( DbSearchResult ) decorated.next();
+            tmp = ( SearchResult ) decorated.next();
 
             // don't waste using a for loop if we got 0 or 1 element
             if ( filters.isEmpty() )

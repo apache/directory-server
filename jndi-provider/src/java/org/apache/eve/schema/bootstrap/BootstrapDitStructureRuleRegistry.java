@@ -25,6 +25,7 @@ import org.apache.eve.schema.DITStructureRuleRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 
@@ -142,5 +143,13 @@ public class BootstrapDitStructureRuleRegistry implements DITStructureRuleRegist
 
         throw new NamingException( "OID " + id + " not found in oid to " +
             "schema name map!" );
+    }
+
+
+
+
+    public Iterator list()
+    {
+        return byOid.values().iterator();
     }
 }

@@ -64,8 +64,7 @@ public class $classname extends AbstractBootstrapProducer
 
         objectClass = newObjectClass( "$objectClass.getOid()", registries );
         objectClass.setObsolete( $objectClass.isObsolete() );
-        objectClass.setDescription( "$objectClass.getDescription()" );
-
+        objectClass.setDescription( "$!objectClass.getDescription()" );
         #if ( $objectClass.getObjectClassType().getName() == "ABSTRACT" )
         objectClass.setType( ObjectClassTypeEnum.ABSTRACT );
         #elseif ( $objectClass.getObjectClassType().getName() == "AUXILIARY" )

@@ -108,7 +108,7 @@ public class FilterServiceImpl extends BaseInterceptor
             retval = new ResultFilteringEnumeration( enum, LIST_CONTROLS, ctx,
                 new SearchResultFilter()
                 {
-                    public boolean accept( LdapContext ctx, DbSearchResult result,
+                    public boolean accept( LdapContext ctx, SearchResult result,
                                            SearchControls controls )
                             throws NamingException
                     {
@@ -186,7 +186,7 @@ public class FilterServiceImpl extends BaseInterceptor
             retval = new ResultFilteringEnumeration( enum, searchControls, ctx,
                 new SearchResultFilter()
                 {
-                    public boolean accept( LdapContext ctx, DbSearchResult result,
+                    public boolean accept( LdapContext ctx, SearchResult result,
                                            SearchControls controls )
                             throws NamingException
                     {
@@ -216,7 +216,7 @@ public class FilterServiceImpl extends BaseInterceptor
      * @throws NamingException if there are errors while applying the linear
      * composition of filters
      */
-    private boolean accept( LdapContext ctx, DbSearchResult result, SearchControls controls )
+    private boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
             throws NamingException
     {
         boolean isAccepted = true;

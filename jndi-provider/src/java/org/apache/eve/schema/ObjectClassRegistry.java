@@ -17,6 +17,7 @@
 package org.apache.eve.schema;
 
 
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.ObjectClass;
@@ -66,4 +67,11 @@ public interface ObjectClassRegistry
      * otherwise
      */
     boolean hasObjectClass( String id );
+
+    /**
+     * Gets an Iterator over the ObjectClasses within this ObjectClassRegistry.
+     *
+     * @return an iterator over all ObjectClasses in registry
+     */
+    Iterator list();
 }

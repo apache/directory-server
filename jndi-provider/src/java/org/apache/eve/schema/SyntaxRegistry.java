@@ -17,6 +17,7 @@
 package org.apache.eve.schema;
 
 
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.Syntax;
@@ -67,4 +68,11 @@ public interface SyntaxRegistry
      * @return true if a Syntax definition exists for the id, false otherwise
      */
     boolean hasSyntax( String id );
+
+    /**
+     * Lists all the Syntaxes within this registry.
+     *
+     * @return an Iterator over all the Syntaxes within this registry
+     */
+    Iterator list();
 }
