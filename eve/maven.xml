@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?> 
   
 <project 
-  default="java:compile" 
+  default="buildall" 
   xmlns:j="jelly:core" 
   xmlns:u="jelly:util" 
   xmlns:ant="jelly:ant" 
@@ -42,10 +42,16 @@
     <delete dir="home"/>
   </goal>
   
-  <goal name="java:compile" description="Build All Jar Files And Intall">
+  <goal name="buildall" description="Build All Jar Files And Intall">
     <maven:reactor basedir="${basedir}" postProcessing="true" 
       includes="**/project.xml" excludes="./project.xml" goals="jar:install" 
-      banner="Building All" ignoreFailures="false"/>
+      banner="Building" ignoreFailures="false"/>
+  </goal>
+  
+  <goal name="deployall" description="Deploy All Jar Files And Intall">
+    <maven:reactor basedir="${basedir}" postProcessing="true" 
+      includes="**/project.xml" excludes="./project.xml" goals="jar:deploy" 
+      banner="Deploying" ignoreFailures="false"/>
   </goal>
   
   <goal name="sitedocs" description="Builds the entire site documentation">
