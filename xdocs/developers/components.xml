@@ -14,16 +14,11 @@
         </p>
         
         <ul>
-          <li><a href=
-          "http://avalon.apache.org/framework/cop/guide-patterns-ioc.html">
+          <li><a href="http://wiki.apache.org/avalon/WhatIsIoC">
           Inversion of Control Pattern</a></li>
           
-          <li><a href="http://avalon.apache.org/framework/cop/index.html">
-          Component Oriented Programing</a></li>
-          
-          <li><a href=
-          "http://nagoya.apache.org/wiki/apachewiki.cgi?AvalonNoLogging">Leo 
-          Sutic's use of Monitors instead of Loggers</a> is a technique we use.
+          <li><a href="http://wiki.apache.org/avalon/AvalonNoLogging?highlight=%28NoLogging%29">
+             Paul Hammant's use of Monitors instead of Loggers</a> is a technique we use.
           </li>
         </ul>
     </section>
