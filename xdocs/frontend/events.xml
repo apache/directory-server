@@ -16,7 +16,7 @@
       <p>
         The pattern is also known as the dispatcher, decoupler, and publish 
         subscribe pattern.  For more information regarding this pattern look
-        at this <a href="http://members.ispwest.com/jeffhartkopf/notifier/">
+        at this <a href="http://www.dralasoft.com/products/eventbroker/whitepaper/">
         article</a>.  Or you can look at the documentation for our event 
         <a href="./components/event/index.html">notification</a> service and 
         its implementation which is an exact manifestation of this pattern as 
