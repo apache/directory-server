@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.server.RootNexus;

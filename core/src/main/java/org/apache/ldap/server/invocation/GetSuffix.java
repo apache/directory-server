@@ -14,23 +14,23 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.ContextPartition;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link PartitionNexus#getMatchedDn(Name, boolean)}.
+ * Represents an {@link Invocation} on {@link ContextPartition#getSuffix(boolean)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetMatchedDN extends Invocation
+public class GetSuffix extends Invocation
 {
 
     private final Name name;
@@ -38,7 +38,7 @@ public class GetMatchedDN extends Invocation
     private final boolean normalized;
 
 
-    public GetMatchedDN( Name name, boolean normalized )
+    public GetSuffix( Name name, boolean normalized )
     {
         if ( name == null )
         {
@@ -64,6 +64,6 @@ public class GetMatchedDN extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return ( ( PartitionNexus ) store ).getMatchedDn( name, normalized );
+        return ( ( ContextPartition ) store ).getSuffix( normalized );
     }
 }

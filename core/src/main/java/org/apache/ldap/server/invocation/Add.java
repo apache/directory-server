@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
@@ -25,43 +25,41 @@ import javax.naming.directory.Attributes;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#modify(Name, int, Attributes)}.
+ * Represents an {@link Invocation} on {@link BackingStore#add(String, Name, Attributes)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Modify extends Invocation
+public class Add extends Invocation
 {
 
-    private final Name name;
+    private final String userProvidedName;
 
-    private final int modOp;
+    private final Name normalizedName;
 
     private final Attributes attributes;
 
 
-    public Modify( Name name, int modOp, Attributes attributes )
+    public Add( String userProvidedName, Name normalizedName, Attributes attributes )
     {
-        if ( name == null )
+        if ( userProvidedName == null )
         {
-            throw new NullPointerException( "name" );
+            throw new NullPointerException( "userProvidedName" );
         }
 
-        this.name = name;
-        this.modOp = modOp;
+        if ( normalizedName == null )
+        {
+            throw new NullPointerException( "normalizedName" );
+        }
+
+        if ( attributes == null )
+        {
+            throw new NullPointerException( "attributes" );
+        }
+
+        this.userProvidedName = userProvidedName;
+        this.normalizedName = normalizedName;
         this.attributes = attributes;
-    }
-
-
-    public Name getName()
-    {
-        return name;
-    }
-
-
-    public int getModOp()
-    {
-        return modOp;
     }
 
 
@@ -71,9 +69,21 @@ public class Modify extends Invocation
     }
 
 
+    public Name getNormalizedName()
+    {
+        return normalizedName;
+    }
+
+
+    public String getUserProvidedName()
+    {
+        return userProvidedName;
+    }
+
+
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.modify( name, modOp, attributes );
+        store.add( userProvidedName, normalizedName, attributes );
         return null;
     }
 }

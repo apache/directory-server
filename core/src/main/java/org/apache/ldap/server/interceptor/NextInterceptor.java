@@ -14,41 +14,29 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.interceptor;
 
 
-import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.invocation.Invocation;
 
 import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link PartitionNexus#listSuffixes(boolean)}.
+ * Represents the next {@link org.apache.ldap.server.interceptor.Interceptor} in the interceptor chain.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
+ * @see org.apache.ldap.server.interceptor.Interceptor
+ * @see org.apache.ldap.server.interceptor.InterceptorChain
  */
-public class ListSuffixes extends Invocation
+public interface NextInterceptor
 {
-
-    private final boolean normalized;
-
-
-    public ListSuffixes( boolean normalized )
-    {
-        this.normalized = normalized;
-    }
-
-
-    public boolean isNormalized()
-    {
-        return normalized;
-    }
-
-
-    protected Object doExecute( BackingStore store ) throws NamingException
-    {
-        return ( ( PartitionNexus ) store ).listSuffixes( normalized );
-    }
+    /**
+     * Passes the control of current invocation to the next {@link org.apache.ldap.server.interceptor.Interceptor} in the {@link org.apache.ldap.server.interceptor.InterceptorChain}.
+     *
+     * @param incovation
+     * @throws NamingException
+     */
+    void process( Invocation incovation ) throws NamingException;
 }

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
@@ -24,27 +24,25 @@ import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#lookup(Name, String[])}.
+ * Represents an {@link org.apache.ldap.server.invocation.Invocation} on {@link BackingStore#lookup(Name)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LookupWithAttrIds extends Invocation
+public class Lookup extends Invocation
 {
 
     private final Name name;
 
-    private final String[] attributeIds;
 
-
-    public LookupWithAttrIds( Name name, String[] attributeIds )
+    public Lookup( Name name )
     {
         if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
+
         this.name = name;
-        this.attributeIds = attributeIds;
     }
 
 
@@ -54,14 +52,8 @@ public class LookupWithAttrIds extends Invocation
     }
 
 
-    public String[] getAttributeIds()
-    {
-        return attributeIds;
-    }
-
-
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.lookup( name, attributeIds );
+        return store.lookup( name );
     }
 }

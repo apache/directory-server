@@ -14,43 +14,37 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.ModificationItem;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#modify(Name, ModificationItem[])}.
+ * Represents an {@link Invocation} on {@link BackingStore#lookup(Name, String[])}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyMany extends Invocation
+public class LookupWithAttrIds extends Invocation
 {
 
     private final Name name;
 
-    private final ModificationItem[] modificationItems;
+    private final String[] attributeIds;
 
 
-    public ModifyMany( Name name, ModificationItem[] modificationItems )
+    public LookupWithAttrIds( Name name, String[] attributeIds )
     {
         if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-        if ( modificationItems == null )
-        {
-            throw new NullPointerException( "modificationItems" );
-        }
-
         this.name = name;
-        this.modificationItems = modificationItems;
+        this.attributeIds = attributeIds;
     }
 
 
@@ -60,15 +54,14 @@ public class ModifyMany extends Invocation
     }
 
 
-    public ModificationItem[] getModificationItems()
+    public String[] getAttributeIds()
     {
-        return modificationItems;
+        return attributeIds;
     }
 
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.modify( name, modificationItems );
-        return null;
+        return store.lookup( name, attributeIds );
     }
 }

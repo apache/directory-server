@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
@@ -24,25 +24,37 @@ import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#isSuffix(Name)}.
+ * Represents an {@link Invocation} on {@link BackingStore#modifyRn(Name, String, boolean)\}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class IsSuffix extends Invocation
+public class ModifyRN extends Invocation
 {
 
     private final Name name;
 
+    private final String newRelativeName;
 
-    public IsSuffix( Name name )
+    private final boolean deleteOldName;
+
+
+    public ModifyRN( Name name, String newRelativeName,
+                     boolean deleteOldName )
     {
         if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
 
+        if ( newRelativeName == null )
+        {
+            throw new NullPointerException( "newRelativeName" );
+        }
+
         this.name = name;
+        this.newRelativeName = newRelativeName;
+        this.deleteOldName = deleteOldName;
     }
 
 
@@ -52,8 +64,21 @@ public class IsSuffix extends Invocation
     }
 
 
+    public String getNewRelativeName()
+    {
+        return newRelativeName;
+    }
+
+
+    public boolean isDeleteOldName()
+    {
+        return deleteOldName;
+    }
+
+
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.isSuffix( name ) ? Boolean.TRUE : Boolean.FALSE;
+        store.modifyRn( name, newRelativeName, deleteOldName );
+        return null;
     }
 }

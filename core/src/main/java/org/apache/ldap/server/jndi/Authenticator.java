@@ -38,10 +38,12 @@ import org.apache.ldap.server.auth.GenericAuthenticatorConfig;
 import org.apache.ldap.server.auth.GenericAuthenticatorContext;
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.auth.SimpleAuthenticator;
-import org.apache.ldap.server.jndi.invocation.Invocation;
-import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
-import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorContext;
-import org.apache.ldap.server.jndi.invocation.interceptor.NextInterceptor;
+import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.interceptor.Interceptor;
+import org.apache.ldap.server.interceptor.InterceptorContext;
+import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.interceptor.Interceptor;
+import org.apache.ldap.server.interceptor.NextInterceptor;
 
 /**
  * An {@link Interceptor} that authenticates users.

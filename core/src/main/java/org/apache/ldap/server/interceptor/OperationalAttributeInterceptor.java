@@ -14,16 +14,16 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.invocation.*;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.jndi.invocation.*;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 import javax.naming.Name;
@@ -35,7 +35,7 @@ import java.util.HashSet;
 
 
 /**
- * An {@link Interceptor} that adds or modifies the default attributes
+ * An {@link org.apache.ldap.server.interceptor.Interceptor} that adds or modifies the default attributes
  * of entries. There are four default attributes for now;<code>'creatorsName'
  * </code>, <code>'createTimestamp'</code>, <code>'modifiersName'</code>, and
  * <code>'modifyTimestamp'</code>.
@@ -92,8 +92,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     /**
      * Adds extra operational attributes to the entry before it is added.
-     *
-     * @see BaseInterceptor#add(String, Name, Attributes)
      */
     protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
     {

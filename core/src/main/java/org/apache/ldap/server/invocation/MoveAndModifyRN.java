@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
@@ -24,25 +24,43 @@ import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#lookup(Name)}.
+ * Represents an {@link org.apache.ldap.server.invocation.Invocation} on {@link BackingStore#move(Name, Name, String, boolean)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Lookup extends Invocation
+public class MoveAndModifyRN extends Invocation
 {
 
     private final Name name;
 
+    private final Name newParentName;
 
-    public Lookup( Name name )
+    private final String newRelativeName;
+
+    private final boolean deleteOldName;
+
+
+    public MoveAndModifyRN( Name name, Name newParentName, String newRelativeName,
+                            boolean deleteOldName )
     {
         if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
+        if ( newParentName == null )
+        {
+            throw new NullPointerException( "newParentName" );
+        }
+        if ( newRelativeName == null )
+        {
+            throw new NullPointerException( "newRelativeName" );
+        }
 
         this.name = name;
+        this.newParentName = newParentName;
+        this.newRelativeName = newRelativeName;
+        this.deleteOldName = deleteOldName;
     }
 
 
@@ -52,8 +70,27 @@ public class Lookup extends Invocation
     }
 
 
+    public Name getNewParentName()
+    {
+        return newParentName;
+    }
+
+
+    public String getNewRelativeName()
+    {
+        return newRelativeName;
+    }
+
+
+    public boolean isDeleteOldName()
+    {
+        return deleteOldName;
+    }
+
+
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.lookup( name );
+        store.move( name, newParentName, newRelativeName, deleteOldName );
+        return null;
     }
 }

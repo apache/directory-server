@@ -14,12 +14,12 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.invocation.*;
+import org.apache.ldap.server.invocation.*;
 
 import javax.naming.NamingException;
 

@@ -14,47 +14,43 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.directory.ModificationItem;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#modifyRn(Name, String, boolean)\}.
+ * Represents an {@link Invocation} on {@link BackingStore#modify(Name, ModificationItem[])}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyRN extends Invocation
+public class ModifyMany extends Invocation
 {
 
     private final Name name;
 
-    private final String newRelativeName;
-
-    private final boolean deleteOldName;
+    private final ModificationItem[] modificationItems;
 
 
-    public ModifyRN( Name name, String newRelativeName,
-                     boolean deleteOldName )
+    public ModifyMany( Name name, ModificationItem[] modificationItems )
     {
         if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-
-        if ( newRelativeName == null )
+        if ( modificationItems == null )
         {
-            throw new NullPointerException( "newRelativeName" );
+            throw new NullPointerException( "modificationItems" );
         }
 
         this.name = name;
-        this.newRelativeName = newRelativeName;
-        this.deleteOldName = deleteOldName;
+        this.modificationItems = modificationItems;
     }
 
 
@@ -64,21 +60,15 @@ public class ModifyRN extends Invocation
     }
 
 
-    public String getNewRelativeName()
+    public ModificationItem[] getModificationItems()
     {
-        return newRelativeName;
-    }
-
-
-    public boolean isDeleteOldName()
-    {
-        return deleteOldName;
+        return modificationItems;
     }
 
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.modifyRn( name, newRelativeName, deleteOldName );
+        store.modify( name, modificationItems );
         return null;
     }
 }

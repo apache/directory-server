@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
@@ -24,18 +24,18 @@ import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#delete(Name)}.
+ * Represents an {@link Invocation} on {@link BackingStore#hasEntry(Name)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Delete extends Invocation
+public class HasEntry extends Invocation
 {
 
     private final Name name;
 
 
-    public Delete( Name name )
+    public HasEntry( Name name )
     {
         if ( name == null )
         {
@@ -54,7 +54,6 @@ public class Delete extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.delete( name );
-        return null;
+        return store.hasEntry( name ) ? Boolean.TRUE : Boolean.FALSE;
     }
 }

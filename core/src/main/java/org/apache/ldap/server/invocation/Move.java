@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
@@ -24,36 +24,51 @@ import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#list(Name)}.
+ * Represents an {@link Invocation} on {@link BackingStore#move(Name, Name)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class List extends Invocation
+public class Move extends Invocation
 {
 
-    private final Name baseName;
+    private final Name name;
+
+    private final Name newParentName;
 
 
-    public List( Name baseName )
+    public Move( Name name, Name newParentName )
     {
-        if ( baseName == null )
+        if ( name == null )
         {
-            throw new NullPointerException( "baseName" );
+            throw new NullPointerException( "name" );
         }
 
-        this.baseName = baseName;
+        if ( newParentName == null )
+        {
+            throw new NullPointerException( "newParentName" );
+        }
+
+        this.name = name;
+        this.newParentName = newParentName;
     }
 
 
-    public Name getBaseName()
+    public Name getName()
     {
-        return baseName;
+        return name;
+    }
+
+
+    public Name getNewParentName()
+    {
+        return newParentName;
     }
 
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.list( baseName );
+        store.move( name, newParentName );
+        return null;
     }
 }

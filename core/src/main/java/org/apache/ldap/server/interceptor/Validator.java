@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
@@ -25,7 +25,7 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.jndi.invocation.*;
+import org.apache.ldap.server.invocation.*;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -35,7 +35,7 @@ import javax.naming.directory.Attributes;
 
 
 /**
- * An {@link Interceptor} that detects any operations that breaks integrity
+ * An {@link org.apache.ldap.server.interceptor.Interceptor} that detects any operations that breaks integrity
  * of {@link BackingStore} and terminates the current invocation chain by
  * throwing a {@link NamingException}. Those operations include when an entry
  * already exists at a DN and is added once again to the same DN.
@@ -73,8 +73,6 @@ public class Validator extends BaseInterceptor
     /**
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
-     *
-     * @see BaseInterceptor#add(String, Name, Attributes)
      */
     protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
     {
@@ -158,8 +156,6 @@ public class Validator extends BaseInterceptor
 
     /**
      * Checks to make sure the entry being looked up exists other wise throws the appropriate LdapException.
-     *
-     * @see org.apache.ldap.server.jndi.BaseInterceptor#lookup(javax.naming.Name)
      */
     protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
     {
@@ -330,7 +326,6 @@ public class Validator extends BaseInterceptor
      *
      * @param msg        the message to prefix to the distinguished name for explanation
      * @param dn         the distinguished name of the entry that is asserted
-     * @param invocation the invocation object to alter if the entry does not exist
      * @throws NamingException if the entry does not exist
      */
     private void assertHasEntry( String msg, Name dn ) throws NamingException

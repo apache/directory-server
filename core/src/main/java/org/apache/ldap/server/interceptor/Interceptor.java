@@ -14,11 +14,11 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.invocation.Invocation;
 
 import javax.naming.NamingException;
 
@@ -110,7 +110,7 @@ public interface Interceptor
     /**
      * Filters a particular invocation.  You can pass control to
      * <code>nextInterceptor</code> by calling {@link NextInterceptor#process(
-     * org.apache.ldap.server.jndi.invocation.Invocation)}
+     * org.apache.ldap.server.invocation.Invocation)}
      *
      * @param nextInterceptor the next interceptor in the interceptor chain
      * @param invocation      the invocation to process

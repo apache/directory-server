@@ -14,31 +14,33 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.ContextPartition;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 
 /**
- * Represents an {@link Invocation} on {@link ContextPartition#getSuffix(boolean)}.
+ * Represents an {@link Invocation} on {@link BackingStore#modify(Name, int, Attributes)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetSuffix extends Invocation
+public class Modify extends Invocation
 {
 
     private final Name name;
 
-    private final boolean normalized;
+    private final int modOp;
+
+    private final Attributes attributes;
 
 
-    public GetSuffix( Name name, boolean normalized )
+    public Modify( Name name, int modOp, Attributes attributes )
     {
         if ( name == null )
         {
@@ -46,13 +48,8 @@ public class GetSuffix extends Invocation
         }
 
         this.name = name;
-        this.normalized = normalized;
-    }
-
-
-    public boolean isNormalized()
-    {
-        return normalized;
+        this.modOp = modOp;
+        this.attributes = attributes;
     }
 
 
@@ -62,8 +59,21 @@ public class GetSuffix extends Invocation
     }
 
 
+    public int getModOp()
+    {
+        return modOp;
+    }
+
+
+    public Attributes getAttributes()
+    {
+        return attributes;
+    }
+
+
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return ( ( ContextPartition ) store ).getSuffix( normalized );
+        store.modify( name, modOp, attributes );
+        return null;
     }
 }

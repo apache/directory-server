@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import javax.naming.Name;
@@ -32,18 +32,17 @@ import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.invocation.Delete;
-import org.apache.ldap.server.jndi.invocation.HasEntry;
-import org.apache.ldap.server.jndi.invocation.Invocation;
-import org.apache.ldap.server.jndi.invocation.List;
-import org.apache.ldap.server.jndi.invocation.Lookup;
-import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.invocation.Modify;
-import org.apache.ldap.server.jndi.invocation.ModifyMany;
-import org.apache.ldap.server.jndi.invocation.ModifyRN;
-import org.apache.ldap.server.jndi.invocation.Move;
-import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.invocation.HasEntry;
+import org.apache.ldap.server.invocation.*;
+import org.apache.ldap.server.invocation.List;
+import org.apache.ldap.server.invocation.Lookup;
+import org.apache.ldap.server.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.invocation.Modify;
+import org.apache.ldap.server.invocation.ModifyMany;
+import org.apache.ldap.server.invocation.ModifyRN;
+import org.apache.ldap.server.invocation.Move;
+import org.apache.ldap.server.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 

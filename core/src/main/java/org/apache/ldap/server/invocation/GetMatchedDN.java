@@ -14,43 +14,45 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation;
+package org.apache.ldap.server.invocation;
 
 
 import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.PartitionNexus;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#move(Name, Name)}.
+ * Represents an {@link Invocation} on {@link PartitionNexus#getMatchedDn(Name, boolean)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Move extends Invocation
+public class GetMatchedDN extends Invocation
 {
 
     private final Name name;
 
-    private final Name newParentName;
+    private final boolean normalized;
 
 
-    public Move( Name name, Name newParentName )
+    public GetMatchedDN( Name name, boolean normalized )
     {
         if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
 
-        if ( newParentName == null )
-        {
-            throw new NullPointerException( "newParentName" );
-        }
-
         this.name = name;
-        this.newParentName = newParentName;
+        this.normalized = normalized;
+    }
+
+
+    public boolean isNormalized()
+    {
+        return normalized;
     }
 
 
@@ -60,15 +62,8 @@ public class Move extends Invocation
     }
 
 
-    public Name getNewParentName()
-    {
-        return newParentName;
-    }
-
-
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.move( name, newParentName );
-        return null;
+        return ( ( PartitionNexus ) store ).getMatchedDn( name, normalized );
     }
 }

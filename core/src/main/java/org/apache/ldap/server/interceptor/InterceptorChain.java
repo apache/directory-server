@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.jndi.Authenticator;
-import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.invocation.Invocation;
 
 
 /**
@@ -68,7 +68,7 @@ public class InterceptorChain implements Interceptor
 
     private final Interceptor NEXT_INTERCEPTOR0 = new Interceptor()
     {
-        public void init( InterceptorContext context ) throws NamingException
+        public void init( InterceptorContext context )
         {
         }
 

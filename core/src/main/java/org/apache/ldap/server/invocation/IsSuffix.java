@@ -14,29 +14,46 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.invocation;
 
 
-import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
 import javax.naming.NamingException;
 
 
 /**
- * Represents the next {@link Interceptor} in the interceptor chain.
+ * Represents an {@link Invocation} on {@link BackingStore#isSuffix(Name)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
- * @see Interceptor
- * @see InterceptorChain
  */
-public interface NextInterceptor
+public class IsSuffix extends Invocation
 {
-    /**
-     * Passes the control of current invocation to the next {@link Interceptor} in the {@link InterceptorChain}.
-     *
-     * @param incovation
-     * @throws NamingException
-     */
-    void process( Invocation incovation ) throws NamingException;
+
+    private final Name name;
+
+
+    public IsSuffix( Name name )
+    {
+        if ( name == null )
+        {
+            throw new NullPointerException( "name" );
+        }
+
+        this.name = name;
+    }
+
+
+    public Name getName()
+    {
+        return name;
+    }
+
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
+        return store.isSuffix( name ) ? Boolean.TRUE : Boolean.FALSE;
+    }
 }

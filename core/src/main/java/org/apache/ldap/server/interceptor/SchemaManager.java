@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.common.filter.ExprNode;
@@ -29,10 +29,11 @@ import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerLdapContext;
-import org.apache.ldap.server.jndi.invocation.List;
-import org.apache.ldap.server.jndi.invocation.Lookup;
-import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.invocation.List;
+import org.apache.ldap.server.invocation.Lookup;
+import org.apache.ldap.server.invocation.*;
+import org.apache.ldap.server.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
@@ -50,7 +51,7 @@ import java.util.Set;
 
 
 /**
- * An {@link Interceptor} that manages and enforces schemas.
+ * An {@link org.apache.ldap.server.interceptor.Interceptor} that manages and enforces schemas.
  *
  * @todo Better interceptor description required.
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -85,10 +86,6 @@ public class SchemaManager extends BaseInterceptor
 
     /**
      * Creates a schema service interceptor.
-     *
-     * @param nexus            the root nexus to access all database partitions
-     * @param globalRegistries the global schema object registries
-     * @param filterService
      */
     public SchemaManager()
     {

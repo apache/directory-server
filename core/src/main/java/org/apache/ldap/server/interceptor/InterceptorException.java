@@ -14,13 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.invocation.Invocation;
 
 
 /**
