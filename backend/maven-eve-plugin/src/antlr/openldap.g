@@ -339,7 +339,6 @@ attributeType
     OPEN_PAREN oid:NUMERICOID
     {
         type = new AttributeTypeLiteral( oid.getText() );
-        System.out.println( oid.getText() );
     }
         ( names[type] )?
         ( desc[type] )?
@@ -368,7 +367,6 @@ desc [AttributeTypeLiteral type]
     : d:DESC
     {
         type.setDescription( d.getText().split( "'" )[1] );
-        System.out.println( d.getText() );
     }
     ;
 

@@ -21,17 +21,17 @@
 <project>
   <extend>${basedir}/../../project.xml</extend>
   <groupId>incubator-directory</groupId>
-  <id>eve-tools</id>
+  <id>maven-eve-plugin</id>
 
-  <name>Eve Tools</name>
+  <name>maven-eve-plugin</name>
   <package>org.apache.eve.tools</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2004</inceptionYear>
 
-  <shortDescription>Eve Tools</shortDescription>
+  <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
 
   <description>
-    A collection of tools to be used to develop Eve and program for Eve.
+    A collection of tools as plugins to be used to develop Eve and program for Eve.
   </description>
 
   <dependencies>

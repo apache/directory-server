@@ -16,26 +16,39 @@
  */
 package org.apache.eve.tools.schema;
 
+
 /**
- * Document me.
+ * A console reporting monitor.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ConsoleParserMonitor implements ParserMonitor
 {
+    public static final String TRACE_KEY = "schema.parser.trace";
+
+    
     public void matchedProduction( String prod )
     {
-        System.out.println( prod );
+        if ( System.getProperties().containsKey( TRACE_KEY ) )
+        {
+            System.out.println( prod );
+        }
     }
 
     public void startedParse( String s )
     {
-        System.out.println( s );
+        if ( System.getProperties().containsKey( TRACE_KEY ) )
+        {
+            System.out.println( s );
+        }
     }
 
     public void finishedParse( String s )
     {
-        System.out.println( s );
+        if ( System.getProperties().containsKey( TRACE_KEY ) )
+        {
+            System.out.println( s );
+        }
     }
 }
