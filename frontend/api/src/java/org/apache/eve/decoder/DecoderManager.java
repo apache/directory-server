@@ -68,7 +68,6 @@ public interface DecoderManager
      * 
      * @param key the unique key associated with the client
      * @param buffer the buffer of encoded data
-     * @return the set of keys for decoding sessions
      * @throws DecoderException if there is a failure while decoding
      */
     void decode( ClientKey key, ByteBuffer buffer ) throws DecoderException ;
