@@ -17,8 +17,7 @@
 package org.apache.eve.schema.bootstrap;
 
 
-import java.util.List;
-import java.util.Comparator;
+import java.util.*;
 
 import javax.naming.NamingException;
 
@@ -34,8 +33,11 @@ import org.apache.ldap.common.schema.*;
  */
 public class BootstrapSchemaLoader
 {
+    /** stores schemas of producers for callback access */
     private ThreadLocal schemas;
+    /** stores registries associated with producers for callback access */
     private ThreadLocal registries;
+    /** the callback that just calls register() */
     private final ProducerCallback cb = new ProducerCallback()
     {
         public void schemaObjectProduced( BootstrapProducer producer,
@@ -48,6 +50,9 @@ public class BootstrapSchemaLoader
     };
 
 
+    /**
+     * Creates a BootstrapSchema loader.
+     */
     public BootstrapSchemaLoader()
     {
         schemas = new ThreadLocal();
@@ -55,7 +60,125 @@ public class BootstrapSchemaLoader
     }
 
 
-    public final void loadProducers( BootstrapSchema schema, BootstrapRegistries registries )
+
+    /**
+     * Loads a set of schemas by loading and running all producers for each
+     * dependent schema first.
+     *
+     * @param schemaClasses the full qualified class names of the schema classes
+     * @param registries the registries to fill with producer created objects
+     * @throws NamingException if there are any failures during this process
+     */
+    public final void load( String[] schemaClasses, BootstrapRegistries registries )
+        throws NamingException
+    {
+        BootstrapSchema[] schemas = new BootstrapSchema[schemaClasses.length];
+        HashMap loaded = new HashMap();
+        HashMap notLoaded = new HashMap();
+
+
+        for ( int ii = 0; ii < schemas.length; ii++ )
+        {
+            try
+            {
+                Class schemaClass = Class.forName( schemaClasses[ii] );
+                schemas[ii] = ( BootstrapSchema ) schemaClass.newInstance();
+                notLoaded.put( schemas[ii].getSchemaName(), schemas[ii] );
+            }
+            catch ( Exception e )
+            {
+                String msg = "problem loading/creating " + schemaClasses[ii];
+                NamingException ne = new NamingException( msg );
+                ne.setRootCause( e );
+                throw ne;
+            }
+        }
+
+        // kick it off by loading system which will never depend on anything
+        BootstrapSchema schema = ( BootstrapSchema ) notLoaded.get( "system" );
+        load( schema, registries );
+        notLoaded.remove( "system" );
+        loaded.put( schema.getSchemaName(), schema );
+
+        Iterator list = notLoaded.values().iterator();
+        while ( list.hasNext() )
+        {
+            schema = ( BootstrapSchema ) list.next();
+            loadDepsFirst( new Stack(), notLoaded, schema, registries );
+            list = notLoaded.values().iterator();
+        }
+    }
+
+
+    /**
+     * Recursive method which loads schema's with their dependent schemas first
+     * and tracks what schemas it has seen so the recursion does not go out of
+     * control with depenency cycle detection.
+     *
+     * @param beenthere stack of schema names we have visited and have yet to load
+     * @param notLoaded hash of schemas keyed by name which have yet to be loaded
+     * @param schema the current schema we are attempting to load
+     * @param registries the set of registries to use while loading
+     * @throws NamingException if there is a cycle detected and/or another
+     * failure results while loading, producing and or registering schema objects
+     */
+    public final void loadDepsFirst( Stack beenthere, HashMap notLoaded,
+                                     BootstrapSchema schema,
+                                     BootstrapRegistries registries )
+        throws NamingException
+    {
+        beenthere.push( schema.getSchemaName() );
+        String[] deps = schema.getDependencies();
+
+        // if no deps then load this guy and return
+        if ( deps == null || deps.length == 0 )
+        {
+            load( schema, registries );
+            notLoaded.remove( schema.getSchemaName() );
+            beenthere.pop();
+            return;
+        }
+
+        /*
+         * We got deps and need to load them before this schema.  We go through
+         * all deps loading them with their deps first if they have not been
+         * loaded.
+         */
+        for ( int ii = 0; ii < deps.length; ii++ )
+        {
+            if ( ! notLoaded.containsKey( deps[ii] ) )
+            {
+                continue;
+            }
+
+            BootstrapSchema dep = ( BootstrapSchema ) notLoaded.get( deps[ii] );
+
+            if ( beenthere.contains( dep.getSchemaName() ) )
+            {
+                // push again so we show the cycle in output
+                beenthere.push( dep.getSchemaName() );
+                throw new NamingException( "schema dependency cycle detected: "
+                    + beenthere );
+            }
+
+            loadDepsFirst( beenthere, notLoaded, dep, registries );
+        }
+
+        // We have loaded all our deps so we can load this schema
+        load( schema, registries );
+        notLoaded.remove( schema.getSchemaName() );
+        beenthere.pop();
+    }
+
+
+    /**
+     * Loads a schema by loading and running all producers for te schema.
+     *
+     * @param schema the schema to load
+     * @param registries the registries to fill with producer created objects
+     * @throws NamingException if there are any failures during this process
+     */
+    public final void load( BootstrapSchema schema, BootstrapRegistries registries )
         throws NamingException
     {
         this.registries.set( registries );
