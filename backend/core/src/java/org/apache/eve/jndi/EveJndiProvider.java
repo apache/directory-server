@@ -3,6 +3,7 @@ package org.apache.eve.jndi ;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.PartitionNexus;
+import org.apache.eve.EveBackendSubsystem;
 
 import java.util.Hashtable ;
 
@@ -87,7 +88,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
 
     /**
-     * @see EveBackendSubsystem#getLdapContext(Hashtable)
+     * @see org.apache.eve.EveBackendSubsystem#getLdapContext(Hashtable)
      */
     public LdapContext getLdapContext( Hashtable an_env ) throws NamingException
     {

@@ -1,4 +1,4 @@
-package org.apache.eve.jndi;
+package org.apache.eve;
 
 
 import java.util.Hashtable;
@@ -20,5 +20,5 @@ public interface EveBackendSubsystem
      * @return an LdapContext using the supplied environment 
      * @throws NamingException if something goes wrong
      */
-    LdapContext getLdapContext( Hashtable env ) throws NamingException ;
+    LdapContext getLdapContext( Hashtable env ) throws NamingException;
 }
