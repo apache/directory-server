@@ -12,4 +12,8 @@
   <preGoal name="eclipse">
     <attainGoal name="antlr:generate" />
   </preGoal>
+
+  <preGoal name="idea:module">
+    <attainGoal name="antlr:generate" />
+  </preGoal>
 </project>

@@ -58,9 +58,9 @@ public class ServerContextFactory extends CoreContextFactory
     // Members
     // ------------------------------------------------------------------------
 
-    private Service minaService;
+    private static Service minaService;
 
-    private ServiceRegistry minaRegistry;
+    private static ServiceRegistry minaRegistry;
 
 
     /**
@@ -87,9 +87,9 @@ public class ServerContextFactory extends CoreContextFactory
             {
                 this.provider.shutdown();
 
-                if ( this.minaRegistry != null )
+                if ( minaRegistry != null )
                 {
-                    this.minaRegistry.unbind( minaService );
+                    minaRegistry.unbind( minaService );
                 }
             }
             catch ( Throwable t )
