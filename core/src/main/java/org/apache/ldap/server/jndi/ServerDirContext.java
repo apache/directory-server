@@ -18,11 +18,12 @@ package org.apache.ldap.server.jndi;
 
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Hashtable;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.*;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
 import javax.naming.directory.*;
 import javax.naming.ldap.Control;
 
@@ -70,8 +71,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerDirContext( LdapPrincipal principal, PartitionNexus nexusProxy,
-                             Hashtable env, Name dn )
+    protected ServerDirContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }
@@ -104,8 +104,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#getAttributes(java.lang.String,
      *      java.lang.String[])
      */
-    public Attributes getAttributes( String name, String[] attrIds )
-        throws NamingException
+    public Attributes getAttributes( String name, String[] attrIds ) throws NamingException
     {
         return getAttributes( new LdapName( name ), attrIds );
     }
@@ -115,8 +114,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#getAttributes(javax.naming.Name,
      *      java.lang.String[])
      */
-    public Attributes getAttributes( Name name, String[] attrIds )
-        throws NamingException
+    public Attributes getAttributes( Name name, String[] attrIds ) throws NamingException
     {
         return getNexusProxy().lookup( buildTarget( name ), attrIds );
     }
@@ -126,8 +124,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
      *      int, javax.naming.directory.Attributes)
      */
-    public void modifyAttributes( String name, int modOp, Attributes attrs )
-            throws NamingException
+    public void modifyAttributes( String name, int modOp, Attributes attrs ) throws NamingException
     {
         modifyAttributes( new LdapName( name ), modOp, attrs );
     }
@@ -137,8 +134,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name,int, javax.naming.directory.Attributes)
      */
-    public void modifyAttributes( Name name, int modOp, Attributes attrs )
-        throws NamingException
+    public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
         getNexusProxy().modify( buildTarget( name ), modOp, attrs );
     }
@@ -148,8 +144,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
      *      javax.naming.directory.ModificationItem[])
      */
-    public void modifyAttributes( String name, ModificationItem[] mods )
-        throws NamingException
+    public void modifyAttributes( String name, ModificationItem[] mods ) throws NamingException
     {
         modifyAttributes( new LdapName( name ), mods );
     }
@@ -159,8 +154,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
      */
-    public void modifyAttributes( Name name, ModificationItem[] mods )
-        throws NamingException
+    public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
     {
         getNexusProxy().modify( buildTarget( name ), mods );
     }
@@ -170,8 +164,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#bind(java.lang.String,
      *      java.lang.Object, javax.naming.directory.Attributes)
      */
-    public void bind( String name, Object obj, Attributes attrs )
-        throws NamingException
+    public void bind( String name, Object obj, Attributes attrs ) throws NamingException
     {
         bind( new LdapName( name ), obj, attrs );
     }
@@ -193,26 +186,110 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
         if ( null == attrs )
         {
             super.bind( name, obj );
+
+            return;
         }
+
         // No object binding so we just add the attributes
-        else if ( null == obj )
+        if ( null == obj )
         {
             Attributes clone = ( Attributes ) attrs.clone();
+
             Name target = buildTarget( name );
+
             getNexusProxy().add( target.toString(), target, clone );
+
+            return;
         }
-        // Need to perform serialization of object into a copy of attrs
-        else 
+
+        // First, use state factories to do a transformation
+        DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, getEnvironment(), attrs );
+
+        Attributes outAttrs = res.getAttributes();
+
+        if ( outAttrs != attrs )
         {
-            if ( obj instanceof ServerLdapContext )
+            Name target = buildTarget( name );
+
+            Attributes attributes = ( Attributes ) attrs.clone();
+
+            if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                throw new IllegalArgumentException( "Cannot bind a directory context object!" );
+                NamingEnumeration list = outAttrs.getAll();
+
+                while ( list.hasMore() )
+                {
+                    attributes.put( ( Attribute ) list.next() );
+                }
             }
 
-            Attributes clone = ( Attributes ) attrs.clone();
-            JavaLdapSupport.serialize( clone, obj );
+            getNexusProxy().add( target.toString(), target, attributes );
+
+            return;
+        }
+
+        // Check for Referenceable
+        if ( obj instanceof Referenceable )
+        {
+            obj = ( ( Referenceable ) obj ).getReference();
+
+            throw new NamingException( "Do not know how to store Referenceables yet!" );
+        }
+
+        // Store different formats
+        if ( obj instanceof Reference )
+        {
+            // Store as ref and add outAttrs
+
+            throw new NamingException( "Do not know how to store References yet!" );
+        }
+        else if ( obj instanceof Serializable )
+        {
+            // Serialize and add outAttrs
+
+            Attributes attributes = ( Attributes ) attrs.clone();
+
+            if ( outAttrs != null && outAttrs.size() > 0 )
+            {
+                NamingEnumeration list = outAttrs.getAll();
+
+                while ( list.hasMore() )
+                {
+                    attributes.put( ( Attribute ) list.next() );
+                }
+            }
+
             Name target = buildTarget( name );
-            getNexusProxy().add( target.toString(), target, clone );
+
+            // Serialize object into entry attributes and add it.
+
+            JavaLdapSupport.serialize( attributes, obj );
+
+            getNexusProxy().add( target.toString(), target, attributes );
+        }
+        else if ( obj instanceof DirContext )
+        {
+            // Grab attributes and merge with outAttrs
+
+            Attributes attributes = ( ( DirContext ) obj ).getAttributes( "" );
+
+            if ( outAttrs != null && outAttrs.size() > 0 )
+            {
+                NamingEnumeration list = outAttrs.getAll();
+
+                while ( list.hasMore() )
+                {
+                    attributes.put( ( Attribute ) list.next() );
+                }
+            }
+
+            Name target = buildTarget( name );
+
+            getNexusProxy().add( target.toString(), target, attributes );
+        }
+        else
+        {
+            throw new NamingException( "Can't find a way to bind: " + obj );
         }
     }
 
@@ -221,8 +298,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#rebind(java.lang.String,
      *      java.lang.Object, javax.naming.directory.Attributes)
      */
-    public void rebind( String name, Object obj, Attributes attrs )
-        throws NamingException
+    public void rebind( String name, Object obj, Attributes attrs ) throws NamingException
     {
         rebind( new LdapName( name ), obj, attrs );
     }
@@ -249,8 +325,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#createSubcontext(java.lang.String,
      *      javax.naming.directory.Attributes)
      */
-    public DirContext createSubcontext( String name, Attributes attrs )
-        throws NamingException
+    public DirContext createSubcontext( String name, Attributes attrs ) throws NamingException
     {
         return createSubcontext( new LdapName( name ), attrs );
     }
@@ -260,25 +335,31 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#createSubcontext(
      * javax.naming.Name, javax.naming.directory.Attributes)
      */
-    public DirContext createSubcontext( Name name, Attributes attrs )
-        throws NamingException
+    public DirContext createSubcontext( Name name, Attributes attrs ) throws NamingException
     {
         if ( null == attrs )
         {
             return ( DirContext ) super.createSubcontext( name );
         }
 
-        // @todo again note that we presume single attribute name components
         LdapName target = buildTarget( name );
+
         String rdn = name.get( name.size() - 1 );
+
         String rdnAttribute = NamespaceTools.getRdnAttribute( rdn );
+
         String rdnValue = NamespaceTools.getRdnValue( rdn );
 
         // Clone the attributes and add the Rdn attributes
         Attributes attributes = ( Attributes ) attrs.clone();
-        if ( attributes.get( rdnAttribute ) == null ||
-             attributes.get( rdnAttribute ).size() == 0 ||
-            ( ! attributes.get( rdnAttribute ).contains( rdnValue ) ) )
+
+        boolean doRdnPut = attributes.get( rdnAttribute ) == null;
+
+        doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
+
+        doRdnPut = doRdnPut || ! attributes.get( rdnAttribute ).contains( rdnValue );
+
+        if ( doRdnPut )
         {
             attributes.put( rdnAttribute, rdnValue );
         }
@@ -287,10 +368,10 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
         getNexusProxy().add( target.toString(), target, attributes );
 
         // Initialize the new context
-        ServerLdapContext ctx = new ServerLdapContext( getPrincipal(), getNexusProxy(),
-                getEnvironment(), target );
+        ServerLdapContext ctx = new ServerLdapContext( getPrincipal(), getNexusProxy(), getEnvironment(), target );
 
         Control [] controls = ( ( ServerLdapContext ) this ).getRequestControls();
+
         if ( controls != null )
         {
         	controls = ( Control[] ) controls.clone();
@@ -301,31 +382,22 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
         }
 
         ctx.setRequestControls( controls );
+
         return ctx;
     }
 
 
     /**
      * Presently unsupported operation!
-     *
-     * @param name TODO
-     * @return TODO
-     * @throws NamingException all the time.
-     * @see javax.naming.directory.DirContext#getSchema(javax.naming.Name)
      */
     public DirContext getSchema( Name name ) throws NamingException
     {
         throw new UnsupportedOperationException();
     }
-    
+
 
     /**
      * Presently unsupported operation!
-     * 
-     * @param name TODO
-     * @return TODO
-     * @throws NamingException all the time.
-     * @see javax.naming.directory.DirContext#getSchema(java.lang.String)
      */
     public DirContext getSchema( String name ) throws NamingException
     {
@@ -335,12 +407,6 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
 
     /**
      * Presently unsupported operation!
-     * 
-     * @param name TODO
-     * @return TODO
-     * @throws NamingException all the time.
-     * @see javax.naming.directory.DirContext#getSchemaClassDefinition(
-     * javax.naming.Name)
      */
     public DirContext getSchemaClassDefinition( Name name ) throws NamingException
     {
@@ -350,12 +416,6 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
 
     /**
      * Presently unsupported operation!
-     * 
-     * @param name TODO
-     * @return TODO
-     * @throws NamingException all the time.
-     * @see javax.naming.directory.DirContext#getSchemaClassDefinition(
-     * java.lang.String)
      */
     public DirContext getSchemaClassDefinition( String name ) throws NamingException
     {
@@ -394,27 +454,20 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      javax.naming.directory.Attributes, java.lang.String[])
      */
-    public NamingEnumeration search( String name, Attributes matchingAttributes,
-                                     String[] attributesToReturn )
-        throws NamingException
+    public NamingEnumeration search( String name, Attributes matchingAttributes, String[] attributesToReturn ) throws NamingException
     {
-        return search( new LdapName( name ), matchingAttributes,
-            attributesToReturn );
+        return search( new LdapName( name ), matchingAttributes, attributesToReturn );
     }
 
 
     /**
-     * TODO may need to refactor some of this functionality into a filter 
-     * utility class in commons.
-     * 
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      javax.naming.directory.Attributes, java.lang.String[])
      */
-    public NamingEnumeration search( Name name, Attributes matchingAttributes,
-                                     String[] attributesToReturn )
-        throws NamingException
+    public NamingEnumeration search( Name name, Attributes matchingAttributes, String[] attributesToReturn ) throws NamingException
     {
         SearchControls ctls = new SearchControls();
+
         LdapName target = buildTarget( name );
 
         // If we need to return specific attributes add em to the SearchControls
@@ -427,6 +480,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
         if ( null == matchingAttributes || matchingAttributes.size() <= 0 )
         {
             PresenceNode filter = new PresenceNode( "objectClass" );
+
             return getNexusProxy().search( target , getEnvironment(), filter, ctls );
         }
 
@@ -435,10 +489,13 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
          * an attribute value assertion within one big AND filter expression.
          */
         Attribute attr = null;
+
         SimpleNode node = null;
+
         BranchNode filter = new BranchNode( BranchNode.AND );
+
         NamingEnumeration list = matchingAttributes.getAll();
-        
+
         // Loop through each attribute value pair
         while ( list.hasMore() )
         {
@@ -452,6 +509,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
             if ( attr.size() == 0 )
             {
                 filter.addNode( new PresenceNode( attr.getID() ) );
+
                 continue;
             }
             
@@ -467,6 +525,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
                 if ( val instanceof String )
                 {
                     node = new SimpleNode( attr.getID(), ( String ) val, SimpleNode.EQUALITY );
+
                     filter.addNode( node );
                 }
             }
@@ -495,6 +554,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
             throws NamingException
     {
         ExprNode filterNode = null;
+
         LdapName target = buildTarget( name );
 
         if ( filter == null && getEnvironment().containsKey( "__filter__" ) )
@@ -505,11 +565,8 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
         {
             try
             {
-                /*
-                 * TODO Added this parser initialization code to the FilterImpl
-                 * and have a static class parser that can be globally accessed.
-                 */
                 FilterParser parser = new FilterParserImpl();
+
                 filterNode = parser.parse( filter );
             }
             catch ( ParseException pe )
@@ -518,7 +575,9 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
                     new InvalidSearchFilterException (
                     "Encountered parse exception while parsing the filter: '"
                     + filter + "'" );
+
                 isfe.setRootCause( pe );
+
                 throw isfe;
             }
             catch ( IOException ioe )
@@ -548,17 +607,14 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
 
 
     /**
-     * TODO Factor out the filter variable code into the commons filter pkg &
-     * test it there.
-     * 
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      java.lang.String, java.lang.Object[],
      *      javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( Name name, String filterExpr,
-        Object[] filterArgs, SearchControls cons ) throws NamingException
+    public NamingEnumeration search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons ) throws NamingException
     {
         int start;
+
         StringBuffer buf = new StringBuffer( filterExpr );
         
         // Scan until we hit the end of the string buffer 

@@ -18,9 +18,14 @@ package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
+import java.io.Serializable;
 import javax.naming.*;
+import javax.naming.spi.DirectoryManager;
+import javax.naming.spi.DirStateFactory;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.Attribute;
 import javax.naming.ldap.Control;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
@@ -40,15 +45,18 @@ import org.apache.ldap.server.auth.LdapPrincipal;
  */
 public abstract class ServerContext implements Context
 {
-    /** */
+    /** property key used for deleting the old RDN on a rename */
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN";
 
     /** The interceptor proxy to the backend nexus */
     private final PartitionNexus nexusProxy;
+
     /** The cloned environment used by this Context */
     private final Hashtable env;
+
     /** The distinguished name of this Context */
     private final LdapName dn;
+
     /** The Principal associated with this context */
     private LdapPrincipal principal;
 
@@ -78,6 +86,7 @@ public abstract class ServerContext implements Context
 
         // set references to cloned env and the proxy
         this.nexusProxy = nexusProxy;
+
         this.env = ( Hashtable ) env.clone();
 
         /* --------------------------------------------------------------------
@@ -86,18 +95,26 @@ public abstract class ServerContext implements Context
          * ------------------------------------------------------------------ */
         if ( ! env.containsKey( Context.PROVIDER_URL ) )
         {
-            throw new ConfigurationException( "Expected property "
-                    + Context.PROVIDER_URL + " but could not find it in env!" );
+            String msg = "Expected property " + Context.PROVIDER_URL;
+
+            msg += " but could not find it in env!";
+
+            throw new ConfigurationException( msg );
         }
 
         url = ( String ) env.get( Context.PROVIDER_URL );
+
         if ( url == null )
         {
-            throw new ConfigurationException( "Expected value for property "
-                    + Context.PROVIDER_URL + " but it was set to null in env!" );
+            String msg = "Expected value for property " + Context.PROVIDER_URL;
+
+            msg += " but it was set to null in env!";
+
+            throw new ConfigurationException( msg );
         }
 
         dn = new LdapName( url );
+
         if ( ! nexusProxy.hasEntry( dn ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
@@ -115,13 +132,16 @@ public abstract class ServerContext implements Context
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerContext( LdapPrincipal principal, PartitionNexus nexusProxy,
-                          Hashtable env, Name dn )
+    protected ServerContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         this.dn = ( LdapName ) dn.clone();
+
         this.env = ( Hashtable ) env.clone();
+
         this.env.put( PROVIDER_URL, dn.toString() );
+
         this.nexusProxy = nexusProxy;
+
         this.principal = principal;
     }
 
@@ -245,32 +265,20 @@ public abstract class ServerContext implements Context
      */
     public Context createSubcontext( Name name ) throws NamingException
     {
-        /* 
-         * Start building the server side attributes to be added directly to
-         * the backend.
-         * 
-         * The RDN from name can be a multivalued RDN based on more than one
-         * attribute using the '+' AVA concatenator in a name component.  Right
-         * now this code will bomb out because we presume single valued RDNs.
-         * 
-         * TODO Add multivalued RDN handling code 
-         */
         Attributes attributes = new LockableAttributesImpl();
+
         LdapName target = buildTarget( name );
+
         String rdn = name.get( name.size() - 1 );
+
         String rdnAttribute = NamespaceTools.getRdnAttribute( rdn );
+
         String rdnValue = NamespaceTools.getRdnValue( rdn );
 
-        /* 
-         * TODO Add code within the interceptor service managing operational
-         * attributes the ability to add the target user provided DN to the 
-         * attributes before normalization.  The result should have ths same
-         * affect as the following line within the interceptor.
-         * 
-         * attributes.put( BootstrapSchema.DN_ATTR, target.toString() );
-         */
         attributes.put( rdnAttribute, rdnValue );
+
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.JCONTAINER_ATTR );
+
         attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.TOP_ATTR );
         
         /*
@@ -283,8 +291,11 @@ public abstract class ServerContext implements Context
         nexusProxy.add( target.toString(), target, attributes );
         
         ServerLdapContext ctx = new ServerLdapContext( principal, nexusProxy, env, target );
+
         Control [] controls = ( Control [] ) ( ( ServerLdapContext ) this ).getRequestControls().clone();
+
         ctx.setRequestControls( controls );
+
         return ctx;
     }
 
@@ -328,35 +339,90 @@ public abstract class ServerContext implements Context
      */
     public void bind( Name name, Object obj ) throws NamingException
     {
-        if ( obj instanceof ServerLdapContext )
+        // First, use state factories to do a transformation
+        DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
+
+        Attributes outAttrs = res.getAttributes();
+
+        if ( outAttrs != null )
         {
-            throw new IllegalArgumentException( "Cannot bind a directory context object!" );
+            Name target = buildTarget( name );
+
+            nexusProxy.add( target.toString(), target, outAttrs );
+
+            return;
         }
 
-        /* 
-         * Start building the server side attributes to be added directly to
-         * the backend.
-         * 
-         * The RDN from name can be a multivalued RDN based on more than one
-         * attribute using the '+' AVA concatenator in a name component.  Right
-         * now this code will bomb out because we presume single valued RDNs.
-         * 
-         * TODO Add multivalued RDN handling code 
-         */
-        Attributes attributes = new LockableAttributesImpl();
-        Name target = buildTarget( name );
+        // Check for Referenceable
+        if ( obj instanceof Referenceable )
+        {
+            obj = ( ( Referenceable ) obj ).getReference();
 
-        // Serialize object into entry attributes and add it.
-        JavaLdapSupport.serialize( attributes, obj );
-        nexusProxy.add( target.toString(), target, attributes );
+            throw new NamingException( "Do not know how to store Referenceables yet!" );
+        }
+
+        // Store different formats
+        if ( obj instanceof Reference )
+        {
+            // Store as ref and add outAttrs
+
+            throw new NamingException( "Do not know how to store References yet!" );
+        }
+        else if ( obj instanceof Serializable )
+        {
+            // Serialize and add outAttrs
+
+            Attributes attributes = new LockableAttributesImpl();
+
+            if ( outAttrs != null && outAttrs.size() > 0 )
+            {
+                NamingEnumeration list = outAttrs.getAll();
+
+                while ( list.hasMore() )
+                {
+                    attributes.put( ( Attribute ) list.next() );
+                }
+            }
+
+            Name target = buildTarget( name );
+
+            // Serialize object into entry attributes and add it.
+
+            JavaLdapSupport.serialize( attributes, obj );
+
+            nexusProxy.add( target.toString(), target, attributes );
+        }
+        else if ( obj instanceof DirContext )
+        {
+            // Grab attributes and merge with outAttrs
+
+            Attributes attributes = ( ( DirContext ) obj ).getAttributes( "" );
+
+            if ( outAttrs != null && outAttrs.size() > 0 )
+            {
+                NamingEnumeration list = outAttrs.getAll();
+
+                while ( list.hasMore() )
+                {
+                    attributes.put( ( Attribute ) list.next() );
+                }
+            }
+
+            Name target = buildTarget( name );
+
+            nexusProxy.add( target.toString(), target, attributes );
+        }
+        else
+        {
+            throw new NamingException( "Can't find a way to bind: " + obj );
+        }
     }
 
 
     /**
      * @see javax.naming.Context#rename(java.lang.String, java.lang.String)
      */
-    public void rename( String oldName, String newName )
-        throws NamingException
+    public void rename( String oldName, String newName ) throws NamingException
     {
         rename( new LdapName( oldName ), new LdapName( newName ) );
     }
@@ -368,6 +434,7 @@ public abstract class ServerContext implements Context
     public void rename( Name oldName, Name newName ) throws NamingException
     {
         Name oldDn = buildTarget( oldName );
+
         Name newDn = buildTarget( newName );
 
         if ( oldDn.size() == 0 )
@@ -376,9 +443,11 @@ public abstract class ServerContext implements Context
         }
 
         Name oldBase = oldName.getSuffix( 1 );
+
         Name newBase = newName.getSuffix( 1 );
 
         String newRdn = newName.get( newName.size() - 1 );
+
         String oldRdn = oldName.get( oldName.size() - 1 );
                 
         boolean delOldRdn = true;
@@ -390,9 +459,12 @@ public abstract class ServerContext implements Context
         if ( null != env.get( DELETE_OLD_RDN_PROP ) )
         {
             String delOldRdnStr = ( String ) env.get( DELETE_OLD_RDN_PROP );
-            delOldRdn = ! ( delOldRdnStr.equals( "false" ) ||
-                delOldRdnStr.equals( "no" ) ||
-                delOldRdnStr.equals( "0" ) );
+
+            delOldRdn = ! delOldRdnStr.equals( "false" );
+
+            delOldRdn = delOldRdn || delOldRdnStr.equals( "no" );
+
+            delOldRdn = delOldRdn || delOldRdnStr.equals( "0" );
         }
 
         /*
@@ -480,9 +552,26 @@ public abstract class ServerContext implements Context
      */
     public Object lookup( Name name ) throws NamingException
     {
+        Object obj = null;
+
         LdapName target = buildTarget( name );
+
         Attributes attributes = nexusProxy.lookup( target );
-        
+
+        try
+        {
+            obj = DirectoryManager.getObjectInstance( null, name, this, env, attributes );
+        }
+        catch ( Exception e )
+        {
+            throw new NamingException( e.getMessage() );
+        }
+
+        if ( obj != null )
+        {
+            return obj;
+        }
+
         // First lets test and see if the entry is a serialized java object
         if ( attributes.get( JavaLdapSupport.JCLASSNAME_ATTR ) != null )
         {
@@ -495,6 +584,7 @@ public abstract class ServerContext implements Context
             
         // Need to add controls to propagate extended ldap operational env
         Control [] controls = ( ( ServerLdapContext ) this ).getRequestControls();
+
         if ( null != controls )
         {    
             ctx.setRequestControls( ( Control [] ) controls.clone() );
@@ -584,8 +674,11 @@ public abstract class ServerContext implements Context
     {
         // Conduct a special one level search at base for all objects
         Name base = buildTarget( name );
+
         PresenceNode filter = new PresenceNode( "objectClass" );
+
         SearchControls ctls = new SearchControls();
+
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
 
         return nexusProxy.search( base , getEnvironment(), filter, ctls );
@@ -602,8 +695,7 @@ public abstract class ServerContext implements Context
 
 
     /**
-     * TODO Needs some serious testing here!
-     * @see javax.naming.Context#composeName(javax.naming.Name, 
+     * @see javax.naming.Context#composeName(javax.naming.Name,
      * javax.naming.Name)
      */
     public Name composeName( Name name, Name prefix ) throws NamingException
@@ -631,6 +723,7 @@ public abstract class ServerContext implements Context
          
         // 1). Find the Dn for name and walk it from the head to tail
         Name fqn = buildTarget( name );
+
         String head = prefix.get( 0 );
         
         // 2). Walk the fqn trying to match for the head of the prefix
@@ -646,9 +739,12 @@ public abstract class ServerContext implements Context
                 fqn.remove( 0 );
             }
         }
-        
-        throw new NamingException( "The prefix '" + prefix
-                + "' is not an ancestor of this "  + "entry '" + dn + "'" );
+
+        String msg = "The prefix '" + prefix + "' is not an ancestor of this ";
+
+        msg += "entry '" + dn + "'";
+
+        throw new NamingException( msg );
     }
     
     
@@ -673,6 +769,7 @@ public abstract class ServerContext implements Context
         
         // Add to left hand side of cloned DN the relative name arg
         target.addAll( target.size(), relativeName );
+
         return target;
     }
 }

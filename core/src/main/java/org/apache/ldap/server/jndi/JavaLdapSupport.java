@@ -159,16 +159,21 @@ public class JavaLdapSupport
          * objectClass: javaSerializedObject
          */
         entry.put( OBJECTCLASS_ATTR, TOP_ATTR );
+
         entry.put( OBJECTCLASS_ATTR, JOBJECT_ATTR );
+
         entry.put( OBJECTCLASS_ATTR, JCONTAINER_ATTR );
+
         entry.put( OBJECTCLASS_ATTR, JSERIALIZEDOBJ_ATTR );
 
         // Add the javaClassName and javaSerializedData attributes
         entry.put( JCLASSNAME_ATTR, obj.getClass().getName() );
+
         entry.put( JSERIALDATA_ATTR, serialize( obj ) );
 
         // Add all the class names this object can be cast to:
         Class [] classes = obj.getClass().getClasses();
+
         for ( int ii = 0; ii < classes.length; ii++ )
         {
             entry.put( JCLASSNAMES_ATTR, classes[ii].getName() );
