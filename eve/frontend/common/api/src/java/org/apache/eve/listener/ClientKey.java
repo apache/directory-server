@@ -57,16 +57,19 @@ import java.io.IOException ;
 
 /**
  * Every client that successfully binds anonymously or with a valid identity
- * has a unique client key represented by this class.  First and foremost the
- * key is used to uniquely identify the client based on the interface and
- * port used to connection on the server as well as the interface and port used
- * by the client.
- *
+ * has a unique client key represented by this class.  The key uniquely 
+ * identifies the client based on the connection parameters: interface and port 
+ * used on the server as well as the interface and port used by the client.
+ * <p>
  * The ClientKey plays a central role in coordinating activities with the
  * server across various threads.  Threads within the same stage or across
  * stages are synchronized on client resources using lock objects held by a
  * ClientKey instance.  Socket IO is managed using a pair of lock objects
  * specificially for this purpose.
+ * </p>
+ * 
+ * @todo do we really need these lock objects?
+ * @todo why are we carrying around the damn socket?
  *
  * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
  * @author $Author$

@@ -57,6 +57,10 @@ import java.nio.channels.SelectionKey ;
 
 /**
  * Used to monitor the activities of a ListenerManager.
+ * 
+ * @todo why the heck does this interface references to an implementation object
+ * like a Selector?
+ * 
  *
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author$

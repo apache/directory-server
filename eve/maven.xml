@@ -1,6 +1,14 @@
-<project default="java:compile" xmlns:j="jelly:core" xmlns:u="jelly:util" 
-  xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" xmlns:m="maven" 
-  xmlns:deploy="deploy">
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+  
+<project 
+  default="java:compile" 
+  xmlns:j="jelly:core" 
+  xmlns:u="jelly:util" 
+  xmlns:ant="jelly:ant" 
+  xmlns:maven="jelly:maven" 
+  xmlns:m="maven" 
+  xmlns:deploy="deploy"
+  >
   
   <preGoal name="site">
     <attainGoal name="docbook:transform"/>
@@ -12,7 +20,9 @@
   </postGoal>
 
   <goal name="subproject:collectdocs">
-    <ant:copy toDir="../../../sitedocs/trunk/sitedocs/target/docs/subprojects/eve">
+    <ant:copy 
+      toDir="../../../sitedocs/trunk/sitedocs/target/docs/subprojects/eve">
+      
       <ant:fileSet dir="${basedir}/target/docs">
         <ant:include name="**"/>
       </ant:fileSet>
@@ -62,4 +72,13 @@
       includes="*/project.xml" goals="eclipse" banner="Eclipse Project" 
       ignoreFailures="true"/>
   </goal>
+  
+  <!-- ========================================================================
+    Experimentation section starts here!
+    ======================================================================= -->
+  
+  <goal name="components">
+    <j:import inherit="true" uri="components.xml"/>  
+  </goal>
+    
 </project>

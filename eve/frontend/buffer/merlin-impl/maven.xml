@@ -35,4 +35,7 @@
         <attainGoal name="avalon:meta"/>
     </postGoal>
     
+  <goal name="components">
+    <j:import inherit="true" uri="components.xml"/>  
+  </goal>
 </project>
