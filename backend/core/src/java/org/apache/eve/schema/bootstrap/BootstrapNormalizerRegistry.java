@@ -14,10 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.Normalizer;
+import org.apache.eve.schema.NormalizerRegistry;
+import org.apache.eve.schema.NormalizerRegistryMonitor;
+import org.apache.eve.schema.NormalizerRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,7 +33,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultNormalizerRegistry implements NormalizerRegistry
+public class BootstrapNormalizerRegistry implements NormalizerRegistry
 {
     /** a map of Normalizers looked up by OID */
     private final Map byOid;
@@ -48,7 +51,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     /**
      * Creates a default normalizer registry.
      */
-    public DefaultNormalizerRegistry()
+    public BootstrapNormalizerRegistry()
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();

@@ -14,10 +14,14 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.Syntax;
+import org.apache.eve.schema.SyntaxRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.SyntaxRegistryMonitor;
+import org.apache.eve.schema.SyntaxRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -32,7 +36,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSyntaxRegistry implements SyntaxRegistry
+public class BootstrapSyntaxRegistry implements SyntaxRegistry
 {
     /** a map of entries using an OID for the key and a Syntax for the value */
     private final Map byOid;
@@ -50,9 +54,9 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     
     
     /**
-     * Creates a DefaultSyntaxRegistry.
+     * Creates a BootstrapSyntaxRegistry.
      */
-    public DefaultSyntaxRegistry( OidRegistry registry )
+    public BootstrapSyntaxRegistry( OidRegistry registry )
     {
         this.oidRegistry = registry;
         this.byOid = new HashMap();
