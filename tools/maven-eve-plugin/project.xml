@@ -57,7 +57,7 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>eve-backend</artifactId>
+      <artifactId>eve-shared</artifactId>
       <version>SNAPSHOT</version>
       <type>jar</type>
     </dependency>
