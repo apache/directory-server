@@ -20,6 +20,8 @@ package org.apache.eve.db.gui ;
 import java.awt.Toolkit ;
 import java.awt.Dimension ;
 
+import javax.naming.NamingException;
+
 import org.apache.eve.db.SearchEngine;
 import org.apache.eve.db.Database;
 
@@ -30,14 +32,14 @@ import org.apache.eve.db.Database;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BackendDatabaseViewer
+public class PartitionViewer
 {
     /** A handle on the atomic partition */
     private Database db;
     private SearchEngine eng;
 
 
-    public BackendDatabaseViewer( Database db, SearchEngine eng )
+    public PartitionViewer( Database db, SearchEngine eng )
     {
         this.db = db;
         this.eng = eng;
@@ -63,7 +65,7 @@ public class BackendDatabaseViewer
 //            e.printStackTrace() ;
 //        }
 //
-//        BackendDatabaseViewer viewer = new BackendDatabaseViewer(  ) ;
+//        PartitionViewer viewer = new PartitionViewer(  ) ;
 //
 //        try
 //        {
@@ -77,9 +79,9 @@ public class BackendDatabaseViewer
 //    }
     
 
-    public void execute() throws Exception
+    public void execute() throws NamingException
     {
-        BackendFrame frame = new BackendFrame( db, eng ) ;
+        MainFrame frame = new MainFrame( db, eng ) ;
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize() ;
         Dimension frameSize = frame.getSize() ;

@@ -85,7 +85,7 @@ public class AboutDialog extends JDialog
         getContentPane().setLayout(formLayout);
         contentPane.setLayout(contentPaneLayout);
         contentPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(
-        new java.awt.Color(153, 153, 153), 1), "Ldapd Project", javax.swing.border.TitledBorder.LEADING, javax.swing.border.TitledBorder.TOP,
+        new java.awt.Color(153, 153, 153), 1), "Directory Project: Eve", javax.swing.border.TitledBorder.LEADING, javax.swing.border.TitledBorder.TOP,
         new java.awt.Font("SansSerif", 0, 14), new java.awt.Color(60, 60, 60)));
         prodLabel.setText(product);
         prodLabel.setAlignmentX(0.5f);
@@ -113,9 +113,10 @@ public class AboutDialog extends JDialog
         new java.awt.GridBagConstraints(java.awt.GridBagConstraints.RELATIVE, java.awt.GridBagConstraints.RELATIVE,
         java.awt.GridBagConstraints.REMAINDER, 3, 0.0, 1.0, java.awt.GridBagConstraints.NORTHWEST, java.awt.GridBagConstraints.BOTH,
         new java.awt.Insets(5, 5, 5, 0), 0, 0));
-        image.setText("Ldapd");
-        image.setIcon(
-        new javax.swing.ImageIcon("C:/projects/ldapd-modjdbm/src/java/ldapd/server/backend/modjdbm/gui/org.apache.ldap.gif"));
+
+        image.setText("Eve");
+        image.setIcon( new ImageIcon( getClass().getResource( "eve.gif" ) ) );
+
         image.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         image.setMinimumSize(new java.awt.Dimension(98,44));
         image.setMaximumSize(new java.awt.Dimension(98,44));

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 
 import java.math.BigInteger;
-import java.text.ParseException;
 
 import java.util.Stack;
 import java.util.HashMap;
@@ -88,7 +87,7 @@ import org.apache.eve.db.SearchEngine;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BackendFrame extends JFrame
+public class MainFrame extends JFrame
 {
     // Swing Stuff
     private JLabel statusBar = new JLabel( "Ready" );
@@ -120,8 +119,8 @@ public class BackendFrame extends JFrame
     /**
      * Creates new form JFrame
      */
-    public BackendFrame( Database db, SearchEngine eng )
-        throws Exception
+    public MainFrame( Database db, SearchEngine eng )
+        throws NamingException
     {
         database = db;
         this.eng = eng;
@@ -225,8 +224,8 @@ public class BackendFrame extends JFrame
             public void actionPerformed( ActionEvent e ) 
             {
                 AboutDialog aboutDialog = 
-                    new AboutDialog ( BackendFrame.this, true );
-                BackendFrame.this.centerOnScreen( aboutDialog );
+                    new AboutDialog ( MainFrame.this, true );
+                MainFrame.this.centerOnScreen( aboutDialog );
                 aboutDialog.setVisible( true );
             }
         } );
@@ -460,12 +459,6 @@ public class BackendFrame extends JFrame
                 }
             }
         }
-        catch( ParseException e )
-        {
-            // @todo display popup with error here!
-            e.printStackTrace();
-            return;
-        } 
         catch( NamingException e )
         {
             // @todo display popup with error here!
@@ -773,7 +766,7 @@ public class BackendFrame extends JFrame
         }
 
 		AnnotatedFilterTreeDialog treeDialog = new
-			AnnotatedFilterTreeDialog( BackendFrame.this, false );
+			AnnotatedFilterTreeDialog( MainFrame.this, false );
 		treeDialog.setFilter( filter );
 
         eng.getOptimizer().annotate( root );
@@ -878,7 +871,7 @@ public class BackendFrame extends JFrame
     }
 
 
-    private void load() throws Exception
+    private void load() throws NamingException
     {
         // boolean doFiltered = false;
         nodes = new HashMap();

@@ -38,6 +38,7 @@ import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.eve.db.Database;
 import org.apache.eve.db.SearchEngine;
 import org.apache.eve.db.SearchResultEnumeration;
+import org.apache.eve.db.gui.PartitionViewer;
 
 
 /**
@@ -380,5 +381,12 @@ public abstract class AbstractContextPartition implements ContextPartition
     public void close() throws NamingException
     {
         db.close();
+    }
+
+
+    public void inspect() throws Exception
+    {
+        PartitionViewer viewer = new PartitionViewer( db, engine );
+        viewer.execute();
     }
 }
