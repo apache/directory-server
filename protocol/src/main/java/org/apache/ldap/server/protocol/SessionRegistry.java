@@ -17,20 +17,22 @@
 package org.apache.ldap.server.protocol;
 
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.Control;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.event.EventRouter;
 import org.apache.apseda.event.DisconnectEvent;
+import org.apache.apseda.event.EventRouter;
+import org.apache.apseda.listener.ClientKey;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.apseda.event.DisconnectEvent;
-import org.apache.apseda.event.EventRouter;
-import org.apache.apseda.listener.ClientKey;
 
 
 /**
@@ -93,7 +95,7 @@ public class SessionRegistry
         {
             this.env = new Hashtable();
             this.env.put( Context.PROVIDER_URL, "" );
-            this.env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+            this.env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         }
         else
         {
