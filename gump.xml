@@ -35,7 +35,7 @@
         <depend project="commons-lang"/>
         <depend project="commons-logging"/>
         <depend project="commons-primitives"/>
-        <depend project="eve-jndi-provider"/>
+        <depend project="eve-dib"/>
         <depend project="eve-shared"/>
         <depend project="eve-protocol"/>
         <depend project="jdbm"/>
@@ -65,9 +65,9 @@
             from="directory-naming development &lt;directory-dev@incubator.apache.org&gt;"/>
     </project>
 
-    <project name="eve-jndi">
-        <maven basedir="jndi-provider" goal="jar" >
-          <property name="maven.final.name" value="eve-jndi-provider-@@DATE@@"/>
+    <project name="eve-dib">
+        <maven basedir="main" goal="jar" >
+          <property name="maven.final.name" value="eve-dib-@@DATE@@"/>
         </maven>
         <package>org.apache.eve</package>
         <depend project="antlr"/>
@@ -94,11 +94,11 @@
         <depend project="xalan"/>
         <depend project="xml-xerces"/>
 
-        <mkdir dir="jndi-provider/target/classes"/>
-        <work nested="jndi-provider/target/classes"/>
+        <mkdir dir="dib/target/classes"/>
+        <work nested="dib/target/classes"/>
 
-        <home nested="jndi-provider"/>
-        <jar name="target/eve-jndi-provider-@@DATE@@"/>
+        <home nested="dib"/>
+        <jar name="target/eve-dib-@@DATE@@"/>
         
         <nag to="directory-dev@incubator.apache.org" 
             from="directory-naming development &lt;directory-dev@incubator.apache.org&gt;"/>
@@ -162,7 +162,7 @@
     </project>
     
     <project name="maven-eve-plugin">
-        <maven basedir="maven-eve-plugin" goal="jar" >
+        <maven basedir="plugin" goal="jar" >
           <property name="maven.final.name" value="maven-eve-plugin-@@DATE@@"/>
         </maven>
         <package>org.apache.eve.schema.bootstrap</package>
