@@ -122,8 +122,7 @@ public class SubstringEvaluator implements Evaluator
         // Index not defined beyond this point
         // --------------------------------------------------------------------
         
-        Attribute attr = null;
-        String oid = oidRegistry.getOid( attr.getID() );
+        String oid = oidRegistry.getOid( snode.getAttribute() );
         AttributeType type = attributeTypeRegistry.lookup( oid );
         Normalizer normalizer = type.getSubstr().getNormalizer();
 
@@ -135,7 +134,7 @@ public class SubstringEvaluator implements Evaluator
         }
         
         // get the attribute
-        attr = record.getAttributes().get( snode.getAttribute() );
+        Attribute attr = record.getAttributes().get( snode.getAttribute() );
         
         // if the attribute does not exist just return false
         if ( null == attr )

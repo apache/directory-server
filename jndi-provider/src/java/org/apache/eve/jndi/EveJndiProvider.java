@@ -220,6 +220,11 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
                     {
                         target = ( NamingException ) ite.getTargetException();
                     }
+                    else
+                    {
+                        target = new NamingException();
+                        target.setRootCause( ite.getTargetException() );
+                    }
                 }
                 else
                 {
