@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.db.jdbm;
+package org.apache.eve.db;
 
 
 import java.util.Map;
@@ -31,8 +31,6 @@ import org.apache.ldap.common.filter.ScopeNode;
 import org.apache.ldap.common.filter.BranchNode;
 import org.apache.ldap.common.filter.AbstractExprNode;
 import org.apache.ldap.common.message.DerefAliasesEnum;
-
-import org.apache.eve.db.*;
 
 
 /**
