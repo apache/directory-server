@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.server.schema.bootstrap.*;
 
 
 /**

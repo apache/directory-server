@@ -25,8 +25,9 @@ import jdbm.RecordManager;
 import jdbm.helper.StringComparator;
 
 import org.apache.ldap.common.util.BigIntegerComparator;
+import org.apache.ldap.server.schema.SerializableComparator;
 import org.apache.eve.db.MasterTable;
-import org.apache.eve.schema.SerializableComparator;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 
 /**

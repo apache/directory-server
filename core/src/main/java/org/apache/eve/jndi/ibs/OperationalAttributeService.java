@@ -28,12 +28,14 @@ import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.jndi.Invocation;
 import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.InvocationStateEnum;
-import org.apache.eve.schema.GlobalRegistries;
-import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.GlobalRegistries;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.GlobalRegistries;
 
 
 /**

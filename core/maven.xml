@@ -8,7 +8,7 @@
   >
 
   <preGoal name="java:compile">
-    <attainGoal name="eve:schema"/>
+    <attainGoal name="directory:schema"/>
   </preGoal> 
  
   <postGoal name="java:compile">

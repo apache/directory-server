@@ -19,7 +19,7 @@ package org.apache.eve.db;
 
 import org.apache.ldap.common.util.BigIntegerComparator;
 
-import org.apache.eve.schema.SerializableComparator;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 
 /**

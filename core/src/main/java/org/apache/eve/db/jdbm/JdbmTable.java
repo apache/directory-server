@@ -34,9 +34,10 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.ldap.common.util.EmptyEnumeration; 
 import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 import org.apache.eve.db.*;
-import org.apache.eve.schema.SerializableComparator;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 
 /**

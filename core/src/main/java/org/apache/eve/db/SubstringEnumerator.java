@@ -225,7 +225,8 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.SubstringNode;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**

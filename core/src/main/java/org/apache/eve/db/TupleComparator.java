@@ -19,7 +19,8 @@ package org.apache.eve.db;
 
 import java.io.Serializable;
 
-import org.apache.eve.schema.SerializableComparator;
+import org.apache.ldap.server.schema.SerializableComparator;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 
 /**

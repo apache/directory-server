@@ -23,9 +23,10 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.BranchNode;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
-import org.apache.eve.schema.OidRegistry;
-import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**

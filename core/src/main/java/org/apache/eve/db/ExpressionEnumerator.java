@@ -29,7 +29,8 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.AssertionNode;
 import org.apache.ldap.common.filter.SubstringNode;
 import org.apache.ldap.common.NotImplementedException;
-import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 import java.util.ArrayList;
 import java.math.BigInteger;

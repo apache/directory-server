@@ -31,9 +31,10 @@ import org.apache.regexp.RE;
 import org.apache.eve.db.Index;
 import org.apache.eve.db.IndexComparator;
 import org.apache.eve.db.IndexEnumeration;
-import org.apache.eve.schema.SerializableComparator;
+import org.apache.ldap.server.schema.SerializableComparator;
 import org.apache.ldap.common.util.LRUMap;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 import jdbm.helper.MRU;
 import jdbm.RecordManager;

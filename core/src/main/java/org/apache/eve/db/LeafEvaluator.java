@@ -34,9 +34,11 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
-import org.apache.eve.schema.OidRegistry;
-import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
 
 
 /**
