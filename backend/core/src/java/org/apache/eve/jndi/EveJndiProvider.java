@@ -15,10 +15,10 @@ import javax.naming.ldap.LdapContext ;
 
 
 /**
- * JndiProvider service implementing block.
+ * EveBackendSubsystem service implementing block.
  * 
  */
-public class EveJndiProvider implements JndiProvider, InvocationHandler
+public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 {
     /** Singleton instance of this class */
     private static EveJndiProvider s_singleton = null ;
@@ -41,7 +41,7 @@ public class EveJndiProvider implements JndiProvider, InvocationHandler
 
 
     /**
-     * Creates a singlton instance of the JndiProvider.  In the words of the 
+     * Creates a singlton instance of the EveBackendSubsystem.  In the words of the
      * Highlander, "there can only be one."
      *
      * @throws IllegalStateException if another EveJndiProvider has already
@@ -82,12 +82,12 @@ public class EveJndiProvider implements JndiProvider, InvocationHandler
 
 
     // ------------------------------------------------------------------------
-    // JndiProvider Interface Method Implemetations
+    // EveBackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
 
 
     /**
-     * @see JndiProvider#getLdapContext(Hashtable)
+     * @see EveBackendSubsystem#getLdapContext(Hashtable)
      */
     public LdapContext getLdapContext( Hashtable an_env ) throws NamingException
     {

@@ -6,7 +6,7 @@ import javax.naming.NamingException ;
 /**
  * Exception thrown by an Interceptor while intercepting an Invocation.  
  * Interceptor failures caught from the 
- * {@link JndiProvider#invoke(Object, Method, Object[])}
+ * {@link EveBackendSubsystem#invoke(Object, Method, Object[])}
  * method are bundled as InterceptorExceptions and rethrown.
  * 
  */

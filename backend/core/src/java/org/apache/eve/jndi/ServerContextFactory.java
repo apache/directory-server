@@ -40,7 +40,7 @@ public class ServerContextFactory implements InitialContextFactory
      * Enables this ServerContextFactory with a handle to the EveJndiProvider
      * singleton.
      * 
-     * @param a_provider the system's singleton JndiProvider service.
+     * @param a_provider the system's singleton EveBackendSubsystem service.
      */
     void setProvider( EveJndiProvider a_provider )
     {

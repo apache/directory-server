@@ -10,7 +10,7 @@ import javax.naming.ldap.LdapContext ;
 /**
  * 
  */
-public interface JndiProvider
+public interface EveBackendSubsystem
 {
     /**
      * Gets an LdapContext to attach to a point in the DIT using the supplied 
