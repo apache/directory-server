@@ -18,13 +18,12 @@ package org.apache.eve.tools.schema;
 
 
 import org.apache.ldap.common.util.ExceptionUtils;
-import org.apache.ldap.common.NotImplementedException;
 
-import java.io.PipedOutputStream;
+import java.util.Map;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.text.ParseException;
-import java.util.Map;
+import java.io.PipedOutputStream;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -71,9 +70,9 @@ public class OpenLdapSchemaParser
     }
 
 
-    public void reset()
+    public synchronized void clear()
     {
-        throw new NotImplementedException( "impl to clear all parsed objects" );
+        parser.clear();
     }
 
 
@@ -92,8 +91,7 @@ public class OpenLdapSchemaParser
     /**
      * Thread safe method parses an OpenLDAP schema file.
      */
-    public synchronized void parse( String schema )
-        throws IOException, ParseException
+    public synchronized void parse( String schema ) throws IOException, ParseException
     {
         if ( schema == null || schema.trim().equals( "" ) )
         {

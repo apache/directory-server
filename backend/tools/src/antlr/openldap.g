@@ -124,6 +124,13 @@ options    {
     // ------------------------------------------------------------------------
 
 
+    public void clear()
+    {
+        attributeTypes.clear();
+        objectClasses.clear();
+    }
+
+
     public Map getAttributeTypes()
     {
         return Collections.unmodifiableMap( attributeTypes );
