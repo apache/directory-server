@@ -295,6 +295,7 @@ public class DefaultInputManager implements InputManager
                 {
                     l_buf = m_bp.getBuffer( this ) ;
                     l_channel.read( l_buf ) ;
+                    l_list.remove() ;
                 }
                 catch ( ResourceException e )
                 {
