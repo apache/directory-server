@@ -41,7 +41,7 @@ import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
-import org.apache.eve.exception.EveConfigurationException;
+import org.apache.eve.exception.LdapConfigurationException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
@@ -198,20 +198,20 @@ public class EveContextFactory implements InitialContextFactory
                 String msg = "Ambiguous configuration: " + TYPE;
                 msg += " is set to none and the security principal";
                 msg += " is set using " + PRINCIPAL + " as well";
-                throw new EveConfigurationException( msg );
+                throw new LdapConfigurationException( msg );
             }
             else if ( ! initialEnv.containsKey( PRINCIPAL ) &&
                    initialEnv.containsKey( TYPE ) &&
                    initialEnv.get( TYPE ).equals( "none" ) )
             {
-                throw new EveConfigurationException( "using authentication type none "
+                throw new LdapConfigurationException( "using authentication type none "
                         + "for anonymous binds while trying to bootstrap Eve "
                         + "- this is not allowed ONLY the admin can bootstrap" );
             }
             else if ( initialEnv.containsKey( PRINCIPAL ) &&
                       ! initialEnv.get( PRINCIPAL ).equals( ADMIN ) )
             {
-                throw new EveConfigurationException( "user "
+                throw new LdapConfigurationException( "user "
                         + initialEnv.get( PRINCIPAL )
                         + " is not allowed to bootstrap the system. ONLY the "
                         + "admin can bootstrap" );
@@ -599,7 +599,7 @@ public class EveContextFactory implements InitialContextFactory
         catch ( Exception e )
         {
             String msg = "failed while trying to parse system ldif file";
-            NamingException ne = new EveConfigurationException( msg );
+            NamingException ne = new LdapConfigurationException( msg );
             ne.setRootCause( e );
             throw ne;
         }

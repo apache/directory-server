@@ -30,7 +30,7 @@ import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.eve.exception.EveConfigurationException;
+import org.apache.eve.exception.LdapConfigurationException;
 
 
 /**
@@ -86,7 +86,7 @@ public class ImportConfirmationTest extends AbstractJndiTest
         catch ( Exception e )
         {
             String msg = "failed while trying to parse system ldif file";
-            NamingException ne = new EveConfigurationException( msg );
+            NamingException ne = new LdapConfigurationException( msg );
             ne.setRootCause( e );
             throw ne;
         }

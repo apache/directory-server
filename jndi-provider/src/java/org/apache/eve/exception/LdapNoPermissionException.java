@@ -17,22 +17,48 @@
 package org.apache.eve.exception;
 
 
-import javax.naming.NameNotFoundException;
+import javax.naming.NoPermissionException;
 
-import org.apache.eve.exception.EveException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
- * Document this class.
+ * A NoPermissionException which associates a resultCode namely the
+ * {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS} resultCode with the exception.
  *
+ * @see LdapException
+ * @see NoPermissionException
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveNameNotFoundException extends NameNotFoundException implements EveException
+public class LdapNoPermissionException extends NoPermissionException
+        implements LdapException
 {
+    /**
+     * @see NoPermissionException#NoPermissionException()
+     */
+    public LdapNoPermissionException()
+    {
+        super();
+    }
+
+
+    /**
+     * @see NoPermissionException#NoPermissionException(String)
+     */
+    public LdapNoPermissionException( String explanation )
+    {
+        super( explanation );
+    }
+
+
+    /**
+     * Always returns {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS}
+     *
+     * @see LdapException#getResultCode()
+     */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.NOSUCHOBJECT;
+        return ResultCodeEnum.INSUFFICIENTACCESSRIGHTS;
     }
 }

@@ -17,57 +17,48 @@
 package org.apache.eve.exception;
 
 
-import javax.naming.NamingException;
+import javax.naming.ConfigurationException;
 
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
- * Extends the root NamingException by adding LDAP specific properties to it.
+ * A ConfigurationException which associates a resultCode namely the
+ * {@link ResultCodeEnum#OTHER} resultCode with the exception.
  *
+ * @see LdapException
+ * @see javax.naming.ConfigurationException
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveNamingException extends NamingException implements EveException
+public class LdapConfigurationException extends ConfigurationException
+        implements LdapException
 {
-    /** the LDAP resultCode this exception is associated with */
-    private final ResultCodeEnum resultCode;
-
-
     /**
-     * Creates an Eve NamingException.
-     *
-     * @param resultCode the LDAP resultCode this exception is associated with
+     * @see javax.naming.NoPermissionException#NoPermissionException()
      */
-    public EveNamingException( ResultCodeEnum resultCode )
+    public LdapConfigurationException()
     {
         super();
-
-        this.resultCode = resultCode;
     }
 
 
     /**
-     * Creates an Eve NamingException.
-     * 
-     * @param explanation an explanation for the failure
-     * @param resultCode the LDAP resultCode this exception is associated with
+     * @see javax.naming.NoPermissionException#NoPermissionException(String)
      */
-    public EveNamingException( String explanation, ResultCodeEnum resultCode )
+    public LdapConfigurationException( String explanation )
     {
         super( explanation );
-
-        this.resultCode = resultCode;
     }
 
 
     /**
-     * Gets the LDAP resultCode this exception is associated with.
+     * Always returns {@link org.apache.ldap.common.message.ResultCodeEnum#OTHER}
      *
-     * @return the LDAP resultCode this exception is associated with
+     * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()
     {
-        return this.resultCode;
+        return ResultCodeEnum.OTHER;
     }
 }

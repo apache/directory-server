@@ -20,7 +20,7 @@ package org.apache.eve.jndi;
 import org.apache.eve.RootNexus;
 import org.apache.eve.PartitionNexus;
 import org.apache.eve.EveBackendSubsystem;
-import org.apache.eve.exception.EveNamingException;
+import org.apache.eve.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 import java.util.Hashtable;
@@ -261,7 +261,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
             if ( invocation.getThrowable() == null )
             {
-                throw new EveNamingException( "Interceptor Framework Failure: "
+                throw new LdapNamingException( "Interceptor Framework Failure: "
                         + "failures on the proxied call should have a non null "
                         + "throwable associated with the Invocation object.",
                         ResultCodeEnum.OTHER );
@@ -273,7 +273,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
         // used for an optimization
         BaseInterceptor.setInvocation( null );
-        throw new EveNamingException( "Interceptor Framework Failure: "
+        throw new LdapNamingException( "Interceptor Framework Failure: "
                 + "invocation handling should never have reached this line",
                 ResultCodeEnum.OTHER );
     }

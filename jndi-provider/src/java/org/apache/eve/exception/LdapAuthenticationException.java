@@ -19,7 +19,7 @@ package org.apache.eve.exception;
 
 import javax.naming.AuthenticationException;
 
-import org.apache.eve.exception.EveException;
+import org.apache.eve.exception.LdapException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
@@ -30,8 +30,8 @@ import org.apache.ldap.common.message.ResultCodeEnum;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveAuthenticationException extends AuthenticationException
-        implements EveException
+public class LdapAuthenticationException extends AuthenticationException
+        implements LdapException
 {
     /**
      * Gets ResultCodeEnum.INVALIDCREDENTIALS every time.

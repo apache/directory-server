@@ -27,9 +27,9 @@ import javax.naming.directory.Attribute;
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
 import org.apache.eve.auth.LdapPrincipal;
-import org.apache.eve.exception.EveAuthenticationNotSupportedException;
-import org.apache.eve.exception.EveNameNotFoundException;
-import org.apache.eve.exception.EveAuthenticationException;
+import org.apache.eve.exception.LdapAuthenticationNotSupportedException;
+import org.apache.eve.exception.LdapNameNotFoundException;
+import org.apache.eve.exception.LdapAuthenticationException;
 import org.apache.eve.exception.*;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ArrayUtils;
@@ -65,7 +65,7 @@ public class AuthenticationService implements Interceptor
      * @param nexus the root nexus to access all database partitions
      */
     public AuthenticationService( RootNexus nexus, NameComponentNormalizer normalizer,
-                                  boolean allowAnonymous ) throws EveNamingException
+                                  boolean allowAnonymous ) throws LdapNamingException
     {
         this.nexus = nexus;
         this.allowAnonymous = allowAnonymous;
@@ -75,7 +75,7 @@ public class AuthenticationService implements Interceptor
         }
         catch ( IOException e )
         {
-            EveNamingException ene = new EveNamingException( ResultCodeEnum.OTHER );
+            LdapNamingException ene = new LdapNamingException( ResultCodeEnum.OTHER );
             ene.setRootCause( e );
             throw ene;
         }
@@ -111,7 +111,7 @@ public class AuthenticationService implements Interceptor
             }
             else
             {
-                throw new EveNoPermissionException( "" );
+                throw new LdapNoPermissionException( "" );
             }
         }
 
@@ -129,7 +129,7 @@ public class AuthenticationService implements Interceptor
         Attributes userEntry = nexus.lookup( principalDn );
         if ( userEntry == null )
         {
-            throw new EveNameNotFoundException();
+            throw new LdapNameNotFoundException();
         }
 
         Object userPassword;
@@ -149,7 +149,7 @@ public class AuthenticationService implements Interceptor
 
         if ( ! ArrayUtils.isEquals( creds, userPassword ) )
         {
-            throw new EveAuthenticationException();
+            throw new LdapAuthenticationException();
         }
 
         synchronized( parser )
@@ -174,7 +174,7 @@ public class AuthenticationService implements Interceptor
     {
         if ( "strong".equalsIgnoreCase( ( String ) env.get( TYPE ) ) )
         {
-            throw new EveAuthenticationNotSupportedException( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+            throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
         }
 
         // --------------------------------------------------------------------
@@ -203,7 +203,7 @@ public class AuthenticationService implements Interceptor
             }
 
             // blow chuncks if we see any other authtype values
-            throw new EveConfigurationException( "Unknown value for property " + TYPE + ": " + val );
+            throw new LdapConfigurationException( "Unknown value for property " + TYPE + ": " + val );
         }
 
         // both are set
@@ -217,7 +217,7 @@ public class AuthenticationService implements Interceptor
                 String msg = "Ambiguous configuration: " + TYPE;
                 msg += " is set to none and the security principal";
                 msg += " is set using " + PRINCIPAL + " as well";
-                throw new EveConfigurationException( msg );
+                throw new LdapConfigurationException( msg );
             }
             // princial is set to the admin user if authType is "simple"
             else if ( "simple".equalsIgnoreCase( ( String ) val ) )
@@ -226,7 +226,7 @@ public class AuthenticationService implements Interceptor
             }
 
             // blow chuncks if we see any other authtype values
-            throw new EveConfigurationException( "Unknown value for property " + TYPE + ": " + val );
+            throw new LdapConfigurationException( "Unknown value for property " + TYPE + ": " + val );
         }
 
         // we have the principal key so we set that as the value

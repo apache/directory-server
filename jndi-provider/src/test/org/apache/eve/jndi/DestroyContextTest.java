@@ -19,7 +19,7 @@ package org.apache.eve.jndi;
 
 import javax.naming.NamingException;
 
-import org.apache.eve.exception.EveNameNotFoundException;
+import org.apache.eve.exception.LdapNameNotFoundException;
 
 
 /**
@@ -60,7 +60,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
-            assertTrue( e instanceof EveNameNotFoundException );
+            assertTrue( e instanceof LdapNameNotFoundException );
         }
 
         /*
@@ -75,7 +75,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
-            assertTrue( e instanceof EveNameNotFoundException );
+            assertTrue( e instanceof LdapNameNotFoundException );
         }
 
         /*
@@ -90,7 +90,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
-            assertTrue( e instanceof EveNameNotFoundException );
+            assertTrue( e instanceof LdapNameNotFoundException );
         }
 
 
@@ -106,7 +106,7 @@ public class DestroyContextTest extends AbstractJndiTest
         }
         catch( NamingException e )
         {
-            assertTrue( e instanceof EveNameNotFoundException );
+            assertTrue( e instanceof LdapNameNotFoundException );
         }
     }
 

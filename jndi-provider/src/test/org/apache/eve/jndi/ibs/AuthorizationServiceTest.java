@@ -25,7 +25,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 
 import org.apache.eve.jndi.AbstractMultiUserJndiTest;
-import org.apache.eve.exception.EveNoPermissionException;
+import org.apache.eve.exception.LdapNoPermissionException;
 import org.apache.eve.db.DbSearchResult;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 
@@ -51,7 +51,7 @@ public class AuthorizationServiceTest extends AbstractMultiUserJndiTest
             sysRoot.destroySubcontext( "uid=admin" );
             fail( "admin should not be able to delete his account" );
         }
-        catch ( EveNoPermissionException e )
+        catch ( LdapNoPermissionException e )
         {
             assertNotNull( e );
         }
@@ -71,7 +71,7 @@ public class AuthorizationServiceTest extends AbstractMultiUserJndiTest
             fail( sysRootAsNonAdminUser.getPrincipal().getDn()
                     + " should not be able to delete his account" );
         }
-        catch ( EveNoPermissionException e )
+        catch ( LdapNoPermissionException e )
         {
             assertNotNull( e );
         }
@@ -90,7 +90,7 @@ public class AuthorizationServiceTest extends AbstractMultiUserJndiTest
             sysRoot.rename( "uid=admin", "uid=alex" );
             fail( "admin should not be able to rename his account" );
         }
-        catch ( EveNoPermissionException e )
+        catch ( LdapNoPermissionException e )
         {
             assertNotNull( e );
         }
@@ -109,7 +109,7 @@ public class AuthorizationServiceTest extends AbstractMultiUserJndiTest
             sysRootAsNonAdminUser.rename( "uid=admin", "uid=alex" );
             fail( "admin should not be able to rename his account" );
         }
-        catch ( EveNoPermissionException e )
+        catch ( LdapNoPermissionException e )
         {
             assertNotNull( e );
         }

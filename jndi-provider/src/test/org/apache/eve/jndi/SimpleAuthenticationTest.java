@@ -26,8 +26,8 @@ import javax.naming.*;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.eve.exception.EveNoPermissionException;
-import org.apache.eve.exception.EveConfigurationException;
+import org.apache.eve.exception.LdapNoPermissionException;
+import org.apache.eve.exception.LdapConfigurationException;
 
 
 /**
@@ -187,10 +187,10 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
             setSysRoot( env );
             fail( "should not get here due to exception" );
         }
-        catch( EveConfigurationException e )
+        catch( LdapConfigurationException e )
         {
         }
-        catch( EveNoPermissionException e )
+        catch( LdapNoPermissionException e )
         {
         }
 
@@ -212,10 +212,10 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
             fail( "should not get here due to exception cuz anonymous user is "
                     + "not allowed read access to the admin account entry" );
         }
-        catch( EveConfigurationException e )
+        catch( LdapConfigurationException e )
         {
         }
-        catch( EveNoPermissionException e )
+        catch( LdapNoPermissionException e )
         {
         }
     }

@@ -19,7 +19,7 @@ package org.apache.eve.exception;
 
 import javax.naming.AuthenticationNotSupportedException;
 
-import org.apache.eve.exception.EveException;
+import org.apache.eve.exception.LdapException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
@@ -31,8 +31,8 @@ import org.apache.ldap.common.message.ResultCodeEnum;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveAuthenticationNotSupportedException
-        extends AuthenticationNotSupportedException implements EveException
+public class LdapAuthenticationNotSupportedException
+        extends AuthenticationNotSupportedException implements LdapException
 {
     /** the result code type safe enumeration */
     private final ResultCodeEnum resultCode;
@@ -44,14 +44,14 @@ public class EveAuthenticationNotSupportedException
 
 
     /**
-     * Creates an EveException with the resultCode.
+     * Creates an LdapException with the resultCode.
      *
      * @see AuthenticationNotSupportedException#AuthenticationNotSupportedException()
      * @param resultCode the resultCode enumeration
      * @throws IllegalArgumentException if the resultCode is not one of the
      * codes corresponding to an AuthenticationNotSupportedException
      */
-    public EveAuthenticationNotSupportedException( ResultCodeEnum resultCode )
+    public LdapAuthenticationNotSupportedException( ResultCodeEnum resultCode )
     {
         super();
         this.resultCode = resultCode;
@@ -60,14 +60,14 @@ public class EveAuthenticationNotSupportedException
 
 
     /**
-     * Sets the resultCode associated with this EveException.
+     * Sets the resultCode associated with this LdapException.
      *
      * @see AuthenticationNotSupportedException#AuthenticationNotSupportedException(String)
      * @param resultCode the resultCode enumeration
      * @throws IllegalArgumentException if the resultCode is not one of the
      * codes corresponding to an AuthenticationNotSupportedException
      */
-    public EveAuthenticationNotSupportedException( String explanation, ResultCodeEnum resultCode )
+    public LdapAuthenticationNotSupportedException( String explanation, ResultCodeEnum resultCode )
     {
         super( explanation );
         this.resultCode = resultCode;
@@ -76,12 +76,12 @@ public class EveAuthenticationNotSupportedException
 
 
     // ------------------------------------------------------------------------
-    // EveException methods
+    // LdapException methods
     // ------------------------------------------------------------------------
 
 
     /**
-     * @see org.apache.eve.exception.EveException#getResultCode()
+     * @see org.apache.eve.exception.LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()
     {

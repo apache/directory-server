@@ -17,48 +17,34 @@
 package org.apache.eve.exception;
 
 
-import javax.naming.NoPermissionException;
+import javax.naming.directory.AttributeInUseException;
 
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
- * A NoPermissionException which associates a resultCode namely the
- * {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS} resultCode with the exception.
+ * A subclass of AttributeInUseException which holds the LDAP resultCode
+ * associated with the exception.
  *
- * @see EveException
- * @see NoPermissionException
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveNoPermissionException extends NoPermissionException
-        implements EveException
+public class LdapAttributeInUseException extends AttributeInUseException implements LdapException
 {
-    /**
-     * @see NoPermissionException#NoPermissionException()
-     */
-    public EveNoPermissionException()
+    public LdapAttributeInUseException()
     {
         super();
     }
 
 
-    /**
-     * @see NoPermissionException#NoPermissionException(String)
-     */
-    public EveNoPermissionException( String explanation )
+    public LdapAttributeInUseException( String explanation )
     {
         super( explanation );
     }
 
 
-    /**
-     * Always returns {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS}
-     *
-     * @see EveException#getResultCode()
-     */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.INSUFFICIENTACCESSRIGHTS;
+        return ResultCodeEnum.ENTRYALREADYEXISTS;
     }
 }

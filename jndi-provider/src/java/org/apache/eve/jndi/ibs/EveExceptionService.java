@@ -22,12 +22,12 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.eve.jndi.*;
-import org.apache.eve.exception.EveNameNotFoundException;
-import org.apache.eve.exception.EveNameAlreadyBoundException;
+import org.apache.eve.exception.LdapNameNotFoundException;
+import org.apache.eve.exception.LdapNameAlreadyBoundException;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.exception.EveInterceptorException;
-import org.apache.eve.exception.EveException;
+import org.apache.eve.exception.LdapException;
 
 
 /**
@@ -74,12 +74,12 @@ public class EveExceptionService extends BaseInterceptor
                 {
                     EveInterceptorException eie = ( EveInterceptorException ) t;
 
-                    if ( eie.getRootCause() != null && ( eie instanceof EveException ) )
+                    if ( eie.getRootCause() != null && ( eie instanceof LdapException ) )
                     {
                         invocation.setBeforeFailure( eie.getRootCause() );
                     }
 
-                    else if ( eie.getCause() != null && ( eie instanceof EveException ) )
+                    else if ( eie.getCause() != null && ( eie instanceof LdapException ) )
                     {
                         invocation.setBeforeFailure( eie.getCause() );
                     }
@@ -93,12 +93,12 @@ public class EveExceptionService extends BaseInterceptor
                 {
                     EveInterceptorException eie = ( EveInterceptorException ) t;
 
-                    if ( eie.getRootCause() != null && ( eie instanceof EveException ) )
+                    if ( eie.getRootCause() != null && ( eie instanceof LdapException ) )
                     {
                         invocation.setAfterFailure( eie.getRootCause() );
                     }
 
-                    else if ( eie.getCause() != null && ( eie instanceof EveException ) )
+                    else if ( eie.getCause() != null && ( eie instanceof LdapException ) )
                     {
                         invocation.setAfterFailure( eie.getCause() );
                     }
@@ -125,7 +125,7 @@ public class EveExceptionService extends BaseInterceptor
         {
             if ( nexus.hasEntry( normName ) )
             {
-                NamingException ne = new EveNameAlreadyBoundException();
+                NamingException ne = new LdapNameAlreadyBoundException();
                 invocation.setBeforeFailure( ne );
                 throw ne;
             }
@@ -144,7 +144,7 @@ public class EveExceptionService extends BaseInterceptor
         {
             if ( ! nexus.hasEntry( dn ) )
             {
-                NamingException ne = new EveNameNotFoundException();
+                NamingException ne = new LdapNameNotFoundException();
                 invocation.setBeforeFailure( ne );
                 throw ne;
             }

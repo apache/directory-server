@@ -17,34 +17,21 @@
 package org.apache.eve.exception;
 
 
-import javax.naming.directory.AttributeInUseException;
-
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
- * A subclass of AttributeInUseException which holds the LDAP resultCode
- * associated with the exception.
+ * An Eve exception add LDAP specific information to NamingExceptions.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveAttributeInUseException extends AttributeInUseException implements EveException
+public interface LdapException
 {
-    public EveAttributeInUseException()
-    {
-        super();
-    }
-
-
-    public EveAttributeInUseException( String explanation )
-    {
-        super( explanation );
-    }
-
-
-    public ResultCodeEnum getResultCode()
-    {
-        return ResultCodeEnum.ENTRYALREADYEXISTS;
-    }
+    /**
+     * Gets the LDAP result code that would be associated with this exception.
+     *
+     * @return
+     */
+    public ResultCodeEnum getResultCode();
 }

@@ -17,48 +17,28 @@
 package org.apache.eve.exception;
 
 
-import javax.naming.ConfigurationException;
+import javax.naming.NameAlreadyBoundException;
 
+import org.apache.eve.exception.LdapException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
- * A ConfigurationException which associates a resultCode namely the
- * {@link ResultCodeEnum#OTHER} resultCode with the exception.
+ * An Eve specific NameAlreadyBoundException.
  *
- * @see EveException
- * @see javax.naming.ConfigurationException
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveConfigurationException extends ConfigurationException
-        implements EveException
+public class LdapNameAlreadyBoundException extends NameAlreadyBoundException
+        implements LdapException
 {
     /**
-     * @see javax.naming.NoPermissionException#NoPermissionException()
-     */
-    public EveConfigurationException()
-    {
-        super();
-    }
-
-
-    /**
-     * @see javax.naming.NoPermissionException#NoPermissionException(String)
-     */
-    public EveConfigurationException( String explanation )
-    {
-        super( explanation );
-    }
-
-
-    /**
-     * Always returns {@link org.apache.ldap.common.message.ResultCodeEnum#OTHER}
+     * Always returns ResultCodeEnum.ENTRYALREADYEXISTS.
      *
-     * @see EveException#getResultCode()
+     * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()
     {
-        return ResultCodeEnum.OTHER;
+        return ResultCodeEnum.ENTRYALREADYEXISTS;
     }
 }

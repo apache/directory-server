@@ -31,7 +31,7 @@ import org.apache.eve.jndi.Interceptor;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EveInterceptorException extends EveNamingException
+public class EveInterceptorException extends LdapNamingException
 {
     /** The Invokation the Interceptor failed on */
     private final Invocation invocation;
@@ -108,15 +108,15 @@ public class EveInterceptorException extends EveNamingException
 
     /**
      * Will return the resultCode of the root cause if the root cause
-     * implements EveException.
+     * implements LdapException.
      *
-     * @see EveException#getResultCode() 
+     * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()
     {
-        if ( getRootCause() != null && ( getRootCause() instanceof EveException ) )
+        if ( getRootCause() != null && ( getRootCause() instanceof LdapException ) )
         {
-            return ( ( EveException ) getRootCause() ).getResultCode();
+            return ( ( LdapException ) getRootCause() ).getResultCode();
         }
 
         return super.getResultCode();

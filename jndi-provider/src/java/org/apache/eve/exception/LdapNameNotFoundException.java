@@ -17,21 +17,22 @@
 package org.apache.eve.exception;
 
 
+import javax.naming.NameNotFoundException;
+
+import org.apache.eve.exception.LdapException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
- * An Eve exception add LDAP specific information to NamingExceptions.
+ * Document this class.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface EveException
+public class LdapNameNotFoundException extends NameNotFoundException implements LdapException
 {
-    /**
-     * Gets the LDAP result code that would be associated with this exception.
-     *
-     * @return
-     */
-    public ResultCodeEnum getResultCode();
+    public ResultCodeEnum getResultCode()
+    {
+        return ResultCodeEnum.NOSUCHOBJECT;
+    }
 }
