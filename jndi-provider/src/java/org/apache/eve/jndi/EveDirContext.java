@@ -279,7 +279,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
         {
             return ( DirContext ) super.createSubcontext( name );
         }
-        
+
         // @todo again note that we presume single attribute name components
         LdapName target = buildTarget( name );
         String rdn = name.get( name.size() - 1 );
@@ -288,15 +288,20 @@ public abstract class EveDirContext extends EveContext implements DirContext
 
         // Clone the attributes and add the Rdn attributes
         Attributes attributes = ( Attributes ) attrs.clone();
-        attributes.put( rdnAttribute, rdnValue );
-        
-        // Add the new context to the server which as a side effect adds 
+        if ( attributes.get( rdnAttribute ) == null ||
+             attributes.get( rdnAttribute ).size() == 0 ||
+            ( ! attributes.get( rdnAttribute ).contains( rdnValue ) ) )
+        {
+            attributes.put( rdnAttribute, rdnValue );
+        }
+
+        // Add the new context to the server which as a side effect adds
         getNexusProxy().add( target.toString(), target, attributes );
 
         // Initialize the new context
         EveLdapContext ctx = new EveLdapContext( getPrincipal(), getNexusProxy(),
                 getEnvironment(), target );
-        
+
         Control [] controls = ( ( EveLdapContext ) this ).getRequestControls();
         if ( controls != null )
         {
@@ -306,7 +311,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
         {
         	controls = new Control[0];
         }
-        
+
         ctx.setRequestControls( controls );
         return ctx;
     }
