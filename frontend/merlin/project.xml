@@ -105,6 +105,16 @@
       <url>http://avalon.apache.org/framework</url>
     </dependency>
 
+    <!-- framework dependencies -->
+
+    <dependency>
+      <groupId>avalon-meta</groupId>
+      <artifactId>avalon-meta-plugin</artifactId>
+      <version>1.4.0</version>
+      <type>plugin</type>
+      <url>http://avalon.apache.org/meta</url>
+    </dependency>
+
     <!-- =============================================================== -->
     <!--               C O M M O N S   D E N D E N C I E S               -->
     <!-- =============================================================== -->
