@@ -115,7 +115,9 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see PartitionNexus#getRootDSE()
+     * Get's the RootDSE entry for the DSA.
+     *
+     * @return the attributes of the RootDSE
      */
     public Attributes getRootDSE() 
     {

@@ -17,9 +17,10 @@
 package org.apache.eve.schema.config;
 
 
-import org.apache.ldap.common.schema.Syntax;
-import org.apache.ldap.common.schema.BaseSyntax;
+import org.apache.ldap.common.schema.*;
 import org.apache.eve.schema.SyntaxCheckerRegistry;
+
+import java.util.Map;
 
 
 /**
@@ -457,6 +458,40 @@ public class CoreSyntaxes implements SyntaxConfigSet
         return syntaxes;
     }
 
+    public Map getComparators()
+    {
+        return null;
+    }
+
+    public Map getNormalizers()
+    {
+        return null;
+    }
+
+    public SyntaxChecker[] getSyntaxCheckers()
+    {
+        return new SyntaxChecker[0];
+    }
+
+    public Syntax[] getSyntaxes()
+    {
+        return new Syntax[0];
+    }
+
+    public MatchingRule[] getMatchingRules()
+    {
+        return new MatchingRule[0];
+    }
+
+    public AttributeType[] getAttributeTypes()
+    {                                                               
+        return new AttributeType[0];
+    }
+
+    public ObjectClass[] getObjectClasses()
+    {
+        return new ObjectClass[0];
+    }
 
     /**
      * Used to access protected mutators of BaseSyntax from within this class.

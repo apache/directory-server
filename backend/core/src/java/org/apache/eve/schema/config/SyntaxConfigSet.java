@@ -27,7 +27,7 @@ import org.apache.eve.schema.SyntaxCheckerRegistry;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxConfigSet extends ConfigSet
+public interface SyntaxConfigSet extends Schema
 {
     Syntax[] load( SyntaxCheckerRegistry registry );
 }

@@ -16,6 +16,10 @@
  */
 package org.apache.eve.schema.config;
 
+import org.apache.ldap.common.schema.*;
+
+import java.util.Map;
+
 
 /**
  * A configuration of like Schema objects bundled together and identified as a
@@ -24,18 +28,18 @@ package org.apache.eve.schema.config;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ConfigSet
+public interface Schema
 {
     /**
      * Gets the name of the owner of the schema objects within this
-     * ConfigSet.
+     * Schema.
      *
      * @return the identifier for the owner of this set's objects
      */
     String getOwner();
 
     /**
-     * Gets the name of the logical schema the objects of this ConfigSet
+     * Gets the name of the logical schema the objects of this Schema
      * belong to: e.g. krb5-kdc may be the logical LDAP schema name.
      *
      * @return the name of the logical schema
@@ -44,10 +48,24 @@ public interface ConfigSet
 
     /**
      * Gets the names of other schemas that this objects within this
-     * ConfigSet depends upon.  These dependent schemas are those
+     * Schema depends upon.  These dependent schemas are those
      * whose ConfigurationSets will be processed first.
      *
      * @return the String names of schema dependencies
      */
     String[] getDependencies();
+
+    Map getComparators();
+
+    Map getNormalizers();
+
+    SyntaxChecker[] getSyntaxCheckers();
+
+    Syntax[] getSyntaxes();
+
+    MatchingRule[] getMatchingRules();
+
+    AttributeType[] getAttributeTypes();
+
+    ObjectClass[] getObjectClasses();
 }

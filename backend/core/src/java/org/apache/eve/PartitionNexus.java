@@ -115,13 +115,6 @@ public interface PartitionNexus extends BackingStore
     Attributes lookup( Name dn, String [] attrIds ) throws NamingException;
 
     /**
-     * Gets the RootDSE associated with this BackendNexus.
-     *
-     * @return the Attributes contained within the Root DSA Entry.
-     */
-    Attributes getRootDSE();
-
-    /**
      * Registers an ContextPartition with this BackendManager.  Called by each
      * ContextPartition implementation after it has started to register for
      * backend operation calls.  This method effectively puts the 

@@ -25,7 +25,7 @@ import javax.naming.Name;
  * context as a base suffix.  All JNDI Attributes entries at and under the
  * context of this suffix are stored within this partition.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:direct   ory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface ContextPartition extends BackingStore
