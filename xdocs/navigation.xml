@@ -13,7 +13,7 @@
       -->
       <item name="LDAP" href="../directory-ldap/index.html"/>
       <item name="Naming" href="../directory-naming/index.html"/>
-      <item name="Snickers" href="../snickers/index.html"/>
+      <item name="ASN.1" href="../asn1/index.html"/>
       <item name="Janus" href="../janus/index.html"/>
       <item name="Kerberos" href="../kerberos/index.html"/>
       <item name="SEDA" href="../seda/index.html"/>
