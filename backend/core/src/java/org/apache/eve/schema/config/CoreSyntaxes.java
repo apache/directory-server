@@ -25,7 +25,7 @@ import org.apache.eve.schema.SyntaxCheckerRegistry;
 /**
  * A Syntax schema object configuration set for the core LDAP schema in Section
  * 4.3.2 of <a href="http://www.faqs.org/rfcs/rfc2252.html">RFC2252</a>.
- * The following table reproduced from RFC2252 shows the syntaxes included
+ * The following table reproduced from RFC2252 shows the syntaxes inclu     ded
  * within this SyntaxConfigSet:
  * <pre>
  * Index   Value being represented   H-R     OBJECT IDENTIFIER
