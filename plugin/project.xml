@@ -59,6 +59,7 @@
       <version>1.4</version>
       <properties>
         <gump.project>jakarta-velocity</gump.project>
+        <gump.id>velocity-dep</gump.id>
       </properties>
     </dependency>
   </dependencies>
