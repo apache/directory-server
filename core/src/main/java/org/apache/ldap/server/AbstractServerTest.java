@@ -19,10 +19,13 @@ package org.apache.ldap.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.Name;
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -30,6 +33,12 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.apseda.listener.AvailablePortFinder;
 import org.apache.ldap.server.jndi.EnvKeys;
+import org.apache.ldap.common.ldif.LdifParser;
+import org.apache.ldap.common.ldif.LdifParserImpl;
+import org.apache.ldap.common.ldif.LdifIterator;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.exception.LdapConfigurationException;
 
 
 /**
@@ -63,7 +72,14 @@ public abstract class AbstractServerTest extends TestCase
     {
         super.setUp();
 
-        doDelete( new File( "target" + File.separator + "apacheds" ) );
+        if ( overrides.containsKey( EnvKeys.WKDIR ) )
+        {
+            doDelete( new File( ( String ) overrides.get( EnvKeys.WKDIR ) ) );
+        }
+        else
+        {
+            doDelete( new File( "target" + File.separator + "apacheds" ) );
+        }
 
         int port = AvailablePortFinder.getNextAvailable( 1024 );
 
@@ -171,5 +187,56 @@ public abstract class AbstractServerTest extends TestCase
         try { new InitialContext( env ); } catch( Exception e ) {}
 
         sysRoot = null;
+    }
+
+
+    /**
+     * Imports the LDIF entries packaged with the Eve JNDI provider jar into
+     * the newly created system partition to prime it up for operation.  Note
+     * that only ou=system entries will be added - entries for other partitions
+     * cannot be imported and will blow chunks.
+     *
+     * @throws NamingException if there are problems reading the ldif file and
+     * adding those entries to the system partition
+     */
+    protected void importLdif( InputStream in ) throws NamingException
+    {
+        Hashtable env = new Hashtable();
+
+        env.putAll( sysRoot.getEnvironment() );
+
+        LdapContext ctx = new InitialLdapContext( env, null );
+
+        LdifParser parser = new LdifParserImpl();
+
+        try
+        {
+            LdifIterator iterator = new LdifIterator( in );
+
+            while ( iterator.hasNext() )
+            {
+                Attributes attributes = new LockableAttributesImpl();
+
+                String ldif = ( String ) iterator.next();
+
+                parser.parse( attributes, ldif );
+
+                Name dn = new LdapName( ( String ) attributes.remove( "dn" ).get() );
+
+                dn.remove( 0 );
+
+                ctx.createSubcontext( dn, attributes );
+            }
+        }
+        catch ( Exception e )
+        {
+            String msg = "failed while trying to parse system ldif file";
+
+            NamingException ne = new LdapConfigurationException( msg );
+
+            ne.setRootCause( e );
+
+            throw ne;
+        }
     }
 }
