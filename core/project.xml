@@ -71,7 +71,7 @@
       <url>http://jdbm.sourceforge.net</url>
     </dependency>
     <dependency>
-      <groupId>incubator-directory</groupId>
+      <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>
@@ -90,8 +90,8 @@
       <version>0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-protocol</artifactId>
+      <groupId>directory-protocols</groupId>
+      <artifactId>ldap-protocol</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
