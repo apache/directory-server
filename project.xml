@@ -16,7 +16,7 @@
     <package>org.apache.eve</package>
     
     <logo>/images/apache-directory-logo.png</logo>
-    <url>http://incubator.apache.org/directory</url>
+    <url>http://incubator.apache.org/directory/eve/</url>
     
     <issueTrackingUrl>
       http://nagoya.apache.org/scarab/servlet/scarab
@@ -31,7 +31,7 @@
 
     <repository>
       <connection>
-        scm:svn:http://cvs.apache.org/repos/asf/incubator/directory:eve/trunk/${module.path}
+        scm:svn:http://cvs.apache.org/repos/asf/incubator:directory/eve/trunk/${module.path}
       </connection>
 
       <url>
