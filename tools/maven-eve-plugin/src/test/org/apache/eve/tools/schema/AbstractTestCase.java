@@ -39,10 +39,13 @@ import org.apache.velocity.app.Velocity;
 public class AbstractTestCase extends TestCase
 {
     private OpenLdapSchemaParser parser;
+    private String basedir;
 
     protected void setUp() throws Exception
     {
         super.setUp();
+
+        basedir = System.getProperty( "basedir", "." );
 
         parser = new OpenLdapSchemaParser();
         parser.setParserMonitor( new ConsoleParserMonitor() );
@@ -95,7 +98,7 @@ public class AbstractTestCase extends TestCase
         context.put( "attrTypes", attributeTypes );
 
         FileReader template = getResourceReader( "AttributeTypes.template" );
-        FileWriter writer = getResourceWriter( "target/schema",
+        FileWriter writer = getResourceWriter( basedir + "/target/schema",
             schema.getPackageName(),
             schema.getUnqualifiedClassName( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER ) );
         Velocity.init();
@@ -121,7 +124,7 @@ public class AbstractTestCase extends TestCase
         context.put( "objectClasses", objectClasses );
 
         FileReader template = getResourceReader( "ObjectClasses.template" );
-        FileWriter writer = getResourceWriter( "target/schema",
+        FileWriter writer = getResourceWriter( basedir + "/target/schema",
             schema.getPackageName(),
             schema.getUnqualifiedClassName( ProducerTypeEnum.OBJECT_CLASS_PRODUCER ) );
         Velocity.init();

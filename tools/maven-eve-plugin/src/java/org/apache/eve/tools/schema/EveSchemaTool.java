@@ -36,6 +36,7 @@ import org.apache.eve.schema.bootstrap.ProducerTypeEnum;
  */
 public class EveSchemaTool
 {
+    private static String basedir = System.getProperty( "basedir", "." );
 
     /** property for dir where OpenLDAP schema files and deps file are stored */
     public static final String SCHEMA_SRC_DIR_PROP =
@@ -46,12 +47,12 @@ public class EveSchemaTool
 
     /** default dir where OpenLDAP schema files and deps file are kept */
     public static final String SCHEMA_SRC_DIR_DEFAULT =
-            "src" + File.separator + "schema";
+            basedir + File.separator + "src" + File.separator + "schema";
     /** property for the name of the schema dependency file */
     public static final String SCHEMA_DEP_FILE_DEFAULT = "schema.deps";
     /** default dir where the generated class files are created */
     public static final String SCHEMA_TARGET_DIR_DEFAULT =
-            "target" + File.separator + "schema";
+            basedir + File.separator + "target" + File.separator + "schema";
 
 
     /** the source directory where the schema OpenLDAP source files are kept */
