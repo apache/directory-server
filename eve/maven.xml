@@ -38,6 +38,7 @@
   </goal>
   
   <goal name="buildall" description="Build All Jar Files And Intall">
+    <ant:delete dir="${basedir}/target/classes"/>
     <maven:reactor basedir="${basedir}" postProcessing="true" 
       includes="**/project.xml" excludes="./project.xml" goals="jar:install" 
       banner="Building" ignoreFailures="false"/>
