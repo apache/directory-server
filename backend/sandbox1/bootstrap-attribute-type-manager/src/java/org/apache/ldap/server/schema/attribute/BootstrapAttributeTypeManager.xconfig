@@ -1,0 +1,300 @@
+    <!-- ===================================================================
+
+    The following private LDAPd IANA numbers are reserved for backends:
+        
+        1.2.6.1.4.1.18060.1
+        
+    The following private LDAPd IANA number base is reserved for use by
+    the SystemBackend specifically:
+    
+        1.2.6.1.4.1.18060.1.1
+        
+    The following private LDAPd IANA number base is reserved for use by
+    SystemBackend Syntaxes:
+    
+        1.2.6.1.4.1.18060.1.1.1
+        
+    The following private LDAPd IANA number base is reserved for use by
+    SystemBackend MatchingRules:
+    
+        1.2.6.1.4.1.18060.1.1.2
+            
+            * 1.2.6.1.4.1.18060.1.1.2.1 - tolowerDeepTrimDNMatch
+            * 1.2.6.1.4.1.18060.1.1.2.2 - exactDNMatch
+        
+    The following private LDAPd IANA number base is reserved for use by
+    SystemBackend AttributeTypes:
+    
+        1.2.6.1.4.1.18060.1.1.3
+        
+            * 1.2.6.1.4.1.18060.1.1.3.1 - _ndn
+            * 1.2.6.1.4.1.18060.1.1.3.2 - _updn
+            * 1.2.6.1.4.1.18060.1.1.3.3 - _existance
+            * 1.2.6.1.4.1.18060.1.1.3.4 - _hierarchy
+            * 1.2.6.1.4.1.18060.1.1.3.5 - _oneAlias
+            * 1.2.6.1.4.1.18060.1.1.3.6 - _subAlias
+
+    The following private LDAPd IANA number base is reserved for use by
+    SystemBackend ObjectClasses:
+    
+        1.2.6.1.4.1.18060.1.1.4
+
+  ==================================================================== -->
+    
+<configuration>
+
+    <!-- ===============================================================
+                    Private DSA Operational Attributes
+    ================================================================ -->
+    
+    <attribute-type>
+        <oid>1.2.6.1.4.1.18060.1.1.3.1</oid>            <!-- _ndn -->
+        <superior>2.5.4.49</superior>                   <!-- distinguishedName -->    
+        <equality>1.2.6.1.4.1.18060.1.1.2.1</equality>  <!-- tolowerDeepTrimDN -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.12</syntax>  <!-- DN -->
+        
+        <single-value>true</single-value>
+        <collective>false</collective>
+        <no-user-modification>true</no-user-modification>
+        <usage>dsaOperation</usage>
+        
+        <names>
+            <name>_ndn</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>1.2.6.1.4.1.18060.1.1.3.2</oid>            <!-- _updn -->
+        <superior>2.5.4.49</superior>                   <!-- distinguishedName -->    
+        <equality>1.2.6.1.4.1.18060.1.1.2.2</equality>  <!-- exactDNMatch -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.12</syntax>  <!-- DN -->
+        
+        <single-value>true</single-value>
+        <collective>false</collective>
+        <no-user-modification>true</no-user-modification>
+        <usage>dsaOperation</usage>
+        
+        <names>
+            <name>_updn</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>1.2.6.1.4.1.18060.1.1.3.3</oid>            <!-- _existance -->
+        <superior>2.5.4.41</superior>                   <!-- name -->    
+        <equality>2.5.13.2</equality>                   <!-- caseIgnoreMatch -->
+        <substr>2.5.13.4</substr>                <!-- caseIgnoreSubstringsMatch -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.15</syntax>  <!-- Directory String -->
+        <length>32768</length>
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>true</no-user-modification>
+        <usage>dsaOperation</usage>
+        
+        <names>
+            <name>_existance</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>1.2.6.1.4.1.18060.1.1.3.4</oid>            <!-- _hierarchy -->
+        <equality>2.5.13.14</equality>                  <!-- integerMatch -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.27</syntax>  <!-- INTEGER -->
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>true</no-user-modification>
+        <usage>dsaOperation</usage>
+        
+        <names>
+            <name>_heirarchy</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>1.2.6.1.4.1.18060.1.1.3.5</oid>            <!-- _oneAlias -->
+        <equality>2.5.13.14</equality>                  <!-- integerMatch -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.27</syntax>  <!-- INTEGER -->
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>dsaOperation</usage>
+        
+        <names>
+            <name>_oneAlias</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>1.2.6.1.4.1.18060.1.1.3.6</oid>            <!-- _subAlias -->
+        <equality>2.5.13.14</equality>                  <!-- integerMatch -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.27</syntax>  <!-- INTEGER -->
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>dsaOperation</usage>
+        
+        <names>
+            <name>_subAlias</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>1.2.6.1.4.1.18060.1.1.3.7</oid>            <!-- _alias -->
+        <equality>1.2.6.1.4.1.18060.1.1.2.1</equality>  <!-- tolowerDeepTrimDN -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.12</syntax>  <!-- DN -->
+        
+        <single-value>true</single-value>
+        <collective>false</collective>
+        <no-user-modification>true</no-user-modification>
+        <usage>dsaOperation</usage>
+        
+        <names>
+            <name>_alias</name>
+        </names>
+    </attribute-type>
+
+    <!-- ===============================================================
+                    Public User Application Attributes
+    ================================================================ -->
+    
+    <attribute-type>
+        <oid>2.5.4.1</oid>
+        
+        <!-- distinguishedNameMatch -->
+        <equality>2.5.13.1</equality>
+        <!-- DN -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.12</syntax>
+        
+        <single-value>true</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>userApplications</usage>
+        
+        <names>
+            <name>aliasedObjectName</name>
+        </names>
+        
+        <description>
+            The aliasedObjectName attribute is used by the directory service if the
+            entry containing this attribute is an alias. 
+        </description>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>2.5.4.3</oid>
+        <superior>2.5.4.41</superior>
+        <equality>2.5.13.2</equality>
+        <substr>2.5.13.4</substr>
+        <ordering>2.5.13.2</ordering>
+        <syntax>1.3.6.1.4.1.1466.115.121.1.15</syntax>
+        <length>32768</length>
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>userApplications</usage>
+        
+        <names>
+            <name>cn</name>
+            <name>commonName</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>2.5.4.4</oid>
+        <superior>2.5.4.41</superior>
+        <equality>2.5.13.2</equality>
+        <substr>2.5.13.4</substr>
+        <ordering>2.5.13.2</ordering>
+        <syntax>1.3.6.1.4.1.1466.115.121.1.15</syntax>
+        <length>32768</length>
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>userApplications</usage>
+        
+        <names>
+            <name>sn</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>2.5.4.7</oid>
+        <superior>2.5.4.41</superior>
+        <equality>2.5.13.2</equality>
+        <substr>2.5.13.4</substr>
+        <ordering>2.5.13.2</ordering>
+        <syntax>1.3.6.1.4.1.1466.115.121.1.15</syntax>
+        <length>32768</length>
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>userApplications</usage>
+        
+        <names>
+            <name>l</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>2.5.4.11</oid>
+        <superior>2.5.4.41</superior>
+        <equality>2.5.13.2</equality>
+        <substr>2.5.13.4</substr>
+        <ordering>2.5.13.2</ordering>
+        <syntax>1.3.6.1.4.1.1466.115.121.1.15</syntax>
+        <length>32768</length>
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>userApplications</usage>
+        
+        <names>
+            <name>ou</name>
+            <name>organizationalUnitName</name>
+        </names>
+    </attribute-type>
+
+    <attribute-type>
+        <oid>2.5.4.0</oid>
+        <equality>2.5.13.0</equality>
+        <syntax>1.3.6.1.4.1.1466.115.121.1.38</syntax>
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>userApplications</usage>
+        
+        <names>
+            <name>objectClass</name>
+        </names>
+    </attribute-type>
+    
+    <attribute-type>
+        <oid>2.5.4.50</oid>
+
+        <!-- Name And Optional UID -->
+        <syntax>1.3.6.1.4.1.1466.115.121.1.34</syntax>
+        
+        <!-- uniqueMemberMatch -->
+        <equality>2.5.13.23</equality>
+        
+        <single-value>false</single-value>
+        <collective>false</collective>
+        <no-user-modification>false</no-user-modification>
+        <usage>userApplications</usage>
+        
+        <names>
+            <name>uniqueMember</name>
+        </names>
+
+    </attribute-type>    
+</configuration>
+

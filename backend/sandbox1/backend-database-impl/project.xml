@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+	<extend>${basedir}/../project.xml</extend>
+	<groupId>ldapd-server</groupId>
+	<id>backend-database-impl</id>
+  
+	<name>LDAPd Server Default Backend Database Implementation</name>
+	<package>ldapd.server.backend.db</package>
+  	<currentVersion>SNAPSHOT</currentVersion>
+  	<inceptionYear>2002</inceptionYear>
+  	
+  	<shortDescription>
+		Server default backend database implementation
+  	</shortDescription>
+
+  	<description>
+		The default LDAPd Server Backend database implementation.
+  	</description>
+  	
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<url>http://junit.org</url>
+		</dependency>
+
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>schema-api</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>oid-registry</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>normalizer-registry</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>comparator-registry</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>backend-database-spi</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+		
+		<dependency>
+			<groupId>ldapd-common</groupId>
+			<artifactId>ldapd-common</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforge.net/ldapd-common</url>
+		</dependency>
+
+		<dependency>
+			<groupId>avalon-framework</groupId>
+			<artifactId>avalon-framework-api</artifactId>
+			<version>4.1.5</version>
+			<url>http://avalon.apache.org/framework</url>
+		</dependency>
+
+		<dependency>
+			<groupId>avalon-framework</groupId>
+			<artifactId>avalon-framework-impl</artifactId>
+			<version>4.1.5</version>
+			<url>http://avalon.apache.org/framework</url>
+		</dependency>
+
+		<dependency>
+			<groupId>jdbm</groupId>
+			<artifactId>jdbm</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://jdbm.sourceforge.net</url>
+		</dependency>
+		
+		<dependency>
+			<groupId>regexp</groupId>
+			<artifactId>regexp</artifactId>
+			<version>1.2</version>
+			<url>http://jakarta.apache.org/regexp</url>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>2.1</version>
+			<url>http://jakarta.apache.org/commons-collections</url>
+		</dependency>
+		
+	</dependencies>
+	
+	<build>
+		<unitTest>
+			<excludes>
+				<exclude>**/Test.java</exclude>
+				<exclude>**/DebugAttribute.java</exclude>
+				<exclude>**/DebugAttributes.java</exclude>
+				<exclude>**/DebugNormalizer.java</exclude>
+				<exclude>**/DebugEnumeration.java</exclude>
+				<exclude>**/DebugComparator.java</exclude>
+				<exclude>**/DebugBinaryValue.java</exclude>
+				<exclude>**/TestIndexStress.java</exclude>
+				<exclude>**/DebugAttributeTypeFactory.java</exclude>
+				<exclude>**/TestUtil.java</exclude>
+				<exclude>**/TestComparator.java</exclude>
+				<exclude>**/TestDatabase.java</exclude>
+			</excludes>
+		</unitTest>
+	</build>
+</project>
+

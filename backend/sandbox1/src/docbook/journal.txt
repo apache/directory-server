@@ -1,0 +1,83 @@
+8/7/2004
+
+Just for the heck of it I want to ramble about what I have to do in the next
+few days.
+
+1). Begin working on the interceptor framework and the interceptor injected
+    services.  Lets get the framework up and start creating a pipline of mock
+    services.
+
+2). Start thinking about the new SystemBackend implementation using JDBM as 
+    a schema less backend.  Remember all features of a backend need not be 
+    supported here.  I think we are going to need to create divergent JDBM
+    backends but we can agree on a set of JDBM base classes.
+    
+3). Some things that come to mind:
+
+	- Keep in mind module dependencies and how they are to be worked out
+	- We no longer use the Module interface with all those life-cycle methods
+	  bundled together.
+    - Note that we have to conduct searches even if we must do a full table 
+      scan.  However we can provide some nice options for JDBM to handle bad
+      search filters - like index referrals in the index mesh.
+	- Might provide a simple normalization service for backends based on a 
+	  schema.
+
+4). Today is August 7th say.  By October 16th (LDAPd's first birthday) I intend
+    to have the new backend apparatus complete minus the services that do not
+    even exist today.  By Oct. 16th LDAPd should be retrofitted with this new 
+    design/architecture which is code named Eve.  We shall release ldapd-0.75a
+    on Oct. 16th.  That gives me 2 months and a week to get this release out.
+    
+    Here are some milestones I want to shoot for:
+    
+    -> Aug 14th Complete the Interceptor Framework
+    	- Use the framework to build out skeletal services to expand on later
+    	- Add operational attribute service
+    -> Aug 28th Complete the system backend
+    
+    Hope to finish this by the end of the 22nd
+    
+    -> Sept 7th Complete Schema Manager
+    	- Complete the study of how schema data is used
+    	- Design minimal schema DIT or catalog under ou=system,ou=schema
+    	- Build out the schema manager and schema interfaces
+    	- Add fully operational schema checking service
+    	- Add fully operational normalization service
+   
+   I will abandon this for now.  Let's reuse the existing SchemaManager w/
+   slight modifications.  Cuts time down to the 24th of Aug or so.	
+    	
+    -> Sept 21st Complete modjdbm Default Backend Redesign
+    	- Add filter pruning interceptor service
+    	- Add filter augmentation interceptor service for generalized attribute
+    	  searches.
+    	- Fully integrate with JNDI provider
+    	
+   This I think can be done by the first week of Sept.
+    	
+    -> Oct 3rd Bring Eve Up W/ Protocol Server To Present Day State of 0.7a
+    
+   Can be done by mid september
+    
+    -> Oct 16th Smooth Out and Polish for B-day Release of Eve
+
+   Be done by Oct start maybe - give time for good release
+
+
+8/15/2003
+
+Some sore points:
+
+1). Implementation specific operational attributes need to be properly handled
+    in the right place.  Right now we confuse attribute names and index names
+    et cetera.
+    
+2). Are we going to implement any more system indices like a updn to ndn mapping
+    and what about aliases indices.
+    
+3). Do we really need to keep the numsubordinates operational attribute - what
+	does it buy us?
+
+4). If we will use the numsubordinates operational attribute should we build a
+	table mapping ids to the number of subordinates instead.

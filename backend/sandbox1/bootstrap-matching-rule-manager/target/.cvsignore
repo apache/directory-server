@@ -1,0 +1,4 @@
+classes
+*.jar
+test-classes
+test-reports

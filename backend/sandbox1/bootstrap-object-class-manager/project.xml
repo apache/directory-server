@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <groupId>ldapd-server</groupId>
+    <id>bootstrap-object-class-manager</id>
+  
+    <name>LDAPd Server BootstrapObjectClassManager</name>
+    <package>ldapd.server.schema.objectclass</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+      
+    <shortDescription>Server schema component for managing ObjectClasses at startup</shortDescription>
+
+    <description>
+      A ObjectClassManager used at startup to bootstrap the SystemBackend
+    </description>
+      
+    <dependencies>
+        <dependency>
+            <groupId>avalon-framework</groupId>
+            <artifactId>avalon-framework-api</artifactId>
+            <version>4.1.5</version>
+            <url>http://avalon.apache.org/framework</url>
+        </dependency>
+
+        <dependency>
+            <groupId>ldapd-common</groupId>
+            <artifactId>ldapd-common</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://ldapd.sourceforge.net/ldapd-common</url>
+        </dependency>
+
+        <dependency>
+            <groupId>ldapd-server</groupId>
+            <artifactId>schema-api</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://ldapd.sourceforge.net/ldapd-server</url>
+        </dependency>
+
+        <dependency>
+            <groupId>ldapd-server</groupId>
+            <artifactId>oid-registry</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://ldapd.sourceforge.net/ldapd-server</url>
+        </dependency>
+
+        <dependency>
+            <groupId>ldapd-server</groupId>
+            <artifactId>bootstrap-attribute-type-manager</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://ldapd.sourceforge.net/ldapd-server</url>
+        </dependency>
+    </dependencies>
+</project>
+

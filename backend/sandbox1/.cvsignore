@@ -1,0 +1,8 @@
+.classpath
+.project
+.metadata
+top-level
+target
+*.lg
+*.db
+*.log

@@ -1,0 +1,6 @@
+.classpath
+.project
+.metadata
+target
+*.log
+.checkclipse

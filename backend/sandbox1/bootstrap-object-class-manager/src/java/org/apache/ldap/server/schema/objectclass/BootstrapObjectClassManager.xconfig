@@ -1,0 +1,184 @@
+<configuration>
+    
+    <object-class>
+        <oid>2.5.6.0</oid>
+        <name>top</name>
+        <type>ABSTRACT</type>
+
+        <must>
+            <attribute>objectClass</attribute>
+        </must>
+    </object-class>
+
+    <object-class>
+        <oid>2.5.6.1</oid>
+        <name>alias</name>
+        <type>STRUCTURAL</type>
+        
+        <must>
+            <attribute>aliasedObjectName</attribute>
+        </must>
+        
+        <description>
+            According to the letter of the standard, an alias may point at any entry. 
+            It is beneficial for aliases to be 'schema consistent'. 
+
+            The following two checks should be made: 
+
+            The Relative Distinguished Name of the alias should use an attribute type 
+            normally used for naming entries of the object class of the main entry. 
+            If the entry (aliased object) were placed where the alias is, there should 
+            be no schema violation.
+
+            BNC Syntax: 2.5.6.1 NAME 'alias' SUP top STRUCTURAL MUST aliasedObjectName
+        </description>
+    </object-class>
+
+    <object-class>
+        <oid>2.5.6.5</oid>
+        <name>organizationalUnit</name>
+        <type>STRUCTURAL</type>
+        
+        <superiors>
+            <superior>top</superior>
+        </superiors>
+
+        <must>
+            <attribute>ou</attribute>
+        </must>
+        
+        <!-- 
+        <may>
+            <attribute>userPassword</attribute>
+            <attribute>searchGuide</attribute>
+            <attribute>seeAlso</attribute>
+            <attribute>businessCategory</attribute>
+            <attribute>x121Address</attribute>
+            <attribute>registeredAddress</attribute>
+            <attribute>destinationIndicator</attribute>
+            <attribute>preferredDeliveryMethod</attribute>
+            <attribute>telexNumber</attribute>
+            <attribute>teletexTerminalIdentifier</attribute>
+            <attribute>telephoneNumber</attribute>
+            <attribute>internationaliSDNNumber</attribute>
+            <attribute>facsimileTelephoneNumber</attribute>
+            <attribute>street</attribute>
+            <attribute>postOfficeBox</attribute>
+            <attribute>physicalDeliveryOfficeName</attribute>
+            <attribute>description</attribute>
+            <attribute>postalAddress</attribute>
+            <attribute>postalCode</attribute>
+            <attribute>st</attribute>
+            <attribute>l</attribute>
+        </may>
+        -->
+    </object-class>
+    
+    <object-class>
+        <oid>2.5.6.17</oid>
+        <name>groupOfUniqueNames</name>
+        <type>STRUCTURAL</type>
+        
+        <superiors>
+            <superior>top</superior>
+        </superiors>
+        
+        <must>
+            <attribute>cn</attribute>
+            <attribute>uniqueMember</attribute>
+        </must>
+
+        <!--
+        <may>
+            <attribute>o</attribute>
+            <attribute>ou</attribute>
+            <attribute>owner</attribute>
+            <attribute>seeAlso</attribute>
+            <attribute>description</attribute>
+            <attribute>businessCategory</attribute>
+        </may>
+        -->
+    </object-class>
+    
+    <object-class>
+        <oid>2.5.6.6</oid>
+        <name>person</name>
+        <type>STRUCTURAL</type>
+        
+        <superiors>
+            <superior>top</superior>
+        </superiors>
+        
+        <must>
+            <attribute>sn</attribute>
+            <attribute>cn</attribute>
+        </must>
+
+        <!--
+        <may>
+            <attribute>seeAlso</attribute>
+            <attribute>description</attribute>
+            <attribute>userPassword</attribute>
+            <attribute>telephoneNumber</attribute>
+        </may>
+        -->
+
+    </object-class>
+    
+    
+    <object-class>
+        <oid>2.5.6.7</oid>
+        <name>organizationalPerson</name>
+        <type>STRUCTURAL</type>
+        
+        <superiors>
+            <superior>person</superior>    
+        </superiors>
+
+        <!--        
+        <may>
+            <attribute>title</attribute>
+            <attribute>x121Address</attribute>
+            <attribute>registeredAddress</attribute>
+            <attribute>destinationIndicator</attribute>
+            <attribute>preferredDeliveryMethod</attribute>
+            <attribute>telexNumber</attribute>
+            <attribute>teletexTerminalIdentifier</attribute>
+            <attribute>telephoneNumber</attribute>
+            <attribute>internationaliSDNNumber</attribute>
+            <attribute>facsimileTelephoneNumber</attribute>
+            <attribute>street</attribute>
+             <attribute>postOfficeBox</attribute>
+             <attribute>ou</attribute>
+             <attribute>st</attribute>
+             <attribute>l</attribute>
+             <attribute>postalCode</attribute>
+             <attribute>postalAddress</attribute>
+             <attribute>physicalDeliveryOfficeName</attribute>
+        </may>
+        -->
+
+    </object-class>
+    
+    <object-class>
+        <oid>2.16.840.1.113730.3.2.2</oid>
+        <name>inetOrgPerson</name>
+        <type>STRUCTURAL</type>
+        
+        <superiors>
+            <superior>organizationalPerson</superior>
+        </superiors>
+        
+        <must>
+            <attribute>sn</attribute>
+            <attribute>cn</attribute>
+        </must>
+
+        <description>
+            The inetOrgPerson represents people who are associated with an 
+            organization in some way. It is a structural class and is derived 
+            from the organizationalPerson class which is defined in [X521].
+        </description>
+    </object-class>
+
+</configuration>

@@ -1,0 +1,93 @@
+# entry 2
+dn: ou=people,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+
+# entry 3
+dn: uid=jwalker, ou=People, ou=system
+cn: John Walker
+sn: Walker
+givenname: John
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Product Testing
+ou: People
+l: Cupertino
+uid: jwalker
+mail: jwalker@example.com
+telephonenumber: +1 408 555 1476
+facsimiletelephonenumber: +1 408 555 1992
+roomnumber: 3915
+userpassword: dogleg
+
+# entry 4
+dn: uid=bhall, ou=People, ou=system
+cn: Benjamin Hall
+sn: Hall
+givenname: Benjamin
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Product Development
+ou: People
+l: Santa Clara
+uid: bhall
+mail: bhall@example.com
+telephonenumber: +1 408 555 6067
+facsimiletelephonenumber: +1 408 555 0111
+roomnumber: 2511
+userpassword: oranges
+
+# entry 5 alias to 4 uid=bhall 
+dn: uid=bhall,ou=system
+objectClass: top
+objectClass: alias
+aliasedObjectName: uid=bhall,ou=people,ou=system
+
+# entry 6 
+dn: ou=funnypeople,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: funnypeople
+
+# entry 7 alias to 4 uid=bhall
+dn: uid=bhall,ou=funnypeople,ou=system
+objectClass: top
+objectClass: alias
+aliasedObjectName: uid=bhall,ou=people,ou=system
+
+# entry 8
+dn: ou=really,ou=funnypeople,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: really
+
+# entry 9 alias to 3 uid=
+dn: uid=jwalker, ou=really, ou=funnypeople,ou=system
+objectClass: top
+objectClass: alias
+aliasedObjectName: uid=jwalker, ou=People, ou=system
+
+# entry 10
+dn: uid=scarter, ou=really, ou=funnypeople, ou=system
+cn: Sam Carter
+sn: Carter
+givenname: Sam
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Accounting
+ou: People
+l: Sunnyvale
+uid: scarter
+mail: scarter@example.com
+telephonenumber: +1 408 555 4798
+facsimiletelephonenumber: +1 408 555 9751
+roomnumber: 4612
+userpassword: sprain
+

@@ -1,0 +1,85 @@
+
+<h3>Syntaxes and SyntaxCheckers</h3>	
+<p>
+	Every Syntax requires a SyntaxChecker for schema checking to occur.
+	An attributeType's Syntax OID associates it with a Syntax and an a
+	SyntaxChecker defined for the Syntax.
+</p>
+<p>
+	A syntax without SyntaxChecker allows all possible values; meaning
+	the SyntaxChecker accepts all values.  By default if a SyntaxChecker
+	is not assigned the SyntaxChecker defaults to the ACCEPT_ALL 
+	SyntaxChecker.
+</p>
+<p>
+	A SyntaxChecker could be a a regular expression or a parser.  In 
+	either case it must determine if the value is valid according to
+	the Syntax and hence is Syntax specific.  SyntaxCheckers are used 
+	to enforce attribute Syntaxes via assertions.
+</p>
+<p>
+	When specifying a Syntax it may be a good idea to specify the 
+	SyntaxChecker along with the Syntax.  Traditionally LDAP has not
+	required this.  The SyntaxDescription is just that a description
+	and code within the native implementation language had to implement
+	it.  LDAPd does not have this problem since its based on Java.
+	A SyntaxChecker can be defined as a fully qualified class name 
+	which is loaded and instantiated dynamically.  Or a regular 
+	expression can be provided and a special regular expression based
+	SyntaxChecker can be instantiated.
+</p>
+
+
+<h3>Normalizers, Comparators and Matching Rules</h3>	
+<p>
+	Where then do Normalizers and Comparators come from?  The better 
+	question is why do they exist in the first place?  Normalizers are
+	used to generate keys for attribute values within indices.  Indices
+	cannot use user provided values as is due to case and whitespace 
+	variance in user input.  Matching rules determine the manner in 
+	which normalizers handle case and whitespace.  Normalized value 
+	comparisons on search filter evaluation increases the speed of 
+	searches.
+</p>
+<p>
+	Comparators are used to determine the insertion order for index keys 
+	and values based on the syntax of the attributeType.  The evaluation
+	of greater than and less than filter attribute value assertions rely
+	on the presence of sorted keys and values within indices.  Otherwise
+	direct comparisons are conducted on the entries attributes using a 
+	master table scan.  For now we presume the existance of all required
+	indices which should be the case for all known filters.  Ad hoc filters
+	may result in master table scans.  Anyway the sorted order of keys 
+	and values enables rapid advances to candidates in the index that would
+	pass the assertion.
+</p>
+<p>
+	Normalizers transform attribute values into a normal form where as 
+	comparators use the normal form to determine the sorting order of index
+	keys and values.
+</p>
+<p>
+	In LDAP attributeType descriptions, there are three OID based fields 
+	where matching rules are specified: EQUALITY, ORDERING, and SUBSTR.  The 
+	matching rule specified for EQUALITY matching determines the way indices 
+	normalize user provided attribute values.  A lookup on an index would hence 
+	normalize the value of the attribute and then use this normalized value to
+	lookup  candidates in the index.  For example when caseIgnoreMatch is 
+	specified for an attributeType, indices reduce all attribute values to 
+	lower or upper case and remove all unnecessary whitespace while perserving 
+	the tokenization sequence of the value (basically whitespace is reduced to 
+	a single space).  If the attribute's value is "Human    Resources  ", the
+	index normalizes the value into "human resources".  Now when a filter 
+	attribute value assertion is given the value for the attribute is normalized 
+	then used in the lookup to determine equality.  So the matching rule used 
+	for EQUALITY determines the nature of the Normalizer.  The ORDERING matching
+	rule determines the nature of the comparator which uses normalized values
+	and determines their sorting order.  Hence the comparator's nature is 
+	determined by the matching rule used by the ORDERING oid.  Lastly the SUBSTR
+	matching rule determines how matching is conducted within parts of a 
+	string and affects the manner in which substring assertions are conducted.
+	Basically the regular expression built for the substring assertion is affected
+	to ignore case or whitespace et cetera.  So the matching rules of attributeType 
+	specifications are the most critical part where indices and filter evaluation 
+	is concerned.
+</p>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+	<extend>${basedir}/../project.xml</extend>
+	<groupId>ldapd-server</groupId>
+	<id>backend-nexus-impl</id>
+  
+	<name>LDAPd Server Default Backend Nexus Implementation</name>
+  	<package>ldapd.server.nexus.impl</package>
+  	<currentVersion>SNAPSHOT</currentVersion>
+  	<inceptionYear>2002</inceptionYear>
+  	
+  	<shortDescription>Server default backend nexus implementation</shortDescription>
+
+  	<description>
+		The default LDAPd Server Backend Nexus implementation.  The
+		implemented service interface is the BackendNexus.
+  	</description>
+  	
+	<dependencies>
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>backend-api</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>backend-nexus-api</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+		
+		<dependency>
+			<groupId>ldapd-common</groupId>
+			<artifactId>ldapd-common</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforge.net/ldapd-common</url>
+		</dependency>
+
+		<dependency>
+			<groupId>avalon-framework</groupId>
+			<artifactId>avalon-framework-api</artifactId>
+			<version>4.1.5</version>
+			<url>http://avalon.apache.org/framework</url>
+		</dependency>
+		<dependency>
+			<groupId>avalon-framework</groupId>
+			<artifactId>avalon-framework-impl</artifactId>
+			<version>4.1.5</version>
+			<url>http://avalon.apache.org/framework</url>
+		</dependency>
+	</dependencies>
+</project>
+

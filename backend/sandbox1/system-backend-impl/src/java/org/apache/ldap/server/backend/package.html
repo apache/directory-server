@@ -1,0 +1,181 @@
+<h2>Schema Relationships</h2>
+
+<p>
+	The SystemBackend must be available before any other service within the 
+	system.  It stores data critical for starting up the server and bringing
+	it to the solid state.  The SchemaManager which manages directory schema 
+	information directly uses the SystemBackend as its backing store.  There
+	is an Avalon dependency between the SchemaManager and the SystemBackend.
+</p>
+
+<p>
+	All backends including the SystemBackend require a minimal set of schema
+	information to operate properly.  Backends need attributeType information
+	to determine how indices based on attributes will normalize and sort the 
+	values of the indexed attributes.  The need for these aspects of schema 
+	use are discussed in detail within the 
+	<a href="../schema/package.html">ldapd.server.schema</a> package 
+	documentation.  Also attributeType specifications are needed to normalized
+	the suffix name of backends.  This however is not an issue for the 
+	SystemBackend since its suffix is fixed at ou=system.  Variablility to 
+	handle the gambit of suffix DNs is not needed since this is the system 
+	context and not a user defined context.
+</p>
+
+<p>
+	The SystemBackend gets this small initial set of attributeType definitions
+	for managing its indices from its block configuration.  The DefaultBackend
+	could do the same.  However this replicates schema information within the
+	block configurations of backends and leads to clutter.  It is best to 
+	centrally store these definitions in one place for defualt implementations
+	on user defined contexts to get the set of schema data they need.  This is
+	one of the reasons why DefualtBackends depend on the SchemaManager.  Another
+	reason is the need to normalize their own suffix at the first startup.  Note
+	that unlike the SystemBackend, all other backends will need to depend on 
+	the BackendNexus to register themself with it for name resolution.  Since 
+	user defined contexts can have any non-nested suffix they must be register
+	themselves with the nexus.  The nexus on the otherhand registers the 
+	SystemBackend at a fixed location: ou=system and depends on it rather than
+	the other way around.
+</p>
+
+<p>
+	The system context will be accessible to the outside world (that is if the 
+	right authorizations are given) through the LDAP protocol.  Meaning LDAP 
+	requests will tunnel through the front-end, the JNDI provider, the 
+	interceptors and finally hit the system context just like any other context.
+	Internal operations against the system context avoid going through the JNDI
+	pathway to prevent inefficencies and the potential for infinite recursion.
+	Dependent modules operating on the system context will work directly against
+	the SystemBackend bypassing even the nexus.  If they need interceptor based 
+	services they may go through the JNDI but this is a dangerous prospect: where
+	possible the use of the JNDI pathway should be avoided.
+</p>
+
+<p>
+	Services implemented by the interceptor framework will be made available to
+	LDAP clients or embedding server side JNDI provider clients.  There will be
+	times when interceptors use data stored within the SystemBackend.  If the
+	operation at hand is on the SystemBackend then the SystemBackend data is 
+	being used to make the SystemBackend data available.  This seems like a 
+	crazy and potentially dangerous/inefficent relationship however servers 
+	like Oracle seem to get by pretty well.
+</p>
+
+<p>
+	As a rule of thumb, public schema constructs will be stored within the 
+	block configuration of the SystemBackend to facilitate user defined indices
+	on published attributes.  Some indices however are not based on publicly
+	defined attributeTypes nor are they user defined.  These indices are the
+	required set of indices needed for minimal operation and we shall refer to
+	them as 'required' indices.  These indices include the following:
+</p>
+
+	<TABLE WIDTH=755 BORDER=1 CELLPADDING=5 CELLSPACING=4>
+		<COL WIDTH=180>
+		<COL WIDTH=541>
+		<THEAD>
+			<TR VALIGN=TOP>
+				<TH WIDTH=180>
+					<P>Index Name</P>
+				</TH>
+				<TH WIDTH=541>
+					<P>Index Purpose</P>
+				</TH>
+			</TR>
+		</THEAD>
+		<TBODY>
+			<TR VALIGN=TOP>
+				<TD WIDTH=180>
+					<P>Heirarchy</P>
+				</TD>
+				<TD WIDTH=541>
+					<P>Maps parent entries to their children</P>
+				</TD>
+			</TR>
+			<TR VALIGN=TOP>
+				<TD WIDTH=180>
+					<P>Existance</P>
+				</TD>
+				<TD WIDTH=541>
+					<P>Maintains the existance property for indexed attributes for
+					entries</P>
+				</TD>
+			</TR>
+			<TR VALIGN=TOP>
+				<TD WIDTH=180>
+					<P>Updn</P>
+				</TD>
+				<TD WIDTH=541>
+					<P>Maps user provided distinguished names as-is to entry ids</P>
+				</TD>
+			</TR>
+			<TR VALIGN=TOP>
+				<TD WIDTH=180>
+					<P>Ndn</P>
+				</TD>
+				<TD WIDTH=541>
+					<P>Maps normalized distinguished names to entry ids</P>
+				</TD>
+			</TR>
+		</TBODY>
+	</TABLE>
+	
+<p>
+	These required do not even correspond to real world attributeTypes in the 
+	private sense.  They don't exist - the best way to describe then are as 
+	backend implementation specific private attributeTypes that are even private
+	to the server.  LDAPd inevitably will have operational attributes private to
+	it however these attributeTypes are not even know to the server because they
+	need not be exposed globally.
+</p>
+
+<p>
+	Required index private attributeType definitions are supplied as hard coded
+	AttributeType subclasses.  They use real LDAPd OID values from a segment 
+	specifically dedicated to the SystemBackend for its own private schema
+	data.  These definitions have their own OIDs to prevent the chance of 
+	collisions however they are not intentionally intended to be exposed through 
+	the protocol.  Once created and registered they work within the SystemBackend's
+	indices.  They can be looked up programatically from AttributeType static 
+	methods but they are not stored within the schema structures stored within 
+	the SystemBackend under the ou=schema,ou=system base.  If ou=schema or some 
+	other entry dynamically creates the attributeTypes attributes for traditional
+	LDAP reads of schema info then it may be included since it can be read from
+	the static methods of the AttributeType class.
+</p>
+
+<h2>AttributeType Handling Possibilities</h2>
+
+<p>
+	I think I may need to change the way AttributeTypes work.  Right now we have
+	an inner static Builder that knows how to build these objects but it may be
+	best to use a strictly conforming factory pattern instead.  Have to think about
+	this.  I don't think I want the AttributeTypes class storing the set of 
+	AttributeTypes within the system.   Nor do I want to use static data and 
+	methods.  I would rather have an Avalon component for specifically managing
+	attributeTypes.  There may be a problem here though.  A AttributeTypeManager 
+	Avalon component for example will probably be the AttributeType factory.  It
+	will use the SystemBackend for accessing the backing store.  Then the 
+	SystemBackend will not be able to initialize AttributeTypes.  We could work 
+	around this problem by making the AttributeType an interface rather than a 
+	class.  The SystemBackend then would need to implement its own AttributeTypes
+	which it uses to instantiate attribute types for UP and required indices stored
+	in its configuration.
+</p>
+
+<p>
+	The best approach is to have two separate factory implementations for schema 
+	types.  Both factory implementations are Avalon components.  The initial 
+	factory is used at start up as a SystemBackend dependency.  This intial 
+	AttributeType factory produces AttributeTypes from xml definitions.  It is 
+	used by the SystemBackend and by the SchemaManager but does not depend on
+	either one of them.  The second solid state AttributeType factory component
+	service produces AttributeTypes from the SystemBackend and depends on the 
+	SystemBackend.  The SchemaManager in turn depends on the solid state schema 
+	type managers.  The SystemBackend never depends on the solid state schema 
+	type managers but depends on the initial bootstrapping schema type managers.
+	Its time to get back to design patterns.
+</p>
+
+

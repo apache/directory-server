@@ -1,0 +1,5 @@
+.classpath
+.project
+*.log
+target
+.checkclipse

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+	<extend>${basedir}/../project.xml</extend>
+	<groupId>ldapd-server</groupId>
+	<id>backend-nexus-api</id>
+  
+	<name>LDAPd Server Backend Nexus API</name>
+  	<package>ldapd.server.nexus</package>
+  	<currentVersion>SNAPSHOT</currentVersion>
+  	<inceptionYear>2002</inceptionYear>
+  	
+  	<shortDescription>Server backend nexus application programing interface</shortDescription>
+
+  	<description>
+		Set of public interfaces exposed as service interfaces by the
+		LDAPd Server Backend Nexus.
+  	</description>
+  	
+	<dependencies>
+		<dependency>
+			<groupId>ldapd-server</groupId>
+			<artifactId>backend-api</artifactId>
+			<version>SNAPSHOT</version>
+			<url>http://ldapd.sourceforege.net/ldapd-server</url>
+		</dependency>
+  	</dependencies>
+</project>
+
