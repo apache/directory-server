@@ -44,18 +44,18 @@ public class BootstrapRegistries
 
     public BootstrapRegistries()
     {
-        oidRegistry = new DefaultOidRegistry();
-        normalizerRegistry = new DefaultNormalizerRegistry();
-        comparatorRegistry = new DefaultComparatorRegistry();
-        syntaxCheckerRegistry = new DefaultSyntaxCheckerRegistry();
-        syntaxRegistry = new DefaultSyntaxRegistry( getOidRegistry() );
-        matchingRuleRegistry = new DefaultMatchingRuleRegistry( getOidRegistry() );
-        attributeTypeRegistry = new DefaultAttributeTypeRegistry( getOidRegistry() );
-        objectClassRegistry = new DefaultObjectClassRegistry( getOidRegistry() );
-        ditContentRuleRegistry = new DefaultDITContentRuleRegistry( getOidRegistry() );
-        ditStructureRuleRegistry = new DefaultDITStructureRuleRegistry( getOidRegistry() );
-        matchingRuleUseRegistry = new DefaultMatchingRuleUseRegistry();
-        nameFormRegistry = new DefaultNameFormRegistry( getOidRegistry() );
+        oidRegistry = new BootstrapOidRegistry();
+        normalizerRegistry = new BootstrapNormalizerRegistry();
+        comparatorRegistry = new BootstrapComparatorRegistry();
+        syntaxCheckerRegistry = new BootstrapSyntaxCheckerRegistry();
+        syntaxRegistry = new BootstrapSyntaxRegistry( getOidRegistry() );
+        matchingRuleRegistry = new BootstrapMatchingRuleRegistry( getOidRegistry() );
+        attributeTypeRegistry = new BootstrapAttributeTypeRegistry( getOidRegistry() );
+        objectClassRegistry = new BootstrapObjectClassRegistry( getOidRegistry() );
+        ditContentRuleRegistry = new BootstrapDitContentRuleRegistry( getOidRegistry() );
+        ditStructureRuleRegistry = new BootstrapDitStructureRuleRegistry( getOidRegistry() );
+        matchingRuleUseRegistry = new BootstrapMatchingRuleUseRegistry();
+        nameFormRegistry = new BootstrapNameFormRegistry( getOidRegistry() );
     }
 
 

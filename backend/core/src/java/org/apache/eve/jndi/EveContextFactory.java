@@ -9,8 +9,10 @@ import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.schema.Syntax;
-import org.apache.eve.schema.DefaultSyntaxRegistry;
-import org.apache.eve.schema.DefaultOidRegistry;
+import org.apache.eve.schema.bootstrap.BootstrapSyntaxRegistry;
+import org.apache.eve.schema.bootstrap.BootstrapOidRegistry;
+import org.apache.eve.schema.bootstrap.BootstrapOidRegistry;
+import org.apache.eve.schema.bootstrap.BootstrapSyntaxRegistry;
 
 import org.apache.eve.schema.config.CoreSyntaxFactory;
 
@@ -76,9 +78,9 @@ public class EveContextFactory implements InitialContextFactory
     {
         EveJndiProvider provider = null;
         Syntax[] syntaxes;
-        DefaultOidRegistry oidRegistry;
+        BootstrapOidRegistry oidRegistry;
         CoreSyntaxFactory coreSyntaxes;
-        DefaultSyntaxRegistry syntaxRegistry;
+        BootstrapSyntaxRegistry syntaxRegistry;
 
         throw new NotImplementedException( "bootstrap code not yet written" );
 

@@ -14,10 +14,14 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.NameForm;
+import org.apache.eve.schema.NameFormRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.NameFormRegistryMonitor;
+import org.apache.eve.schema.NameFormRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,7 +34,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultNameFormRegistry implements NameFormRegistry
+public class BootstrapNameFormRegistry implements NameFormRegistry
 {
     /** maps an OID to an NameForm */
     private final Map byOid;
@@ -48,9 +52,9 @@ public class DefaultNameFormRegistry implements NameFormRegistry
 
 
     /**
-     * Creates an empty DefaultNameFormRegistry.
+     * Creates an empty BootstrapNameFormRegistry.
      */
-    public DefaultNameFormRegistry( OidRegistry oidRegistry )
+    public BootstrapNameFormRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
