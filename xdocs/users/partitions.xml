@@ -237,7 +237,7 @@ extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
           functionality using a special type of nexus which is both a router
           and a backing store for entries.  It's smart enough to know what to
           route verses when to use its own database.  Here's a <a href=
-          "http://nagoya.apache.org/jira/browse/DIREVE-23">JIRA improvement</a>
+          "http://issues.apache.org/jira/browse/DIREVE-23">JIRA improvement</a>
           specifically aimed at achieving this goal.
         </p>
       </subsection>
