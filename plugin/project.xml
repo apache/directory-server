@@ -69,7 +69,7 @@
       <resources>
         <resource>
           <directory>src/main/schema</directory>
-          <targetPath>org/apache/eve/tools/schema</targetPath>
+          <targetPath>org/apache/ldap/server/tools/schema</targetPath>
           <includes>
             <include>**/*.schema</include>
           </includes>
@@ -114,8 +114,8 @@
         <filtering>false</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/src/java/org/apache/eve/tools/schema</directory>
-        <targetPath>org/apache/eve/tools/schema</targetPath>
+        <directory>${basedir}/src/main/java/org/apache/ldap/server/tools/schema</directory>
+        <targetPath>org/apache/ldap/server/tools/schema</targetPath>
         <includes>
           <include>antlrTypeTokenTypes.txt</include>
           <include>antlrOpenLdapSchemaParserTokenTypes.txt</include>
