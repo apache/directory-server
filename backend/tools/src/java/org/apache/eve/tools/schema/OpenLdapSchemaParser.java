@@ -35,8 +35,6 @@ import antlr.TokenStreamException;
  */
 public class OpenLdapSchemaParser
 {
-    /** a buffer to use while streaming data into the parser */
-    private byte[] buf = new byte[128];
     /** the monitor to use for this parser */
     private ParserMonitor monitor = new ParserMonitorAdapter();
     /** The antlr generated parser */
@@ -102,20 +100,23 @@ public class OpenLdapSchemaParser
                 + "the empty String!", 0 );
         }
 
-        parserIn.write( schemaObject.getBytes() );
+        this.schemaIn = new ByteArrayInputStream( schemaObject.getBytes() );
+
+        if ( producerThread == null )
+        {
+            producerThread = new Thread( new DataProducer() );
+        }
+
+        producerThread.start();
         invokeParser( schemaObject );
     }
 
 
     private void invokeParser( String subject ) throws IOException, ParseException
     {
-        // using an input termination token END - need extra space to return
-        parserIn.write( "END ".getBytes() );
-        parserIn.flush();
-
         try
         {
-            monitor.startedParse( "starting parse ..." );
+            monitor.startedParse( "starting parse on:\n" + subject );
             parser.parseSchema();
             monitor.finishedParse( "Done parsing!" );
         }
@@ -136,6 +137,10 @@ public class OpenLdapSchemaParser
     }
 
 
+    byte[] buf = new byte[128];
+    private InputStream schemaIn;
+    private Thread producerThread;
+
     /**
      * Thread safe method parses a stream of OpenLDAP schemaObject elements/objects.
      *
@@ -143,12 +148,14 @@ public class OpenLdapSchemaParser
      */
     public synchronized void parse( InputStream schemaIn ) throws IOException, ParseException
     {
-        int count = -1;
-        while ( ( count = schemaIn.read( buf ) ) != -1 )
+        this.schemaIn = schemaIn;
+
+        if ( producerThread == null )
         {
-            parserIn.write( buf, 0, count );
+            producerThread = new Thread( new DataProducer() );
         }
 
+        producerThread.start();
         invokeParser( "schema input stream ==> " + schemaIn.toString() );
     }
 
@@ -160,14 +167,14 @@ public class OpenLdapSchemaParser
      */
     public synchronized void parse( File schemaFile ) throws IOException, ParseException
     {
-        FileInputStream schemaIn = new FileInputStream( schemaFile );
+        this.schemaIn = new FileInputStream( schemaFile );
 
-        int count = -1;
-        while ( ( count = schemaIn.read( buf ) ) != -1 )
+        if ( producerThread == null )
         {
-            parserIn.write( buf, 0, count );
+            producerThread = new Thread( new DataProducer() );
         }
 
+        producerThread.start();
         invokeParser( "schema file ==> " + schemaFile.getAbsolutePath() );
     }
 
@@ -176,5 +183,30 @@ public class OpenLdapSchemaParser
     {
         this.monitor = monitor ;
         this.parser.setParserMonitor( monitor );
+    }
+
+
+    class DataProducer implements Runnable
+    {
+        public void run()
+        {
+            int count = -1;
+
+            try
+            {
+                while ( ( count = schemaIn.read( buf ) ) != -1 )
+                {
+                    parserIn.write( buf, 0, count );
+                    parserIn.flush();
+                }
+
+                // using an input termination token END - need extra space to return
+                parserIn.write( "END ".getBytes() );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

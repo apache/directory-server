@@ -100,7 +100,7 @@ DESC
 
 SYNTAX
     :
-        "syntax" WS NUMERICOID OPEN_BRACKET ( DIGIT )+ CLOSE_BRACKET
+        "syntax" WS NUMERICOID ( OPEN_BRACKET ( DIGIT )+ CLOSE_BRACKET )?
     ;
 
 class antlrOpenLdapSchemaParser extends Parser ;
@@ -302,7 +302,8 @@ objectClassNames [ObjectClassLiteral objectClass]
 }
     :
     (
-        "NAME" QUOTE id0:IDENTIFIER QUOTE
+        "NAME"
+        ( QUOTE id0:IDENTIFIER QUOTE
         {
             list.add( id0.getText() );
         }
@@ -315,6 +316,7 @@ objectClassNames [ObjectClassLiteral objectClass]
         {
             list.add( id2.getText() );
         } )* CLOSE_PAREN )
+        )
     )
     {
         objectClass.setNames( ( String[] ) list.toArray( EMPTY ) );
@@ -337,6 +339,7 @@ attributeType
     OPEN_PAREN oid:NUMERICOID
     {
         type = new AttributeTypeLiteral( oid.getText() );
+        System.out.println( oid.getText() );
     }
         ( names[type] )?
         ( desc[type] )?
@@ -365,6 +368,7 @@ desc [AttributeTypeLiteral type]
     : d:DESC
     {
         type.setDescription( d.getText().split( "'" )[1] );
+        System.out.println( d.getText() );
     }
     ;
 
