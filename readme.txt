@@ -6,6 +6,6 @@ present.
 
 branch: import-0.10 
 deleted on: Jan 06, 2005
-delete rev: 1243
-resusitate: svn cp -r 1243 https://svn.apache.org/repos/asf/incubator/directory/server/tags/import-0.10 import-0.10
+delete rev: 124390
+resusitate: svn cp -r 124389 https://svn.apache.org/repos/asf/incubator/directory/server/tags/import-0.10 import-0.10
 
