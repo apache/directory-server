@@ -28,7 +28,7 @@
   <inceptionYear>2004</inceptionYear>
   <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
   <description>
-    A collection of tools as plugins to be used to develop Eve and program for Eve.
+    A collection of tools as plugins to be used to develop Eve and for Eve.
   </description>
   <dependencies>
     <dependency>
