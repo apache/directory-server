@@ -16,24 +16,20 @@
  */
 package org.apache.eve.encoder ;
 
-import org.apache.commons.codec.EncoderException ;
+import java.util.EventObject;
 
-import org.apache.ldap.common.message.Response ;
 
 /**
+ * Monitor for the EncoderManager.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public interface EncoderManager
+public interface EncoderManagerMonitor
 {
-
-    /**
-     * Synchronously encodes an LDAPv3 protocol Response message into a byte
-     * buffer that can be written to a Stream as an BER encoded PDU.
-     *
-     * @param a_response the LDAP Response message to be encoded.
-     */
-    public byte [] encode( Response a_response ) throws EncoderException ;
+    void failedOnInform( EncoderManager manager, EventObject event,
+                         Throwable t ) ;
+    void failedOnEncode( EncoderManager manager, EventObject event,
+                         Throwable t ) ;
 }
