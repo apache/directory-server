@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<configuration>
-  <stage-name>output-manager</stage-name>
-  <thread-pool>output-manager</thread-pool>
-</configuration>
