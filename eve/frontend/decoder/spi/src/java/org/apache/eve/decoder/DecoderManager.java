@@ -21,7 +21,8 @@ import java.nio.ByteBuffer ;
 
 import org.apache.eve.listener.ClientKey ;
 
-import org.apache.commons.codec.stateful.ErrorHandler ;
+import org.apache.commons.codec.DecoderException ;
+import org.apache.commons.codec.stateful.DecoderMonitor ;
 import org.apache.commons.codec.stateful.DecoderCallback ;
 
 
@@ -48,12 +49,12 @@ public interface DecoderManager
     void setCallback( ClientKey key, DecoderCallback cb ) ;
 
     /**
-     * Sets a client decoder's error handler.
+     * Sets a client decoder's monitor.
      * 
      * @param key the unique key associated with the client
-     * @param cb the callback used to deliver error events
+     * @param monitor the monitor used to deliver events
      */
-    void setErrorHandler( ClientKey key, ErrorHandler handler ) ;
+    void setDecoderMonitor( ClientKey key, DecoderMonitor monitor ) ;
 
     /**
      * Disables callback events for a client destroying decoding state if any.
@@ -68,14 +69,17 @@ public interface DecoderManager
      * @param key the unique key associated with the client
      * @param buffer the buffer of encoded data
      * @return the set of keys for decoding sessions
+     * @throws DecoderException if there is a failure while decoding
      */
-    void decode( ClientKey key, ByteBuffer buffer ) ;
+    void decode( ClientKey key, ByteBuffer buffer ) throws DecoderException ;
     
     /**
-     * All in one shot synchronous decode operation requiring entire set of data
+     * One shot synchronous decode operation requiring a complete unit of 
+     * encoded data to return the decoded equivalent immediately.
      * 
      * @param buffer the buffer containing all the encoded data
      * @return the decoded object
+     * @throws DecoderException if there is a failure while decoding
      */
-    Object decode( ByteBuffer buffer ) ;
+    Object decode( ByteBuffer buffer ) throws DecoderException ;
 }

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../project.xml</extend>
+    <groupId>directory</groupId>
+    <id>eve-frontend-decoder-pojo-impl</id>
+  
+    <name>Eve Frontend DecoderManager Implementation</name>
+    <package>org.apache.eve.decoder.impl</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+      
+    <shortDescription>
+    Eve's Frontend DecoderManager Implementation
+    </shortDescription>
+
+    <description>
+        Eve's frontend decoder manager decodes input from client sockets 
+        bound to the server.  The decoder responds to input events generated
+        by the input manager.
+    </description>
+      
+    <dependencies>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>ldap-common</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-common-api</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-event-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-event-pojo-impl</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-event-merlin-impl</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-input-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-decoder-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-buffer-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-buffer-pojo-impl</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <url>http://junit.org</url>
+        </dependency>
+    </dependencies>
+</project>
+
