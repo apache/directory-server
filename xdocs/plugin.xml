@@ -8,20 +8,36 @@
   <body>
     <section name="Maven Eve Plugin">
       <p>
-        Right now one of the primary functions of the plugin is to generates 
-        Eve class files for OpenLDAP schemas. These class files contain hard
-        coded schema objects found in the OpenLDAP files.  Why bother you may
-        ask?  Well the compiled hard coded files are loaded into the server
-        as fast as you can.  There's no need to have a parser hanging around 
-        and no need to have the schema files hanging around.   Plus no one 
-        really edits finalized published schemas within RFCs since they do not
-        change.  So why keep this stuff in a human alterable form.  Plus once
-        the server comes online these schema objects can be altered through
-        LDAP.  The added stage of compiling a schema really is not that much
-        of a big deal when you have a plugin to do it all for you.  Plus there
-        is the benefit of knowing if the schema is bad before it goes into the
-        server.
-      </p> 
+        Currently the primary function of the plugin is to generates Eve class
+        files for OpenLDAP schemas. These class files contain hard coded schema
+        objects representing those found in the OpenLDAP files.  Why bother you
+        may ask?  There are a few reasons for this:
+      </p>
+
+      <ul>
+        <li>
+          Compiled hard coded files load into the server really fast in theory.
+        </li>
+        <li>
+          Published schemas never really change so why do they need to be in a
+          human readable form.
+        </li>
+        <li>
+          Eventually, schema changes made through LDAP will be preserved through
+          restarts.
+        </li>
+        <li>
+          Extra code generation phase is not that hard with a plugin tool.
+        </li>
+        <li>
+          Schema verification can occur before deploying schemas into the
+          server.
+        </li>
+        <li>
+          This was really easy for now but if people don't like it we can
+          change it.
+        </li>
+      </ul>
 
       <subsection name="Properties">
         <table>
