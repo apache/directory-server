@@ -142,13 +142,12 @@ public class EveSchemaTool
         context.put( "owner", schema.getOwner() ) ;
         context.put( "deps", schema.getDependencies()  ) ;
 
-        FileReader fileIn = getResourceReader( "Schema.template" );
-        FileWriter writer = getResourceWriter( schema.getUnqualifiedClassName() );
+        Reader fileIn = getResourceReader( "Schema.template" );
+        Writer writer = getResourceWriter( schema.getUnqualifiedClassName() );
         Velocity.evaluate( context, writer, "LOG", fileIn );
         writer.flush();
         writer.close();
     }
-
 
 
     protected void generateRest() throws Exception
@@ -280,18 +279,17 @@ public class EveSchemaTool
                                 ProducerTypeEnum type )
             throws Exception
     {
-        FileReader fileIn = getResourceReader( template );
-        FileWriter writer = getResourceWriter( schema.getUnqualifiedClassName( type ) );
+        Reader fileIn = getResourceReader( template );
+        Writer writer = getResourceWriter( schema.getUnqualifiedClassName( type ) );
         Velocity.evaluate( context, writer, "LOG", fileIn );
         writer.flush();
         writer.close();
     }
 
 
-    protected FileReader getResourceReader( String res ) throws IOException
+    protected Reader getResourceReader( String res ) throws IOException
     {
-        String path = getClass().getResource( res ).getFile() ;
-        return new FileReader( path );
+        return new InputStreamReader( getClass().getResourceAsStream( res ) );
     }
 
 
