@@ -17,8 +17,6 @@
 package org.apache.eve.merlin.input ;
 
 
-import java.nio.channels.Selector ;
-
 import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.activity.Startable ;
 import org.apache.avalon.framework.service.Serviceable ;
@@ -57,8 +55,6 @@ public class MerlinInputManager extends AbstractLogEnabled
     private BufferPool m_bp = null ;
     /** event router used to decouple source to sink relationships */
     private EventRouter m_router = null ;
-    /** selector used to select a ready socket channel */
-    private Selector m_selector = null ;
     /** the wrapped input manager implementation */
     private DefaultInputManager m_delegate = null ;
     /** the monitor for the delegate */
