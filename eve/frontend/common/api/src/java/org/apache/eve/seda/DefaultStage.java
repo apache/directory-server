@@ -32,21 +32,19 @@ import java.util.EventObject ;
  */
 public class DefaultStage implements Stage
 {
-    /** driver max wait/timeout in millis */
-    //private static final long DRIVER_WAIT = 200 ;
     /** the configuration bean */
-    protected final StageConfig m_config ;
+    protected final StageConfig config ;
     /** this Stage's event queue */
-    private final LinkedList m_queue = new LinkedList() ;
+    private final LinkedList queue = new LinkedList() ;
     /** this Stage's active handler threads */
-    private final Set m_activeWorkers = new HashSet() ;
+    private final Set activeWorkers = new HashSet() ;
 
     /** this Stage's StageDriver's driving thread */
-    private Thread m_thread = null ;
+    private Thread thread = null ;
     /** the start stop control variable */
-    private Boolean m_hasStarted = new Boolean( false ) ;
+    private Boolean hasStarted = new Boolean( false ) ;
     /** this Stage's monitor */
-    private StageMonitor m_monitor = new StageMonitorAdapter() ;
+    private StageMonitor monitor = new StageMonitorAdapter() ;
 
     
     // ------------------------------------------------------------------------
@@ -61,8 +59,8 @@ public class DefaultStage implements Stage
      */
     public DefaultStage( StageConfig config )
     {
-        m_config = config ;
-        m_hasStarted = new Boolean( false ) ;
+        this.config = config ;
+        hasStarted = new Boolean( false ) ;
     }
     
     
@@ -77,7 +75,7 @@ public class DefaultStage implements Stage
      */
     public void addPredicate( EnqueuePredicate predicate )
     {
-        m_config.getPredicates().add( predicate ) ;
+        config.getPredicates().add( predicate ) ;
     }
     
     
@@ -86,7 +84,7 @@ public class DefaultStage implements Stage
      */
     public StageConfig getConfig()
     {
-        return m_config ;
+        return config ;
     }
 
 
@@ -95,30 +93,30 @@ public class DefaultStage implements Stage
      */
     public void enqueue( final EventObject event )
     {
-        boolean l_isAccepted = true ;
+        boolean isAccepted = true ;
         
-        for ( int ii = 0; ii < m_config.getPredicates().size() && l_isAccepted; 
+        for ( int ii = 0; ii < config.getPredicates().size() && isAccepted ; 
             ii++ ) 
         {
-            EnqueuePredicate l_test = 
-                ( EnqueuePredicate ) m_config.getPredicates().get( ii ) ;
-            l_isAccepted &= l_test.accept( event ) ;
+            EnqueuePredicate test = 
+                ( EnqueuePredicate ) config.getPredicates().get( ii ) ;
+            isAccepted &= test.accept( event ) ;
         }
 
-        if( l_isAccepted ) 
+        if( isAccepted ) 
         {
-            synchronized ( m_queue ) 
+            synchronized ( queue ) 
             {
-                m_monitor.lockedQueue( this, event ) ;
-                m_queue.addFirst( event ) ;
-                m_queue.notifyAll() ;
+                monitor.lockedQueue( this, event ) ;
+                queue.addFirst( event ) ;
+                queue.notifyAll() ;
             }
 
-            m_monitor.enqueueOccurred( this, event ) ;
+            monitor.enqueueOccurred( this, event ) ;
         } 
         else 
         {
-            m_monitor.enqueueRejected( this, event ) ;
+            monitor.enqueueRejected( this, event ) ;
         }
     }
     
@@ -139,32 +137,31 @@ public class DefaultStage implements Stage
     {
         public final void run()
         {
-            m_monitor.startedDriver( DefaultStage.this ) ;
+            monitor.startedDriver( DefaultStage.this ) ;
     
-            while( m_hasStarted.booleanValue() ) 
+            while( hasStarted.booleanValue() ) 
             {
-                synchronized ( m_queue ) 
+                synchronized ( queue ) 
                 {
-                    if( m_queue.isEmpty() ) 
+                    if( queue.isEmpty() ) 
                     {
                         try 
                         {
-                            m_queue.wait() ; //DRIVER_WAIT ) ;
+                            queue.wait() ;
                         } 
                         catch( InterruptedException e ) 
                         {
                             try { stop() ; } catch ( Exception e2 ) 
                             {/*NOT THROWN*/}
-                            m_monitor.driverFailed( DefaultStage.this, e ) ;
+                            monitor.driverFailed( DefaultStage.this, e ) ;
                         }
                     } 
                     else 
                     {
-                        EventObject l_event = 
-                            ( EventObject ) m_queue.removeLast() ;
-                        m_monitor.eventDequeued( DefaultStage.this, l_event ) ;
-                        Runnable l_runnable = new ExecutableHandler( l_event ) ;
-                        m_config.getThreadPool().execute( l_runnable ) ;
+                        EventObject event = ( EventObject ) queue.removeLast() ;
+                        monitor.eventDequeued( DefaultStage.this, event ) ;
+                        Runnable l_runnable = new ExecutableHandler( event ) ;
+                        config.getThreadPool().execute( l_runnable ) ;
                     }
                 }
             }
@@ -190,26 +187,26 @@ public class DefaultStage implements Stage
         
         public void run()
         {
-            synchronized( m_activeWorkers )
+            synchronized( activeWorkers )
             {
-                m_activeWorkers.add( Thread.currentThread() ) ;
+                activeWorkers.add( Thread.currentThread() ) ;
             }
             
             try 
             {
-                m_config.getHandler().handleEvent( m_event ) ;
+                config.getHandler().handleEvent( m_event ) ;
             } 
             catch( Throwable t ) 
             {
-                m_monitor.handlerFailed( DefaultStage.this, m_event, t ) ;
+                monitor.handlerFailed( DefaultStage.this, m_event, t ) ;
             }
             
-            synchronized( m_activeWorkers )
+            synchronized( activeWorkers )
             {
-                m_activeWorkers.remove( Thread.currentThread() ) ;
+                activeWorkers.remove( Thread.currentThread() ) ;
             }
 
-            m_monitor.eventHandled( DefaultStage.this, m_event ) ;
+            monitor.eventHandled( DefaultStage.this, m_event ) ;
         }
     }
 
@@ -224,19 +221,19 @@ public class DefaultStage implements Stage
      */
     public void start()
     {
-        synchronized( m_hasStarted )
+        synchronized( hasStarted )
         {
-            if ( m_hasStarted.booleanValue() )
+            if ( hasStarted.booleanValue() )
             {
                 throw new IllegalStateException( "Already started!" ) ;
             }
             
-            m_hasStarted = new Boolean( true ) ;
-            m_thread = new Thread( new StageDriver() ) ;
-            m_thread.start() ;
+            hasStarted = new Boolean( true ) ;
+            thread = new Thread( new StageDriver() ) ;
+            thread.start() ;
         }
         
-        m_monitor.started( this ) ;
+        monitor.started( this ) ;
     }
     
     
@@ -246,19 +243,19 @@ public class DefaultStage implements Stage
      */
     public void stop() throws InterruptedException
     {
-        m_hasStarted = new Boolean( false ) ;
+        hasStarted = new Boolean( false ) ;
 
-        while ( m_thread.isAlive() || ! m_activeWorkers.isEmpty() )
+        while ( thread.isAlive() || ! activeWorkers.isEmpty() )
         {
             Thread.sleep( 100 ) ;
             
-            synchronized( m_queue )
+            synchronized( queue )
             {
-                m_queue.notifyAll() ;
+                queue.notifyAll() ;
             }
         }
         
-        m_monitor.stopped( this ) ;
+        monitor.stopped( this ) ;
     }
     
     
@@ -269,7 +266,7 @@ public class DefaultStage implements Stage
      */
     public StageMonitor getStageMonitor()
     {
-        return m_monitor ;
+        return monitor ;
     }
 
     
@@ -278,8 +275,8 @@ public class DefaultStage implements Stage
      * 
      * @param monitor the monitor to set for this Stage
      */
-    public void setM_monitor( StageMonitor monitor )
+    public void setMonitor( StageMonitor monitor )
     {
-        this.m_monitor = monitor ;
+        this.monitor = monitor ;
     }
 }
