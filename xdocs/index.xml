@@ -32,15 +32,6 @@
 
         <tr>
           <td>
-            <a href="./building.html">Building</a>
-          </td>
-          <td>
-            Describes how to build Eve from the source.
-          </td>
-        </tr>
-
-        <tr>
-          <td>
             <a href="./roadmap.html">Roadmap</a>
           </td>
           <td>
@@ -50,65 +41,29 @@
 
         <tr>
           <td>
-            <a href="./architecture.html">Architecture</a>
+            <a href="./users/index.html">User's Guide</a>
           </td>
           <td>
-            Eve's architecture at a high level.
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <a href="./components.html">Components</a>
-          </td>
-          <td>
-            Discusses component based design in Eve.
-          </td>
-        </tr>
-        
-        <tr>
-          <td>
-            <a href="./protocol.html">Protocol</a>
-          </td>
-          <td>
-            Documentation for the LDAP protocol provider.
-          </td>
-        </tr>
-        
-        <tr>
-          <td>
-            <a href="./jndi.html">JNDI</a>
-          </td>
-          <td>
-            Documentation for Eve's JNDI provider.
+            Material that might go into a user's guide or howto section.
           </td>
         </tr>
 
         <tr>
           <td>
-            <a href="./authentication.html">Authentication</a>
+            <a href="./developers/index.html">Developers's Guide</a>
           </td>
           <td>
-            Documentation for how to bind to Eve out of the box.
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <a href="./partitions.html">Partitions</a>
-          </td>
-          <td>
-            Documentation for creating user partitions to Eve in addition to the
-            system context partition. 
+            Material that might go into a developer's guide.
           </td>
         </tr>
 
         <tr>
           <td>
-            <a href="./plugin.html">Maven Plugin</a>
+            <a href="./projects/index.html">Eve Projects</a>
           </td>
           <td>
-            A plugin for Eve that does a bunch-o-stuff.  Check it out.
+            The sitedocs for the various maven source code projects containing
+            the usual reports and info are here.
           </td>
         </tr>
 
