@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Maven Eve Plugin</title>
+  </properties>
+  
+  <body>
+    <section name="Maven Eve Plugin">
+      <p>
+        Right now one of the primary functions of the plugin is to generates 
+        Eve class files for OpenLDAP schemas. These class files contain hard
+        coded schema objects found in the OpenLDAP files.  Why bother you may
+        ask?  Well the compiled hard coded files are loaded into the server
+        as fast as you can.  There's no need to have a parser hanging around 
+        and no need to have the schema files hanging around.   Plus no one 
+        really edits finalized published schemas within RFCs since they do not
+        change.  So why keep this stuff in a human alterable form.  Plus once
+        the server comes online these schema objects can be altered through
+        LDAP.  The added stage of compiling a schema really is not that much
+        of a big deal when you have a plugin to do it all for you.  Plus there
+        is the benefit of knowing if the schema is bad before it goes into the
+        server.
+      </p> 
+
+      <subsection name="Properties">
+        <table>
+          <tr>
+            <th>Property</th>
+            <th>Optional?</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>maven.eve.schema.target.dir</td>
+            <td>Yes</td>
+            <td>
+              <p>Default value is
+                <code>target/schema</code>.</p>
+            </td>
+          </tr>
+          <tr>
+            <td>maven.eve.schema.ownerDefault</td>
+            <td>Yes</td>
+            <td>
+              <p>Default value is
+                <code>uid=admin,ou=system</code>.</p>
+            </td>
+          </tr>
+          <tr>
+            <td>maven.eve.schema.dir</td>
+            <td>Yes</td>
+            <td>
+              <p>Default value is
+                <code>src/schema</code>.</p>
+            </td>
+          </tr>
+          <tr>
+            <td>maven.eve.schema.packageDefault</td>
+            <td>Yes</td>
+            <td>
+              <p>Default value is
+                <code>org.apache.eve.schema.bootstrap</code>.</p>
+            </td>
+          </tr>
+        </table>
+      </subsection>
+
+      <subsection name="Goals">
+        <p>
+          <goals>
+            <goal>
+              <name>eve:generate</name>
+              <description>
+                Generates class files for OpenLDAP schemas.
+              </description>
+            </goal>
+            <goal>
+              <name>eve:init</name>
+              <description>
+                Finds the required parameters needed for the goals of the
+                plugin.
+              </description>
+            </goal>
+            <goal>
+              <name>eve:prepare-filesystem</name>
+              <description>
+                Creates source output directories used to deposite schema
+                files that are generated.
+              </description>
+            </goal>
+            <goal>
+              <name>eve:schema</name>
+              <description>
+                Top level schema generating function that uses other goals to
+                coordinate generation.
+              </description>
+            </goal>
+          </goals>
+        </p>
+      </subsection>
+
+      <subsection names="Usage">
+        <p>
+           Take a look at how we integrate this into the Eve build 
+           <a href="http://svn.apache.org/viewcvs.cgi/incubator/directory/eve/trunk/dib/">here</a>.
+        </p>
+      </subsection>
+    </section>
+
+    <section name="Functionality for the Future">
+      <ul>
+         <li>
+           Compile triggers and install them into the server.
+         </li>
+
+         <li>
+           Compile and load stored procedures.
+         </li>
+
+         <li>
+           Test stored procedures and triggers.
+         </li>
+
+         <li>
+           Generate JNDI Object and State factories from schemas.
+         </li>
+      </ul>
+    </section>    
+  </body>
+</document>

@@ -103,6 +103,15 @@
           </td>
         </tr>
 
+        <tr>
+          <td>
+            <a href="./plugin.html">Maven Plugin</a>
+          </td>
+          <td>
+            A plugin for Eve that does a bunch-o-stuff.  Check it out.
+          </td>
+        </tr>
+
       </table>
 
 

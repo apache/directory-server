@@ -51,7 +51,6 @@ import org.apache.eve.SystemPartition;
 import org.apache.eve.ApplicationPartition;
 import org.apache.eve.ContextPartitionConfig;
 import org.apache.eve.protocol.LdapProtocolProvider;
-import org.apache.eve.exception.EveConfigurationException;
 import org.apache.eve.jndi.ibs.*;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
@@ -552,7 +551,7 @@ public class EveContextFactory implements InitialContextFactory
             catch ( Exception e )
             {
                 String msg = "Failed to initialize the frontend subsystem!";
-                NamingException ne = new EveConfigurationException( msg );
+                NamingException ne = new LdapConfigurationException( msg );
                 ne.setRootCause( e );
                 ne.setResolvedName( new LdapName( ( String ) initialEnv.get( Context.PROVIDER_URL ) ) );
                 throw ne;
@@ -573,7 +572,7 @@ public class EveContextFactory implements InitialContextFactory
         {
             e.printStackTrace();
             String msg = "Could not recognize the host!";
-            EveConfigurationException e2 = new EveConfigurationException( msg );
+            LdapConfigurationException e2 = new LdapConfigurationException( msg );
             e2.setRootCause( e );
         }
 
@@ -585,7 +584,7 @@ public class EveContextFactory implements InitialContextFactory
         {
             e.printStackTrace();
             String msg = "We failed to bind to the port!";
-            EveConfigurationException e2 = new EveConfigurationException( msg );
+            LdapConfigurationException e2 = new LdapConfigurationException( msg );
             e2.setRootCause( e );
         }
     }

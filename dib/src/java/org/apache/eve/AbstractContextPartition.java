@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.ContextNotEmptyException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.Attribute;
 
@@ -34,6 +33,8 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.common.exception.LdapContextNotEmptyException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
 
 import org.apache.eve.db.Database;
 import org.apache.eve.db.SearchEngine;
@@ -231,10 +232,17 @@ public abstract class AbstractContextPartition implements ContextPartition
     public void delete( Name dn ) throws NamingException
     {
         BigInteger id = db.getEntryId( dn.toString() );
-        
+
+        // don't continue if id is null
+        if ( id == null )
+        {
+            throw new LdapNameNotFoundException( "Could not find entry at '"
+                    + dn + "' to delete it!");
+        }
+
         if ( db.getChildCount( id ) > 0 )
         {
-            ContextNotEmptyException cnee = new ContextNotEmptyException(
+            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException(
                 "[66] Cannot delete entry " + dn + " it has children!" );
             cnee.setRemainingName( dn );
             throw cnee;
