@@ -10,8 +10,6 @@ import javax.naming.NamingEnumeration;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.BranchNode;
 
-import org.apache.eve.db.*;
-
 
 /**
  * An enumerator implementation which creates a NamingEnumeration over the
