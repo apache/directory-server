@@ -1,13 +1,13 @@
 This is where I am with the migration process into the form we intend to 
 have for the final configuration of Eve's backend.
 
-backend-nexus-api/                  - not done
-backend-nexus-impl/                 - not done
 system-backend-impl/                - not done
 default-backend-impl/               - not done
 jndi-provider/                      - not done
 backend-database-viewer/            - not done
 schema-api/                         - partially
+backend-nexus-api/                  - DONE
+backend-nexus-impl/                 - DONE
 backend-api/                        - DONE
 backend-database-impl/              - DONE
 backend-database-spi/               - DONE
