@@ -308,8 +308,6 @@ public class BootstrapSchemaLoaderTest extends TestCase
             buf.append( "\nfirst exception trace:\n" + out.getBuffer().toString() );
         }
 
-
-
         assertTrue( buf.toString(), errors.isEmpty() );
     }
 }
