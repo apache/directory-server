@@ -17,35 +17,35 @@
 package org.apache.eve.schema;
 
 
-import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.DITContentRule;
 
 
 /**
- * Interface for AttributeTypeRegitery callback event monitors.
+ * Interface for DITContentRuleRegitery callback event monitors.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface AttributeTypeRegistryMonitor
+public interface DITContentRuleRegistryMonitor
 {
     /**
-     * Monitors when a AttributeType is registered successfully.
+     * Monitors when a DITContentRule is registered successfully.
      *
-     * @param attributeType the AttributeType successfully registered
+     * @param dITContentRule the DITContentRule successfully registered
      */
-    void registered( AttributeType attributeType );
+    void registered( DITContentRule dITContentRule );
 
     /**
      * Monitors when a Comparator is successfully looked up.
      *
-     * @param attributeType the AttributeType successfully lookedup
+     * @param dITContentRule the DITContentRule successfully lookedup
      */
-    void lookedUp( AttributeType attributeType );
+    void lookedUp( DITContentRule dITContentRule );
 
     /**
      * Monitors when a lookup attempt fails.
      *
-     * @param oid the OID for the AttributeType to lookup
+     * @param oid the OID for the DITContentRule to lookup
      * @param fault the exception to be thrown for the fault
      */
     void lookupFailed( String oid, Throwable fault );
@@ -53,8 +53,8 @@ public interface AttributeTypeRegistryMonitor
     /**
      * Monitors when a registration attempt fails.
      *
-     * @param attributeType the AttributeType which failed registration
+     * @param dITContentRule the DITContentRule which failed registration
      * @param fault the exception to be thrown for the fault
      */
-    void registerFailed( AttributeType attributeType, Throwable fault );
+    void registerFailed( DITContentRule dITContentRule, Throwable fault );
 }

@@ -17,25 +17,25 @@
 package org.apache.eve.schema;
 
 
-import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.DITContentRule;
 
 
 /**
- * A simple do nothing monitor adapter for AttributeTypeRegistries.  Note for
+ * A simple do nothing monitor adapter for DITContentRuleRegistries.  Note for
  * safty exception based callback print the stack tract to stderr.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AttributeTypeRegistryMonitorAdapter
-    implements AttributeTypeRegistryMonitor
+public class DITContentRuleRegistryMonitorAdapter
+    implements DITContentRuleRegistryMonitor
 {
-    public void registered( AttributeType attributeType )
+    public void registered( DITContentRule dITContentRule )
     {
     }
 
 
-    public void lookedUp( AttributeType attributeType )
+    public void lookedUp( DITContentRule dITContentRule )
     {
     }
 
@@ -49,7 +49,7 @@ public class AttributeTypeRegistryMonitorAdapter
     }
 
 
-    public void registerFailed( AttributeType attributeType, Throwable fault )
+    public void registerFailed( DITContentRule dITContentRule, Throwable fault )
     {
         if ( fault != null )
         {
