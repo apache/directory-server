@@ -40,19 +40,19 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>asn1-codec</artifactId>
-      <version>0.2</version>
+      <version>0.3-SNAPSHOT</version>
       <url>http://incubator.apache.org/directory/subprojects/asn1/codec</url>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>0.8</version>
+      <version>0.9-SNAPSHOT</version>
       <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>apseda</artifactId>
-      <version>0.2</version>
+      <version>0.3-SNAPSHOT</version>
       <url>http://incubator.apache.org/directory/subprojects/seda</url>
     </dependency>
   </dependencies>
