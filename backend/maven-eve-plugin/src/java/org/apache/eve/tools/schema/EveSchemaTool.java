@@ -18,6 +18,8 @@ package org.apache.eve.tools.schema;
 
 
 import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.VelocityContext;
@@ -121,6 +123,7 @@ public class EveSchemaTool
         generateSchema();
         generateAttributeTypes();
         generateObjectClasses();
+        generateRest();
     }
 
 
@@ -138,14 +141,89 @@ public class EveSchemaTool
         context.put( "owner", schema.getOwner() ) ;
         context.put( "deps", schema.getDependencies()  ) ;
 
-        runVelocity( context, "Schema.template" );
+        FileReader fileIn = getResourceReader( "Schema.template" );
+        FileWriter writer = getResourceWriter( schema.getUnqualifiedClassName() );
+        Velocity.evaluate( context, writer, "LOG", fileIn );
+        writer.flush();
+        writer.close();
+    }
+
+
+
+    protected void generateRest() throws Exception
+    {
+        List types = new ArrayList();
+        types.addAll( ProducerTypeEnum.list() );
+        types.remove( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER );
+        types.remove( ProducerTypeEnum.OBJECT_CLASS_PRODUCER );
+        ProducerTypeEnum type = null;
+
+        for ( int ii = 0; ii < types.size(); ii++ )
+        {
+            type = ( ProducerTypeEnum ) types.get( ii );
+
+            if ( exists( type ) )
+            {
+                continue;
+            }
+
+
+            VelocityContext context = new VelocityContext();
+            context.put( "package", schema.getPackageName() );
+            context.put( "classname", schema.getUnqualifiedClassName( type ) );
+            context.put( "schema", schema.getSchemaName() );
+            context.put( "owner", schema.getOwner() ) ;
+            context.put( "type", type.getName().substring( 0,
+                    type.getName().length() - 8 ) ) ;
+
+            String typeName = null;
+            switch( type.getValue() )
+            {
+                case( ProducerTypeEnum.COMPARATOR_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.COMPARATOR_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.DIT_CONTENT_RULE_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.DIT_STRUCTURE_RULE_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.MATCHING_RULE_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.MATCHING_RULE_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.MATCHING_RULE_USE_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.NAME_FORM_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.NAME_FORM_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.NORMALIZER_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.NORMALIZER_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.SYNTAX_CHECKER_PRODUCER";
+                    break;
+                case( ProducerTypeEnum.SYNTAX_PRODUCER_VAL ):
+                    typeName = "ProducerTypeEnum.SYNTAX_PRODUCER";
+                    break;
+                default:
+                    throw new IllegalStateException( "Unexpected producer: "
+                        + type.getName() );
+            }
+
+            context.put( "typeName", typeName ) ;
+            runVelocity( context, "typeless.template", type );
+        }
+
     }
 
 
     protected void generateAttributeTypes() throws Exception
     {
+        final ProducerTypeEnum type = ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER;
+
         // check to see if the producer exists for this type
-        if ( exists( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER ) )
+        if ( exists( type ) )
         {
             return;
         }
@@ -158,21 +236,23 @@ public class EveSchemaTool
         VelocityContext context = new VelocityContext();
         context.put( "package", schema.getPackageName() );
         context.put( "classname",
-            schema.getUnqualifiedClassName( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER ) );
+            schema.getUnqualifiedClassName( type ) );
         context.put( "schema", schema.getSchemaName() );
         context.put( "owner", schema.getOwner() ) ;
         context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
         context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
         context.put( "attrTypes", attributeTypes );
 
-        runVelocity( context, "AttributeTypes.template" );
+        runVelocity( context, "AttributeTypes.template", type );
     }
 
 
     protected void generateObjectClasses() throws Exception
     {
+        final ProducerTypeEnum type = ProducerTypeEnum.OBJECT_CLASS_PRODUCER;
+
         // check to see if the producer exists for this type
-        if ( exists( ProducerTypeEnum.OBJECT_CLASS_PRODUCER ) )
+        if ( exists( type ) )
         {
             return;
         }
@@ -184,24 +264,23 @@ public class EveSchemaTool
 
         VelocityContext context = new VelocityContext();
         context.put( "package", schema.getPackageName() );
-        context.put( "classname",
-            schema.getUnqualifiedClassName( ProducerTypeEnum.OBJECT_CLASS_PRODUCER ) );
+        context.put( "classname", schema.getUnqualifiedClassName( type ) );
         context.put( "schema", schema.getSchemaName() );
         context.put( "owner", schema.getOwner() ) ;
         context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
         context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
         context.put( "objectClasses", objectClasses );
 
-        runVelocity( context, "ObjectClasses.template" );
+        runVelocity( context, "ObjectClasses.template", type );
     }
 
 
-    protected void runVelocity( VelocityContext context, String template )
+    protected void runVelocity( VelocityContext context, String template,
+                                ProducerTypeEnum type )
             throws Exception
     {
         FileReader fileIn = getResourceReader( template );
-        FileWriter writer = getResourceWriter( schema.getUnqualifiedClassName(
-                ProducerTypeEnum.OBJECT_CLASS_PRODUCER ) );
+        FileWriter writer = getResourceWriter( schema.getUnqualifiedClassName( type ) );
         Velocity.evaluate( context, writer, "LOG", fileIn );
         writer.flush();
         writer.close();

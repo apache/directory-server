@@ -17,29 +17,36 @@
 package $package;
 
 
-import java.util.ArrayList;
+import javax.naming.NamingException;
 
 
 /**
- * Top level $schema schema class.  This code has been automatically generated
- * using the eve schema plugin for maven.
+ * A producer of $type objects for the $schema schema.  This code has been
+ * automatically generated using schema files in the OpenLDAP format along with
+ * the eve schema plugin for maven.  This has been done to facilitate
+ * Eve<->OpenLDAP schema interoperability.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class $classname extends AbstractBootstrapSchema
+public class $classname extends AbstractBootstrapProducer
 {
     public $classname()
     {
-        super( "$owner", "$schema", "$package" );
+        super( $typeName );
+    }
 
-        ArrayList list = new ArrayList();
-        #if ( $deps )
-list.clear();
-       #foreach ( $name in $deps ) list.add( "$name" );
-       #end
- setDependencies( ( String[] ) list.toArray( DEFAULT_DEPS ) );#else
- setDependencies( DEFAULT_DEPS );#end
 
+    // ------------------------------------------------------------------------
+    // BootstrapProducer Methods
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * @see BootstrapProducer#produce(BootstrapRegistries, ProducerCallback)
+     */
+    public void produce( BootstrapRegistries registries, ProducerCallback cb )
+        throws NamingException
+    {
     }
 }
