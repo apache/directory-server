@@ -23,11 +23,12 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
 
 import org.apache.eve.RootNexus;
-import org.apache.eve.auth.LdapPrincipal;
+import org.apache.ldap.server.auth.LdapPrincipal;
 import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.auth.LdapPrincipal;
 
 
 /**

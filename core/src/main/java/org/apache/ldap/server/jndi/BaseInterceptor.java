@@ -25,7 +25,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.eve.auth.LdapPrincipal;
+import org.apache.ldap.server.auth.LdapPrincipal;
 
 
 /**

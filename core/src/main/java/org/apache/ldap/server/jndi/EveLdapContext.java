@@ -29,7 +29,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.ldap.common.NotImplementedException;
 
 import org.apache.eve.PartitionNexus;
-import org.apache.eve.auth.LdapPrincipal;
+import org.apache.ldap.server.auth.LdapPrincipal;
 
 
 /**

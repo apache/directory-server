@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.auth;
+package org.apache.ldap.server.auth;
 
 
 import javax.naming.Name;
