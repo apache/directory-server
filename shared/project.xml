@@ -7,7 +7,6 @@
   <id>eve-shared</id>
   <name>Eve Shared</name>
   <package>org.apache.eve</package>
-  <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2002</inceptionYear>
   <shortDescription>Shared Eve resources, interfaces and classes</shortDescription>
   <description>
@@ -18,7 +17,7 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
   </dependencies>
 </project>

@@ -4,7 +4,7 @@
     <groupId>incubator-directory</groupId>
     <id>eve</id>
     <name>Eve Directory Server</name>
-    <version>SNAPSHOT</version>
+    <currentVersion>0.8.0</currentVersion>
     
     <organization>
       <name>The Apache Incubator</name>
