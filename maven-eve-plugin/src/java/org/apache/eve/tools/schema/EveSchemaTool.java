@@ -336,9 +336,11 @@ public class EveSchemaTool
 
         // check to see if any of the classes are available in the java 
         // source directory, if so we return true
-        File defaultFile = new File( "src" + File.separator + "java"
+        File defaultFile = new File( basedir + File.separator +
+                "src" + File.separator + "java"
                 + File.separator + getFilePath( defaultClass ) );
-        File targetFile = new File( "src" + File.separator + "java"
+        File targetFile = new File( basedir + File.separator +
+                "src" + File.separator + "java"
                 + File.separator + getFilePath( targetClass ) );
 
         return defaultFile.exists() || targetFile.exists();
