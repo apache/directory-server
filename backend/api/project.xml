@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
-    <extend>${basedir}/../../../../project.xml</extend>
+    <extend>${basedir}/../../project.xml</extend>
     <groupId>incubator-directory</groupId>
-    <id>eve-backend-schema-comparator-api</id>
+    <id>backend-api</id>
   
-    <name>Eve Backend Schema's Comparator Registry API</name>
-    <package>org.apache.eve.schema</package>
+    <name>API used by the backend</name>
+    <package>org.apache.eve</package>
     <currentVersion>SNAPSHOT</currentVersion>
     <inceptionYear>2002</inceptionYear>
       
-    <shortDescription>Eve Backend Schema's Comparator Registry API</shortDescription>
+    <shortDescription>Backend API</shortDescription>
 
     <description>
-        Eve's backend subsystem contains several components to manage schema
-        objects.  One of those components is a name to Comparator registry.
-        The registry is responsible for looking up and adding comparators.
+      Eve's backend API.
     </description>
       
 </project>
