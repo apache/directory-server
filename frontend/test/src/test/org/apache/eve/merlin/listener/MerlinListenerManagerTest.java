@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.listener ;
+package org.apache.eve.merlin.listener ;
 
 
 import org.apache.eve.event.EventRouter ;

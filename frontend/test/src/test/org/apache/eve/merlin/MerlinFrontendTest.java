@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve ;
+package org.apache.eve.merlin ;
 
 
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
