@@ -35,12 +35,16 @@ public class GlobalOidRegistry implements OidRegistry
 { 
     /** Maps OID to a name or a list of names if more than one name exists */
     private Hashtable byOid = new Hashtable();
+
     /** Maps several names to an OID */
     private Hashtable byName = new Hashtable();
+
     /** Default OidRegistryMonitor */
     private OidRegistryMonitor monitor = new OidRegistryMonitorAdapter();
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapOidRegistry bootstrap;
+
     /** the system partition where we keep attributeType updates */
     private SystemPartition systemPartition;
 
@@ -57,12 +61,14 @@ public class GlobalOidRegistry implements OidRegistry
             BootstrapOidRegistry bootstrap )
     {
         this.bootstrap = bootstrap;
+
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
 
         this.systemPartition = systemPartition;
+
         if ( this.systemPartition == null )
         {
             throw new NullPointerException( "the system partition cannot be null" ) ;
@@ -116,21 +122,27 @@ public class GlobalOidRegistry implements OidRegistry
         if ( Character.isDigit( name.charAt( 0 ) ) )
         {
             monitor.getOidWithOid( name );
+
             return name;
         }
 
         // If name is mapped to a OID already return OID
+
         if ( byName.containsKey( name ) )
         {
             String oid = ( String ) byName.get( name );
+
             monitor.oidResolved( name, oid );
+
             return oid;
         }
 
         if ( bootstrap.hasOid( name ) )
         {
             String oid = bootstrap.getOid( name );
+
             monitor.oidResolved( name, oid );
+
             return oid;
         }
 
@@ -142,16 +154,20 @@ public class GlobalOidRegistry implements OidRegistry
          * returned on a getNameSet.
          */
         String lowerCase = name.trim().toLowerCase();
+
         if ( ! name.equals( lowerCase ) )
 		{
 			if ( byName.containsKey( lowerCase ) )
 	        {
 	            String oid = ( String ) byName.get( lowerCase );
+
 	            monitor.oidResolved( name, lowerCase, oid );
 	
 	            // We expect to see this version of the key again so we add it
+
 	            byName.put( name, oid );
-	            return oid;
+
+                return oid;
 	        }
 			
 			/*
@@ -163,17 +179,23 @@ public class GlobalOidRegistry implements OidRegistry
 			if ( bootstrap.hasOid( lowerCase) )
 			{
 	            String oid = bootstrap.getOid( name );
-	            monitor.oidResolved( name, oid );
+
+                monitor.oidResolved( name, oid );
 
 	            // We expect to see this version of the key again so we add it
-				byName.put( name, oid );
-	            return oid;
+
+                byName.put( name, oid );
+
+                return oid;
 			}
 		}
 
-        NamingException fault = new NamingException ( "OID for name '"
-                + name + "' was not " + "found within the OID registry" );
+        String msg = "OID for name '" + name + "' was not " + "found within the OID registry";
+
+        NamingException fault = new NamingException ( msg );
+
         monitor.oidResolutionFailed( name, fault );
+
         throw fault;
     }
 
@@ -183,8 +205,7 @@ public class GlobalOidRegistry implements OidRegistry
      */
     public boolean hasOid( String name )
     {
-        return this.byName.containsKey( name ) ||
-               this.byOid.containsKey( name )  ||
+        return this.byName.containsKey( name ) || this.byOid.containsKey( name )  ||
                this.bootstrap.hasOid( name );
     }
 
@@ -198,20 +219,26 @@ public class GlobalOidRegistry implements OidRegistry
         
         if ( null == value )
         {
-            NamingException fault = new NamingException ( "OID '" + oid
-                    + "' was not found within the OID registry" );
+            String msg = "OID '" + oid + "' was not found within the OID registry";
+
+            NamingException fault = new NamingException ( msg );
+
             monitor.oidDoesNotExist( oid, fault );
+
             throw fault;
         }
         
         if ( value instanceof String )
         {
             monitor.nameResolved( oid, ( String ) value );
+
             return ( String ) value;
         }
         
         String name = ( String ) ( ( List ) value ).get( 0 );
+
         monitor.nameResolved( oid, name );
+
         return name;
     }
 
@@ -225,20 +252,26 @@ public class GlobalOidRegistry implements OidRegistry
         
         if ( null == value )
         {
-            NamingException fault = new NamingException ( "OID '" + oid
-                    + "' was not found within the OID registry" );
+            String msg = "OID '" + oid + "' was not found within the OID registry";
+
+            NamingException fault = new NamingException ( msg );
+
             monitor.oidDoesNotExist( oid, fault );
+
             throw fault;
         }
         
         if ( value instanceof String )
         {
             List list = Collections.singletonList( value );
+
             monitor.namesResolved( oid, list );
+
             return list;
         }
         
         monitor.namesResolved( oid, ( List ) value );
+
         return ( List ) value;
     }
 
@@ -268,6 +301,7 @@ public class GlobalOidRegistry implements OidRegistry
          * the lower cased name is different from the given name name.  
          */
         String lowerCase = name.toLowerCase();
+
         if ( ! lowerCase.equals( name ) )
         {
             byName.put( lowerCase, oid );
@@ -275,6 +309,7 @@ public class GlobalOidRegistry implements OidRegistry
         
         // Put both the name and the oid as names
         byName.put( name, oid );
+
         byName.put( oid, oid );
         
         /*
@@ -288,6 +323,7 @@ public class GlobalOidRegistry implements OidRegistry
          * 2). If we do not have a value then we just add it as a String
          */
         Object value = null;
+
         if ( ! byOid.containsKey( oid ) )
         {
             value = name;
@@ -295,6 +331,7 @@ public class GlobalOidRegistry implements OidRegistry
         else 
         {
             ArrayList list = null;
+
             value = byOid.get( oid );
             
             if ( value instanceof String )
@@ -308,7 +345,9 @@ public class GlobalOidRegistry implements OidRegistry
                 }
                 
                 list = new ArrayList();
+
                 list.add( value );
+
                 value = list;
             }
             else if ( value instanceof ArrayList )
@@ -329,6 +368,7 @@ public class GlobalOidRegistry implements OidRegistry
         }
 
         byOid.put( oid, value );
+
         monitor.registered( name, oid );
     }
 }
