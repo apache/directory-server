@@ -28,10 +28,7 @@ import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
 import org.apache.eve.schema.bootstrap.BootstrapRegistries;
 import org.apache.eve.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.eve.schema.AttributeTypeRegistry;
-import org.apache.eve.schema.OidRegistry;
-import org.apache.eve.schema.GlobalRegistries;
-import org.apache.eve.schema.MatchingRuleRegistry;
+import org.apache.eve.schema.*;
 
 
 /**
@@ -341,7 +338,9 @@ public class EveContextFactory implements InitialContextFactory
             InvocationStateEnum.PREINVOCATION
         };
         boolean allowAnonymous = initialEnv.containsKey( ANONYMOUS_ENV );
-        Interceptor interceptor = new AuthenticationService( nexus, allowAnonymous );
+        ConcreteNameComponentNormalizer normalizer;
+        normalizer = new ConcreteNameComponentNormalizer( globalRegistries.getAttributeTypeRegistry() );
+        Interceptor interceptor = new AuthenticationService( nexus, normalizer, allowAnonymous );
         provider.addInterceptor( interceptor, state );
 
         /*
