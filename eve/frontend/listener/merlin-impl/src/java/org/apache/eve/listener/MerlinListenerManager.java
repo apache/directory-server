@@ -99,7 +99,7 @@ public class MerlinListenerManager extends AbstractLogEnabled
     /** a temporary handle on the event router to bridge life-cycle methods */
     private EventRouter m_router ;
     /** the set of listeners */
-    private ArrayList m_listeners ;
+    private ArrayList m_listeners = new ArrayList() ;
     
     
     // ------------------------------------------------------------------------
@@ -160,7 +160,23 @@ public class MerlinListenerManager extends AbstractLogEnabled
 
         for( int ii = 0; ii < m_listeners.size(); ii++ )
         {    
-            m_manager.bind( ( ServerListener ) m_listeners.get( ii ) ) ;
+            ServerListener l_listener = ( ServerListener ) 
+                m_listeners.get( ii ) ;
+            m_manager.bind( l_listener ) ;
+            
+            if ( getLogger().isInfoEnabled() )
+            {
+                getLogger().info( "Listener " + l_listener + " bound!" ) ;
+                getLogger().info( "Interface: " + l_listener.getAddress()[0] 
+                    + "." + l_listener.getAddress()[1] 
+                    + "." + l_listener.getAddress()[2] 
+                    + "." + l_listener.getAddress()[3] 
+                        ) ;
+                getLogger().info( "Port: " + l_listener.getPort() ) ;
+                getLogger().info( "Backlog: " + l_listener.getBacklog() ) ;
+                getLogger().info( "Secure: " + l_listener.isSecure() ) ;
+                getLogger().info( "URL: " + l_listener.getURL() ) ;
+            }
         }
     }
     
@@ -217,8 +233,6 @@ public class MerlinListenerManager extends AbstractLogEnabled
     {
         if ( a_config.getChild( "listeners" ).getChildren().length == 0 )
         {
-            m_listeners = new ArrayList( 1 ) ;
-            
             try 
             {
                 m_listeners.add( new LdapServerListener() ) ;
@@ -285,6 +299,26 @@ public class MerlinListenerManager extends AbstractLogEnabled
                     throw new ConfigurationException( "Could not find hostname "
                             + "for address " + l_addrStr, e ) ;
                 }
+            }
+            
+            
+            try
+            {
+                m_listeners.add( new LdapServerListener( l_host, l_port, 
+                                l_backlog, l_isSecure ) ) ;
+            }
+            catch ( UnknownHostException e )
+            {
+                throw new ConfigurationException( "Could not find hostname "
+                        + "for host " + l_host, e ) ;
+            }
+            
+            if ( getLogger().isInfoEnabled() )
+            {
+                getLogger().info( " Configured a listener for host " + 
+                        l_host + " on port " + l_port + " with a backlog of "
+                        + l_backlog
+                        ) ;
             }
         }
     }
