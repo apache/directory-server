@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+
+<!--
+Configuration for the main ring of a Geronimo server.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/eve/LDAP"
+    parentId="org/apache/geronimo/Server"
+    >
+
+    <dependency>
+        <uri>incubator-directory/jars/eve-frontend-geronimo-SNAPSHOT.jar</uri>
+    </dependency>
+
+    <gbean name="geronimo.ldap:type=BufferPool,name=EVEBufferPool" class="org.apache.eve.geronimo.EveBufferPoolGBean">
+        <attribute name="bufferName" type="java.lang.String">EVEBufferPool</attribute>
+        <attribute name="increment" type="int">4</attribute>
+        <attribute name="maxSize" type="int">100</attribute>
+        <attribute name="initialSize" type="int">20</attribute>
+    </gbean>
+
+    <gbean name="geronimo.ldap:type=EventRouter,name=EVEEventRouter" class="org.apache.eve.geronimo.EveEventRouterGBean"/>
+
+    <gbean name="geronimo.ldap:type=DecoderManager,name=EVEDecoderManager" class="org.apache.eve.geronimo.EveDecoderManagerGBean">
+        <attribute name="decoderManagerName" type="java.lang.String">EVEDecoderManager</attribute>
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=EVEThreadPool</reference>
+        <reference name="EventRouter">geronimo.ldap:type=EventRouter,name=EVEEventRouter</reference>
+    </gbean>
+
+    <gbean name="geronimo.ldap:type=EncoderManager,name=EVEEncoderManager" class="org.apache.eve.geronimo.EveEncoderManagerGBean">
+        <attribute name="encoderManagerName" type="java.lang.String">EVEEncoderManager</attribute>
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=EVEThreadPool</reference>
+        <reference name="EventRouter">geronimo.ldap:type=EventRouter,name=EVEEventRouter</reference>
+    </gbean>
+
+    <gbean name="geronimo.ldap:type=EncoderManager,name=EVEInputManager" class="org.apache.eve.geronimo.EveInputManagerGBean">
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=EVEThreadPool</reference>
+        <reference name="BufferPool">geronimo.ldap:type=BufferPool,name=EVEBufferPool</reference>
+        <reference name="EventRouter">geronimo.ldap:type=EventRouter,name=EVEEventRouter</reference>
+    </gbean>
+
+    <gbean name="geronimo.ldap:type=OutputManager,name=EVEOutputManager" class="org.apache.eve.geronimo.EveOutputManagerGBean">
+        <attribute name="stageName" type="java.lang.String">EVEOutputManager</attribute>
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=EVEThreadPool</reference>
+        <reference name="EventRouter">geronimo.ldap:type=EventRouter,name=EVEEventRouter</reference>
+    </gbean>
+
+    <gbean name="geronimo.ldap:type=RequestProcessor,name=EVERequestProcessor" class="org.apache.eve.geronimo.EveRequestProcessorGBean">
+        <attribute name="stageName" type="java.lang.String">EVERequestProcessor</attribute>
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=EVEThreadPool</reference>
+        <reference name="EventRouter">geronimo.ldap:type=EventRouter,name=EVEEventRouter</reference>
+    </gbean>
+
+    <gbean name="geronimo.server:type=ThreadPool,name=EVEThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime" type="long">5000</attribute>
+        <attribute name="poolSize" type="int">10</attribute>
+        <attribute name="poolName" type="java.lang.String">EVEThreadPool</attribute>
+    </gbean>
+
+</configuration>
