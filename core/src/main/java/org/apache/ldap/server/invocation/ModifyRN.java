@@ -24,13 +24,14 @@ import javax.naming.NamingException;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#modifyRn(Name, String, boolean)\}.
+ * Represents an {@link Invocation} on {@link BackingStore#modifyRn(Name, String, boolean)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ModifyRN extends Invocation
 {
+    private static final long serialVersionUID = 3257849883007465528L;
 
     private Name name;
 

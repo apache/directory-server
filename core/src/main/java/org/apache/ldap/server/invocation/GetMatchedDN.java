@@ -32,6 +32,7 @@ import javax.naming.NamingException;
  */
 public class GetMatchedDN extends Invocation
 {
+    private static final long serialVersionUID = 3834032467559723826L;
 
     private Name name;
 

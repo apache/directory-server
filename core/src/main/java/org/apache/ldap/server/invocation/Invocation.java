@@ -17,10 +17,12 @@
 package org.apache.ldap.server.invocation;
 
 
-import org.apache.ldap.server.BackingStore;
+import java.io.Serializable;
+import java.util.Stack;
 
 import javax.naming.NamingException;
-import java.util.Stack;
+
+import org.apache.ldap.server.BackingStore;
 
 
 /**
@@ -33,14 +35,14 @@ import java.util.Stack;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class Invocation
+public abstract class Invocation implements Serializable
 {
 
-    protected Object returnValue;
+    protected transient Object returnValue;
 
-    protected Stack contextStack;
+    protected transient Stack contextStack;
 
-
+    
     /**
      * Creates a new instance.  This constructor does nothing.
      */

@@ -88,7 +88,7 @@ public class IndexAssertionEnumeration
         this.underlying = underlying;
         candidates = new HashMap();
         this.assertion = assertion;
-        checkDups = true;
+        checkDups = enableDupCheck;
         prefetch();
     }
 

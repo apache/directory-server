@@ -34,6 +34,7 @@ import java.util.Map;
  */
 public class Search extends Invocation
 {
+    private static final long serialVersionUID = 3258410651234678579L;
 
     private Name baseName;
 

@@ -32,6 +32,7 @@ import javax.naming.directory.ModificationItem;
  */
 public class ModifyMany extends Invocation
 {
+    private static final long serialVersionUID = 3258695386024915001L;
 
     private Name name;
 

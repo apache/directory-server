@@ -31,6 +31,7 @@ import javax.naming.NamingException;
  */
 public class Move extends Invocation
 {
+    private static final long serialVersionUID = 3258132440382978098L;
 
     private Name name;
 

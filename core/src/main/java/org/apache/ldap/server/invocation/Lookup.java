@@ -31,6 +31,7 @@ import javax.naming.NamingException;
  */
 public class Lookup extends Invocation
 {
+    private static final long serialVersionUID = 4049074934456005177L;
 
     private Name name;
 

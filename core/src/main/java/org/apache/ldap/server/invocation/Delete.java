@@ -31,6 +31,7 @@ import javax.naming.NamingException;
  */
 public class Delete extends Invocation
 {
+    private static final long serialVersionUID = 3258134639372677425L;
 
     private Name name;
 

@@ -32,6 +32,7 @@ import javax.naming.directory.Attributes;
  */
 public class Add extends Invocation
 {
+    private static final long serialVersionUID = 3258131362430333495L;
 
     private final String userProvidedName;
 

@@ -31,6 +31,7 @@ import javax.naming.NamingException;
  */
 public class HasEntry extends Invocation
 {
+    private static final long serialVersionUID = 3257850974013240370L;
 
     private Name name;
 

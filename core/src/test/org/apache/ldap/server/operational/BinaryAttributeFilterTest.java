@@ -28,7 +28,7 @@ import javax.naming.directory.DirContext;
 
 /**
  * Tests to see that the binary property filtering in the schema service's
- * filter class {@link org.apache.ldap.server.jndi.ibs.SchemaService.BinaryAttributeFilter} is working
+ * filter class {@link org.apache.ldap.server.schema.SchemaService} is working
  * properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

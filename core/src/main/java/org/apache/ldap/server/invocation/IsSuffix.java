@@ -31,6 +31,7 @@ import javax.naming.NamingException;
  */
 public class IsSuffix extends Invocation
 {
+    private static final long serialVersionUID = 3256723987429273908L;
 
     private Name name;
 

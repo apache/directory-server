@@ -31,6 +31,7 @@ import javax.naming.NamingException;
  */
 public class ListSuffixes extends Invocation
 {
+    private static final long serialVersionUID = 3258413932589888567L;
 
     private final boolean normalized;
 

@@ -32,6 +32,7 @@ import javax.naming.NamingException;
  */
 public class GetSuffix extends Invocation
 {
+    private static final long serialVersionUID = 3256443599162980407L;
 
     private Name name;
 
