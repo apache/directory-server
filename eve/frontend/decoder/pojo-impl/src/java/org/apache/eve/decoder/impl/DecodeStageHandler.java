@@ -78,5 +78,8 @@ public class DecodeStageHandler implements StageHandler
              * so we shouldn't have to do anything here but return control
              */
         }
+        
+        e.releaseInterest( this ) ;
+        e.releaseInterest( manager ) ;
     }
 }

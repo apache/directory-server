@@ -23,7 +23,8 @@ import org.apache.eve.event.Subscriber ;
 
 
 /**
- * An adapter for decoder manager monitors.
+ * An adapter for decoder manager monitors where all failures actually throw
+ * a wrapped runtime exception of the throwables they encounter.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
@@ -39,5 +40,6 @@ public class DecoderManagerMonitorAdapter implements DecoderManagerMonitor
     public void 
         failedOnInform( Subscriber subscriber, EventObject event, Throwable t )
     {
+        throw new RuntimeException( t ) ;
     }
 }

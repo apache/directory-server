@@ -21,9 +21,10 @@ import java.util.Map ;
 import java.util.HashMap ;
 import java.util.EventObject ;
 
-import java.math.BigInteger ;
-
 import java.nio.ByteBuffer ;
+
+import org.apache.snickers.SnickersDecoder ;
+import org.apache.ldap.common.message.Request ;
 
 import org.apache.eve.event.InputEvent ;
 import org.apache.eve.event.Subscriber ;
@@ -32,18 +33,16 @@ import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.listener.ClientKey ;
 import org.apache.eve.event.ConnectEvent ;
-import org.apache.eve.decoder.NoOpDecoder ;
+import org.apache.eve.event.RequestEvent ;
 import org.apache.eve.decoder.ClientDecoder ;
 import org.apache.eve.event.DisconnectEvent ;
 import org.apache.eve.event.InputSubscriber ;
 import org.apache.eve.decoder.DecoderManager ;
-import org.apache.eve.event.RequestEvent;
 import org.apache.eve.event.SubscriberMonitor ;
 import org.apache.eve.event.ConnectSubscriber ;
 import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.DisconnectSubscriber ;
 import org.apache.eve.decoder.DecoderManagerMonitor ;
-import org.apache.ldap.common.message.BindRequestImpl ;
 import org.apache.eve.decoder.DecoderManagerMonitorAdapter ;
 
 import org.apache.commons.codec.DecoderException ;
@@ -130,7 +129,14 @@ public class DefaultDecoderManager extends DefaultStage
      */
     public void inform( EventObject event )
     {
-        AbstractSubscriber.inform( this, event, subscriberMonitor ) ;
+        try
+        {
+            AbstractSubscriber.inform( this, event ) ;
+        }
+        catch ( Throwable t )
+        {
+            monitor.failedOnInform( this, event, t ) ;
+        }
     }
 
     
@@ -170,8 +176,9 @@ public class DefaultDecoderManager extends DefaultStage
     public void inform( ConnectEvent event )
     {
         ClientKey key = event.getClientKey() ;
-        StatefulDecoder noop = new NoOpDecoder() ;
-        StatefulDecoder decoder = new ClientDecoder( key, noop ) ; 
+        StatefulDecoder snickers = new SnickersDecoder() ;
+        StatefulDecoder decoder = new ClientDecoder( key, snickers ) ; 
+        decoder.setCallback( this ) ;
         decoders.put( key, decoder ) ;
     }
     
@@ -189,19 +196,9 @@ public class DefaultDecoderManager extends DefaultStage
      */
     public void decodeOccurred( StatefulDecoder decoder, Object decoded )
     {
-        /*
-         * This is where the decoded object is really a request Message 
-         * enveloper object which we just need to package as a RequestEvent
-         * and publish on the EventRouter. 
-         */
-        BindRequestImpl bind = new BindRequestImpl( BigInteger.ONE ) ;
-        bind.setCredentials( "password".getBytes() ) ;
-        bind.setName( "uid=akarasulu,dc=example,dc=com" ) ;
-        bind.setSimple( true ) ;
-        bind.setVersion3( true ) ;
-        
+        Request req = ( Request ) decoded ;
         ClientKey key = ( ( ClientDecoder ) decoder ).getClientKey() ;
-        RequestEvent event = new RequestEvent( this, key, bind ) ;
+        RequestEvent event = new RequestEvent( this, key, ( Request ) decoded );
         router.publish( event ) ;
     }
     
@@ -253,7 +250,7 @@ public class DefaultDecoderManager extends DefaultStage
     public void decode( ClientKey key, ByteBuffer buffer ) 
         throws DecoderException
     {
-        StatefulDecoder decoder = ( StatefulDecoder ) decoders.remove( key ) ;
+        StatefulDecoder decoder = ( StatefulDecoder ) decoders.get( key ) ;
         decoder.decode( buffer ) ;
     }
 
@@ -264,7 +261,7 @@ public class DefaultDecoderManager extends DefaultStage
     public Object decode( ByteBuffer buffer ) throws DecoderException
     {
         // replace this decoder with a real one later
-        StatefulDecoder decoder = new NoOpDecoder() ;
+        StatefulDecoder decoder = new SnickersDecoder() ;
         // used array to set a value on final variable and get by compiler
         final Object[] decoded = new Object[1] ;
         

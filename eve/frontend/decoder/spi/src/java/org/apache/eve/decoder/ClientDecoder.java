@@ -32,13 +32,15 @@ import org.apache.eve.listener.ClientKey ;
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public class ClientDecoder implements StatefulDecoder
+public class ClientDecoder implements StatefulDecoder, DecoderCallback
 {
     /** the key of the client this decoder is associated with */ 
     private final ClientKey key ;
     /** the actual decoder doing the work for us */
     private final StatefulDecoder decoder ;
-
+    /** the callback used by this decoder */
+    private DecoderCallback cb ;
+    
     
     /**
      * Creates a client dedicated stateful decoder.
@@ -50,6 +52,7 @@ public class ClientDecoder implements StatefulDecoder
     {
         this.key = key ;
         this.decoder = decoder ;
+        this.decoder.setCallback( this ) ;
     }
     
 
@@ -69,7 +72,7 @@ public class ClientDecoder implements StatefulDecoder
      */
     public void setCallback( DecoderCallback cb )
     {
-        decoder.setCallback( cb ) ;
+        this.cb = cb ;
     }
     
 
@@ -91,5 +94,15 @@ public class ClientDecoder implements StatefulDecoder
     public ClientKey getClientKey()
     {
         return key ;
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.commons.codec.stateful.DecoderCallback#decodeOccurred(
+     * org.apache.commons.codec.stateful.StatefulDecoder, java.lang.Object)
+     */
+    public void decodeOccurred( StatefulDecoder decoder, Object decoded )
+    {
+        cb.decodeOccurred( this, decoded ) ;
     }
 }
