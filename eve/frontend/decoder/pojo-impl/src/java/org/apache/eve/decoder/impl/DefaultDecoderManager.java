@@ -28,7 +28,7 @@ import org.apache.ldap.common.message.Request ;
 
 import org.apache.eve.event.InputEvent ;
 import org.apache.eve.seda.StageConfig ;
-import org.apache.eve.seda.StderrLoggingStageMonitor;
+import org.apache.eve.seda.LoggingStageMonitor;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.listener.ClientKey ;
@@ -85,7 +85,7 @@ public class DefaultDecoderManager extends DefaultStage
         
         this.router = router ;
         this.monitor = new DecoderManagerMonitorAdapter() ;
-        super.setMonitor( new StderrLoggingStageMonitor( getClass() ) ) ;
+        super.setMonitor( new LoggingStageMonitor( getClass() ) ) ;
 
         router.subscribe( InputEvent.class, this ) ;
         router.subscribe( ConnectEvent.class, this ) ;
