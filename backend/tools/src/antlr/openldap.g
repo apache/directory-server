@@ -61,6 +61,9 @@ WS  :   (   '#' (~'\n')* '\n' { newline(); }
         {$setType(Token.SKIP);} //ignore this token
     ;
 
+QUOTE              : '\''
+    ;
+
 OPEN_PAREN         : '(' 
     ;
 
@@ -272,7 +275,7 @@ attributeType returns [MutableAttributeType type]
         type = new MutableAttributeType( oid.getText() );
     }
         ( names[type] )?
-        ( "DESC" "'" desc:IDENTIFIER { type.setDescription( desc.getText() ); } "'" )?
+        ( "DESC" QUOTE desc:IDENTIFIER { type.setDescription( desc.getText() ); } QUOTE )?
         ( "OBSOLETE" { type.setObsolete( true ); } )?
         ( superior[type] )?
         ( equality[type] )?
@@ -364,25 +367,25 @@ names [MutableAttributeType type]
     ArrayList list = new ArrayList();
 }
     :
-//    (
-        "NAME" "'" id0:IDENTIFIER "'"
+    (
+        "NAME" QUOTE id0:IDENTIFIER QUOTE
         {
             list.add( id0.getText() );
             registry.register( id0.getText(), type.getOid() );
-//        }
-//        |
-//        ( OPEN_PAREN "'" id1:IDENTIFIER
-//        {
-//            list.add( id1.getText() );
-//            registry.register( id1.getText(), type.getOid() );
-//        } "'"
-//        ( "'" id2:IDENTIFIER "'"
-//        {
-//            list.add( id2.getText() );
-//            registry.register( id2.getText(), type.getOid() );
-//        } )* CLOSE_PAREN )
-//    )
-//    {
+        }
+        |
+        ( OPEN_PAREN QUOTE id1:IDENTIFIER
+        {
+            list.add( id1.getText() );
+            registry.register( id1.getText(), type.getOid() );
+        } QUOTE
+        ( QUOTE id2:IDENTIFIER QUOTE
+        {
+            list.add( id2.getText() );
+            registry.register( id2.getText(), type.getOid() );
+        } )* CLOSE_PAREN )
+    )
+    {
         type.setAllNames( ( String[] ) list.toArray( EMPTY ) );
     }
     ;
