@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../project.xml</extend>
+    <groupId>incubator-directory</groupId>
+    <id>backend-impl</id>
+  
+    <name>Eve Backend Implementation</name>
+    <package>org.apache.eve</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2002</inceptionYear>
+      
+    <shortDescription>Eve Backend Implementation</shortDescription>
+
+    <description>
+      POJO implementations of the various services within the Eve backend
+      subsystem.
+    </description>
+
+    <dependencies>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>ldap-common</artifactId>
+        <version>SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>backend-api</artifactId>
+        <version>SNAPSHOT</version>
+      </dependency>
+
+    </dependencies>
+</project>
+
