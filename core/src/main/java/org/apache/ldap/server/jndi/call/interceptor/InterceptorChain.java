@@ -1,4 +1,4 @@
-package org.apache.ldap.server.jndi.request.interceptor;
+package org.apache.ldap.server.jndi.call.interceptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;

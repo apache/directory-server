@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi.request.interceptor;
+package org.apache.ldap.server.jndi.call.interceptor;
 
 
 import java.util.Properties;
