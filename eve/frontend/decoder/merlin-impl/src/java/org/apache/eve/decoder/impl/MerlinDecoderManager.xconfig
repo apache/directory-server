@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <stage-name>decoder-manager</stage-name>
+  <thread-pool>decoder-manager</thread-pool>
+</configuration>
