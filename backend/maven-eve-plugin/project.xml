@@ -24,7 +24,7 @@
   <id>maven-eve-plugin</id>
   <name>maven-eve-plugin</name>
   <package>org.apache.eve.tools</package>
-  <currentVersion>SNAPSHOT</currentVersion>
+  <currentVersion>1.0</currentVersion>
   <inceptionYear>2004</inceptionYear>
   <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
   <description>
@@ -35,6 +35,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.6.2</version>
       <type>jar</type>
     </dependency>
     <dependency>
