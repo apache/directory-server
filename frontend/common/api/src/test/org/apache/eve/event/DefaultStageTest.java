@@ -14,19 +14,21 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.event;
+package org.apache.eve.event ;
 
-import java.util.ArrayList;
-import java.util.EventObject;
 
-import org.apache.eve.seda.DefaultStage;
-import org.apache.eve.seda.DefaultStageConfig;
-import org.apache.eve.seda.EnqueuePredicate;
-import org.apache.eve.seda.StageHandler;
-import org.apache.eve.seda.LoggingStageMonitor;
-import org.apache.eve.thread.ThreadPool;
+import java.util.ArrayList ;
+import java.util.EventObject ;
 
-import junit.framework.TestCase;
+import org.apache.eve.seda.DefaultStage ;
+import org.apache.eve.seda.StageHandler ;
+import org.apache.eve.thread.ThreadPool ;
+import org.apache.eve.seda.EnqueuePredicate ;
+import org.apache.eve.seda.DefaultStageConfig ;
+import org.apache.eve.seda.LoggingStageMonitor ;
+
+import junit.framework.TestCase ;
+
 
 /**
  * Tests the DefaultStage class.
