@@ -56,6 +56,10 @@ public class ServerContextFactory extends CoreContextFactory
     
     private static final ServiceRegistry DEFAULT_MINA_REGISTRY;
     
+    private static Service minaService;
+
+    private static ServiceRegistry minaRegistry;
+
     static
     {
         ServiceRegistry tmp = null;
@@ -75,8 +79,6 @@ public class ServerContextFactory extends CoreContextFactory
     // Members
     // ------------------------------------------------------------------------
 
-    private Service minaService;
-    private ServiceRegistry minaRegistry;
 
     /**
      * Default constructor that sets the provider of this ServerContextFactory.
