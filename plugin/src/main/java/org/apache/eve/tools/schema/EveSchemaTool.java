@@ -47,7 +47,8 @@ public class EveSchemaTool
 
     /** default dir where OpenLDAP schema files and deps file are kept */
     public static final String SCHEMA_SRC_DIR_DEFAULT =
-            basedir + File.separator + "src" + File.separator + "schema";
+            basedir + File.separator + "src" + File.separator + "main" 
+		+ File.separator + "schema";
     /** property for the name of the schema dependency file */
     public static final String SCHEMA_DEP_FILE_DEFAULT = "schema.deps";
     /** default dir where the generated class files are created */
