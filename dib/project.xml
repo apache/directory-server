@@ -59,7 +59,7 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>aspectj</groupId>
@@ -69,39 +69,39 @@
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-shared</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>eve-protocol</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>snickers-codec</artifactId>
-      <version>0.2.0</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>ldap-snickers-provider</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>snickers-ber</artifactId>
-      <version>0.2.0</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>seda</artifactId>
-      <version>0.2.0</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
 
     <!-- The Eve Maven Plugin -->
     <dependency>
       <groupId>incubator-directory</groupId>
       <artifactId>maven-eve-plugin</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.0-SNAPSHOT</version>
       <type>plugin</type>
     </dependency>
   </dependencies>
