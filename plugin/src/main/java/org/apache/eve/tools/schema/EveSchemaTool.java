@@ -49,7 +49,11 @@ public class EveSchemaTool
     public static final String SCHEMA_SRC_DIR_DEFAULT =
             basedir + File.separator + "src" + File.separator + "main" 
 		+ File.separator + "schema";
-    /** property for the name of the schema dependency file */
+    /** default dir where java src files are kept */
+    public static final String JAVA_SRC_DIR_DEFAULT =
+            basedir + File.separator + "src" + File.separator + "main" 
+		+ File.separator + "java";
+   /** property for the name of the schema dependency file */
     public static final String SCHEMA_DEP_FILE_DEFAULT = "schema.deps";
     /** default dir where the generated class files are created */
     public static final String SCHEMA_TARGET_DIR_DEFAULT =
@@ -60,6 +64,7 @@ public class EveSchemaTool
     private String schemaSrcDir = SCHEMA_SRC_DIR_DEFAULT;
     /** the directory where we generate schema class files */
     private String schemaTargetDir = SCHEMA_TARGET_DIR_DEFAULT;
+    private String javaSrcDir = JAVA_SRC_DIR_DEFAULT;
 
 
     private BootstrapSchema schema;
@@ -95,6 +100,18 @@ public class EveSchemaTool
     public void setSchemaTargetDir( String schemaTargetDir )
     {
         this.schemaTargetDir = schemaTargetDir;
+    }
+
+
+    public String getJavaSrcDir()
+    {
+        return javaSrcDir;
+    }
+
+
+    public void setJavaSrcDir( String javaSrcDir )
+    { 
+        this.javaSrcDir = javaSrcDir;
     }
 
 
@@ -331,18 +348,13 @@ public class EveSchemaTool
     protected boolean exists( ProducerTypeEnum type )
     {
         String defaultClass = schema.getFullDefaultBaseClassName( type );
-        String targetClass = schema.getFullDefaultBaseClassName( type );
 
         // check to see if any of the classes are available in the java 
         // source directory, if so we return true
-        File defaultFile = new File( basedir + File.separator +
-                "src" + File.separator + "java"
+        File defaultFile = new File( getJavaSrcDir()
                 + File.separator + getFilePath( defaultClass ) );
-        File targetFile = new File( basedir + File.separator +
-                "src" + File.separator + "java"
-                + File.separator + getFilePath( targetClass ) );
-
-        return defaultFile.exists() || targetFile.exists();
+        
+        return defaultFile.exists();
     }
 
 

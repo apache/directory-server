@@ -29,11 +29,18 @@ import org.apache.eve.schema.bootstrap.AbstractBootstrapSchema;
  */
 public class EveSchemaToolTask extends org.apache.tools.ant.Task
 {
+    private String javaSrc;
     private String pkg;
     private String name;
     private String owner;
     private String[] dependencies;
     private BuildException lastFault;
+
+  
+    public void setJavaSrc( String javaSrc )
+    {
+        this.javaSrc = javaSrc;
+    }
 
 
     public void setPackage( String pkg )
@@ -83,6 +90,11 @@ public class EveSchemaToolTask extends org.apache.tools.ant.Task
         AbstractBootstrapSchema schema =
                 new AbstractBootstrapSchema( owner, name, pkg, dependencies ){};
         tool.setSchema( schema );
+
+        if ( javaSrc != null )
+        {
+            tool.setJavaSrcDir( javaSrc ); 
+        }
 
         try
         {

@@ -18,8 +18,8 @@
  -->
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>maven-directory-server-plugin</artifactId>
-  <name>Server plugin for Maven</name>
+  <artifactId>maven-directory-plugin</artifactId>
+  <name>Directory plugin for Maven</name>
   <package>org.apache.ldap.server.tools</package>
   <inceptionYear>2004</inceptionYear>
   <shortDescription>A collection of server tools as a maven plugin</shortDescription>
