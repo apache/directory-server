@@ -56,7 +56,6 @@ import java.net.InetAddress ;
 import java.net.UnknownHostException ;
 
 import java.util.ArrayList ;
-import java.util.EventObject ;
 
 import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.activity.Startable ;
@@ -72,7 +71,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException ;
 import org.apache.commons.lang.StringUtils ;
 
 import org.apache.eve.event.EventRouter ;
-import org.apache.eve.event.DisconnectEvent ;
 
 
 /**
@@ -129,27 +127,6 @@ public class MerlinListenerManager extends AbstractLogEnabled
     }
     
 
-    /*
-     *  (non-Javadoc)
-     * @see org.apache.eve.event.DisconnectSubscriber#inform(
-     * org.apache.eve.event.DisconnectEvent)
-     */
-    public void inform( DisconnectEvent an_event )
-    {
-        m_manager.inform( an_event ) ;
-    }
-    
-    
-    /*
-     *  (non-Javadoc)
-     * @see org.apache.eve.event.Subscriber#inform(java.util.EventObject)
-     */
-    public void inform( EventObject an_event )
-    {
-        m_manager.inform( an_event ) ;
-    }
-    
-    
     // ------------------------------------------------------------------------
     // Life Cycle Methods
     // ------------------------------------------------------------------------

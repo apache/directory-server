@@ -52,8 +52,6 @@ package org.apache.eve.listener ;
 
 import java.io.IOException ;
 
-import org.apache.eve.event.DisconnectSubscriber ;
-
 
 /**
  * Manages a set of server listeners.
@@ -62,7 +60,7 @@ import org.apache.eve.event.DisconnectSubscriber ;
  * @author $Author$
  * @version $Rev$
  */
-public interface ListenerManager extends DisconnectSubscriber
+public interface ListenerManager
 {
     /**
      * Binds and registers a server listener.
