@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import org.apache.seda.protocol.ManyReplyHandler;
 import org.apache.seda.protocol.HandlerTypeEnum;
+import org.apache.seda.listener.ClientKey;
 
 import org.apache.ldap.common.NotImplementedException;
 
@@ -34,9 +35,9 @@ import org.apache.ldap.common.NotImplementedException;
 public class SearchHandler implements ManyReplyHandler
 {
     /**
-     * @see ManyReplyHandler#handle(Object)
+     * @see ManyReplyHandler#handle(ClientKey,Object)
      */
-    public Iterator handle( Object request )
+    public Iterator handle( ClientKey key, Object request )
     {
         throw new NotImplementedException();
     }

@@ -26,6 +26,7 @@ import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.seda.protocol.*;
+import org.apache.seda.listener.ClientKey;
 
 
 /**
@@ -187,7 +188,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusAbandonHandler extends AbstractNoReplyHandler
     {
-        public void handle( Object request )
+        public void handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -196,7 +197,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusUnbindHandler extends AbstractNoReplyHandler
     {
-        public void handle( Object request )
+        public void handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -205,7 +206,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusAddHandler extends AbstractSingleReplyHandler
     {
-        public Object handle( Object request )
+        public Object handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -214,7 +215,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusBindHandler extends AbstractSingleReplyHandler
     {
-        public Object handle( Object request )
+        public Object handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -223,7 +224,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusCompareHandler extends AbstractSingleReplyHandler
     {
-        public Object handle( Object request )
+        public Object handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -232,7 +233,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusDeleteHandler extends AbstractSingleReplyHandler
     {
-        public Object handle( Object request )
+        public Object handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -241,7 +242,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusExtendedHandler extends AbstractSingleReplyHandler
     {
-        public Object handle( Object request )
+        public Object handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -250,7 +251,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusModifyDnHandler extends AbstractSingleReplyHandler
     {
-        public Object handle( Object request )
+        public Object handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -259,7 +260,7 @@ public class LdapProtocolProviderTest extends TestCase
 
     public static class BogusModifyHandler extends AbstractSingleReplyHandler
     {
-        public Object handle( Object request )
+        public Object handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
@@ -273,7 +274,7 @@ public class LdapProtocolProviderTest extends TestCase
             super( true );
         }
 
-        public Iterator handle( Object request )
+        public Iterator handle( ClientKey key, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }

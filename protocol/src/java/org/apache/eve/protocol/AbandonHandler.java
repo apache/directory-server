@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.apache.seda.protocol.NoReplyHandler;
 import org.apache.seda.protocol.HandlerTypeEnum;
+import org.apache.seda.listener.ClientKey;
 
 import org.apache.ldap.common.NotImplementedException;
 
@@ -33,7 +34,7 @@ import org.apache.ldap.common.NotImplementedException;
  */
 public class AbandonHandler implements NoReplyHandler
 {
-    public void handle( Object request )
+    public void handle( ClientKey key, Object request )
     {
         throw new NotImplementedException( "handle in org.apache.eve.protocol.AbandonHandler not implemented!" );
     }

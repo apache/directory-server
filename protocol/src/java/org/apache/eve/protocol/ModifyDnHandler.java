@@ -19,6 +19,7 @@ package org.apache.eve.protocol;
 
 import org.apache.seda.protocol.HandlerTypeEnum;
 import org.apache.seda.protocol.SingleReplyHandler;
+import org.apache.seda.listener.ClientKey;
 
 import org.apache.ldap.common.NotImplementedException;
 
@@ -32,9 +33,9 @@ import org.apache.ldap.common.NotImplementedException;
 public class ModifyDnHandler implements SingleReplyHandler
 {
     /**
-     * @see org.apache.seda.protocol.SingleReplyHandler#handle(Object)
+     * @see org.apache.seda.protocol.SingleReplyHandler#handle(ClientKey,Object)
      */
-    public Object handle( Object request )
+    public Object handle( ClientKey key, Object request )
     {
         throw new NotImplementedException( "handle in org.apache.eve.protocol.ModifyDnHandler not implemented!" );
     }

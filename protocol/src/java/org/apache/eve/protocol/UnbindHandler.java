@@ -19,6 +19,7 @@ package org.apache.eve.protocol;
 
 import org.apache.seda.protocol.NoReplyHandler;
 import org.apache.seda.protocol.HandlerTypeEnum;
+import org.apache.seda.listener.ClientKey;
 import org.apache.ldap.common.NotImplementedException;
 
 
@@ -32,9 +33,9 @@ import org.apache.ldap.common.NotImplementedException;
 public class UnbindHandler implements NoReplyHandler
 {
     /**
-     * @see NoReplyHandler#handle(Object)
+     * @see NoReplyHandler#handle(ClientKey,Object)
      */
-    public void handle( Object request )
+    public void handle( ClientKey key, Object request )
     {
         throw new NotImplementedException( "handle in org.apache.eve.protocol.UnbindHandler not implemented!" );
     }
