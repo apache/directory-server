@@ -50,6 +50,15 @@
 
         <dependency>
             <groupId>directory</groupId>
+            <artifactId>snickers-ber-api</artifactId>
+            <version>SNAPSHOT</version>
+            <url>
+              http://incubator.apache.org/directory/subprojects/snickers/ber/api
+            </url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
             <artifactId>eve-frontend-event-pojo-impl</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org</url>
