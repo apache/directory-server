@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.auth;
+package org.apache.ldap.server.authn;
 
 
 import javax.naming.Context;
@@ -27,6 +27,8 @@ import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.authn.AbstractAuthenticator;
+import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
 
 
@@ -51,7 +53,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * Uses the userPassword field of the user to authenticate.
      *
-     * @see Authenticator#authenticate(org.apache.ldap.server.jndi.ServerContext)
+     * @see org.apache.ldap.server.authn.Authenticator#authenticate(org.apache.ldap.server.jndi.ServerContext)
      */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {

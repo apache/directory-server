@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.auth;
+package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.PartitionNexus;

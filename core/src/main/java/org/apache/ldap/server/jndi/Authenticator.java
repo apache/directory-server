@@ -32,18 +32,16 @@ import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.auth.AbstractAuthenticator;
-import org.apache.ldap.server.auth.AnonymousAuthenticator;
-import org.apache.ldap.server.auth.GenericAuthenticatorConfig;
-import org.apache.ldap.server.auth.GenericAuthenticatorContext;
-import org.apache.ldap.server.auth.LdapPrincipal;
-import org.apache.ldap.server.auth.SimpleAuthenticator;
+import org.apache.ldap.server.authn.SimpleAuthenticator;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.authn.AbstractAuthenticator;
+import org.apache.ldap.server.authn.GenericAuthenticatorConfig;
+import org.apache.ldap.server.authn.*;
 
 /**
  * An {@link Interceptor} that authenticates users.
@@ -92,7 +90,7 @@ public class Authenticator implements Interceptor
             authenticatorConfig.setAuthenticatorName( "none" );
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
-            org.apache.ldap.server.auth.Authenticator authenticator = new AnonymousAuthenticator();
+            org.apache.ldap.server.authn.Authenticator authenticator = new AnonymousAuthenticator();
             authenticator.init( authenticatorConfig );
             this.register( authenticator );
 
@@ -150,7 +148,7 @@ public class Authenticator implements Interceptor
      * @param authenticator Authenticator component to register with this
      * AuthenticatorService.
      */
-    public void register( org.apache.ldap.server.auth.Authenticator authenticator )
+    public void register( org.apache.ldap.server.authn.Authenticator authenticator )
     {
         Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
         if ( authenticatorList == null )
@@ -170,7 +168,7 @@ public class Authenticator implements Interceptor
      * @param authenticator Authenticator component to unregister with this
      * AuthenticatorService.
      */
-    public void unregister( org.apache.ldap.server.auth.Authenticator authenticator )
+    public void unregister( org.apache.ldap.server.authn.Authenticator authenticator )
     {
         Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
         if ( authenticatorList == null )
@@ -248,8 +246,8 @@ public class Authenticator implements Interceptor
         {
             try
             {
-                org.apache.ldap.server.auth.Authenticator authenticator =
-                        ( org.apache.ldap.server.auth.Authenticator ) i.next();
+                org.apache.ldap.server.authn.Authenticator authenticator =
+                        ( org.apache.ldap.server.authn.Authenticator ) i.next();
 
                 // perform the authentication
                 LdapPrincipal authorizationId = authenticator.authenticate( ctx );

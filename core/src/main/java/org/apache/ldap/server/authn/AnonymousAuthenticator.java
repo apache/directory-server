@@ -14,9 +14,10 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.auth;
+package org.apache.ldap.server.authn;
 
 import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.server.authn.AbstractAuthenticator;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 import javax.naming.NamingException;

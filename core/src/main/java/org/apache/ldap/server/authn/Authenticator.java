@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.auth;
+package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.jndi.ServerContext;
@@ -28,9 +28,9 @@ import javax.naming.NamingException;
  * <p>An Authenticator is a program that performs client authentication based on the authentication
  * method/type that the client specifies in the JNDI properties.
  *
- * <p>To implement this interface, you can write an authenticator that extends org.apache.ldap.server.auth.AbstractAuthenticator.
+ * <p>To implement this interface, you can write an authenticator that extends org.apache.ldap.server.authn.AbstractAuthenticator.
  *
- * @see AbstractAuthenticator
+ * @see org.apache.ldap.server.authn.AbstractAuthenticator
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

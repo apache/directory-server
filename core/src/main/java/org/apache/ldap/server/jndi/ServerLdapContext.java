@@ -27,7 +27,8 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.authn.LdapPrincipal;
 
 
 /**
