@@ -34,16 +34,23 @@ import javax.naming.NamingException;
  */
 public class BootstrapSchemaLoader
 {
-    public final void populate( BootstrapSchema schema, BootstrapRegistries registries )
+    public final void load( BootstrapSchema schema, BootstrapRegistries registries )
         throws NamingException
     {
-        populate( schema, registries.getNormalizerRegistry() );
-        populate( schema, registries.getComparatorRegistry() );
-        populate( schema, registries.getSyntaxCheckerRegistry() );
-        populate( schema, registries.getSyntaxRegistry(), registries.getSyntaxCheckerRegistry() );
-        populate( schema, registries.getMatchingRuleRegistry(),
-            registries.getSyntaxRegistry(), registries.getNormalizerRegistry(),
+        // Note that the first registry argument is the one being loaded
+        load( schema, registries.getNormalizerRegistry() );
+        load( schema, registries.getComparatorRegistry() );
+        load( schema, registries.getSyntaxCheckerRegistry() );
+        load( schema, registries.getSyntaxRegistry(), registries.getSyntaxCheckerRegistry() );
+        load( schema,
+            registries.getMatchingRuleRegistry(),
+            registries.getSyntaxRegistry(),
+            registries.getNormalizerRegistry(),
             registries.getComparatorRegistry() );
+        load( schema,
+            registries.getAttributeTypeRegistry(),
+            registries.getSyntaxRegistry(),
+            registries.getMatchingRuleRegistry() );
     }
 
 
@@ -52,11 +59,31 @@ public class BootstrapSchemaLoader
     // ------------------------------------------------------------------------
 
 
-    private void populate( BootstrapSchema schema, 
-                           MatchingRuleRegistry matchingRuleRegistry,
-                           SyntaxRegistry syntaxRegistry,
-                           NormalizerRegistry normalizerRegistry,
-                           ComparatorRegistry comparatorRegistry )
+    private void load( BootstrapSchema schema,
+                       AttributeTypeRegistry attributeTypeRegistry,
+                       SyntaxRegistry syntaxRegistry,
+                       MatchingRuleRegistry matchingRuleRegistry )
+        throws NamingException
+    {
+        AttributeTypeFactory factory;
+        factory = ( AttributeTypeFactory ) getFactory( schema, "AttributeTypeFactory" );
+
+        Map attributeTypes = factory.getAttributeTypes( syntaxRegistry,
+            matchingRuleRegistry, attributeTypeRegistry );
+        Iterator list = attributeTypes.values().iterator();
+        while ( list.hasNext() )
+        {
+            AttributeType attributeType = ( AttributeType ) list.next();
+            attributeTypeRegistry.register( schema.getSchemaName(), attributeType );
+        }
+    }
+
+
+    private void load( BootstrapSchema schema,
+                       MatchingRuleRegistry matchingRuleRegistry,
+                       SyntaxRegistry syntaxRegistry,
+                       NormalizerRegistry normalizerRegistry,
+                       ComparatorRegistry comparatorRegistry )
         throws NamingException
     {
         MatchingRuleFactory factory;
@@ -73,7 +100,7 @@ public class BootstrapSchemaLoader
     }
 
 
-    private void populate( BootstrapSchema schema,
+    private void load( BootstrapSchema schema,
                            SyntaxRegistry syntaxRegistry,
                            SyntaxCheckerRegistry syntaxCheckerRegistry )
         throws NamingException
@@ -91,7 +118,7 @@ public class BootstrapSchemaLoader
     }
 
 
-    private void populate( BootstrapSchema schema, SyntaxCheckerRegistry registry )
+    private void load( BootstrapSchema schema, SyntaxCheckerRegistry registry )
         throws NamingException
     {
         SyntaxCheckerFactory factory;
@@ -113,10 +140,10 @@ public class BootstrapSchemaLoader
      * then tries for the default if the target load fails.
      *
      * @param schema the bootstrap schema
-     * @param registry the registry to populate
+     * @param registry the registry to load Normalizers into
      * @throws NamingException if there are failures loading classes
      */
-    private void populate( BootstrapSchema schema, NormalizerRegistry registry )
+    private void load( BootstrapSchema schema, NormalizerRegistry registry )
         throws NamingException
     {
         NormalizerFactory factory;
@@ -138,10 +165,10 @@ public class BootstrapSchemaLoader
      * then tries for the default if the target load fails.
      *
      * @param schema the bootstrap schema
-     * @param registry the registry to populate
+     * @param registry the registry to registry to load Normalizers into
      * @throws NamingException if there are failures loading classes
      */
-    private void populate( BootstrapSchema schema, ComparatorRegistry registry )
+    private void load( BootstrapSchema schema, ComparatorRegistry registry )
         throws NamingException
     {
         ComparatorFactory factory;
