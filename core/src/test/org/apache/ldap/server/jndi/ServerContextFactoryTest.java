@@ -37,33 +37,78 @@ public class ServerContextFactoryTest extends AbstractServerTest
     public ServerContextFactoryTest()
     {
         BasicAttributes attrs = new BasicAttributes( true );
+
         BasicAttribute attr = new BasicAttribute( "objectClass" );
+
         attr.add( "top" );
+
         attr.add( "organizationalUnit" );
+
         attr.add( "extensibleObject" );
-        attrs.put( attr );
-        attr = new BasicAttribute( "ou" );
-        attr.add( "testing" );
+
         attrs.put( attr );
 
-        extras.put( EnvKeys.PARTITIONS, "testing example" );
+        attr = new BasicAttribute( "ou" );
+
+        attr.add( "testing" );
+
+        attrs.put( attr );
+
+        extras.put( EnvKeys.PARTITIONS, "testing example MixedCase" );
+
         extras.put( EnvKeys.SUFFIX + "testing", "ou=testing" );
+
         extras.put( EnvKeys.INDICES + "testing", "ou objectClass" );
+
         extras.put( EnvKeys.ATTRIBUTES + "testing", attrs );
 
         attrs = new BasicAttributes( true );
+
         attr = new BasicAttribute( "objectClass" );
+
         attr.add( "top" );
+
         attr.add( "domain" );
+
         attr.add( "extensibleObject" );
+
         attrs.put( attr );
+
         attr = new BasicAttribute( "dc" );
+
         attr.add( "example" );
+
         attrs.put( attr );
 
         extras.put( EnvKeys.SUFFIX + "example", "dc=example" );
+
         extras.put( EnvKeys.INDICES + "example", "ou dc objectClass" );
+
         extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
+
+        attrs = new BasicAttributes( true );
+
+        attr = new BasicAttribute( "objectClass" );
+
+        attr.add( "top" );
+
+        attr.add( "domain" );
+
+        attr.add( "extensibleObject" );
+
+        attrs.put( attr );
+
+        attr = new BasicAttribute( "dc" );
+
+        attr.add( "MixedCase" );
+
+        attrs.put( attr );
+
+        extras.put( EnvKeys.SUFFIX + "MixedCase", "dc=MixedCase" );
+
+        extras.put( EnvKeys.INDICES + "MixedCase", "dc objectClass" );
+
+        extras.put( EnvKeys.ATTRIBUTES + "MixedCase", attrs );
     }
 
 
@@ -77,11 +122,17 @@ public class ServerContextFactoryTest extends AbstractServerTest
         assertNotNull( sysRoot );
 
         Attributes attributes = sysRoot.getAttributes( "" );
+
         assertNotNull( attributes );
+
         assertEquals( "system", attributes.get( "ou" ).get() );
+
         Attribute attribute = attributes.get( "objectClass" );
+
         assertNotNull( attribute );
+
         assertTrue( attribute.contains( "top" ) );
+
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
@@ -96,11 +147,17 @@ public class ServerContextFactoryTest extends AbstractServerTest
         assertNotNull( sysRoot );
 
         Attributes attributes = sysRoot.getAttributes( "" );
+
         assertNotNull( attributes );
+
         assertEquals( "system", attributes.get( "ou" ).get() );
+
         Attribute attribute = attributes.get( "objectClass" );
+
         assertNotNull( attribute );
+
         assertTrue( attribute.contains( "top" ) );
+
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
@@ -108,20 +165,33 @@ public class ServerContextFactoryTest extends AbstractServerTest
     public void testAppPartitionExample() throws NamingException
     {
         Hashtable env = new Hashtable();
+
         env.put( Context.PROVIDER_URL, "dc=example" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+
         InitialContext initialContext = new InitialContext( env );
+
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
+
         assertNotNull( appRoot );
 
         Attributes attributes = appRoot.getAttributes( "" );
+
         assertNotNull( attributes );
+
         assertEquals( "example", attributes.get( "dc" ).get() );
+
         Attribute attribute = attributes.get( "objectClass" );
+
         assertNotNull( attribute );
+
         assertTrue( attribute.contains( "top" ) );
+
         assertTrue( attribute.contains( "domain" ) );
     }
 
@@ -129,20 +199,67 @@ public class ServerContextFactoryTest extends AbstractServerTest
     public void testAppPartitionTesting() throws NamingException
     {
         Hashtable env = new Hashtable();
+
         env.put( Context.PROVIDER_URL, "ou=testing" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+
         InitialContext initialContext = new InitialContext( env );
+
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
+
         assertNotNull( appRoot );
 
         Attributes attributes = appRoot.getAttributes( "" );
+
         assertNotNull( attributes );
+
         assertEquals( "testing", attributes.get( "ou" ).get() );
+
         Attribute attribute = attributes.get( "objectClass" );
+
         assertNotNull( attribute );
+
         assertTrue( attribute.contains( "top" ) );
+
         assertTrue( attribute.contains( "organizationalUnit" ) );
+    }
+
+
+    public void testAppPartitionMixedCase() throws NamingException
+    {
+        Hashtable env = new Hashtable();
+
+        env.put( Context.PROVIDER_URL, "dc=MixedCase" );
+
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+
+        InitialContext initialContext = new InitialContext( env );
+
+        DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
+
+        assertNotNull( appRoot );
+
+        Attributes attributes = appRoot.getAttributes( "" );
+
+        assertNotNull( attributes );
+
+        assertEquals( "MixedCase", attributes.get( "dc" ).get() );
+
+        Attribute attribute = attributes.get( "objectClass" );
+
+        assertNotNull( attribute );
+
+        assertTrue( attribute.contains( "top" ) );
+
+        assertTrue( attribute.contains( "domain" ) );
     }
 }
