@@ -15,18 +15,7 @@
   
   <postGoal name="site">
     <attainGoal name="server:copy-images"/>
-    <attainGoal name="subproject:collectdocs"/>
   </postGoal>
-
-  <goal name="subproject:collectdocs">
-    <ant:copy 
-      toDir="../../sitedocs/trunk/target/docs/subprojects/eve">
-      
-      <ant:fileSet dir="${basedir}/target/docs">
-        <ant:include name="**"/>
-      </ant:fileSet>
-    </ant:copy>
-  </goal>
 
   <goal name="server:copy-images">
     <copy toDir="target/docs/images">
@@ -48,7 +37,8 @@
       includes="**/project.xml" excludes="./project.xml" goals="jar:deploy" 
       banner="Deploying" ignoreFailures="false"/>
   </goal>
-  
+
+  <!-- Is this useful anymore? (Vincent) -->
   <goal name="sitedocs" description="Builds the entire site documentation">
     <maven:reactor basedir="${basedir}" postProcessing="true" 
       includes="**/project.xml" excludes="./project.xml" goals="site" 

@@ -2,7 +2,7 @@
 
 <project>
     <groupId>incubator-directory</groupId>
-    <id>eve-directory-server</id>
+    <id>eve</id>
     <name>Eve Directory Server</name>
     <version>SNAPSHOT</version>
     
