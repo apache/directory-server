@@ -17,13 +17,56 @@
 package org.apache.eve.db;
 
 
+import java.util.ArrayList;
+
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
+
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.BranchNode;
+
+
 /**
- * Creates Enumerations over a set of entry candidates based on a disjunction
- * (and'ed set) of assertion expressions.
+ * Creates a naming enumeration over the set of candidates accepted by a set
+ * of filter expressions joined together using the OR ('|') operator. 
  * 
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface DisjunctionEnumerator extends Enumerator
+public class DisjunctionEnumerator implements Enumerator
 {
+    /** Top level expression enumerator - non Avalon dependency avaoids cycle */
+    private Enumerator enumerator;
+
+
+    /**
+     * Creates a disjunction enumerator using a top level enumerator.
+     *
+     * @param enumerator the top level enumerator
+     */
+    public DisjunctionEnumerator( Enumerator enumerator )
+    {
+        this.enumerator = enumerator;
+    }
+
+
+    /**
+     * @see Enumerator#enumerate(ExprNode)
+     */
+    public NamingEnumeration enumerate( ExprNode node )
+        throws NamingException
+    {
+        ArrayList children = ( ( BranchNode ) node ).getChildren();
+        NamingEnumeration [] childEnumerations = 
+            new NamingEnumeration [children.size()];
+
+        // Recursively create NamingEnumerations for each child expression node
+        for ( int ii = 0; ii < childEnumerations.length; ii++ ) 
+        {
+            childEnumerations[ii] =
+                enumerator.enumerate( ( ExprNode ) children.get( ii ) );
+        }
+
+        return new DisjunctionEnumeration( childEnumerations );
+    }
 }

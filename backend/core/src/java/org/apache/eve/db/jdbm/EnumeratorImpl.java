@@ -46,7 +46,7 @@ public class EnumeratorImpl implements Enumerator
         scopeEnumerator = new ScopeEnumeratorImpl();
         substringEnumerator = new SubstringEnumeratorImpl();
         conjunctionEnumerator = new ConjunctionEnumerator( this, topEvaluator );
-        disjunctionEnumerator = new DisjunctionEnumeratorImpl( this );
+        disjunctionEnumerator = new DisjunctionEnumerator( this );
         negationEnumerator = new NegationEnumeratorImpl();
     }
 
