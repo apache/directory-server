@@ -19,6 +19,7 @@ package org.apache.eve.input ;
 
 import java.io.IOException ;
 import java.nio.ByteBuffer ;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector ;
 import java.nio.channels.SocketChannel ;
 
@@ -45,13 +46,13 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#bufferUnavailable(
      * org.apache.eve.buffer.BufferPool, org.apache.eve.ResourceException)
      */
-    public void bufferUnavailable( BufferPool a_bp, ResourceException a_fault )
+    public void bufferUnavailable( BufferPool bp, ResourceException fault )
     {
         if ( getLogger().isErrorEnabled() )
         {    
             getLogger().error( 
                     "Failed to acquire buffer resource from buffer pool "
-                    + a_bp, a_fault ) ;
+                    + bp, fault ) ;
         }
     }
 
@@ -60,13 +61,13 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#channelCloseFailure(
      * java.nio.channels.SocketChannel, java.io.IOException)
      */
-    public void channelCloseFailure( SocketChannel a_channel, 
-                                     IOException a_fault )
+    public void channelCloseFailure( SocketChannel channel, 
+                                     IOException fault )
     {
         if ( getLogger().isErrorEnabled() )
         {    
             getLogger().error( "Could not properly close socket channel " 
-                    + a_channel, a_fault ) ;
+                    + channel, fault ) ;
         }
     }
 
@@ -76,16 +77,16 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * java.nio.channels.Selector, java.nio.channels.SocketChannel, int, 
      * java.io.IOException)
      */
-    public void channelRegistrationFailure( Selector a_selector,
-											SocketChannel a_channel,
-											int a_key,
-											IOException a_fault )
+    public void channelRegistrationFailure( Selector selector,
+											SocketChannel channel,
+											int key,
+											IOException fault )
     {
         if ( getLogger().isErrorEnabled() )
         {    
-            getLogger().error( "Could not register socket channel " + a_channel 
-                    + " for selector " + a_selector 
-                    + " using selection key mode " + a_key, a_fault ) ;
+            getLogger().error( "Could not register socket channel " + channel 
+                    + " for selector " + selector 
+                    + " using selection key mode " + key, fault ) ;
         }
     }
     
@@ -94,11 +95,11 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#disconnectedClient(
      * org.apache.eve.listener.ClientKey)
      */
-    public void disconnectedClient( ClientKey a_key )
+    public void disconnectedClient( ClientKey key )
     {
         if ( getLogger().isInfoEnabled() )
         {    
-            getLogger().info( "Disconnected client with key: " + a_key ) ;
+            getLogger().info( "Disconnected client with key: " + key ) ;
         }
     }
 
@@ -107,12 +108,12 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#enteringSelect(
      * java.nio.channels.Selector)
      */
-    public void enteringSelect( Selector a_selector )
+    public void enteringSelect( Selector selector )
     {
         if ( getLogger().isDebugEnabled() )
         {    
             getLogger().debug( "About to enter select() on selector " 
-                    + a_selector ) ;
+                    + selector ) ;
         }
     }
 
@@ -121,11 +122,11 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#inputRecieved(
      * org.apache.eve.listener.ClientKey)
      */
-    public void inputRecieved( ClientKey a_key )
+    public void inputRecieved( ClientKey key )
     {
         if ( getLogger().isDebugEnabled() )
         {
-            getLogger().debug( "Got some input from " + a_key ) ;
+            getLogger().debug( "Got some input from " + key ) ;
         }
     }
 
@@ -135,12 +136,12 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * org.apache.eve.listener.ClientKey, 
      * org.apache.eve.listener.KeyExpiryException)
      */
-    public void keyExpiryFailure( ClientKey a_key, KeyExpiryException a_fault )
+    public void keyExpiryFailure( ClientKey key, KeyExpiryException fault )
     {
         if ( getLogger().isInfoEnabled() )
         {
-            getLogger().info( "While working with client key " + a_key 
-                    + " it was prematurely expired!", a_fault ) ;
+            getLogger().info( "While working with client key " + key 
+                    + " it was prematurely expired!", fault ) ;
         }
     }
 
@@ -149,12 +150,12 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#readFailed(
      * org.apache.eve.listener.ClientKey, java.io.IOException)
      */
-    public void readFailed( ClientKey a_key, IOException a_fault )
+    public void readFailed( ClientKey key, IOException fault )
     {
         if ( getLogger().isErrorEnabled() )
         {
             getLogger().error( "Encountered failure while reading from " 
-                    + a_key, a_fault ) ;
+                    + key, fault ) ;
         }
     }
 
@@ -163,12 +164,12 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#registeredChannel(
      * org.apache.eve.listener.ClientKey, java.nio.channels.Selector)
      */
-    public void registeredChannel( ClientKey a_key, Selector a_selector )
+    public void registeredChannel( ClientKey key, Selector selector )
     {
         if ( getLogger().isDebugEnabled() )
         {
-            getLogger().debug( "Succeeded in registering " + a_key 
-                    + " with selector " + a_selector ) ;
+            getLogger().debug( "Succeeded in registering " + key 
+                    + " with selector " + selector ) ;
         }
     }
 
@@ -177,12 +178,12 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#selectFailure(
      * java.nio.channels.Selector, java.io.IOException)
      */
-    public void selectFailure( Selector a_selector, IOException a_fault )
+    public void selectFailure( Selector selector, IOException fault )
     {
         if ( getLogger().isErrorEnabled() )
         {
-            getLogger().error( "Failed on select() of selector " + a_selector, 
-                    a_fault ) ;
+            getLogger().error( "Failed on select() of selector " + selector, 
+                    fault ) ;
         }
     }
 
@@ -191,11 +192,11 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#selectorReturned(
      * java.nio.channels.Selector)
      */
-    public void selectorReturned( Selector a_selector )
+    public void selectorReturned( Selector selector )
     {
         if ( getLogger().isDebugEnabled() )
         {
-            getLogger().debug( "Select on " + a_selector + " returned" ) ;
+            getLogger().debug( "Select on " + selector + " returned" ) ;
         }
     }
 
@@ -204,11 +205,11 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#selectTimedOut(
      * java.nio.channels.Selector)
      */
-    public void selectTimedOut( Selector a_selector )
+    public void selectTimedOut( Selector selector )
     {
         if ( getLogger().isWarnEnabled() )
         {
-            getLogger().warn( "Select on " + a_selector + " timed out" ) ;
+            getLogger().warn( "Select on " + selector + " timed out" ) ;
         }
     }
     
@@ -217,12 +218,26 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
      * @see org.apache.eve.input.InputManagerMonitor#inputRecieved(
      * java.nio.Buffer, org.apache.eve.listener.ClientKey)
      */
-    public void inputRecieved( ByteBuffer a_buffer, ClientKey a_key )
+    public void inputRecieved( ByteBuffer buffer, ClientKey key )
     {
         if ( getLogger().isDebugEnabled() )
         {
-            getLogger().debug( "Recieved input [" +  toHexString( a_buffer ) 
-                    + "] from client " + a_key ) ;
+            getLogger().debug( "Recieved input [" +  toHexString( buffer ) 
+                    + "] from client " + key ) ;
+        }
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.eve.input.InputManagerMonitor#cleanedStaleKey(
+     * java.nio.channels.SelectionKey)
+     */
+    public void cleanedStaleKey( SelectionKey key )
+    {
+        if ( getLogger().isWarnEnabled() )
+        {
+            getLogger().warn( "Cleaning up stale connection key for client: " 
+                    + key.attachment() ) ;
         }
     }
     
@@ -230,10 +245,10 @@ public class AvalonInputManagerMonitor extends AbstractLogEnabled
     /*
      * Generates a hex string for a buffer.
      */
-    public String toHexString( ByteBuffer a_buf )
+    public String toHexString( ByteBuffer buf )
     {
-        byte[] l_bites = new byte[a_buf.remaining()] ;
-        a_buf.get( l_bites ) ;
+        byte[] l_bites = new byte[buf.remaining()] ;
+        buf.get( l_bites ) ;
         return new String ( l_bites ) ;
     }
 }

@@ -47,7 +47,7 @@ import org.apache.eve.listener.KeyExpiryException ;
  * @version $Rev: 1452 $
  */
 public class DefaultInputManager extends AbstractSubscriber
-    implements InputManager, ConnectSubscriber, DisconnectSubscriber
+    implements InputManager, ConnectSubscriber, DisconnectSubscriber, Runnable
 {
     /** the thread driving this Runnable */ 
     private Thread m_thread = null ;
@@ -75,17 +75,17 @@ public class DefaultInputManager extends AbstractSubscriber
     /**
      * Creates a default InputManager implementation
      *  
-     * @param a_router an event router service
-     * @param a_bp a buffer pool service
+     * @param router an event router service
+     * @param bp a buffer pool service
      */
-    public DefaultInputManager( EventRouter a_router, BufferPool a_bp )
+    public DefaultInputManager( EventRouter router, BufferPool bp )
         throws IOException
     {
-        m_bp = a_bp ;
+        m_bp = bp ;
         m_hasStarted = new Boolean( false ) ;
         m_selector = Selector.open() ;
 
-        m_router = a_router ;
+        m_router = router ;
         m_router.subscribe( ConnectEvent.class, null, this ) ;
         m_router.subscribe( DisconnectEvent.class, null, this ) ;
     }
@@ -95,68 +95,73 @@ public class DefaultInputManager extends AbstractSubscriber
     // start, stop and runnable code
     // ------------------------------------------------------------------------
     
-    
+
     /**
-     * Runnable used to drive the selection loop. 
-     *
-     * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
-     * @author $Author: akarasulu $
-     * @version $Revision$
+     * Runnable run method implementation.
      */
-    class SelectionDriver implements Runnable
+    public void run()
     {
-        public void run()
+        /*
+         * Loop here solves a bug where some lingering phantom clients (that are
+         * long gone) have sockets and channels that appear valid and connected.
+         * These sockets and channels are cleaned up here in this loop.  Keep 
+         * in mind they have triggered a wakeup on select() and are appear 
+         * ready for reads yet were not selected w/i the last iteration since 
+         * the selected count was zero.  For more information on this you can 
+         * refer to the Jira Issue:
+         *  
+         *     http://nagoya.apache.org/jira/secure/ViewIssue.jspa?key=DIR-18
+         */
+        while ( m_hasStarted.booleanValue() ) 
         {
-            while ( m_hasStarted.booleanValue() ) 
+            int l_count = 0 ;
+            
+            try
             {
-                int l_count = 0 ;
+                m_monitor.enteringSelect( m_selector ) ;
                 
                 /*
-                 * check if we have input waiting and continue if there is
-                 * nothing to read from any of the registered channels  
+                 * Register newly arrived connections and unregister thosed 
+                 * that were dropped while we were blocked on the select call
                  */
-                try
+                registerNewConnections() ;
+                unregisterDroppedConnections() ;
+                
+                /*
+                 * Clean stale connections that do not have and data: select
+                 * returns indicating that the count of active connections with
+                 * input is 0.  However the list still has these "stale" 
+                 * connections lingering around.  We remove them since they
+                 * are prematurely triggering selection to return w/o input.
+                 */  
+                if ( 0 == ( l_count = m_selector.select() ) )
                 {
-                    m_monitor.enteringSelect( m_selector ) ;
-                    maintainConnections() ;
-                    
-                    if ( 0 == ( l_count = m_selector.select() ) )
+                    Iterator l_list = m_selector.selectedKeys().iterator() ;
+                    while( l_list.hasNext() )
                     {
-                        /*
-                         * Loop here solves a bug where some lingering phantom
-                         * clients (long gone) have sockets and channels that 
-                         * appear valid and connected.  These sockets and 
-                         * channels are cleaned up here in this loop.  Keep in
-                         * mind they have triggered a wakeup on select() and 
-                         * are appear ready for reads yet were not selected w/i
-                         * the last iteration since the selected count was zero.
-                         * 
-                         * For more information on this you can refer to the 
-                         * Jira Issue: 
-                 http://nagoya.apache.org/jira/secure/ViewIssue.jspa?key=DIR-18
-                         */
-                        Iterator l_list = m_selector.selectedKeys().iterator() ;
-                        while( l_list.hasNext() )
-                        {
-                            SelectionKey l_key = ( SelectionKey ) 
-                                l_list.next() ;
-                            l_key.channel().close() ;
-                            l_key.cancel() ;
-                            l_list.remove() ;
-                        }
+                        SelectionKey l_key = ( SelectionKey ) l_list.next() ;
+                        l_key.channel().close() ;
+                        l_key.cancel() ;
+                        l_list.remove() ;
                         
-                        m_monitor.selectTimedOut( m_selector ) ;
-                        continue ;
+                        m_monitor.cleanedStaleKey( l_key ) ;
                     }
-                } 
-                catch( IOException e )
-                {
-                    m_monitor.selectFailure( m_selector, e ) ;
+                    
+                    m_monitor.selectTimedOut( m_selector ) ;
                     continue ;
                 }
-                
-                processInput() ;
+            } 
+            catch( IOException e )
+            {
+                m_monitor.selectFailure( m_selector, e ) ;
+                continue ;
             }
+            
+            /*
+             * At this point we've come out of the select call with valid
+             * input on channels and need to process that input.
+             */
+            processInput() ;
         }
     }
 
@@ -174,7 +179,7 @@ public class DefaultInputManager extends AbstractSubscriber
             }
             
             m_hasStarted = new Boolean( true ) ;
-            m_thread = new Thread( new SelectionDriver() ) ;
+            m_thread = new Thread( this ) ;
             m_thread.start() ;
         }
     }
@@ -239,43 +244,29 @@ public class DefaultInputManager extends AbstractSubscriber
     
     
     /**
-     * Maintains connections by registering newly established connections within
-     * ConnectEvents and cancelling the selection keys of dropped connections.
-     * 
-     * @see created in response to a <a href=
-     * "http://nagoya.apache.org/jira/secure/ViewIssue.jspa?id=13574">JIRA Issue
-     * </a>
+     * Register new connections that have arrived since the last select call. 
      */
-    private void maintainConnections()
+    private void registerNewConnections()
     {
-        /* Register New Connections 
-         * ========================
-         * 
-         * Here we perform a synchronized transfer of newly arrived events 
-         * which are batched in the list of ConnectEvents.  This is done to
-         * minimize the chances of contention.  Next we cycle through each
-         * event registering the new connection's channel with the selector.
-         */
-        
-        // copy all events into a separate list first and clear
-        ConnectEvent[] l_connectEvents = null ;
+        // copy of newly arrived events batched in the list of ConnectEvents
+        ConnectEvent[] l_events = null ;
         synchronized( m_connectEvents ) 
         {
-            l_connectEvents = new ConnectEvent[m_connectEvents.size()] ;
-            l_connectEvents = ( ConnectEvent[] ) 
-                m_connectEvents.toArray( l_connectEvents ) ;
+            l_events = new ConnectEvent[m_connectEvents.size()] ;
+            l_events = ( ConnectEvent[] ) 
+                m_connectEvents.toArray( l_events ) ;
             m_connectEvents.clear() ;
         }
 
         // cycle through connections and register them with the selector
-        for ( int ii = 0; ii < l_connectEvents.length ; ii++ )
+        for ( int ii = 0; ii < l_events.length ; ii++ )
         {    
             ClientKey l_key = null ;
             SocketChannel l_channel = null ;
             
             try
             {
-                l_key = l_connectEvents[ii].getClientKey() ;
+                l_key = l_events[ii].getClientKey() ;
                 l_channel = l_key.getSocket().getChannel() ;
                 
                 // hands-off blocking sockets!
@@ -298,30 +289,35 @@ public class DefaultInputManager extends AbstractSubscriber
                         SelectionKey.OP_READ, e ) ;
             }
         }
-        
-        
-        /* Cancel/Unregister Dropped Connections 
-         * =====================================
-         *
-         * To do this we simply cancel the selection key for the client the
-         * disconnect event is associated with.  
-         */
-        
-        // copy all events into a separate list first and clear
-        DisconnectEvent[] l_disconnectEvents = null ;
+    }
+
+    
+    /**
+     *  Cancel/Unregister dropped connections since the last call to select.
+     * 
+     * @see created in response to a <a href=
+     * "http://nagoya.apache.org/jira/secure/ViewIssue.jspa?id=13574">JIRA Issue
+     * </a>
+     */
+    private void unregisterDroppedConnections()
+    {
+        SelectionKey l_key = null ;
+        DisconnectEvent[] l_events = null ;
+
+        // synchronized copy all events into a separate list first and clear
         synchronized( m_disconnectEvents ) 
         {
-            l_disconnectEvents = new DisconnectEvent[m_disconnectEvents.size()] ;
-            l_disconnectEvents = ( DisconnectEvent[] ) 
-                m_disconnectEvents.toArray( l_disconnectEvents ) ;
+            l_events = new DisconnectEvent[m_disconnectEvents.size()] ;
+            l_events = ( DisconnectEvent[] ) 
+                m_disconnectEvents.toArray( l_events ) ;
             m_disconnectEvents.clear() ;
         }
 
-        SelectionKey l_key = null ;
-        for ( int ii = 0; ii < l_disconnectEvents.length; ii++ )
+        // cancel selection key for the disconnect event's client  
+        for ( int ii = 0; ii < l_events.length; ii++ )
         {
             Iterator l_keys = m_selector.keys().iterator() ;
-            ClientKey l_clientKey = l_disconnectEvents[ii].getClientKey() ;
+            ClientKey l_clientKey = l_events[ii].getClientKey() ;
 
             while ( l_keys.hasNext() )
             {
@@ -436,20 +432,20 @@ public class DefaultInputManager extends AbstractSubscriber
      */
     class ConcreteInputEvent extends InputEvent
     {
-        ConcreteInputEvent( ClientKey a_key, ByteBuffer a_buffer )
+        ConcreteInputEvent( ClientKey key, ByteBuffer buffer )
         {
-            super( DefaultInputManager.this, a_key, a_buffer ) ;
+            super( DefaultInputManager.this, key, buffer ) ;
         }
         
-        public ByteBuffer claimInterest( Object a_party )
+        public ByteBuffer claimInterest( Object party )
         {
-            m_bp.claimInterest( getBuffer(), a_party ) ;
+            m_bp.claimInterest( getBuffer(), party ) ;
             return getBuffer().asReadOnlyBuffer() ;
         }
         
-        public void releaseInterest( Object a_party )
+        public void releaseInterest( Object party )
         {
-            m_bp.releaseClaim( getBuffer(), a_party ) ;
+            m_bp.releaseClaim( getBuffer(), party ) ;
         }
     }
     
@@ -468,10 +464,10 @@ public class DefaultInputManager extends AbstractSubscriber
     /**
      * Sets the monitor associated with this InputManager.
      * 
-     * @param a_monitor the monitor to set
+     * @param monitor the monitor to set
      */
-    public void setMonitor( InputManagerMonitor a_monitor )
+    public void setMonitor( InputManagerMonitor monitor )
     {
-        m_monitor = a_monitor ;
+        m_monitor = monitor ;
     }
 }
