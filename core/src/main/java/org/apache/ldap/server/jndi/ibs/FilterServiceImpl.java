@@ -100,11 +100,11 @@ public class FilterServiceImpl extends BaseInterceptor
 
         if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
         {
-            NamingEnumeration enum ;
+            NamingEnumeration e ;
             ResultFilteringEnumeration retval;
             LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
-            enum = ( NamingEnumeration ) invocation.getReturnValue();
-            retval = new ResultFilteringEnumeration( enum, LIST_CONTROLS, ctx,
+            e = ( NamingEnumeration ) invocation.getReturnValue();
+            retval = new ResultFilteringEnumeration( e, LIST_CONTROLS, ctx,
                 new SearchResultFilter()
                 {
                     public boolean accept( LdapContext ctx, SearchResult result,
@@ -178,11 +178,11 @@ public class FilterServiceImpl extends BaseInterceptor
                 return;
             }
 
-            NamingEnumeration enum ;
+            NamingEnumeration e ;
             ResultFilteringEnumeration retval;
             LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
-            enum = ( NamingEnumeration ) invocation.getReturnValue();
-            retval = new ResultFilteringEnumeration( enum, searchControls, ctx,
+            e = ( NamingEnumeration ) invocation.getReturnValue();
+            retval = new ResultFilteringEnumeration( e, searchControls, ctx,
                 new SearchResultFilter()
                 {
                     public boolean accept( LdapContext ctx, SearchResult result,

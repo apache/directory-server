@@ -20,8 +20,6 @@ package org.apache.ldap.server.protocol;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -29,10 +27,8 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.apseda.event.DisconnectEvent;
-import org.apache.apseda.event.EventRouter;
-import org.apache.apseda.listener.ClientKey;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -44,12 +40,8 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 public class SessionRegistry
 {
     private static SessionRegistry s_singleton;
-    /** a handle on the event router */
-    private final EventRouter router;
     /** the set of client contexts */
     private final Map contexts = new HashMap();
-    /** the observer to listen for key expiration */
-    private final Observer keyObserver = new KeyExpirationObserver();
     /** the properties associated with this SessionRegistry */
     private Hashtable env;
 
@@ -77,10 +69,8 @@ public class SessionRegistry
      *
      * @param env the properties associated with this SessionRegistry
      */
-    SessionRegistry( Hashtable env, EventRouter router )
+    SessionRegistry( Hashtable env )
     {
-        this.router = router;
-
         if ( s_singleton == null )
         {
             s_singleton = this;
@@ -121,24 +111,22 @@ public class SessionRegistry
      * client.  If the context is not present then there was no bind operation
      * that set it.  Hence this operation requesting the IC is anonymous.
      *
-     * @param key the client's key
+     * @param session the client's key
      * @param connCtls connection controls if any to use if creating anon context
      * @param allowAnonymous true if anonymous requests will create anonymous
      * InitialContext if one is not present for the operation
      * @return the InitialContext or null
      */
-    public InitialLdapContext getInitialLdapContext( ClientKey key,
+    public InitialLdapContext getInitialLdapContext( ProtocolSession session,
                                                      Control[] connCtls,
                                                      boolean allowAnonymous )
             throws NamingException
     {
         InitialLdapContext ictx = null;
 
-        key.addObserver( keyObserver );
-
         synchronized( contexts )
         {
-            ictx = ( InitialLdapContext ) contexts.get( key );
+            ictx = ( InitialLdapContext ) contexts.get( session );
         }
 
         if ( ictx == null && allowAnonymous )
@@ -159,16 +147,14 @@ public class SessionRegistry
     /**
      * Sets the initial context associated with a newly authenticated client.
      *
-     * @param key the client's key
+     * @param session the client session
      * @param ictx the initial context gotten
      */
-    public void setInitialLdapContext( ClientKey key, InitialDirContext ictx )
+    public void setInitialLdapContext( ProtocolSession session, InitialDirContext ictx )
     {
-        key.deleteObserver( keyObserver );  // remove first just in case
-        key.addObserver( keyObserver );
         synchronized( contexts )
         {
-            contexts.put( key, ictx );
+            contexts.put( session, ictx );
         }
     }
 
@@ -176,39 +162,13 @@ public class SessionRegistry
     /**
      * Removes the state mapping a JNDI initial context for the client's key.
      *
-     * @param key the client's key
+     * @param session the client's key
      */
-    public void remove( ClientKey key )
+    public void remove( ProtocolSession session )
     {
-        key.deleteObserver( keyObserver );
         synchronized( contexts )
         {
-            contexts.remove( key );
-        }
-    }
-
-
-    /**
-     * A key expiration observer.
-     */
-    class KeyExpirationObserver implements Observer
-    {
-        /**
-         * This is called whenever the client's key expires. We react by removing
-         * the entry if any of the client's in our InitialContext registry.
-         *
-         * @param o the ClientKey that has expired
-         * @param arg will be null
-         */
-        public void update( Observable o, Object arg )
-        {
-            // cast just to make sure
-            ClientKey key = ( ClientKey ) o;
-            key.deleteObserver( keyObserver );
-            synchronized( contexts )
-            {
-                contexts.remove( key );
-            }
+            contexts.remove( session );
         }
     }
 
@@ -216,11 +176,10 @@ public class SessionRegistry
     /**
      * Terminates the session by publishing a disconnect event.
      *
-     * @param key the client key of the client to disconnect
+     * @param session the client key of the client to disconnect
      */
-    public void terminateSession( ClientKey key )
+    public void terminateSession( ProtocolSession session )
     {
-        DisconnectEvent event = new DisconnectEvent( this, key );
-        router.publish( event );
+        session.close();
     }
 }

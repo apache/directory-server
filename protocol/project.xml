@@ -51,9 +51,9 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>apseda</artifactId>
-      <version>0.3-SNAPSHOT</version>
-      <url>http://incubator.apache.org/directory/subprojects/seda</url>
+      <artifactId>mina</artifactId>
+      <version>0.7-SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/mina</url>
     </dependency>
   </dependencies>
 

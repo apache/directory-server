@@ -17,9 +17,8 @@
 package org.apache.ldap.server.protocol;
 
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -28,12 +27,9 @@ import org.apache.ldap.common.NotImplementedException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedHandler extends AbstractSingleReplyHandler
+public class ExtendedHandler implements CommandHandler
 {
-    /**
-     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
-     */
-    public Object handle( ClientKey key, Object request )
+    public void handle( ProtocolSession session, Object request )
     {
         throw new NotImplementedException( "handle in org.apache.ldap.server.protocol.ExtendedHandler not implemented!" );
     }

@@ -22,8 +22,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ModifyRequest;
@@ -31,6 +29,7 @@ import org.apache.ldap.common.message.ModifyResponse;
 import org.apache.ldap.common.message.ModifyResponseImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -39,13 +38,11 @@ import org.apache.ldap.common.util.ExceptionUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyHandler extends AbstractSingleReplyHandler
+public class ModifyHandler implements CommandHandler
 {
     private static final ModificationItem[] EMPTY = new ModificationItem[0];
-    /**
-     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
-     */
-    public Object handle( ClientKey key, Object request )
+
+    public void handle( ProtocolSession session, Object request )
     {
         ModifyRequest req = ( ModifyRequest ) request;
         ModifyResponse resp = new ModifyResponseImpl( req.getMessageId() );
@@ -54,7 +51,7 @@ public class ModifyHandler extends AbstractSingleReplyHandler
         try
         {
             InitialLdapContext ictx = SessionRegistry.getSingleton()
-                    .getInitialLdapContext( key, null, true );
+                    .getInitialLdapContext( session, null, true );
             DirContext ctx = ( DirContext ) ictx.lookup( "" );
             Object[] mods = req.getModificationItems().toArray( EMPTY );
             ctx.modifyAttributes( req.getName(), ( ModificationItem[] ) mods );
@@ -82,11 +79,13 @@ public class ModifyHandler extends AbstractSingleReplyHandler
                 resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
             }
 
-            return resp;
+            session.write( resp );
+            return;
         }
 
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         resp.getLdapResult().setMatchedDn( req.getName() );
-        return resp;
+        session.write( resp );
+        return;
     }
 }

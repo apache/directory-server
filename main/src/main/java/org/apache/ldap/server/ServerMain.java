@@ -17,8 +17,8 @@
 package org.apache.ldap.server;
 
 
-import java.util.Properties;
 import java.io.File;
+import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -26,8 +26,6 @@ import javax.naming.directory.InitialDirContext;
 
 import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.apseda.listener.AvailablePortFinder;
-import org.apache.apseda.listener.AvailablePortFinder;
 
 
 /**
@@ -67,14 +65,6 @@ public class ServerMain
         if ( ! env.containsKey( EnvKeys.LDAP_PORT ) )
         {
             int port = LDAP_PORT;
-
-            if ( ! AvailablePortFinder.available( port ) )
-            {
-                port = AvailablePortFinder.getNextAvailable( 1024 );
-                System.out.println( "server: standard ldap port " + LDAP_PORT
-                        + " is not available, using " + port + " instead" );
-            }
-
             env.setProperty( EnvKeys.LDAP_PORT, String.valueOf( port ) );
         }
 

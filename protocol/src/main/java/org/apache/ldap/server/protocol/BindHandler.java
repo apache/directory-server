@@ -23,8 +23,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.message.BindRequest;
 import org.apache.ldap.common.message.BindResponse;
@@ -34,6 +32,7 @@ import org.apache.ldap.common.message.LdapResult;
 import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -42,15 +41,12 @@ import org.apache.ldap.common.util.ExceptionUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BindHandler extends AbstractSingleReplyHandler
+public class BindHandler implements CommandHandler
 {
     private static final Control[] EMPTY = new Control[0];
 
 
-    /**
-     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(ClientKey,Object)
-     */
-    public Object handle( ClientKey key, Object request )
+    public void handle( ProtocolSession session, Object request )
     {
         InitialLdapContext ictx;
         BindRequest req = ( BindRequest ) request;
@@ -64,7 +60,8 @@ public class BindHandler extends AbstractSingleReplyHandler
         {
             result.setResultCode( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
             result.setErrorMessage( "Only simple binds currently supported" );
-            return resp;
+            session.write( resp );
+            return;
         }
 
         // clone the environment first then add the required security settings
@@ -96,12 +93,13 @@ public class BindHandler extends AbstractSingleReplyHandler
             String msg = "Bind failure:\n" + ExceptionUtils.getStackTrace( e );
             msg += "\n\nBindRequest = \n" + req.toString();
             result.setErrorMessage( msg );
-            return resp;
+            session.write( resp );
+            return;
         }
 
-        SessionRegistry.getSingleton().setInitialLdapContext( key, ictx );
+        SessionRegistry.getSingleton().setInitialLdapContext( session, ictx );
         result.setResultCode( ResultCodeEnum.SUCCESS );
         result.setMatchedDn( req.getName() );
-        return resp;
+        session.write( resp );
     }
 }

@@ -124,9 +124,9 @@ public class Invocation implements Serializable
      *
      * @param enum the new state to set
      */
-    void setState( InvocationStateEnum enum )
+    void setState( InvocationStateEnum e )
     {
-        state = enum;
+        state = e;
     }
 
 

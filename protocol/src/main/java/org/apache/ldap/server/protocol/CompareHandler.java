@@ -22,8 +22,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.message.CompareRequest;
 import org.apache.ldap.common.message.CompareResponse;
@@ -31,6 +29,7 @@ import org.apache.ldap.common.message.CompareResponseImpl;
 import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -39,12 +38,9 @@ import org.apache.ldap.common.util.ExceptionUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CompareHandler extends AbstractSingleReplyHandler
+public class CompareHandler implements CommandHandler
 {
-    /**
-     * @see org.apache.apseda.protocol.SingleReplyHandler#handle(org.apache.apseda.listener.ClientKey,Object)
-     */
-    public Object handle( ClientKey key, Object request )
+    public void handle( ProtocolSession session, Object request )
     {
         CompareRequest req = ( CompareRequest ) request;
         CompareResponse resp = new CompareResponseImpl( req.getMessageId() );
@@ -53,7 +49,7 @@ public class CompareHandler extends AbstractSingleReplyHandler
         try
         {
             InitialLdapContext ictx = SessionRegistry.getSingleton()
-                    .getInitialLdapContext( key, null, true );
+                    .getInitialLdapContext( session, null, true );
             DirContext ctx = ( DirContext ) ictx.lookup( "" );
             Attribute attr = ctx.getAttributes( req.getName() ).get( req.getAttributeId() );
 
@@ -93,10 +89,11 @@ public class CompareHandler extends AbstractSingleReplyHandler
                 resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
             }
 
-            return resp;
+            session.write( resp );
+            return;
         }
 
         resp.getLdapResult().setMatchedDn( req.getName() );
-        return resp;
+        session.write( resp );
     }
 }

@@ -53,7 +53,7 @@ public class EnvKeys
 
     /** key used to disable the networking layer (wire protocol) */
     public static final String DISABLE_PROTOCOL = "server.net.disable.protocol";
-    /** key used to hold the frontend to use rather than creating one */
+    /** key used to hold the MINA registry instance to use rather than creating one */
     public static final String PASSTHRU = "server.net.passthru";
     /** key for port setting for ldap requests beside default 389 */
     public static final String LDAP_PORT = "server.net.ldap.port";

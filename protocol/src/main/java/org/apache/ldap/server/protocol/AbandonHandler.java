@@ -17,10 +17,9 @@
 package org.apache.ldap.server.protocol;
 
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractNoReplyHandler;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.message.AbandonRequest;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -29,9 +28,9 @@ import org.apache.ldap.common.message.AbandonRequest;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonHandler extends AbstractNoReplyHandler
+public class AbandonHandler implements CommandHandler
 {
-    public void handle( ClientKey key, Object request )
+    public void handle( ProtocolSession session, Object request )
     {
         AbandonRequest req = ( AbandonRequest ) request;
         int abandonedId = req.getAbandoned();

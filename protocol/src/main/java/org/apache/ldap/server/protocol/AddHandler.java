@@ -16,13 +16,10 @@
  */
 package org.apache.ldap.server.protocol;
 
-
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractSingleReplyHandler;
 import org.apache.ldap.common.exception.LdapException;
 import org.apache.ldap.common.message.AddRequest;
 import org.apache.ldap.common.message.AddResponse;
@@ -30,7 +27,7 @@ import org.apache.ldap.common.message.AddResponseImpl;
 import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.ExceptionUtils;
-
+import org.apache.mina.protocol.ProtocolSession;
 
 /**
  * A single reply handler for {@link org.apache.ldap.common.message.AddRequest}s.
@@ -38,9 +35,9 @@ import org.apache.ldap.common.util.ExceptionUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AddHandler extends AbstractSingleReplyHandler
+public class AddHandler implements CommandHandler
 {
-    public Object handle( ClientKey key, Object request )
+    public void handle( ProtocolSession session, Object request )
     {
         AddRequest req = ( AddRequest ) request;
         AddResponse resp = new AddResponseImpl( req.getMessageId() );
@@ -49,19 +46,19 @@ public class AddHandler extends AbstractSingleReplyHandler
         try
         {
             InitialLdapContext ictx = SessionRegistry.getSingleton()
-                    .getInitialLdapContext( key, null, true );
+                    .getInitialLdapContext( session, null, true );
             LdapContext ctx = ( LdapContext ) ictx.lookup( "" );
             ctx.createSubcontext( req.getName(), req.getEntry() );
         }
-        catch ( NamingException e )
+        catch( NamingException e )
         {
             String msg = "failed to add entry " + req.getName() + ":\n";
             msg += ExceptionUtils.getStackTrace( e );
             ResultCodeEnum code;
 
-            if ( e instanceof LdapException )
+            if( e instanceof LdapException )
             {
-                code = ( ( LdapException ) e ).getResultCode() ;
+                code = ( ( LdapException ) e ).getResultCode();
             }
             else
             {
@@ -71,16 +68,18 @@ public class AddHandler extends AbstractSingleReplyHandler
             resp.getLdapResult().setResultCode( code );
             resp.getLdapResult().setErrorMessage( msg );
 
-            if ( e.getResolvedName() != null )
+            if( e.getResolvedName() != null )
             {
-                resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
+                resp.getLdapResult().setMatchedDn(
+                        e.getResolvedName().toString() );
             }
 
-            return resp;
+            session.write( resp );
+            return;
         }
 
         resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         resp.getLdapResult().setMatchedDn( req.getName() );
-        return resp;
+        session.write( resp );
     }
 }

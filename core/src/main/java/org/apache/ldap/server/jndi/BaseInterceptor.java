@@ -105,9 +105,9 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public void invoke( Invocation invocation ) throws NamingException
     {
-        InvocationMethodEnum enum = invocation.getInvocationMethodEnum();
+        InvocationMethodEnum e = invocation.getInvocationMethodEnum();
 
-        switch ( enum.getValue() )
+        switch ( e.getValue() )
         {
             case( InvocationMethodEnum.ADD_VAL ):
                 add( ( String ) invocation.getParameters()[0],
@@ -177,7 +177,7 @@ public abstract class BaseInterceptor implements Interceptor
                 break;
             default:
                 throw new IllegalStateException( "Unexpected invocation type "
-                    + enum );
+                    + e );
         }
     }
 

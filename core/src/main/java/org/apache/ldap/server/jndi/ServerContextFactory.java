@@ -16,15 +16,14 @@
  */
 package org.apache.ldap.server.jndi;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -32,7 +31,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
@@ -51,19 +49,30 @@ import org.apache.ldap.server.ApplicationPartition;
 import org.apache.ldap.server.ContextPartitionConfig;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.db.*;
+import org.apache.ldap.server.db.Database;
+import org.apache.ldap.server.db.DefaultSearchEngine;
+import org.apache.ldap.server.db.ExpressionEnumerator;
+import org.apache.ldap.server.db.ExpressionEvaluator;
+import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
-import org.apache.ldap.server.jndi.ibs.*;
-import org.apache.ldap.server.schema.*;
+import org.apache.ldap.server.jndi.ibs.AuthorizationService;
+import org.apache.ldap.server.jndi.ibs.FilterService;
+import org.apache.ldap.server.jndi.ibs.FilterServiceImpl;
+import org.apache.ldap.server.jndi.ibs.OperationalAttributeService;
+import org.apache.ldap.server.jndi.ibs.SchemaService;
+import org.apache.ldap.server.jndi.ibs.ServerExceptionService;
+import org.apache.ldap.server.protocol.LdapProtocolProvider;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.ldap.server.schema.GlobalRegistries;
+import org.apache.ldap.server.schema.MatchingRuleRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.apseda.DefaultFrontend;
-import org.apache.apseda.DefaultFrontendFactory;
-import org.apache.apseda.listener.TCPListenerConfig;
-import org.apache.apseda.protocol.TransportTypeEnum;
-import org.apache.apseda.protocol.DefaultInetServicesDatabase;
-import org.apache.apseda.protocol.*;
-
+import org.apache.mina.io.socket.SocketAcceptor;
+import org.apache.mina.protocol.ProtocolAcceptor;
+import org.apache.mina.protocol.ProtocolProvider;
+import org.apache.mina.protocol.io.IoProtocolAcceptor;
 
 /**
  * An LDAPd server-side provider implementation of a InitialContextFactory.
@@ -81,27 +90,29 @@ import org.apache.apseda.protocol.*;
 public class ServerContextFactory implements InitialContextFactory
 {
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
+
     private static final String CREDS = Context.SECURITY_CREDENTIALS;
+
     private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
+
     private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
+
     private static final Name ADMIN_NAME = SystemPartition.getAdminDn();
 
     /** the default LDAP port to use */
     private static final int LDAP_PORT = 389;
+
     /** default path to working directory if WKDIR_ENV property is not set */
     public static final String DEFAULT_WKDIR = "server-work";
 
     /** default schema classes for the SCHEMAS_ENV property if not set */
-    private static final String[] DEFAULT_SCHEMAS = new String[]
-    {
-        "org.apache.ldap.server.schema.bootstrap.CoreSchema",
-        "org.apache.ldap.server.schema.bootstrap.CosineSchema",
-        "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
-        "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
-        "org.apache.ldap.server.schema.bootstrap.JavaSchema",
-        "org.apache.ldap.server.schema.bootstrap.SystemSchema"
-    };
-
+    private static final String[] DEFAULT_SCHEMAS = new String[] {
+                                                                  "org.apache.ldap.server.schema.bootstrap.CoreSchema",
+                                                                  "org.apache.ldap.server.schema.bootstrap.CosineSchema",
+                                                                  "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
+                                                                  "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
+                                                                  "org.apache.ldap.server.schema.bootstrap.JavaSchema",
+                                                                  "org.apache.ldap.server.schema.bootstrap.SystemSchema" };
 
     // ------------------------------------------------------------------------
     // Members
@@ -109,18 +120,21 @@ public class ServerContextFactory implements InitialContextFactory
 
     /** The singleton JndiProvider instance */
     private JndiProvider provider = null;
+
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable initialEnv;
+
     private SystemPartition system;
+
     private GlobalRegistries globalRegistries;
+
     private RootNexus nexus;
 
+    private InetSocketAddress serverAddress;
 
-    private DefaultFrontend fe;
-    private InetServiceEntry srvEntry;
+    private ProtocolAcceptor acceptor;
+
     private ProtocolProvider proto;
-    private TCPListenerConfig tcpConfig;
-
 
     /**
      * Default constructor that sets the provider of this ServerContextFactory.
@@ -129,8 +143,7 @@ public class ServerContextFactory implements InitialContextFactory
     {
         JndiProvider.setProviderOn( this );
     }
-    
-    
+
     /**
      * Enables this ServerContextFactory with a handle to the JndiProvider
      * singleton.
@@ -141,8 +154,7 @@ public class ServerContextFactory implements InitialContextFactory
     {
         provider = a_provider;
     }
-    
-    
+
     /**
      * @see javax.naming.spi.InitialContextFactory#getInitialContext(
      * java.util.Hashtable)
@@ -152,9 +164,9 @@ public class ServerContextFactory implements InitialContextFactory
         env = ( Hashtable ) env.clone();
         Context ctx = null;
 
-        if ( env.containsKey( EnvKeys.SHUTDOWN ) )
+        if( env.containsKey( EnvKeys.SHUTDOWN ) )
         {
-            if ( this.provider == null )
+            if( this.provider == null )
             {
                 // monitor.shutDownCalledOnStoppedProvider()
                 return new DeadContext();
@@ -164,9 +176,9 @@ public class ServerContextFactory implements InitialContextFactory
             {
                 this.provider.shutdown();
 
-                if ( this.fe != null )
+                if( this.acceptor != null )
                 {
-                    this.fe.stop();
+                    this.acceptor.unbind(serverAddress);
                 }
             }
             catch( Throwable t )
@@ -183,7 +195,7 @@ public class ServerContextFactory implements InitialContextFactory
             return ctx;
         }
 
-        if ( env.containsKey( EnvKeys.SYNC ) )
+        if( env.containsKey( EnvKeys.SYNC ) )
         {
             provider.sync();
             return provider.getLdapContext( env );
@@ -191,21 +203,23 @@ public class ServerContextFactory implements InitialContextFactory
 
         checkSecuritySettings( env );
 
-        if ( isAnonymous( env ) )
+        if( isAnonymous( env ) )
         {
             env.put( PRINCIPAL, "" );
         }
 
         // fire up the backend subsystem if we need to
-        if ( null == provider )
+        if( null == provider )
         {
             // we need to check this here instead of in AuthenticationService
             // because otherwise we are going to start up the system incorrectly
-            if ( isAnonymous( env ) && env.containsKey( EnvKeys.DISABLE_ANONYMOUS ) )
+            if( isAnonymous( env )
+                && env.containsKey( EnvKeys.DISABLE_ANONYMOUS ) )
             {
-                throw new LdapNoPermissionException( "cannot bind as anonymous "
-                    + "on startup while disabling anonymous binds w/ property: "
-                    + EnvKeys.DISABLE_ANONYMOUS );
+                throw new LdapNoPermissionException(
+                        "cannot bind as anonymous "
+                                                                                                + "on startup while disabling anonymous binds w/ property: "
+                                                                                                + EnvKeys.DISABLE_ANONYMOUS );
             }
 
             this.initialEnv = env;
@@ -213,13 +227,13 @@ public class ServerContextFactory implements InitialContextFactory
             initialize();
             boolean createMode = createAdminAccount();
 
-            if ( createMode )
+            if( createMode )
             {
                 importLdif();
             }
 
             // fire up the front end if we have not explicitly disabled it
-            if ( ! initialEnv.containsKey( EnvKeys.DISABLE_PROTOCOL ) )
+            if( !initialEnv.containsKey( EnvKeys.DISABLE_PROTOCOL ) )
             {
                 startUpWireProtocol();
             }
@@ -229,52 +243,60 @@ public class ServerContextFactory implements InitialContextFactory
         return ctx;
     }
 
-
     /**
      * Checks to make sure security environment parameters are set correctly.
      *
      * @throws NamingException if the security settings are not correctly
      * configured.
      */
-    private void checkSecuritySettings( Hashtable env ) throws NamingException
+    private void checkSecuritySettings( Hashtable env )
+            throws NamingException
     {
-        if ( env.containsKey( TYPE ) && env.get( TYPE ) != null )
+        if( env.containsKey( TYPE ) && env.get( TYPE ) != null )
         {
             /*
              * If bind is simple make sure we have the credentials and the
              * principal name set within the environment, otherwise complain
              */
-            if ( env.get( TYPE ).equals( "simple" ) )
+            if( env.get( TYPE ).equals( "simple" ) )
             {
-                if ( ! env.containsKey( CREDS ) )
+                if( !env.containsKey( CREDS ) )
                 {
-                    throw new LdapConfigurationException( "missing required " +
-                            CREDS + " property for simple authentication" );
+                    throw new LdapConfigurationException(
+                            "missing required "
+                                                                                                                + CREDS
+                                                                                                                + " property for simple authentication" );
                 }
 
-                if ( ! env.containsKey( PRINCIPAL ) )
+                if( !env.containsKey( PRINCIPAL ) )
                 {
-                    throw new LdapConfigurationException( "missing required " +
-                            PRINCIPAL + " property for simple authentication" );
+                    throw new LdapConfigurationException(
+                            "missing required "
+                                                                                                                + PRINCIPAL
+                                                                                                                + " property for simple authentication" );
                 }
             }
             /*
              * If bind is none make sure credentials and the principal
              * name are NOT set within the environment, otherwise complain
              */
-            else if ( env.get( TYPE ).equals( "none" ) )
+            else if( env.get( TYPE ).equals( "none" ) )
             {
-                if ( env.containsKey( CREDS ) )
+                if( env.containsKey( CREDS ) )
                 {
-                    throw new LdapConfigurationException( "ambiguous bind " +
-                            "settings encountered where bind is anonymous yet "
-                            + CREDS + " property is set" );
+                    throw new LdapConfigurationException(
+                            "ambiguous bind "
+                                                                                                                + "settings encountered where bind is anonymous yet "
+                                                                                                                + CREDS
+                                                                                                                + " property is set" );
                 }
-                if ( env.containsKey( PRINCIPAL ) )
+                if( env.containsKey( PRINCIPAL ) )
                 {
-                    throw new LdapConfigurationException( "ambiguous bind " +
-                            "settings encountered where bind is anonymous yet "
-                            + PRINCIPAL + " property is set" );
+                    throw new LdapConfigurationException(
+                            "ambiguous bind "
+                                                                                                                + "settings encountered where bind is anonymous yet "
+                                                                                                                + PRINCIPAL
+                                                                                                                + " property is set" );
                 }
             }
             /*
@@ -284,19 +306,20 @@ public class ServerContextFactory implements InitialContextFactory
             else
             {
                 throw new LdapAuthenticationNotSupportedException(
-                    ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+                        ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
             }
         }
-        else if ( env.containsKey( CREDS ) )
+        else if( env.containsKey( CREDS ) )
         {
-            if ( ! env.containsKey( PRINCIPAL ) )
+            if( !env.containsKey( PRINCIPAL ) )
             {
-                throw new LdapConfigurationException( "credentials provided " +
-                        "without principal name property: " + PRINCIPAL );
+                throw new LdapConfigurationException(
+                        "credentials provided "
+                                                                                                + "without principal name property: "
+                                                                                                + PRINCIPAL );
             }
         }
     }
-
 
     /**
      * Checks to see if an anonymous bind is being attempted.
@@ -306,9 +329,9 @@ public class ServerContextFactory implements InitialContextFactory
     private boolean isAnonymous( Hashtable env )
     {
 
-        if ( env.containsKey( TYPE ) && env.get( TYPE ) != null )
+        if( env.containsKey( TYPE ) && env.get( TYPE ) != null )
         {
-            if ( env.get( TYPE ).equals( "none" ) )
+            if( env.get( TYPE ).equals( "none" ) )
             {
                 return true;
             }
@@ -316,14 +339,13 @@ public class ServerContextFactory implements InitialContextFactory
             return false;
         }
 
-        if ( env.containsKey( CREDS ) )
+        if( env.containsKey( CREDS ) )
         {
             return false;
         }
 
         return true;
     }
-
 
     /**
      * Returns true if we had to create the admin account since this is the
@@ -340,7 +362,7 @@ public class ServerContextFactory implements InitialContextFactory
          * before so we just need to lookup the userPassword field to see if
          * the password matches.
          */
-        if ( nexus.hasEntry( ADMIN_NAME ) )
+        if( nexus.hasEntry( ADMIN_NAME ) )
         {
             return false;
         }
@@ -361,7 +383,6 @@ public class ServerContextFactory implements InitialContextFactory
         return true;
     }
 
-
     /**
      * Kicks off the initialization of the entire system.
      * 
@@ -377,20 +398,20 @@ public class ServerContextFactory implements InitialContextFactory
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
 
         String[] schemas = DEFAULT_SCHEMAS;
-        if ( initialEnv.containsKey( EnvKeys.SCHEMAS ) )
+        if( initialEnv.containsKey( EnvKeys.SCHEMAS ) )
         {
             String schemaList = ( String ) initialEnv.get( EnvKeys.SCHEMAS );
             schemaList = StringTools.deepTrim( schemaList );
             schemas = ( ( String ) schemaList ).split( " " );
-            for ( int ii = 0; ii < schemas.length; ii++ )
+            for( int ii = 0; ii < schemas.length; ii ++ )
             {
-                schemas[ii] = schemas[ii].trim();
+                schemas[ ii ] = schemas[ ii ].trim();
             }
         }
 
         loader.load( schemas, bootstrapRegistries );
         List errors = bootstrapRegistries.checkRefInteg();
-        if ( ! errors.isEmpty() )
+        if( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
             e.setRootCause( ( Throwable ) errors.get( 0 ) );
@@ -401,19 +422,19 @@ public class ServerContextFactory implements InitialContextFactory
         // Fire up the system partition
         // --------------------------------------------------------------------
 
-
         String wkdir = DEFAULT_WKDIR;
-        if ( initialEnv.containsKey( EnvKeys.WKDIR ) )
+        if( initialEnv.containsKey( EnvKeys.WKDIR ) )
         {
             wkdir = ( ( String ) initialEnv.get( EnvKeys.WKDIR ) ).trim();
         }
 
         File wkdirFile = new File( wkdir );
-        if ( wkdirFile.isAbsolute() )
+        if( wkdirFile.isAbsolute() )
         {
-            if ( ! wkdirFile.exists() )
+            if( !wkdirFile.exists() )
             {
-                throw new NamingException( "working directory " +  wkdir + " does not exist" );
+                throw new NamingException( "working directory " + wkdir
+                                           + " does not exist" );
             }
         }
         else
@@ -427,55 +448,62 @@ public class ServerContextFactory implements InitialContextFactory
         Database db = new JdbmDatabase( suffix, wkdir );
 
         AttributeTypeRegistry attributeTypeRegistry;
-        attributeTypeRegistry = bootstrapRegistries.getAttributeTypeRegistry();
+        attributeTypeRegistry = bootstrapRegistries
+                .getAttributeTypeRegistry();
         OidRegistry oidRegistry;
         oidRegistry = bootstrapRegistries.getOidRegistry();
 
         ExpressionEvaluator evaluator;
-        evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
+        evaluator = new ExpressionEvaluator( db, oidRegistry,
+                attributeTypeRegistry );
 
         ExpressionEnumerator enumerator;
-        enumerator = new ExpressionEnumerator( db, attributeTypeRegistry, evaluator );
+        enumerator = new ExpressionEnumerator( db, attributeTypeRegistry,
+                evaluator );
 
         SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
 
         AttributeType[] attributes = new AttributeType[] {
-            attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.NDN_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.UPDN_OID )
-        };
+                                                          attributeTypeRegistry
+                                                                  .lookup( SystemPartition.ALIAS_OID ),
+                                                          attributeTypeRegistry
+                                                                  .lookup( SystemPartition.EXISTANCE_OID ),
+                                                          attributeTypeRegistry
+                                                                  .lookup( SystemPartition.HIERARCHY_OID ),
+                                                          attributeTypeRegistry
+                                                                  .lookup( SystemPartition.NDN_OID ),
+                                                          attributeTypeRegistry
+                                                                  .lookup( SystemPartition.ONEALIAS_OID ),
+                                                          attributeTypeRegistry
+                                                                  .lookup( SystemPartition.SUBALIAS_OID ),
+                                                          attributeTypeRegistry
+                                                                  .lookup( SystemPartition.UPDN_OID ) };
 
         system = new SystemPartition( db, eng, attributes );
         globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
         nexus = new RootNexus( system, new LockableAttributesImpl() );
         provider = new JndiProvider( nexus );
 
-
         // --------------------------------------------------------------------
         // Adding interceptors
         // --------------------------------------------------------------------
-
 
         /*
          * Create and add the Authentication service interceptor to before
          * interceptor chain.
          */
-        InvocationStateEnum[] state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION
-        };
-        boolean allowAnonymous = ! initialEnv.containsKey( EnvKeys.DISABLE_ANONYMOUS );
-        Interceptor interceptor = new AuthenticationService( nexus, allowAnonymous );
+        InvocationStateEnum[] state = new InvocationStateEnum[] { InvocationStateEnum.PREINVOCATION };
+        boolean allowAnonymous = !initialEnv
+                .containsKey( EnvKeys.DISABLE_ANONYMOUS );
+        Interceptor interceptor = new AuthenticationService( nexus,
+                allowAnonymous );
         provider.addInterceptor( interceptor, state );
 
         /*
          * Create and add the Eve Exception service interceptor to both the
          * before and onError interceptor chains.
          */
-        state = new InvocationStateEnum[]{ InvocationStateEnum.POSTINVOCATION };
+        state = new InvocationStateEnum[] { InvocationStateEnum.POSTINVOCATION };
         FilterService filterService = new FilterServiceImpl();
         interceptor = ( Interceptor ) filterService;
         provider.addInterceptor( interceptor, state );
@@ -484,9 +512,10 @@ public class ServerContextFactory implements InitialContextFactory
          * Create and add the Authorization service interceptor to before
          * interceptor chain.
          */
-        state = new InvocationStateEnum[]{ InvocationStateEnum.PREINVOCATION };
+        state = new InvocationStateEnum[] { InvocationStateEnum.PREINVOCATION };
         ConcreteNameComponentNormalizer normalizer;
-        AttributeTypeRegistry atr = globalRegistries.getAttributeTypeRegistry();
+        AttributeTypeRegistry atr = globalRegistries
+                .getAttributeTypeRegistry();
         normalizer = new ConcreteNameComponentNormalizer( atr );
         interceptor = new AuthorizationService( normalizer, filterService );
         provider.addInterceptor( interceptor, state );
@@ -495,99 +524,69 @@ public class ServerContextFactory implements InitialContextFactory
          * Create and add the Eve Exception service interceptor to both the
          * before and onError interceptor chains.
          */
-        state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.FAILUREHANDLING
-        };
+        state = new InvocationStateEnum[] {
+                                           InvocationStateEnum.PREINVOCATION,
+                                           InvocationStateEnum.FAILUREHANDLING };
         interceptor = new ServerExceptionService( nexus );
         provider.addInterceptor( interceptor, state );
 
         /*
          * Create and add the Eve schema service interceptor to before chain.
          */
-        state = new InvocationStateEnum[]{ InvocationStateEnum.PREINVOCATION };
-        interceptor = new SchemaService( nexus, globalRegistries, filterService );
+        state = new InvocationStateEnum[] { InvocationStateEnum.PREINVOCATION };
+        interceptor = new SchemaService( nexus, globalRegistries,
+                filterService );
         provider.addInterceptor( interceptor, state );
 
         /*
          * Create and add the Eve operational attribute managment service
          * interceptor to both the before and after interceptor chains.
          */
-        state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.POSTINVOCATION
-        };
-        interceptor = new OperationalAttributeService( nexus, globalRegistries, filterService );
+        state = new InvocationStateEnum[] {
+                                           InvocationStateEnum.PREINVOCATION,
+                                           InvocationStateEnum.POSTINVOCATION };
+        interceptor = new OperationalAttributeService( nexus,
+                globalRegistries, filterService );
         provider.addInterceptor( interceptor, state );
 
         // fire up the app partitions now!
-        if ( initialEnv.get( EnvKeys.PARTITIONS ) != null )
+        if( initialEnv.get( EnvKeys.PARTITIONS ) != null )
         {
             startUpAppPartitions( wkdir );
         }
     }
 
-
     private void startUpWireProtocol() throws NamingException
     {
-        if ( initialEnv.containsKey( EnvKeys.PASSTHRU ) )
-        {
-            fe = ( DefaultFrontend ) initialEnv.get( EnvKeys.PASSTHRU );
+        // TODO MINA registry package is not implemented yet,
+        // so we don't use PASSTHRU property yet.
+        // if ( initialEnv.containsKey( EnvKeys.PASSTHRU ) )
+        // {
+        //     fe = ( DefaultFrontend ) initialEnv.get( EnvKeys.PASSTHRU );
+        // 
+        //     if ( fe != null )
+        //     {
+        //         initialEnv.put( EnvKeys.PASSTHRU, "Handoff Succeeded!" );
+        //     }
+        // }
 
-            if ( fe != null )
-            {
-                initialEnv.put( EnvKeys.PASSTHRU, "Handoff Succeeded!" );
-            }
-        }
-
-
-        if ( fe == null )
-        {
-            try
-            {
-                fe = ( DefaultFrontend ) new DefaultFrontendFactory().create();
-            }
-            catch ( Exception e )
-            {
-                String msg = "Failed to initialize the frontend subsystem!";
-                NamingException ne = new LdapConfigurationException( msg );
-                ne.setRootCause( e );
-                ne.setResolvedName( new LdapName( ( String ) initialEnv.get( Context.PROVIDER_URL ) ) );
-                throw ne;
-            }
-        }
-
-        proto = new LdapProtocolProvider( ( Hashtable) initialEnv.clone(), fe.getEventRouter() );
-
-        int port = PropertiesUtils.get( initialEnv, EnvKeys.LDAP_PORT, LDAP_PORT );
-        srvEntry = new InetServiceEntry( proto.getName(), port, proto, TransportTypeEnum.TCP );
-        ( ( DefaultInetServicesDatabase ) fe.getInetServicesDatabase()).addEntry( srvEntry );
-
+        serverAddress = new InetSocketAddress( PropertiesUtils.get(
+                initialEnv, EnvKeys.LDAP_PORT, LDAP_PORT ) );
         try
         {
-            tcpConfig = new TCPListenerConfig( InetAddress.getLocalHost(), srvEntry );
+            acceptor = new IoProtocolAcceptor( new SocketAcceptor() );
+            acceptor.bind( serverAddress, new LdapProtocolProvider(
+                    ( Hashtable ) initialEnv.clone() ) );
         }
-        catch ( UnknownHostException e )
+        catch( IOException e )
         {
             e.printStackTrace();
             String msg = "Could not recognize the host!";
-            LdapConfigurationException e2 = new LdapConfigurationException( msg );
-            e2.setRootCause( e );
-        }
-
-        try
-        {
-            fe.getTCPListenerManager().bind( tcpConfig );
-        }
-        catch ( IOException e )
-        {
-            e.printStackTrace();
-            String msg = "We failed to bind to the port!";
-            LdapConfigurationException e2 = new LdapConfigurationException( msg );
+            LdapConfigurationException e2 = new LdapConfigurationException(
+                    msg );
             e2.setRootCause( e );
         }
     }
-
 
     /**
      * Starts up all the application partitions that will be attached to naming
@@ -598,7 +597,8 @@ public class ServerContextFactory implements InitialContextFactory
      * @throws javax.naming.NamingException if there are problems creating and starting these
      * new application partitions
      */
-    private void startUpAppPartitions( String eveWkdir ) throws NamingException
+    private void startUpAppPartitions( String eveWkdir )
+            throws NamingException
     {
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
         AttributeTypeRegistry attributeTypeRegistry;
@@ -607,24 +607,27 @@ public class ServerContextFactory implements InitialContextFactory
 
         // start getting all the parameters from the initial environment
         ContextPartitionConfig[] configs = null;
-        configs = PartitionConfigBuilder.getContextPartitionConfigs( initialEnv );
+        configs = PartitionConfigBuilder
+                .getContextPartitionConfigs( initialEnv );
 
-        for ( int ii = 0; ii < configs.length; ii++ )
+        for( int ii = 0; ii < configs.length; ii ++ )
         {
             // ----------------------------------------------------------------
             // create working directory under eve directory for app partition
             // ----------------------------------------------------------------
 
-            String wkdir = eveWkdir + File.separator + configs[ii].getId();
-            mkdirs( eveWkdir, configs[ii].getId() );
+            String wkdir = eveWkdir + File.separator + configs[ ii ].getId();
+            mkdirs( eveWkdir, configs[ ii ].getId() );
 
             // ----------------------------------------------------------------
             // create the database/store
             // ----------------------------------------------------------------
 
-            Name upSuffix = new LdapName( configs[ii].getSuffix() );
-            Normalizer dnNorm = reg.lookup( "distinguishedNameMatch" ).getNormalizer();
-            Name normSuffix = new LdapName( ( String ) dnNorm.normalize( configs[ii].getSuffix() ) );
+            Name upSuffix = new LdapName( configs[ ii ].getSuffix() );
+            Normalizer dnNorm = reg.lookup( "distinguishedNameMatch" )
+                    .getNormalizer();
+            Name normSuffix = new LdapName( ( String ) dnNorm
+                    .normalize( configs[ ii ].getSuffix() ) );
             Database db = new JdbmDatabase( upSuffix, wkdir );
 
             // ----------------------------------------------------------------
@@ -632,31 +635,42 @@ public class ServerContextFactory implements InitialContextFactory
             // ----------------------------------------------------------------
 
             ExpressionEvaluator evaluator;
-            evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
+            evaluator = new ExpressionEvaluator( db, oidRegistry,
+                    attributeTypeRegistry );
             ExpressionEnumerator enumerator;
-            enumerator = new ExpressionEnumerator( db, attributeTypeRegistry, evaluator );
-            SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
+            enumerator = new ExpressionEnumerator( db, attributeTypeRegistry,
+                    evaluator );
+            SearchEngine eng = new DefaultSearchEngine( db, evaluator,
+                    enumerator );
 
             // ----------------------------------------------------------------
             // fill up a list with the AttributeTypes for the system indices
             // ----------------------------------------------------------------
 
             ArrayList attributeTypeList = new ArrayList();
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.NDN_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.UPDN_OID ) );
+            attributeTypeList.add( attributeTypeRegistry
+                    .lookup( SystemPartition.ALIAS_OID ) );
+            attributeTypeList.add( attributeTypeRegistry
+                    .lookup( SystemPartition.EXISTANCE_OID ) );
+            attributeTypeList.add( attributeTypeRegistry
+                    .lookup( SystemPartition.HIERARCHY_OID ) );
+            attributeTypeList.add( attributeTypeRegistry
+                    .lookup( SystemPartition.NDN_OID ) );
+            attributeTypeList.add( attributeTypeRegistry
+                    .lookup( SystemPartition.ONEALIAS_OID ) );
+            attributeTypeList.add( attributeTypeRegistry
+                    .lookup( SystemPartition.SUBALIAS_OID ) );
+            attributeTypeList.add( attributeTypeRegistry
+                    .lookup( SystemPartition.UPDN_OID ) );
 
             // ----------------------------------------------------------------
             // if user indices are specified add those attribute types as well
             // ----------------------------------------------------------------
 
-            for ( int jj = 0; jj < configs[ii].getIndices().length; jj++ )
+            for( int jj = 0; jj < configs[ ii ].getIndices().length; jj ++ )
             {
-                attributeTypeList.add( attributeTypeRegistry.lookup( configs[ii].getIndices()[jj] ) );
+                attributeTypeList.add( attributeTypeRegistry
+                        .lookup( configs[ ii ].getIndices()[ jj ] ) );
             }
 
             // ----------------------------------------------------------------
@@ -664,19 +678,19 @@ public class ServerContextFactory implements InitialContextFactory
             // ----------------------------------------------------------------
 
             AttributeType[] indexTypes = ( AttributeType[] ) attributeTypeList
-                    .toArray( new AttributeType[attributeTypeList.size()] );
-            ApplicationPartition partition = new ApplicationPartition( upSuffix,
-                    normSuffix, db, eng, indexTypes );
+                    .toArray( new AttributeType[ attributeTypeList.size() ] );
+            ApplicationPartition partition = new ApplicationPartition(
+                    upSuffix, normSuffix, db, eng, indexTypes );
             nexus.register( partition );
 
             // ----------------------------------------------------------------
             // add the nexus context entry
             // ----------------------------------------------------------------
 
-            partition.add( configs[ii].getSuffix(), normSuffix, configs[ii].getAttributes() );
+            partition.add( configs[ ii ].getSuffix(), normSuffix,
+                    configs[ ii ].getAttributes() );
         }
     }
-
 
     /**
      * Recursively creates a bunch of directories from a base down to a path.
@@ -691,15 +705,15 @@ public class ServerContextFactory implements InitialContextFactory
         String[] comps = path.split( "/" );
         File file = new File( base );
 
-        if ( ! file.exists() )
+        if( !file.exists() )
         {
             file.mkdirs();
         }
 
-        for ( int ii = 0; ii < comps.length; ii++ )
+        for( int ii = 0; ii < comps.length; ii ++ )
         {
-            file = new File( file, comps[ii] );
-            if ( ! file.exists() )
+            file = new File( file, comps[ ii ] );
+            if( !file.exists() )
             {
                 file.mkdirs();
             }
@@ -707,7 +721,6 @@ public class ServerContextFactory implements InitialContextFactory
 
         return file.exists();
     }
-
 
     /**
      * Imports the LDIF entries packaged with the Eve JNDI provider jar into
@@ -724,24 +737,26 @@ public class ServerContextFactory implements InitialContextFactory
         env.putAll( initialEnv );
         env.put( Context.PROVIDER_URL, "ou=system" );
         LdapContext ctx = provider.getLdapContext( env );
-        InputStream in = ( InputStream ) getClass().getResourceAsStream( "system.ldif" );
+        InputStream in = ( InputStream ) getClass().getResourceAsStream(
+                "system.ldif" );
         LdifParser parser = new LdifParserImpl();
 
         try
         {
             LdifIterator iterator = new LdifIterator( in );
-            while ( iterator.hasNext() )
+            while( iterator.hasNext() )
             {
                 Attributes attributes = new LockableAttributesImpl();
                 String ldif = ( String ) iterator.next();
                 parser.parse( attributes, ldif );
-                Name dn = new LdapName( ( String ) attributes.remove( "dn" ).get() );
+                Name dn = new LdapName( ( String ) attributes.remove( "dn" )
+                        .get() );
 
                 dn.remove( 0 );
                 ctx.createSubcontext( dn, attributes );
             }
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
             String msg = "failed while trying to parse system ldif file";
             NamingException ne = new LdapConfigurationException( msg );

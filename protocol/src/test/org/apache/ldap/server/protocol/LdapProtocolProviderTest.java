@@ -18,17 +18,32 @@ package org.apache.ldap.server.protocol;
 
 
 import java.util.Properties;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.apache.ldap.common.exception.LdapNamingException;
-import org.apache.ldap.common.message.*;
 import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.server.protocol.*;
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.*;
+import org.apache.ldap.common.exception.LdapNamingException;
+import org.apache.ldap.common.message.AbandonRequest;
+import org.apache.ldap.common.message.AbandonRequestImpl;
+import org.apache.ldap.common.message.AddRequest;
+import org.apache.ldap.common.message.AddRequestImpl;
+import org.apache.ldap.common.message.BindRequest;
+import org.apache.ldap.common.message.BindRequestImpl;
+import org.apache.ldap.common.message.CompareRequest;
+import org.apache.ldap.common.message.CompareRequestImpl;
+import org.apache.ldap.common.message.DeleteRequest;
+import org.apache.ldap.common.message.DeleteRequestImpl;
+import org.apache.ldap.common.message.ExtendedRequest;
+import org.apache.ldap.common.message.ExtendedRequestImpl;
+import org.apache.ldap.common.message.ModifyDnRequest;
+import org.apache.ldap.common.message.ModifyDnRequestImpl;
+import org.apache.ldap.common.message.ModifyRequest;
+import org.apache.ldap.common.message.ModifyRequestImpl;
+import org.apache.ldap.common.message.SearchRequest;
+import org.apache.ldap.common.message.SearchRequestImpl;
+import org.apache.ldap.common.message.UnbindRequest;
+import org.apache.ldap.common.message.UnbindRequestImpl;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -50,42 +65,41 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testDefaultOperation() throws LdapNamingException
     {
-        LdapProtocolProvider provider = new LdapProtocolProvider( null );
-        assertNotNull( provider.getDecoderFactory() );
-        assertNotNull( provider.getEncoderFactory() );
+        LdapProtocolProvider provider = new LdapProtocolProvider();
+        assertNotNull( provider.getCodecFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
 
         Object req = null;
 
         req = new AbandonRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof AbandonHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof AbandonHandler );
 
         req = new AddRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof AddHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof AddHandler );
 
         req = new BindRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof BindHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof BindHandler );
 
         req = new CompareRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof CompareHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof CompareHandler );
 
         req = new DeleteRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof DeleteHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof DeleteHandler );
 
         req = new ExtendedRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof ExtendedHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof ExtendedHandler );
 
         req = new ModifyDnRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof ModifyDnHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof ModifyDnHandler );
 
         req = new ModifyRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof ModifyHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof ModifyHandler );
 
         req = new SearchRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof SearchHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof SearchHandler );
 
         req = new UnbindRequestImpl( 0 );
-        assertTrue( provider.getHandler( null, req ) instanceof UnbindHandler );
+        assertTrue( provider.getCommandHandler( req ) instanceof UnbindHandler );
     }
 
 
@@ -130,155 +144,139 @@ public class LdapProtocolProviderTest extends TestCase
         props.setProperty( UnbindRequest.class.getName(), BogusUnbindHandler.class.getName() );
         props.setProperty( UnbindRequestImpl.class.getName(), BogusUnbindHandler.class.getName() );
 
-        LdapProtocolProvider provider = new LdapProtocolProvider( props, null );
-        assertNotNull( provider.getDecoderFactory() );
-        assertNotNull( provider.getEncoderFactory() );
+        LdapProtocolProvider provider = new LdapProtocolProvider( props );
+        assertNotNull( provider.getCodecFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
 
         Object req = null;
-        RequestHandler handler = null;
+        CommandHandler handler = null;
 
         req = new AbandonRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.NOREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusAbandonHandler );
 
         req = new AddRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusAddHandler );
 
         req = new BindRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusBindHandler );
 
         req = new CompareRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusCompareHandler );
 
         req = new DeleteRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusDeleteHandler );
 
         req = new ExtendedRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusExtendedHandler );
 
         req = new ModifyDnRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusModifyDnHandler );
 
         req = new ModifyRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.SINGLEREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusModifyHandler );
 
         req = new SearchRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.MANYREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusSearchHandler );
 
         req = new UnbindRequestImpl( 0 );
-        handler = provider.getHandler( null, req );
-        assertEquals( HandlerTypeEnum.NOREPLY, handler.getHandlerType() );
+        handler = provider.getCommandHandler( req );
         assertTrue( handler instanceof BogusUnbindHandler );
     }
 
 
-    public static class BogusAbandonHandler extends AbstractNoReplyHandler
+    public static class BogusAbandonHandler implements CommandHandler
     {
-        public void handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusUnbindHandler extends AbstractNoReplyHandler
+    public static class BogusUnbindHandler implements CommandHandler
     {
-        public void handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusAddHandler extends AbstractSingleReplyHandler
+    public static class BogusAddHandler implements CommandHandler
     {
-        public Object handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusBindHandler extends AbstractSingleReplyHandler
+    public static class BogusBindHandler implements CommandHandler
     {
-        public Object handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusCompareHandler extends AbstractSingleReplyHandler
+    public static class BogusCompareHandler implements CommandHandler
     {
-        public Object handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusDeleteHandler extends AbstractSingleReplyHandler
+    public static class BogusDeleteHandler implements CommandHandler
     {
-        public Object handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusExtendedHandler extends AbstractSingleReplyHandler
+    public static class BogusExtendedHandler implements CommandHandler
     {
-        public Object handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusModifyDnHandler extends AbstractSingleReplyHandler
+    public static class BogusModifyDnHandler implements CommandHandler
     {
-        public Object handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusModifyHandler extends AbstractSingleReplyHandler
+    public static class BogusModifyHandler implements CommandHandler
     {
-        public Object handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
 
-    public static class BogusSearchHandler extends AbstractManyReplyHandler
+    public static class BogusSearchHandler implements CommandHandler
     {
-        public BogusSearchHandler()
-        {
-            super( true );
-        }
-
-        public Iterator handle( ClientKey key, Object request )
+        public void handle( ProtocolSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }

@@ -20,8 +20,7 @@ package org.apache.ldap.server.protocol;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.AbstractNoReplyHandler;
+import org.apache.mina.protocol.ProtocolSession;
 
 
 /**
@@ -31,22 +30,22 @@ import org.apache.apseda.protocol.AbstractNoReplyHandler;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UnbindHandler extends AbstractNoReplyHandler
+public class UnbindHandler implements CommandHandler
 {
-    public void handle( ClientKey key, Object request )
+    public void handle( ProtocolSession session, Object request )
     {
         SessionRegistry registry = SessionRegistry.getSingleton();
 
         try
         {
             InitialLdapContext ictx = SessionRegistry.getSingleton()
-                    .getInitialLdapContext( key, null, false );
+                    .getInitialLdapContext( session, null, false );
             if ( ictx != null )
             {
                 ictx.close();
             }
-            registry.terminateSession( key );
-            registry.remove( key );
+            registry.terminateSession( session );
+            registry.remove( session );
         }
         catch ( NamingException e )
         {

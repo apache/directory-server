@@ -21,25 +21,25 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
-import java.util.Map;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.ldap.server.jndi.EnvKeys;
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
-import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.apseda.listener.AvailablePortFinder;
+import org.apache.ldap.server.jndi.EnvKeys;
 
 
 /**
@@ -82,7 +82,8 @@ public abstract class AbstractServerTest extends TestCase
             doDelete( new File( "target" + File.separator + "apacheds" ) );
         }
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
+//        int port = AvailablePortFinder.getNextAvailable( 1024 );
+        int port = 1024;
 
         extras.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
 
@@ -204,7 +205,7 @@ public abstract class AbstractServerTest extends TestCase
     {
         Hashtable env = new Hashtable();
 
-        env.putAll( ( Map ) sysRoot.getEnvironment() );
+        env.putAll( sysRoot.getEnvironment() );
 
         LdapContext ctx = new InitialLdapContext( env, null );
 

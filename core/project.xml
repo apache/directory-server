@@ -14,6 +14,21 @@
   </description>
   <dependencies>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+      <version>20041207.202534</version>
+    </dependency>
+    <dependency>
       <groupId>regexp</groupId>
       <artifactId>regexp</artifactId>
       <version>1.2</version>
@@ -96,8 +111,8 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>apseda</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <artifactId>mina</artifactId>
+      <version>0.7-SNAPSHOT</version>
     </dependency>
 
     <!-- The Eve Maven Plugin -->

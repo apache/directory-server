@@ -254,8 +254,8 @@ public class SchemaService extends BaseInterceptor
                     invocation.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
                     SearchResult result = new SearchResult( base.toString(), null, attrs );
-                    SingletonEnumeration enum = new SingletonEnumeration( result );
-                    invocation.setReturnValue( enum );
+                    SingletonEnumeration e = new SingletonEnumeration( result );
+                    invocation.setReturnValue( e );
                 }
             }
             else if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
@@ -268,8 +268,8 @@ public class SchemaService extends BaseInterceptor
                     invocation.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
                     SearchResult result = new SearchResult( base.toString(), null, attrs );
-                    SingletonEnumeration enum = new SingletonEnumeration( result );
-                    invocation.setReturnValue( enum );
+                    SingletonEnumeration e = new SingletonEnumeration( result );
+                    invocation.setReturnValue( e );
                 }
             }
         }

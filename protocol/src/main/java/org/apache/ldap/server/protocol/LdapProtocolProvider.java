@@ -16,7 +16,6 @@
  */
 package org.apache.ldap.server.protocol;
 
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -25,14 +24,6 @@ import java.util.Map;
 
 import javax.naming.Context;
 
-import org.apache.apseda.event.EventRouter;
-import org.apache.apseda.listener.ClientKey;
-import org.apache.apseda.protocol.ProtocolProvider;
-import org.apache.apseda.protocol.RequestHandler;
-import org.apache.asn1.codec.stateful.DecoderFactory;
-import org.apache.asn1.codec.stateful.EncoderFactory;
-import org.apache.asn1.codec.stateful.StatefulDecoder;
-import org.apache.asn1.codec.stateful.StatefulEncoder;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.AbandonRequest;
 import org.apache.ldap.common.message.AbandonRequestImpl;
@@ -58,7 +49,15 @@ import org.apache.ldap.common.message.SearchRequestImpl;
 import org.apache.ldap.common.message.UnbindRequest;
 import org.apache.ldap.common.message.UnbindRequestImpl;
 import org.apache.ldap.common.message.spi.Provider;
-
+import org.apache.mina.protocol.ProtocolCodecFactory;
+import org.apache.mina.protocol.ProtocolDecoder;
+import org.apache.mina.protocol.ProtocolEncoder;
+import org.apache.mina.protocol.ProtocolHandler;
+import org.apache.mina.protocol.ProtocolHandlerAdapter;
+import org.apache.mina.protocol.ProtocolProvider;
+import org.apache.mina.protocol.ProtocolSession;
+import org.apache.mina.protocol.codec.Asn1CodecDecoder;
+import org.apache.mina.protocol.codec.Asn1CodecEncoder;
 
 /**
  * An LDAP protocol provider implementation which dynamically associates
@@ -71,6 +70,7 @@ public class LdapProtocolProvider implements ProtocolProvider
 {
     /** the constant service name of this ldap protocol provider **/
     public static final String SERVICE_NAME = "ldap";
+
     /** a map of the default request object class name to the handler class name */
     public static final Map DEFAULT_HANDLERS;
 
@@ -121,20 +121,18 @@ public class LdapProtocolProvider implements ProtocolProvider
         DEFAULT_HANDLERS = Collections.unmodifiableMap( map );
     }
 
-    /** a handle on the SEDA event router */
-    public final EventRouter router;
-    /** the underlying provider decoder factory */
-    public final DecoderFactory decoderFactory;
-    /** the underlying provider encoder factory */
-    public final EncoderFactory encoderFactory;
-    /** the handlers to use while processing requests */
-    public final Map handlers;
+    /** the underlying provider codec factory */
+    private final ProtocolCodecFactory codecFactory;
 
+    /** the MINA protocol handler */
+    private final LdapProtocolHandler handler = new LdapProtocolHandler();
+
+    /** the handlers to use while processing requests */
+    private final Map commandHandlers;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
 
     /**
      * Creates a SEDA LDAP protocol provider.
@@ -142,31 +140,29 @@ public class LdapProtocolProvider implements ProtocolProvider
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
      */
-    public LdapProtocolProvider( Hashtable env, EventRouter router )
-            throws LdapNamingException
+    public LdapProtocolProvider( Hashtable env ) throws LdapNamingException
     {
-        this.router = router;
         Hashtable copy = ( Hashtable ) env.clone();
-        this.handlers = new HashMap();
+        this.commandHandlers = new HashMap();
 
         copy.put( Context.PROVIDER_URL, "" );
         SessionRegistry.releaseSingleton();
-        new SessionRegistry( copy, router );
+        new SessionRegistry( copy );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
-        while ( requestTypes.hasNext() )
+        while( requestTypes.hasNext() )
         {
-            RequestHandler handler = null;
+            CommandHandler handler = null;
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
-            if ( copy.containsKey( type ) )
+            if( copy.containsKey( type ) )
             {
                 try
                 {
                     clazz = Class.forName( ( String ) copy.get( type ) );
                 }
-                catch ( ClassNotFoundException e )
+                catch( ClassNotFoundException e )
                 {
                     LdapNamingException lne;
                     String msg = "failed to load class " + clazz;
@@ -183,9 +179,9 @@ public class LdapProtocolProvider implements ProtocolProvider
 
             try
             {
-                handler = ( RequestHandler ) clazz.newInstance();
+                handler = ( CommandHandler ) clazz.newInstance();
             }
-            catch ( Exception e )
+            catch( Exception e )
             {
                 LdapNamingException lne;
                 String msg = "failed to create handler instance of " + clazz;
@@ -195,28 +191,25 @@ public class LdapProtocolProvider implements ProtocolProvider
                 throw lne;
             }
 
-            this.handlers.put( type, handler );
+            this.commandHandlers.put( type, handler );
         }
 
-        this.decoderFactory = new DecoderFactoryImpl( copy );
-        this.encoderFactory = new EncoderFactoryImpl( copy );
+        this.codecFactory = new ProtocolCodecFactoryImpl( copy );
     }
-
 
     /**
      * Creates a SEDA LDAP protocol provider.
      */
-    public LdapProtocolProvider( EventRouter router ) throws LdapNamingException
+    public LdapProtocolProvider() throws LdapNamingException
     {
-        this.router = router;
-        this.handlers = new HashMap();
+        this.commandHandlers = new HashMap();
         SessionRegistry.releaseSingleton();
-        new SessionRegistry( null, router );
+        new SessionRegistry( null );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
-        while ( requestTypes.hasNext() )
+        while( requestTypes.hasNext() )
         {
-            RequestHandler handler = null;
+            CommandHandler handler = null;
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
@@ -224,9 +217,9 @@ public class LdapProtocolProvider implements ProtocolProvider
 
             try
             {
-                handler = ( RequestHandler ) clazz.newInstance();
+                handler = ( CommandHandler ) clazz.newInstance();
             }
-            catch ( Exception e )
+            catch( Exception e )
             {
                 LdapNamingException lne;
                 String msg = "failed to create handler instance of " + clazz;
@@ -236,63 +229,46 @@ public class LdapProtocolProvider implements ProtocolProvider
                 throw lne;
             }
 
-            this.handlers.put( type, handler );
+            this.commandHandlers.put( type, handler );
         }
 
-        this.decoderFactory = new DecoderFactoryImpl();
-        this.encoderFactory = new EncoderFactoryImpl();
+        this.codecFactory = new ProtocolCodecFactoryImpl();
     }
-
 
     // ------------------------------------------------------------------------
     // ProtocolProvider Methods
     // ------------------------------------------------------------------------
 
-
-    /**
-     * @see ProtocolProvider#getName()
-     * @return ldap every time
-     */
     public String getName()
     {
         return SERVICE_NAME;
     }
 
-
-    /**
-     * @see ProtocolProvider#getDecoderFactory()
-     */
-    public DecoderFactory getDecoderFactory()
+    public ProtocolCodecFactory getCodecFactory()
     {
-        return this.decoderFactory;
+        return codecFactory;
     }
 
-
-    /**
-     * @see ProtocolProvider#getEncoderFactory()
-     */
-    public EncoderFactory getEncoderFactory()
+    public ProtocolHandler getHandler()
     {
-        return this.encoderFactory;
+        return handler;
     }
 
-
-    /**
-     * @see ProtocolProvider#getHandler(ClientKey, Object)
-     */
-    public RequestHandler getHandler( ClientKey key, Object request )
+    public CommandHandler getCommandHandler( Object request )
     {
-        if ( this.handlers.containsKey( request.getClass().getName() ) )
+        if( this.commandHandlers.containsKey( request.getClass().getName() ) )
         {
-            return ( RequestHandler ) this.handlers.get( request.getClass().getName() );
+            return ( CommandHandler ) this.commandHandlers.get( request
+                    .getClass().getName() );
         }
 
         Class[] interfaces = request.getClass().getInterfaces();
-        for ( int ii = 0; ii < interfaces.length; ii++ )
+        for( int ii = 0; ii < interfaces.length; ii ++ )
         {
-            if ( this.handlers.containsKey( interfaces[ii].getName() ) )
+            if( this.commandHandlers.containsKey( interfaces[ ii ].getName() ) )
             {
-                return ( RequestHandler ) this.handlers.get( interfaces[ii].getName() );
+                return ( CommandHandler ) this.commandHandlers
+                        .get( interfaces[ ii ].getName() );
             }
         }
 
@@ -300,71 +276,66 @@ public class LdapProtocolProvider implements ProtocolProvider
         throw new IllegalArgumentException( msg );
     }
 
-
     /**
      * A snickers based BER Decoder factory.
      */
-    private static final class DecoderFactoryImpl implements DecoderFactory
+    private static final class ProtocolCodecFactoryImpl implements
+            ProtocolCodecFactory
     {
         final Hashtable env;
 
-
-        public DecoderFactoryImpl()
+        public ProtocolCodecFactoryImpl()
         {
             this.env = null;
         }
 
-
-        DecoderFactoryImpl( Hashtable env )
+        ProtocolCodecFactoryImpl( Hashtable env )
         {
             this.env = env;
         }
 
-
-        public StatefulDecoder createDecoder()
+        public ProtocolEncoder newEncoder()
         {
-            if ( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
+            if( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
             {
-                return new MessageDecoder();
+                return new Asn1CodecEncoder( new MessageEncoder() );
             }
             else
             {
-                return new MessageDecoder( env );
+                return new Asn1CodecEncoder( new MessageEncoder( env ) );
+            }
+        }
+
+        public ProtocolDecoder newDecoder()
+        {
+            if( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
+            {
+                return new Asn1CodecDecoder( new MessageDecoder() );
+            }
+            else
+            {
+                return new Asn1CodecDecoder( new MessageDecoder( env ) );
             }
         }
     }
 
-
-    /**
-     * A snickers based BER Encoder factory.
-     */
-    private static final class EncoderFactoryImpl implements EncoderFactory
+    private class LdapProtocolHandler extends ProtocolHandlerAdapter
     {
-        final Hashtable env;
 
-
-        public EncoderFactoryImpl()
+        public void messageReceived( ProtocolSession session, Object request )
         {
-            this.env = null;
+            CommandHandler handler = getCommandHandler( request );
+            handler.handle( session, request );
         }
 
-
-        public EncoderFactoryImpl( Hashtable env )
+        public void sessionClosed( ProtocolSession session )
         {
-            this.env = env;
+            SessionRegistry.getSingleton().remove( session );
         }
 
-
-        public StatefulEncoder createEncoder()
+        public void exceptionCaught( ProtocolSession session, Throwable cause )
         {
-            if ( env == null || env.get( Provider.BERLIB_PROVIDER ) == null )
-            {
-                return new MessageEncoder();
-            }
-            else
-            {
-                return new MessageEncoder( env );
-            }
+            cause.printStackTrace();
         }
     }
 }
