@@ -21,17 +21,17 @@ import java.util.EventObject;
 
 import org.apache.avalon.merlin.unit.AbstractMerlinTestCase ;
 
-import org.apache.eve.encoder.EncoderManager ;
-import org.apache.eve.event.AbstractSubscriber;
 import org.apache.eve.event.EventRouter;
 import org.apache.eve.event.OutputEvent;
-import org.apache.eve.event.OutputSubscriber;
 import org.apache.eve.event.ResponseEvent;
-import org.apache.ldap.common.message.AddResponse;
-import org.apache.ldap.common.message.AddResponseImpl;
+import org.apache.eve.event.OutputSubscriber;
+import org.apache.eve.event.AbstractSubscriber;
+
 import org.apache.ldap.common.message.LdapResult;
+import org.apache.ldap.common.message.AddResponse;
 import org.apache.ldap.common.message.LdapResultImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.message.AddResponseImpl;
 
 
 /**

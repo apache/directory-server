@@ -36,16 +36,6 @@ import org.apache.eve.seda.StageHandler ;
 import org.apache.eve.seda.DefaultStageConfig ;
 import org.apache.eve.seda.LoggingStageMonitor;
 
-import org.apache.eve.processor.NoReplyHandler ;
-import org.apache.eve.processor.RequestHandler ;
-import org.apache.eve.processor.HandlerRegistry ;
-import org.apache.eve.processor.HandlerTypeEnum ;
-import org.apache.eve.processor.ManyReplyHandler ;
-import org.apache.eve.processor.RequestProcessor ;
-import org.apache.eve.processor.SingleReplyHandler ;
-import org.apache.eve.processor.RequestProcessorMonitor ;
-import org.apache.eve.processor.RequestProcessorMonitorAdapter ;
-
 import org.apache.ldap.common.message.Request ;
 import org.apache.ldap.common.message.Response ;
 import org.apache.ldap.common.message.LdapResult ;
@@ -133,7 +123,7 @@ public class DefaultRequestProcessor extends DefaultStage
         /**
          * Event handler method for processing RequestEvents.
          *
-         * @param event the RequestEvent to process.
+         * @param unspecific the RequestEvent to process.
          */
         public void handleEvent( EventObject unspecific )
         {

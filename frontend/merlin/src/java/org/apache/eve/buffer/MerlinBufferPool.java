@@ -33,6 +33,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException ;
  * 
  * @avalon.component name="buffer-pool" lifestyle="singleton"
  * @avalon.service type="org.apache.eve.buffer.BufferPool" version="1.0"
+ * @avalon.attribute key="urn:composition:deployment.timeout" value="6000"
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>

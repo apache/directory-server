@@ -114,6 +114,11 @@ public class MerlinRequestProcessorTest extends AbstractMerlinTestCase
     }
 
 
+    // ------------------------------------------------------------------------
+    // T E S T C A S E S
+    // ------------------------------------------------------------------------
+
+
     /**
      * Tests the handling of an Abandon request.
      * 
@@ -126,9 +131,9 @@ public class MerlinRequestProcessorTest extends AbstractMerlinTestCase
         RequestEvent e = new RequestEvent( this, null, req ) ;
         router.publish( e ) ;
 
-        // must wait for delivery - there has to be a better way
-        Thread.sleep( 100 ) ;
-        
+        // stop the kernel to get event delivery
+        super.tearDown();
+
         // this message does not produce a response
         assertNull( this.event ) ;
     }
@@ -149,9 +154,9 @@ public class MerlinRequestProcessorTest extends AbstractMerlinTestCase
         RequestEvent e = new RequestEvent( this, null, req ) ;
         router.publish( e ) ;
         
-        // prematurely stop processor to for event delivery
-        Thread.sleep( 100 ) ;
-        
+        // stop the kernel to get event delivery
+        super.tearDown();
+
         // this message does not produce a response
         assertNotNull( this.event ) ;
         assertEquals( 5, this.event.getResponse().getMessageId() ) ;

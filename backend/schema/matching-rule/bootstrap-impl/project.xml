@@ -67,7 +67,7 @@
       <dependency>
         <groupId>avalon-framework</groupId>
         <artifactId>avalon-framework-api</artifactId>
-        <version>4.1.5</version>
+        <version>4.2.0</version>
         <url>http://avalon.apache.org/framework</url>
       </dependency>
     </dependencies>

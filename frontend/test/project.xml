@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <extend>${basedir}/../../project.xml</extend>
+  <groupId>incubator-directory</groupId>
+  <id>eve-frontend-test</id>
+
+  <name>Eve Frontend Merlin Test</name>
+  <package>org.apache.eve</package>
+  <currentVersion>SNAPSHOT</currentVersion>
+  <inceptionYear>2003</inceptionYear>
+      
+  <shortDescription>Eve Frontend Test Suite</shortDescription>
+
+  <description>
+    Contains the Avalon merlin test-suite for Eve.
+  </description>
+
+  <dependencies>
+
+    <!-- =============================================================== -->
+    <!--                A V A L O N   D E N D E N C I E S                -->
+    <!-- =============================================================== -->
+      
+    <dependency>
+      <groupId>merlin</groupId>
+      <artifactId>merlin-unit</artifactId>
+      <version>3.3.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cornerstone-threads</groupId>
+      <artifactId>cornerstone-threads-api</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>excalibur-thread</groupId>
+      <artifactId>excalibur-thread-api</artifactId>
+      <version>2.0.0</version>
+      <url>http://avalon.apache.org/excalibur/index.html</url>
+    </dependency>
+
+    <dependency>
+      <groupId>excalibur-pool</groupId>
+      <artifactId>excalibur-pool-api</artifactId>
+      <version>2.0.0</version>
+      <url>http://avalon.apache.org/excalibur/index.html</url>
+    </dependency>
+
+    <dependency>
+      <groupId>avalon-logkit</groupId>
+      <artifactId>avalon-logkit</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+      
+    <dependency>
+      <groupId>avalon-framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+      <version>4.2.0</version>
+    </dependency>
+      
+    <!-- =============================================================== -->
+    <!--              D I R E C T O R Y   D E N D E N C I E S            -->
+    <!-- =============================================================== -->
+      
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>eve-frontend-api</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/eve/frontend</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>eve-frontend-impl</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/eve/frontend</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>eve-frontend-merlin</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/eve/frontend</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>snickers-ber-api</artifactId>
+      <version>SNAPSHOT</version>
+      <url>
+        http://incubator.apache.org/directory/subprojects/snickers/ber/api
+      </url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-snacc-provider</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>codec-stateful</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+    </dependency>
+
+    <!-- =============================================================== -->
+    <!--        A P A C H E   C O M M O N S   D E N D E N C I E S        -->
+    <!-- =============================================================== -->
+      
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/codec</url>
+    </dependency>
+      
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <url>http://jakarta.apache.org/commons/lang</url>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>2.1</version>
+      <url>http://jakarta.apache.org/commons/collections</url>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <url>http://jakarta.apache.org/commons/lang</url>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+      <version>1.1-dev</version>
+      <url>http://jakarta.apache.org/commons/primitives</url>
+    </dependency>
+        
+    <!-- =============================================================== -->
+    <!--           O T H E R   A P A C H E   D E N D E N C I E S         -->
+    <!-- =============================================================== -->
+      
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+      <version>1.3.1</version>
+      <url>
+http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
+      </url>
+    </dependency>
+      
+    <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+      <version>1.2</version>
+      <url>http://jakarta.apache.org/regexp</url>
+    </dependency>
+
+    <!-- =============================================================== -->
+    <!--          M I S C E L A N E O U S   D E N D E N C I E S          -->
+    <!-- =============================================================== -->
+      
+        <!-- THE DEPENDENCY KEEPING USE IN INCUBATOR -->
+        <dependency>
+          <groupId>snacc4j</groupId>
+          <artifactId>snacc</artifactId>
+          <version>2.3</version>
+        </dependency>
+        <!-- THE DEPENDENCY KEEPING USE IN INCUBATOR -->
+
+  </dependencies>
+      
+</project>
+

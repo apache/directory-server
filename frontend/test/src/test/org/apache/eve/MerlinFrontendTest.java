@@ -67,31 +67,31 @@ public class MerlinFrontendTest extends AbstractMerlinTestCase
         super.setUp() ;
 
         bufferPool = ( BufferPool ) 
-            resolve( "/eve/buffer-pool" ) ;
+            resolve( "/server/buffer-pool" ) ;
         
         eventRouter = ( EventRouter )
-            resolve( "/eve/event-router" ) ; 
+            resolve( "/server/event-router" ) ; 
         
         inputManager = ( InputManager ) 
-            resolve( "/eve/input-manager" ) ;
+            resolve( "/server/input-manager" ) ;
 
         outputManager = ( OutputManager ) 
-            resolve( "/eve/output-manager" ) ;
+            resolve( "/server/output-manager" ) ;
 
         threadManager = ( ThreadManager ) 
-            resolve( "/eve/thread-manager" ) ;
+            resolve( "/server/thread-manager" ) ;
 
         encoderManager = ( EncoderManager ) 
-            resolve( "/eve/encoder-manager" ) ;
+            resolve( "/server/encoder-manager" ) ;
 
         decoderManager = ( DecoderManager ) 
-            resolve( "/eve/decoder-manager" ) ;
+            resolve( "/server/decoder-manager" ) ;
 
         listenerManager = ( ListenerManager ) 
-            resolve( "/eve/listener-manager" ) ;
+            resolve( "/server/listener-manager" ) ;
 
         requestProcessor = ( RequestProcessor ) 
-            resolve( "/eve/request-processor" ) ;
+            resolve( "/server/request-processor" ) ;
     }
 
     

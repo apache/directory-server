@@ -46,6 +46,7 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
  * @avalon.component name="encoder-manager" lifestyle="singleton"
  * @avalon.service type="org.apache.eve.encoder.EncoderManager" 
  *      version="1.0"
+ * @avalon.attribute key="urn:composition:deployment.timeout" value="6000"
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>

@@ -21,8 +21,7 @@ import org.apache.eve.thread.ThreadPool ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.seda.DefaultStageConfig ;
 import org.apache.eve.seda.StageMonitorAdapter;
-
-import org.apache.eve.processor.RequestProcessor ;
+import org.apache.eve.seda.LoggingStageMonitor;
 
 import org.apache.avalon.framework.logger.Logger ;
 import org.apache.avalon.framework.logger.LogEnabled ;
@@ -44,6 +43,7 @@ import org.apache.avalon.cornerstone.services.threads.ThreadManager ;
  * @avalon.component name="request-processor" lifestyle="singleton"
  * @avalon.service type="org.apache.eve.processor.RequestProcessor" 
  *      version="1.0"
+ * @avalon.attribute key="urn:composition:deployment.timeout" value="6000"
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
@@ -141,7 +141,7 @@ public class MerlinRequestProcessor
         DefaultHandlerRegistry hooks = new DefaultHandlerRegistry() ;
         requestProcessor = 
             new DefaultRequestProcessor( router, stageConfig, hooks ) ;
-        requestProcessor.setMonitor( new StageMonitorAdapter() ) ;
+        requestProcessor.setMonitor( new LoggingStageMonitor() ) ;
     }
     
     
