@@ -17,15 +17,11 @@
 package org.apache.eve.jndi.ibs;
 
 
-import java.util.Hashtable;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
 
-import org.apache.eve.jndi.EveLdapContext;
-import org.apache.eve.jndi.AbstractJndiTest;
+import org.apache.eve.jndi.AbstractMultiUserJndiTest;
 import org.apache.eve.exception.EveNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 
@@ -37,39 +33,8 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AuthorizationServiceTest extends AbstractJndiTest
+public class AuthorizationServiceTest extends AbstractMultiUserJndiTest
 {
-    EveLdapContext sysRootAsNonRootUser;
-
-
-    /**
-     * Set's up a context for an authenticated non-root user.
-     *
-     * @see AbstractJndiTest#setUp()
-     */
-    protected void setUp() throws Exception
-    {
-        // bring the system up
-        super.setUp();
-
-        // authenticate as akarasulu
-        Hashtable env = new Hashtable( );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        InitialContext ictx = new InitialContext( env );
-        sysRootAsNonRootUser = ( EveLdapContext ) ictx.lookup( "" );
-    }
-
-
-    protected void tearDown() throws Exception
-    {
-        super.tearDown();
-        sysRootAsNonRootUser = null;
-    }
-
-
     /**
      * Makes sure the admin cannot delete the admin account.
      *
@@ -98,8 +63,8 @@ public class AuthorizationServiceTest extends AbstractJndiTest
     {
         try
         {
-            sysRootAsNonRootUser.destroySubcontext( "uid=admin" );
-            fail( sysRootAsNonRootUser.getPrincipal().getDn()
+            sysRootAsNonAdminUser.destroySubcontext( "uid=admin" );
+            fail( sysRootAsNonAdminUser.getPrincipal().getDn()
                     + " should not be able to delete his account" );
         }
         catch ( EveNoPermissionException e )
@@ -137,7 +102,7 @@ public class AuthorizationServiceTest extends AbstractJndiTest
     {
         try
         {
-            sysRootAsNonRootUser.rename( "uid=admin", "uid=alex" );
+            sysRootAsNonAdminUser.rename( "uid=admin", "uid=alex" );
             fail( "admin should not be able to rename his account" );
         }
         catch ( EveNoPermissionException e )
@@ -172,9 +137,9 @@ public class AuthorizationServiceTest extends AbstractJndiTest
 
         try
         {
-            sysRootAsNonRootUser.modifyAttributes( "uid=admin",
+            sysRootAsNonAdminUser.modifyAttributes( "uid=admin",
                     DirContext.REPLACE_ATTRIBUTE, attributes );
-            fail( sysRootAsNonRootUser.getPrincipal().getDn() +
+            fail( sysRootAsNonAdminUser.getPrincipal().getDn() +
                     " should not be able to modify attributes on admin" );
         } catch( Exception e ) { }
     }

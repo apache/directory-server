@@ -35,7 +35,6 @@ import org.apache.eve.jndi.BaseInterceptor;
 import org.apache.eve.jndi.InvocationStateEnum;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -113,10 +112,7 @@ public class FilterServiceImpl extends BaseInterceptor
                                            SearchControls controls )
                             throws NamingException
                     {
-                        String rdn = new LdapName( result.getName() ).getRdn();
-                        result.setName( rdn );
-                        result.setObject( ctx.lookup( rdn ) );
-                        result.setRelative( true );
+                        result.setName( result.getName() );
                         return FilterServiceImpl.this.accept( ctx, result, controls );
                     }
                 } );

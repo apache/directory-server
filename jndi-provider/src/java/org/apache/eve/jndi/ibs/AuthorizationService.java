@@ -29,10 +29,7 @@ import org.apache.eve.SystemPartition;
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.exception.EveNoPermissionException;
-import org.apache.eve.jndi.BaseInterceptor;
-import org.apache.eve.jndi.Invocation;
-import org.apache.eve.jndi.InvocationStateEnum;
-import org.apache.eve.jndi.EveContext;
+import org.apache.eve.jndi.*;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.name.DnParser;
 
@@ -252,6 +249,7 @@ public class AuthorizationService extends BaseInterceptor
                 throws NamingException
         {
             Name dn;
+
             synchronized( dnParser )
             {
                 dn = dnParser.parse( result.getName() );
@@ -259,6 +257,10 @@ public class AuthorizationService extends BaseInterceptor
 
             Name principalDn = ( ( EveContext ) ctx ).getPrincipal().getDn();
             if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            {
+                return false;
+            }
+            else if ( dn.equals( ADMIN_DN ) && ! principalDn.equals( ADMIN_DN ) )
             {
                 return false;
             }
@@ -288,6 +290,13 @@ public class AuthorizationService extends BaseInterceptor
                 String msg = "Access to user account " + dn + " not permitted";
                 msg += " for user " + principalDn + ".  Only the admin can";
                 msg += " access user account information";
+                throw new EveNoPermissionException( msg );
+            }
+            else if ( dn.equals( ADMIN_DN ) && ! principalDn.equals( ADMIN_DN ) )
+            {
+                String msg = "Access to admin account " + dn + " not permitted";
+                msg += " for user " + principalDn + ".  Only the admin can";
+                msg += " access admin account information";
                 throw new EveNoPermissionException( msg );
             }
         }

@@ -252,8 +252,13 @@ public class ResultFilteringEnumeration implements NamingEnumeration
             {
                 accepted = ( ( SearchResultFilter ) filters.get( 0 ) )
                         .accept( ctx, tmp, searchControls );
-                this.prefetched = tmp;
-                return;
+                if ( accepted )
+                {
+                    this.prefetched = tmp;
+                    return;
+                }
+
+                continue;
             }
 
             // apply all filters shorting their application on result denials

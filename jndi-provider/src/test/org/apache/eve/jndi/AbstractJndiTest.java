@@ -35,7 +35,7 @@ import org.apache.commons.io.FileUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbstractJndiTest extends TestCase
+public abstract class AbstractJndiTest extends TestCase
 {
     /** the context root for the system partition */
     protected LdapContext sysRoot;
