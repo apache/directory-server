@@ -16,6 +16,20 @@
       
     <dependencies>
       <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.0</version>
+        <url>http://jakarta.apache.org/commons/lang</url>
+      </dependency>
+      
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.0.3</version>
+        <url>http://jakarta.apache.org/commons/logging</url>
+      </dependency>
+      
+      <dependency>
         <groupId>incubator-directory</groupId>
         <artifactId>eve-frontend-common-api</artifactId>
         <version>SNAPSHOT</version>
