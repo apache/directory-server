@@ -93,4 +93,19 @@ public class OpenLdapSchemaParserTest extends TestCase
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntax() );
         assertEquals( 32768, type.getLength() );
     }
+
+
+    public void testSimpleObjectClass() throws Exception
+    {
+        String objectClassData = "objectclass ( 2.5.6.6 NAME 'person'\n" +
+            "        DESC 'RFC2256: a person'\n" +
+            "        SUP top STRUCTURAL\n" +
+            "        MUST ( sn $ cn )\n" +
+            "        MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )";
+        parser.parse( objectClassData );
+        Map objectClasses = parser.getObjectClassTypes();
+        ObjectClassLiteral objectClass = ( ObjectClassLiteral ) objectClasses.get( "2.5.6.6" );
+
+        assertNotNull( objectClass );
+    }
 }

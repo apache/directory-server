@@ -197,6 +197,10 @@ objectClass
     )?
     ( must[objectClass] )?
     ( may[objectClass] )?
+    CLOSE_PAREN
+    {
+        objectClasses.put( objectClass.getOid(), objectClass );
+    }
     ;
 
 
