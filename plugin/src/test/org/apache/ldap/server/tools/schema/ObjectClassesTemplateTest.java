@@ -14,82 +14,83 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.tools.schema;
+package org.apache.ldap.server.tools.schema;
 
 
 import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
 import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
+import org.apache.ldap.server.tools.schema.AbstractTestCase;
 
 
 /**
- * A test which tries to generate AttributeType producers for all schemas.
+ * A test which tries to generate ObjectClass producers for all schemas.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AttributeTypesTemplateTest extends AbstractTestCase
+public class ObjectClassesTemplateTest extends AbstractTestCase
 {
 
 
-    public void testCoreAttributeTypeGeneration() throws Exception
+    public void testCoreObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "core", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testJavaAttributeTypeGeneration() throws Exception
+    public void testJavaObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "java", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testCorbaAttributeTypeGeneration() throws Exception
+    public void testCorbaObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "corba", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testCosineAttributeTypeGeneration() throws Exception
+    public void testCosineObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "cosine", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testInetorgpersonAttributeTypeGeneration() throws Exception
+    public void testInetorgpersonObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "inetorgperson", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testMiscAttributeTypeGeneration() throws Exception
+    public void testMiscObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "misc", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 
 
-    public void testNisAttributeTypeGeneration() throws Exception
+    public void testNisObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
             "uid=admin,ou=system", "nis", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
-        generateAttributeTypeProducer( schema );
+        generateObjectClassProducer( schema );
     }
 }

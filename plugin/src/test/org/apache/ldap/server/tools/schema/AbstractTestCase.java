@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.tools.schema;
+package org.apache.ldap.server.tools.schema;
 
 
 import junit.framework.TestCase;

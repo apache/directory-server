@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.tools.schema;
+package org.apache.ldap.server.tools.schema;
 
 
 import java.util.Map;
@@ -22,6 +22,10 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 import org.apache.ldap.common.schema.ObjectClassTypeEnum;
+import org.apache.ldap.server.tools.schema.AttributeTypeLiteral;
+import org.apache.ldap.server.tools.schema.ConsoleParserMonitor;
+import org.apache.ldap.server.tools.schema.ObjectClassLiteral;
+import org.apache.ldap.server.tools.schema.OpenLdapSchemaParser;
 
 
 /**

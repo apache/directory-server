@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.tools.schema;
+package org.apache.ldap.server.tools.schema;
 
 
 import java.io.*;
@@ -27,6 +27,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchema;
 import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
+import org.apache.ldap.server.tools.schema.AttributeTypeLiteral;
 
 
 /**

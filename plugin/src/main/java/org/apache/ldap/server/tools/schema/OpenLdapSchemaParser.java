@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.tools.schema;
+package org.apache.ldap.server.tools.schema;
 
 
 import org.apache.ldap.common.util.ExceptionUtils;

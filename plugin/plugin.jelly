@@ -55,7 +55,7 @@
                         <!-- Basedir sysprop not set when not forking -->
             <j:set var="noop" value="${systemScope.setProperty('basedir', basedir)}"/>
 
-            <j:useBean var="task" class="org.apache.eve.tools.schema.EveSchemaToolTask"
+            <j:useBean var="task" class="org.apache.ldap.server.tools.schema.EveSchemaToolTask"
 			    name="${schema}" owner="${owner}" package="${package}" dependencies="${deps}"/>
 			<j:expr value="${task.execute()}"/>
             <j:if test="${task.hasFaulted()}">

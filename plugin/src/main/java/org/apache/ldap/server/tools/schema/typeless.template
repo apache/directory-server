@@ -19,15 +19,15 @@ package $package;
 
 import javax.naming.NamingException;
 
-#if ( $package != "org.apache.eve.schema.bootstrap" )
-import org.apache.eve.schema.bootstrap.*;
+#if ( $package != "org.apache.ldap.server.schema.bootstrap" )
+import org.apache.ldap.server.schema.bootstrap.*;
 #end
 
 
 /**
  * A producer of $type objects for the $schema schema.  This code has been
  * automatically generated using schema files in the OpenLDAP format along with
- * the eve schema plugin for maven.  This has been done to facilitate
+ * the directory plugin for maven.  This has been done to facilitate
  * Eve<->OpenLDAP schema interoperability.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>

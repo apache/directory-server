@@ -14,37 +14,29 @@
  *   limitations under the License.
  *
  */
-package $package;
+package org.apache.ldap.server.tools.schema;
 
 
-import java.util.ArrayList;
-
-
-#if ( $package != "org.apache.eve.schema.bootstrap" )
-import org.apache.eve.schema.bootstrap.*;
-#end
+import org.apache.ldap.server.tools.schema.ParserMonitor;
 
 
 /**
- * Top level $schema schema class.  This code has been automatically generated
- * using the eve schema plugin for maven.
+ * Document me.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class $classname extends AbstractBootstrapSchema
+public class ParserMonitorAdapter implements ParserMonitor
 {
-    public $classname()
+    public void matchedProduction( String prod )
     {
-        super( "$owner", "$schema", "$package" );
+    }
 
-        ArrayList list = new ArrayList();
-        #if ( $deps )
-list.clear();
-       #foreach ( $name in $deps ) list.add( "$name" );
-       #end
- setDependencies( ( String[] ) list.toArray( DEFAULT_DEPS ) );#else
- setDependencies( DEFAULT_DEPS );#end
+    public void startedParse( String s )
+    {
+    }
 
+    public void finishedParse( String s )
+    {
     }
 }

@@ -14,19 +14,32 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.tools.schema;
+package org.apache.ldap.server.tools.schema;
+
+
+import java.io.IOException;
+
+import junit.framework.TestCase;
+import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
+import org.apache.ldap.server.schema.bootstrap.AbstractBootstrapSchema;
+import org.apache.ldap.server.tools.schema.EveSchemaTool;
+
 
 /**
- * A monitor for the OpenLdap parser.
+ * Tests the EveSchemaTool.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ParserMonitor
+public class EveSchemaToolTest extends TestCase
 {
-    void matchedProduction( String prod );
-
-    void startedParse( String s );
-
-    void finishedParse( String s );
+    public void testEveSchemaTool() throws Exception
+    {
+        EveSchemaTool tool = new EveSchemaTool();
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+                "cn=admin,ou=system", "core", null, new String[] { "system", "dep2" }
+        ){};
+        tool.setSchema( schema );
+        tool.generate();
+    }
 }
