@@ -129,16 +129,13 @@ public class AuthenticationService implements Interceptor
 
     private void doAuthNone( EveContext ctx ) throws NamingException
     {
-        if ( this.allowAnonymous )
+        if ( allowAnonymous )
         {
-            if ( allowAnonymous )
-            {
-                ctx.setPrincipal( LdapPrincipal.ANONYMOUS );
-            }
-            else
-            {
-                throw new LdapNoPermissionException( "Anonymous bind NOT permitted!" );
-            }
+            ctx.setPrincipal( LdapPrincipal.ANONYMOUS );
+        }
+        else
+        {
+            throw new LdapNoPermissionException( "Anonymous bind NOT permitted!" );
         }
     }
 

@@ -185,9 +185,6 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
             setSysRoot( env );
             fail( "should not get here due to exception" );
         }
-        catch( LdapConfigurationException e )
-        {
-        }
         catch( LdapNoPermissionException e )
         {
         }

@@ -42,6 +42,8 @@ import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
@@ -84,6 +86,7 @@ public class EveContextFactory implements InitialContextFactory
 
     // for convenience
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
+    private static final String CREDS = Context.SECURITY_CREDENTIALS;
     private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
     private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
     private static final Name ADMIN_NAME = SystemPartition.getAdminDn();
@@ -188,6 +191,7 @@ public class EveContextFactory implements InitialContextFactory
      */
     public Context getInitialContext( Hashtable env ) throws NamingException
     {
+        env = ( Hashtable ) env.clone();
         Context ctx = null;
 
         if ( env.containsKey( SHUTDOWN_OP_ENV ) )
@@ -227,37 +231,26 @@ public class EveContextFactory implements InitialContextFactory
             return provider.getLdapContext( env );
         }
 
+        checkSecuritySettings( env );
+
+        if ( isAnonymous( env ) )
+        {
+            env.put( PRINCIPAL, "" );
+        }
+
         // fire up the backend subsystem if we need to
         if ( null == provider )
         {
-            this.initialEnv = env;
+            // we need to check this here instead of in AuthenticationService
+            // because otherwise we are going to start up the system incorrectly
+            if ( isAnonymous( env ) && ! env.containsKey( ANONYMOUS_ENV ) )
+            {
+                throw new LdapNoPermissionException( "cannot bind as anonymous "
+                    + " on startup without enabling anonymous bind property: "
+                    + ANONYMOUS_ENV );
+            }
 
-            // check if we are trying to boostrap as another user
-            if ( initialEnv.containsKey( PRINCIPAL ) &&
-                 initialEnv.containsKey( TYPE ) &&
-                 initialEnv.get( TYPE ).equals( "none" ) )
-            {
-                String msg = "Ambiguous configuration: " + TYPE;
-                msg += " is set to none and the security principal";
-                msg += " is set using " + PRINCIPAL + " as well";
-                throw new LdapConfigurationException( msg );
-            }
-            else if ( ! initialEnv.containsKey( PRINCIPAL ) &&
-                   initialEnv.containsKey( TYPE ) &&
-                   initialEnv.get( TYPE ).equals( "none" ) )
-            {
-                throw new LdapConfigurationException( "using authentication type none "
-                        + "for anonymous binds while trying to bootstrap Eve "
-                        + "- this is not allowed ONLY the admin can bootstrap" );
-            }
-            else if ( initialEnv.containsKey( PRINCIPAL ) &&
-                      ! initialEnv.get( PRINCIPAL ).equals( ADMIN ) )
-            {
-                throw new LdapConfigurationException( "user "
-                        + initialEnv.get( PRINCIPAL )
-                        + " is not allowed to bootstrap the system. ONLY the "
-                        + "admin can bootstrap" );
-            }
+            this.initialEnv = env;
 
             initialize();
             boolean createMode = createAdminAccount();
@@ -276,6 +269,101 @@ public class EveContextFactory implements InitialContextFactory
 
         ctx = ( EveContext ) provider.getLdapContext( env );
         return ctx;
+    }
+
+
+    /**
+     * Checks to make sure security environment parameters are set correctly.
+     *
+     * @throws NamingException if the security settings are not correctly
+     * configured.
+     */
+    private void checkSecuritySettings( Hashtable env ) throws NamingException
+    {
+        if ( env.containsKey( TYPE ) && env.get( TYPE ) != null )
+        {
+            /*
+             * If bind is simple make sure we have the credentials and the
+             * principal name set within the environment, otherwise complain
+             */
+            if ( env.get( TYPE ).equals( "simple" ) )
+            {
+                if ( ! env.containsKey( CREDS ) )
+                {
+                    throw new LdapConfigurationException( "missing required " +
+                            CREDS + " property for simple authentication" );
+                }
+
+                if ( ! env.containsKey( PRINCIPAL ) )
+                {
+                    throw new LdapConfigurationException( "missing required " +
+                            PRINCIPAL + " property for simple authentication" );
+                }
+            }
+            /*
+             * If bind is none make sure credentials and the principal
+             * name are NOT set within the environment, otherwise complain
+             */
+            else if ( env.get( TYPE ).equals( "none" ) )
+            {
+                if ( env.containsKey( CREDS ) )
+                {
+                    throw new LdapConfigurationException( "ambiguous bind " +
+                            "settings encountered where bind is anonymous yet "
+                            + CREDS + " property is set" );
+                }
+                if ( env.containsKey( PRINCIPAL ) )
+                {
+                    throw new LdapConfigurationException( "ambiguous bind " +
+                            "settings encountered where bind is anonymous yet "
+                            + PRINCIPAL + " property is set" );
+                }
+            }
+            /*
+             * If bind is anything other than simple or none we need to
+             * complain because SASL is not a supported auth method yet
+             */
+            else
+            {
+                throw new LdapAuthenticationNotSupportedException(
+                    ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+            }
+        }
+        else if ( env.containsKey( CREDS ) )
+        {
+            if ( ! env.containsKey( PRINCIPAL ) )
+            {
+                throw new LdapConfigurationException( "credentials provided " +
+                        "without principal name property: " + PRINCIPAL );
+            }
+        }
+    }
+
+
+    /**
+     * Checks to see if an anonymous bind is being attempted.
+     *
+     * @return true if bind is anonymous, false otherwise
+     */
+    private boolean isAnonymous( Hashtable env )
+    {
+
+        if ( env.containsKey( TYPE ) && env.get( TYPE ) != null )
+        {
+            if ( env.get( TYPE ).equals( "none" ) )
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        if ( env.containsKey( CREDS ) )
+        {
+            return false;
+        }
+
+        return true;
     }
 
 
