@@ -155,7 +155,7 @@ public class DefaultDecoderManagerTest extends TestCase implements
         router.publish( new ConnectEvent(this, null) ) ;
         router.publish( e ) ;
         decodeMan.stop() ;
-        //assertNotNull( this.event ) ;
+        assertNotNull( this.event ) ;
     }
     
     
