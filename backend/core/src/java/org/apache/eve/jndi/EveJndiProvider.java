@@ -70,12 +70,12 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
 
     /**
-     * Enables a ServerContextFactory with a handle to the system wide 
+     * Enables a EveContextFactory with a handle to the system wide
      * EveJndiProvider instance.
      *
-     * @param a_factory the ServerContextFactory to enable
+     * @param a_factory the EveContextFactory to enable
      */
-    static void setProviderOn( ServerContextFactory a_factory )
+    static void setProviderOn( EveContextFactory a_factory )
     {
         a_factory.setProvider( s_singleton ) ;
     }

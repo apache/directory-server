@@ -16,28 +16,28 @@ import org.apache.ldap.common.NotImplementedException;
  *         Hashtable env = new Hashtable() ;
         env.put( Context.PROVIDER_URL, "ou=system" ) ;
         env.put( Context.INITIAL_CONTEXT_FACTORY,
-                "org.apache.eve.jndi.ServerContextFactory" ) ;
+                "org.apache.eve.jndi.EveContextFactory" ) ;
         InitialContext initialContext = new InitialContext( env ) ;
 
  * @see javax.naming.spi.InitialContextFactory
  */
-public class ServerContextFactory implements InitialContextFactory
+public class EveContextFactory implements InitialContextFactory
 {
     /** The singleton EveJndiProvider instance */
     private EveJndiProvider m_provider = null ;
 
     
     /**
-     * Default constructor that sets the provider of this ServerContextFactory. 
+     * Default constructor that sets the provider of this EveContextFactory.
      */
-    public ServerContextFactory()
+    public EveContextFactory()
     {
         EveJndiProvider.setProviderOn( this ) ;
     }
     
     
     /**
-     * Enables this ServerContextFactory with a handle to the EveJndiProvider
+     * Enables this EveContextFactory with a handle to the EveJndiProvider
      * singleton.
      * 
      * @param a_provider the system's singleton EveBackendSubsystem service.
