@@ -57,11 +57,35 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
     }
 
 
+    protected static BootstrapSyntax
+        newSyntax( String oid, BootstrapRegistries registries )
+    {
+        return new BootstrapSyntax( oid, registries.getSyntaxCheckerRegistry() );
+    }
+
+
+
+    protected static BootstrapAttributeType
+        newAttributeType( String oid, BootstrapRegistries registries )
+    {
+        return new BootstrapAttributeType( oid, registries );
+    }
+
+
+
+    protected static BootstrapObjectClass
+        newObjectClass( String oid, BootstrapRegistries registries )
+    {
+        return new BootstrapObjectClass( oid, registries );
+    }
+
+
+
     /**
      * A mutable Syntax for the bootstrap phase that uses the
      * syntaxCheckerRegistry to dynamically resolve syntax checkers.
      */
-    protected static class BootstrapSyntax extends AbstractSyntax
+    public static class BootstrapSyntax extends AbstractSyntax
     {
         final SyntaxCheckerRegistry registry;
 
@@ -108,7 +132,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      * A concrete mutable attributeType implementation for bootstrapping which
      * uses registries for dynamically resolving dependent objects.
      */
-    protected static class BootstrapAttributeType extends AbstractAttributeType
+    public static class BootstrapAttributeType extends AbstractAttributeType
     {
         private final SyntaxRegistry syntaxRegistry;
         private final MatchingRuleRegistry matchingRuleRegistry;
@@ -120,7 +144,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         private String syntaxId;
 
 
-        public BootstrapAttributeType( String oid, BootstrapRegistries registries )
+        protected BootstrapAttributeType( String oid, BootstrapRegistries registries )
         {
             super( oid );
 
@@ -129,7 +153,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             attributeTypeRegistry = registries.getAttributeTypeRegistry();
         }
 
-        protected void setSuperiorId( String superiorId )
+        public void setSuperiorId( String superiorId )
         {
             this.superiorId = superiorId;
         }
@@ -139,7 +163,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return this.attributeTypeRegistry.lookup( superiorId );
         }
 
-        protected void setNames( String[] names )
+        public void setNames( String[] names )
         {
             super.setNames( names );
         }
@@ -149,7 +173,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return this.matchingRuleRegistry.lookup( equalityId );
         }
 
-        protected void setEqualityId( String equalityId )
+        public void setEqualityId( String equalityId )
         {
             this.equalityId = equalityId;
         }
@@ -159,7 +183,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return this.matchingRuleRegistry.lookup( substrId ) ;
         }
 
-        protected void setSubstrId( String substrId )
+        public void setSubstrId( String substrId )
         {
             this.substrId = substrId;
         }
@@ -169,12 +193,12 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return this.matchingRuleRegistry.lookup( orderingId );
         }
 
-        protected void setOrderingId( String orderingId )
+        public void setOrderingId( String orderingId )
         {
             this.orderingId = orderingId;
         }
 
-        protected void setSyntaxId( String syntaxId )
+        public void setSyntaxId( String syntaxId )
         {
             this.syntaxId = syntaxId;
         }
@@ -184,32 +208,32 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             return this.syntaxRegistry.lookup( syntaxId );
         }
 
-        protected void setSingleValue( boolean singleValue )
+        public void setSingleValue( boolean singleValue )
         {
             super.setSingleValue( singleValue );
         }
 
-        protected void setCollective( boolean collective )
+        public void setCollective( boolean collective )
         {
             super.setCollective( collective );
         }
 
-        protected void setCanUserModify( boolean canUserModify )
+        public void setCanUserModify( boolean canUserModify )
         {
             super.setCanUserModify( canUserModify );
         }
 
-        protected void setObsolete( boolean obsolete )
+        public void setObsolete( boolean obsolete )
         {
             super.setObsolete( obsolete );
         }
 
-        protected void setUsage( UsageEnum usage )
+        public void setUsage( UsageEnum usage )
         {
             super.setUsage( usage );
         }
 
-        protected void setLength( int length )
+        public void setLength( int length )
         {
             super.setLength( length );
         }
@@ -220,7 +244,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      * A concrete mutable objectClass implementation for bootstrapping which
      * uses registries for dynamically resolving dependent objects.
      */
-    protected class BootstrapObjectClass extends AbstractSchemaObject
+    public static class BootstrapObjectClass extends AbstractSchemaObject
         implements ObjectClass
     {
         private final ObjectClassRegistry objectClassRegistry;
@@ -243,7 +267,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
          * @param oid the OID of the new objectClass
          * @param registries the bootstrap registries to use for resolving dependent objects
          */
-        public BootstrapObjectClass( String oid, BootstrapRegistries registries )
+        protected BootstrapObjectClass( String oid, BootstrapRegistries registries )
         {
             super( oid );
 
@@ -285,7 +309,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
-        protected void setType( ObjectClassTypeEnum type )
+        public void setType( ObjectClassTypeEnum type )
         {
             this.type = type;
         }
@@ -340,17 +364,17 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         // --------------------------------------------------------------------
 
 
-        protected void setObsolete( boolean obsolete )
+        public void setObsolete( boolean obsolete )
         {
             super.setObsolete( obsolete );
         }
 
-        protected void setNames( String[] names )
+        public void setNames( String[] names )
         {
             super.setNames( names );
         }
 
-        protected void setDescription( String description )
+        public void setDescription( String description )
         {
             super.setDescription( description );
         }

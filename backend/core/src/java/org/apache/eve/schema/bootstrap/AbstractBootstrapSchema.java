@@ -29,6 +29,7 @@ import org.apache.ldap.common.util.ClassUtils;
  */
 public class AbstractBootstrapSchema implements BootstrapSchema
 {
+    protected static final String[] DEFAULT_DEPS = ArrayUtils.EMPTY_STRING_ARRAY;
     private static final String DEFAULT_OWNER = "uid=admin,ou=system";
     private static final String DEFAULT_SCHEMA_NAME = "default";
     private static final String DEFAULT_PACKAGE_NAME = "org.apache.eve.schema.bootstrap";
@@ -36,7 +37,7 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     private final String owner;
     private final String schemaName;
     private final String packageName;
-    private final String[] dependencies;
+    private String[] dependencies;
 
     private transient String baseName;
     private transient String defaultBaseName;
@@ -47,6 +48,25 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
+
+
+    protected AbstractBootstrapSchema( String schemaName )
+    {
+        this( null, schemaName, null, null );
+    }
+
+
+    protected AbstractBootstrapSchema( String owner, String schemaName )
+    {
+        this( owner, schemaName, null, null );
+    }
+
+
+    protected AbstractBootstrapSchema( String owner, String schemaName,
+                                       String packageName )
+    {
+        this( owner, schemaName, packageName, null );
+    }
 
 
     protected AbstractBootstrapSchema( String owner,
@@ -127,6 +147,12 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     }
 
 
+    protected final void setDependencies( String[] dependencies )
+    {
+        this.dependencies = dependencies;
+    }
+
+
     public String getBaseClassName()
     {
         return baseName;
@@ -160,5 +186,11 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     public String getPackageName()
     {
         return packageName;
+    }
+
+
+    public String getUnqualifiedClassName()
+    {
+        return schemaNameCapped + "Schema";
     }
 }

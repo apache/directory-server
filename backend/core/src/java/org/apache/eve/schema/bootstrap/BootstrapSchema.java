@@ -100,4 +100,11 @@ public interface BootstrapSchema
      * @return the bootstrap schema class name for a producer type in this schema
      */
     String getUnqualifiedClassName( ProducerTypeEnum type );
+
+    /**
+     * Gets the unqualified class name for Schema class.
+     *
+     * @return the bootstrap schema class name
+     */
+    String getUnqualifiedClassName();
 }
