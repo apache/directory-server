@@ -16,11 +16,14 @@
  */
 package org.apache.eve.tools.schema;
 
-import org.apache.ldap.common.schema.UsageEnum;
+
 import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.common.schema.UsageEnum;
+
 
 /**
- * Document me.
+ * A bean used to hold the literal values of an AttributeType parsed out of an
+ * OpenLDAP schema configuration file.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$

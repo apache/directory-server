@@ -66,6 +66,9 @@ QUOTE              : '\''
 DIGIT              : '0' .. '9'
     ;
 
+DOLLAR             : '$'
+    ;
+
 OPEN_PAREN         : '('
     ;
 
@@ -154,6 +157,11 @@ options    {
 }
 
 
+// ----------------------------------------------------------------------------
+// Main Entry Point Production
+// ----------------------------------------------------------------------------
+
+
 parseSchema
 {
 }
@@ -161,11 +169,157 @@ parseSchema
     ( attributeType )*
     ;
 
+
+// ----------------------------------------------------------------------------
+// AttributeType Productions
+// ----------------------------------------------------------------------------
+
+
+objectClass
+{
+    matchedProduction( "objectClass()" );
+    ObjectClassLiteral objectClass = null;
+}
+    :
+    "objectclass"
+    OPEN_PAREN oid:NUMERICOID
+    {
+        objectClass = new ObjectClassLiteral( oid.getText() );
+    }
+    ( objectClassNames[objectClass] )?
+    ( objectClassDesc[objectClass] )?
+    ( "OBSOLETE" { objectClass.setObsolete( true ); } )?
+    ( objectClassSuperiors[objectClass] )?
+    ( 
+        "ABSTRACT"   { objectClass.setClassType( ObjectClassTypeEnum.ABSTRACT ); } |
+        "STRUCTURAL" { objectClass.setClassType( ObjectClassTypeEnum.STRUCTURAL ); } |
+        "AUXILIARY"  { objectClass.setClassType( ObjectClassTypeEnum.AUXILIARY ); }
+    )?
+    ( must[objectClass] )?
+    ( may[objectClass] )?
+    ;
+
+
+may [ObjectClassLiteral objectClass]
+{
+    matchedProduction( "may(ObjectClassLiteral)" ) ;
+    ArrayList list = null;
+}
+    : "MAY" list=woidlist
+    {
+        objectClass.setMay( ( String[] ) list.toArray( EMPTY ) );
+    }
+    ;
+
+
+must [ObjectClassLiteral objectClass]
+{
+    matchedProduction( "must(ObjectClassLiteral)" ) ;
+    ArrayList list = null;
+}
+    : "MUST" list=woidlist
+    {
+        objectClass.setMust( ( String[] ) list.toArray( EMPTY ) );
+    }
+    ;
+
+
+objectClassSuperiors [ObjectClassLiteral objectClass]
+{
+    matchedProduction( "objectClassSuperiors(ObjectClassLiteral)" ) ;
+    ArrayList list = null;
+}
+    : "SUP" list=woidlist
+    {
+        objectClass.setSuperiors( ( String[] ) list.toArray( EMPTY ) );
+    }
+    ;
+
+
+woid returns [String oid]
+{
+    oid = null;
+    matchedProduction( "woid()" ) ;
+}
+    :
+    (
+        opt1:NUMERICOID
+        {
+            oid = opt1.getText();
+        }
+        |
+        opt2:IDENTIFIER
+        {
+            oid = opt2.getText();
+        }
+    )
+    ;
+
+
+woidlist returns [ArrayList list]
+{
+    matchedProduction( "woidlist()" ) ;
+    list = new ArrayList( 2 );
+    String oid = null;
+}
+    :
+    (
+        oid=woid { list.add( oid ); } |
+        (
+            OPEN_PAREN
+            oid=woid { list.add( oid ); } ( DOLLAR oid=woid { list.add( oid ); } )*
+            CLOSE_PAREN
+        )
+    )
+    ;
+
+objectClassDesc [ObjectClassLiteral objectClass]
+{
+    matchedProduction( "desc(ObjectClassLiteral)" ) ;
+}
+    : d:DESC
+    {
+        objectClass.setDescription( d.getText().split( "'" )[1] );
+    }
+    ;
+
+
+objectClassNames [ObjectClassLiteral objectClass]
+{
+    matchedProduction( "names(ObjectClassLiteral)" ) ;
+    ArrayList list = new ArrayList();
+}
+    :
+    (
+        "NAME" QUOTE id0:IDENTIFIER QUOTE
+        {
+            list.add( id0.getText() );
+        }
+        |
+        ( OPEN_PAREN QUOTE id1:IDENTIFIER
+        {
+            list.add( id1.getText() );
+        } QUOTE
+        ( QUOTE id2:IDENTIFIER QUOTE
+        {
+            list.add( id2.getText() );
+        } )* CLOSE_PAREN )
+    )
+    {
+        objectClass.setNames( ( String[] ) list.toArray( EMPTY ) );
+    }
+    ;
+
+
+// ----------------------------------------------------------------------------
+// AttributeType Productions
+// ----------------------------------------------------------------------------
+
+
 attributeType
 {
     matchedProduction( "attributeType()" );
     AttributeTypeLiteral type = null;
-    UsageEnum usageEnum;
 }
     :
     "attributetype"
@@ -195,6 +349,7 @@ attributeType
 
 desc [AttributeTypeLiteral type]
 {
+    matchedProduction( "desc(AttributeTypeLiteral)" ) ;
 }
     : d:DESC
     {
@@ -205,7 +360,7 @@ desc [AttributeTypeLiteral type]
 
 superior [AttributeTypeLiteral type]
 {
-    matchedProduction( "superior()" ) ;
+    matchedProduction( "superior(AttributeTypeLiteral)" ) ;
 }
     : "SUP"
     (
@@ -223,7 +378,7 @@ superior [AttributeTypeLiteral type]
 
 equality [AttributeTypeLiteral type]
 {
-    matchedProduction( "equality()" ) ;
+    matchedProduction( "equality(AttributeTypeLiteral)" ) ;
 }
     : "EQUALITY"
     (
@@ -241,7 +396,7 @@ equality [AttributeTypeLiteral type]
 
 substr [AttributeTypeLiteral type]
 {
-    matchedProduction( "substr()" ) ;
+    matchedProduction( "substr(AttributeTypeLiteral)" ) ;
 }
     : "SUBSTR"
     (
@@ -259,7 +414,7 @@ substr [AttributeTypeLiteral type]
 
 ordering [AttributeTypeLiteral type]
 {
-    matchedProduction( "ordering()" ) ;
+    matchedProduction( "ordering(AttributeTypeLiteral)" ) ;
 }
     : "ORDERING"
     (
@@ -277,7 +432,7 @@ ordering [AttributeTypeLiteral type]
 
 names [AttributeTypeLiteral type]
 {
-    matchedProduction( "names()" ) ;
+    matchedProduction( "names(AttributeTypeLiteral)" ) ;
     ArrayList list = new ArrayList();
 }
     :
@@ -304,7 +459,7 @@ names [AttributeTypeLiteral type]
 
 syntax [AttributeTypeLiteral type]
 {
-    matchedProduction( "syntax()" ) ;
+    matchedProduction( "syntax(AttributeTypeLiteral)" ) ;
 }
     : token:SYNTAX
     {
@@ -328,7 +483,7 @@ syntax [AttributeTypeLiteral type]
 
 usage [AttributeTypeLiteral type]
 {
-    matchedProduction( "usage()" ) ;
+    matchedProduction( "usage(AttributeTypeLiteral)" ) ;
 }
     :
     "USAGE"
