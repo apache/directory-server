@@ -96,7 +96,7 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>seda</artifactId>
+      <artifactId>apseda</artifactId>
       <version>0.2-SNAPSHOT</version>
     </dependency>
 

@@ -32,7 +32,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.eve.protocol.LdapProtocolProvider;
+import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
@@ -51,6 +51,7 @@ import org.apache.ldap.server.ApplicationPartition;
 import org.apache.ldap.server.ContextPartitionConfig;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.ldap.server.db.*;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
 import org.apache.ldap.server.jndi.ibs.*;

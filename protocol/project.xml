@@ -51,7 +51,7 @@
     </dependency>
     <dependency>
       <groupId>incubator-directory</groupId>
-      <artifactId>seda</artifactId>
+      <artifactId>apseda</artifactId>
       <version>0.2-SNAPSHOT</version>
       <url>http://incubator.apache.org/directory/subprojects/seda</url>
     </dependency>
