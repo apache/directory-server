@@ -31,7 +31,7 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleUseRegistry;
 /**
  * A plain old java object implementation of an MatchingRuleUseRegistry.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class GlobalMatchingRuleUseRegistry implements MatchingRuleUseRegistry

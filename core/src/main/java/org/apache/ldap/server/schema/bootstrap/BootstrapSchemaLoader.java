@@ -29,7 +29,7 @@ import org.apache.ldap.server.jndi.ServerDirObjectFactory;
 /**
  * Class which handles bootstrap schema class file loading.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BootstrapSchemaLoader

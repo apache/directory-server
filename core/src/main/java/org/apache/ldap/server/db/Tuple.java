@@ -22,7 +22,7 @@ package org.apache.ldap.server.db;
  * independence from the Jdbm Tuple class.  Key and value copying should be 
  * performed to transpose jdbm.helper.Tuple data into our generic Tuple.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class Tuple

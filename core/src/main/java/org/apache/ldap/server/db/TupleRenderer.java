@@ -21,7 +21,7 @@ package org.apache.ldap.server.db;
  * A table key/value String renderer for the display or logging of
  * human readable potentially binary data.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface TupleRenderer

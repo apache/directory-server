@@ -24,7 +24,7 @@ import org.apache.ldap.common.schema.ObjectClass;
  * A do nothing adapter for an ObjectClassMonitor.  As a precaution so
  * exceptions are not lost exception based callback print stacks to stderr.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ObjectClassRegistryMonitorAdapter implements ObjectClassRegistryMonitor

@@ -32,7 +32,7 @@ import org.apache.ldap.server.jndi.EnvKeys;
  * The command line main for the server.  Warning this used to be a simple test
  * case so there really is not much here.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ServerMain

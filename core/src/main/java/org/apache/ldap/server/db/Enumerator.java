@@ -26,7 +26,7 @@ import org.apache.ldap.common.filter.ExprNode;
 /**
  * An enumeration builder or factory for filter expressions.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Enumerator

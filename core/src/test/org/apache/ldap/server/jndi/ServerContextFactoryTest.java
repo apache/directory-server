@@ -29,7 +29,7 @@ import org.apache.ldap.server.AbstractServerTest;
 /**
  * Tests to see if we can fire up the Eve directory server via JNDI.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ServerContextFactoryTest extends AbstractServerTest

@@ -30,7 +30,7 @@ import org.apache.ldap.server.schema.SyntaxCheckerRegistryMonitorAdapter;
 /**
  * The POJO implementation for the SyntaxCheckerRegistry service.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BootstrapSyntaxCheckerRegistry implements SyntaxCheckerRegistry

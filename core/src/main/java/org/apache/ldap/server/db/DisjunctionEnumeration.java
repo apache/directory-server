@@ -30,7 +30,7 @@ import javax.naming.NamingException;
  * Cursors. This cursor prefetches underlying Cursor values so that it can
  * comply with the defined Cursor semantics.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class DisjunctionEnumeration implements NamingEnumeration

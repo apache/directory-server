@@ -34,7 +34,7 @@ import org.apache.ldap.server.jndi.AbstractMultiUserJndiTest;
  * Tests the Authorization service to make sure it is enforcing policies
  * correctly.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class AuthorizationServiceTest extends AbstractMultiUserJndiTest

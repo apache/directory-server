@@ -29,7 +29,7 @@ import org.apache.ldap.server.jndi.ServerDirStateFactory;
  * object, this one does not.  It returns null if an 'optional' state factory
  * cannot be found.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface StateFactoryRegistry

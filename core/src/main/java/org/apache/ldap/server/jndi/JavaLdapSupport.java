@@ -28,7 +28,7 @@ import javax.naming.directory.Attributes;
  * objects within an LDAP directory.
  *
  * @see <a href="http://www.faqs.org/rfcs/rfc2713.html">RFC 2713</a>
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class JavaLdapSupport

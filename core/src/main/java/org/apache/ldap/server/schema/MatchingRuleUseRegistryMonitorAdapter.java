@@ -24,7 +24,7 @@ import org.apache.ldap.common.schema.MatchingRuleUse;
  * A simple do nothing monitor adapter for MatchingRuleUseRegistries.  Note for
  * safty exception based callback print the stack tract to stderr.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class MatchingRuleUseRegistryMonitorAdapter

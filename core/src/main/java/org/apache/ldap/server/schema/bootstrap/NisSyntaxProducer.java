@@ -28,7 +28,7 @@ import org.apache.ldap.server.schema.SyntaxCheckerRegistry;
  * the eve schema plugin for maven.  This has been done to facilitate
  * Eve<->OpenLDAP schema interoperability.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class NisSyntaxProducer extends AbstractBootstrapProducer

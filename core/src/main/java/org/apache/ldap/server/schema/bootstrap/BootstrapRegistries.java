@@ -32,7 +32,7 @@ import org.apache.ldap.server.schema.*;
 /**
  * A set of boostrap registries used to fire up the server.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BootstrapRegistries implements Registries

@@ -30,7 +30,7 @@ import org.apache.ldap.server.ContextPartitionConfig;
 /**
  * Testcase which tests the correct operation of the PartitionContextBuilder.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class PartitionContextBuilderTest extends TestCase

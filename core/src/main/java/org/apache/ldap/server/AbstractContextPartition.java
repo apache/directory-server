@@ -45,7 +45,7 @@ import org.apache.ldap.server.db.gui.PartitionViewer;
  * the common code between a SystemBackingStore and a DefaultBackingStore
  * will be added to this super class.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class AbstractContextPartition implements ContextPartition

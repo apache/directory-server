@@ -28,7 +28,7 @@ import org.apache.ldap.common.name.LdapName;
  * An alternative X500 user implementation that has access to the distinguished
  * name of the principal as well as the String representation.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class LdapPrincipal implements Principal, Serializable

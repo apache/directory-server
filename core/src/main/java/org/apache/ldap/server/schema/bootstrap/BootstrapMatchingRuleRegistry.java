@@ -32,7 +32,7 @@ import org.apache.ldap.server.schema.OidRegistry;
 /**
  * A MatchingRuleRegistry service used to lookup matching rules by OID.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry

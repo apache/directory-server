@@ -32,7 +32,7 @@ import javax.naming.ldap.LdapContext;
  * being enumerated back to the client caller.
  *
  * @see SearchResultFilter
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ResultFilteringEnumeration implements NamingEnumeration

@@ -28,7 +28,7 @@ import org.apache.ldap.common.schema.SyntaxChecker;
  * A producer of SyntaxCheckers for the core schema.
  *
  * @todo now we use do nothing checkers for place holder and will add as we go 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer

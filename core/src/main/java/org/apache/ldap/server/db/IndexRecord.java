@@ -25,7 +25,7 @@ import javax.naming.directory.Attributes;
  * An index key value pair based on a tuple which can optionally reference the
  * indexed entry if one has been resusitated.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class IndexRecord

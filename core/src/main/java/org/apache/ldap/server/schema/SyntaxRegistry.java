@@ -26,7 +26,7 @@ import org.apache.ldap.common.schema.Syntax;
 /**
  * Manages the lookup and registration of Syntaxes within the system by OID.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface SyntaxRegistry

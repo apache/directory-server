@@ -29,7 +29,7 @@ import org.apache.ldap.server.schema.OidRegistryMonitorAdapter;
  * Default OID registry implementation used to resolve a schema object OID 
  * to a name and vice-versa.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BootstrapOidRegistry implements OidRegistry

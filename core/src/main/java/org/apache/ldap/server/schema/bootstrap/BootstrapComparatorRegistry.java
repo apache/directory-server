@@ -31,7 +31,7 @@ import org.apache.ldap.server.schema.SerializableComparator;
 /**
  * A simple POJO implementation of the ComparatorRegistry service interface.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BootstrapComparatorRegistry implements ComparatorRegistry

@@ -31,7 +31,7 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapObjectClassRegistry;
 /**
  * A plain old java object implementation of an ObjectClassRegistry.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class GlobalObjectClassRegistry implements ObjectClassRegistry

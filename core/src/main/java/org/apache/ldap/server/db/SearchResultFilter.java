@@ -29,7 +29,7 @@ import javax.naming.ldap.LdapContext;
  * conjunction with a {@link org.apache.ldap.server.db.ResultFilteringEnumeration}.  Multiple filters can
  * be applied one after the other and hence they are stackable.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface SearchResultFilter

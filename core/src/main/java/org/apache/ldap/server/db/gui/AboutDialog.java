@@ -27,7 +27,7 @@ import javax.swing.*;
 /**
  * An about dialog for the introspector GUI.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class AboutDialog extends JDialog

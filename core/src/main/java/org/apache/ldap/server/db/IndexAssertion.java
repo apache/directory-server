@@ -25,7 +25,7 @@ import javax.naming.NamingException;
  * hard coded logic.  This interface is not related to the filter AssertionNode.
  * It is strictly used for purposes internal to the search engine.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface IndexAssertion

@@ -28,7 +28,7 @@ import javax.naming.NamingException;
  * A prefetching NamingEnumeration over an underlying NamingEnumeration which 
  * determines if a element should be returned based on a Assertion.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class IndexAssertionEnumeration

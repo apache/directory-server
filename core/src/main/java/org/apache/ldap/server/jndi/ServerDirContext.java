@@ -37,7 +37,7 @@ import org.apache.ldap.server.auth.LdapPrincipal;
 /**
  * The DirContext implementation for the Server Side JNDI LDAP provider.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class ServerDirContext extends ServerContext implements DirContext

@@ -35,7 +35,7 @@ import org.apache.ldap.common.filter.ExprNode;
  * can have BackingStore's implemented for them.  A BackingStore contains the
  * set of operations that can be performed on a JNDI Attributes.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface BackingStore

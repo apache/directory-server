@@ -26,7 +26,7 @@ import org.apache.ldap.common.schema.MatchingRule;
 /**
  * A registry used to track system matchingRules.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface MatchingRuleRegistry

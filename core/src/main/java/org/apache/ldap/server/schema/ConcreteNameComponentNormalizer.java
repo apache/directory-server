@@ -29,7 +29,7 @@ import org.apache.ldap.common.schema.Normalizer;
  * the appropriate normalizer for the attribute of the name component with which
  * to normalize the name component value.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ConcreteNameComponentNormalizer implements NameComponentNormalizer

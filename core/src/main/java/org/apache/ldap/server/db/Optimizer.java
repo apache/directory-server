@@ -30,7 +30,7 @@ import org.apache.ldap.common.filter.ExprNode;
  * minimizing the number cycles in a search.  The SearchEngine relies on these
  * count markers to determine the appropriate path.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Optimizer

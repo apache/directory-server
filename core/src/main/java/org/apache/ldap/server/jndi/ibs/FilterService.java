@@ -31,7 +31,7 @@ import org.apache.ldap.server.db.SearchResultFilter;
  * javax.naming.directory.SearchControls)}</code></li>
  * </ul>
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface FilterService

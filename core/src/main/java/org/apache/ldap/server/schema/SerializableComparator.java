@@ -27,7 +27,7 @@ import javax.naming.NamingException;
  * of the underlying wrapped comparator which is JIT resolved from a static
  * global registry.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SerializableComparator implements Comparator, Serializable

@@ -53,7 +53,7 @@ import org.apache.ldap.server.jndi.InvocationStateEnum;
  * This service should be registered last within after chain of the interceptor
  * framework.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class FilterServiceImpl extends BaseInterceptor

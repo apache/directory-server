@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * Test caseses for preference utility methods.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class PreferencesUtilsTest extends TestCase

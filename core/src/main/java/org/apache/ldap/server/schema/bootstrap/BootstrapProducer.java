@@ -25,7 +25,7 @@ import javax.naming.NamingException;
  * rather than completely returning objects in bulk. This way registries can
  * be populated while the producer is doing is creating schema objects.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface BootstrapProducer

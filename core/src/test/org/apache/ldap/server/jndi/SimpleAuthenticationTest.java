@@ -39,7 +39,7 @@ import org.apache.ldap.server.AbstractServerTest;
  * A set of simple tests to make sure simple authentication is working as it
  * should.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SimpleAuthenticationTest extends AbstractServerTest

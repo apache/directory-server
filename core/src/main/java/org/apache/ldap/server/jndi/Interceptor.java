@@ -28,7 +28,7 @@ import javax.naming.NamingException;
  * Got this idea from a class written by Peter Donald who originally wrote it
  * for XInvoke in the Spice Project at Codehaus.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Interceptor

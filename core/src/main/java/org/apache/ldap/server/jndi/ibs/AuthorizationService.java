@@ -39,7 +39,7 @@ import org.apache.ldap.server.jndi.InvocationStateEnum;
 /**
  * A service used for applying access controls to backing store operations.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class AuthorizationService extends BaseInterceptor

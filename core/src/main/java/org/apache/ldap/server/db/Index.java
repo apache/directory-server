@@ -29,7 +29,7 @@ import org.apache.regexp.RE;
 /**
  * Required interfaces for an index.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Index

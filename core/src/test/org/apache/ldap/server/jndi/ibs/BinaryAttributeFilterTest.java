@@ -31,7 +31,7 @@ import org.apache.ldap.server.AbstractServerTest;
  * filter class {@link org.apache.ldap.server.jndi.ibs.SchemaService.BinaryAttributeFilter} is working
  * properly.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BinaryAttributeFilterTest extends AbstractServerTest

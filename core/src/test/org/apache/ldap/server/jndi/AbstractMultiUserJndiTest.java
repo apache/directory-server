@@ -27,7 +27,7 @@ import org.apache.ldap.server.AbstractServerTest;
 /**
  * Adds extra code to perform operations as another user besides the admin user.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class AbstractMultiUserJndiTest extends AbstractServerTest

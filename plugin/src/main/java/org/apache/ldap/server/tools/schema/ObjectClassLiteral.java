@@ -25,7 +25,7 @@ import org.apache.ldap.common.schema.ObjectClassTypeEnum;
  * A bean used to encapsulate the literal String values of an ObjectClass
  * definition found within an OpenLDAP schema configuration file.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ObjectClassLiteral

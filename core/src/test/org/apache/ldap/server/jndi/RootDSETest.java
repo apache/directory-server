@@ -35,7 +35,7 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 /**
  * Testing RootDSE lookups and context creation using the empty string.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class RootDSETest extends TestCase

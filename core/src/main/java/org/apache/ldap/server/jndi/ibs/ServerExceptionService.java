@@ -47,7 +47,7 @@ import org.apache.ldap.server.jndi.InvocationStateEnum;
  * add extra information to an exception which is to be thrown back at the
  * caller.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ServerExceptionService extends BaseInterceptor

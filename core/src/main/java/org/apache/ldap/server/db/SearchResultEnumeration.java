@@ -33,7 +33,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
  * entry to return stuffing it with the attributes that were specified.  This is
  * all that it does now but this may change later.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SearchResultEnumeration implements NamingEnumeration

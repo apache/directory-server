@@ -34,7 +34,7 @@ import org.apache.regexp.RE;
 /**
  * A dialog showing index values.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class IndexDialog extends JDialog

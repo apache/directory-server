@@ -41,7 +41,7 @@ import org.apache.ldap.server.jndi.ServerContextFactory;
  * presumes the creation of a root system preferences node in advance.  This
  * should be included with the system.ldif that is packaged with the server.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ServerSystemPreferences extends AbstractPreferences

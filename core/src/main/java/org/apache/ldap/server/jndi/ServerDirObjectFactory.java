@@ -43,7 +43,7 @@ import javax.naming.spi.DirObjectFactory;
  * only operations besides search to access and store objects.  That's pretty
  * PHAT!
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface ServerDirObjectFactory extends DirObjectFactory

@@ -33,7 +33,7 @@ import org.apache.ldap.server.auth.LdapPrincipal;
 /**
  * An Eve implementation of a JNDI LdapContext.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ServerLdapContext extends ServerDirContext implements LdapContext

@@ -21,7 +21,7 @@ package org.apache.ldap.server.tools.schema;
  * A console reporting monitor.  Add system property 'maven.eve.schema.parser.trace'
  * to get this monitor to trace parser production execution.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ConsoleParserMonitor implements ParserMonitor

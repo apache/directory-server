@@ -46,7 +46,7 @@ import org.apache.mina.util.AvailablePortFinder;
 /**
  * A simple testcase for testing JNDI provider functionality.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class AbstractServerTest extends TestCase

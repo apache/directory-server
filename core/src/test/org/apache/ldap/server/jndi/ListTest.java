@@ -28,7 +28,7 @@ import javax.naming.NamingException;
  * on security sensitive values.  We do not return results or name class pairs
  * for user accounts if the user is not the admin.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ListTest extends AbstractMultiUserJndiTest

@@ -27,7 +27,7 @@ import org.apache.ldap.server.exception.InterceptorException;
  * within the invocation chain are invoked regardless of errors upstream - 
  * exceptions are added to the list of exceptions on the Invocation.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class OnErrorPipeline extends InterceptorPipeline

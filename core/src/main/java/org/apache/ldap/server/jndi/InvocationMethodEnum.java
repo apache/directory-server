@@ -29,7 +29,7 @@ import org.apache.ldap.common.util.ValuedEnum;
  * A valued enumeration used by interceptor services for fast switching on
  * invocation method names.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class InvocationMethodEnum extends ValuedEnum

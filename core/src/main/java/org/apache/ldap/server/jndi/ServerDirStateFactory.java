@@ -37,7 +37,7 @@ import javax.naming.spi.DirStateFactory;
  * subsystem making factory lookups extremely fast and efficient without costing
  * the user too much to create and store objects within the directory.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface ServerDirStateFactory extends DirStateFactory

@@ -25,7 +25,7 @@ import org.apache.ldap.server.tools.schema.AbstractTestCase;
 /**
  * A test which tries to generate ObjectClass producers for all schemas.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ObjectClassesTemplateTest extends AbstractTestCase

@@ -45,7 +45,7 @@ import org.apache.mina.registry.SimpleServiceRegistry;
  * Adds additional bootstrapping for server socket listeners when firing
  * up the server.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  * @see javax.naming.spi.InitialContextFactory
  */

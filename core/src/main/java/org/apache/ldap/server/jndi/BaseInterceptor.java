@@ -49,7 +49,7 @@ import org.apache.ldap.server.auth.LdapPrincipal;
  * methods rather than static methods to access thread locals and make the
  * analogs appear cleaner matching their respective invocation methods.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class BaseInterceptor implements Interceptor

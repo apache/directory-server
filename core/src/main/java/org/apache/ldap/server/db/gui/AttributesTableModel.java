@@ -29,7 +29,7 @@ import javax.swing.table.AbstractTableModel;
 /**
  * A general purpose table model for entry attributes.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class AttributesTableModel extends AbstractTableModel

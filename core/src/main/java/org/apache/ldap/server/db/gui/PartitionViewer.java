@@ -27,7 +27,7 @@ import org.apache.ldap.server.db.SearchEngine;
 /**
  * A partition database viewer.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class PartitionViewer

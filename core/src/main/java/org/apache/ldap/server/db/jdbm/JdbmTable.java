@@ -34,7 +34,7 @@ import org.apache.ldap.server.schema.SerializableComparator;
 /**
  * A jdbm Btree wrapper that enables duplicate sorted keys using collections.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class JdbmTable implements Table

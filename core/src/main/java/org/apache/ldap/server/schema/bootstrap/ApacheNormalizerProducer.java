@@ -26,7 +26,7 @@ import org.apache.ldap.common.schema.Normalizer;
 /**
  * A producer of Normalizer objects for the eve schema.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ApacheNormalizerProducer extends AbstractBootstrapProducer

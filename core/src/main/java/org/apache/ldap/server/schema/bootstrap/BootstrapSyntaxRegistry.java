@@ -33,7 +33,7 @@ import org.apache.ldap.server.schema.SyntaxRegistryMonitorAdapter;
  * A SyntaxRegistry service available during server startup when other resources
  * like a syntax backing store is unavailable.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BootstrapSyntaxRegistry implements SyntaxRegistry

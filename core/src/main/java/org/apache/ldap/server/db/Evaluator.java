@@ -27,7 +27,7 @@ import org.apache.ldap.common.filter.ExprNode;
  * the candidate.  The evaluation can proceed by applying the filter on the 
  * attributes of the entry itself or indices can be used for rapid evaluation.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Evaluator

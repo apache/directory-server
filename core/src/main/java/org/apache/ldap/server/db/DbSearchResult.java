@@ -27,7 +27,7 @@ import javax.naming.directory.SearchResult;
  * 'row id' of the entry in the master table for quick lookup.  This speeds 
  * up various operations.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class DbSearchResult extends SearchResult

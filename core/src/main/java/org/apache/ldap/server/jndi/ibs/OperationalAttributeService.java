@@ -41,7 +41,7 @@ import java.util.HashSet;
  * An interceptor based service which manages the creation and modification of
  * operational attributes as operations are performed.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class OperationalAttributeService extends BaseInterceptor

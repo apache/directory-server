@@ -36,7 +36,7 @@ import org.apache.ldap.common.name.LdapName;
  * Given a search filter and a scope the search engine identifies valid
  * candidate entries returning their ids.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class DefaultSearchEngine implements SearchEngine

@@ -27,7 +27,7 @@ import javax.swing.*;
 /**
  * Allows for operations on entries.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class EntryDialog extends JDialog

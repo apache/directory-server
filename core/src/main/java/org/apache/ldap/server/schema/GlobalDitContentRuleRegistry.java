@@ -31,7 +31,7 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
 /**
  * A plain old java object implementation of an DITContentRuleRegistry.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry

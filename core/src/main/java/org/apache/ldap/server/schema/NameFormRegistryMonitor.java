@@ -23,7 +23,7 @@ import org.apache.ldap.common.schema.NameForm;
 /**
  * Interface for NameFormRegitery callback event monitors.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface NameFormRegistryMonitor

@@ -32,7 +32,7 @@ import javax.swing.tree.TreeModel;
 /**
  * Dialog showing the search results.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SearchResultDialog extends JDialog implements ListSelectionListener

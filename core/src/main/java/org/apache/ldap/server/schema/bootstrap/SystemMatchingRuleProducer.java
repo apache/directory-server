@@ -24,7 +24,7 @@ import javax.naming.NamingException;
  * A simple maching rule configuration where objects and java code are used
  * to create matching rules.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SystemMatchingRuleProducer extends AbstractBootstrapProducer

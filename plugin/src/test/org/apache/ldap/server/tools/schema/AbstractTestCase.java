@@ -35,7 +35,7 @@ import org.apache.ldap.server.schema.bootstrap.ProducerTypeEnum;
 /**
  * An abstract test case that incorporates both the parser and code generators.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class AbstractTestCase extends TestCase

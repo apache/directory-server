@@ -35,7 +35,7 @@ import org.apache.ldap.server.db.SearchEngine;
  * users, the system catalog and other administrative information.  This
  * partition is fixed at the ou=system context.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public final class SystemPartition extends AbstractContextPartition

@@ -26,7 +26,7 @@ import javax.naming.NamingException;
  * An Interceptor composed of a pipeline of interceptors that can be called 
  * sequentially with one invokation.
  * 
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class InterceptorPipeline implements Interceptor

@@ -40,7 +40,7 @@ import org.apache.ldap.server.auth.LdapPrincipal;
 /**
  * A non-federated abstract Context implementation.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class ServerContext implements Context

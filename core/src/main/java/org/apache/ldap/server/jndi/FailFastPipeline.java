@@ -27,7 +27,7 @@ import org.apache.ldap.server.exception.InterceptorException;
  * to fail within the invocation chain of the pipeline shorts the invocation of
  * interceptors downstream of the error.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class FailFastPipeline extends InterceptorPipeline

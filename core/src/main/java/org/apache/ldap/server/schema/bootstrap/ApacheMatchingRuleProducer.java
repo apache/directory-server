@@ -23,7 +23,7 @@ import javax.naming.NamingException;
 /**
  * A producer of MatchingRule objects for the eve schema. 
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ApacheMatchingRuleProducer extends AbstractBootstrapProducer

@@ -39,7 +39,7 @@ import javax.naming.ldap.LdapContext;
  * returning the entry Attributes for the root DSE when the approapriate search
  * is conducted: empty filter String and base scope search.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface PartitionNexus extends BackingStore

@@ -38,7 +38,7 @@ import org.apache.ldap.common.message.ResultCodeEnum;
  * is set.  By returning a non-null Context we prevent an unnecessary exception
  * being thrown by InitialConext and any one of its subclasses.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class DeadContext implements LdapContext
