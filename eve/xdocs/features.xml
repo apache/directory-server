@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Eve's Features</title>
+  </properties>
+  
+  <body>
+    <section name="Eve's Features">
+      <p> 
+        The Eve Directory Server is an embeddable LDAP server implemented in 
+        pure Java.  It has several features that make it unique amoung LDAP 
+        servers.  These features are described below:
+      </p>
+      
+      <ul>
+        <li>
+          Designed as an LDAP and X.500 experimentation platform.  Plugable
+          components and subsystems make Eve extremely modular and perfect for
+          experiments with various aspects of the LDAP and X.500 protocols.  Eve
+          can run on any IoC based microkernel using IoC type wrappers for her
+          components.
+        </li>
+        
+        <li>
+          Eve's frontend is completely separable from its backend and 
+          vice-versa making it very conducive for implementing virtual 
+          directories and front ends to X.500.
+        </li>
+        
+        <li>
+          Several backends can be implemented and plugged into Eve's backend
+          nexus.  Eve will initially support a custom JDBM and JDBC based 
+          backend but any backend can be implemented so long as it conforms to
+          the backend SPI.
+        </li>
+        
+        <li>
+          Eve exposes all aspects of administration via a special system 
+          backend.  LDAP can be used to manage these concerns through the
+          system context.
+        </li>
+        
+        <li>
+          Java and Groovy based triggers and stored procedures are supported 
+          by Eve's backend subsystem.  Any backends plugged into the nexus 
+          are automatically decorated with these features.
+        </li>
+        
+        <li>
+          Both Eve's backend and her frontend are embeddable.
+        </li>
+        
+        <li>
+          Eve implements a server side JNDI LDAP provider as the facade for the 
+          entire backend subsystem.  JNDI operations are directly translated by
+          this provider into operations against the nexus and the target 
+          backend.
+        </li>
+        
+        <li>
+          Eve uses JNDI as the data access API for stored procedures.  This 
+          makes stored procedures functional within and outside of the server
+          without requiring recompilation.
+        </li>
+        
+        <li>
+          Eve is based on a simple Staged Event Driven Architecture (SEDA) which
+          gives Eve the ability to handle large amounts of concurrency.
+        </li>
+        
+        <li>
+          Eve uses the Snickers tools and APIs for ASN.1 BER encoding and 
+          decoding.  These tools are designed for a very small encoding and
+          decoding footprint as well as for use in non-blocking servers.  The
+          revolutionary event based processing of BER messages makes Eve very
+          efficient at handling this aspect of the protocol.
+        </li>
+      </ul>
+      </section>
+    </body>
+</document>

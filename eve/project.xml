@@ -19,7 +19,7 @@
 
     <repository>
       <connection>
-          scm:svn:http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}
+        scm:svn:http://cvs.apache.org/repos/asf/incubator/directory/ldap/trunk/${module.path}
       </connection>
 
       <url>
@@ -125,7 +125,7 @@
       <license>
         <name>Apache 1.1 License</name>
         <url>
-http://cvs.apache.org/viewcvs.cgi/incubator/directory/LICENSE.txt?rev=1369&amp;root=Apache-SVN&amp;view=markup
+          http://cvs.apache.org/viewcvs.cgi/incubator/directory/LICENSE.txt?rev=1369&amp;root=Apache-SVN&amp;view=markup
         </url>
         <distribution>repo</distribution>
       </license>

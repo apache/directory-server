@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Apache Directory Project: Eve Directory Server</title>
+  </properties>
+  
+  <body>
+    <section name="Design">
+      
+      <subsection name="General Overview">
+        <p>
+          The server is designed as a system of components.  Some components
+          are a collection of other components with a facade to form a subsystem
+          of the server.  Subsystems can contain other subsystems and one 
+          component can depend on another.
+        </p>
+        
+        <p>
+          A micro kernel or component container is required to run the server.  
+          A micro kernel is a peice of code operating as a component container 
+          providing services for that component and running the component 
+          through a set of life-cycles.  Eve is designed to run on any micro 
+          kernel.  Her subsystems and components are designed as Plain Old Java 
+          Objects (POJOs) that can be wrapped to make them interoperate within 
+          different containers.  Eve currently will work out of the box with 
+          Merlin and PicoContainer.
+        </p>
+        
+        <p>
+          Each component within Eve has a service interface which defines to 
+          the world what that component can do for its clients.  The service
+          interface is kept separate from any component implementation.  
+          Different projects are used to separate them.  An SPI project is often
+          used to contain the service interface and other interfaces associated
+          with the component.  Providers of the service must implement the 
+          interfaces in the SPI.  These component implementations are often 
+          kept in separate projects.  The drive behind this approach has to do 
+          with modularity and classloader schemes.  It is always good to keep 
+          the interfaces separate from any specific implementations.  You can 
+          have many implementations for the same service interface.  Secondly
+          the classloader heirarchy in containers often puts implementation
+          classloaders under a classloader containing the service interface. 
+          This allows containers to manage multiple implementations for the
+          same service without having conflicts.  Also implementations can be
+          created and destroyed in separate classloaders without affecting one
+          another.
+        </p>
+        
+        <p>
+          Eve tries to make a logical distinction between various subsystems and
+          separates out its components in a heirarchy based on function within 
+          the source code repository.  The aspects of each subsystem shall be 
+          discussed in detail within the documentation set for that subsystem.  
+          Developers looking at Eve's source should know that the Subversion 
+          repository is structured to mimic this component containment 
+          heirarchy.  Here's a brief listing of the directory structure we're 
+          referring to:
+        </p>
+        
+        <source>
+${basedir}/frontend  -- holds frontend subsystem components
+  ./buffer/spi       -- holds buffer component SPI
+  ./buffer/impl      -- holds buffer component implementation
+...
+        </source>
+        
+        <p>
+          The structure above my nest deeper for other subsystems.  For example 
+          the backend subsystem has within it other sub subsystems.  Each 
+          subsystem itself is a new directory depth.  In turn this subsystem
+          may have other subsystems and or component directories that have an
+          SPI and an implementation project.  Some subsystems may have a common
+          API under a common directory used to centralize some classes shared 
+          by the subsystem.  This helps localize domain specific classes and 
+          interfaces and helps reduce the possibility of cyclic java class 
+          dependencies between component projects within the subsystem.  
+          Basically if there are classes that depend on each other but are 
+          kept apart in separate component projects, they create a dependency
+          between the two projects when both classes are needed by both 
+          projects.  To decouple these component projects we relocate these 
+          ancillary non SPI classes into the common API where possible.  This
+          way both component projects depend on a common API rather than each 
+          other.
+        </p>
+      </subsection>
+      
+      <subsection name="Major Subsystems">
+        <p>
+          
+        </p>
+      </subsection>
+    </section>
+    
+  </body>
+</document>
