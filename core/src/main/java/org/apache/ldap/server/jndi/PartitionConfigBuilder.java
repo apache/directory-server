@@ -56,7 +56,9 @@ public class PartitionConfigBuilder
             throws NamingException
     {
         final StringBuffer buf = new StringBuffer();
+
         final ContextPartitionConfig config = new ContextPartitionConfig();
+
         final LockableAttributesImpl attrs = new LockableAttributesImpl();
 
         // --------------------------------------------------------------------
@@ -64,8 +66,11 @@ public class PartitionConfigBuilder
         // --------------------------------------------------------------------
 
         config.setId( id );
+
         config.setAttributes( attrs );
+
         buf.append( EnvKeys.SUFFIX ).append( id );
+
         String suffix = ( String ) env.get(  buf.toString() );
 
         if ( suffix != null )
@@ -80,7 +85,9 @@ public class PartitionConfigBuilder
         // --------------------------------------------------------------------
 
         buf.setLength( 0 );
+
         buf.append( EnvKeys.PARTITION_CLASS ).append( id );
+
         String partitionClass = ( String ) env.get(  buf.toString() );
 
         if ( partitionClass != null )
@@ -93,7 +100,9 @@ public class PartitionConfigBuilder
         // --------------------------------------------------------------------
 
         buf.setLength( 0 );
+
         buf.append( EnvKeys.PARTITION_PROPERTIES ).append( id );
+
         String properties = ( String ) env.get(  buf.toString() );
 
         if ( properties != null )
@@ -106,7 +115,9 @@ public class PartitionConfigBuilder
         // --------------------------------------------------------------------
 
         buf.setLength( 0 );
+
         buf.append( EnvKeys.INDICES ).append( id );
+
         String indexList = ( ( String ) env.get( buf.toString() ) );
 
         if ( indexList == null || indexList.trim().length() == 0 )
@@ -116,6 +127,7 @@ public class PartitionConfigBuilder
         else
         {
             indexList = StringTools.deepTrim( indexList );
+
             config.setIndices( indexList.split( " " ) );
         }
 
@@ -124,6 +136,7 @@ public class PartitionConfigBuilder
         // --------------------------------------------------------------------
 
         buf.setLength( 0 );
+
         buf.append( EnvKeys.ATTRIBUTES ).append( id );
 
         /*
@@ -133,9 +146,11 @@ public class PartitionConfigBuilder
          * wrestle with individual key value pairs.
          */
         String keyBase = buf.toString();
+
         if ( env.containsKey( keyBase ) )
         {
             config.setAttributes( ( Attributes ) env.get( keyBase ) );
+
             return config;
         }
 
@@ -145,26 +160,31 @@ public class PartitionConfigBuilder
          * '.' and go on to try and detect all the keys and their attributes.
          */
         buf.append( "." );
+
         keyBase = buf.toString();
+
         for ( Enumeration list = env.keys(); list.hasMoreElements(); )
         {
             String attrKey = ( String ) list.nextElement();
 
             if ( attrKey.startsWith( keyBase ) )
             {
-                LockableAttributeImpl attr = new LockableAttributeImpl( attrs,
-                        attrKey.substring( keyBase.length() ) ) ;
+                LockableAttributeImpl attr = new LockableAttributeImpl( attrs, attrKey.substring( keyBase.length() ) ) ;
+
                 String valueList = ( String ) env.get( attrKey );
 
                 if ( valueList == null || valueList.trim().length() == 0 )
                 {
                     // add the empty attribute
                     attrs.put( attr );
+
                     continue;
                 }
 
                 valueList = StringTools.deepTrim( valueList );
+
                 String[] values = valueList.split( " " );
+
                 for ( int ii = 0; ii < values.length; ii++ )
                 {
                     attr.add( values[ii] );

@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.AuthenticatorConfig;
-import org.apache.ldap.server.auth.AuthenticatorConfig;
 
 import javax.naming.NamingException;
 

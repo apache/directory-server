@@ -504,27 +504,37 @@ public class CoreContextFactory implements InitialContextFactory
 
         // create authenticator context
         AuthenticatorContext authenticatorContext = new AuthenticatorContext();
+
         authenticatorContext.setRootNexus( nexus );
+
         authenticatorContext.setAllowAnonymous( allowAnonymous );
 
         try // initialize default authenticators
         {
             // create anonymous authenticator
             AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig();
+
             authenticatorConfig.setAuthenticatorName( "none" );
+
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
             AbstractAuthenticator authenticator = new AnonymousAuthenticator();
+
             authenticator.init( authenticatorConfig );
+
             authenticationService.register( authenticator );
 
             // create simple authenticator
             authenticatorConfig = new AuthenticatorConfig();
+
             authenticatorConfig.setAuthenticatorName( "simple" );
+
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
             authenticator = new SimpleAuthenticator();
+
             authenticator.init( authenticatorConfig );
+
             authenticationService.register( authenticator );
         }
         catch ( Exception e )
@@ -533,8 +543,8 @@ public class CoreContextFactory implements InitialContextFactory
         }
 
         AuthenticatorConfig[] configs = null;
-        configs = AuthenticatorConfigBuilder
-                .getAuthenticatorConfigs( initialEnv );
+
+        configs = AuthenticatorConfigBuilder.getAuthenticatorConfigs( initialEnv );
 
         for ( int ii = 0; ii < configs.length; ii++ )
         {
@@ -543,10 +553,13 @@ public class CoreContextFactory implements InitialContextFactory
                 configs[ii].setAuthenticatorContext( authenticatorContext );
 
                 String authenticatorClass = configs[ii].getAuthenticatorClass();
+
                 Class clazz = Class.forName( authenticatorClass );
+
                 Constructor constructor = clazz.getConstructor( new Class[] { } );
 
                 AbstractAuthenticator authenticator = ( AbstractAuthenticator ) constructor.newInstance( new Object[] { } );
+
                 authenticator.init( configs[ii] );
 
                 authenticationService.register( authenticator );
@@ -575,7 +588,7 @@ public class CoreContextFactory implements InitialContextFactory
          * Create and add the Authorization service interceptor to before
          * interceptor chain.
          */
-        state = new InvocationStateEnum[]{InvocationStateEnum.PREINVOCATION};
+        state = new InvocationStateEnum[] {InvocationStateEnum.PREINVOCATION};
 
         ConcreteNameComponentNormalizer normalizer;
 
@@ -591,8 +604,11 @@ public class CoreContextFactory implements InitialContextFactory
          * Create and add the Eve Exception service interceptor to both the
          * before and onError interceptor chains.
          */
-        state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION, InvocationStateEnum.FAILUREHANDLING};
+        state = new InvocationStateEnum[]
+        {
+            InvocationStateEnum.PREINVOCATION,
+            InvocationStateEnum.FAILUREHANDLING
+        };
 
         interceptor = new ServerExceptionService( nexus );
 
@@ -601,7 +617,7 @@ public class CoreContextFactory implements InitialContextFactory
         /*
          * Create and add the Eve schema service interceptor to before chain.
          */
-        state = new InvocationStateEnum[]{InvocationStateEnum.PREINVOCATION};
+        state = new InvocationStateEnum[] {InvocationStateEnum.PREINVOCATION};
 
         interceptor = new SchemaService( nexus, globalRegistries, filterService );
 
@@ -611,9 +627,11 @@ public class CoreContextFactory implements InitialContextFactory
          * Create and add the Eve operational attribute managment service
          * interceptor to both the before and after interceptor chains.
          */
-        state = new InvocationStateEnum[]{
+        state = new InvocationStateEnum[]
+        {
             InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.POSTINVOCATION};
+            InvocationStateEnum.POSTINVOCATION
+        };
 
         interceptor = new OperationalAttributeService( nexus, globalRegistries, filterService );
 
@@ -646,6 +664,7 @@ public class CoreContextFactory implements InitialContextFactory
         MatchingRuleRegistry reg = globalRegistries.getMatchingRuleRegistry();
 
         // start getting all the parameters from the initial environment
+
         ContextPartitionConfig[] configs = null;
 
         configs = PartitionConfigBuilder.getContextPartitionConfigs( initialEnv );

@@ -44,7 +44,12 @@
           <td>true</td>
           <td>
             The file system folder the server will use to store database files
-            and other things.
+            and other things.  You can set server.wkdir to an absolute path
+            or to a relative path like so:
+<source>
+server.wkdir=/opt/apacheds/work
+server.wkdir=tmp/work
+</source>
           </td>
         </tr>
 
@@ -52,7 +57,18 @@
           <td>server.schemas</td>
           <td>true</td>
           <td>
-            The schema configuration settings.
+            The schema configuration settings. A space separated list of fully
+            qualified class names.  These classes must extend AbstractBootstrapSchema
+            in the <code>org.apache.ldap.server.schema.bootstrap</code> package.
+            Here's an example:
+<source>
+server.schemas = org.apache.ldap.server.schema.bootstrap.SystemSchema
+ org.apache.ldap.server.schema.bootstrap.ApacheSchema
+ org.apache.ldap.server.schema.bootstrap.CoreSchema
+ org.apache.ldap.server.schema.bootstrap.CosineSchema
+ org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema
+ org.apache.ldap.server.schema.bootstrap.Krb5kdcSchema
+</source>
           </td>
         </tr>
 
@@ -60,7 +76,8 @@
           <td>server.disable.anonymous</td>
           <td>true</td>
           <td>
-            If present disables anonymous binds.
+            If present at all this key disables anonymous binds.  The value of
+            the property is disregarded.  By default anonymous binds are allowed.
           </td>
         </tr>
 
@@ -69,7 +86,8 @@
           <td>true</td>
           <td>
             If present when requesting an InitialContext this property forces
-            all partitions to sync their buffers to disk if they cache writes.
+            all partitions to sync their buffers to disk if their implementation
+            contains a cache.  The value of the property is disregarded.
           </td>
         </tr>
 
@@ -77,20 +95,20 @@
           <td>server.operation.shutdown</td>
           <td>true</td>
           <td>
-            If present when requesting an InitialContext this property
-            gracefully shutsdown the server.  It returns a useless DeadContext
-            which throws exceptions when used.
+            If present when requesting an InitialContext this property gracefully
+            shuts down the server.  The returned context is a useless DeadContext
+            which throws exceptions when used.  The value of the property is
+            disregarded.
           </td>
         </tr>
-
-
 
         <tr>
           <td>server.net.disable.protocol</td>
           <td>true</td>
           <td>
-            Used when starting up the server to disable the networking frontend
-            that handles LDAP protocol requests.
+            Used when starting up the server to disable the networking frontend that
+            handles LDAP protocol requests.  The value of the property is disregarded.
+            By default the LDAP protocol is enabled.
           </td>
         </tr>
 
@@ -99,7 +117,8 @@
           <td>true</td>
           <td>
             Used to pass an existing network frontend to the server rather
-            than having the server create its own instance.
+            than having the server create its own instance.  The value of
+            this property is a MINA ServiceRegistry instance.
           </td>
         </tr>
 
@@ -116,8 +135,9 @@
           <td>server.net.ldaps.port</td>
           <td>true</td>
           <td>
-            The LDAP port to use for servicing secure LDAP protocol requests if
-            not on the standard secure LDAP port: 636.
+            <b>WARNING</b>: ONLY FOR JDK 1.5 AND HIGHER.  Optionally specifies the
+            LDAP port to use for servicing secure LDAP protocol requests.  Secure
+            LDAP port 636 is usually used.
           </td>
         </tr>
 
@@ -125,33 +145,48 @@
           <td>server.db.partitions</td>
           <td>true</td>
           <td>
-            The list of database partition identifiers.
+            The list of database partition identifiers.  If this is not specified
+            the only partition in the server is the system partition hanging off
+            of the ou=system context.  The value is a space separated list of
+            partition names like 'apache example xyz123'.
           </td>
         </tr>
 
         <tr>
           <td>server.db.partition.suffix.</td>
-          <td>false when adding partitions</td>
+          <td>maybe</td>
           <td>
             A key base for listing the suffixes of database partitions.  The
-            identifier for the partition is appended to this base to form the
-            key for the suffix of that partition.
+            identifier for the partition in the property above is appended to
+            this base to form the key for the suffix of that partition.  Here
+            are some examples:
+<source>
+server.db.partition.suffix.apache=dc=apache,dc=org
+server.db.partition.suffix.example=dc=example,dc=com
+server.db.partition.suffix.xyz123=ou=xyz123
+</source>
           </td>
         </tr>
 
         <tr>
           <td>server.db.partition.indices.</td>
-          <td>true</td>
+          <td>maybe</td>
           <td>
             A key base for listing the indices for database partitions.  The
             identifier for the partition is appended to this base to form the
-            key for the suffix of that partition.
+            key for the suffix of that partition.  The value is a space
+            separated list of attributeType names.
+<source>
+server.db.partition.indicies.apache=dc ou locale cn
+server.db.partition.indicies.example=dc ou locale cn uid
+server.db.partition.indicies.xyz123=ou cn
+</source>
           </td>
         </tr>
 
         <tr>
           <td>server.db.partition.attributes.</td>
-          <td>false when adding partitions</td>
+          <td>maybe</td>
           <td>
             A key base for listing the attributes and values for the suffix
             entries of partitions.  The identifier for the partition is
@@ -159,10 +194,20 @@
             form the key for the attribuet in the suffix of that partition.
             More information on setting up partitions with this and other
             properties is <a href="./partitions.html">here</a>...
+<source>
+server.db.partition.attributes.apache.dc=apache
+server.db.partition.attributes.apache.objectClass=domain top
+</source>
           </td>
         </tr>
 
       </table>
+
+      <p>
+        Note that the optional columns of some rows were labeled as 'maybe'.  If a
+        partition is created then the respective property with the base would be
+        required.  It is only required when the respective partition is being defined.
+      </p>
     </section>
 
     <section name="Embedding the Apache Directory Server">
@@ -238,8 +283,8 @@ InitialDirContext ctx = new InitialDirContext( env );
         and creates a new application partition for Apache entries off of the
         <b>dc=apache,dc=org</b> naming context in addition to the system
         partition.  If you look closely at /var/ldap you'll see a directory
-        names apache where you'll find even more database files.  This is a
-        separate database partition for apache entries.
+        named apache where you'll find even more database files.  These files
+        are the database files for the separate partition for apache.org entries.
       </p>
     </section>
   </body>
