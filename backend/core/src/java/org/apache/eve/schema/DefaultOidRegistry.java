@@ -40,7 +40,7 @@ public class DefaultOidRegistry implements OidRegistry
     /** Maps several names to an OID */
     private Hashtable byName = new Hashtable();
     /** Default OidRegistryMonitor */
-    private OidRegistryMonitor monitor = null;
+    private OidRegistryMonitor monitor = new OidRegistryMonitorAdapter();
     
     
     /**
