@@ -29,7 +29,6 @@ import javax.naming.ldap.LdapContext;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.apseda.listener.AvailablePortFinder;
-import org.apache.apseda.listener.AvailablePortFinder;
 
 
 /**
@@ -62,10 +61,12 @@ public abstract class AbstractJndiTest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        doDelete( new File( "target" + File.separator + "eve" ) );
 
-        extras.put( EnvKeys.LDAP_PORT,
-                String.valueOf( AvailablePortFinder.getNextAvailable( 1024 ) ) );
+        doDelete( new File( "target" + File.separator + "apacheds" ) );
+
+        int port = AvailablePortFinder.getNextAvailable( 1024 );
+
+        extras.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
 
         setSysRoot( "uid=admin,ou=system", "secret" );
     }
@@ -127,7 +128,7 @@ public abstract class AbstractJndiTest extends TestCase
         envFinal.putAll( extras );
         envFinal.putAll( env );
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
-        envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "eve" );
+        envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "apacheds" );
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         envFinal.putAll( overrides );
         return sysRoot = new InitialLdapContext( envFinal, null );

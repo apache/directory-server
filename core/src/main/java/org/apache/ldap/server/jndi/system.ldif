@@ -51,3 +51,10 @@ cn: administrators
 ou: groups
 uniquemember: uid=akarasulu,ou=users,ou=system
 
+dn: prefNodeName=sysPrefRoot,ou=system
+objectClass: top
+objectClass: prefNode
+objectClass: extensibleObject
+test: abc123
+prefNodeName: sysPrefRoot
+

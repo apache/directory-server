@@ -134,6 +134,7 @@ public class SchemaService extends BaseInterceptor
 
             // construct the set for fast lookups while filtering
             String binaryIds = ( String ) ctx.getEnvironment().get( BINARY_KEY );
+
             if ( binaryIds == null )
             {
                 binaries = Collections.EMPTY_SET;
@@ -141,10 +142,13 @@ public class SchemaService extends BaseInterceptor
             else
             {
                 String[] binaryArray = binaryIds.split( " " );
+
                 binaries = new HashSet( binaryArray.length );
+
                 for ( int ii = 0; ii < binaryArray.length; ii++ )
                 {
                     AttributeType type = registry.lookup( binaryArray[ii] );
+
                     binaries.add( type );
                 }
             }
@@ -154,20 +158,37 @@ public class SchemaService extends BaseInterceptor
              * human readable and those that are in the binaries set
              */
             NamingEnumeration list = entry.getIDs();
+
             while ( list.hasMore() )
             {
                 String id = ( String ) list.next();
-                AttributeType type = registry.lookup( id );
-                boolean isBinary = ! type.getSyntax().isHumanReadible();
 
-                if ( isBinary || binaries.contains( type ) )
+                AttributeType type = null;
+
+                boolean asBinary = false;
+
+                if ( registry.hasAttributeType( id ) )
+                {
+                    type = registry.lookup( id );
+                }
+
+                if ( type != null )
+                {
+                    asBinary = ! type.getSyntax().isHumanReadible();
+
+                    asBinary = asBinary || binaries.contains( type );
+                }
+
+                if ( asBinary )
                 {
                     Attribute attribute = entry.get( id );
+
                     Attribute binary = new LockableAttributeImpl( id );
 
                     for ( int ii = 0; ii < attribute.size(); ii++ )
                     {
                         Object value = attribute.get( ii );
+
                         if ( value instanceof String )
                         {
                             binary.add( ii, ( ( String ) value ).getBytes() );
@@ -179,6 +200,7 @@ public class SchemaService extends BaseInterceptor
                     }
 
                     entry.remove( id );
+
                     entry.put( binary );
                 }
             }

@@ -270,9 +270,15 @@ public class OperationalAttributeService extends BaseInterceptor
         while ( list.hasMore() )
         {
             String attrId = ( String ) list.next();
-            AttributeType type = registry.lookup( attrId );
 
-            if ( type.getUsage() != UsageEnum.USERAPPLICATIONS )
+            AttributeType type = null;
+
+            if ( registry.hasAttributeType( attrId ) )
+            {
+                type = registry.lookup( attrId );
+            }
+
+            if ( type != null && type.getUsage() != UsageEnum.USERAPPLICATIONS )
             {
                 attributes.remove( attrId );
             }
