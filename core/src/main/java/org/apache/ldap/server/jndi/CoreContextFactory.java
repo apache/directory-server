@@ -514,7 +514,7 @@ public class CoreContextFactory implements InitialContextFactory
             authenticatorConfig.setAuthenticatorName( "none" );
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
-            Authenticator authenticator = new AnonymousAuthenticator();
+            AbstractAuthenticator authenticator = new AnonymousAuthenticator();
             authenticator.init( authenticatorConfig );
             authenticationService.register( authenticator );
 
@@ -546,7 +546,7 @@ public class CoreContextFactory implements InitialContextFactory
                 Class clazz = Class.forName( authenticatorClass );
                 Constructor constructor = clazz.getConstructor( new Class[] { } );
 
-                Authenticator authenticator = ( Authenticator ) constructor.newInstance( new Object[] { } );
+                AbstractAuthenticator authenticator = ( AbstractAuthenticator ) constructor.newInstance( new Object[] { } );
                 authenticator.init( configs[ii] );
 
                 authenticationService.register( authenticator );

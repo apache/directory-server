@@ -16,45 +16,23 @@
  */
 package org.apache.ldap.server.auth;
 
+
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.auth.LdapPrincipal;
 
 import javax.naming.NamingException;
 
 
 /**
- * Base class for all Authenticators.
+ * Endi when you have a chance please document this class with the proper javadocs.
  *
- * @author <a href="mailto:endisd@vergenet.com">Endi S. Dewata</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
-public class Authenticator {
+public interface Authenticator
+{
+    AuthenticatorContext getAuthenticatorContext();
 
-    /** authenticator config */
-    public AuthenticatorConfig authenticatorConfig;
-    /** authenticator context */
-    public AuthenticatorContext authenticatorContext;
-    /** authenticator type */
-    public String type;
-
-    /**
-     * Create a new Authenticator.
-     *
-     * @param type authenticator's type
-     */
-    public Authenticator( String type )
-    {
-        this.type = type;
-    }
-
-    public AuthenticatorContext getAuthenticatorContext()
-    {
-        return authenticatorContext;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
+    String getType();
 
     /**
      * Called by the authenticator container to indicate that the authenticator is being placed into service.
@@ -62,20 +40,12 @@ public class Authenticator {
      * @param authenticatorConfig
      * @throws NamingException
      */
-    public void init( AuthenticatorConfig authenticatorConfig ) throws NamingException
-    {
-        this.authenticatorConfig = authenticatorConfig;
-        this.authenticatorContext = authenticatorConfig.getAuthenticatorContext();
-        init();
-    }
+    void init( AuthenticatorConfig authenticatorConfig ) throws NamingException;
 
     /**
      * A convenience method which can be overridden so that there's no need to call super.init( authenticatorConfig ).
      */
-    public void init() throws NamingException
-    {
-
-    }
+    void init() throws NamingException;
 
     /**
      * Perform the authentication operation and return the authorization id if successfull.
@@ -84,9 +54,5 @@ public class Authenticator {
      * @return the authorization id
      * @throws NamingException
      */
-    public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
-    {
-        return null;
-    }
-
+    LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
 }

@@ -23,10 +23,11 @@ import org.apache.ldap.server.RootNexus;
 /**
  * Base class for all Authenticators.
  *
- * @author <a href="mailto:direct   ory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 124525 $
  */
-public class AuthenticatorContext {
+public class AuthenticatorContext
+{
 
     /** the root nexus to all database partitions */
     private RootNexus rootNexus;

@@ -20,9 +20,10 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 /**
- * A configuration bean for Authenticators.
+ * A configuration bean for Authenticators. 
  *
- * @author <a href="mailto:endisd@vergenet.com">Endi S. Dewata</a>
+ * @todo Endi this class needs javadocs for the methods
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AuthenticatorConfig {
 

@@ -22,14 +22,22 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import javax.naming.NamingException;
 
 /**
- * @author <a href="mailto:endisd@vergenet.com">Endi S. Dewata</a>
+ * Endi can you please javadoc this code.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AnonymousAuthenticator extends Authenticator {
-
+public class AnonymousAuthenticator extends AbstractAuthenticator
+{
     public AnonymousAuthenticator( )
     {
         super( "none" );
     }
+
+
+    public void init() throws NamingException
+    {
+    }
+
 
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {

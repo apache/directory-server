@@ -16,6 +16,7 @@
  */
 package org.apache.ldap.server.auth;
 
+
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
@@ -28,18 +29,44 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
 
-/**
- * @author <a href="mailto:endisd@vergenet.com">Endi S. Dewata</a>
- */
-public class SimpleAuthenticator extends Authenticator {
 
+/**
+ * A simple Authenticator that just authenticates clear text passwords
+ * contained within the <code>userPassword</code> attribute.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+public class SimpleAuthenticator extends AbstractAuthenticator
+{
+    /**
+     * Creates a simple authenticator for clear text passwords in
+     * userPassword attributes.
+     */
     public SimpleAuthenticator( )
     {
         super( "simple" );
     }
 
+
+    /**
+     * Does nothing!
+     *
+     * @see Authenticator#init()
+     */
+    public void init() throws NamingException
+    {
+    }
+
+
+    /**
+     * Uses the userPassword field of the user to authenticate.
+     *
+     * @see Authenticator#authenticate(org.apache.ldap.server.jndi.ServerContext)
+     */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {
+        // ---- extract password from JNDI environment
+
         Object creds = ctx.getEnvironment().get( Context.SECURITY_CREDENTIALS );
 
         if ( creds == null )
@@ -51,8 +78,10 @@ public class SimpleAuthenticator extends Authenticator {
             creds = ( ( String ) creds ).getBytes();
         }
 
-        // let's get the principal now
+        // ---- extract principal from JNDI environment
+
         String principal;
+
         if ( ! ctx.getEnvironment().containsKey( Context.SECURITY_PRINCIPAL ) )
         {
             throw new LdapAuthenticationException();
@@ -60,14 +89,19 @@ public class SimpleAuthenticator extends Authenticator {
         else
         {
             principal = ( String ) ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL );
+
             if ( principal == null )
             {
                 throw new LdapAuthenticationException();
             }
         }
 
+        // ---- lookup the principal entry's userPassword attribute
+
         LdapName principalDn = new LdapName( principal );
+
         RootNexus rootNexus = getAuthenticatorContext().getRootNexus();
+
         Attributes userEntry = rootNexus.lookup( principalDn );
 
         if ( userEntry == null )
@@ -76,7 +110,11 @@ public class SimpleAuthenticator extends Authenticator {
         }
 
         Object userPassword;
+
         Attribute userPasswordAttr = userEntry.get( "userPassword" );
+
+        // ---- assert that credentials match
+
         if ( userPasswordAttr == null )
         {
             userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
@@ -84,6 +122,7 @@ public class SimpleAuthenticator extends Authenticator {
         else
         {
             userPassword = userPasswordAttr.get();
+
             if ( userPassword instanceof String )
             {
                 userPassword = ( ( String ) userPassword ).getBytes();

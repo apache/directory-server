@@ -25,7 +25,7 @@ import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.auth.LdapPrincipal;
-import org.apache.ldap.server.auth.Authenticator;
+import org.apache.ldap.server.auth.AbstractAuthenticator;
 import org.apache.ldap.server.auth.Authenticator;
 
 import java.util.Map;
@@ -44,8 +44,7 @@ public class AuthenticationService implements Interceptor
 {
     /** short for Context.SECURITY_AUTHENTICATION */
     private static final String AUTH_TYPE = Context.SECURITY_AUTHENTICATION;
-    /** short for Context.SECURITY_PRINCIPAL */
-    private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
+
     /** short for Context.SECURITY_CREDENTIALS */
     private static final String CREDS = Context.SECURITY_CREDENTIALS;
 
@@ -68,7 +67,7 @@ public class AuthenticationService implements Interceptor
      * @param authenticator Authenticator component to register with this
      * AuthenticatorService.
      */
-    public void register( Authenticator authenticator )
+    public void register( AbstractAuthenticator authenticator )
     {
         Collection authenticatorList = getAuthenticators( authenticator.getType() );
         if ( authenticatorList == null )

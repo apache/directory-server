@@ -1,5 +1,5 @@
-Changes since 0.8
-=================
+Changes in 0.9
+==============
 
  o added Preferences implementation for system settings (user Prefs not done)
  o added support for JNDI state factories and object factories
@@ -8,4 +8,5 @@ Changes since 0.8
    just needs to be added.
  o added factory.hints property to help drive the selection of a object
    factory when there are multiple alternatives
-
+ o added Authenticator (thanks to Endi)
+ o added support for multiple types of backends (thanks to Endi)
