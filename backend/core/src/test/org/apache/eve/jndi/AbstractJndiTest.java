@@ -38,6 +38,9 @@ public class AbstractJndiTest extends TestCase
     /** the context root for the system partition */
     protected LdapContext sysRoot;
 
+    /** flag whether to delete database files for each test or not */
+    protected boolean doDelete = true;
+
 
     /**
      * Get's the initial context factory for the provider's ou=system context
@@ -81,7 +84,11 @@ public class AbstractJndiTest extends TestCase
         }
 
         sysRoot = null;
-        File file = new File( "target/eve" );
-        FileUtils.deleteDirectory( file );
+
+        if ( doDelete == true )
+        {
+            File file = new File( "target/eve" );
+            FileUtils.deleteDirectory( file );
+        }
     }
 }
