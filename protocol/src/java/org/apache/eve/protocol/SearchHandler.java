@@ -88,7 +88,27 @@ public class SearchHandler extends AbstractManyReplyHandler
                     .getInitialLdapContext( key, null, true );
             ctx = ( LdapContext ) ictx.lookup( "" );
             ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases().getName() );
-            list = ctx.search( req.getBase(), req.getFilter().toString(), controls );
+
+            /*
+             * Eve JNDI Provider Specific Hack!
+             *
+             * Hack to get around not having to generate the filter string and
+             * reparse the expression back into a tree: instead we sneak the
+             * filter into the environment so the Eve context implementation
+             * can pick it up.
+             *
+             * @todo change this so we test for the Eve provider to use the hack
+             * @todo find better way to do this
+             * @todo if provider is not Eve provider then we need to generate filter
+             *
+             * To generate we're going to need a visitor for this.  Can't use the
+             * toString() method which uses scan counts and is for pretty printing
+             * the filter.
+             */
+            ctx.addToEnvironment( "__filter__", req.getFilter() );
+            list = ctx.search( req.getBase(), null, controls );
+            ctx.removeFromEnvironment( "__filter__" );
+
             if ( list.hasMore() )
             {
                 return new SearchResponseIterator( req, list );
@@ -100,7 +120,7 @@ public class SearchHandler extends AbstractManyReplyHandler
                 resp.setLdapResult( new LdapResultImpl( resp ) );
                 resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
                 resp.getLdapResult().setMatchedDn( req.getBase() );
-                return Collections.singleton( resp ).iterator();        
+                return Collections.singleton( resp ).iterator();
             }
         }
         catch ( NamingException e )

@@ -509,33 +509,40 @@ public abstract class EveDirContext extends EveContext implements DirContext
         ExprNode filterNode = null;
         LdapName target = buildTarget( name );
 
-        try 
+        if ( filter == null && getEnvironment().containsKey( "__filter__" ) )
         {
-            /*
-             * TODO Added this parser initialization code to the FilterImpl
-             * and have a static class parser that can be globally accessed. 
-             */
-            FilterParser parser = new FilterParserImpl();
-            filterNode = parser.parse( filter );
+            filterNode = ( ExprNode ) getEnvironment().get( "__filter__" );
         }
-        catch ( ParseException pe )
+        else
         {
-            InvalidSearchFilterException isfe =
-                new InvalidSearchFilterException (
-                "Encountered parse exception while parsing the filter: '" 
-                + filter + "'" );
-            isfe.setRootCause( pe );
-            throw isfe;
+            try
+            {
+                /*
+                 * TODO Added this parser initialization code to the FilterImpl
+                 * and have a static class parser that can be globally accessed.
+                 */
+                FilterParser parser = new FilterParserImpl();
+                filterNode = parser.parse( filter );
+            }
+            catch ( ParseException pe )
+            {
+                InvalidSearchFilterException isfe =
+                    new InvalidSearchFilterException (
+                    "Encountered parse exception while parsing the filter: '"
+                    + filter + "'" );
+                isfe.setRootCause( pe );
+                throw isfe;
+            }
+            catch ( IOException ioe )
+            {
+                NamingException ne = new NamingException(
+                    "Parser failed with IO exception on filter: '"
+                    + filter + "'" );
+                ne.setRootCause( ioe );
+                throw ne;
+            }
         }
-        catch ( IOException ioe )
-        {
-            NamingException ne = new NamingException(
-                "Parser failed with IO exception on filter: '" 
-                + filter + "'" );
-            ne.setRootCause( ioe );
-            throw ne;
-        }
-        
+
         return getNexusProxy().search( target , getEnvironment(), filterNode, cons );
     }
 
