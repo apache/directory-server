@@ -28,7 +28,7 @@ import org.apache.ldap.common.schema.MatchingRuleUse;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MatchineRuleUseRegistry
+public interface MatchingRuleUseRegistry
 {
     /**
      * Registers a Comparator with this registry.
