@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <pomVersion>1</pomVersion>
   <artifactId>eve-dib</artifactId>
-  <groupId>incubator-directory</groupId>
-  <id>eve-dib</id>
   <name>Eve JNDI Provider</name>
-  <package>org.apache.eve</package>
   <inceptionYear>2002</inceptionYear>
   <shortDescription>Eve's directory information base</shortDescription>
   <description>

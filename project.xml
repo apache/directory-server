@@ -2,7 +2,7 @@
 
 <project>
     <groupId>incubator-directory</groupId>
-    <id>eve</id>
+    <artifactId>eve-parent</artifactId>
     <name>Eve Directory Server</name>
     <currentVersion>0.8.0-SNAPSHOT</currentVersion>
     
@@ -18,10 +18,9 @@
     <logo>/images/apache-directory-logo.png</logo>
     <url>http://incubator.apache.org/directory/eve/</url>
     
-    <issueTrackingUrl>
-      http://nagoya.apache.org/scarab/servlet/scarab
-    </issueTrackingUrl>
+    <issueTrackingUrl>http://issues.apache.org/browse/DIREVE</issueTrackingUrl>
     <siteAddress>directory.apache.org</siteAddress>
+    <!-- TODO: ... -->
     <siteDirectory>/home/akarasulu/public_html</siteDirectory>
     <distributionDirectory>
       /home/akarasulu/public_html/dist
@@ -72,10 +71,8 @@
     
     <licenses>
       <license>
-        <name>Apache 1.1 License</name>
-        <url>
-          http://cvs.apache.org/viewcvs.cgi/incubator/directory/LICENSE.txt?rev=1369&amp;root=Apache-SVN&amp;view=markup
-        </url>
+        <name>Apache 2.0 License</name>
+        <url>http://www.apache.org/licenses/LICENSE-2.0</url>
         <distribution>repo</distribution>
       </license>
     </licenses>
@@ -93,32 +90,19 @@
       <nagEmailAddress>directory-dev@incubator.apache.org</nagEmailAddress>
       <sourceDirectory>${basedir}/src/java</sourceDirectory>
       <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
-      <integrationUnitTestSourceDirectory/>
-      <aspectSourceDirectory/>
 
       <unitTest>
         <includes>
           <include>**/*Test*</include>
-          <include>**/*TestCase*</include>
         </includes>
               
+        <!-- TODO: required? -->
         <excludes>
             <exclude>**/Abstract*Test*</exclude>
         </excludes>
         
+        <!-- TODO: are all these required? Should have a src/test/resources directory -->
         <resources>
-          <resource>
-            <directory>${basedir}/src/test</directory>
-            <includes> 
-              <include>**/*.dtd</include>
-              <include>**/*.ldif</include>
-              <include>**/*.properties</include>
-              <include>**/*.x*</include>
-              <include>**/*.mf</include>
-              <include>**/*.jar</include>
-            </includes>
-          </resource>
-
           <resource>
             <directory>${basedir}/src/test</directory>
             <includes> 
@@ -133,6 +117,7 @@
         </resources>
       </unitTest>
     
+      <!-- TODO: are all these required? Should have a src/main/resources directory -->
       <resources>
         <resource>
           <directory>${basedir}/src/java</directory>
@@ -145,6 +130,7 @@
           </includes>
         </resource>
               
+        <!-- TODO: Is this really appropriate given the svn layout? probably breaks on tags/branches - make a local copy instead -->
         <resource>
           <directory>${basedir}/../../../</directory>
           <targetPath>META-INF</targetPath>
@@ -159,6 +145,7 @@
       <jars></jars>
     </build>
     
+    <!-- TODO: Clover? -->
     <reports>
     	<report>maven-jxr-plugin</report>
     	<report>maven-license-plugin</report>

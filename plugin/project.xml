@@ -18,11 +18,8 @@
  -->
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <pomVersion>1</pomVersion>
   <artifactId>maven-eve-plugin</artifactId>
-  <groupId>incubator-directory</groupId>
-  <id>maven-eve-plugin</id>
-  <name>maven-eve-plugin</name>
+  <name>Eve build plugin for Maven</name>
   <package>org.apache.eve.tools</package>
   <inceptionYear>2004</inceptionYear>
   <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
