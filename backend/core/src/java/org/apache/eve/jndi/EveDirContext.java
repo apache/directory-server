@@ -135,8 +135,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
      *      int, javax.naming.directory.Attributes)
      */
-    public void modifyAttributes( String name, int modOp,
-        Attributes attrs ) throws NamingException
+    public void modifyAttributes( String name, int modOp, Attributes attrs )
+            throws NamingException
     {
         modifyAttributes( new LdapName( name ), modOp, attrs );
     }
@@ -190,8 +190,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#bind(javax.naming.Name,
      *      java.lang.Object, javax.naming.directory.Attributes)
      */
-    public void bind( Name name, Object obj, Attributes attrs )
-        throws NamingException
+    public void bind( Name name, Object obj, Attributes attrs ) throws NamingException
     {
         if ( null == obj && null == attrs )
         {
@@ -216,8 +215,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
         {
             if ( obj instanceof EveLdapContext )
             {
-                throw new IllegalArgumentException(
-                    "Cannot bind a directory context object!" );
+                throw new IllegalArgumentException( "Cannot bind a directory context object!" );
             }
 
             Attributes clone = ( Attributes ) attrs.clone();
@@ -243,8 +241,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#rebind(javax.naming.Name,
      *      java.lang.Object, javax.naming.directory.Attributes)
      */
-    public void rebind( Name name, Object obj, Attributes attrs )
-        throws NamingException
+    public void rebind( Name name, Object obj, Attributes attrs ) throws NamingException
     {
         Name target = buildTarget( name );
 
@@ -294,8 +291,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
         getNexusProxy().add( target.toString(), target, attributes );
 
         // Initialize the new context
-        EveLdapContext ctx = new EveLdapContext( getNexusProxy(),
-            getEnvironment(), target );
+        EveLdapContext ctx = new EveLdapContext( getNexusProxy(), getEnvironment(), target );
         
         Control [] controls = ( ( EveLdapContext ) this ).getRequestControls();
         if ( controls != null )
@@ -349,8 +345,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#getSchemaClassDefinition(
      * javax.naming.Name)
      */
-    public DirContext getSchemaClassDefinition( Name name )
-        throws NamingException
+    public DirContext getSchemaClassDefinition( Name name ) throws NamingException
     {
         throw new UnsupportedOperationException();
     }
@@ -365,8 +360,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#getSchemaClassDefinition(
      * java.lang.String)
      */
-    public DirContext getSchemaClassDefinition( String name )
-        throws NamingException
+    public DirContext getSchemaClassDefinition( String name ) throws NamingException
     {
         throw new UnsupportedOperationException();
     }
@@ -381,8 +375,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      javax.naming.directory.Attributes)
      */
-    public NamingEnumeration search( String name,
-        Attributes matchingAttributes ) throws NamingException
+    public NamingEnumeration search( String name, Attributes matchingAttributes )
+            throws NamingException
     {
         return search( new LdapName( name ), matchingAttributes, null );
     }
@@ -392,8 +386,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      javax.naming.directory.Attributes)
      */
-    public NamingEnumeration search( Name name,
-        Attributes matchingAttributes ) throws NamingException
+    public NamingEnumeration search( Name name, Attributes matchingAttributes )
+            throws NamingException
     {
         return search( name, matchingAttributes, null );
     }
@@ -403,8 +397,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      javax.naming.directory.Attributes, java.lang.String[])
      */
-    public NamingEnumeration search( String name,
-        Attributes matchingAttributes, String[] attributesToReturn )
+    public NamingEnumeration search( String name, Attributes matchingAttributes,
+                                     String[] attributesToReturn )
         throws NamingException
     {
         return search( new LdapName( name ), matchingAttributes,
@@ -419,8 +413,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      javax.naming.directory.Attributes, java.lang.String[])
      */
-    public NamingEnumeration search( Name name,
-        Attributes matchingAttributes, String[] attributesToReturn )
+    public NamingEnumeration search( Name name, Attributes matchingAttributes,
+                                     String[] attributesToReturn )
         throws NamingException
     {
         SearchControls ctls = new SearchControls();
@@ -436,8 +430,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
         if ( null == matchingAttributes || matchingAttributes.size() <= 0 )
         {
             PresenceNode filter = new PresenceNode( "objectClass" );
-            return getNexusProxy().search( target , getEnvironment(),
-                filter, ctls );
+            return getNexusProxy().search( target , getEnvironment(), filter, ctls );
         }
 
         /*
@@ -476,15 +469,13 @@ public abstract class EveDirContext extends EveContext implements DirContext
                 // Add simpel AVA node if its value is a String 
                 if ( val instanceof String )
                 {
-                    node = new SimpleNode( attr.getID(),
-                        ( String ) val, SimpleNode.EQUALITY );
+                    node = new SimpleNode( attr.getID(), ( String ) val, SimpleNode.EQUALITY );
                     filter.addNode( node );
                 }
             }
         }
 
-        return getNexusProxy().search( target , getEnvironment(),
-            filter, ctls );
+        return getNexusProxy().search( target , getEnvironment(), filter, ctls );
     }
 
 
@@ -492,8 +483,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      java.lang.String, javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( String name, String filter,
-        SearchControls cons ) throws NamingException
+    public NamingEnumeration search( String name, String filter, SearchControls cons )
+            throws NamingException
     {
         return search( new LdapName( name ), filter, cons );
     }
@@ -503,8 +494,8 @@ public abstract class EveDirContext extends EveContext implements DirContext
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      java.lang.String, javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration search( Name name, String filter,
-        SearchControls cons ) throws NamingException
+    public NamingEnumeration search( Name name, String filter, SearchControls cons )
+            throws NamingException
     {
         ExprNode filterNode = null;
         LdapName target = buildTarget( name );
@@ -548,8 +539,7 @@ public abstract class EveDirContext extends EveContext implements DirContext
     public NamingEnumeration search( String name, String filterExpr,
         Object[] filterArgs, SearchControls cons ) throws NamingException
     {
-        return search( new LdapName( name ), filterExpr, filterArgs,
-            cons );
+        return search( new LdapName( name ), filterExpr, filterArgs, cons );
     }
 
 
