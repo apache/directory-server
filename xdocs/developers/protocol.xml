@@ -6,7 +6,7 @@
   </properties>
   
   <body>
-    <section name="Eve's LDAP Protocol Provider">
+    <section name="Server's LDAP Protocol Provider">
       <subsection name="Provider API">
         <p>
           The network layer regardless of the implementation used (seda, sedang,
@@ -18,27 +18,27 @@
         </p>
 
         <p>
-          Like other protocols Eve has a protocol provider implementation.  This
-          implementation is for the LDAP protocol.  The provider is rather simple
-          in nature and has some unique properties which make it flexible enough
-          to be used as an LDAP proxy server or an X.500 gateway server.
+          The directory server has one or more protocol provider
+          implementations.  The primary implementation is for the LDAP protocol.
+          The provider is rather simple in nature and has some unique properties
+          which make it flexible enough to be used as an LDAP proxy server or
+          an X.500 gateway server.
         </p>
       </subsection>
 
       <subsection name="Design">
         <p>
-          Eve's LDAP protocol provider translates on the wire LDAP requests into
-          JNDI LDAP operations.  Results from JNDI operations are then
-          translated to LDAP responses pushed out on the wire.  This thin
-          implementation makes the Eve protocol layer efficient and easy to
-          grasp.
+          The server's LDAP protocol provider translates on the wire LDAP
+          requests into JNDI LDAP operations.  Results from JNDI operations are
+          then translated to LDAP responses pushed out on the wire.  This thin
+          implementation makes the protocol layer efficient and easy to grasp.
         </p>
 
         <p>
           The protocol provider is independent of the JNDI provider used.  It is
           however dependent on the LDAP namespace.  Hence it can only work with
-          LDAP JNDI providers like the SUN LDAP JNDI provider and Eve's JNDI
-          provider.
+          LDAP JNDI providers like the SUN LDAP JNDI provider and the server's
+          JNDI provider.
         </p>
 
         <p>

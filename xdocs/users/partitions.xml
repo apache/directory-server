@@ -16,10 +16,10 @@
 
       <subsection name="Status">
         <p>
-          Presently Eve has a single partition implementation which is used for
-          both the system partition and user partitions.  It uses
-          <a href="http://jdbm.sourceforge.net/">JDBM</a> as the underlying
-          B+Tree implementation for storing entries.
+          Presently the server has a single partition implementation.  This
+          implementation is used for both the system partition and user
+          partitions.  It uses <a href="http://jdbm.sourceforge.net/">JDBM</a>
+          as the underlying B+Tree implementation for storing entries.
         </p>
 
         <p>
@@ -31,8 +31,8 @@
         <p>
           Partitions have simple interfaces that can be used to align any data
           source to the LDAP data model thereby accessing it via JNDI or via
-          LDAP over the wire.  This makes Eve very flexible as a bridge to
-          standardize access to disparate data sources and formats.  Dynamic
+          LDAP over the wire.  This makes the server very flexible as a bridge
+          to standardize access to disparate data sources and formats.  Dynamic
           mapping based backends are also interesting.
         </p>
       </subsection>
@@ -46,31 +46,33 @@
         </p>
 
         <p>
-          Eve's subsystems will use this partition to store information critical
-          to their operation.  Things like triggers, stored procedures, access
-          control instructions and schema information can be maintained here.
+          The server's subsystems will use this partition to store information
+          critical to their operation.  Things like triggers, stored procedures,
+          access control instructions and schema information can be maintained
+          here.
         </p>
       </subsection>
 
       <subsection name="Root Nexus">
         <p>
           Several partitions can be assigned to different naming contexts within
-          Eve so long as their names do not overlap such that one partition's
-          naming context is contained within anothers.  The root nexus is a fake
-          partition that does not really store entries.  It maps other entry
-          storing partitions to naming contexts and routes backing store calls
-          to the partition containing the entry associated with the operation.
+          the server so long as their names do not overlap such that one
+          partition's naming context is contained within anothers.  The root
+          nexus is a fake partition that does not really store entries.  It maps
+          other entry storing partitions to naming contexts and routes backing
+          store calls to the partition containing the entry associated with the
+          operation.
         </p>
       </subsection>
 
       <subsection name="User Partitions">
         <p>
           User partitions are partitions added by users.  When you download and
-          start using Eve you may want to create a separate partition to store
-          the entries of your application.  To us user (sometimes also referred
-          to as application) partitions are those that are not the system
+          start using the server you may want to create a separate partition to
+          store the entries of your application.  To us user (sometimes also
+          referred to as application) partitions are those that are not the system
           partition!  In the following section we describe how a user partition
-          can be created in Eve.
+          can be created in the server.
         </p>
       </subsection>
     </section>
@@ -88,7 +90,7 @@
         <p>
           Obviously properties files are not the best way to configure a large
           system like an LDAP server.  However properties files are the JNDI
-          standard for pulling in configuration.  Eve as a JNDI provider tries
+          standard for pulling in configuration.  The server's JNDI provider tries
           to honor this.  Hence the use of a properties file for configuration.
           Below we have the configuration of two user defined partitions within
           a properties file.  These partitions are for the naming contexts:
@@ -97,37 +99,38 @@
 
     <source>
 # all multivalued properties are space separated like the list of partions here
-eve.db.partitions=apache test
+server.db.partitions=apache test
 
 # apache partition configuration
-eve.db.partition.suffix.apache=dc=apache,dc=org
-eve.db.partition.indices.apache=ou cn objectClass uid
-eve.db.partition.attributes.apache.dc=apache
-eve.db.partition.attributes.apache.objectClass=top domain extensibleObject
+server.db.partition.suffix.apache=dc=apache,dc=org
+server.db.partition.indices.apache=ou cn objectClass uid
+server.db.partition.attributes.apache.dc=apache
+server.db.partition.attributes.apache.objectClass=top domain extensibleObject
 
 # test partition configuration
-eve.db.partition.suffix.test=ou=test
-eve.db.partition.indices.test=ou objectClass
-eve.db.partition.attributes.test.ou=test
-eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleObject
+server.db.partition.suffix.test=ou=test
+server.db.partition.indices.test=ou objectClass
+server.db.partition.attributes.test.ou=test
+server.db.partition.attributes.test.objectClass=top organizationalUnit extensibleObject
     </source>
 
         <p>
-          Although somewhat ugly the way we use properties for settings does
-          work.  Hopefully we can build a tool on top of this to save the
-          user some hassle.  Another approach may be to use XML or something
-          easier to generate these properties from them.  For now its the best
-          non-specific means we have to inject settings through JNDI environment
-          Hashtables while still being able to load settings via properties
-          files.  Properties from proerties files are the common denominator
-          though.  Another means is however possible programatically.
+          Although somewhat ugly the way we use properties for settings is
+          portable across JNDI LDAP providers.  Hopefully we can build a tool
+          on top of this to save the user some hassle.  Another approach may be
+          to use XML or something easier to generate these properties from them.
+          For now its the best non-specific (to the server's provider) means we
+          have to inject settings through JNDI environment Hashtables while
+          still being able to load settings via properties files.  Properties
+          from proerties files are the common denominator though.  Another
+          easier means to configure the server is possible programatically.
         </p>
         <h3>Partition Id</h3>
         <p>
           Breifly we'll explain these properties and the scheme used.  A
           partition's property set is associated as a set using the partition's
           id.  All partition ids are listed as a space separated list using the
-          <b>eve.db.partitions</b> property: above it lists the ids for the two
+          <b>server.db.partitions</b> property: above it lists the ids for the two
           partitions, <i>apache</i> and <i>test</i>.
         </p>
         <h3>Naming Context</h3>
@@ -137,19 +140,20 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           entries in the partition have this common suffix.  The suffix is a
           distinguished name.  The property key for the suffix of a partition is
           composed of the following property key base
-          <b>eve.db.partition.suffix.</b> concatenated with the id of the
-          partition: <b>eve.db.partition.suffix.</b><i>${id}</i>.  For example
+          <b>server.db.partition.suffix.</b> concatenated with the id of the
+          partition: <b>server.db.partition.suffix.</b><i>${id}</i>.  For example
           if the partition id is foo, then the suffix key would be,
-          <b>eve.db.partition.suffix.foo</b>.
+          <b>server.db.partition.suffix.foo</b>.
         </p>
         <h3>User Defined Indices</h3>
         <p>
           Partitions can have indices on attributes.  Unlike OpenLDAP where you
-          can build specific types of indices, Eve indices are of a single type.
-          For each partition a key is assembled from the partition id and the
-          property key base: <b>eve.db.partition.indices.</b><i>${id}</i>.  So
+          can build specific types of indices, the server's indices are of a
+          single type.  For each partition, a key is assembled from the
+          partition id and the property key base:
+          <b>server.db.partition.indices.</b><i>${id}</i>.  So
           again for foo the key for attribute indices would be
-          <b>eve.db.partition.indices.foo</b>.  This value is a space separated
+          <b>server.db.partition.indices.foo</b>.  This value is a space separated
           list of attributeType names to index.  For example the apache
           partition has indices built on top of <b>ou</b>, <b>objectClass</b>
           and <b>uid</b>.
@@ -162,9 +166,9 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           specify these attributes as well as their values.  To do so we again
           use a key composed of a base, however this time we use both the id
           of the partition and the name of the attribute:
-          <b>eve.db.partition.attributes.</b><i>${id}</i>.<i>${name}</i>.  So
+          <b>server.db.partition.attributes.</b><i>${id}</i>.<i>${name}</i>.  So
           for partition foo and attribute bar the following key would be used:
-          <b>eve.db.partition.attributes.foo.bar</b>.    The value of the key
+          <b>server.db.partition.attributes.foo.bar</b>.    The value of the key
           is a space separated list of values for the bar attribute.  For
           example the apache partition's suffix has an objectClass attribute
           and its values are set to: top domain extensibleObject.
@@ -183,7 +187,7 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
 
         <p>
           Simply put the Attributes into the Hashtable using the following
-          key <b>eve.db.partition.attributes.</b><i>${id}</i>.  Below we show
+          key <b>server.db.partition.attributes.</b><i>${id}</i>.  Below we show
           how this can be done for the same example above:
         </p>
 
@@ -221,9 +225,9 @@ extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
         <p>
           Ok that does not look any shorter.  We'll add to this in the future.
           Perhaps we enable the use of configuration beans that can be used
-          with an SPI specific to Eve.  However this starts making your code
-          Eve specific.  You can just change properties and use the SUN provider
-          anymore to have your code be location independent.
+          with an SPI specific to server.  However this starts making your code
+          server provider specific.  You can just change properties and use the
+          SUN provider anymore to have your code be location independent.
         </p>
       </subsection>
     </section>
@@ -262,7 +266,7 @@ extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
           <li>
             Partitions using other LDAP servers to store their entries.  Why
             do this when introducing latency.  Perhaps you want to proxy other
-            servers or make other servers behave like Eve.
+            servers or make other servers behave like the server.
           </li>
 
           <li>

@@ -2,14 +2,14 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Eve Projects</title>
+    <title>Server Projects</title>
   </properties>
   
   <body>
-    <section name="Eve Projects">
+    <section name="Server Projects">
       <p>
-        Eve is composed of several Maven projects.  The usually Maven generated
-        project documenation for each of them can be accessed here:
+        The server is composed of several Maven projects.  The usually Maven
+        generated project documenation for each of them can be accessed here:
       </p>
       
       <table>
@@ -20,29 +20,30 @@
         
         <tr>
           <td>
-            <a href="../projects/eve/index.html">main</a>
+            <a href="../projects/server/index.html">main</a>
           </td>
           <td>
-            Eve command line server application with <code>main()</code>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <a href="../projects/eve-core/index.html">core</a>
-          </td>
-          <td>
-            Eve's core contains all of Eve's backend subsystems.  It depends on
-            protocol and uses it with seda to service LDAP requests.  The core
-            contains the JNDI provider, interceptor framework, interceptor 
-            services, the schema subsystem and the database subsystem.  Hence 
-            the core is the heart of the server as its name suggests.
+            Command line server application with <code>main()</code>
           </td>
         </tr>
 
         <tr>
           <td>
-            <a href="../projects/eve-shared/index.html">shared</a>
+            <a href="../projects/server-core/index.html">core</a>
+          </td>
+          <td>
+            The server's core contains all of it's backend subsystems.  The
+            core depends on the protocol and uses it with seda to service LDAP
+            requests.  The core contains the JNDI provider, interceptor
+            framework, interceptor services, the schema subsystem and the
+            database subsystem.  Hence the core is the heart of the server as
+            its name suggests.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="../projects/server-shared/index.html">shared</a>
           </td>
           <td>
             Code shared by the core and plugin separated to prevent cyclic deps
@@ -51,19 +52,19 @@
 
         <tr>
           <td>
-            <a href="../projects/eve-protocol/index.html">protocol</a>
+            <a href="../projects/server-protocol/index.html">protocol</a>
           </td>
           <td>
-            Eve's LDAP Protocol Provider
+            The server's LDAP Protocol Provider
           </td>
         </tr>
 
         <tr>
           <td>
-            <a href="../projects/maven-eve-plugin/index.html">plugin</a>
+            <a href="../projects/maven-directory-plugin/index.html">plugin</a>
           </td>
           <td>
-            Eve's Maven Plugin
+            The server's Maven Plugin
           </td>
         </tr>
       </table>

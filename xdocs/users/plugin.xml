@@ -2,13 +2,13 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Maven Eve Plugin</title>
+    <title>Maven Directory Plugin</title>
   </properties>
   
   <body>
-    <section name="Maven Eve Plugin">
+    <section name="Maven Directory Plugin">
       <p>
-        Currently the primary function of the plugin is to generates Eve class
+        Currently the primary function of the plugin is to generates server class
         files for OpenLDAP schemas. These class files contain hard coded schema
         objects representing those found in the OpenLDAP files.  Why bother you
         may ask?  There are a few reasons for this:
@@ -47,7 +47,7 @@
             <th>Description</th>
           </tr>
           <tr>
-            <td>maven.eve.schema.target.dir</td>
+            <td>maven.ldap.server.schema.target.dir</td>
             <td>Yes</td>
             <td>
               <p>Default value is
@@ -55,7 +55,7 @@
             </td>
           </tr>
           <tr>
-            <td>maven.eve.schema.ownerDefault</td>
+            <td>maven.ldap.server.schema.ownerDefault</td>
             <td>Yes</td>
             <td>
               <p>Default value is
@@ -63,7 +63,7 @@
             </td>
           </tr>
           <tr>
-            <td>maven.eve.schema.dir</td>
+            <td>maven.ldap.server.schema.dir</td>
             <td>Yes</td>
             <td>
               <p>Default value is
@@ -71,11 +71,11 @@
             </td>
           </tr>
           <tr>
-            <td>maven.eve.schema.packageDefault</td>
+            <td>maven.ldap.server.schema.packageDefault</td>
             <td>Yes</td>
             <td>
               <p>Default value is
-                <code>org.apache.eve.schema.bootstrap</code>.</p>
+                <code>org.apache.ldap.server.schema.bootstrap</code>.</p>
             </td>
           </tr>
         </table>
@@ -83,27 +83,27 @@
 
       <goals>
         <goal>
-          <name>eve:generate</name>
+          <name>directory:generate</name>
           <description>
             Generates class files for OpenLDAP schemas.
           </description>
         </goal>
         <goal>
-          <name>eve:init</name>
+          <name>directory:init</name>
           <description>
             Finds the required parameters needed for the goals of the
             plugin.
           </description>
         </goal>
         <goal>
-          <name>eve:prepare-filesystem</name>
+          <name>directory:prepare-filesystem</name>
           <description>
             Creates source output directories used to deposite schema
             files that are generated.
           </description>
         </goal>
         <goal>
-          <name>eve:schema</name>
+          <name>directory:schema</name>
           <description>
             Top level schema generating function that uses other goals to
             coordinate generation.
@@ -113,8 +113,8 @@
 
       <subsection names="Usage">
         <p>
-           Take a look at how we integrate this into the Eve build 
-           <a href="http://svn.apache.org/viewcvs.cgi/incubator/directory/eve/trunk/dib/">here</a>.
+           Take a look at how we integrate this into the directory server build
+           <a href="http://svn.apache.org/viewcvs.cgi/incubator/directory/server/trunk/core/">here</a>.
         </p>
       </subsection>
     </section>
@@ -130,29 +130,30 @@
       <ol>
         <li>
           Place your schema files (i.e. foo.schema) with the schema extension
-          into ${basedir}/src/schema.  If you opt to store it in another
-          location you must override the <code>maven.eve.schema.dir</code>
+          into ${basedir}/src/main/schema.  If you opt to store it in another
+          location you must override the <code>maven.ldap.server.schema.dir</code>
           property in your project.properties file.   For each schema file
-          add the file base name to the <code>maven.eve.schemas</code> property
-          which is a comma separated list.
+          add the file base name to the <code>maven.ldap.server.schemas</code>
+          property which is a space separated list.
         </li>
         <li>
           The plugin will by default generate java files within the
           ${basedir}/target/schema directory.  If you would like to
           generate code elsewhere you must override the <code>
-          maven.eve.schema.target.dir</code> property in your project.properties
-          file.
+          maven.ldap.server.schema.target.dir</code> property in your
+          project.properties file.
         </li>
         <li>
-          By default the plugin generates code in an Eve schema package:
-          <code>org.apache.eve.schema.bootstrap</code>.  If you want
+          By default the plugin generates code in a server schema package:
+          <code>org.apache.ldap.server.schema.bootstrap</code>.  If you want
           generated code for a schema to be put into a package other than this,
           then you're going to need to set the package property for the schema.
           The package property key is composed of the following base, <code>
-          maven.eve.schema.package.</code> with the name of the schema
+          maven.ldap.server.schema.package.</code> with the name of the schema
           (<b>without</b> the extension) appended to it.  So for schema file
           foo.schema the following property key would be used: <code>
-          maven.eve.schema.package.foo</code> where foo is the schema name.
+          maven.ldap.server.schema.package.foo</code> where foo is the schema
+          name.
         </li>
         <li>
           Using the same pattern above for all schema specific properties you
@@ -161,19 +162,20 @@
           others.  The schema dependency list is a comma separated list of other
           schema names.  These schemas need not be present in your project
           to generate the code for your schema.  The dependent schema classes
-          must however be present within Eve at deploy time in order to load and
-          use your schema.  At the end we list the the default schemas already
-          packaged into the Eve jar.  You can use any one of these schemas as
-          dependencies needed by your schema and not worry about their presence.
-          The property key <b>base</b> for the schema dependency list is <code>
-          maven.eve.schema.deps.</code> and for a foo.schema file the full key
-          would be <code>maven.eve.schema.deps.foo</code>
+          must however be present within the server at start up time in order to
+          load and use your schema.  At the end we list the the default schemas
+          already packaged into the server's jar.  You can use any one of these
+          schemas as dependencies needed by your schema and not worry about
+          their presence.  The property key <b>base</b> for the schema
+          dependency list is <code>maven.ldap.server.schema.deps.</code> and
+          for a foo.schema file the full key would be
+          <code>maven.ldap.server.schema.deps.foo</code>
         </li>
         <li>
           Each schema has an owner associated with it.  If you want the owner to
-          be anything other than the Eve super user you may want to set the
+          be anything other than the server's super user you may want to set the
           owner property for the schema in your project.properties file.  The
-          property key base for the schema is <code>maven.eve.schema.owner.
+          property key base for the schema is <code>maven.ldap.server.schema.owner.
           </code> so don't forget to append the schema name to it.
         </li>
       </ol>
@@ -183,30 +185,30 @@
       </p>
 
 <source>
-[akarasulu@newton dib]$ maven eve:schema
+[akarasulu@newton dib]$ maven directory:schema
  __  __
 |  \/  |__ _Apache__ ___
 | |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
 |_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
 
 Attempting to download ldap-common-0.8.0-SNAPSHOT.jar.
-Attempting to download eve-shared-0.8.0-SNAPSHOT.jar.
-Attempting to download eve-protocol-0.8.0-SNAPSHOT.jar.
+Attempting to download server-shared-0.8.0-SNAPSHOT.jar.
+Attempting to download server-protocol-0.8.0-SNAPSHOT.jar.
 Attempting to download snickers-codec-0.2.0-SNAPSHOT.jar.
 Attempting to download ldap-snickers-provider-0.8.0-SNAPSHOT.jar.
 Attempting to download snickers-ber-0.2.0-SNAPSHOT.jar.
 Attempting to download seda-0.2.0-SNAPSHOT.jar.
-Attempting to download maven-eve-plugin-0.8.0-SNAPSHOT.jar.
+Attempting to download maven-directory-plugin-0.8.0-SNAPSHOT.jar.
 Attempting to download ldap-common-0.8.0-SNAPSHOT.jar.
-Attempting to download eve-shared-0.8.0-SNAPSHOT.jar.
+Attempting to download server-shared-0.8.0-SNAPSHOT.jar.
 build:start:
 
-eve:schema:
-eve:init:
+directory:schema:
+directory:init:
 
-eve:prepare-filesystem:
+directory:prepare-filesystem:
 
-eve:generate:
+directory:generate:
     [echo] Generated schema producer classes for autofs.schema
     [echo] Generated schema producer classes for core.schema
     [echo] Generated schema producer classes for cosine.schema
@@ -218,19 +220,19 @@ eve:generate:
     [echo] Generated schema producer classes for nis.schema
     [echo] Generated schema producer classes for system.schema
     [echo] Generated schema producer classes for scheduleworld.schema
-    [touch] Creating /home/akarasulu/projects/directory/eve/trunk/dib/target/schema/.flagfile
+    [touch] Creating /home/akarasulu/projects/directory/server/trunk/core/target/schema/.flagfile
 BUILD SUCCESSFUL
 Total time: 28 seconds
 Finished at: Tue Dec 14 15:26:26 EST 2004
 </source>
 
       <p>
-        The example above is from Eve.  If you would like to look at how to use
-        this plugin best the Eve <a href="http://figwarra.notlong.com/">
-        project.properties</a> file here is perhaps the best place to look.
-        Also from the output above you can see the schema files that are used
-        and packaged into Eve by default.  This may however change in the
-        future to restrict the set.
+        The example above is from the server's core project.  If you would like
+        to look at how to use this plugin best the server core
+        <a href="http://dumfount.notlong.com/">project.properties</a> file here
+        is perhaps the best place to look. Also from the output above you can
+        see the schema files that are used and packaged into the server by
+        default.  This may however change in the future to restrict the set.
       </p>
 
       <p>

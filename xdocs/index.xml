@@ -2,17 +2,18 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Eve Directory Server</title>
+    <title>Apache Directory Server</title>
   </properties>
   
   <body>
     <section name="Overview">
-      <p>Welcome to the Eve Directory Server Homepage!</p>
+      <p>Welcome to the Apache Directory Server Homepage!</p>
 
       <p>
-        Eve is an embeddable LDAP server written in Java.  It has been designed
-        to introduce triggers, stored procedures, queues and views to the world
-        of LDAP which has lacked these rich constructs.
+        The Apache Directory Server is an embeddable LDAP server written in
+        Java.  It has been designed to introduce triggers, stored procedures,
+        queues and views to the world of LDAP which has lacked these rich
+        constructs.
       </p>
       
       <table>
@@ -35,7 +36,7 @@
             <a href="./roadmap.html">Roadmap</a>
           </td>
           <td>
-            A roadmap for Eve development.
+            A development roadmap.
           </td>
         </tr>
 
@@ -59,7 +60,7 @@
 
         <tr>
           <td>
-            <a href="./projects/index.html">Eve Projects</a>
+            <a href="./projects/index.html">Projects</a>
           </td>
           <td>
             The sitedocs for the various maven source code projects containing

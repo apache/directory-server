@@ -2,15 +2,15 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Eve User's Guide</title>
+    <title>User's Guide</title>
   </properties>
   
   <body>
     <section name="User's Guide">
       <p>
         Here we have assembled a bunch of guides and howto like documents that
-        demonstrate how Eve can be used.  Hopefully this will grow into a user's
-        guide.
+        demonstrate how the server can be used.  Hopefully this will grow into
+        a user's guide.
       </p>
 
       <table>
@@ -24,7 +24,7 @@
             <a href="./building.html">Building</a>
           </td>
           <td>
-            Shows how to build Eve from the repository.
+            Shows how to build the directory server from the repository.
           </td>
         </tr>
 
@@ -33,7 +33,8 @@
             <a href="./authentication.html">Authentication</a>
           </td>
           <td>
-            Demonstrates how to bind to the server as admin and setup other user accounts.
+            Demonstrates how to bind to the server as admin and setup other
+            user accounts.
           </td>
         </tr>
 
@@ -63,7 +64,7 @@
           </td>
           <td>
             Lists the goals, properties and the steps required to integrate
-            your project with the Maven Plugin for Eve.
+            your project with the Maven Plugin for the directory server.
           </td>
         </tr>
 

@@ -16,25 +16,25 @@
       <item name="SEDA" href="../../../seda/index.html"/>
     </links>
 
-    <menu name="Eve">
+    <menu name="Apache Directory Server">
       <item name="Overview" href="../../index.html"/>
       <item name="Features" href="../../features.html"/>
       <item name="Roadmap" href="../../roadmap.html"/>
       <item name="User's Guide" href="../../users/index.html"/>
       <item name="Developer's Guide" href="../../developers/index.html"/>
-      <item name="Eve Projects" href="../../projects/index.html">
-        <item name="main" href="../../projects/eve/index.html"/>
-        <item name="core" href="../../projects/eve-core/index.html"/>
-        <item name="shared" href="../../projects/eve-shared/index.html"/>
+      <item name="Server Projects" href="../../projects/index.html">
+        <item name="main" href="../../projects/server-main/index.html"/>
+        <item name="core" href="../../projects/server-core/index.html"/>
+        <item name="shared" href="../../projects/server-shared/index.html"/>
         <item name="protocol" href="/index.html"/>
-        <item name="plugin" href="../../projects/maven-eve-plugin/index.html"/>
+        <item name="plugin" href="../../projects/maven-directory-plugin/index.html"/>
       </item>
     </menu>
     
     <menu name="Project Information">
       <item name="Wiki" href="http://wiki.apache.org/directory"/>
-      <item name="Open Issues" href="http://issues.apache.org/jira/browse/DIREVE"/>
-      <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/incubator/directory/eve/trunk/?root=Apache-SVN"/>
+      <item name="Open Issues" href="http://issues.apache.org/jira/browse/DIRSERVER"/>
+      <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/incubator/directory/server/trunk/?root=Apache-SVN"/>
       <item name="Mailing Lists" href="../../mailing-lists.html"/>
       <item name="License" href="../../license.html"/>
       <item name="Notices" href="../../notices.html"/>

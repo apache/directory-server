@@ -2,7 +2,7 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Apache Directory Project: Building Eve</title>
+    <title>Apache Directory Project: Deploying the Server</title>
   </properties>
   
   <body>
@@ -20,7 +20,7 @@
       </ul>
     </section>
 
-    <section name="Deploying Eve">
+    <section name="Deploying the Server">
       <p>
         Coming later ...
       </p>

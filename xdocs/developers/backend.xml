@@ -8,7 +8,7 @@
   <body>
     <section name="Backend Subsystem">
       <p>
-        The backend subsystem is everything minux the networking layer and the
+        The backend subsystem is everything minus the networking layer and the
         protocol handling layer.  It is composed of several parts in itself: the
         JNDI provider, interceptor framework, schema subsystem, and database
         subsystem.  Each sub-subsystem of the backend is described in the

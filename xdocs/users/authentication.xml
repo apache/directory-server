@@ -2,17 +2,17 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Eve Authentication</title>
+    <title>Server Authentication</title>
   </properties>
   
   <body>
 
-    <section name="Eve Authentication">
+    <section name="Server Authentication">
       <subsection name="Status">
         <p>
-          Presently Eve supports only simple authentication and anonymous binds
-          while storing passwords as clear text within userPassword attributes
-          in user entries.
+          Presently the directory server supports only simple authentication
+          and anonymous binds while storing passwords in clear text within
+          userPassword attributes in user entries.
         </p>
 
         <p>
@@ -26,16 +26,16 @@
 
       <subsection name="What password do I use?">
         <p>
-          So you just downloaded Eve and fired her up.  Now you're wondering how
-          to get an LDAP client like jxplorer, gq, or ldapbrowser to bind to the
-          server over the wire.
+          So you just downloaded the server and fired her up.  Now you're
+          wondering how to get an LDAP client like jxplorer, gq, or ldapbrowser
+          to bind to the server over the wire.
         </p>
 
         <p>
           By default the super user or admin account is created when the system
           partition is created under the ou=system naming context.  This occurs
-          when Eve is started for the first time.  The admin user can be found
-          under the following DN:
+          when the server is started for the first time.  The admin user can be
+          found under the following DN:
         </p>
 
         <source>
@@ -57,13 +57,13 @@
 
       <subsection name="Adding and authenticating normal users">
         <p>
-          A user in Eve is any entry with a userPassword attribute that contains
-          a clear text password.  The DN can be anything reachable within one of
-          the directory partitions.  So if you add a partition to hang off of
-          <code>dc=example,dc=com</code> then you can add user entries anywhere
-          under this naming context or just add user entries under the
-          <code>ou=system</code> naming context.  Above is an LDIF of a user
-          you can add to the directory as a test user.
+          A user in the server is any entry with a userPassword attribute that
+          contains a clear text password.  The DN can be anything reachable
+          within one of the directory partitions.  So if you add a partition to
+          hang off of <code>dc=example,dc=com</code> then you can add user
+          entries anywhere under this naming context or just add user entries
+          under the <code>ou=system</code> naming context.  Above is an LDIF of
+          a user you can add to the directory as a test user.
         </p>
 
         <source>
@@ -123,16 +123,17 @@ ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s o
 
       <subsection name="Protecting User Passwords">
         <p>
-          Eve at the moment has a sweet spot for new users.  This sweet
+          At the moment there's a sweet spot for new users.  This sweet
           spot is immediately under the ou=users,ou=system context.  Users
-          created here are hard protected right now.  Eve does not have a formal
-          authorization mechanism in place yet to protect entries from other
-          users.  Authorization rules have been hardcoded into the system for
-          now to control access to user entries under <code>ou=users,ou=system
-          </code>.  Only the admin and the user him/her self can access their
-          entry for reads.  Users cannot modify their group membership
-          properties but can change their own passwords.  They do not see each
-          other at all.  The admin can read and write anything.
+          created here are hard protected right now.  The server does not have
+          a formal authorization mechanism in place yet to protect entries from
+          other users.  Authorization rules have been hardcoded into the system
+          for now to control access to user entries under <code>ou=users,
+          ou=system</code>.  Only the admin and the user him/her self can
+          access their entries for reads.  Users cannot modify their group
+          membership properties but can change their own passwords.  They do
+          not see each other's accounts at all.  The admin is the only one that
+          can read and write anything.
         </p>
 
         <p>
@@ -142,12 +143,12 @@ ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s o
         </p>
 
         <p>
-          Note that anonymous binds and binds as other users show different
+          Note that anonymous binds and binds as users show different
           views of the ou=system naming context.  So don't freak out if you
           don't see the usual suspects when binding anonymously!  Anonymous
           users cannot see the admin account or any other user accounts.  Users
           other than admin cannot see the admin account and can only see one
-          user account: their own.  The admin see everything and can alter or
+          user account: their own.  The admin sees everything and can alter or
           remove any entry.
         </p>
       </subsection>
@@ -155,13 +156,13 @@ ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s o
       <subsection name="Disabling Anonymous Binds">
         <p>
           Anonymous binds come enabled out of the box.  So you might want to
-          turn off this feature especially when you cannot protect much of
+          turn off this feature especially since you cannot protect much of
           your data at the present moment from access using authorization rules.
-          To do so you're going to have to restart Eve while disallowing these
-          binds.  The <b>eve.disable.anonymous</b> property when present as a
-          key in the enviroment (regardless of value) will disable access by
-          anonymous users.  This applies to authentication via LDAP clients
-          over the wire and via JNDI caller through the Eve JNDI provider.
+          To do so you're going to have to restart the server while disallowing
+          these binds.  The <b>server.disable.anonymous</b> property when
+          present as a key in the enviroment (regardless of value) will disable
+          access by anonymous users.  This applies to authentication via LDAP
+          clients over the wire and via JNDI caller through the JNDI provider.
         </p>
       </subsection>
 

@@ -2,7 +2,7 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Eve Components</title>
+    <title>Server Components</title>
   </properties>
   
   <body>
@@ -43,15 +43,15 @@
         bells and whistles.  However it can run in any micro kernel using
         service wrappers.  A micro kernel is a peice of code operating as a
         component container providing services for that component and running
-        the component through a set of life-cycles.  Eve is designed to run on
-        any micro kernel using component wrappers.  Her subsystems and
+        the component through a set of life-cycles.  The server is designed to run
+        on any micro kernel using component wrappers.  The subsystems and
         components are designed as Plain Old Java Interfaces and Objects (POJIs
         and POJOs) that can be wrapped to make them interoperate within
         different containers.
       </p>
       
       <p>
-        Each component within Eve has a public service interface which 
+        Each component within the server has a public service interface which
         declares what that component can do for its clients.  It is always good
         to keep the interfaces separate from any specific implementations.  You
         can have many implementations for the same service interface.  Secondly
@@ -67,13 +67,14 @@
     <section name="Container Independence">
       <p>
         One of the biggest impediments we've had to deal with while developing
-        Eve and its precursors was having containers go in and out of fashion.
-        We lost several months of development time while switching from Pheonix
-        to Merlin.
+        the server and its precursors was having containers go in and out of
+        fashion.  We lost several months of development time while switching
+        from Pheonix to Merlin for example.  Today we use some custom glue
+        instead.
       </p>
       
       <p>
-        The server has being designed this time from the ground up to be
+        The server has been designed this time from the ground up to be
         independent of any container.  We are doing this by making the default
         implementation of a service a Plain Old Java Object (POJO).  Wrapper
         implementation projects, one for each supported container, are used to
@@ -87,11 +88,11 @@
         container specific code, configuration and build aspects, developers
         no longer need to be aware of container details.  They can focus on the
         core implemenation as a simple class implementing an interface.  Those
-        interested in making Eve run in one container as opposed to another can
-        focus on their container wrapper without the clutter of another 
-        container getting in the way.  This reduces the complexity and learning
-        curve for all those involved in developing Eve's components and 
-        subsystems.
+        interested in making the server run in one container as opposed to
+        another can focus on their container wrapper without the clutter of
+        another container getting in the way.  This reduces the complexity and
+        learning curve for all those involved in developing the directory
+        server's components and subsystems.
       </p>
     </section>
     

@@ -2,7 +2,7 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>Eve Developer's Guide</title>
+    <title>Developer's Guide</title>
   </properties>
   
   <body>
@@ -21,7 +21,7 @@
             <a href="./architecture.html">Architecture</a>
           </td>
           <td>
-            Eve's high level architecture.
+            The server's high level architecture.
           </td>
         </tr>
 
@@ -30,7 +30,7 @@
             <a href="./components.html">Components</a>
           </td>
           <td>
-            How we do components in Eve.
+            How we do components in the directory server.
           </td>
         </tr>
 
@@ -39,7 +39,7 @@
             <a href="./networking.html">Networking</a>
           </td>
           <td>
-            Describes Eve's networking layer.
+            Describes the directory servers's networking code.
           </td>
         </tr>
 
