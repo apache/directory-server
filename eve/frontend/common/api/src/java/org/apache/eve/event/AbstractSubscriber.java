@@ -49,44 +49,68 @@ public class AbstractSubscriber implements Subscriber
     /**
      * Creates a Subscriber that does monitor failures on inform.
      * 
-     * @param a_monitor the monitor to use on failures
+     * @param monitor the monitor to use on failures
      */
-    public AbstractSubscriber( SubscriberMonitor a_monitor )
+    public AbstractSubscriber( SubscriberMonitor monitor )
     {
-        m_monitor = a_monitor ;
+        m_monitor = monitor ;
     }
     
     
     /* (non-Javadoc)
      * @see org.apache.eve.event.Subscriber#inform(java.util.EventObject)
      */
-    public void inform( EventObject a_event )
+    public void inform( EventObject event )
     {
-        if ( a_event == null )
+        inform( this, event, m_monitor ) ;
+    }
+    
+    
+    /**
+     * Calls the appropriate inform method with the proper event type.
+     * 
+     * @param subscriber the subscriber to inform
+     * @param event the event that is the argument to inform
+     * @param monitor the monitor to use on errors
+     */
+    public static void inform( Subscriber subscriber, EventObject event, 
+                               SubscriberMonitor monitor )
+    {
+        if ( event == null )
         {    
             return ;
         }
         
         Method l_method = null ;
         Class l_paramTypes[] = new Class[1] ;
-        l_paramTypes[0] = a_event.getClass() ;
+        l_paramTypes[0] = event.getClass() ;
         
-        try { 
+        try 
+        { 
           /* 
            * Look for an inform method in the current object that takes the 
            * event subtype as a parameter
            */ 
-          l_method = getClass().getDeclaredMethod( "inform", l_paramTypes ) ; 
+          Class l_clazz = subscriber.getClass() ; 
+          l_method = l_clazz.getDeclaredMethod( "inform", l_paramTypes ) ; 
           Object l_paramList[] = new Object[1] ; 
-          l_paramList[0] = a_event ; 
-          l_method.invoke( this, l_paramList ) ; 
+          l_paramList[0] = event ; 
+          l_method.invoke( subscriber, l_paramList ) ; 
         }
         catch ( Throwable t )
         {
-            if ( m_monitor != null )
+            if ( monitor != null )
             {
-                m_monitor.failedOnInform( this, a_event, t ) ;
+                monitor.failedOnInform( subscriber, event, t ) ;
+            }
+            else
+            {
+                System.err.println( "Failed to inform this Subscriber " + 
+                        subscriber + " about event " + event ) ;
+                System.err.println( "To prevent the above println use a non "
+                        + "null SubscriberMonitor with this call" ) ;
             }
         }
+        
     }
 }

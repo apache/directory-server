@@ -17,25 +17,19 @@
 package org.apache.eve.event ;
 
 
-import java.util.EventObject ;
-
-
 /**
- * Monitors noteworthy Subscriber activities.
+ * A subscriber that recieves RequestEvents.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SubscriberMonitor
+public interface RequestSubscriber extends Subscriber
 {
     /**
-     * Monitors failures occuring while handling events.
+     * RequestEvent handler for this Subscriber type.
      * 
-     * @param subscriber the Subscriber that failed on inform
-     * @param eventObject the EventObject fired
-     * @param throwable the resulting failure exception if any
+     * @param event the request event to handle an incoming client request
      */
-    void failedOnInform( Subscriber subscriber, EventObject eventObject, 
-                         Throwable throwable ) ;
+    void inform( RequestEvent event ) ;
 }

@@ -17,44 +17,21 @@
 package org.apache.eve.event ;
 
 
-import java.util.EventObject ;
-
-import org.apache.eve.listener.ClientKey ;
-
-
 /**
- * An event associated with a specific client. 
+ * Subscriber interface for InputEvents which represents the arrival of a chunk
+ * of client socket connection data.
  * 
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class ClientEvent extends EventObject
+public interface InputSubscriber extends Subscriber
 {
-    /** the unique client identifier */
-    private final ClientKey m_clientKey ;
-    
-    
     /**
-     * Creates a client based event using a unique client key.
+     * InputEvent handler for this Subscriber type.
      * 
-     * @param source the source that generated this event
-     * @param clientKey the client's read client key
+     * @param event the input event to handle incoming data
      */
-    public ClientEvent( Object source, ClientKey clientKey )
-    {
-        super( source ) ;
-        m_clientKey = clientKey ;
-    }
-
-
-    /**
-     * Gets the unique identifier for the client associated with this event.
-     * 
-     * @return the client's unique key
-     */
-    public final ClientKey getClientKey()
-    {
-        return m_clientKey ;
-    }
+    void inform( InputEvent event ) ;
 }
+
