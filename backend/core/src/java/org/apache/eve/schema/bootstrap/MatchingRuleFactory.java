@@ -34,8 +34,7 @@ import java.util.Map;
  */
 public interface MatchingRuleFactory
 {
-    Map getMatchingRules( OidRegistry oidRegistry,
-                          SyntaxRegistry syntaxRegistry,
+    Map getMatchingRules( SyntaxRegistry syntaxRegistry,
                           NormalizerRegistry normalizerRegistry,
                           ComparatorRegistry comparatorRegistry );
 }

@@ -18,8 +18,7 @@ package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.util.ArrayUtils;
-
-import javax.naming.NamingException;
+import org.apache.ldap.common.util.ClassUtils;
 
 
 /**
@@ -32,10 +31,15 @@ public class AbstractBootstrapSchema implements BootstrapSchema
 {
     private static final String DEFAULT_OWNER = "uid=admin,ou=system";
     private static final String DEFAULT_SCHEMA_NAME = "default";
+    private static final String DEFAULT_PACKAGE_NAME = "org.apache.eve.schema.bootstrap";
 
     private final String owner;
     private final String schemaName;
+    private final String packageName;
     private final String[] dependencies;
+
+    private transient String baseName;
+    private transient String defaultBaseName;
 
 
     // ------------------------------------------------------------------------
@@ -44,8 +48,9 @@ public class AbstractBootstrapSchema implements BootstrapSchema
 
 
     protected AbstractBootstrapSchema( String owner,
-                                   String schemaName,
-                                   String[] dependencies )
+                                       String schemaName,
+                                       String packageName,
+                                       String[] dependencies )
     {
         if ( owner == null )
         {
@@ -65,6 +70,15 @@ public class AbstractBootstrapSchema implements BootstrapSchema
             this.schemaName = schemaName;
         }
 
+        if ( packageName == null )
+        {
+            this.packageName = DEFAULT_PACKAGE_NAME;
+        }
+        else
+        {
+            this.packageName = packageName;
+        }
+
         if ( dependencies == null )
         {
             this.dependencies = ArrayUtils.EMPTY_STRING_ARRAY;
@@ -73,6 +87,20 @@ public class AbstractBootstrapSchema implements BootstrapSchema
         {
             this.dependencies = dependencies;
         }
+
+        StringBuffer buf = new StringBuffer();
+        buf.append( DEFAULT_PACKAGE_NAME );
+        buf.append( ClassUtils.PACKAGE_SEPARATOR_CHAR );
+        buf.append( Character.toUpperCase( schemaName.charAt( 0 ) ) );
+        buf.append( schemaName.substring( 1, schemaName.length() ) );
+        defaultBaseName = buf.toString();
+
+        buf.setLength( 0 );
+        buf.append( packageName );
+        buf.append( ClassUtils.PACKAGE_SEPARATOR_CHAR );
+        buf.append( Character.toUpperCase( schemaName.charAt( 0 ) ) );
+        buf.append( schemaName.substring( 1, schemaName.length() ) );
+        baseName = buf.toString();
     }
 
 
@@ -94,15 +122,20 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     }
 
 
-    public final void populate( BootstrapRegistries registries )
-        throws NamingException
+    public String getBaseClassName()
     {
+        return baseName;
     }
 
 
-    // ------------------------------------------------------------------------
-    // Utility Methods
-    // ------------------------------------------------------------------------
+    public String getDefaultBaseClassName()
+    {
+        return defaultBaseName;
+    }
 
 
+    public String getPackageName()
+    {
+        return packageName;
+    }
 }

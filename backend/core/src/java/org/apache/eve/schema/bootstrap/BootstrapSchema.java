@@ -17,9 +17,6 @@
 package org.apache.eve.schema.bootstrap;
 
 
-import javax.naming.NamingException;
-
-
 /**
  * A configuration of related Schema objects bundled together and identified as
  * a group.
@@ -46,6 +43,13 @@ public interface BootstrapSchema
     String getSchemaName();
 
     /**
+     * Gets the package name of the schema's object factories.
+     *
+     * @return the name of the schema's package name
+     */
+    String getPackageName();
+
+    /**
      * Gets the names of other schemas that this objects within this
      * BootstrapSchema depends upon.  These dependent schemas are those
      * whose ConfigurationSets will be processed first.
@@ -55,8 +59,21 @@ public interface BootstrapSchema
     String[] getDependencies();
 
     /**
-     * Populates the set of bootstrap registries with the Schema objects from
-     * this logical BootstrapSchema.
+     * Gets the base class name for bootstrap Schema class files.  This name
+     * is the schema name with the first character capitalized and qualified
+     * by the package name.  So for a bootstrap schema name of 'bar' within
+     * the 'foo' package would return foo.Bar as the base class name.
+     *
+     * @return the base of all bootstrap schema class names for this schema
      */
-    void populate( BootstrapRegistries registries ) throws NamingException;
+    String getBaseClassName();
+
+    /**
+     * If the base class name for the target class does not resolve, we attempt
+     * to load another backup class using this default base class name which
+     * tries another package for the target class factory to load.
+     *
+     * @return the default base class name
+     */
+    String getDefaultBaseClassName();
 }
