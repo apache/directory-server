@@ -27,8 +27,6 @@ import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.authn.AbstractAuthenticator;
-import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.jndi.ServerContext;
 
 

@@ -27,7 +27,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.jndi.AuthenticationService;
+import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.invocation.Invocation;
 
 

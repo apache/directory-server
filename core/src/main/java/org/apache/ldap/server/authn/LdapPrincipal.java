@@ -37,16 +37,18 @@ public class LdapPrincipal implements Principal, Serializable
 
     /** the normalized distinguished name of the principal */
     private final Name name;
+
     /** the no name anonymous user whose DN is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
 
 
     /**
-     * Creates a new LDAP/X500 principal.
+     * Creates a new LDAP/X500 principal.  Keep this package friendly so only code
+     * in the package can create a trusted principal.
      *
      * @param name the normalized distinguished name of the principal
      */
-    public LdapPrincipal( Name name )
+    LdapPrincipal( Name name )
     {
         this.name = name;
     }

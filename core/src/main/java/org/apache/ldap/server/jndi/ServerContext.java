@@ -36,6 +36,7 @@ import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.authn.AuthenticationService;
 
 
 /**
@@ -162,11 +163,14 @@ public abstract class ServerContext implements Context
 
     /**
      * Sets the principal of the authenticated user which also happens to own.
-     * This method can be invoked only once to keep this property safe.
+     * This method can be invoked only once to keep this property safe.  This
+     * method has been changed to be public but it can only be set by the
+     * AuthenticationService to prevent malicious code from changing the
+     * effective principal.
      */
-    void setPrincipal( LdapPrincipal principal )
+    public void setPrincipal( AuthenticationService.TrustedPrincipalWrapper wrapper )
     {
-        this.principal = principal;
+        this.principal = wrapper.getPrincipal();
     }
 
 

@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.authn.GenericAuthenticatorConfig;
-import org.apache.ldap.server.authn.GenericAuthenticatorConfig;
 
 
 /**
