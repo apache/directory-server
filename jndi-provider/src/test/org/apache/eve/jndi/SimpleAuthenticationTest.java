@@ -24,10 +24,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
 import javax.naming.*;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 
@@ -199,18 +198,18 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         // ok this should start up the system now as admin
         Hashtable anonymous = new Hashtable();
         anonymous.put( EveContextFactory.ANONYMOUS_ENV, "true" );
-        EveLdapContext ctx = ( EveLdapContext ) setSysRoot( anonymous );
+        InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( anonymous );
         assertNotNull( ctx );
 
         // now go in as anonymous user and we should be wh
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
 
-        InitialContext initial = new InitialContext( env );
+        InitialLdapContext initial = new InitialLdapContext( env, null );
 
         try
         {
-            ctx = ( EveLdapContext ) initial.lookup( "uid=admin" );
+            ctx = ( InitialLdapContext ) initial.lookup( "uid=admin" );
             fail( "should not get here due to exception cuz anonymous user is "
                     + "not allowed read access to the admin account entry" );
         }
@@ -295,7 +294,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         doDelete( new File( "target" + File.separator + "eve" ) );
 
         // ok this should start up the system now as admin
-        EveLdapContext ctx = ( EveLdapContext ) setSysRoot( new Hashtable() );
+        InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( new Hashtable() );
         assertNotNull( ctx );
 
         // now go in as anonymous user and we should be rejected
