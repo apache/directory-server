@@ -20,6 +20,7 @@ package org.apache.eve.schema.bootstrap;
 import org.apache.ldap.common.schema.BaseSyntax;
 import org.apache.eve.schema.SyntaxCheckerRegistry;
 
+import javax.naming.NamingException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -96,18 +97,24 @@ import java.util.HashMap;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreSyntaxFactory implements SyntaxFactory
+public class CoreSyntaxFactory implements BootstrapProducer
 {
 
     // ------------------------------------------------------------------------
-    // Syntax Factory Method
+    // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
 
-    public Map getSyntaxes( SyntaxCheckerRegistry registry )
+    public ProducerTypeEnum getType()
+    {
+        return ProducerTypeEnum.SYNTAX_PRODUCER;
+    }
+
+
+    public void produce( BootstrapRegistries registries, ProducerCallback cb )
+        throws NamingException
     {
         MutableSyntax syntax;
-        Map syntaxes = new HashMap( 54 );
 
         /*
          * From RFC 2252 Section 4.3.2. on Syntax Object Identifiers
@@ -130,52 +137,52 @@ public class CoreSyntaxFactory implements SyntaxFactory
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.1" );
         syntax.setName( "ACI Item" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.2" );
         syntax.setName( "Access Point" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.3" );
         syntax.setName( "Attribute Type Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.4" );
         syntax.setName( "Audio" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.5" );
         syntax.setName( "Binary" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.6" );
         syntax.setName( "Bit String" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.7" );
         syntax.setName( "Boolean" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.8" );
         syntax.setName( "Certificate" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.9" );
         syntax.setName( "Certificate List" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.10" );
         syntax.setName( "Certificate Pair" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -194,52 +201,52 @@ public class CoreSyntaxFactory implements SyntaxFactory
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.11" );
         syntax.setName( "Country String" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.12" );
         syntax.setName( "DN" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.13" );
         syntax.setName( "Data Quality Syntax" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.14" );
         syntax.setName( "Delivery Method" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.15" );
         syntax.setName( "Directory String" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.16" );
         syntax.setName( "DIT Content Rule Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.17" );
         syntax.setName( "DIT Structure Rule Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.18" );
         syntax.setName( "DL Submit Permission" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.19" );
         syntax.setName( "DSA Quality Syntax" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.20" );
         syntax.setName( "DSE Type" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -258,52 +265,52 @@ public class CoreSyntaxFactory implements SyntaxFactory
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.21" );
         syntax.setName( "Enhanced Guide" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.22" );
         syntax.setName( "Facsimile Telephone Number" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.23" );
         syntax.setName( "Fax" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.24" );
         syntax.setName( "Generalized Time" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.25" );
         syntax.setName( "Guide" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.26" );
         syntax.setName( "IA5 String" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.27" );
         syntax.setName( "INTEGER" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.28" );
         syntax.setName( "JPEG" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.29" );
         syntax.setName( "Master And Shadow Access Points" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.30" );
         syntax.setName( "Matching Rule Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -322,52 +329,52 @@ public class CoreSyntaxFactory implements SyntaxFactory
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.31" );
         syntax.setName( "Matching Rule Use Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.32" );
         syntax.setName( "Mail Preference" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.33" );
         syntax.setName( "MHS OR Address" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.34" );
         syntax.setName( "Name And Optional UID" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.35" );
         syntax.setName( "Name Form Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.36" );
         syntax.setName( "Numeric String" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.37" );
         syntax.setName( "Object Class Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.38" );
         syntax.setName( "OID" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.39" );
         syntax.setName( "Other Mailbox" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.40" );
         syntax.setName( "Octet String" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -386,52 +393,52 @@ public class CoreSyntaxFactory implements SyntaxFactory
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.41" );
         syntax.setName( "Postal Address" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.42" );
         syntax.setName( "Protocol Information" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.43" );
         syntax.setName( "Presentation Address" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.44" );
         syntax.setName( "Printable String" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.45" );
         syntax.setName( "Subtree Specification" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.46" );
         syntax.setName( "Supplier Information" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.47" );
         syntax.setName( "Supplier Or Consumer" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.48" );
         syntax.setName( "Supplier And Consumer" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.49" );
         syntax.setName( "Supported Algorithm" );
         syntax.setHumanReadible( false );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.50" );
         syntax.setName( "Telephone Number" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -448,44 +455,42 @@ public class CoreSyntaxFactory implements SyntaxFactory
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.51" );
         syntax.setName( "Teletex Terminal Identifier" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.52" );
         syntax.setName( "Telex Number" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.53" );
         syntax.setName( "UTC Time" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.54" );
         syntax.setName( "LDAP Syntax Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.55" );
         syntax.setName( "Modify Rights" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.56" );
         syntax.setName( "LDAP BootstrapSchema Definition" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.57" );
         syntax.setName( "LDAP BootstrapSchema Description" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.58" );
         syntax.setName( "Substring Assertion" );
         syntax.setHumanReadible( true );
-        syntaxes.put( syntax.getOid(), syntax );
-
-        return syntaxes;
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
     }
 
 

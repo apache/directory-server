@@ -17,23 +17,27 @@
 package org.apache.eve.schema.bootstrap;
 
 
-import org.apache.eve.schema.SyntaxRegistry;
-import org.apache.eve.schema.MatchingRuleRegistry;
-import org.apache.eve.schema.AttributeTypeRegistry;
-
-import java.util.Map;
+import javax.naming.NamingException;
 
 
 /**
- * A factory used to create AttributeTypes which are registered with an 
- * AttributeTypeRegistry during schema bootstrapping.
+ * A BootstrapProducer's callback used to announce object creation.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface AttributeTypeFactory
+public interface ProducerCallback
 {
-    Map getAttributeTypes( SyntaxRegistry syntaxRegistry, 
-                           MatchingRuleRegistry matchingRuleRegistry,
-                           AttributeTypeRegistry attributeTypeRegistry );
+    /**
+     * Called to announce the creation of a new schema object by a producer.
+     *
+     * @param producer the producer which created the object
+     * @param registryKey used to uniquely identify the object in registries
+     * @param schemaObject the object that was created by the producer
+     * @throws NamingException if there are problems registering these objects
+     * with bootstrap registries
+     */
+    void schemaObjectProduced( BootstrapProducer producer,
+                               String registryKey, Object schemaObject )
+        throws NamingException;
 }
