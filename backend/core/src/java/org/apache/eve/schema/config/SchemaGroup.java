@@ -19,6 +19,7 @@ package org.apache.eve.schema.config;
 import org.apache.ldap.common.schema.*;
 import org.apache.eve.schema.*;
 
+import javax.naming.NamingException;
 import java.util.Map;
 
 
@@ -29,18 +30,18 @@ import java.util.Map;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SchemaGrouping
+public interface SchemaGroup
 {
     /**
      * Gets the name of the owner of the schema objects within this
-     * SchemaGrouping.
+     * SchemaGroup.
      *
      * @return the identifier for the owner of this set's objects
      */
     String getOwner();
 
     /**
-     * Gets the name of the logical schema the objects of this SchemaGrouping
+     * Gets the name of the logical schema the objects of this SchemaGroup
      * belong to: e.g. krb5-kdc may be the logical LDAP schema name.
      *
      * @return the name of the logical schema
@@ -49,7 +50,7 @@ public interface SchemaGrouping
 
     /**
      * Gets the names of other schemas that this objects within this
-     * SchemaGrouping depends upon.  These dependent schemas are those
+     * SchemaGroup depends upon.  These dependent schemas are those
      * whose ConfigurationSets will be processed first.
      *
      * @return the String names of schema dependencies
@@ -57,29 +58,8 @@ public interface SchemaGrouping
     String[] getDependencies();
 
     /**
-     * Gets a map of comparators
-     *
-     * @return
+     * Populates the set of bootstrap registries with the Schema objects from
+     * this logical SchemaGroup.
      */
-    Map getComparators();
-
-    Map getNormalizers();
-
-    Map getSyntaxCheckers();
-
-    Map getSyntaxes();
-
-    Map getMatchingRules();
-
-    Map getAttributeTypes();
-
-    Map getObjectClasses();
-
-    Map getDITContentRules();
-
-    Map getDITStructureRules();
-
-    Map getNameForms();
-
-    Map getMatchingRuleUses();
+    void populate( BootstrapRegistries registries ) throws NamingException;
 }

@@ -19,6 +19,8 @@ package org.apache.eve.schema.config;
 
 import org.apache.ldap.common.util.ArrayUtils;
 
+import javax.naming.NamingException;
+
 
 /**
  * Document me.
@@ -26,7 +28,7 @@ import org.apache.ldap.common.util.ArrayUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractSchemaGrouping implements SchemaGrouping
+public class AbstractSchemaGroup implements SchemaGroup
 {
     private static final String DEFAULT_OWNER = "uid=admin,ou=system";
     private static final String DEFAULT_SCHEMA_NAME = "default";
@@ -41,7 +43,9 @@ public abstract class AbstractSchemaGrouping implements SchemaGrouping
     // ------------------------------------------------------------------------
 
 
-    public AbstractSchemaGrouping( String owner, String schemaName, String[] dependencies )
+    protected AbstractSchemaGroup( String owner,
+                                   String schemaName,
+                                   String[] dependencies )
     {
         if ( owner == null )
         {
@@ -72,21 +76,27 @@ public abstract class AbstractSchemaGrouping implements SchemaGrouping
     }
 
 
-    public String getOwner()
+    public final String getOwner()
     {
         return owner;
     }
 
 
-    public String getSchemaName()
+    public final String getSchemaName()
     {
         return schemaName;
     }
 
 
-    public String[] getDependencies()
+    public final String[] getDependencies()
     {
         return dependencies;
+    }
+
+
+    public final void populate( BootstrapRegistries registries )
+        throws NamingException
+    {
     }
 
 
