@@ -42,12 +42,14 @@
         <url>http://jakarta.apache.org/commons/logging</url>
       </dependency>
 
+	<!--
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>1.2.7</version>
         <url>http://logging.apache.org/log4j/docs</url>
       </dependency>
+	-->
 
       <dependency>
         <groupId>commons-lang</groupId>
