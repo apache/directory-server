@@ -61,10 +61,13 @@
 			<echo>maven.eve.schema.deps.${schema} = ${deps}</echo>
 			-->
 
+                        <!-- Basedir sysprop not set when not forking -->
+                        <j:set var="noop" value="${systemScope.setProperty('basedir', basedir)}"/>
 			<j:useBean var="task" class="org.apache.eve.tools.schema.EveSchemaToolTask" 
 				name="${schema}" owner="${owner}" package="${package}" dependencies="${deps}"/>
 			<j:expr value="${task.execute()}"/>
 			<echo>Generated schema producer classes for ${schema}.schema</echo>
+                        <!-- TODO: need to honour failures! -->
           </j:forEach>
           
         </j:if>

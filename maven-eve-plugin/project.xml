@@ -17,7 +17,7 @@
  */
  -->
 <project>
-  <extend>${basedir}/../../project.xml</extend>
+  <extend>${basedir}/../project.xml</extend>
   <pomVersion>1</pomVersion>
   <artifactId>maven-eve-plugin</artifactId>
   <groupId>incubator-directory</groupId>
