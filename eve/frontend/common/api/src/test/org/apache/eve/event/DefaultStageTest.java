@@ -23,7 +23,7 @@ import org.apache.eve.seda.DefaultStage;
 import org.apache.eve.seda.DefaultStageConfig;
 import org.apache.eve.seda.EnqueuePredicate;
 import org.apache.eve.seda.StageHandler;
-import org.apache.eve.seda.StderrLoggingStageMonitor;
+import org.apache.eve.seda.LoggingStageMonitor;
 import org.apache.eve.thread.ThreadPool;
 
 import junit.framework.TestCase;
@@ -92,7 +92,7 @@ public class DefaultStageTest extends TestCase
         config = new DefaultStageConfig( "test", pool ) ;
         config.setHandler( handler ) ;
         stage = new DefaultStage( config ) ;
-        stage.setMonitor( new StderrLoggingStageMonitor(stage.getClass()) ) ;
+        stage.setMonitor( new LoggingStageMonitor(stage.getClass()) ) ;
         stage.start() ;
     }
 
