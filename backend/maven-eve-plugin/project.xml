@@ -19,7 +19,7 @@
 <project>
   <extend>${basedir}/../../project.xml</extend>
   <pomVersion>1</pomVersion>
-  <artifactId>null</artifactId>
+  <artifactId>maven-eve-plugin</artifactId>
   <groupId>incubator-directory</groupId>
   <id>maven-eve-plugin</id>
   <name>maven-eve-plugin</name>
@@ -68,7 +68,8 @@
     <unitTest>
       <resources>
         <resource>
-          <directory>src/test</directory>
+          <directory>src/schema</directory>
+          <targetPath>org/apache/eve/tools/schema</targetPath>
           <includes>
             <include>**/*.schema</include>
           </includes>

@@ -64,7 +64,7 @@ public class $classname extends AbstractBootstrapProducer
         // AttributeType $attrType.getOid() $!attrType.getName()
         // --------------------------------------------------------------------
 
-        attributeType = new BootstrapAttributeType( "$attrType.getOid()", registries );
+        attributeType = newAttributeType( "$attrType.getOid()", registries );
         attributeType.setSingleValue( $attrType.isSingleValue() );
         attributeType.setCollective( $attrType.isCollective() );
         attributeType.setObsolete( $attrType.isObsolete() );

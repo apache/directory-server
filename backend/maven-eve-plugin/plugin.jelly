@@ -1,18 +1,79 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>  
  
-<project
-  xmlns:j="jelly:core"
-  xmlns:multiproject="multiproject"
-  xmlns:ant="jelly:ant"
-  xmlns:util="jelly:util"
-  xmlns:maven="jelly:maven">
+<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" xmlns:util="jelly:util" xmlns:maven="jelly:maven">
+
+  <!-- Dir for generated source files -->
+  <j:set var="eveTargetDir" value="${maven.eve.schema.target.dir}"/>
+  <j:set var="eveSchemaDir" value="${maven.eve.schema.dir}"/>
+  <j:set var="eveSchemas" value="${maven.eve.schemas}"/>
+
+  <goal name="eve:prepare-filesystem">
+    <j:if test="${!eveTargetDir.equals('MAVEN_EVE_TARGET_DIR_NOT_SET')}">
+      <ant:mkdir dir="${maven.build.dir}/schema"/>
+    </j:if>
+  </goal>
+
+  <goal name="eve:generate"
+        prereqs="eve:prepare-filesystem">
+        
+    <j:if test="${!eveTargetDir.equals('MAVEN_EVE_TARGET_DIR_NOT_SET')}">
+      <ant:path id="maven.eve.schema.compile.src.set"
+            location="${maven.build.dir}/schema"/>
+
+      <maven:addPath id="maven.compile.src.set"
+                     refid="maven.eve.schema.compile.src.set"/>
+
+
+      <ant:taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" />
+      
+      <!-- TODO: use this for src.dir, but smarter for individual schemas -->
+      <!-- TODO: it seems that if target exists but the flagfile doesn't, it doesn't compile? -->
+      <ant:uptodate property="maven.jaxb.buildNotRequired" targetfile="${maven.build.dir}/jaxb/.flagfile">
+        <ant:srcfiles
+          dir   = "${maven.jaxb.src.dir}"
+          includes = "*.xsd"/>
+      </ant:uptodate>
+      
+      <j:set var="jaxbBuildNotRequired" value="${maven.jaxb.buildNotRequired}" />
+      <j:if test="${jaxbBuildNotRequired == null}">
+        <j:if test="${jaxbSchemas.equals('MAVEN_JAXB_SCHEMAS_NOT_SET')}">
+          <xjc target="${maven.build.dir}/jaxb">
+            <ant:schema dir="${maven.jaxb.src.dir}" includes="*.xsd" />
+            <ant:classpath>
+              <ant:pathelement path="${maven.build.dest}" />
+            </ant:classpath>
+          </xjc>
+        </j:if>
+        <j:if test="${!jaxbSchemas.equals('MAVEN_JAXB_SCHEMAS_NOT_SET')}">
+          <util:tokenize var="schemas" delim=" ">
+            ${maven.jaxb.schemas}
+          </util:tokenize>
+          <j:forEach var="schema" items="${schemas.iterator()}">
+            <xjc target="${maven.build.dir}/jaxb" schema="${maven.jaxb.src.dir}/${schema}">
+              <ant:classpath>
+                <ant:pathelement path="${maven.build.dest}" />
+              </ant:classpath>
+            </xjc>
+          </j:forEach>
+        </j:if>
+        <ant:copy todir="${maven.build.dest}">
+          <ant:fileset dir="${maven.build.dir}/jaxb" includes="**/*.properties,**/bgm.ser" />
+        </ant:copy>
+        <ant:touch file="${maven.build.dir}/jaxb/.flagfile" />
+      </j:if>
+      
+    </j:if>
+  </goal>
+
+
+  <preGoal name="java:compile">
+    <j:if test="${!jaxbSrcDir.equals('MAVEN_JAXB_SRC_DIR_NOT_SET')}">
+      <attainGoal name="jaxb:generate"/>
+    </j:if>
+  </preGoal>
 
   <goal name="eve"> 
-    <echo>Schema plugin not implemented yet!</echo> 
-  </goal> 
-  
-  <goal name="eve:blah"> 
-    <echo>Schema plugin not implemented yet!</echo> 
+    <attainGoal name="eve:generate"/>
   </goal> 
   
 </project> 

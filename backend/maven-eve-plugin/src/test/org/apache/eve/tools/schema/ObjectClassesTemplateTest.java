@@ -33,7 +33,7 @@ public class ObjectClassesTemplateTest extends AbstractTestCase
     public void testCoreObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
-            "uid=admin,ou=system", "core", "org.apache.eve.schema.bootstrap",
+            "uid=admin,ou=system", "core", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
         generateObjectClassProducer( schema );
     }
@@ -42,7 +42,7 @@ public class ObjectClassesTemplateTest extends AbstractTestCase
     public void testJavaObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
-            "uid=admin,ou=system", "java", "org.apache.eve.schema.bootstrap",
+            "uid=admin,ou=system", "java", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
         generateObjectClassProducer( schema );
     }
@@ -51,7 +51,7 @@ public class ObjectClassesTemplateTest extends AbstractTestCase
     public void testCorbaObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
-            "uid=admin,ou=system", "corba", "org.apache.eve.schema.bootstrap",
+            "uid=admin,ou=system", "corba", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
         generateObjectClassProducer( schema );
     }
@@ -60,7 +60,7 @@ public class ObjectClassesTemplateTest extends AbstractTestCase
     public void testCosineObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
-            "uid=admin,ou=system", "cosine", "org.apache.eve.schema.bootstrap",
+            "uid=admin,ou=system", "cosine", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
         generateObjectClassProducer( schema );
     }
@@ -69,7 +69,7 @@ public class ObjectClassesTemplateTest extends AbstractTestCase
     public void testInetorgpersonObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
-            "uid=admin,ou=system", "inetorgperson", "org.apache.eve.schema.bootstrap",
+            "uid=admin,ou=system", "inetorgperson", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
         generateObjectClassProducer( schema );
     }
@@ -78,7 +78,7 @@ public class ObjectClassesTemplateTest extends AbstractTestCase
     public void testMiscObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
-            "uid=admin,ou=system", "misc", "org.apache.eve.schema.bootstrap",
+            "uid=admin,ou=system", "misc", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
         generateObjectClassProducer( schema );
     }
@@ -87,7 +87,7 @@ public class ObjectClassesTemplateTest extends AbstractTestCase
     public void testNisObjectClassGeneration() throws Exception
     {
         AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
-            "uid=admin,ou=system", "nis", "org.apache.eve.schema.bootstrap",
+            "uid=admin,ou=system", "nis", "dummy.test",
             new String[] { "dep1", "dep2" }) {};
         generateObjectClassProducer( schema );
     }

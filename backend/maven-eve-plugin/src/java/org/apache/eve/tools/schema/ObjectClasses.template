@@ -62,7 +62,7 @@ public class $classname extends AbstractBootstrapProducer
         // ObjectClass $objectClass.getOid() $!objectClass.getName()
         // --------------------------------------------------------------------
 
-        objectClass = new BootstrapObjectClass( "$objectClass.getOid()", registries );
+        objectClass = newObjectClass( "$objectClass.getOid()", registries );
         objectClass.setObsolete( $objectClass.isObsolete() );
         objectClass.setDescription( "$objectClass.getDescription()" );
 
