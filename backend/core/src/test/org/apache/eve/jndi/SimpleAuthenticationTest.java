@@ -303,9 +303,8 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
 
 
     /**
-     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
-     * is set to "none" when trying to get a context from an already
-     * bootstrapped system when anonymous users are not turned on.
+     * Tests to make sure we can authenticate after the database has already
+     * been build as the admin user when simple authentication is in effect.
      *
      * @throws Exception if anything goes wrong
      */
@@ -316,6 +315,26 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "testing" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        assertNotNull( new InitialContext( env ) );
+    }
+
+
+    /**
+     * Checks to see if we can authenticate as a test user after the admin fires
+     * up and builds the the system database.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    public void test10TestNonAdminUser() throws Exception
+    {
+        // now go in as anonymous user and we should be rejected
+        Hashtable env = new Hashtable();
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         assertNotNull( new InitialContext( env ) );
     }
