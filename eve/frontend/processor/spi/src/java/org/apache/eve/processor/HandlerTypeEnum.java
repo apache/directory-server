@@ -34,8 +34,8 @@ public class HandlerTypeEnum extends ValuedEnum
     public static final int NOREPLY_VAL = 0 ;
     /** Value for singlereply enumeration type */
     public static final int SINGLEREPLY_VAL = 1 ;
-    /** Value for search enumeration type */
-    public static final int SEARCH_VAL = 2 ;
+    /** Value for many value enumeration type */
+    public static final int MANYREPLY_VAL = 2 ;
 
     /** Enum for noreply type */
 	public static final HandlerTypeEnum NOREPLY =
@@ -45,7 +45,7 @@ public class HandlerTypeEnum extends ValuedEnum
         new HandlerTypeEnum( "SINGLEREPLY", SINGLEREPLY_VAL ) ;
     /** Enum for search type */
 	public static final HandlerTypeEnum SEARCH =
-        new HandlerTypeEnum( "SEARCH", SEARCH_VAL ) ;
+        new HandlerTypeEnum( "MANYREPLY", MANYREPLY_VAL ) ;
 
 
     /**

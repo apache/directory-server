@@ -19,7 +19,9 @@ package org.apache.eve.processor ;
 
 import java.util.EventObject ;
 
-import org.apache.eve.event.Subscriber ; 
+import org.apache.eve.event.Subscriber ;
+import org.apache.eve.listener.ClientKey ;
+import org.apache.ldap.common.message.Request ;
 
 
 /**
@@ -40,4 +42,12 @@ public interface RequestProcessorMonitor
      */
     void failedOnInform( Subscriber subscriber, EventObject event, 
                          Throwable t ) ;
+
+    /**
+     * 
+     * @param key
+     * @param request
+     * @param t
+     */
+    void failedOnSingleReply( ClientKey key, Request request, Throwable t ) ;
 }

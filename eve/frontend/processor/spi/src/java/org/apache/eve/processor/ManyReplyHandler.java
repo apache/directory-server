@@ -17,35 +17,26 @@
 package org.apache.eve.processor ;
 
 
-import org.apache.ldap.common.message.ResultResponse ;
-import org.apache.ldap.common.message.MessageTypeEnum ;
-import org.apache.ldap.common.message.SingleReplyRequest ;
+import java.util.Iterator ;
+
+import org.apache.ldap.common.message.ManyReplyRequest ;
 
 
 /**
- * Request handler signature for those requests that generate a single response
- * for a request.
+ * A handler for requests that can generate zero, one or more responses.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SingleReplyHandler
-    extends RequestHandler
+public interface ManyReplyHandler extends RequestHandler
 {
     /**
-     * Gets the response message type for this SingleReplyHandler.
-     *
-     * @return the MessageTypeEnum constant associated with this handler.
+     * A handler for a request that can create multiple responses of 
+     * heterogenous messages.
+     * 
+     * @param request the request that may generate many replies
+     * @return an enumeration over the responses
      */
-    MessageTypeEnum getResponseType() ;
-
-    /**
-     * Handles a request that generates a sole response by returning the
-     * response object back to the caller.
-     *
-     * @param request the request to handle.
-     * @return the response to the request argument.
-     */
-    ResultResponse handle( SingleReplyRequest request ) ;
+    Iterator handle( ManyReplyRequest request ) ;
 }

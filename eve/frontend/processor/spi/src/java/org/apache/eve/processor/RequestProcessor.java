@@ -27,5 +27,4 @@ package org.apache.eve.processor ;
  */
 public interface RequestProcessor
 {
-    void dummy() ;
 }
