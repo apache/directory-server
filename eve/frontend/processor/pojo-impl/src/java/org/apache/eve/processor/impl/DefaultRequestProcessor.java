@@ -23,12 +23,20 @@ import org.apache.eve.event.AbstractSubscriber ;
 import org.apache.eve.event.EventRouter ;
 import org.apache.eve.event.RequestEvent ;
 import org.apache.eve.event.RequestSubscriber ;
+import org.apache.eve.listener.ClientKey;
+import org.apache.eve.processor.HandlerRegistry;
+import org.apache.eve.processor.HandlerTypeEnum;
+import org.apache.eve.processor.NoReplyHandler;
+import org.apache.eve.processor.RequestHandler;
 import org.apache.eve.processor.RequestProcessor ;
 import org.apache.eve.processor.RequestProcessorMonitor;
 import org.apache.eve.processor.RequestProcessorMonitorAdapter;
+import org.apache.eve.processor.SingleReplyHandler;
 import org.apache.eve.seda.DefaultStage ;
 import org.apache.eve.seda.StageConfig ;
+import org.apache.eve.seda.StageHandler;
 import org.apache.ldap.common.message.Request;
+import org.apache.ldap.common.message.SingleReplyRequest;
 
 
 /**
@@ -41,14 +49,24 @@ import org.apache.ldap.common.message.Request;
 public class DefaultRequestProcessor extends DefaultStage
     implements RequestProcessor, RequestSubscriber
 {
+    private final HandlerRegistry hooks ;
     private final EventRouter router ;
     private RequestProcessorMonitor monitor = null ;
     
     
-    public DefaultRequestProcessor( EventRouter router, StageConfig config )
+    /**
+     * Creates a default RequestProcessor.
+     * 
+     * @param router the event router we subscribe and publish to
+     * @param config the configuration for this stage 
+     * @param hooks the handler registry to use for setting the request hooks
+     */
+    public DefaultRequestProcessor( EventRouter router, StageConfig config, 
+                                    HandlerRegistry hooks )
     {
         super( config ) ;
         
+        this.hooks = hooks ;
         this.router = router ;
         this.router.subscribe( RequestEvent.class, this ) ;
         this.monitor = new RequestProcessorMonitorAdapter() ;
@@ -61,9 +79,8 @@ public class DefaultRequestProcessor extends DefaultStage
      */
     public void inform( RequestEvent event )
     {
-        Request request = event.getRequest() ;
-        
-        
+        // @todo do something with the monitor here
+        enqueue( event ) ;
     }
     
     
@@ -88,5 +105,61 @@ public class DefaultRequestProcessor extends DefaultStage
      */
     public void dummy()
     {
+    }
+    
+    
+    class ProcessorStageHandler implements StageHandler
+    {
+        /**
+         * Event handler method for processing RequestEvents.
+         *
+         * @param event the RequestEvent to process.
+         */
+        public void handleEvent( EventObject event )
+        {
+            Request l_request = null ;
+            ClientKey l_clientKey = null ;
+
+            // Throw protocol exception if the event is not a request event.
+            if( ! ( event instanceof RequestEvent ) )
+            {
+                throw new ProtocolException( "Unrecognized event: " + event ) ;
+            }
+
+            // Extract the ClientKey and Request parameters from the event
+            l_request = ( ( RequestEvent ) event ).getRequest() ;
+            l_clientKey = ( ClientKey )
+                ( ( RequestEvent ) event ).getSource() ;
+
+            // Get the handler if we have one defined.
+            RequestHandler l_handler = ( RequestHandler )
+                m_handlers.get( l_request.getType() ) ;
+            if( l_handler == null )
+            {
+                throw new ProtocolException( "Unknown request message type: "
+                    + l_request.getType().getName() ) ;
+            }
+
+            // Based on the handler type start request handling.
+            switch( l_handler.getHandlerType().getValue() )
+            {
+            case( HandlerTypeEnum.NOREPLY_VAL ):
+                NoReplyHandler l_noreply = ( NoReplyHandler ) l_handler ;
+                l_noreply.handle( l_request ) ;
+                break ;
+            case( HandlerTypeEnum.SINGLEREPLY_VAL ):
+                SingleReplyHandler l_single = ( SingleReplyHandler ) l_handler ;
+                doSingleReply( l_single, ( SingleReplyRequest ) l_request ) ;
+                break ;
+            case( HandlerTypeEnum.SEARCH_VAL ):
+                SearchHandler l_search = ( SearchHandler ) l_handler ;
+                l_search.handle( ( SearchRequest ) l_request ) ;
+                break ;
+            default:
+                throw new ProtocolException( "Unrecognized handler type: "
+                    + l_handler.getRequestType().getName() ) ;
+            }
+
+        }
     }
 }
