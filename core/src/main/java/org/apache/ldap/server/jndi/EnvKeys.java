@@ -68,6 +68,10 @@ public class EnvKeys
     public static final String PARTITIONS = "server.db.partitions";
     /** the envprop key base to the suffix of a partition */
     public static final String SUFFIX = "server.db.partition.suffix.";
+    /** the envprop key base to the implementation of a partition */
+    public static final String PARTITION_CLASS = "server.db.partition.class.";
+    /** the envprop key base to the properties of a partition */
+    public static final String PROPERTIES = "server.db.partition.properties.";
     /** the envprop key base to the space separated list of indices for a partition */
     public static final String INDICES = "server.db.partition.indices.";
     /** the envprop key base to the Attributes for the context nexus entry */

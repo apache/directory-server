@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.lang.reflect.Constructor;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -46,10 +47,7 @@ import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.ApplicationPartition;
-import org.apache.ldap.server.ContextPartitionConfig;
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.*;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.DefaultSearchEngine;
 import org.apache.ldap.server.db.ExpressionEnumerator;
@@ -681,8 +679,39 @@ public class ServerContextFactory implements InitialContextFactory
 
             AttributeType[] indexTypes = ( AttributeType[] ) attributeTypeList
                     .toArray( new AttributeType[attributeTypeList.size()] );
-            ApplicationPartition partition = new ApplicationPartition( upSuffix, normSuffix, db, eng, indexTypes );
-            nexus.register( partition );
+
+            String partitionClass = configs[ii].getPartitionClass();
+            String properties = configs[ii].getProperties();
+            ContextPartition partition = null;
+
+            if ( partitionClass == null )
+            {
+                // If custom partition is not defined, use the ApplicationPartion.
+                partition = new ApplicationPartition( upSuffix,
+                        normSuffix, db, eng, indexTypes );
+
+            }
+            else
+            {
+                // If custom partition is defined, instantiate it.
+                try
+                {
+                    Class clazz = Class.forName( partitionClass );
+                    Constructor constructor = clazz.getConstructor(
+                            new Class[] { Name.class, Name.class, String.class } );
+                    partition = ( ContextPartition ) constructor.newInstance(
+                            new Object[] { upSuffix, normSuffix, properties } );
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            if ( partition != null ) 
+            { 
+                nexus.register( partition );
+            }
 
             // ----------------------------------------------------------------
             // add the nexus context entry

@@ -76,6 +76,32 @@ public class PartitionConfigBuilder
         config.setSuffix( suffix );
 
         // --------------------------------------------------------------------
+        // set partition class
+        // --------------------------------------------------------------------
+
+        buf.setLength( 0 );
+        buf.append( EnvKeys.PARTITION_CLASS ).append( id );
+        String partitionClass = ( String ) env.get(  buf.toString() );
+
+        if ( partitionClass != null )
+        {
+            config.setPartitionClass( partitionClass );
+        }
+
+        // --------------------------------------------------------------------
+        // set partition properties
+        // --------------------------------------------------------------------
+
+        buf.setLength( 0 );
+        buf.append( EnvKeys.PROPERTIES ).append( id );
+        String properties = ( String ) env.get(  buf.toString() );
+
+        if ( properties != null )
+        {
+            config.setProperties( properties );
+        }
+
+        // --------------------------------------------------------------------
         // extract index list and set the list of indices in config
         // --------------------------------------------------------------------
 

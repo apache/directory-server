@@ -32,6 +32,8 @@ public class ContextPartitionConfig
     private String id;
     private String[] indices;
     private Attributes attributes;
+    private String partitionClass;
+    private String properties;
 
 
     public String getSuffix()
@@ -79,5 +81,25 @@ public class ContextPartitionConfig
     public void setAttributes( Attributes attributes )
     {
         this.attributes = attributes;
+    }
+
+    public String getPartitionClass()
+    {
+        return partitionClass;
+    }
+
+    public void setPartitionClass(String partitionClass)
+    {
+        this.partitionClass = partitionClass;
+    }
+
+    public String getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(String properties)
+    {
+        this.properties = properties;
     }
 }
