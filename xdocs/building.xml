@@ -42,8 +42,9 @@ Eve: started in 1368 milliseconds
         does not have the needed privledges so Eve tries to bind on the next
         available port which is 1024.  If you would like a properties file can
         be used to override and set Eve specific properties to control her
-        behavoir.  Below we use the properties file that comes preconfigured
-        for Apache under the eve/trunk/main directory:
+        behavoir.  Below we use the <a href="http://wisdeant.notlong.com/">
+        properties</a> file that comes preconfigured for Apache under the
+        eve/trunk/main directory:
       </p>
 
 <source>

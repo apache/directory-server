@@ -196,7 +196,7 @@ InitialDirContext ctx = new InitialDirContext( env );
         Here's another more invovled configuration:
       </p>
 
-<souce>
+<source>
 Hashtable env = new Hashtable();
 
 // Standard JNDI properties
@@ -228,7 +228,7 @@ env.put( EnvKeys.ATTRIBUTES + "apache", attrs );              // suffix entry
 
 // Fire it up!
 InitialDirContext ctx = new InitialDirContext( env );
-</souce>
+</source>
 
       <p>
         This configuration starts up the server on port 10389 with anonymous

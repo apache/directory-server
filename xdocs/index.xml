@@ -41,15 +41,6 @@
 
         <tr>
           <td>
-            <a href="./users-guide.html">User's Guide</a>
-          </td>
-          <td>
-            Configuring, installing and embedding Eve.
-          </td>
-        </tr>
-
-        <tr>
-          <td>
             <a href="./roadmap.html">Roadmap</a>
           </td>
           <td>
@@ -89,11 +80,31 @@
             <a href="./jndi.html">JNDI</a>
           </td>
           <td>
-            Documentation for Eve's JNDI provider.
+            Documentation for Eve's JNDI provider. LOTS-O-EXAMAPLES!
           </td>
         </tr>
-        
+
+        <tr>
+          <td>
+            <a href="./authentication.html">Authentication</a>
+          </td>
+          <td>
+            Documentation for how to bind to Eve out of the box. LOTS-O-EXAMAPLES!
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./partitions.html"></a>
+          </td>
+          <td>
+            Documentation for creating user partitions to Eve in addition to the
+            system context partition. LOTS-O-EXAMAPLES!
+          </td>
+        </tr>
+
       </table>
+
 
     </section>
   </body>

@@ -122,7 +122,6 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           files.  Properties from proerties files are the common denominator
           though.  Another means is however possible programatically.
         </p>
-        <br></br>
         <h4>Partition Id</h4>
         <p>
           Breifly we'll explain these properties and the scheme used.  A
@@ -131,7 +130,6 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           <b>eve.db.partitions</b> property: above it lists the ids for the two
           partitions, <i>apache</i> and <i>test</i>.
         </p>
-        <br></br>
         <h4>Naming Context</h4>
         <p>
           Partitions need to know the naming context they will store entries
@@ -144,7 +142,6 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           if the partition id is foo, then the suffix key would be,
           <b>eve.db.partition.suffix.foo</b>.
         </p>
-        <br></br>
         <h4>User Defined Indices</h4>
         <p>
           Partitions can have indices on attributes.  Unlike OpenLDAP where you
@@ -157,7 +154,6 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           partition has indices built on top of <b>ou</b>, <b>objectClass</b>
           and <b>uid</b>.
         </p>
-        <br></br>
         <h4>Suffix Entry</h4>
         <p>
           When creating a context the root entry of the context corresponding
@@ -175,7 +171,7 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
         </p>
       </subsection>
 
-      <subsection name="Programaticly">
+      <subsection name="Programatically">
         <p>
           This is simple create a Hashtable and stuff it with those properties.
           But that's a real pain.  The other option is to set all the properties

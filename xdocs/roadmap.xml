@@ -6,10 +6,22 @@
   </properties>
   
   <body>
-    <section name="TODO">
+    <section name="Eve Roadmap">
+      <p>
+        Until we pull this together over here in a nice format you can get an
+        idea of what is going on using these alternative sources of info:
+      </p>
+
       <ul>
         <li>
-          Write it!
+          Look at the JIRA
+          <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa">here
+          </a> for specific tasks.
+        </li>
+        <li>
+          Look at the WIKI
+          <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa">here
+          </a> for high level roadmap.
         </li>
       </ul>
     </section>
