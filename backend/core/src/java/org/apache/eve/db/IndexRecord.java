@@ -46,8 +46,8 @@ public class IndexRecord
      */
     public void setTuple( Tuple tuple, Attributes entry )
     {
-        tuple.setKey( tuple.getKey() );
-        tuple.setValue( tuple.getValue() );
+        this.tuple.setKey( tuple.getKey() );
+        this.tuple.setValue( tuple.getValue() );
         this.entry = entry;
     }
 
@@ -61,8 +61,8 @@ public class IndexRecord
      */
     public void setSwapped( Tuple tuple, Attributes entry )
     {
-        tuple.setKey( tuple.getValue() );
-        tuple.setValue( tuple.getKey() );
+        this.tuple.setKey( tuple.getValue() );
+        this.tuple.setValue( tuple.getKey() );
         this.entry = entry;
     }
 

@@ -1,22 +1,22 @@
-package org.apache.eve.jndi ;
+package org.apache.eve.jndi;
 
 
-import java.util.Map ;
-import java.util.Stack ;
-import java.util.Iterator ;
-import java.util.EmptyStackException ;
+import java.util.Map;
+import java.util.Stack;
+import java.util.Iterator;
+import java.util.EmptyStackException;
         
-import javax.naming.Name ;
-import javax.naming.Context ;
-import javax.naming.ldap.LdapContext ;
-import javax.naming.NamingEnumeration ;
-import javax.naming.directory.Attributes ;
-import javax.naming.directory.SearchControls ;
-import javax.naming.directory.ModificationItem ;
+import javax.naming.Name;
+import javax.naming.Context;
+import javax.naming.ldap.LdapContext;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.ModificationItem;
 
-import org.apache.ldap.common.filter.ExprNode ;
-import org.apache.eve.PartitionNexus ;
-import org.apache.eve.db.Database ;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.eve.PartitionNexus;
+import org.apache.eve.db.Database;
 import org.apache.eve.ContextPartition;
 
 
@@ -40,7 +40,7 @@ public aspect ProviderNexusAspect
      * backend nexus calls made by the JndiProvider's contexts within the same 
      * thread of execution.
      */
-    private static ThreadLocal EveJndiProvider.s_contextStacks = new ThreadLocal() ;
+    private static ThreadLocal EveJndiProvider.s_contextStacks = new ThreadLocal();
     
     
     // ------------------------------------------------------------------------
@@ -56,15 +56,15 @@ public aspect ProviderNexusAspect
      */
     private static void EveJndiProvider.push( LdapContext context )
     {
-        Stack stack = ( Stack ) s_contextStacks.get() ;
+        Stack stack = ( Stack ) s_contextStacks.get();
         
         if ( null == stack )
         {
-            stack = new Stack() ;
-            s_contextStacks.set( stack ) ;
+            stack = new Stack();
+            s_contextStacks.set( stack );
         }
         
-        stack.push( context ) ;
+        stack.push( context );
     } 
 
 
@@ -76,14 +76,14 @@ public aspect ProviderNexusAspect
      */
     private static LdapContext EveJndiProvider.pop()
     {
-        Stack stack = ( Stack ) s_contextStacks.get() ;
+        Stack stack = ( Stack ) s_contextStacks.get();
         
         if ( null == stack )
         {
-            throw new EmptyStackException() ;
+            throw new EmptyStackException();
         }
         
-        return ( LdapContext ) stack.pop() ;
+        return ( LdapContext ) stack.pop();
     }
     
     
@@ -94,14 +94,14 @@ public aspect ProviderNexusAspect
      */
     static LdapContext EveJndiProvider.peek()
     {
-        Stack stack = ( Stack ) s_contextStacks.get() ;
+        Stack stack = ( Stack ) s_contextStacks.get();
         
         if ( null == stack )
         {
-            throw new EmptyStackException() ;
+            throw new EmptyStackException();
         }
         
-        return ( LdapContext ) stack.peek() ;
+        return ( LdapContext ) stack.peek();
     }
     
     
@@ -117,14 +117,14 @@ public aspect ProviderNexusAspect
      */    
     private static Stack getContextStack()
     {
-        Stack stack = ( Stack ) EveJndiProvider.s_contextStacks.get() ;
+        Stack stack = ( Stack ) EveJndiProvider.s_contextStacks.get();
         
         if ( null == stack )
         {
-            throw new NullPointerException( "Thread had null stack" ) ;
+            throw new NullPointerException( "Thread had null stack" );
         }
         
-        return ( Stack ) stack.clone() ;
+        return ( Stack ) stack.clone();
     }
     
     
@@ -170,17 +170,17 @@ public aspect ProviderNexusAspect
         call( public void move( Name, Name ) ) ||
         call( public void move( Name, Name, String, boolean ) ) ||
         call( public NamingEnumeration 
-           search( Name, Map, ExprNode, SearchControls ) ) ) ;
+           search( Name, Map, ExprNode, SearchControls ) ) );
         
 
     /**
      * Selects join points where the Invokation default constructor executes.
      * 
-     * @param a_invocation the Invocation instantiated
+     * @param invocation the Invocation instantiated
      */
-    pointcut newInvocation( Invocation a_invocation ):
-        target( a_invocation ) &&
-        execution( public Invocation.new() ) ;
+    pointcut newInvocation( Invocation invocation ):
+        target( invocation ) &&
+        execution( public Invocation.new() );
       
         
     // ------------------------------------------------------------------------
@@ -188,31 +188,31 @@ public aspect ProviderNexusAspect
     // ------------------------------------------------------------------------
 
 
-    before( Context a_caller ):
-        jndiNexusCalls( a_caller )
+    before( Context caller ):
+        jndiNexusCalls( caller )
         {
-    		EveJndiProvider.push( ( LdapContext ) a_caller ) ;
+    		EveJndiProvider.push( ( LdapContext ) caller );
             //System.out.println( "\npushed " + a_caller + " for join point "
-            //    + thisJoinPoint ) ;
+            //    + thisJoinPoint );
         }
         
 
-    after( Context a_caller ):
-        jndiNexusCalls( a_caller ) 
+    after( Context caller ):
+        jndiNexusCalls( caller ) 
         {
-            LdapContext l_head = EveJndiProvider.pop() ;
+            LdapContext head = EveJndiProvider.pop();
             //System.out.println( "\npopped " + a_caller + " for join point "
-            //    + thisJoinPoint ) ;
+            //    + thisJoinPoint );
         }
       
         
-    after( Invocation a_invocation ):
-        newInvocation( a_invocation )
+    after( Invocation invocation ):
+        newInvocation( invocation )
         {
-            a_invocation.setContextStack( getContextStack() ) ;
+            invocation.setContextStack( getContextStack() );
             //System.out.println( 
             //    "\nJust set the context stack on a new Invocation: " 
-            //    + thisJoinPoint ) ;
+            //    + thisJoinPoint );
         }
 }
 

@@ -88,27 +88,36 @@ public class SearchResultEnumeration implements NamingEnumeration
     public Object next() throws NamingException
     {
         IndexRecord rec = ( IndexRecord ) underlying.next();
-        Attributes entry = new LockableAttributesImpl();
+        Attributes entry;
         String name = db.getEntryUpdn( rec.getEntryId() );
         
         if ( null == rec.getAttributes() )
         {
             rec.setAttributes( db.lookup( rec.getEntryId() ) );
         }
-        
-        for ( int ii = 0; ii < attrIds.length; ii++ )
+
+        if ( attrIds == null )
         {
-            // there is no attribute by that name in the entry so we continue
-            if ( null == entry.get( attrIds[ii] ) ) 
-            {
-                continue;
-            }
-            
-            // clone attribute to stuff into the new resultant entry
-            Attribute attr = ( Attribute ) entry.clone();
-            entry.put( attr );
+            entry = ( Attributes ) rec.getAttributes().clone();
         }
-        
+        else
+        {
+            entry = new LockableAttributesImpl();
+
+            for ( int ii = 0; ii < attrIds.length; ii++ )
+            {
+                // there is no attribute by that name in the entry so we continue
+                if ( null == rec.getAttributes().get( attrIds[ii] ) )
+                {
+                    continue;
+                }
+
+                // clone attribute to stuff into the new resultant entry
+                Attribute attr = ( Attribute ) rec.getAttributes().get( attrIds[ii] ).clone();
+                entry.put( attr );
+            }
+        }
+
         return new DbSearchResult( rec.getEntryId(), name, null, entry );
     }
 

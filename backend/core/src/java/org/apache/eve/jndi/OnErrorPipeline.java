@@ -17,16 +17,20 @@
 package org.apache.eve.jndi;
 
 
+import javax.naming.NamingException;
+
+import org.apache.eve.exception.EveInterceptorException;
+
+
 /**
  * A slow failing InterceptorPipeline implementation where all Interceptors 
  * within the invocation chain are invoked regardless of errors upstream - 
- * exceptions are added to the afterFailure list of exceptions on the 
- * Invocation.
+ * exceptions are added to the list of exceptions on the Invocation.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AfterFailurePipeline extends InterceptorPipeline
+public class OnErrorPipeline extends InterceptorPipeline
 {
     /**
      * Returns false all the time! 
@@ -42,16 +46,16 @@ public class AfterFailurePipeline extends InterceptorPipeline
     /**
      * This invoke method does not fail and throw exceptions until all 
      * Interceptors within the pipeline have been invoked.  If an unexpected 
-     * Throwable other than an InterceptorException results this method catches 
-     * it and wraps it within an InterceptorException and adds it to the
-     * Invocation's list of afterFailure exceptions.  The last error if any to 
-     * result after all Interceptors have run is thrown.
+     * Throwable other than an EveInterceptorException results this method
+     * catches it and wraps it within an EveInterceptorException and adds it to
+     * the Invocation's list of afterFailure exceptions.  The last error if any
+     * to result after all Interceptors have run is thrown.
      *
      * @see Interceptor#invoke(Invocation)
      */
-    public void invoke( Invocation invocation ) throws InterceptorException
+    public void invoke( Invocation invocation ) throws NamingException
     {
-        InterceptorException last = null;
+        NamingException last = null;
         
         for ( int ii = 0; ii < getList().size(); ii++ )
         {
@@ -64,28 +68,28 @@ public class AfterFailurePipeline extends InterceptorPipeline
             catch ( Throwable throwable )
             {
                 /*
-                 * If exception is InterceptorException we add it to the list
+                 * If exception is EveInterceptorException we add it to the list
                  * of afterFailure exceptions on the Invocation.  Otherwise we
-                 * wrap the unexpected exception as an InterceptorException and
+                 * wrap the unexpected exception as an EveInterceptorException and
                  * add it to the list of afterFailure exceptions on the 
                  * Invocation
                  */
 
-                if ( throwable instanceof InterceptorException )
+                if ( throwable instanceof EveInterceptorException )
                 {
-                    last = ( InterceptorException ) throwable;
+                    last = ( EveInterceptorException ) throwable;
                     invocation.addFailure( last );
                 }
                 else
                 {
-                    last = new InterceptorException( service, invocation );
+                    last = new EveInterceptorException( service, invocation );
                     last.setRootCause( throwable );
                     invocation.addFailure( last );
                 }
             }
         }
         
-        // Throw the last excepts if any after all Interceptors are invoked
+        // Throw the last exception if any after all Interceptors are invoked
         if ( null != last )
         {
             throw last;

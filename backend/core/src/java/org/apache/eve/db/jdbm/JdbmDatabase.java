@@ -660,9 +660,11 @@ public class JdbmDatabase implements Database
      */
     public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
-        BigInteger id = master.getNextId();
+        BigInteger id;
         BigInteger parentId = null;
-        
+
+        id = master.getNextId();
+
         //
         // Suffix entry cannot have a parent since it is the root so it is 
         // capped off using the zero value which no entry can have since 

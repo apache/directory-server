@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema.bootstrap;
+package org.apache.eve.schema;
 
 
 import javax.naming.NamingException;
@@ -22,8 +22,6 @@ import javax.naming.NamingException;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.name.NameComponentNormalizer;
-
-import org.apache.eve.schema.AttributeTypeRegistry;
 
 
 /**
@@ -34,10 +32,10 @@ import org.apache.eve.schema.AttributeTypeRegistry;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RegistryNameComponentNormalizer implements NameComponentNormalizer
+public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
 {
-    /** the bootstrap registries used to dynamically resolve Normalizers */
-    private final BootstrapRegistries registries;
+    /** the at registry used to dynamically resolve Normalizers */
+    private final AttributeTypeRegistry registry;
 
 
     /**
@@ -45,11 +43,11 @@ public class RegistryNameComponentNormalizer implements NameComponentNormalizer
      * registries to find the appropriate normalizer for the attribute of the
      * name component with which to normalize the name component value.
      *
-     * @param registries the bootstrap registries to use for resolution
+     * @param registry the at registry used to dynamically resolve Normalizers
      */
-    public RegistryNameComponentNormalizer( BootstrapRegistries registries )
+    public ConcreteNameComponentNormalizer( AttributeTypeRegistry registry )
     {
-        this.registries = registries;
+        this.registry = registry;
     }
 
 
@@ -84,7 +82,6 @@ public class RegistryNameComponentNormalizer implements NameComponentNormalizer
      */
     private Normalizer lookup( String id ) throws NamingException
     {
-        AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
         AttributeType type = registry.lookup( id );
         return type.getEquality().getNormalizer();
     }

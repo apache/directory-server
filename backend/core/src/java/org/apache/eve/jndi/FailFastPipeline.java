@@ -17,6 +17,11 @@
 package org.apache.eve.jndi;
 
 
+import javax.naming.NamingException;
+
+import org.apache.eve.exception.EveInterceptorException;
+
+
 /**
  * A fast failing InterceptorPipeline implementation where the first Interceptor
  * to fail within the invocation chain of the pipeline shorts the invocation of
@@ -40,13 +45,13 @@ public class FailFastPipeline extends InterceptorPipeline
 
     /**
      * This invoke method fails and throws at the first failure within the 
-     * pipeline.  If an unexpected Throwable other than an InterceptorException
+     * pipeline.  If an unexpected Throwable other than an EveInterceptorException
      * results this method catches it and wraps it within an 
-     * InterceptorException and rethrows the new exception.
+     * EveInterceptorException and rethrows the new exception.
      *
      * @see Interceptor#invoke(Invocation)
      */
-    public void invoke( Invocation invocation ) throws InterceptorException
+    public void invoke( Invocation invocation ) throws NamingException
     {
         for ( int ii = 0; ii < getList().size(); ii++ )
         {
@@ -58,12 +63,13 @@ public class FailFastPipeline extends InterceptorPipeline
             }
             catch ( Throwable throwable )
             {
-                if ( throwable instanceof InterceptorException )
+                if ( throwable instanceof EveInterceptorException )
                 {
-                    throw ( InterceptorException ) throwable;
+                    throw ( EveInterceptorException ) throwable;
                 }
                 
-                InterceptorException ie = new InterceptorException( service, invocation );
+                EveInterceptorException ie;
+                ie = new EveInterceptorException( service, invocation );
                 ie.setRootCause( throwable );
                 throw ie;
             }

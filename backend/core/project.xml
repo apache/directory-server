@@ -31,6 +31,12 @@
       <url>http://jakarta.apache.org/oro</url>
     </dependency>
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.0</version>
+      <url>http://jakarta.apache.org/commons/io</url>
+    </dependency>
+    <dependency>
       <groupId>regexp</groupId>
       <artifactId>regexp</artifactId>
       <version>1.2</version>

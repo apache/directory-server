@@ -17,6 +17,11 @@
 package org.apache.eve.jndi;
 
 
+import javax.naming.NamingException;
+
+import org.apache.eve.exception.EveInterceptorException;
+
+
 /**
  * The Interceptor is a component through which invocations pass thru.  In 
  * most cases the invocations pass thru a series of Interceptor objects 
@@ -31,16 +36,16 @@ package org.apache.eve.jndi;
 public interface Interceptor
 {
     /**
-     * Process a particular invocation.
-     * The method must NEVER throw an exception and any exceptions should be 
-     * caught and placed into the invocation via {@link Invocation#setThrowable}
-     * or {@link Invocation#addFailure(InterceptorException)}.
+     * Process a particular invocation.  The method must try to catch and
+     * rethrow exceptions as EveInterceptorExceptions and any other exceptions
+     * will be caught and placed into the invocation via
+     * {@link Invocation#setThrowable} or {@link Invocation#addFailure(Throwable)}.
      *
      * <p>Note: most Interceptors pass control to the next Interceptor in the
      * series.</p>
      *
      * @param invocation the invocation to process
-     * @throws InterceptorException on failures while handling the invokation
+     * @throws NamingException on failures while handling the invokation
      */
-    void invoke( Invocation invocation ) throws InterceptorException;
+    void invoke( Invocation invocation ) throws NamingException;
 }

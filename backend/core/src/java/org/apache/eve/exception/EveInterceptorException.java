@@ -14,55 +14,73 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.jndi;
+package org.apache.eve.exception;
 
 
-import javax.naming.NamingException;
+import org.apache.ldap.common.message.ResultCodeEnum;
+
+import org.apache.eve.jndi.Invocation;
+import org.apache.eve.jndi.Interceptor;
 
 
 /**
- * Exception thrown by an Interceptor while intercepting an Invocation.  
+ * Exception thrown by an Interceptor while intercepting an Invocation.
  * Interceptor failures caught from the method are bundled as
  * InterceptorExceptions and rethrown.
- * 
+ *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class InterceptorException extends NamingException
+public class EveInterceptorException extends EveNamingException
 {
     /** The Invokation the Interceptor failed on */
     private final Invocation invocation;
     /** The Interceptor causing the failure */
     private final Interceptor interceptor;
-    
-    
+
+
     /**
-     * Creates an InterceptorException without a message.
+     * Creates an EveInterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      */
-    public InterceptorException( Interceptor interceptor, Invocation invocation )
+    public EveInterceptorException( Interceptor interceptor, Invocation invocation )
     {
-        super();
+        super( ResultCodeEnum.OTHER );
         this.invocation = invocation;
         this.interceptor = interceptor;
     }
 
 
     /**
-     * Creates an InterceptorException with a custom message.
+     * Creates an EveInterceptorException with a custom message.
      *
      * @param interceptor the Interceptor causing the failure
      * @param invocation the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      */
-    public InterceptorException( Interceptor interceptor,
-                                 Invocation invocation, String explanation )
+    public EveInterceptorException( Interceptor interceptor,
+                                    Invocation invocation, String explanation )
     {
-        super( explanation );
+        super( explanation, ResultCodeEnum.OTHER );
         this.invocation = invocation;
         this.interceptor = interceptor;
+    }
+
+
+    /**
+     * Creates an EveInterceptorException without a message.
+     *
+     * @param interceptor the Interceptor causing the failure
+     * @param invocation the Invocation the Interceptor failed on
+     * @param rootCause the root cause of this exception
+     */
+    public EveInterceptorException( Interceptor interceptor,
+                                    Invocation invocation, Throwable rootCause )
+    {
+        this( interceptor, invocation );
+        super.setRootCause( rootCause );
     }
 
 
@@ -85,5 +103,22 @@ public class InterceptorException extends NamingException
     public Interceptor getInterceptor()
     {
         return interceptor;
+    }
+
+
+    /**
+     * Will return the resultCode of the root cause if the root cause
+     * implements EveException.
+     *
+     * @see EveException#getResultCode() 
+     */
+    public ResultCodeEnum getResultCode()
+    {
+        if ( getRootCause() != null && ( getRootCause() instanceof EveException ) )
+        {
+            return ( ( EveException ) getRootCause() ).getResultCode();
+        }
+
+        return super.getResultCode();
     }
 }

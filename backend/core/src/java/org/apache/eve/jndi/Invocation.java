@@ -43,23 +43,28 @@ public class Invocation implements Serializable
      * The interceptor processing state of this Invocation.
      */
     private InvocationStateEnum state = InvocationStateEnum.PREINVOCATION;
-    
+
+    /**
+     * The interceptor processing state of this Invocation.
+     */
+    private InvocationMethodEnum methodEnum;
+
     /**
      * The invokation state: when call has completed isCompleted will be true
      */
     private boolean isComplete = false;
     
     /**
-     * InterceptorException thrown by the first interceptor to fail within the 
-     * after invocation InterceptorPipeline which is fail fast.
+     * Thrown by the first interceptor to fail within the before invocation
+     * InterceptorPipeline which is fail fast.
      */
-    private InterceptorException before;
+    private Throwable before;
     
     /**
-     * InterceptorException thrown by the first interceptor to fail within the 
-     * after invocation InterceptorPipeline which is fail fast.
+     * Thrown by the first interceptor to fail within the after invocation
+     * InterceptorPipeline which is fail fast.
      */
-    private InterceptorException after;
+    private Throwable after;
     
     /**
      * Exceptions thrown by interceptors within the failure pipeline which is 
@@ -151,9 +156,9 @@ public class Invocation implements Serializable
     
 
     /**
-     * Lists  the InterceptorExceptions thrown by interceptors within the 
-     * failure pipeline which is NOT fail fast - hence the use of a list for 
-     * potentially many exceptions.
+     * Lists the Throwables thrown by interceptors within the failure pipeline
+     * which is NOT fail fast - hence the use of a list for potentially many
+     * exceptions.
      *
      * @return an Iterator over the exceptions produced by Interceptors
      */
@@ -174,7 +179,7 @@ public class Invocation implements Serializable
      *
      * @param throwable Throwable resulting from an Interceptor invoke call
      */
-    public void addFailure( InterceptorException throwable )
+    public void addFailure( Throwable throwable )
     {
         if ( null == failures )
         {
@@ -186,52 +191,44 @@ public class Invocation implements Serializable
     
     
     /**
-     * Gets the InterceptorException thrown if at all within the before
-     * InterceptorPipeline.
+     * Gets the Throwable thrown if at all within the before InterceptorPipeline.
      *
-     * @return the InterceptorException thrown if at all within the before 
-     * InterceptorPipeline 
+     * @return the Throwable thrown if at all within the before InterceptorPipeline
      */
-    public InterceptorException getBeforeFailure()
+    public Throwable getBeforeFailure()
     {
         return before;
     }
     
     
     /**
-     * Sets the InterceptorException thrown if at all within the before
-     * InterceptorPipeline.
+     * Sets the Throwable thrown if at all within the before InterceptorPipeline.
      *
-     * @param before the InterceptorException thrown if at all within the
-     * before InterceptorPipeline 
+     * @param before the Throwable thrown if at all within the before InterceptorPipeline
      */
-    public void setBeforeFailure( InterceptorException before )
+    public void setBeforeFailure( Throwable before )
     {
         this.before = before;
     }
     
     
     /**
-     * Gets the InterceptorException thrown if at all within the after
-     * InterceptorPipeline.
+     * Gets the Throwable thrown if at all within the after InterceptorPipeline.
      *
-     * @return the InterceptorException thrown if at all within the after 
-     * InterceptorPipeline 
+     * @return the Throwable thrown if at all within the after InterceptorPipeline
      */
-    public InterceptorException getAfterFailure()
+    public Throwable getAfterFailure()
     {
         return after;
     }
     
     
     /**
-     * Sets the InterceptorException thrown if at all within the after
-     * InterceptorPipeline.
+     * Sets the Throwable thrown if at all within the after InterceptorPipeline.
      *
-     * @param after the InterceptorException thrown if at all within the
-     * after InterceptorPipeline 
+     * @param after the Throwable thrown if at all within the after InterceptorPipeline
      */
-    public void setAfterFailure( InterceptorException after )
+    public void setAfterFailure( Throwable after )
     {
         this.after = after;
     }
@@ -264,6 +261,17 @@ public class Invocation implements Serializable
      *
      * @return the method that was invoked.
      */
+    public InvocationMethodEnum getInvocationMethodEnum()
+    {
+        return methodEnum;
+    }
+
+
+    /**
+     * Return the method that was invoked.
+     *
+     * @return the method that was invoked.
+     */
     public Method getMethod()
     {
         return method;
@@ -278,6 +286,7 @@ public class Invocation implements Serializable
     public void setMethod( final Method method )
     {
         this.method = method;
+        this.methodEnum = InvocationMethodEnum.getInvocationMethodEnum( method );
     }
 
 

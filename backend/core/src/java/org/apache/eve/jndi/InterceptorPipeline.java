@@ -20,6 +20,8 @@ package org.apache.eve.jndi;
 import java.util.List;
 import java.util.ArrayList;
 
+import javax.naming.NamingException;
+
 
 /**
  * An Interceptor composed of a pipeline of interceptors that can be called 
@@ -44,8 +46,19 @@ public abstract class InterceptorPipeline implements Interceptor
     {
         list.add( posn, service );
     }
-    
-    
+
+
+    /**
+     * Adds a Interceptor to the end of this InterceptorPipeline.
+     *
+     * @param service the Interceptor to add.
+     */
+    public void add( Interceptor service )
+    {
+        list.add( service );
+    }
+
+
     /**
      * Removes an Interceptor from this InterceptorPipeline.
      *
@@ -92,7 +105,7 @@ public abstract class InterceptorPipeline implements Interceptor
      *
      * @see Interceptor#invoke(Invocation)
      */
-    public abstract void invoke( Invocation invocation ) throws InterceptorException;
+    public abstract void invoke( Invocation invocation ) throws NamingException;
 
     /**
      * Get whether this pipeline is fail fast or not.

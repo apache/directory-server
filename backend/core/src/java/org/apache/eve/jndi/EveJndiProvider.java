@@ -20,6 +20,8 @@ package org.apache.eve.jndi;
 import org.apache.eve.RootNexus;
 import org.apache.eve.PartitionNexus;
 import org.apache.eve.EveBackendSubsystem;
+import org.apache.eve.exception.EveNamingException;
+import org.apache.ldap.common.message.ResultCodeEnum;
 
 import java.util.Hashtable;
 
@@ -32,7 +34,7 @@ import javax.naming.ldap.LdapContext;
 
 
 /**
- * EveBackendSubsystem service implementing block.
+ * The EveBackendSubsystem service implementation.
  * 
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -47,7 +49,7 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
     /** Interceptor of interceptors in pre-invocation pipeline */
     private InterceptorPipeline before = new FailFastPipeline();
     /** Interceptor of interceptors in post-invocation pipeline failure */
-    private InterceptorPipeline afterFailure  = new AfterFailurePipeline();
+    private InterceptorPipeline afterFailure = new OnErrorPipeline();
     /** RootNexus as it was given to us by the ServiceManager */
     private RootNexus nexus = null;
     /** PartitionNexus proxy wrapping nexus to inject services */
@@ -122,15 +124,17 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
     /**
      * @see java.lang.reflect.InvocationHandler#invoke(Object,Method,Object[])
      */
-    public Object invoke( Object proxy, Method method, Object[] args )
-        throws Throwable
+    public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable
     {
         // Setup the invocation and populate: remember aspect sets context stack
         Invocation invocation = new Invocation();
         invocation.setMethod( method );
         invocation.setProxy( proxy );
         invocation.setParameters( args );
-        
+
+        // used for an optimization
+        BaseInterceptor.setInvocation( invocation );
+
         try
         {
             before.invoke( invocation );
@@ -141,19 +145,11 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
              * On errors we need to continue into the failure handling state
              * of Invocation processing and not throw anything just record it.
              */
-            if ( throwable instanceof InterceptorException )
+            if ( invocation.getBeforeFailure() == null )
             {
-                invocation.setBeforeFailure( ( InterceptorException )
-                    throwable );
+                invocation.setBeforeFailure( throwable );
             }
-            else 
-            {
-                InterceptorException ie =
-                    new InterceptorException( before, invocation );
-                invocation.setBeforeFailure( ie );
-                ie.setRootCause( throwable );
-            }
-            
+
             invocation.setState( InvocationStateEnum.FAILUREHANDLING );
         }
 
@@ -166,12 +162,12 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
          * If before pipeline failed then we invoke the after failure pipeline
          * and throw the before failure exception.
          */
-        if ( InvocationStateEnum.PREINVOCATION == invocation.getState() )
+        if ( invocation.getState() == InvocationStateEnum.PREINVOCATION )
         {
             try
             {
-                invocation.setReturnValue( method.invoke( nexus,
-                    invocation.getParameters() ) );
+                Object retVal = method.invoke( nexus, invocation.getParameters() );
+                invocation.setReturnValue( retVal );
                 invocation.setState( InvocationStateEnum.POSTINVOCATION );
             }
             catch ( Throwable throwable )
@@ -182,10 +178,10 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
 
             invocation.setComplete( true );
         }
-        else if ( 
-            InvocationStateEnum.FAILUREHANDLING == invocation.getState() )
+        else if ( invocation.getState() == InvocationStateEnum.FAILUREHANDLING )
         {
             afterFailure.invoke( invocation );
+            BaseInterceptor.setInvocation( null );
             throw invocation.getBeforeFailure();
         }
 
@@ -199,55 +195,78 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
          * pipeline since we will be in the FAILUREHANDLINE state and after 
          * doing so we throw the original throwable raised by the target.
          */
-        if ( InvocationStateEnum.POSTINVOCATION == invocation.getState() )
+        if ( invocation.getState() == InvocationStateEnum.POSTINVOCATION )
         {
             try
             {
                 after.invoke( invocation );
+                BaseInterceptor.setInvocation( null );
                 return invocation.getReturnValue();
             }
             catch ( Throwable throwable )
             {
                 invocation.setState( InvocationStateEnum.FAILUREHANDLING );
                 
-                if ( throwable instanceof InterceptorException )
+                if ( invocation.getAfterFailure() == null )
                 {
-                    invocation.setAfterFailure( ( InterceptorException )
-                        throwable );
+                    invocation.setAfterFailure( throwable );
                 }
-                else 
-                {
-                    InterceptorException ie =
-                        new InterceptorException( after, invocation );
-                    ie.setRootCause( throwable );
-                    invocation.setAfterFailure( ie );
-                }
-                
+
                 afterFailure.invoke( invocation );
+                BaseInterceptor.setInvocation( null );
                 throw invocation.getAfterFailure();
             }
         }
-        else if ( 
-            InvocationStateEnum.FAILUREHANDLING == invocation.getState()
-            )
+        else if ( invocation.getState() == InvocationStateEnum.FAILUREHANDLING )
         {
             afterFailure.invoke( invocation );
-            
-            if ( null != invocation.getThrowable() )
+
+            if ( invocation.getThrowable() == null )
             {
-                throw invocation.getThrowable();
+                throw new EveNamingException( "Interceptor Framework Failure: "
+                        + "failures on the proxied call should have a non null "
+                        + "throwable associated with the Invocation object.",
+                        ResultCodeEnum.OTHER );
             }
-            else if ( null != invocation.getBeforeFailure() )
+
+            BaseInterceptor.setInvocation( null );
+            throw invocation.getThrowable();
+        }
+
+        // used for an optimization
+        BaseInterceptor.setInvocation( null );
+        throw new EveNamingException( "Interceptor Framework Failure: "
+                + "invocation handling should never have reached this line",
+                ResultCodeEnum.OTHER );
+    }
+
+
+    /**
+     * Allows the addition of an interceptor to pipelines based on invocation
+     * processing states.
+     *
+     * @param interceptor the interceptor to add to pipelines
+     * @param states the states (pipelines) where the interceptor should be applied
+     */
+    public void addInterceptor( Interceptor interceptor, InvocationStateEnum states[] )
+    {
+        for ( int ii = 0; ii < states.length; ii++ )
+        {
+            switch( states[ii].getValue() )
             {
-                throw invocation.getBeforeFailure();
-            }
-            else if ( null != invocation.getAfterFailure() )
-            {
-                throw invocation.getAfterFailure();
+                case( InvocationStateEnum.PREINVOCATION_VAL ):
+                    before.add( interceptor );
+                    break;
+                case( InvocationStateEnum.POSTINVOCATION_VAL ):
+                    after.add( interceptor );
+                    break;
+                case( InvocationStateEnum.FAILUREHANDLING_VAL ):
+                    afterFailure.add( interceptor );
+                    break;
+                default:
+                    throw new IllegalStateException( "unexpected invocation state: "
+                            + states[ii].getName() );
             }
         }
-        
-        throw new IllegalStateException( "The EveJndiProvider's invocation "
-            + "handler method invoke should never have reached this line" );
     }
 }

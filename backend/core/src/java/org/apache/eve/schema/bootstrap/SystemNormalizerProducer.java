@@ -20,6 +20,7 @@ package org.apache.eve.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.*;
+import org.apache.eve.schema.ConcreteNameComponentNormalizer;
 
 
 /**
@@ -50,7 +51,8 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
          */
         normalizer = new CachingNormalizer( new DnNormalizer(
-                new RegistryNameComponentNormalizer( registries) ) ) ;
+                new ConcreteNameComponentNormalizer(
+                        registries.getAttributeTypeRegistry() ) ) ) ;
         cb.schemaObjectProduced( this, "2.5.13.1", normalizer );
 
         /*

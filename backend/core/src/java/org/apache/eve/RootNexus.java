@@ -161,6 +161,12 @@ public class RootNexus implements PartitionNexus
 
 
     /**
+     * Looks up the backend corresponding to the entry first, then checks to
+     * see if the entry already exists.  If so an exception is thrown.  If not
+     * the add operation against the backend proceeds.  This check is performed
+     * here so backend implementors do not have to worry about performing these
+     * kinds of checks.
+     *
      * @see BackingStore#add(String, Name, Attributes)
      */
     public void add( String updn, Name dn, Attributes an_entry ) throws NamingException

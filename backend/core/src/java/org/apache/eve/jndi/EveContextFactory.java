@@ -14,6 +14,8 @@ import org.apache.ldap.common.schema.AttributeType;
 
 import org.apache.eve.RootNexus;
 import org.apache.eve.SystemPartition;
+import org.apache.eve.exception.EveInterceptorException;
+import org.apache.eve.jndi.ibs.EveExceptionService;
 import org.apache.eve.db.*;
 import org.apache.eve.db.jdbm.JdbmDatabase;
 import org.apache.eve.schema.bootstrap.BootstrapRegistries;
@@ -183,7 +185,14 @@ public class EveContextFactory implements InitialContextFactory
 
         SystemPartition system = new SystemPartition( db, eng, attributes );
         RootNexus root = new RootNexus( system );
-        this.provider = new EveJndiProvider( root );
+        provider = new EveJndiProvider( root );
+
+        InvocationStateEnum[] state = new InvocationStateEnum[]{
+            InvocationStateEnum.PREINVOCATION,
+            InvocationStateEnum.FAILUREHANDLING
+        };
+        EveExceptionService interceptor = new EveExceptionService( root );
+        provider.addInterceptor( interceptor, state );
     }
 
 
