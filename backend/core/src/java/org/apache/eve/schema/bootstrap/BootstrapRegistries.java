@@ -17,7 +17,17 @@
 package org.apache.eve.schema.bootstrap;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.NamingException;
+
 import org.apache.eve.schema.*;
+import org.apache.ldap.common.schema.ObjectClass;
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.ldap.common.schema.AttributeType;
 
 
 /**
@@ -28,18 +38,18 @@ import org.apache.eve.schema.*;
  */
 public class BootstrapRegistries
 {
-    private AttributeTypeRegistry attributeTypeRegistry;
-    private ComparatorRegistry comparatorRegistry;
-    private DITContentRuleRegistry ditContentRuleRegistry;
-    private DITStructureRuleRegistry ditStructureRuleRegistry;
-    private MatchingRuleRegistry matchingRuleRegistry;
-    private MatchingRuleUseRegistry matchingRuleUseRegistry;
-    private NameFormRegistry nameFormRegistry;
-    private NormalizerRegistry normalizerRegistry;
-    private ObjectClassRegistry objectClassRegistry;
-    private OidRegistry oidRegistry;
-    private SyntaxCheckerRegistry syntaxCheckerRegistry;
-    private SyntaxRegistry syntaxRegistry;
+    private BootstrapAttributeTypeRegistry attributeTypeRegistry;
+    private BootstrapComparatorRegistry comparatorRegistry;
+    private BootstrapDitContentRuleRegistry ditContentRuleRegistry;
+    private BootstrapDitStructureRuleRegistry ditStructureRuleRegistry;
+    private BootstrapMatchingRuleRegistry matchingRuleRegistry;
+    private BootstrapMatchingRuleUseRegistry matchingRuleUseRegistry;
+    private BootstrapNameFormRegistry nameFormRegistry;
+    private BootstrapNormalizerRegistry normalizerRegistry;
+    private BootstrapObjectClassRegistry objectClassRegistry;
+    private BootstrapOidRegistry oidRegistry;
+    private BootstrapSyntaxCheckerRegistry syntaxCheckerRegistry;
+    private BootstrapSyntaxRegistry syntaxRegistry;
 
 
     public BootstrapRegistries()
@@ -117,5 +127,303 @@ public class BootstrapRegistries
     public SyntaxRegistry getSyntaxRegistry()
     {
         return syntaxRegistry;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Code used to sanity check the resolution of entities in registries
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Attempts to resolve the dependent schema objects of all entities that
+     * refer to other objects within the registries.  Null references will be
+     * handed appropriately.
+     *
+     * @return a list of exceptions encountered while resolving entities
+     */
+    public List checkRefInteg()
+    {
+        ArrayList errors = new ArrayList();
+
+        Iterator list = objectClassRegistry.list();
+        while ( list.hasNext() )
+        {
+            ObjectClass oc = ( ObjectClass ) list.next();
+            resolve( oc, errors );
+        }
+
+        list = attributeTypeRegistry.list();
+        while ( list.hasNext() )
+        {
+            AttributeType at = ( AttributeType ) list.next();
+            resolve( at, errors );
+        }
+
+        list = matchingRuleRegistry.list();
+        while ( list.hasNext() )
+        {
+            MatchingRule mr = ( MatchingRule ) list.next();
+            resolve( mr, errors );
+        }
+
+        list = syntaxRegistry.list();
+        while ( list.hasNext() )
+        {
+            Syntax syntax = ( Syntax ) list.next();
+            resolve( syntax, errors );
+        }
+
+        return errors;
+    }
+
+
+    /**
+     * Attempts to resolve the SyntaxChecker associated with a Syntax.
+     *
+     * @param syntax the Syntax to resolve the SyntaxChecker of
+     * @param errors the list of errors to add exceptions to
+     * @return true if it succeeds, false otherwise
+     */
+    private boolean resolve( Syntax syntax, List errors )
+    {
+        if ( syntax == null )
+        {
+            return true;
+        }
+
+        try
+        {
+            syntax.getSyntaxChecker();
+            return true;
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            return false;
+        }
+    }
+
+
+    private boolean resolve( MatchingRule mr, List errors )
+    {
+        boolean isSuccess = true;
+
+        if ( mr == null )
+        {
+            return true;
+        }
+
+        try
+        {
+            if ( mr.getComparator() == null )
+            {
+                errors.add( new NullPointerException( "matchingRule "
+                        + mr.getName() + " with OID " + mr.getOid()
+                        + " has a null comparator" ) );
+                isSuccess = false;
+            }
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        try
+        {
+            if ( mr.getNormalizer() == null )
+            {
+                errors.add( new NullPointerException( "matchingRule "
+                        + mr.getName() + " with OID " + mr.getOid()
+                        + " has a null normalizer" ) );
+                isSuccess = false;
+            }
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        try
+        {
+            isSuccess &= resolve( mr.getSyntax(), errors );
+
+            if ( mr.getSyntax() == null )
+            {
+                errors.add( new NullPointerException( "matchingRule "
+                        + mr.getName() + " with OID " + mr.getOid()
+                        + " has a null Syntax" ) );
+                isSuccess = false;
+            }
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        return isSuccess;
+    }
+
+
+    private boolean resolve( AttributeType at, List errors )
+    {
+        boolean isSuccess = true;
+        boolean hasMatchingRule = false;
+
+        if ( at == null )
+        {
+            return true;
+        }
+
+        try
+        {
+            isSuccess &= resolve( at.getSuperior(), errors );
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        try
+        {
+            isSuccess &= resolve( at.getEquality(), errors );
+
+            if ( at.getEquality() != null )
+            {
+                hasMatchingRule |= true;
+            }
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        try
+        {
+            isSuccess &= resolve( at.getOrdering(), errors );
+
+            if ( at.getOrdering() != null )
+            {
+                hasMatchingRule |= true;
+            }
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        try
+        {
+            isSuccess &= resolve( at.getSubstr(), errors );
+
+            if ( at.getSubstr() != null )
+            {
+                hasMatchingRule |= true;
+            }
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        try
+        {
+            isSuccess &= resolve( at.getSyntax(), errors );
+
+            if ( at.getSyntax() == null )
+            {
+                errors.add( new NullPointerException( "attributeType "
+                        + at.getName() + " with OID " + at.getOid()
+                        + " has a null Syntax" ) );
+                isSuccess = false;
+            }
+        }
+        catch ( NamingException e )
+        {
+            errors.add( e );
+            isSuccess = false;
+        }
+
+        if ( ! hasMatchingRule )
+        {
+            errors.add( new NullPointerException( "attributeType "
+                    + at.getName() + " with OID " + at.getOid()
+                    + " has a no matchingRules defined" ) );
+            isSuccess = false;
+        }
+
+        return isSuccess;
+    }
+
+
+    private boolean resolve( ObjectClass oc, List errors )
+    {
+        boolean isSuccess = true;
+
+        if ( oc == null )
+        {
+            return true;
+        }
+
+        ObjectClass[] superiors = new org.apache.ldap.common.schema.ObjectClass[0];
+        try
+        {
+            superiors = oc.getSuperClasses();
+        }
+        catch ( NamingException e )
+        {
+            superiors = new ObjectClass[0];
+            isSuccess = false;
+            errors.add( e );
+        }
+
+        for ( int ii = 0; ii < superiors.length; ii++ )
+        {
+            isSuccess &= resolve( superiors[ii], errors ) ;
+        }
+
+        AttributeType[] mayList = new org.apache.ldap.common.schema.AttributeType[0];
+        try
+        {
+            mayList = oc.getMayList();
+        }
+        catch ( NamingException e )
+        {
+            mayList = new AttributeType[0];
+            isSuccess = false;
+            errors.add( e );
+        }
+
+        for ( int ii = 0; ii < mayList.length; ii++ )
+        {
+            isSuccess &= resolve( mayList[ii], errors ) ;
+        }
+
+
+        AttributeType[] mustList = new org.apache.ldap.common.schema.AttributeType[0];
+        try
+        {
+            mustList = oc.getMustList();
+        }
+        catch ( NamingException e )
+        {
+            mustList = new AttributeType[0];
+            isSuccess = false;
+            errors.add( e );
+        }
+
+        for ( int ii = 0; ii < mustList.length; ii++ )
+        {
+            isSuccess &= resolve( mustList[ii], errors ) ;
+        }
+
+        return isSuccess;
     }
 }

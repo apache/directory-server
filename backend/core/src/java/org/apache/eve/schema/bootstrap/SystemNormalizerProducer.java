@@ -124,6 +124,13 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "2.5.13.16", normalizer );
 
         /*
+       ( 2.5.13.17 NAME 'octetStringMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "2.5.13.17", normalizer );
+
+        /*
         ( 2.5.13.20 NAME 'telephoneNumberMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
           */
@@ -193,5 +200,16 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         normalizer = new CachingNormalizer( new DeepTrimNormalizer() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.109.114.1", normalizer );
 
+        /*
+         * MatchingRules from section 2 of http://www.faqs.org/rfcs/rfc3698.html
+         * for Additional MatchingRules
+
+         ( 2.5.13.13 NAME 'booleanMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+
+         */
+
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "2.5.13.13", normalizer );
     }
 }

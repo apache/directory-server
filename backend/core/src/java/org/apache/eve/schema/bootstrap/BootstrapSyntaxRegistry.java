@@ -25,6 +25,7 @@ import org.apache.eve.schema.SyntaxRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.naming.NamingException;
 
@@ -168,5 +169,11 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
     void setMonitor( SyntaxRegistryMonitor monitor )
     {
         this.monitor = monitor;
+    }
+
+
+    Iterator list()
+    {
+        return byOid.values().iterator();
     }
 }

@@ -116,12 +116,19 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          comparator = new ComparableComparator();
          cb.schemaObjectProduced( this, "2.5.13.14", comparator );
 
-         /*
-        ( 2.5.13.16 NAME 'bitStringMatch'
-          SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
-          */
-         comparator = new ComparableComparator();
-         cb.schemaObjectProduced( this, "2.5.13.16", comparator );
+        /*
+       ( 2.5.13.16 NAME 'bitStringMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
+         */
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, "2.5.13.16", comparator );
+
+        /*
+       ( 2.5.13.17 NAME 'octetStringMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, "2.5.13.17", comparator );
 
          /*
         ( 2.5.13.20 NAME 'telephoneNumberMatch'
@@ -205,6 +212,18 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
                  new CachingNormalizer( new DeepTrimToLowerNormalizer() ),
                  new ComparableComparator() );
          cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.109.114.2", comparator );
+
+        /*
+         * MatchingRules from section 2 of http://www.faqs.org/rfcs/rfc3698.html
+         * for Additional MatchingRules
+
+         ( 2.5.13.13 NAME 'booleanMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+
+         */
+
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, "2.5.13.13", comparator );
 
     }
 }

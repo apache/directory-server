@@ -25,6 +25,7 @@ import org.apache.eve.schema.AttributeTypeRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 
@@ -147,5 +148,12 @@ public class BootstrapAttributeTypeRegistry implements AttributeTypeRegistry
 
         throw new NamingException( "OID " + id + " not found in oid to " +
             "schema name map!" );
+    }
+
+
+
+    Iterator list()
+    {
+        return byOid.values().iterator();
     }
 }

@@ -25,6 +25,7 @@ import org.apache.eve.schema.MatchingRuleRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.naming.NamingException;
 
@@ -105,7 +106,13 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         }
 
         oidToSchema.put( matchingRule.getOid(), schema );
-        oidRegistry.register( matchingRule.getName(), matchingRule.getOid() );
+
+        String[] names = matchingRule.getNames();
+        for ( int ii = 0; ii < names.length; ii++ )
+        {
+            oidRegistry.register( names[ii], matchingRule.getOid() );
+        }
+
         byOid.put( matchingRule.getOid(), matchingRule );
         monitor.registered( matchingRule );
     }
@@ -169,5 +176,11 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
     void setMonitor( MatchingRuleRegistryMonitor monitor )
     {
         this.monitor = monitor;
+    }
+
+
+    Iterator list()
+    {
+        return byOid.values().iterator();
     }
 }

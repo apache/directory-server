@@ -101,6 +101,9 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
 
         ( 2.5.13.16 NAME 'bitStringMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
+
+        ( 2.5.13.17 NAME 'octetStringMatch'
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
         */
 
         mrule = new BootstrapMatchingRule( "2.5.13.8", registries  );
@@ -126,6 +129,11 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         mrule = new BootstrapMatchingRule( "2.5.13.16", registries  );
         mrule.setNames( new String[] { "bitStringMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.6" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        mrule = new BootstrapMatchingRule( "2.5.13.17", registries  );
+        mrule.setNames( new String[] { "octetStringMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
@@ -216,7 +224,7 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.1466.109.114.1", registries  );
-        mrule.setNames( new String[] { "caseExactIA5Match", "caseExactMatch" } );
+        mrule.setNames( new String[] { "caseExactIA5Match" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -224,5 +232,20 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         mrule.setNames( new String[] { "caseIgnoreIA5Match" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * MatchingRules from section 2 of http://www.faqs.org/rfcs/rfc3698.html
+         * for Additional MatchingRules
+
+         ( 2.5.13.13 NAME 'booleanMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+
+         */
+
+        mrule = new BootstrapMatchingRule( "2.5.13.13", registries  );
+        mrule.setNames( new String[] { "booleanMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.7" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
     }
 }

@@ -94,7 +94,7 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
 
     public Comparator lookup( String oid ) throws NamingException
     {
-        if ( ! comparators.containsKey( oid ) )
+        if ( comparators.containsKey( oid ) )
         {
             Comparator c = ( Comparator ) comparators.get( oid );
             monitor.lookedUp( oid, c );
@@ -102,7 +102,7 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
         }
 
 
-        NamingException e = new NamingException( "Comparator not found for OID" );
+        NamingException e = new NamingException( "Comparator not found for OID: " + oid );
         monitor.lookupFailed( oid, e );
         throw e;
     }

@@ -19,6 +19,7 @@ package org.apache.eve.schema.bootstrap;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.ObjectClass;
@@ -142,5 +143,16 @@ public class BootstrapObjectClassRegistry implements ObjectClassRegistry
 
         throw new NamingException( "OID " + id + " not found in oid to " +
             "schema name map!" );
+    }
+
+
+    /**
+     * Open up a back door for some tests.
+     *
+     * @return an iteration over the set of ObjectClasses within this registry.
+     */
+    Iterator list()
+    {
+        return byOid.values().iterator();
     }
 }

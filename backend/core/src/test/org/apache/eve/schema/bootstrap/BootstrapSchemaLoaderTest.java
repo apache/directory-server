@@ -17,10 +17,17 @@
 package org.apache.eve.schema.bootstrap;
 
 
+import java.util.Iterator;
+import java.util.List;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.ObjectClass;
+import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.ldap.common.schema.Syntax;
 
 
 /**
@@ -48,9 +55,8 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testLoad() throws NamingException
+    public void testLoadAll() throws NamingException
     {
-        BootstrapRegistries registries = new BootstrapRegistries();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         String[] schemaClasses = {
             "org.apache.eve.schema.bootstrap.AutofsSchema",
@@ -268,5 +274,46 @@ public class BootstrapSchemaLoaderTest extends TestCase
 
         type = registries.getAttributeTypeRegistry().lookup( "eveUpdn" );
         assertNotNull( type );
+    }
+
+
+    /**
+     * Attempts to resolve the dependent schema objects of all entities that
+     * refer to other objects within the registries.
+     *
+     * @throws NamingException if there are problems.
+     */
+    public void testReferentialIntegrity() throws NamingException
+    {
+        if ( System.getProperties().containsKey( "ignore.ref.integ.test" ) )
+        {
+            System.err.println( "REFERENTIAL INTEGRITY TESTS BYPASSED!!!" );
+            return;
+        }
+
+        testLoadAll();
+        List errors = registries.checkRefInteg();
+        assertNotNull( errors );
+
+        StringBuffer buf = new StringBuffer();
+
+        if ( ! errors.isEmpty() )
+        {
+            buf.append( "expected empty erorrs but got " )
+                    .append( errors.size() ).append( " errors:\n" );
+            for ( int ii = 0; ii < errors.size(); ii++ )
+            {
+                buf.append( '\t' ).append( errors.get( ii ).toString() ).append( '\n' );
+            }
+
+            StringWriter out = new StringWriter();
+            Exception e = ( Exception ) errors.get( 0 );
+            e.printStackTrace( new PrintWriter( out ) );
+            buf.append( "\nfirst exception trace:\n" + out.getBuffer().toString() );
+        }
+
+
+
+        assertTrue( buf.toString(), errors.isEmpty() );
     }
 }

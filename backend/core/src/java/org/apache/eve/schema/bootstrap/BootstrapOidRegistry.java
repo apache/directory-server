@@ -52,6 +52,10 @@ public class BootstrapOidRegistry implements OidRegistry
      */
     public String getOid( String name ) throws NamingException
     {
+        if ( name == null )
+        {
+            throw new NamingException( "name should not be null" );
+        }
         /* If name is an OID than we return it back since inherently the
          * OID is another name for the object referred to by OID and the
          * caller does not know that the argument is an OID String.

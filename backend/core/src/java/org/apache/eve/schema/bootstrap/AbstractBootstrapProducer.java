@@ -219,6 +219,11 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         public AttributeType getSuperior() throws NamingException
         {
+            if ( superiorId == null )
+            {
+                return null;
+            }
+
             return this.attributeTypeRegistry.lookup( superiorId );
         }
 
@@ -229,7 +234,17 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         public MatchingRule getEquality() throws NamingException
         {
-            return this.matchingRuleRegistry.lookup( equalityId );
+            if ( equalityId != null )
+            {
+                return this.matchingRuleRegistry.lookup( equalityId );
+            }
+
+            if ( superiorId != null )
+            {
+                return getSuperior().getEquality();
+            }
+
+            return null;
         }
 
         public void setEqualityId( String equalityId )
@@ -239,7 +254,17 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         public MatchingRule getSubstr() throws NamingException
         {
-            return this.matchingRuleRegistry.lookup( substrId ) ;
+            if ( substrId != null )
+            {
+                return this.matchingRuleRegistry.lookup( substrId );
+            }
+
+            if ( superiorId != null )
+            {
+                return getSuperior().getSubstr();
+            }
+
+            return null;
         }
 
         public void setSubstrId( String substrId )
@@ -249,7 +274,17 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         public MatchingRule getOrdering() throws NamingException
         {
-            return this.matchingRuleRegistry.lookup( orderingId );
+            if ( orderingId != null )
+            {
+                return this.matchingRuleRegistry.lookup( orderingId );
+            }
+
+            if ( superiorId != null )
+            {
+                return getSuperior().getOrdering();
+            }
+
+            return null;
         }
 
         public void setOrderingId( String orderingId )
@@ -264,7 +299,17 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         public Syntax getSyntax() throws NamingException
         {
-            return this.syntaxRegistry.lookup( syntaxId );
+            if ( syntaxId != null )
+            {
+                return this.syntaxRegistry.lookup( syntaxId );
+            }
+
+            if ( superiorId != null )
+            {
+                return getSuperior().getSyntax();
+            }
+
+            return null;
         }
 
         public void setSingleValue( boolean singleValue )
@@ -285,6 +330,11 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         public void setObsolete( boolean obsolete )
         {
             super.setObsolete( obsolete );
+        }
+
+        public void setDescription( String description )
+        {
+            super.setDescription( description );
         }
 
         public void setUsage( UsageEnum usage )
