@@ -20,8 +20,7 @@ package org.apache.eve.jndi;
 import java.util.HashMap;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 
 import org.apache.ldap.common.message.DerefAliasesEnum;
 
@@ -38,16 +37,99 @@ public class SearchContextTest extends AbstractJndiTest
     {
         super.setUp();
 
-        try
-        {
-            CreateContextTest createContextTest = new CreateContextTest();
-            createContextTest.setUp();
-            createContextTest.testCreateContexts();
-        }
-        catch( Exception e )
-        {
-            // do nothing
-        }
+        /*
+         * create ou=testing00,ou=system
+         */
+        Attributes attributes = new BasicAttributes();
+        Attribute attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "organizationalUnit" );
+        attributes.put( attribute );
+        attributes.put( "ou", "testing00" );
+        DirContext ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
+        assertNotNull( ctx );
+
+        ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
+        assertNotNull( ctx );
+
+        attributes = ctx.getAttributes( "" );
+        assertNotNull( attributes );
+        assertEquals( "testing00", attributes.get( "ou" ).get() );
+        attribute = attributes.get( "objectClass" );
+        assertNotNull( attribute );
+        assertTrue( attribute.contains( "top" ) );
+        assertTrue( attribute.contains( "organizationalUnit" ) );
+
+        /*
+         * create ou=testing01,ou=system
+         */
+        attributes = new BasicAttributes();
+        attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "organizationalUnit" );
+        attributes.put( attribute );
+        attributes.put( "ou", "testing01" );
+        ctx = sysRoot.createSubcontext( "ou=testing01", attributes );
+        assertNotNull( ctx );
+
+        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
+        assertNotNull( ctx );
+
+        attributes = ctx.getAttributes( "" );
+        assertNotNull( attributes );
+        assertEquals( "testing01", attributes.get( "ou" ).get() );
+        attribute = attributes.get( "objectClass" );
+        assertNotNull( attribute );
+        assertTrue( attribute.contains( "top" ) );
+        assertTrue( attribute.contains( "organizationalUnit" ) );
+
+        /*
+         * create ou=testing02,ou=system
+         */
+        attributes = new BasicAttributes();
+        attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "organizationalUnit" );
+        attributes.put( attribute );
+        attributes.put( "ou", "testing02" );
+        ctx = sysRoot.createSubcontext( "ou=testing02", attributes );
+        assertNotNull( ctx );
+
+        ctx = ( DirContext ) sysRoot.lookup( "ou=testing02" );
+        assertNotNull( ctx );
+
+        attributes = ctx.getAttributes( "" );
+        assertNotNull( attributes );
+        assertEquals( "testing02", attributes.get( "ou" ).get() );
+        attribute = attributes.get( "objectClass" );
+        assertNotNull( attribute );
+        assertTrue( attribute.contains( "top" ) );
+        assertTrue( attribute.contains( "organizationalUnit" ) );
+
+        /*
+         * create ou=subtest,ou=testing01,ou=system
+         */
+        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
+
+        attributes = new BasicAttributes();
+        attribute = new BasicAttribute( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "organizationalUnit" );
+        attributes.put( attribute );
+        attributes.put( "ou", "subtest" );
+        ctx = ctx.createSubcontext( "ou=subtest", attributes );
+        assertNotNull( ctx );
+
+        ctx = ( DirContext ) sysRoot.lookup( "ou=subtest,ou=testing01" );
+        assertNotNull( ctx );
+
+        attributes = ctx.getAttributes( "" );
+        assertNotNull( attributes );
+        assertEquals( "subtest", attributes.get( "ou" ).get() );
+        attribute = attributes.get( "objectClass" );
+        assertNotNull( attribute );
+        assertTrue( attribute.contains( "top" ) );
+        assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
 
@@ -60,7 +142,7 @@ public class SearchContextTest extends AbstractJndiTest
                 DerefAliasesEnum.NEVERDEREFALIASES.getName() );
 
         HashMap map = new HashMap();
-        NamingEnumeration list = sysRoot.search( "", "(ou = *)", controls );
+        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -83,7 +165,7 @@ public class SearchContextTest extends AbstractJndiTest
                 DerefAliasesEnum.NEVERDEREFALIASES.getName() );
 
         HashMap map = new HashMap();
-        NamingEnumeration list = sysRoot.search( "", "(ou = *)", controls );
+        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();

@@ -194,7 +194,11 @@ public class EveContextFactory implements InitialContextFactory
             try
             {
                 this.provider.shutdown();
-                this.fe.stop();
+
+                if ( this.fe != null )
+                {
+                    this.fe.stop();
+                }
             }
             catch( Throwable t )
             {
