@@ -36,5 +36,5 @@ public interface Filter
      * @param a_event the event to test 
      * @return true if the event can be sent, false if it cannot
      */
-    boolean accept( EventObject a_event ) ;
+    boolean accept( EventObject event ) ;
 }
