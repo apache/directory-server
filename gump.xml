@@ -1,192 +1,197 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2001-2004 The Apache Software Foundation
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+<module name="eve">
+  <!--
+  - This descriptor was automatically generated using Maven.
+  - To regenerate, run: "maven gump:multiproject"
+  -
+  - If you have a requirement that leads to hand editing, please consider filing
+  - a feature request at http://jira.codehaus.org/browse/MPGUMP
 -->
 
-<!-- NOTE!!!!   This file is NOT generated  DO NOT run maven gump goal. -->
-
-<module name="directory-eve">
-    <description>Apache Directory Eve server.</description>
-    <url href="http://incubator.apache.org/directory/eve/"/>
-  
-    <svn repository="apache-incubator-svn" dir="directory/eve/trunk/"/>
-  
-    <project name="eve">
-        <maven basedir="eve" goal="jar" >
-          <property name="maven.final.name" value="eve-@@DATE@@"/>
-        </maven>
-        <package>org.apache.eve</package>
-        <depend project="antlr"/>
-        <depend project="aspectjrt"/>
-        <depend project="snickers-codec"/>
-        <depend project="commons-collections"/>
-        <depend project="commons-lang"/>
-        <depend project="commons-logging"/>
-        <depend project="commons-primitives"/>
-        <depend project="eve-dib"/>
-        <depend project="eve-shared"/>
-        <depend project="eve-protocol"/>
-        <depend project="jdbm"/>
-        <depend project="ldap-ber-provider"/>
-        <depend project="ldap-common"/>
-        <depend project="maven-javaapp-plugin"/>
-        <depend project="regexp"/>
-        <depend project="oro"/>
-        <depend project="seda"/>
-        <depend project="snickers-ber"/>
-        
-        <!-- test-time dependencies -->
-        <depend project="junit"/>
-        
-        <!-- build-time dependencies -->
-        <depend project="ant" inherit="runtime"/>
-        <depend project="xalan"/>
-        <depend project="xml-xerces"/>
-
-        <mkdir dir="eve/target/classes"/>
-        <work nested="eve/target/classes"/>
-
-        <home nested="eve"/>
-        <jar name="target/eve-@@DATE@@"/>
-        
-        <nag to="directory-dev@incubator.apache.org" 
-            from="directory-naming development &lt;directory-dev@incubator.apache.org&gt;"/>
-    </project>
-
-    <project name="eve-dib">
-        <maven basedir="main" goal="jar" >
-          <property name="maven.final.name" value="eve-dib-@@DATE@@"/>
-        </maven>
-        <package>org.apache.eve</package>
-        <depend project="antlr"/>
-        <depend project="aspectjrt"/>
-        <depend project="snickers-codec"/>
-        <depend project="commons-logging"/>
-        <depend project="commons-io"/>
-        <depend project="eve-protocol"/>
-        <depend project="eve-shared"/>
-        <depend project="jdbm"/>
-        <depend project="ldap-common"/>
-        <depend project="ldap-ber-provider"/>
-        <depend project="maven-eve-plugin"/>
-        <depend project="oro"/>
-        <depend project="regexp"/>
-        <depend project="seda"/>
-        <depend project="snickers-ber"/>
-        
-        <!-- test-time dependencies -->
-        <depend project="junit"/>
-        
-        <!-- build-time dependencies -->
-        <depend project="ant" inherit="runtime"/>
-        <depend project="xalan"/>
-        <depend project="xml-xerces"/>
-
-        <mkdir dir="dib/target/classes"/>
-        <work nested="dib/target/classes"/>
-
-        <home nested="dib"/>
-        <jar name="target/eve-dib-@@DATE@@"/>
-        
-        <nag to="directory-dev@incubator.apache.org" 
-            from="directory-naming development &lt;directory-dev@incubator.apache.org&gt;"/>
-    </project>
-    
-    <project name="eve-protocol">
-        <maven basedir="protocol" goal="jar" >
-          <property name="maven.final.name" value="eve-protocol-@@DATE@@"/>
-        </maven>
-        <package>org.apache.eve.protocol</package>
-        
-        <depend project="oro"/>
-        <depend project="regexp"/>
-        <depend project="antlr"/>
-        <depend project="snickers-codec"/>
-        <depend project="ldap-common"/>
-        <depend project="seda"/>
-        
-        <!-- test-time dependencies -->
-        <depend project="junit"/>
-        
-        <!-- build-time dependencies -->
-        <depend project="ant" inherit="runtime"/>
-        <depend project="xalan"/>
-        <depend project="xml-xerces"/>
-
-        <mkdir dir="protocol/target/classes"/>
-        <work nested="protocol/target/classes"/>
-
-        <home nested="protocol"/>
-        <jar name="target/eve-protocol-@@DATE@@"/>
-        
-        <nag to="directory-dev@incubator.apache.org" 
-            from="directory-naming development &lt;directory-dev@incubator.apache.org&gt;"/>
-    </project>
-    
-    <project name="eve-shared">
-        <maven basedir="shared" goal="jar" >
-          <property name="maven.final.name" value="eve-shared-@@DATE@@"/>
-        </maven>
-        <package>org.apache.eve.schema.bootstrap</package>
-        
-        <depend project="ldap-common"/>
-        
-        <!-- test-time dependencies -->
-        <depend project="junit"/>
-        
-        <!-- build-time dependencies -->
-        <depend project="ant" inherit="runtime"/>
-        <depend project="xalan"/>
-        <depend project="xml-xerces"/>
-
-        <mkdir dir="shared/target/classes"/>
-        <work nested="shared/target/classes"/>
-
-        <home nested="shared"/>
-        <jar name="target/eve-shared-@@DATE@@"/>
-        
-        <nag to="directory-dev@incubator.apache.org" 
-            from="directory-naming development &lt;directory-dev@incubator.apache.org&gt;"/>
-    </project>
-    
-    <project name="maven-eve-plugin">
-        <maven basedir="plugin" goal="jar" >
-          <property name="maven.final.name" value="maven-eve-plugin-@@DATE@@"/>
-        </maven>
-        <package>org.apache.eve.schema.bootstrap</package>
-        
-        <depend project="antlr"/>
-        <depend project="ldap-common"/>
-        <depend project="eve-shared"/>
-        <depend project="velocity-dep"/>
-        
-        <!-- test-time dependencies -->
-        <depend project="junit"/>
-        
-        <!-- build-time dependencies -->
-        <depend project="ant" inherit="runtime"/>
-        <depend project="xalan"/>
-        <depend project="xml-xerces"/>
-
-        <mkdir dir="maven-eve-plugin/target/classes"/>
-        <work nested="maven-eve-plugin/target/classes"/>
-
-        <home nested="maven-eve-plugin"/>
-        <jar name="target/maven-eve-plugin-@@DATE@@"/>
-        
-        <nag to="directory-dev@incubator.apache.org" 
-            from="directory-naming development &lt;directory-dev@incubator.apache.org&gt;"/>
-    </project>
+  <description>Eve Directory Server</description>
+  <url href="http://incubator.apache.org/directory/eve/">
+  </url>
+  <svn repository="apache-incubator-svn" module="directory/eve/trunk/">
+  </svn>
+  <project name="eve-shared">
+    <maven goal="jar">
+      <property name="maven.final.name" value="eve-shared-@@DATE@@">
+      </property>
+    </maven>
+    <depend project="ldap-common">
+    </depend>
+    <depend project="junit">
+    </depend>
+    <home nested="shared">
+    </home>
+    <jar name="target/eve-shared-@@DATE@@.jar">
+    </jar>
+    <javadoc nested="shared/target/docs/apidocs">
+    </javadoc>
+    <junitreport nested="shared/target/test-reports">
+    </junitreport>
+    <nag to="directory-dev@incubator.apache.org" from="eve-shared development &lt;directory-dev@incubator.apache.org&gt;">
+    </nag>
+  </project>
+  <project name="eve-protocol">
+    <maven goal="jar">
+      <property name="maven.final.name" value="eve-protocol-@@DATE@@">
+      </property>
+    </maven>
+    <depend project="oro">
+    </depend>
+    <depend project="regexp">
+    </depend>
+    <depend project="antlr">
+    </depend>
+    <depend project="snickers-codec">
+    </depend>
+    <depend project="ldap-common">
+    </depend>
+    <depend project="seda">
+    </depend>
+    <depend project="junit">
+    </depend>
+    <home nested="protocol">
+    </home>
+    <jar name="target/eve-protocol-@@DATE@@.jar">
+    </jar>
+    <javadoc nested="protocol/target/docs/apidocs">
+    </javadoc>
+    <junitreport nested="protocol/target/test-reports">
+    </junitreport>
+    <nag to="directory-dev@incubator.apache.org" from="eve-protocol development &lt;directory-dev@incubator.apache.org&gt;">
+    </nag>
+  </project>
+  <project name="maven-eve-plugin">
+    <maven goal="jar">
+      <property name="maven.final.name" value="maven-eve-plugin-@@DATE@@">
+      </property>
+    </maven>
+    <depend project="junit">
+    </depend>
+    <depend project="ant">
+    </depend>
+    <depend project="antlr">
+    </depend>
+    <depend project="ldap-common">
+    </depend>
+    <depend project="eve-shared">
+    </depend>
+    <depend project="velocity-dep">
+    </depend>
+    <home nested="plugin">
+    </home>
+    <jar name="target/maven-eve-plugin-@@DATE@@.jar">
+    </jar>
+    <javadoc nested="plugin/target/docs/apidocs">
+    </javadoc>
+    <junitreport nested="plugin/target/test-reports">
+    </junitreport>
+    <nag to="directory-dev@incubator.apache.org" from="maven-eve-plugin development &lt;directory-dev@incubator.apache.org&gt;">
+    </nag>
+  </project>
+  <project name="eve-dib">
+    <maven goal="jar">
+      <property name="maven.final.name" value="eve-dib-@@DATE@@">
+      </property>
+    </maven>
+    <depend project="regexp">
+    </depend>
+    <depend project="oro">
+    </depend>
+    <depend project="commons-logging">
+    </depend>
+    <depend project="commons-io">
+    </depend>
+    <depend project="antlr">
+    </depend>
+    <depend project="jdbm">
+    </depend>
+    <depend project="ldap-common">
+    </depend>
+    <depend project="aspectjrt">
+    </depend>
+    <depend project="eve-shared">
+    </depend>
+    <depend project="eve-protocol">
+    </depend>
+    <depend project="snickers-codec">
+    </depend>
+    <depend project="ldap-snickers-provider">
+    </depend>
+    <depend project="snickers-ber">
+    </depend>
+    <depend project="seda">
+    </depend>
+    <depend project="maven-eve-plugin">
+    </depend>
+    <depend project="junit">
+    </depend>
+    <home nested="dib">
+    </home>
+    <jar name="target/eve-dib-@@DATE@@.jar">
+    </jar>
+    <javadoc nested="dib/target/docs/apidocs">
+    </javadoc>
+    <junitreport nested="dib/target/test-reports">
+    </junitreport>
+    <nag to="directory-dev@incubator.apache.org" from="eve-dib development &lt;directory-dev@incubator.apache.org&gt;">
+    </nag>
+  </project>
+  <project name="eve">
+    <maven goal="jar">
+      <property name="maven.final.name" value="eve-@@DATE@@">
+      </property>
+    </maven>
+    <depend project="regexp">
+    </depend>
+    <depend project="oro">
+    </depend>
+    <depend project="commons-lang">
+    </depend>
+    <depend project="commons-logging">
+    </depend>
+    <depend project="commons-collections">
+    </depend>
+    <depend project="commons-primitives">
+    </depend>
+    <depend project="antlr">
+    </depend>
+    <depend project="jdbm">
+    </depend>
+    <depend project="ldap-common">
+    </depend>
+    <depend project="aspectjrt">
+    </depend>
+    <depend project="eve-shared">
+    </depend>
+    <depend project="eve-protocol">
+    </depend>
+    <depend project="snickers-codec">
+    </depend>
+    <depend project="ldap-snickers-provider">
+    </depend>
+    <depend project="snickers-ber">
+    </depend>
+    <depend project="seda">
+    </depend>
+    <depend project="eve-dib">
+    </depend>
+    <depend project="maven-javaapp-plugin">
+    </depend>
+    <depend project="junit">
+    </depend>
+    <home nested="main">
+    </home>
+    <jar name="target/eve-@@DATE@@.jar">
+    </jar>
+    <javadoc nested="main/target/docs/apidocs">
+    </javadoc>
+    <junitreport nested="main/target/test-reports">
+    </junitreport>
+    <nag to="directory-dev@incubator.apache.org" from="eve development &lt;directory-dev@incubator.apache.org&gt;">
+    </nag>
+  </project>
 </module>
