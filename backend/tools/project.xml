@@ -72,11 +72,21 @@
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
 
     <unitTest>
+
       <resources>
         <resource>
           <directory>src/java</directory>
           <includes>
             <include>**/*.template</include>
+          </includes>
+        </resource>
+      </resources>
+
+      <resources>
+        <resource>
+          <directory>src/test</directory>
+          <includes>
+            <include>**/*.schema</include>
           </includes>
         </resource>
       </resources>
