@@ -7,6 +7,13 @@
       <repository>
 
         <resource 
+          id="snacc4j:snacc" version="2.3"/>
+
+        <resource 
+          id="regexp:regexp" version="1.2"/>
+        <resource 
+          id="commons-primitives:commons-primitives" version="1.1-dev"/>
+        <resource 
           id="commons-codec:commons-codec" version="1.2"/>
         <resource 
           id="commons-logging:commons-logging" version="1.0.3"/>
@@ -32,6 +39,10 @@
         <resource 
           id="avalon-framework:avalon-framework-impl" version="4.1.5"/>
 
+        <resource 
+          id="incubator-directory:snickers-ber-api" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:ldap-snacc-provider" version="SNAPSHOT"/>
         <resource 
           id="incubator-directory:ldap-common" version="SNAPSHOT"/>
         <resource 

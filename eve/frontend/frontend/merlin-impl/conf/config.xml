@@ -16,6 +16,18 @@
   <target path="/eve/input-manager">
     <categories priority="DEBUG"/>
   </target>
+  <target path="/eve/output-manager">
+    <categories priority="DEBUG"/>
+  </target>
+  <target path="/eve/decoder-manager">
+    <categories priority="DEBUG"/>
+  </target>
+  <target path="/eve/encoder-manager">
+    <categories priority="DEBUG"/>
+  </target>
+  <target path="/eve/request-processor">
+    <categories priority="DEBUG"/>
+  </target>
   <target path="/eve/thread-manager">
     <categories priority="DEBUG"/>
   </target>
