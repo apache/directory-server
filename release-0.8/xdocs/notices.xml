@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title></title>
+  </properties>
+  
+  <body>
+    <section name="Notices">
+      <subsection name="Apache General Notice">
+        <source>
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+        </source>
+      </subsection>
+      <subsection name="Incubator Notice">
+        <source>
+                           Incubator Disclaimer
+                           ====================
+
+The Directory project is an effort undergoing incubation at the Apache Software
+Foundation (ASF), sponsored by Noel Bergman. Incubation is required of all
+newly accepted projects until a further review indicates that the
+infrastructure, communications, and decision making process have stabilized in
+a manner consistent with other successful ASF projects. While incubation
+status is not necessarily a reflection of the completeness or stability of the
+code, it does indicate that the project has yet to be fully endorsed by the
+ASF.
+
+For more information about the incubation status of the Directory project you
+can go to the following page:
+
+http://incubator.apache.org/projects/directory.html
+
+        </source>
+      </subsection>
+    </section>
+  </body>
+</document>

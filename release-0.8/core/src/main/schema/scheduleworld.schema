@@ -1,0 +1,34 @@
+# $Id:$
+#
+# ScheduleWorld's directory schema items
+#
+# depends upon:
+#	core.schema
+#	cosine.schema
+#	inetorgperson.schema
+#
+
+# vcard
+# Used to store the user's VCARD data.
+# TODO: I guessed at the OID - figure out how to create a real one.
+attributetype ( 0.9.2342.19200300.100.1.61
+	NAME 'vcard'
+	DESC 'VCARD 3.0 data'
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.28 )
+
+# TODO: I guessed at the OID - figure out how to create a real one.
+objectclass ( 0.9.2342.19200300.100.1.62
+        NAME 'ScheduleWorldPerson'
+	DESC 'ScheduleWorld Person'
+	SUP ( inetOrgPerson )
+	MUST ( cn $ vcard )
+	MAY (
+		audio $ businessCategory $ carLicense $ departmentNumber $
+		displayName $ employeeNumber $ employeeType $ givenName $
+		homePhone $ homePostalAddress $ initials $ jpegPhoto $ vcard $
+		labeledURI $ mail $ manager $ mobile $ o $ pager $
+		photo $ roomNumber $ secretary $ uid $ userCertificate $
+		x500uniqueIdentifier $ preferredLanguage $
+		userSMIMECertificate $ userPKCS12 )
+	)
+

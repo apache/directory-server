@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Server Projects</title>
+  </properties>
+  
+  <body>
+    <section name="Server Projects">
+      <p>
+        The server is composed of several Maven projects.  The usually Maven
+        generated project documenation for each of them can be accessed here:
+      </p>
+      
+      <table>
+        <tr>
+          <th>Project</th>
+          <th>Description</th>
+        </tr>
+        
+        <tr>
+          <td>
+            <a href="../projects/server/index.html">main</a>
+          </td>
+          <td>
+            Command line server application with <code>main()</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="../projects/apacheds-core/index.html">core</a>
+          </td>
+          <td>
+            The server's core contains all of it's backend subsystems.  The
+            core depends on the protocol and uses it with seda to service LDAP
+            requests.  The core contains the JNDI provider, interceptor
+            framework, interceptor services, the schema subsystem and the
+            database subsystem.  Hence the core is the heart of the server as
+            its name suggests.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="../projects/apacheds-shared/index.html">shared</a>
+          </td>
+          <td>
+            Code shared by the core and plugin separated to prevent cyclic deps
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="../projects/apacheds-protocol/index.html">protocol</a>
+          </td>
+          <td>
+            The server's LDAP Protocol Provider
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="../projects/maven-directory-plugin/index.html">plugin</a>
+          </td>
+          <td>
+            The server's Maven Plugin
+          </td>
+        </tr>
+      </table>
+
+    </section>
+  </body>
+</document>
