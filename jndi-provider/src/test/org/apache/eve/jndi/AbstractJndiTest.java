@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.io.File;
 import java.io.IOException;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.InitialLdapContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -123,8 +124,7 @@ public abstract class AbstractJndiTest extends TestCase
         envFinal.put( EveContextFactory.WKDIR_ENV, "target" + File.separator + "eve" );
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
         envFinal.putAll( overrides );
-        InitialContext initialContext = new InitialContext( envFinal );
-        return sysRoot = ( LdapContext ) initialContext.lookup( "" );
+        return sysRoot = new InitialLdapContext( envFinal, null );
     }
 
 

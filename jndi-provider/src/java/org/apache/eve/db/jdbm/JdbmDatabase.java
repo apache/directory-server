@@ -855,7 +855,8 @@ public class JdbmDatabase implements Database
         try 
         {
             master.sync();
-        } 
+            recMan.commit();
+        }
         catch ( Throwable t ) 
         {
             if ( null == rootCause ) 

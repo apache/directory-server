@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationHandler;
 
 import javax.naming.NamingException;
+import javax.naming.Context;
 import javax.naming.ldap.LdapContext;
 
 
@@ -306,5 +307,18 @@ public class EveJndiProvider implements EveBackendSubsystem, InvocationHandler
                             + states[ii].getName() );
             }
         }
+    }
+
+
+    /**
+     * A dead context is requested and returned when we shutdown the system. It
+     * prevents a {@link javax.naming.NoInitialContextException} from being
+     * thrown by InitialContext or one of its subclasses.
+     *
+     * @return a unusable dead context
+     */
+    public Context getDeadContext()
+    {
+        return new DeadContext();
     }
 }

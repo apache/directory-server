@@ -189,8 +189,16 @@ public class EveContextFactory implements InitialContextFactory
      */
     public Context getInitialContext( Hashtable env ) throws NamingException
     {
+        Context ctx = null;
+
         if ( env.containsKey( SHUTDOWN_OP_ENV ) )
         {
+            if ( this.provider == null )
+            {
+                // monitor.shutDownCalledOnStoppedProvider()
+                return new DeadContext();
+            }
+
             try
             {
                 this.provider.shutdown();
@@ -206,17 +214,18 @@ public class EveContextFactory implements InitialContextFactory
             }
             finally
             {
+                ctx = new DeadContext();
                 provider = null;
                 initialEnv = null;
             }
 
-            return null;
+            return ctx;
         }
 
         if ( env.containsKey( SYNC_OP_ENV ) )
         {
             provider.sync();
-            return null;
+            return provider.getLdapContext( env );
         }
 
         // fire up the backend subsystem if we need to
@@ -266,7 +275,7 @@ public class EveContextFactory implements InitialContextFactory
             }
         }
 
-        EveContext ctx = ( EveContext ) provider.getLdapContext( env );
+        ctx = ( EveContext ) provider.getLdapContext( env );
         return ctx;
     }
 
