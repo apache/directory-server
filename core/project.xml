@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>eve-dib</artifactId>
+  <artifactId>eve-core</artifactId>
   <name>Eve Core</name>
   <inceptionYear>2002</inceptionYear>
   <shortDescription>Eve's Core</shortDescription>
