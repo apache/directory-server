@@ -71,12 +71,14 @@
       <url>http://avalon.apache.org/excalibur/index.html</url>
     </dependency>
 
+    <!--
     <dependency>
       <groupId>excalibur-pool</groupId>
       <artifactId>excalibur-pool-impl</artifactId>
       <version>2.0.0</version>
       <url>http://avalon.apache.org/excalibur/index.html</url>
     </dependency>
+    -->
 
     <!--
     <dependency>
