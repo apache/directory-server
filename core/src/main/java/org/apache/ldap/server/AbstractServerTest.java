@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
+import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -31,7 +32,6 @@ import javax.naming.ldap.LdapContext;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
-import org.apache.apseda.listener.AvailablePortFinder;
 import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
@@ -39,6 +39,7 @@ import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.apseda.listener.AvailablePortFinder;
 
 
 /**
@@ -203,7 +204,7 @@ public abstract class AbstractServerTest extends TestCase
     {
         Hashtable env = new Hashtable();
 
-        env.putAll( sysRoot.getEnvironment() );
+        env.putAll( ( Map ) sysRoot.getEnvironment() );
 
         LdapContext ctx = new InitialLdapContext( env, null );
 
