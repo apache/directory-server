@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <extend>${basedir}/../../project.xml</extend>
+  <groupId>incubator-directory</groupId>
+  <id>eve-frontend-api</id>
+
+  <name>Eve Frontend API</name>
+  <package>org.apache.eve</package>
+  <currentVersion>SNAPSHOT</currentVersion>
+  <inceptionYear>2003</inceptionYear>
+      
+  <shortDescription>Eve's frontend API</shortDescription>
+
+  <description>
+    Contains the service interfaces and associated helper classes with a
+    minimum of external dependencies. 
+  </description>
+
+  <dependencies>
+    <!-- We need to get rid of this dependency on commons-codec -->
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/codec</url>
+    </dependency>
+      
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+    </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>codec-stateful</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+    </dependency>
+  </dependencies>
+      
+</project>
+

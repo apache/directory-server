@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<targets>
-  <target path="/server/buffer-pool">
-    <categories priority="DEBUG"/>
-  </target>
-</targets>
