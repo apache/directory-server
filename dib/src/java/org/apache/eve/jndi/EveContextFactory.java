@@ -38,6 +38,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.PropertiesUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
@@ -95,16 +96,11 @@ public class EveContextFactory implements InitialContextFactory
     /** default schema classes for the SCHEMAS_ENV property if not set */
     private static final String[] DEFAULT_SCHEMAS = new String[]
     {
-        "org.apache.eve.schema.bootstrap.AutofsSchema",
-        "org.apache.eve.schema.bootstrap.CorbaSchema",
         "org.apache.eve.schema.bootstrap.CoreSchema",
         "org.apache.eve.schema.bootstrap.CosineSchema",
         "org.apache.eve.schema.bootstrap.EveSchema",
         "org.apache.eve.schema.bootstrap.InetorgpersonSchema",
         "org.apache.eve.schema.bootstrap.JavaSchema",
-        "org.apache.eve.schema.bootstrap.Krb5kdcSchema",
-        "org.apache.eve.schema.bootstrap.NisSchema",
-        "org.apache.eve.schema.bootstrap.ScheduleworldSchema",
         "org.apache.eve.schema.bootstrap.SystemSchema"
     };
 
@@ -385,7 +381,9 @@ public class EveContextFactory implements InitialContextFactory
         String[] schemas = DEFAULT_SCHEMAS;
         if ( initialEnv.containsKey( EnvKeys.SCHEMAS ) )
         {
-            schemas = ( ( String ) initialEnv.get( EnvKeys.SCHEMAS ) ).split( "," );
+            String schemaList = ( String ) initialEnv.get( EnvKeys.SCHEMAS );
+            schemaList = StringTools.deepTrim( schemaList );
+            schemas = ( ( String ) schemaList ).split( " " );
             for ( int ii = 0; ii < schemas.length; ii++ )
             {
                 schemas[ii] = schemas[ii].trim();

@@ -63,27 +63,27 @@ public class BinaryAttributeFilterTest extends AbstractJndiTest
 
         // try krb5Key which should be binary automatically - use ou as control
         byte[] keyValue = new byte[] { 0x45, 0x23, 0x7d, 0x7f };
-        attributes.put( "krb5Key", keyValue );
+        attributes.put( "jpegPhoto", keyValue );
         sysRoot.createSubcontext( "ou=anothertest", attributes );
         ctx = ( DirContext ) sysRoot.lookup( "ou=anothertest" ) ;
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
         assertTrue( value instanceof byte[] );
-        Attribute krb5Key = ctx.getAttributes( "" ).get( "krb5Key" );
-        value = krb5Key.get();
+        Attribute jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
+        value = jpegPhoto.get();
         assertTrue( value instanceof byte[] );
 
-        // try krb5Key which should be binary automatically but use String to
+        // try jpegPhoto which should be binary automatically but use String to
         // create so we should still get back a byte[] - use ou as control
-        attributes.remove( "krb5Key" );
-        attributes.put( "krb5Key", "testing a string" );
+        attributes.remove( "jpegPhoto" );
+        attributes.put( "jpegPhoto", "testing a string" );
         sysRoot.createSubcontext( "ou=yetanothertest", attributes );
         ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" ) ;
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
         assertTrue( value instanceof byte[] );
-        krb5Key = ctx.getAttributes( "" ).get( "krb5Key" );
-        value = krb5Key.get();
+        jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
+        value = jpegPhoto.get();
         assertTrue( value instanceof byte[] );
     }
 }
