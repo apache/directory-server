@@ -69,6 +69,13 @@
 
       <dependency>
         <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-processor-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
         <artifactId>eve-frontend-event-pojo-impl</artifactId>
         <version>SNAPSHOT</version>
         <url>http://directory.apache.org</url>
