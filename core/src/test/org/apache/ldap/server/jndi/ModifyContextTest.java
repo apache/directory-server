@@ -20,6 +20,8 @@ package org.apache.ldap.server.jndi;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
+import org.apache.ldap.server.AbstractServerTest;
+
 
 /**
  * Tests the methods on JNDI contexts that are analogous to entry modify
@@ -28,7 +30,7 @@ import javax.naming.directory.*;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyContextTest extends AbstractJndiTest
+public class ModifyContextTest extends AbstractServerTest
 {
     protected void setUp() throws Exception
     {

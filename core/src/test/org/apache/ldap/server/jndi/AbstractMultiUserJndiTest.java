@@ -21,6 +21,8 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import org.apache.ldap.server.AbstractServerTest;
+
 
 /**
  * Adds extra code to perform operations as another user besides the admin user.
@@ -28,7 +30,7 @@ import javax.naming.InitialContext;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractMultiUserJndiTest extends AbstractJndiTest
+public abstract class AbstractMultiUserJndiTest extends AbstractServerTest
 {
     protected ServerLdapContext sysRootAsNonAdminUser;
 
@@ -36,7 +38,7 @@ public abstract class AbstractMultiUserJndiTest extends AbstractJndiTest
     /**
      * Set's up a context for an authenticated non-root user.
      *
-     * @see org.apache.ldap.server.jndi.AbstractJndiTest#setUp()
+     * @see org.apache.ldap.server.AbstractServerTest#setUp()
      */
     protected void setUp() throws Exception
     {

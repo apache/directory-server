@@ -21,6 +21,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.*;
 
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -29,7 +30,7 @@ import org.apache.ldap.common.exception.LdapNameNotFoundException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DestroyContextTest extends AbstractJndiTest
+public class DestroyContextTest extends AbstractServerTest
 {
     protected void setUp() throws Exception
     {

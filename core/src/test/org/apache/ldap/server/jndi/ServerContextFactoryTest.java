@@ -23,6 +23,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
+import org.apache.ldap.server.AbstractServerTest;
+
 
 /**
  * Tests to see if we can fire up the Eve directory server via JNDI.
@@ -30,7 +32,7 @@ import javax.naming.directory.*;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerContextFactoryTest extends AbstractJndiTest
+public class ServerContextFactoryTest extends AbstractServerTest
 {
     public ServerContextFactoryTest()
     {

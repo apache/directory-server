@@ -29,7 +29,8 @@ import javax.naming.InitialContext;
 
 import junit.framework.TestCase;
 import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.ldap.server.jndi.AbstractJndiTest;
+import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractServerTest;
 import org.apache.apseda.listener.AvailablePortFinder;
 import org.apache.commons.io.FileUtils;
 
@@ -40,7 +41,7 @@ import org.apache.commons.io.FileUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerPreferencesFactoryTest extends AbstractJndiTest
+public class ServerPreferencesFactoryTest extends AbstractServerTest
 {
     public void testSystemRoot()
     {

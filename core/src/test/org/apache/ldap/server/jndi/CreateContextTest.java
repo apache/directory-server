@@ -20,6 +20,8 @@ package org.apache.ldap.server.jndi;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
+import org.apache.ldap.server.AbstractServerTest;
+
 
 /**
  * Tests the creation of contexts in various ways.
@@ -27,7 +29,7 @@ import javax.naming.directory.*;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CreateContextTest extends AbstractJndiTest
+public class CreateContextTest extends AbstractServerTest
 {
     /**
      * Tests the creation and subsequent read of a new JNDI context under the

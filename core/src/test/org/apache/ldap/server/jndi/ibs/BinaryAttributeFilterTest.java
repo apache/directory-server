@@ -23,7 +23,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.ldap.server.jndi.AbstractJndiTest;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -34,7 +34,7 @@ import org.apache.ldap.server.jndi.AbstractJndiTest;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BinaryAttributeFilterTest extends AbstractJndiTest
+public class BinaryAttributeFilterTest extends AbstractServerTest
 {
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 

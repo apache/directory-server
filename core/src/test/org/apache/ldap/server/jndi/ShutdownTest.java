@@ -17,13 +17,16 @@
 package org.apache.ldap.server.jndi;
 
 
+import org.apache.ldap.server.AbstractServerTest;
+
+
 /**
  * Tests the shutdown operation on the JNDI provider.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ShutdownTest extends AbstractJndiTest
+public class ShutdownTest extends AbstractServerTest
 {
     protected void tearDown() throws Exception
     {

@@ -25,6 +25,8 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
+import org.apache.ldap.server.AbstractServerTest;
+
 
 /**
  * Tests to make sure that object and state factories work.
@@ -32,7 +34,7 @@ import javax.naming.directory.*;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjStateFactoryTest extends AbstractJndiTest
+public class ObjStateFactoryTest extends AbstractServerTest
 {
     public void testObjectFactory() throws NamingException
     {

@@ -22,7 +22,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.*;
 
 import org.apache.ldap.common.message.DerefAliasesEnum;
-import org.apache.ldap.server.jndi.AbstractJndiTest;
+import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -32,7 +33,7 @@ import org.apache.ldap.server.jndi.AbstractJndiTest;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OperationalAttributeServiceTest extends AbstractJndiTest
+public class OperationalAttributeServiceTest extends AbstractServerTest
 {
     private static final String CREATORS_NAME = "creatorsName";
     private static final String CREATE_TIMESTAMP = "createTimestamp";

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.ldap.server.AbstractServerTest;
+
 
 /**
  * Tests to validate whatever functionality we have for complying with
@@ -29,7 +31,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RFC2713Tests extends AbstractJndiTest
+public class RFC2713Tests extends AbstractServerTest
 {
     public void testSerialization() throws Exception
     {

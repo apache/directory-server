@@ -23,6 +23,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.*;
 
 import org.apache.ldap.common.message.DerefAliasesEnum;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -31,7 +32,7 @@ import org.apache.ldap.common.message.DerefAliasesEnum;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchContextTest extends AbstractJndiTest
+public class SearchContextTest extends AbstractServerTest
 {
     protected void setUp() throws Exception
     {

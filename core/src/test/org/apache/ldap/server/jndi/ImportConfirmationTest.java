@@ -30,6 +30,7 @@ import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -39,7 +40,7 @@ import org.apache.ldap.common.name.LdapName;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ImportConfirmationTest extends AbstractJndiTest
+public class ImportConfirmationTest extends AbstractServerTest
 {
     /**
      * Tests to make sure we can authenticate after the database has already

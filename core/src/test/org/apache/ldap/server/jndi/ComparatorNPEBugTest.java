@@ -17,6 +17,9 @@
 package org.apache.ldap.server.jndi;
 
 
+import org.apache.ldap.server.AbstractServerTest;
+
+
 /**
  * Confirms the removal of the comparator serialization bug filed here in JIRA:
  * <a href="http://nagoya.apache.org/jira/browse/DIREVE-54">DIREVE-54</a>.
@@ -24,7 +27,7 @@ package org.apache.ldap.server.jndi;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ComparatorNPEBugTest extends AbstractJndiTest
+public class ComparatorNPEBugTest extends AbstractServerTest
 {
     public ComparatorNPEBugTest()
     {

@@ -32,6 +32,7 @@ import javax.naming.ldap.InitialLdapContext;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -41,7 +42,7 @@ import org.apache.ldap.common.util.ArrayUtils;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SimpleAuthenticationTest extends AbstractJndiTest
+public class SimpleAuthenticationTest extends AbstractServerTest
 {
     /**
      * Cleans up old database files on creation.

@@ -28,7 +28,8 @@ import org.apache.ldap.common.exception.LdapNameAlreadyBoundException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.jndi.AbstractJndiTest;
+import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -37,7 +38,7 @@ import org.apache.ldap.server.jndi.AbstractJndiTest;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerExceptionServiceTest extends AbstractJndiTest
+public class ServerExceptionServiceTest extends AbstractServerTest
 {
     // ------------------------------------------------------------------------
     // Search Operation Tests

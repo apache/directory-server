@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server;
 
 
 import java.io.File;
@@ -29,6 +29,7 @@ import javax.naming.ldap.LdapContext;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.apseda.listener.AvailablePortFinder;
+import org.apache.ldap.server.jndi.EnvKeys;
 
 
 /**
@@ -37,7 +38,7 @@ import org.apache.apseda.listener.AvailablePortFinder;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractJndiTest extends TestCase
+public abstract class AbstractServerTest extends TestCase
 {
     /** the context root for the system partition */
     protected LdapContext sysRoot;

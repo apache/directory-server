@@ -23,6 +23,7 @@ import org.apache.apseda.DefaultFrontend;
 import org.apache.apseda.DefaultFrontendFactory;
 import org.apache.apseda.DefaultFrontendFactory;
 import org.apache.apseda.DefaultFrontend;
+import org.apache.ldap.server.AbstractServerTest;
 
 
 /**
@@ -31,7 +32,7 @@ import org.apache.apseda.DefaultFrontend;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class FrontendPassthruTest extends AbstractJndiTest
+public class FrontendPassthruTest extends AbstractServerTest
 {
     DefaultFrontend fe;
 
