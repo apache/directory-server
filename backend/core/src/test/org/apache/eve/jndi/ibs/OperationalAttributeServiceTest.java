@@ -82,4 +82,39 @@ public class OperationalAttributeServiceTest extends AbstractJndiTest
         assertNotNull( result.getAttributes().get( CREATORS_NAME ) );
         assertNotNull( result.getAttributes().get( CREATE_TIMESTAMP ) );
     }
+
+
+    /**
+     * Checks to confirm that the system context root ou=system has the
+     * required operational attributes.  Since this is created automatically
+     * on system database creation properties the create attributes must be
+     * specified.  There are no interceptors in effect when this happens so
+     * we must test explicitly.
+     *
+     *
+     * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-57">DIREVE-57:
+     * ou=system does not contain operational attributes</a>
+     */
+    public void testSystemContextRoot() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        NamingEnumeration list;
+        list = sysRoot.search( "", "(objectClass=*)", controls );
+        SearchResult result = ( SearchResult ) list.next();
+
+        // test to make sure op attribute do not occur - this is the control
+        Attributes attributes = result.getAttributes();
+        assertNull( attributes.get( "creatorsName" ) );
+        assertNull( attributes.get( "createTimestamp" ) );
+
+        // now we ask for all the op attributes and check to get them
+        String[] ids = new String[] { "creatorsName", "createTimestamp" };
+        controls.setReturningAttributes( ids );
+        list = sysRoot.search( "", "(objectClass=*)", controls );
+        result = ( SearchResult ) list.next();
+        attributes = result.getAttributes();
+        assertNotNull( attributes.get( "creatorsName" ) );
+        assertNotNull( attributes.get( "createTimestamp" ) );
+    }
 }

@@ -23,6 +23,7 @@ import javax.naming.directory.Attributes ;
 
 import org.apache.ldap.common.name.LdapName ;
 import org.apache.ldap.common.util.NamespaceTools ;
+import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.message.LockableAttributesImpl ;
 
@@ -40,6 +41,9 @@ import org.apache.eve.db.SearchEngine;
  */
 public final class SystemPartition extends AbstractContextPartition
 {
+    /** the default user principal or DN */
+    public final static String DEFAULT_PRINCIPAL = "uid=admin,ou=system";
+
     /**
      * System backend suffix constant.  Should be kept down to a single Dn name 
      * component or the default constructor will have to parse it instead of 
@@ -88,18 +92,18 @@ public final class SystemPartition extends AbstractContextPartition
         }
 
         // add the root entry for the system root context if it does not exist
-        Attributes l_attributes = db.getSuffixEntry() ;
-        if ( null == l_attributes )
+        Attributes attributes = db.getSuffixEntry() ;
+        if ( null == attributes )
         {
-            l_attributes = new LockableAttributesImpl() ;
-            l_attributes.put( "objectClass", "top" ) ;
-            l_attributes.put( "objectClass", "organizationalUnit" ) ;
-            l_attributes.put( NamespaceTools.getRdnAttribute( SUFFIX ),
+            attributes = new LockableAttributesImpl() ;
+            attributes.put( "objectClass", "top" ) ;
+            attributes.put( "objectClass", "organizationalUnit" ) ;
+            attributes.put( "creatorsName", DEFAULT_PRINCIPAL ) ;
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() ) ;
+            attributes.put( NamespaceTools.getRdnAttribute( SUFFIX ),
                 NamespaceTools.getRdnValue( SUFFIX ) ) ;
 
-            getDb().add( SUFFIX, suffix, l_attributes ) ;
-            //m_logger.info( "Added suffix '" + SUFFIX
-            //    + "' for system backend" ) ;
+            getDb().add( SUFFIX, suffix, attributes ) ;
         }
     }
 

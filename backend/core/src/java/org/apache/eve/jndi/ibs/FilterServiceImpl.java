@@ -150,16 +150,16 @@ public class FilterServiceImpl extends BaseInterceptor
             ResultFilteringEnumeration retval;
             LdapContext ctx = ( LdapContext ) invocation.getContextStack().peek();
             enum = ( SearchResultEnumeration ) invocation.getReturnValue();
-            retval = new ResultFilteringEnumeration( enum, searchControls, ctx );
-            retval.addResultFilter( new SearchResultFilter()
-            {
-                public boolean accept( LdapContext ctx, DbSearchResult result,
-                                       SearchControls controls )
-                        throws NamingException
+            retval = new ResultFilteringEnumeration( enum, searchControls, ctx,
+                new SearchResultFilter()
                 {
-                    return FilterServiceImpl.this.accept( ctx, result, controls );
-                }
-            } );
+                    public boolean accept( LdapContext ctx, DbSearchResult result,
+                                           SearchControls controls )
+                            throws NamingException
+                    {
+                        return FilterServiceImpl.this.accept( ctx, result, controls );
+                    }
+                } );
             invocation.setReturnValue( retval );
         }
     }

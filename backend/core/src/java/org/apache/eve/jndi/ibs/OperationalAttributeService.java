@@ -25,6 +25,7 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 
 import org.apache.eve.RootNexus;
+import org.apache.eve.SystemPartition;
 import org.apache.eve.db.DbSearchResult;
 import org.apache.eve.db.SearchResultFilter;
 import org.apache.eve.jndi.Invocation;
@@ -47,8 +48,6 @@ import org.apache.ldap.common.schema.UsageEnum;
  */
 public class OperationalAttributeService extends BaseInterceptor
 {
-    /** the default user principal or DN */
-    private final String DEFAULT_PRINCIPAL = "cn=admin,ou=system";
     /** the database search result filter to register with filter service */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
@@ -290,6 +289,6 @@ public class OperationalAttributeService extends BaseInterceptor
         String principal;
         Context ctx = ( ( Context ) invocation.getContextStack().peek() );
         principal = ( String ) ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        return principal == null ? DEFAULT_PRINCIPAL : principal;
+        return principal == null ? SystemPartition.DEFAULT_PRINCIPAL : principal;
     }
 }

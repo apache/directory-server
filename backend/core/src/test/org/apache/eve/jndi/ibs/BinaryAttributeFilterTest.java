@@ -61,19 +61,20 @@ public class BinaryAttributeFilterTest extends AbstractJndiTest
         value = ou.get();
         assertTrue( value instanceof byte[] );
 
+        // try krb5Key which should be binary automatically - use ou as control
         byte[] keyValue = new byte[] { 0x45, 0x23, 0x7d, 0x7f };
-        // try krb5key which should be binary automatically
         attributes.put( "krb5Key", keyValue );
         sysRoot.createSubcontext( "ou=anothertest", attributes );
         ctx = ( DirContext ) sysRoot.lookup( "ou=anothertest" ) ;
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
         assertTrue( value instanceof byte[] );
-
         Attribute krb5Key = ctx.getAttributes( "" ).get( "krb5Key" );
         value = krb5Key.get();
         assertTrue( value instanceof byte[] );
 
+        // try krb5Key which should be binary automatically but use String to
+        // create so we should still get back a byte[] - use ou as control
         attributes.remove( "krb5Key" );
         attributes.put( "krb5Key", "testing a string" );
         sysRoot.createSubcontext( "ou=yetanothertest", attributes );
@@ -81,7 +82,6 @@ public class BinaryAttributeFilterTest extends AbstractJndiTest
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
         assertTrue( value instanceof byte[] );
-
         krb5Key = ctx.getAttributes( "" ).get( "krb5Key" );
         value = krb5Key.get();
         assertTrue( value instanceof byte[] );

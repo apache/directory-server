@@ -18,8 +18,8 @@ package org.apache.eve.db;
 
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ArrayList;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
@@ -38,7 +38,7 @@ import javax.naming.directory.SearchControls;
 public class ResultFilteringEnumeration implements NamingEnumeration
 {
     /** the list of filters to be applied */
-    private final ArrayList filters;
+    private final List filters;
     /** the underlying decorated enumeration */
     private final NamingEnumeration decorated;
 
@@ -69,12 +69,46 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      */
     public ResultFilteringEnumeration( NamingEnumeration decorated,
                                        SearchControls searchControls,
-                                       LdapContext ctx )
+                                       LdapContext ctx,
+                                       SearchResultFilter filter )
             throws NamingException
     {
         this.searchControls = searchControls;
         this.ctx = ctx;
         this.filters = new ArrayList();
+        this.filters.add( filter );
+        this.decorated = decorated;
+
+        if ( ! decorated.hasMore() )
+        {
+            close();
+            return;
+        }
+
+        prefetch();
+    }
+
+
+    /**
+     * Creates a new database result filtering enumeration to decorate an
+     * underlying enumeration.
+     *
+     * @param decorated the underlying decorated enumeration
+     * @param searchControls the search controls associated with the search
+     * creating this enumeration
+     * @param ctx the LDAP context that made the search creating this
+     * enumeration
+     */
+    public ResultFilteringEnumeration( NamingEnumeration decorated,
+                                       SearchControls searchControls,
+                                       LdapContext ctx,
+                                       List filters )
+            throws NamingException
+    {
+        this.searchControls = searchControls;
+        this.ctx = ctx;
+        this.filters = new ArrayList();
+        this.filters.addAll( filters );
         this.decorated = decorated;
 
         if ( ! decorated.hasMore() )

@@ -86,7 +86,7 @@ public class AbstractJndiTest extends TestCase
 
         try
         {
-            InitialContext initialContext = new InitialContext( env );
+            new InitialContext( env );
         }
         catch( Exception e )
         {
