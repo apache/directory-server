@@ -3,4 +3,8 @@
     <!-- Can be removed if multiproject-1.6 is required -->
     <attainGoal name="plugin:repository-install"/>
   </goal>
+
+  <goal name="multiproject:depoy-callback">
+    <attainGoal name="plugin:repository-deploy"/>
+  </goal>
 </project>
