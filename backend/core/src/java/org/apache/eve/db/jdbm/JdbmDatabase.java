@@ -108,7 +108,7 @@ public class JdbmDatabase implements Database
     public void addIndexOn( AttributeType spec )
         throws NamingException
     {
-        Index idx = new DefaultIndex( spec, wkdir );
+        Index idx = new JdbmIndex( spec, wkdir );
         indices.put( spec.getName().toLowerCase(), idx );
     }
 

@@ -204,7 +204,7 @@
  */
 
 /*
- * $Id: DefaultIndex.java,v 1.5 2003/10/08 16:46:11 akarasulu Exp $
+ * $Id: JdbmIndex.java,v 1.5 2003/10/08 16:46:11 akarasulu Exp $
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --
@@ -239,10 +239,10 @@ import jdbm.recman.CacheRecordManager;
 
 
 /**
- * @todo rename to JdbmIndex
+ * A Jdbm based index implementation.
  *
  */
-public class DefaultIndex implements Index
+public class JdbmIndex implements Index
 {
     /**  */
     public static final String FORWARD_BTREE = "_forward";
@@ -278,7 +278,7 @@ public class DefaultIndex implements Index
      * @param recMan the record manager
      * @throws NamingException if we fail to create B+Trees using recMan
      */
-    public DefaultIndex( AttributeType attribute, RecordManager recMan ) 
+    public JdbmIndex( AttributeType attribute, RecordManager recMan )
         throws NamingException
     {
         this.attribute = attribute;
@@ -295,7 +295,7 @@ public class DefaultIndex implements Index
      * @param wkDirPath TODO
      * @throws NamingException TODO
      */
-    public DefaultIndex( AttributeType attribute, String wkDirPath ) 
+    public JdbmIndex( AttributeType attribute, String wkDirPath )
         throws NamingException
     {
         File file = new File( wkDirPath + File.separator 
