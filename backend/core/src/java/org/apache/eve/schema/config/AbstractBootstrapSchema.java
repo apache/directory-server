@@ -28,7 +28,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbstractSchemaGroup implements SchemaGroup
+public class AbstractBootstrapSchema implements BootstrapSchema
 {
     private static final String DEFAULT_OWNER = "uid=admin,ou=system";
     private static final String DEFAULT_SCHEMA_NAME = "default";
@@ -43,7 +43,7 @@ public class AbstractSchemaGroup implements SchemaGroup
     // ------------------------------------------------------------------------
 
 
-    protected AbstractSchemaGroup( String owner,
+    protected AbstractBootstrapSchema( String owner,
                                    String schemaName,
                                    String[] dependencies )
     {

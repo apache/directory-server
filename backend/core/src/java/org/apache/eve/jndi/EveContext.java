@@ -208,7 +208,7 @@ public abstract class EveContext implements Context
          * attributes before normalization.  The result should have ths same
          * affect as the following line within the interceptor.
          * 
-         * l_attributes.put( SchemaGroup.DN_ATTR, l_target.toString() ) ;
+         * l_attributes.put( BootstrapSchema.DN_ATTR, l_target.toString() ) ;
          */
         l_attributes.put( l_rdnAttribute, l_rdnValue ) ;
         l_attributes.put( JavaLdap.OBJECTCLASS_ATTR, 

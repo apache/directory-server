@@ -30,18 +30,18 @@ import java.util.Map;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SchemaGroup
+public interface BootstrapSchema
 {
     /**
      * Gets the name of the owner of the schema objects within this
-     * SchemaGroup.
+     * BootstrapSchema.
      *
      * @return the identifier for the owner of this set's objects
      */
     String getOwner();
 
     /**
-     * Gets the name of the logical schema the objects of this SchemaGroup
+     * Gets the name of the logical schema the objects of this BootstrapSchema
      * belong to: e.g. krb5-kdc may be the logical LDAP schema name.
      *
      * @return the name of the logical schema
@@ -50,7 +50,7 @@ public interface SchemaGroup
 
     /**
      * Gets the names of other schemas that this objects within this
-     * SchemaGroup depends upon.  These dependent schemas are those
+     * BootstrapSchema depends upon.  These dependent schemas are those
      * whose ConfigurationSets will be processed first.
      *
      * @return the String names of schema dependencies
@@ -59,7 +59,7 @@ public interface SchemaGroup
 
     /**
      * Populates the set of bootstrap registries with the Schema objects from
-     * this logical SchemaGroup.
+     * this logical BootstrapSchema.
      */
     void populate( BootstrapRegistries registries ) throws NamingException;
 }

@@ -441,8 +441,8 @@ public class CoreSyntaxFactory implements SyntaxFactory
          * 52 UTC Time                        Y  1.3.6.1.4.1.1466.115.121.1.53
          * 53 LDAP Syntax Description         Y  1.3.6.1.4.1.1466.115.121.1.54
          * 54 Modify Rights                   Y  1.3.6.1.4.1.1466.115.121.1.55
-         * 55 LDAP SchemaGroup Definition          Y  1.3.6.1.4.1.1466.115.121.1.56
-         * 56 LDAP SchemaGroup Description         Y  1.3.6.1.4.1.1466.115.121.1.57
+         * 55 LDAP BootstrapSchema Definition          Y  1.3.6.1.4.1.1466.115.121.1.56
+         * 56 LDAP BootstrapSchema Description         Y  1.3.6.1.4.1.1466.115.121.1.57
          * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
          */
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.51" );
@@ -471,12 +471,12 @@ public class CoreSyntaxFactory implements SyntaxFactory
         syntaxes.put( syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.56" );
-        syntax.setName( "LDAP SchemaGroup Definition" );
+        syntax.setName( "LDAP BootstrapSchema Definition" );
         syntax.setHumanReadible( true );
         syntaxes.put( syntax.getOid(), syntax );
 
         syntax = new MutableSyntax( "1.3.6.1.4.1.1466.115.121.1.57" );
-        syntax.setName( "LDAP SchemaGroup Description" );
+        syntax.setName( "LDAP BootstrapSchema Description" );
         syntax.setHumanReadible( true );
         syntaxes.put( syntax.getOid(), syntax );
 
