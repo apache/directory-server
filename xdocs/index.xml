@@ -80,7 +80,7 @@
             <a href="./jndi.html">JNDI</a>
           </td>
           <td>
-            Documentation for Eve's JNDI provider. <b>LOTS-O-EXAMAPLES!</b>
+            Documentation for Eve's JNDI provider.
           </td>
         </tr>
 
@@ -89,7 +89,7 @@
             <a href="./authentication.html">Authentication</a>
           </td>
           <td>
-            Documentation for how to bind to Eve out of the box. <b>LOTS-O-EXAMAPLES!</b>
+            Documentation for how to bind to Eve out of the box.
           </td>
         </tr>
 
@@ -99,7 +99,7 @@
           </td>
           <td>
             Documentation for creating user partitions to Eve in addition to the
-            system context partition. <b>LOTS-O-EXAMAPLES!</b>
+            system context partition. 
           </td>
         </tr>
 
