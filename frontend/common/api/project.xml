@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <extend>${basedir}/../../../project.xml</extend>
+  <groupId>incubator-directory</groupId>
+  <id>eve-frontend-common-api</id>
+
+  <name>Eve Frontend Common API</name>
+  <package>org.apache.eve</package>
+  <currentVersion>SNAPSHOT</currentVersion>
+  <inceptionYear>2003</inceptionYear>
+
+  <shortDescription>Common APIs used by Eve's frontend</shortDescription>
+
+  <description>
+    Common APIs used by Eve's frontend.  This separate project
+    keeps common classes in one place within the various packages
+    to prevent cyclic dependencies across Eve's frontend subprojects.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <url>http://jakarta.apache.org/commons/lang</url>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+    </dependency>
+
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.7</version>
+        <url>http://logging.apache.org/log4j/docs</url>
+      </dependency>
+
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <url>http://junit.org</url>
+    </dependency>
+  </dependencies>
+</project>
+

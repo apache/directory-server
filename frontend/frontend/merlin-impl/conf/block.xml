@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<container name="eve">
+
+  <classloader>
+    <classpath>
+      <repository>
+
+        <resource 
+          id="snacc4j:snacc" version="2.3"/>
+
+        <resource 
+          id="regexp:regexp" version="1.2"/>
+        <resource 
+          id="commons-primitives:commons-primitives" version="1.1-dev"/>
+        <resource 
+          id="commons-codec:commons-codec" version="1.2"/>
+        <resource 
+          id="commons-logging:commons-logging" version="1.0.3"/>
+        <resource 
+          id="commons-lang:commons-lang" version="2.0"/>
+        <resource 
+          id="commons-collections:commons-collections" version="2.1"/>
+
+        <resource 
+          id="cornerstone-threads:cornerstone-threads-api" version="1.0"/>
+        <resource 
+          id="cornerstone-threads:cornerstone-threads-impl" version="1.0"/>
+
+        <resource 
+          id="excalibur-thread:excalibur-thread" version="1.1.1"/>
+        <resource 
+          id="excalibur-pool:excalibur-pool" version="1.2"/>
+        <resource 
+          id="excalibur-event:excalibur-event" version="1.0.3"/>
+
+        <resource 
+          id="avalon-framework:avalon-framework-api" version="4.1.5"/>
+        <resource 
+          id="avalon-framework:avalon-framework-impl" version="4.1.5"/>
+
+        <resource 
+          id="incubator-directory:snickers-ber-api" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:ldap-snacc-provider" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:ldap-common" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:codec-stateful" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-common-api" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-spi" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-event-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-event-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-event-merlin-impl" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-buffer-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-buffer-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-buffer-merlin-impl" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-listener-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-listener-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-listener-merlin-impl" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-input-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-input-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-input-merlin-impl" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-output-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-output-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-output-merlin-impl" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-encoder-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-encoder-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-encoder-merlin-impl" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-decoder-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-decoder-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-decoder-merlin-impl" version="SNAPSHOT"/>
+
+        <resource 
+          id="incubator-directory:eve-frontend-processor-spi" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-processor-pojo-impl" version="SNAPSHOT"/>
+        <resource 
+          id="incubator-directory:eve-frontend-processor-merlin-impl" version="SNAPSHOT"/>
+      </repository>
+    </classpath>
+  </classloader>
+
+   <component name="thread-manager" 
+      class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager">
+      
+     <configuration>
+       <thread-group>
+         <name>default</name>
+         <priority>5</priority> 
+         <is-daemon>false</is-daemon>
+         <max-threads>5</max-threads>
+         <min-threads>2</min-threads>
+         <min-spare-threads>1</min-spare-threads>
+       </thread-group>
+
+       <thread-group>
+         <name>decoder-manager</name>
+         <priority>5</priority> 
+         <is-daemon>false</is-daemon>
+         <max-threads>5</max-threads>
+         <min-threads>2</min-threads>
+         <min-spare-threads>1</min-spare-threads>
+       </thread-group>
+
+       <thread-group>
+         <name>request-processor</name>
+         <priority>5</priority> 
+         <is-daemon>false</is-daemon>
+         <max-threads>5</max-threads>
+         <min-threads>2</min-threads>
+         <min-spare-threads>1</min-spare-threads>
+       </thread-group>
+
+       <thread-group>
+         <name>encoder-manager</name>
+         <priority>5</priority> 
+         <is-daemon>false</is-daemon>
+         <max-threads>5</max-threads>
+         <min-threads>2</min-threads>
+         <min-spare-threads>1</min-spare-threads>
+       </thread-group>
+
+       <thread-group>
+         <name>output-manager</name>
+         <priority>5</priority> 
+         <is-daemon>false</is-daemon>
+         <max-threads>5</max-threads>
+         <min-threads>2</min-threads>
+         <min-spare-threads>1</min-spare-threads>
+       </thread-group>
+     </configuration>
+     
+   </component>
+
+  <component
+    name="event-router" 
+    class="org.apache.eve.event.MerlinEventRouter"/>
+  
+  <component
+    name="buffer-pool" 
+    class="org.apache.eve.buffer.MerlinBufferPool"/>
+
+  <component
+    name="listener-manager" 
+    class="org.apache.eve.listener.MerlinListenerManager"/>
+
+  <component
+    name="input-manager" 
+    class="org.apache.eve.input.MerlinInputManager"/>
+
+  <component
+    name="output-manager" 
+    class="org.apache.eve.output.impl.MerlinOutputManager"/>
+
+  <component
+    name="encoder-manager" 
+    class="org.apache.eve.encoder.impl.MerlinEncoderManager"/>
+
+  <component
+    name="decoder-manager" 
+    class="org.apache.eve.decoder.impl.MerlinDecoderManager"/>
+
+  <component
+    name="request-processor" 
+    class="org.apache.eve.processor.impl.MerlinRequestProcessor"/>
+
+  <component
+    name="frontend"
+    class="org.apache.eve.MerlinFrontend"/>
+</container>

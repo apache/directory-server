@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../project.xml</extend>
+    <groupId>incubator-directory</groupId>
+    <id>eve-frontend-merlin-impl</id>
+  
+    <name>Merlin Wrapper for Eve's Frontend</name>
+    <package>org.apache.eve</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+      
+    <shortDescription>
+      Merlin Wrapper for Eve's Frontend
+    </shortDescription>
+
+    <description>
+      A Merlin specific Frontend implementation which wraps the POJO 
+      implementation to serve as a bridge for Avalon lifecycles.
+    </description>
+      
+    <dependencies>
+
+      <!-- cornerstone dependencies -->
+      
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>3.8.1</version>
+        <url>http://junit.org</url>
+      </dependency>
+
+      <!-- Avalon Dependencies -->
+      
+      <dependency>
+        <groupId>merlin</groupId>
+        <artifactId>merlin-unit</artifactId>
+        <version>3.2.10</version>
+      </dependency>
+      
+      <!-- for some reason this is needed for merlin-unit tests     -->
+      <!-- but it is not needed when when using command line merlin -->
+      <!-- within the block.xml's classloader directive             -->
+      
+      <dependency>
+        <groupId>logkit</groupId>
+        <artifactId>logkit</artifactId>
+        <version>1.2.2</version>
+      </dependency>
+      
+      <!-- cornerstone dependencies -->
+      
+      <dependency>
+        <groupId>cornerstone-threads</groupId>
+        <artifactId>cornerstone-threads-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>
+          http://avalon.apache.org/components/components/threads.html
+        </url>
+      </dependency>
+
+      <dependency>
+        <groupId>cornerstone-threads</groupId>
+        <artifactId>cornerstone-threads-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>
+          http://avalon.apache.org/components/components/threads.html
+        </url>
+      </dependency>
+        
+      <!-- excalibur dependencies from cornerstone -->
+
+      <dependency>
+        <groupId>excalibur-thread</groupId>
+        <artifactId>excalibur-thread</artifactId>
+        <version>1.1.1</version>
+        <url>http://avalon.apache.org/excalibur/index.html</url>
+      </dependency>
+
+      <dependency>
+        <groupId>excalibur-pool</groupId>
+        <artifactId>excalibur-pool</artifactId>
+        <version>1.2</version>
+        <url>http://avalon.apache.org/excalibur/index.html</url>
+      </dependency>
+
+      <dependency>
+        <groupId>excalibur-event</groupId>
+        <artifactId>excalibur-event</artifactId>
+        <version>1.0.3</version>
+        <url>http://avalon.apache.org/excalibur/index.html</url>
+      </dependency>        
+
+      <!-- framework dependencies -->
+
+      <dependency>
+        <groupId>avalon-framework</groupId>
+        <artifactId>avalon-framework-api</artifactId>
+        <version>4.1.5</version>
+        <url>http://avalon.apache.org/framework</url>
+      </dependency>
+
+      <dependency>
+        <groupId>avalon-framework</groupId>
+        <artifactId>avalon-framework-impl</artifactId>
+        <version>4.1.5</version>
+        <url>http://avalon.apache.org/framework</url>
+      </dependency>
+
+      <!-- commons dependencies -->
+
+      <dependency>
+        <id>commons-collections</id>
+        <version>2.1</version>
+        <url>http://jakarta.apache.org/commons/collections</url>
+      </dependency>
+
+      <dependency>
+        <id>commons-lang</id>
+        <version>2.0</version>
+        <url>http://jakarta.apache.org/commons/lang</url>
+      </dependency>
+
+      <dependency>
+        <id>commons-logging</id>
+        <version>1.0.3</version>
+        <url>http://jakarta.apache.org/commons/logging</url>
+      </dependency>
+
+      <dependency>
+        <id>commons-codec</id>
+        <version>1.2</version>
+        <url>http://jakarta.apache.org/commons/codec</url>
+      </dependency>
+
+      <dependency>
+        <id>commons-primitives</id>
+        <version>1.1-dev</version>
+        <url>http://jakarta.apache.org/commons/primitives</url>
+      </dependency>
+
+      <!-- directory dependencies -->
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>ldap-common</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>ldap-snacc-provider</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>codec-stateful</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-common-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-event-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-event-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-event-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-buffer-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-buffer-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-buffer-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-listener-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-listener-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-listener-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-input-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-input-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-input-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-output-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-output-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-output-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+      
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-encoder-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-encoder-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-encoder-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+      
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-decoder-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-decoder-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-decoder-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+      
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-processor-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-processor-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-processor-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+    </dependencies>
+</project>
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../project.xml</extend>
+    <groupId>incubator-directory</groupId>
+    <id>eve-frontend-spi</id>
+  
+    <name>Eve Frontend SPI</name>
+    <package>org.apache.eve</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+      
+    <shortDescription>Eve's frontend SPI</shortDescription>
+
+    <description>
+       Eve's frontend service interface which is the top service for the 
+       server's frontend subsystem.  This interface is primarily here for
+       applications to access Eve's frontend outside of the container.
+    </description>
+      
+</project>
+

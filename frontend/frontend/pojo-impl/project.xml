@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../project.xml</extend>
+    <groupId>incubator-directory</groupId>
+    <id>eve-frontend-pojo-impl</id>
+  
+    <name>Eve Frontend Service Implementation</name>
+    <package>org.apache.eve</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+      
+    <shortDescription>Eve's top frontend component as a POJO</shortDescription>
+
+    <description>
+       A plain old java object implementation for Eve's top level frontend
+       service.
+    </description>
+      
+    <dependencies>
+        <dependency>
+            <groupId>incubator-directory</groupId>
+            <artifactId>eve-frontend-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>
+              http://directory.apache.org/ldap/eve/frontend/frontend/spi
+            </url>
+        </dependency>
+    </dependencies>
+</project>
+

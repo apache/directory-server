@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../project.xml</extend>
+    <groupId>incubator-directory</groupId>
+    <id>eve-frontend-listener-pojo-impl</id>
+  
+    <name>Eve Frontend Listener Implementation</name>
+    <package>org.apache.eve.listener</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+  	
+    <shortDescription>
+	Eve's Frontend Listener Implementation
+    </shortDescription>
+
+    <description>
+        Eve's frontend listener manager binds server sockets as server
+        listeners to ports dynamically at configuration time and at runtime.
+        The listener implementation uses non-blocking IO to detect incomming
+        connections as well as managing the binds and unbinds of server sockets.
+    </description>
+  	
+    <dependencies>
+
+        <dependency>
+            <groupId>incubator-directory</groupId>
+            <artifactId>eve-frontend-common-api</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>incubator-directory</groupId>
+            <artifactId>eve-frontend-event-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>incubator-directory</groupId>
+            <artifactId>eve-frontend-event-pojo-impl</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>incubator-directory</groupId>
+            <artifactId>eve-frontend-listener-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <url>http://junit.org</url>
+        </dependency>
+    </dependencies>
+</project>
+

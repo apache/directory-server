@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <extend>${basedir}/../../../project.xml</extend>
+  <groupId>incubator-directory</groupId>
+  <id>eve-frontend-listener-merlin-impl</id>
+  
+  <name>Merlin Wrapper for Eve's Frontend Listener</name>
+  <package>org.apache.eve.listener</package>
+  <currentVersion>SNAPSHOT</currentVersion>
+  <inceptionYear>2003</inceptionYear>
+  	
+  <shortDescription>
+    Eve's Frontend Listener Implementation
+  </shortDescription>
+
+  <description>
+    Eve's frontend listener manager binds server sockets as server
+    listeners to ports dynamically at configuration time and at runtime.
+    The listener implementation uses non-blocking IO to detect incomming
+    connections as well as managing the binds and unbinds of server sockets.
+  </description>
+  	
+    <dependencies>
+      <!-- Non-Apache Dependencies -->
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>3.8.1</version>
+        <url>http://junit.org</url>
+      </dependency>
+
+      <!-- Jakarta & Commons Dependencies -->
+      
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.0</version>
+        <url>http://jakarta.apache.org/commons/lang</url>
+      </dependency>
+    
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.0.3</version>
+        <url>http://jakarta.apache.org/commons/logging</url>
+      </dependency>
+    
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.0</version>
+        <url>http://jakarta.apache.org/commons/collections</url>
+      </dependency>
+    
+      <!-- Avalon Dependencies -->
+      
+      <dependency>
+        <groupId>merlin</groupId>
+        <artifactId>merlin-unit</artifactId>
+        <version>3.2.10</version>
+      </dependency>
+      
+      <!-- for some reason this is needed for merlin-unit tests     -->
+      <!-- but it is not needed when when using command line merlin -->
+      <!-- within the block.xml's classloader directive             -->
+      
+      <dependency>
+        <groupId>logkit</groupId>
+        <artifactId>logkit</artifactId>
+        <version>1.2.2</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>avalon-framework</groupId>
+        <artifactId>avalon-framework-api</artifactId>
+        <version>4.1.5</version>
+        <url>http://avalon.apache.org/framework</url>
+      </dependency>
+
+      <dependency>
+        <groupId>avalon-framework</groupId>
+        <artifactId>avalon-framework-impl</artifactId>
+        <version>4.1.5</version>
+        <url>http://avalon.apache.org/framework</url>
+      </dependency>
+
+      <dependency>
+        <groupId>excalibur-instrument</groupId>
+        <artifactId>excalibur-instrument</artifactId>
+        <version>1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>excalibur-thread</groupId>
+        <artifactId>excalibur-thread</artifactId>
+        <version>1.1.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>excalibur-event</groupId>
+        <artifactId>excalibur-event</artifactId>
+        <version>1.0.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>excalibur-pool</groupId>
+        <artifactId>excalibur-pool</artifactId>
+        <version>1.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cornerstone-threads</groupId>
+        <artifactId>cornerstone-threads-api</artifactId>
+        <version>SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cornerstone-threads</groupId>
+        <artifactId>cornerstone-threads-impl</artifactId>
+        <version>SNAPSHOT</version>
+      </dependency>
+
+      <!-- Directory Dependencies -->
+      
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-common-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>
+          http://incubator.apache.org/directory/subprojects/eve/common/api
+        </url>
+      </dependency>
+
+      <!-- Eve Event -->
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-event-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>
+          http://incubator.apache.org/directory/subprojects/eve/event/spi
+        </url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-event-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>
+          http://incubator.apache.org/directory/subprojects/eve/event/pojo-impl
+        </url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-event-merlin-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>
+         http://incubator.apache.org/directory/subprojects/eve/event/merlin-impl
+        </url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-listener-spi</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-listener-pojo-impl</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://directory.apache.org</url>
+      </dependency>
+    </dependencies>
+</project>
+

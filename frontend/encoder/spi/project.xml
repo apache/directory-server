@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../project.xml</extend>
+    <groupId>incubator-directory</groupId>
+    <id>eve-frontend-encoder-spi</id>
+  
+    <name>Eve Frontend Encoder Manager SPI</name>
+    <package>org.apache.eve.encoder</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+      
+    <shortDescription>Eve Frontend Encoder Manager SPI</shortDescription>
+
+    <description>
+    </description>
+      
+    <dependencies>
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>ldap-common</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+      </dependency>
+
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>eve-frontend-common-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://incubator.apache.org/directory/subprojects/eve/frontend/common/api</url>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.2</version>
+        <url>http://jakarta.apache.org/commons/codec</url>
+      </dependency>
+
+    </dependencies>
+</project>
+
