@@ -14,10 +14,14 @@
  *   limitations under the License.
  *
  */
-package org.apache.eve.schema;
+package org.apache.eve.schema.bootstrap;
 
 
 import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.eve.schema.MatchingRuleRegistry;
+import org.apache.eve.schema.OidRegistry;
+import org.apache.eve.schema.MatchingRuleRegistryMonitor;
+import org.apache.eve.schema.MatchingRuleRegistryMonitorAdapter;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -31,7 +35,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
+public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
 {
     /** a map using an OID for the key and a MatchingRule for the value */
     private final Map byOid;
@@ -49,11 +53,11 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     
     
     /**
-     * Creates a DefaultMatchingRuleRegistry using existing MatchingRulees
+     * Creates a BootstrapMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
      * 
      */
-    public DefaultMatchingRuleRegistry( OidRegistry oidRegistry )
+    public BootstrapMatchingRuleRegistry( OidRegistry oidRegistry )
     {
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
