@@ -15,5 +15,12 @@
       Eve's backend API.
     </description>
       
+    <dependencies>
+      <dependency>
+        <groupId>incubator-directory</groupId>
+        <artifactId>ldap-common</artifactId>
+        <version>SNAPSHOT</version>
+      </dependency>
+    </dependencies>
 </project>
 

@@ -1,62 +1,31 @@
 /*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.schema;
 
- ============================================================================
-                   The Apache Software License, Version 1.1
- ============================================================================
-
- Copyright (C) 1999-2002 The Apache Software Foundation. All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modifica-
- tion, are permitted provided that the following conditions are met:
-
- 1. Redistributions of  source code must  retain the above copyright  notice,
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-
- 3. The end-user documentation included with the redistribution, if any, must
-    include  the following  acknowledgment:  "This product includes  software
-    developed  by the  Apache Software Foundation  (http://www.apache.org/)."
-    Alternately, this  acknowledgment may  appear in the software itself,  if
-    and wherever such third-party acknowledgments normally appear.
-
- 4. The names "Eve Directory Server", "Apache Directory Project", "Apache Eve" 
-    and "Apache Software Foundation"  must not be used to endorse or promote
-    products derived  from this  software without  prior written
-    permission. For written permission, please contact apache@apache.org.
-
- 5. Products  derived from this software may not  be called "Apache", nor may
-    "Apache" appear  in their name,  without prior written permission  of the
-    Apache Software Foundation.
-
- THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL  THE
- APACHE SOFTWARE  FOUNDATION  OR ITS CONTRIBUTORS  BE LIABLE FOR  ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL  DAMAGES (INCLU-
- DING, BUT NOT LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS
- OF USE, DATA, OR  PROFITS; OR BUSINESS  INTERRUPTION)  HOWEVER CAUSED AND ON
- ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
- (INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- This software  consists of voluntary contributions made  by many individuals
- on  behalf of the Apache Software  Foundation. For more  information on the
- Apache Software Foundation, please see <http://www.apache.org/>.
-
-*/
-package org.apache.eve.schema ;
 
 import javax.naming.NamingException;
+
+import org.apache.ldap.common.schema.Syntax;
 
 
 /**
  * An adapter for the SyntaxRegistry's monitor.
  *
- * @author <a href="mailto:akarasulu@apache.org">Alex Karasulu</a>
- * @author $Author$
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
@@ -65,7 +34,7 @@ public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
      * @see org.apache.eve.schema.SyntaxRegistryMonitor#registered(
      * org.apache.eve.schema.Syntax)
      */
-    public void registered( Syntax a_syntax)
+    public void registered( Syntax syntax)
     {
     }
 
@@ -74,7 +43,7 @@ public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
      * @see org.apache.eve.schema.SyntaxRegistryMonitor#lookedUp(
      * org.apache.eve.schema.Syntax)
      */
-    public void lookedUp( Syntax a_syntax )
+    public void lookedUp( Syntax syntax )
     {
     }
 
@@ -83,8 +52,12 @@ public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
      * @see org.apache.eve.schema.SyntaxRegistryMonitor#lookupFailed(
      * java.lang.String, javax.naming.NamingException)
      */
-    public void lookupFailed( String a_oid, NamingException a_fault )
+    public void lookupFailed( String oid, NamingException fault )
     {
+        if ( fault != null )
+        {
+            fault.printStackTrace();
+        }
     }
 
     
@@ -92,7 +65,11 @@ public class SyntaxRegistryMonitorAdapter implements SyntaxRegistryMonitor
      * @see org.apache.eve.schema.SyntaxRegistryMonitor#registerFailed(
      * org.apache.eve.schema.Syntax, javax.naming.NamingException)
      */
-    public void registerFailed( Syntax a_syntax, NamingException a_fault )
+    public void registerFailed( Syntax syntax, NamingException fault )
     {
+        if ( fault != null )
+        {
+            fault.printStackTrace();
+        }
     }
 }
