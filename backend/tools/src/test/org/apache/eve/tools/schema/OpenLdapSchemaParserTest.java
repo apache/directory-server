@@ -17,30 +17,27 @@
 package org.apache.eve.tools.schema;
 
 
-import junit.framework.TestCase;
-
 import java.util.Map;
-import java.io.ByteArrayInputStream;
+
+import junit.framework.TestCase;
 
 
 /**
- * Tests the parser for AttributeTypes.
+ * Tests the OpenLDAP schema parser.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class OpenLdapSchemaParserTest extends TestCase
 {
-    public void testParser() throws Exception
+    private OpenLdapSchemaParser parser;
+
+
+    protected void setUp() throws Exception
     {
-        String attributeTypeData = "# adding a comment  \n" +
-            "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
-            "        DESC 'RFC2256: knowledge information'\n" +
-            "        EQUALITY caseIgnoreMatch\n" +
-            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
-        ByteArrayInputStream in = new ByteArrayInputStream( attributeTypeData.getBytes() );
-        antlrOpenLdapSchemaLexer lexer = new antlrOpenLdapSchemaLexer( in );
-        antlrOpenLdapSchemaParser parser = new antlrOpenLdapSchemaParser( lexer );
+        super.setUp();
+
+        parser = new OpenLdapSchemaParser();
         parser.setParserMonitor( new ParserMonitor()
         {
             public void matchedProduction( String prod )
@@ -48,9 +45,24 @@ public class OpenLdapSchemaParserTest extends TestCase
                 System.out.println( prod );
             }
         });
+    }
 
+
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+        parser = null;
+    }
+
+    public void testParser() throws Exception
+    {
+        String attributeTypeData = "# adding a comment  \n" +
+            "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
+            "        DESC 'RFC2256: knowledge information'\n" +
+            "        EQUALITY caseIgnoreMatch\n" +
+            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
+        parser.parse( attributeTypeData );
         Map attributeTypes = parser.getAttributeTypes();
-        parser.parseSchema();
         AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );

@@ -166,7 +166,7 @@ parseSchema
 {
 }
     :
-    ( attributeType )*
+    ( attributeType | objectClass )* "END"
     ;
 
 
