@@ -176,7 +176,9 @@ public class LdapProtocolProvider implements ProtocolProvider
 
             try
             {
+                Class typeClass = Class.forName( type );
                 handler = ( MessageHandler ) clazz.newInstance();
+                this.handler.registerMessageType( typeClass, handler );
             }
             catch( Exception e )
             {
@@ -187,8 +189,6 @@ public class LdapProtocolProvider implements ProtocolProvider
                 lne.setRootCause( e );
                 throw lne;
             }
-
-            this.handler.registerMessageType( clazz, handler );
         }
 
         this.codecFactory = new ProtocolCodecFactoryImpl( copy );
@@ -213,7 +213,9 @@ public class LdapProtocolProvider implements ProtocolProvider
 
             try
             {
+                Class typeClass = Class.forName( type );
                 handler = ( MessageHandler ) clazz.newInstance();
+                this.handler.registerMessageType( typeClass, handler );
             }
             catch( Exception e )
             {
@@ -224,8 +226,6 @@ public class LdapProtocolProvider implements ProtocolProvider
                 lne.setRootCause( e );
                 throw lne;
             }
-
-            this.handler.registerMessageType( clazz, handler );
         }
 
         this.codecFactory = new ProtocolCodecFactoryImpl();
@@ -330,5 +330,9 @@ public class LdapProtocolProvider implements ProtocolProvider
         public void sessionOpened( ProtocolSession arg0 )
         {
         }
+    }
+    
+    public static void main(String[] args) throws Exception {
+        new LdapProtocolProvider();
     }
 }
