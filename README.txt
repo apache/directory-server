@@ -20,11 +20,11 @@ Running
 
 To run with defaults,
 
-java -jar apacheds-${version}.jar 
+java -jar apacheds-0.8.jar 
 
 or with custom settings,
 
-java -jar apacheds-${version}.jar your.properties
+java -jar apacheds-0.8.jar your.properties
 
 
 Connecting
