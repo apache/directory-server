@@ -60,8 +60,7 @@ public interface BackingStore
      * @param entry the entry to add to this BackingStore
      * @throws NamingException if there are any problems
      */
-    void add( String upName, Name normName, Attributes entry )
-        throws NamingException;
+    void add( String upName, Name normName, Attributes entry ) throws NamingException;
 
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
