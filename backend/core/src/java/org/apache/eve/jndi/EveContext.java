@@ -49,11 +49,11 @@ public abstract class EveContext implements Context
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN" ;
 
     /** The interceptor proxy to the backend nexus */
-    private final PartitionNexus m_nexusProxy ;
+    private final PartitionNexus nexusProxy ;
     /** The cloned environment used by this Context */
-    private final Hashtable m_env ;
+    private final Hashtable env ;
     /** The distinguished name of this Context */
-    private final LdapName m_dn ;    
+    private final LdapName dn ;
     
 
     // ------------------------------------------------------------------------
@@ -65,20 +65,19 @@ public abstract class EveContext implements Context
      * Must be called by all subclasses to initialize the nexus proxy and the
      * environment settings to be used by this Context implementation.
      * 
-     * @param a_nexusProxy the intercepting proxy to the nexus.
-     * @param a_env the environment properties used by this context.
+     * @param nexusProxy the intercepting proxy to the nexus.
+     * @param env the environment properties used by this context.
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected EveContext( PartitionNexus a_nexusProxy, Hashtable a_env ) throws NamingException
+    protected EveContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
-        m_nexusProxy = a_nexusProxy ;
-        m_env = ( Hashtable ) a_env.clone() ;
+        this.nexusProxy = nexusProxy ;
+        this.env = ( Hashtable ) env.clone() ;
         
-        if ( null == m_env.get( PROVIDER_URL ) )
+        if ( null == env.get( PROVIDER_URL ) )
         {
-            throw new NamingException( PROVIDER_URL 
-                + " property not found in environment." ) ;
+            throw new NamingException( PROVIDER_URL + " property not found in environment." ) ;
         }
         
 
@@ -89,7 +88,7 @@ public abstract class EveContext implements Context
          * want to convey the listener from which the protocol originating
          * requests are comming from.
          */
-        m_dn = new LdapName( ( String ) m_env.get( PROVIDER_URL ) ) ;
+        dn = new LdapName( ( String ) env.get( PROVIDER_URL ) ) ;
     }
 
 
@@ -97,16 +96,16 @@ public abstract class EveContext implements Context
      * Must be called by all subclasses to initialize the nexus proxy and the
      * environment settings to be used by this Context implementation.
      * 
-     * @param a_nexusProxy the intercepting proxy to the nexus
-     * @param a_env the environment properties used by this context
-     * @param a_dn the distinguished name of this context
+     * @param nexusProxy the intercepting proxy to the nexus
+     * @param env the environment properties used by this context
+     * @param dn the distinguished name of this context
      */
-    protected EveContext( PartitionNexus a_nexusProxy, Hashtable a_env, LdapName a_dn )
+    protected EveContext( PartitionNexus nexusProxy, Hashtable env, LdapName dn )
     {
-        m_dn = ( LdapName ) a_dn.clone() ; 
-        m_env = ( Hashtable ) a_env.clone() ;
-        m_env.put( PROVIDER_URL, m_dn.toString() ) ; 
-        m_nexusProxy = a_nexusProxy ;
+        this.dn = ( LdapName ) dn.clone() ;
+        this.env = ( Hashtable ) env.clone() ;
+        this.env.put( PROVIDER_URL, dn.toString() ) ;
+        this.nexusProxy = nexusProxy ;
     }
 
 
@@ -122,7 +121,7 @@ public abstract class EveContext implements Context
      */
     protected PartitionNexus getNexusProxy()
     {
-       return m_nexusProxy  ;
+       return nexusProxy  ;
     }
     
     
@@ -133,7 +132,7 @@ public abstract class EveContext implements Context
      */
     protected Name getDn()
     {
-        return m_dn ;
+        return dn ;
     }
 
 
@@ -156,7 +155,7 @@ public abstract class EveContext implements Context
      */
     public String getNameInNamespace() throws NamingException
     {
-        return m_dn.toString() ;
+        return dn.toString() ;
     }
 
 
@@ -165,7 +164,7 @@ public abstract class EveContext implements Context
      */
     public Hashtable getEnvironment() throws NamingException
     {
-        return m_env ;
+        return env ;
     }
 
 
@@ -173,52 +172,50 @@ public abstract class EveContext implements Context
      * @see javax.naming.Context#addToEnvironment(java.lang.String, 
      * java.lang.Object)
      */
-    public Object addToEnvironment( String a_propName, Object a_propVal )
-        throws NamingException
+    public Object addToEnvironment( String propName, Object propVal ) throws NamingException
     {
-        return m_env.put( a_propName, a_propVal ) ;
+        return env.put( propName, propVal ) ;
     }
 
 
     /**
      * @see javax.naming.Context#removeFromEnvironment(java.lang.String)
      */
-    public Object removeFromEnvironment( String a_propName ) 
-        throws NamingException
+    public Object removeFromEnvironment( String propName ) throws NamingException
     {
-        return m_env.remove( a_propName ) ;
+        return env.remove( propName ) ;
     }
 
 
     /**
      * @see javax.naming.Context#createSubcontext(java.lang.String)
      */
-    public Context createSubcontext( String a_name ) throws NamingException
+    public Context createSubcontext( String name ) throws NamingException
     {
-        return createSubcontext( new LdapName( a_name ) ) ;
+        return createSubcontext( new LdapName( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#createSubcontext(javax.naming.Name)
      */
-    public Context createSubcontext( Name a_name ) throws NamingException
+    public Context createSubcontext( Name name ) throws NamingException
     {
         /* 
          * Start building the server side attributes to be added directly to
          * the backend.
          * 
-         * The RDN from a_name can be a multivalued RDN based on more than one
+         * The RDN from name can be a multivalued RDN based on more than one
          * attribute using the '+' AVA concatenator in a name component.  Right
          * now this code will bomb out because we presume single valued RDNs.
          * 
          * TODO Add multivalued RDN handling code 
          */
-        Attributes l_attributes = new LockableAttributesImpl() ;
-        LdapName l_target = buildTarget( a_name ) ;
-        String l_rdn = a_name.get( a_name.size() - 1 ) ;
-        String l_rdnAttribute = NamespaceTools.getRdnAttribute( l_rdn ) ;
-        String l_rdnValue = NamespaceTools.getRdnValue( l_rdn ) ;
+        Attributes attributes = new LockableAttributesImpl() ;
+        LdapName target = buildTarget( name ) ;
+        String rdn = name.get( name.size() - 1 ) ;
+        String rdnAttribute = NamespaceTools.getRdnAttribute( rdn ) ;
+        String rdnValue = NamespaceTools.getRdnValue( rdn ) ;
 
         /* 
          * TODO Add code within the interceptor service managing operational
@@ -226,126 +223,120 @@ public abstract class EveContext implements Context
          * attributes before normalization.  The result should have ths same
          * affect as the following line within the interceptor.
          * 
-         * l_attributes.put( BootstrapSchema.DN_ATTR, l_target.toString() ) ;
+         * attributes.put( BootstrapSchema.DN_ATTR, target.toString() ) ;
          */
-        l_attributes.put( l_rdnAttribute, l_rdnValue ) ;
-        l_attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR,
-            JavaLdapSupport.JCONTAINER_ATTR ) ;
-        l_attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR,
-            JavaLdapSupport.TOP_ATTR ) ;
+        attributes.put( rdnAttribute, rdnValue ) ;
+        attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.JCONTAINER_ATTR ) ;
+        attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.TOP_ATTR ) ;
         
         /*
          * Add the new context to the server which as a side effect adds 
-         * operational attributes to the l_attributes refering instance which 
+         * operational attributes to the attributes refering instance which
          * can them be used to initialize a new EveLdapContext.  Remember
          * we need to copy over the controls as well to propagate the complete 
-         * environment besides whats in the hashtable for m_env.
+         * environment besides whats in the hashtable for env.
          */
-        m_nexusProxy.add( l_target.toString(), l_target, l_attributes ) ;
+        nexusProxy.add( target.toString(), target, attributes ) ;
         
-        EveLdapContext l_ctx =
-            new EveLdapContext( m_nexusProxy, m_env, l_target ) ;
-        Control [] l_controls = ( Control [] )
-            ( ( EveLdapContext ) this ).getRequestControls().clone() ;
-        l_ctx.setRequestControls( l_controls ) ;
-        return l_ctx ;
+        EveLdapContext ctx = new EveLdapContext( nexusProxy, env, target ) ;
+        Control [] controls = ( Control [] ) ( ( EveLdapContext ) this ).getRequestControls().clone() ;
+        ctx.setRequestControls( controls ) ;
+        return ctx ;
     }
 
 
     /**
      * @see javax.naming.Context#destroySubcontext(java.lang.String)
      */
-    public void destroySubcontext( String a_name ) throws NamingException
+    public void destroySubcontext( String name ) throws NamingException
     {
-        destroySubcontext( new LdapName( a_name ) ) ;
+        destroySubcontext( new LdapName( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#destroySubcontext(javax.naming.Name)
      */
-    public void destroySubcontext( Name a_name ) throws NamingException
+    public void destroySubcontext( Name name ) throws NamingException
     {
-        Name l_target = buildTarget( a_name ) ;
-        m_nexusProxy.delete( l_target ) ;
+        Name target = buildTarget( name ) ;
+        nexusProxy.delete( target ) ;
     }
 
 
     /**
      * @see javax.naming.Context#bind(java.lang.String, java.lang.Object)
      */
-    public void bind( String a_name, Object a_obj ) throws NamingException
+    public void bind( String name, Object obj ) throws NamingException
     {
-        bind( new LdapName( a_name ), a_obj ) ;
+        bind( new LdapName( name ), obj ) ;
     }
     
 
     /**
      * @see javax.naming.Context#bind(javax.naming.Name, java.lang.Object)
      */
-    public void bind( Name a_name, Object a_obj ) throws NamingException
+    public void bind( Name name, Object obj ) throws NamingException
     {
-        if ( a_obj instanceof EveLdapContext )
+        if ( obj instanceof EveLdapContext )
         {
-            throw new IllegalArgumentException(
-                "Cannot bind a directory context object!" ) ;
+            throw new IllegalArgumentException( "Cannot bind a directory context object!" ) ;
         }
 
         /* 
          * Start building the server side attributes to be added directly to
          * the backend.
          * 
-         * The RDN from a_name can be a multivalued RDN based on more than one
+         * The RDN from name can be a multivalued RDN based on more than one
          * attribute using the '+' AVA concatenator in a name component.  Right
          * now this code will bomb out because we presume single valued RDNs.
          * 
          * TODO Add multivalued RDN handling code 
          */
-        Attributes l_attributes = new LockableAttributesImpl() ;
-        Name l_target = buildTarget( a_name ) ;
+        Attributes attributes = new LockableAttributesImpl() ;
+        Name target = buildTarget( name ) ;
 
         // Serialize object into entry attributes and add it.
-        JavaLdapSupport.serialize( l_attributes, a_obj ) ;
-        m_nexusProxy.add( l_target.toString(), l_target, l_attributes ) ;
+        JavaLdapSupport.serialize( attributes, obj ) ;
+        nexusProxy.add( target.toString(), target, attributes ) ;
     }
 
 
     /**
      * @see javax.naming.Context#rename(java.lang.String, java.lang.String)
      */
-    public void rename( String a_oldName, String a_newName ) 
+    public void rename( String oldName, String newName )
         throws NamingException
     {
-        rename( new LdapName( a_oldName ), new LdapName( a_newName ) ) ;
+        rename( new LdapName( oldName ), new LdapName( newName ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#rename(javax.naming.Name, javax.naming.Name)
      */
-    public void rename( Name a_oldName, Name a_newName ) throws NamingException
+    public void rename( Name oldName, Name newName ) throws NamingException
     {
-        Name l_oldDn = buildTarget( a_oldName ) ;
-        Name l_newDn = buildTarget( a_newName ) ;
-        Name l_oldBase = a_oldName.getSuffix( 1 ) ;
-        Name l_newBase = a_newName.getSuffix( 1 ) ;
+        Name oldDn = buildTarget( oldName ) ;
+        Name newDn = buildTarget( newName ) ;
+        Name oldBase = oldName.getSuffix( 1 ) ;
+        Name newBase = newName.getSuffix( 1 ) ;
 
-        String l_newRdn = a_newName.get( a_newName.size() - 1 ) ;
-        String l_oldRdn = a_oldName.get( a_oldName.size() - 1 ) ;
+        String newRdn = newName.get( newName.size() - 1 ) ;
+        String oldRdn = oldName.get( oldName.size() - 1 ) ;
                 
-        boolean l_delOldRdn = true ;
+        boolean delOldRdn = true ;
             
         /*
          * Attempt to use the java.naming.ldap.deleteRDN environment property
          * to get an override for the deleteOldRdn option to modifyRdn.  
          */
-        if ( null != m_env.get( DELETE_OLD_RDN_PROP ) )
+        if ( null != env.get( DELETE_OLD_RDN_PROP ) )
         {
-            String l_delOldRdnStr = 
-                ( String ) m_env.get( DELETE_OLD_RDN_PROP ) ;
-            l_delOldRdn = ! ( l_delOldRdnStr.equals( "false" ) ||
-                l_delOldRdnStr.equals( "no" ) || 
-                l_delOldRdnStr.equals( "0" ) ) ; 
+            String delOldRdnStr = ( String ) env.get( DELETE_OLD_RDN_PROP ) ;
+            delOldRdn = ! ( delOldRdnStr.equals( "false" ) ||
+                delOldRdnStr.equals( "no" ) ||
+                delOldRdnStr.equals( "0" ) ) ;
         }
 
         /*
@@ -356,22 +347,21 @@ public abstract class EveContext implements Context
          * a move operation.  Furthermore if the RDN in the move operation 
          * changes it is both an RDN change and a move operation.
          */
-        if ( a_oldName.size() == a_newName.size() && 
-            l_oldBase.equals( l_newBase ) )
+        if ( oldName.size() == newName.size() && oldBase.equals( newBase ) )
         {
-            m_nexusProxy.modifyRn( l_oldDn, l_newRdn, l_delOldRdn ) ;
+            nexusProxy.modifyRn( oldDn, newRdn, delOldRdn ) ;
         }
         else
         {
-            Name l_parent = l_newDn.getSuffix( 1 ) ;
+            Name parent = newDn.getSuffix( 1 ) ;
             
-            if ( l_newRdn.equalsIgnoreCase( l_oldRdn ) )
+            if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {
-                m_nexusProxy.move( l_oldDn, l_parent ) ;
+                nexusProxy.move( oldDn, parent ) ;
             }
             else
             {
-                m_nexusProxy.move( l_oldDn, l_parent, l_newRdn, l_delOldRdn ) ;
+                nexusProxy.move( oldDn, parent, newRdn, delOldRdn ) ;
             }
         }
     }
@@ -380,90 +370,88 @@ public abstract class EveContext implements Context
     /**
      * @see javax.naming.Context#rebind(java.lang.String, java.lang.Object)
      */
-    public void rebind( String a_name, Object a_obj ) throws NamingException
+    public void rebind( String name, Object obj ) throws NamingException
     {
-        rebind( new LdapName( a_name ), a_obj ) ;
+        rebind( new LdapName( name ), obj ) ;
     }
 
 
     /**
      * @see javax.naming.Context#rebind(javax.naming.Name, java.lang.Object)
      */
-    public void rebind( Name a_name, Object a_obj ) throws NamingException
+    public void rebind( Name name, Object obj ) throws NamingException
     {
-        Name l_target = buildTarget( a_name ) ;
+        Name target = buildTarget( name ) ;
 
-        if ( m_nexusProxy.hasEntry( l_target ) ) 
+        if ( nexusProxy.hasEntry( target ) )
         {
-            m_nexusProxy.delete( l_target ) ;
+            nexusProxy.delete( target ) ;
         }
 
-        bind( a_name, a_obj ) ;
+        bind( name, obj ) ;
     }
 
 
     /**
      * @see javax.naming.Context#unbind(java.lang.String)
      */
-    public void unbind( String a_name ) throws NamingException
+    public void unbind( String name ) throws NamingException
     {
-        unbind( new LdapName( a_name ) ) ;
+        unbind( new LdapName( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#unbind(javax.naming.Name)
      */
-    public void unbind( Name a_name ) throws NamingException
+    public void unbind( Name name ) throws NamingException
     {
-        m_nexusProxy.delete( buildTarget( a_name ) ) ;
+        nexusProxy.delete( buildTarget( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#lookup(java.lang.String)
      */
-    public Object lookup( String a_name ) throws NamingException
+    public Object lookup( String name ) throws NamingException
     {
-        return lookup( new LdapName( a_name ) ) ;
+        return lookup( new LdapName( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#lookup(javax.naming.Name)
      */
-    public Object lookup( Name a_name ) throws NamingException
+    public Object lookup( Name name ) throws NamingException
     {
-        LdapName l_target = buildTarget( a_name ) ;
-        Attributes l_attributes = m_nexusProxy.lookup( l_target ) ;
+        LdapName target = buildTarget( name ) ;
+        Attributes attributes = nexusProxy.lookup( target ) ;
         
         // First lets test and see if the entry is a serialized java object
-        if ( l_attributes.get( JavaLdapSupport.JCLASSNAME_ATTR ) != null )
+        if ( attributes.get( JavaLdapSupport.JCLASSNAME_ATTR ) != null )
         {
             // Give back serialized object and not a context
-            return JavaLdapSupport.deserialize( l_attributes ) ;
+            return JavaLdapSupport.deserialize( attributes ) ;
         }
         
         // Initialize and return a context since the entry is not a java object
-        EveLdapContext l_ctx = new EveLdapContext( m_nexusProxy,
-            m_env, l_target ) ; 
+        EveLdapContext ctx = new EveLdapContext( nexusProxy, env, target ) ;
             
         // Need to add controls to propagate extended ldap operational env
-        Control [] l_controls = ( ( EveLdapContext ) this )
-            .getRequestControls() ; 
-        if ( null != l_controls )
+        Control [] controls = ( ( EveLdapContext ) this ).getRequestControls() ;
+        if ( null != controls )
         {    
-            l_ctx.setRequestControls( ( Control [] ) l_controls.clone() ) ;
+            ctx.setRequestControls( ( Control [] ) controls.clone() ) ;
         }
         
-        return l_ctx ;
+        return ctx ;
     }
 
 
     /**
      * @see javax.naming.Context#lookupLink(java.lang.String)
      */
-    public Object lookupLink( String a_name ) throws NamingException
+    public Object lookupLink( String name ) throws NamingException
     {
         throw new UnsupportedOperationException() ;
     }
@@ -472,7 +460,7 @@ public abstract class EveContext implements Context
     /**
      * @see javax.naming.Context#lookupLink(javax.naming.Name)
      */
-    public Object lookupLink( Name a_name ) throws NamingException
+    public Object lookupLink( Name name ) throws NamingException
     {
         throw new UnsupportedOperationException() ;
     }
@@ -486,7 +474,7 @@ public abstract class EveContext implements Context
      * 
      * @see javax.naming.Context#getNameParser(java.lang.String)
      */
-    public NameParser getNameParser( String a_name ) throws NamingException
+    public NameParser getNameParser( String name ) throws NamingException
     {
         return LdapName.getNameParser() ;
     }
@@ -500,7 +488,7 @@ public abstract class EveContext implements Context
      * 
      * @see javax.naming.Context#getNameParser(javax.naming.Name)
      */
-    public NameParser getNameParser( Name a_name ) throws NamingException
+    public NameParser getNameParser( Name name ) throws NamingException
     {
         return LdapName.getNameParser() ;
     }
@@ -509,55 +497,51 @@ public abstract class EveContext implements Context
     /**
      * @see javax.naming.Context#list(java.lang.String)
      */
-    public NamingEnumeration list( String a_name ) throws NamingException
+    public NamingEnumeration list( String name ) throws NamingException
     {
-        return list( new LdapName( a_name ) ) ;
+        return list( new LdapName( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#list(javax.naming.Name)
      */
-    public NamingEnumeration list( Name a_name ) throws NamingException
+    public NamingEnumeration list( Name name ) throws NamingException
     {
-        return m_nexusProxy.list( buildTarget( a_name ) ) ;
+        return nexusProxy.list( buildTarget( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#listBindings(java.lang.String)
      */
-    public NamingEnumeration listBindings( String a_name ) 
-        throws NamingException
+    public NamingEnumeration listBindings( String name ) throws NamingException
     {
-        return listBindings( new LdapName( a_name ) ) ;
+        return listBindings( new LdapName( name ) ) ;
     }
 
 
     /**
      * @see javax.naming.Context#listBindings(javax.naming.Name)
      */
-    public NamingEnumeration listBindings( Name a_name ) throws NamingException
+    public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
-        Name l_base = buildTarget( a_name ) ;
-        PresenceNode l_filter = new PresenceNode( "objectClass" ) ;
-        SearchControls l_ctls = new SearchControls() ;
-        l_ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE ) ;
+        Name base = buildTarget( name ) ;
+        PresenceNode filter = new PresenceNode( "objectClass" ) ;
+        SearchControls ctls = new SearchControls() ;
+        ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE ) ;
 
-        return m_nexusProxy.search( l_base , getEnvironment(), l_filter, 
-            l_ctls ) ;
+        return nexusProxy.search( base , getEnvironment(), filter, ctls ) ;
     }
 
 
     /**
      * @see javax.naming.Context#composeName(java.lang.String, java.lang.String)
      */
-    public String composeName( String a_name, String a_prefix )
-        throws NamingException
+    public String composeName( String name, String prefix ) throws NamingException
     {
-        return composeName( new LdapName( a_name ), 
-            new LdapName( a_prefix ) ).toString() ;
+        return composeName( new LdapName( name ), new LdapName( prefix ) ).toString() ;
     }
 
 
@@ -566,49 +550,49 @@ public abstract class EveContext implements Context
      * @see javax.naming.Context#composeName(javax.naming.Name, 
      * javax.naming.Name)
      */
-    public Name composeName( Name a_name, Name a_prefix ) throws NamingException
+    public Name composeName( Name name, Name prefix ) throws NamingException
     {
-        // No prefix reduces to a_name, or the name relative to this context
-        if ( a_prefix == null || a_prefix.size() == 0 )
+        // No prefix reduces to name, or the name relative to this context
+        if ( prefix == null || prefix.size() == 0 )
         {
-            return a_name ;
+            return name ;
         }
 
         /*
          * Example: This context is ou=people and say name is the relative
          * name of uid=jwalker and the prefix is dc=domain.  Then we must
-         * compose the name relative to a_prefix which would be:
+         * compose the name relative to prefix which would be:
          * 
          * uid=jwalker,ou=people,dc=domain.
          * 
          * The following general algorithm generates the right name:
-         *      1). Find the Dn for a_name and walk it from the head to tail
-         *          trying to match for the head of a_prefix.
+         *      1). Find the Dn for name and walk it from the head to tail
+         *          trying to match for the head of prefix.
          *      2). Remove name components from the Dn until a match for the 
          *          head of the prefix is found.
          *      3). Return the remainder of the fqn or Dn after chewing off some
          */
          
-        // 1). Find the Dn for a_name and walk it from the head to tail
-        Name l_fqn = buildTarget( a_name ) ;
-        String l_head = a_prefix.get( 0 ) ;
+        // 1). Find the Dn for name and walk it from the head to tail
+        Name fqn = buildTarget( name ) ;
+        String head = prefix.get( 0 ) ;
         
         // 2). Walk the fqn trying to match for the head of the prefix
-        while ( l_fqn.size() > 0 )
+        while ( fqn.size() > 0 )
         {
             // match found end loop
-            if ( l_fqn.get( 0 ).equalsIgnoreCase( l_head ) ) 
+            if ( fqn.get( 0 ).equalsIgnoreCase( head ) )
             {
-                return l_fqn ;
+                return fqn ;
             }
             else // 2). Remove name components from the Dn until a match 
             {
-                l_fqn.remove( 0 ) ;
+                fqn.remove( 0 ) ;
             }
         }
         
-        throw new NamingException( "The prefix '" + a_prefix 
-            + "' is not an ancestor of this "  + "entry '" + m_dn + "'" ) ;
+        throw new NamingException( "The prefix '" + prefix
+                + "' is not an ancestor of this "  + "entry '" + dn + "'" ) ;
     }
     
     
@@ -621,19 +605,18 @@ public abstract class EveContext implements Context
      * Clones this context's DN and adds the components of the name relative to 
      * this context to the left hand side of this context's cloned DN. 
      * 
-     * @param a_relativeName a name relative to this context.
+     * @param relativeName a name relative to this context.
      * @return the name of the target
-     * @throws InvalidNameException if a_relativeName is not a valid name in 
+     * @throws InvalidNameException if relativeName is not a valid name in
      *      the LDAP namespace.
      */
-    LdapName buildTarget( Name a_relativeName )
-        throws InvalidNameException
+    LdapName buildTarget( Name relativeName ) throws InvalidNameException
     {
         // Clone our DN or absolute path
-        LdapName l_target = ( LdapName ) m_dn.clone() ;
+        LdapName target = ( LdapName ) dn.clone() ;
         
         // Add to left hand side of cloned DN the relative name arg
-        l_target.addAll( l_target.size(), a_relativeName ) ;
-        return l_target ;
+        target.addAll( target.size(), relativeName ) ;
+        return target ;
     }
 }
