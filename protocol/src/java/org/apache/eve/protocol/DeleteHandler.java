@@ -17,10 +17,16 @@
 package org.apache.eve.protocol;
 
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+
 import org.apache.seda.listener.ClientKey;
 import org.apache.seda.protocol.AbstractSingleReplyHandler;
 
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.util.ExceptionUtils;
+import org.apache.ldap.common.message.*;
 
 
 /**
@@ -36,6 +42,33 @@ public class DeleteHandler extends AbstractSingleReplyHandler
      */
     public Object handle( ClientKey key, Object request )
     {
-        throw new NotImplementedException( "handle in org.apache.eve.protocol.DeleteHandler not implemented!" );
+        DeleteRequest req = ( DeleteRequest ) request;
+        DeleteResponse resp = new DeleteResponseImpl( req.getMessageId() );
+        resp.setLdapResult( new LdapResultImpl( resp ) );
+        InitialContext ictx = SessionRegistry.getSingleton( null ).get( key );
+
+        try
+        {
+            DirContext ctx = ( DirContext ) ictx.lookup( "" );
+            ctx.destroySubcontext( req.getName() );
+        }
+        catch ( NamingException e )
+        {
+            String msg = "failed to add entry " + req.getName() + ":\n";
+            msg += ExceptionUtils.getStackTrace( e );
+            ResultCodeEnum code;
+            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            resp.getLdapResult().setResultCode( code );
+            resp.getLdapResult().setErrorMessage( msg );
+
+            if ( e.getResolvedName() != null )
+            {
+                resp.getLdapResult().setMatchedDn( e.getResolvedName().toString() );
+            }
+        }
+
+        resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+        resp.getLdapResult().setMatchedDn( req.getName() );
+        return resp;
     }
 }
