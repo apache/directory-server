@@ -39,8 +39,14 @@ public class ExpressionEvaluator implements Evaluator
     private LeafEvaluator leafEvaluator;
 
 
+    // ------------------------------------------------------------------------
+    // C O N S T R U C T O R S
+    // ------------------------------------------------------------------------
+
+
     /**
-     * Creates a top level Evaluator where leaves are delegated.
+     * Creates a top level Evaluator where leaves are delegated to a leaf node
+     * evaluator which is already provided.
      *
      * @param leafEvaluator handles leaf node evaluation.
      */
@@ -48,6 +54,44 @@ public class ExpressionEvaluator implements Evaluator
     {
         this.leafEvaluator = leafEvaluator;
     }
+
+
+    /**
+     * Creates a top level Evaluator where leaves are delegated to a leaf node
+     * evaluator which will be created.
+     *
+     * @param db the database this evaluator operates upon
+     * @param normalizerRegistry the normalizer reg used for value normalization
+     * @param comparatorRegistry the comparator reg used for value comparison
+     */
+    public ExpressionEvaluator( Database db,
+                                NormalizerRegistry normalizerRegistry,
+                                ComparatorRegistry comparatorRegistry )
+    {
+        ScopeEvaluator scopeEvaluator = null;
+        SubstringEvaluator substringEvaluator = null;
+
+        scopeEvaluator = new ScopeEvaluator( db );
+        substringEvaluator = new SubstringEvaluator( db, normalizerRegistry );
+        leafEvaluator = new LeafEvaluator( db, scopeEvaluator,
+            normalizerRegistry, comparatorRegistry, substringEvaluator );
+    }
+
+
+    /**
+     * Gets the leaf evaluator used by this top level expression evaluator.
+     *
+     * @return the leaf evaluator used by this top level expression evaluator
+     */
+    public LeafEvaluator getLeafEvaluator()
+    {
+        return leafEvaluator;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Evaluator.evaluate() implementation
+    // ------------------------------------------------------------------------
 
 
     /**
@@ -61,26 +105,12 @@ public class ExpressionEvaluator implements Evaluator
             return leafEvaluator.evaluate( node, record );
         }
 
-        return evaluateBranch( ( BranchNode ) node, record );
-    }
+        BranchNode bnode = ( BranchNode ) node;
 
-
-    /**
-     * Evaluates a BranchNode on an candidate entry using an IndexRecord on the
-     * entry.
-     *
-     * @param node the branch node to evaluate
-     * @param record the index record for the entry 
-     * @return true if the entry should be returned false otherwise
-     * @throws NamingException if there is a failure while accessing the db
-     */
-    boolean evaluateBranch( BranchNode node, IndexRecord record ) 
-        throws NamingException
-    {
-        switch( node.getOperator() ) 
+        switch( bnode.getOperator() )
         {
         case( BranchNode.OR ):
-            Iterator children = node.getChildren().iterator();
+            Iterator children = bnode.getChildren().iterator();
             
             while ( children.hasNext() ) 
             {
@@ -94,7 +124,7 @@ public class ExpressionEvaluator implements Evaluator
 
             return false;
         case( BranchNode.AND ):
-            children = node.getChildren().iterator();
+            children = bnode.getChildren().iterator();
             while ( children.hasNext() ) 
             {
                 ExprNode child = ( ExprNode ) children.next();
@@ -107,38 +137,15 @@ public class ExpressionEvaluator implements Evaluator
 
             return true;
         case( BranchNode.NOT ):
-            if ( null != node.getChild() ) 
+            if ( null != bnode.getChild() )
             {
-                return ! evaluate( node.getChild(), record );
+                return ! evaluate( bnode.getChild(), record );
             }
 
             throw new NamingException( "Negation has no child: " + node );
         default:
             throw new NamingException( "Unrecognized branch node operator: "
-                + node.getOperator() );
+                + bnode.getOperator() );
         }
-    }
-
-
-    public LeafEvaluator getLeafEvaluator()
-    {
-        return leafEvaluator;
-    }
-
-
-    public static ExpressionEvaluator create( Database db,
-                                              NormalizerRegistry normReg,
-                                              ComparatorRegistry compReg )
-    {
-        LeafEvaluator leafEvaluator = null;
-        ScopeEvaluator scopeEvaluator = null;
-        SubstringEvaluator substringEvaluator = null;
-
-        scopeEvaluator = new ScopeEvaluator( db );
-        substringEvaluator = new SubstringEvaluator( db, normReg );
-        leafEvaluator = new LeafEvaluator( db, scopeEvaluator, normReg,
-            compReg, substringEvaluator );
-
-        return new ExpressionEvaluator( leafEvaluator );
     }
 }

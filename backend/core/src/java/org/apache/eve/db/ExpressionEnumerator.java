@@ -148,12 +148,14 @@ public class ExpressionEnumerator implements Enumerator
 
 
     /**
+     * Creates an enumeration over a disjunction expression branch node.
      *
+     * @param node the disjunction expression branch node
      */
-    public NamingEnumeration enumDisj( ExprNode node ) throws NamingException
+    private NamingEnumeration enumDisj( BranchNode node ) throws NamingException
     {
-        ArrayList children = ( ( BranchNode ) node ).getChildren();
-        NamingEnumeration [] childEnumerations = new NamingEnumeration [children.size()];
+        ArrayList children = node.getChildren();
+        NamingEnumeration[] childEnumerations = new NamingEnumeration [children.size()];
 
         // Recursively create NamingEnumerations for each child expression node
         for ( int ii = 0; ii < childEnumerations.length; ii++ )
@@ -166,7 +168,9 @@ public class ExpressionEnumerator implements Enumerator
 
 
     /**
+     * Creates an enumeration over a negation expression branch node.
      *
+     * @param node a negation expression branch node
      */
     private NamingEnumeration enumNeg( final BranchNode node ) throws NamingException
     {
@@ -206,7 +210,9 @@ public class ExpressionEnumerator implements Enumerator
 
 
     /**
+     * Creates an enumeration over a conjunction expression branch node.
      *
+     * @param node a conjunction expression branch node
      */
     private NamingEnumeration enumConj( final BranchNode node ) throws NamingException
     {
