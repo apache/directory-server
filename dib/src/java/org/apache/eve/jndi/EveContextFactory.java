@@ -104,6 +104,7 @@ public class EveContextFactory implements InitialContextFactory
         "org.apache.eve.schema.bootstrap.JavaSchema",
         "org.apache.eve.schema.bootstrap.Krb5kdcSchema",
         "org.apache.eve.schema.bootstrap.NisSchema",
+        "org.apache.eve.schema.bootstrap.ScheduleworldSchema",
         "org.apache.eve.schema.bootstrap.SystemSchema"
     };
 
