@@ -156,7 +156,7 @@
             appended to this base, then the name of attribute is appended to
             form the key for the attribuet in the suffix of that partition.
             More information on setting up partitions with this and other
-            properties is <a href="/partitions.html">here</a>...
+            properties is <a href="./partitions.html">here</a>...
           </td>
         </tr>
 

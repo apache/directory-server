@@ -23,7 +23,13 @@
       <item name="Overview" href="/index.html"/>
       <item name="Features" href="/features.html"/>
       <item name="Roadmap" href="/roadmap.html"/>
-      <item name="User's Guide" href="/users/index.html"/>
+      <item name="User's Guide" href="/users/index.html">
+        <item name="Building" href="/users/building.html"/>
+        <item name="Authentication" href="/users/authentication.html"/>
+        <item name="JNDI Properties" href="/users/jndi.html"/>
+        <item name="Partitions" href="/users/partitions.html"/>
+        <item name="Maven Plugin" href="/users/plugin.html"/>
+      </item>
       <item name="Developer's Guide" href="/developers/index.html"/>
       <item name="Eve Projects" href="/projects/index.html"/>
     </menu>

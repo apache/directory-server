@@ -24,7 +24,13 @@
       <item name="Features" href="/features.html"/>
       <item name="Roadmap" href="/roadmap.html"/>
       <item name="User's Guide" href="/users/index.html"/>
-      <item name="Developer's Guide" href="/developers/index.html"/>
+      <item name="Developer's Guide" href="/developers/index.html">
+        <item name="Architecture" href="/developers/architecture.html"/>
+        <item name="Components" href="/developers/components.html"/>
+        <item name="Protocol" href="/developers/protocol.html"/>
+        <item name="JNDI Provider" href="/developers/provider.html"/>
+        <item name="Networking" href="/developers/networking.html"/>
+      </item>
       <item name="Eve Projects" href="/projects/index.html"/>
     </menu>
     
