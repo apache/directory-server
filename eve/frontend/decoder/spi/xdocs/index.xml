@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title></title>
+  </properties> 
+  
+  <body>
+    <section name="Decoder Introduction and Background">
+      <p>
+       A service interface for the front end to decode BER encoded ASN.1 
+       LDAPv3 Protocol Data Units and demarshal them into Java stubs.  It
+       is designed as an interface to a streaming decoder which can decode 
+       partial PDU's while maintaining the state of the decoding process for
+       a request.
+      </p>
+
+      <p>
+        The server is event driven and based on NIO non-blocking channels.  
+        Hence incoming requests may not arrive in one big complete chunk.  In 
+        fact reads from a client channel into a buffer may contain any number 
+        of requests, and at most two partial requests.  Then again each chunck
+        may nicely contain a single complete PDU image.  You just never know 
+        how the client and the server host operating systems are going to 
+        negotiate the transfers.  Also the size of the message might be huge 
+        containing attributes representing massive blob's like high resolution 
+        JPEG images taking the size of an entire screen or whatever.  Such a 
+        massive request would take multiple packets, reads and buffers to make 
+        its way to the decoder.  The decoder must correctly and efficiently
+        handle these messages for the server to perform well under heavy load.
+      </p>
+    </section>
+
+    <section name="Decoder Design">
+      <p>
+        Multiple approaches can be taken for a decoder design.  Non-blocking IO
+        makes localizing an entire message PDU at one time difficult as seen 
+        above.  The decoder must be prepared to get peices of the PDU at 
+        different times and hence manage a per request decoding session.  This
+        overwhelming aspect has the greatest effect on the decoder interface.
+      </p>
+      
+      <p>
+        The decode interface must provide a way to correlate chunk buffer 
+        contents with request decoding sessions.  Here's how we propose to do 
+        that.
+      </p>
+      
+      <p>
+        A decoder can take two approaches to decode a message.  The decoder can
+        collect all the arriving chunks and decode the entire PDU in one shot 
+        or decode the chunks as they arrive while maintaining the decoding 
+        state for the request.  The first option is inefficient.  It's how 
+        virtually every ASN.1 BER decoder works on the market and that's a 
+        shame.  The collect and decode in the one shot method we'll refer to as 
+        the brut force method.  The brut force method wastes resources and the 
+        waste is variable.  Consider the total footprint needed in memory to 
+        process a single request of size N bytes.  The collection buffer would 
+        be N bytes, which represents the PDU's transfer image.  When 
+        demarshalled into a message stub the image of the message probably takes
+        a tiny bit less memory than the actual transfer image.  Also the last
+        chunk triggers the decode and is held until the decoder finishes
+        actively decoding.  We can reasonably conclude that at the end of the 
+        decoding process a memory requirement of approximately 2N is needed for
+        each PDU of size N.  We can analyze this further within the appendix
+        section.
+      </p>
+      
+      <p>
+        The second approach where the decoder is a state machine started and 
+        stoped with the arrival of more data is ideal.  This is what allows the
+        streaming of content.  Servers designed with these constructs are much
+        more efficient and can hence support a higher degree of load.  Such a
+        decoder does not need the entire transfer image of the PDU in memory.
+        However if it returns the message it is still holding at least N + a 
+        chunk of memory when the decode completes.  This is still variable.
+      </p>
+      
+      <p>
+        The problem is with having all the data within the message.  This is
+        tolerable for small PDU's but not in the case of the PDU with 
+        massive JPEG attributes.  Holding the massive transfer image in memory
+        is wasteful.  The server's message framework can be designed to store 
+        and lazy load large blobs of binary data to and from disk.  Furthermore
+        these binary blobs are not usually indexed nor are they used in filter 
+        expressions on a search: you wouldn't use the bits of a friends JPEG to 
+        search for them in a directory would you?  So this info can be streamed
+        in and streamed out without having it all in memory at one time.  This
+        technique along with memory mapping IO can be used for breaking 
+        extremely high performance barriers for an LDAP server.
+      </p>
+      
+    </section>
+    
+    <!--
+        put this in an appendix        
+        
+        and the final demarshaled message produced from it would be almost 
+        the same size.  Basically the attribute size density of the PDU 
+        determines how many TLVs are in the message.  If this is high the 
+        structure to content information is high and the size of the message is
+        smaller than the PDU's transfer image.
+      
+    -->
+  </body>
+</document>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <extend>${basedir}/../../../project.xml</extend>
+    <groupId>directory</groupId>
+    <id>eve-frontend-decoder-spi</id>
+  
+    <name>Eve Frontend Decoder SPI</name>
+    <package>org.apache.eve.decoder</package>
+    <currentVersion>SNAPSHOT</currentVersion>
+    <inceptionYear>2003</inceptionYear>
+      
+    <shortDescription>Eve Frontend Decoder SPI</shortDescription>
+
+    <description>
+       The Decoder's service interface for the front end determines how
+       other components can interact with it to decode ASN.1 BER encoded
+       LDAPv3 messages into Java data structures representing the PDU.
+    </description>
+      
+    <dependencies>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://jakarta.apache.org/commons/codec</url>
+      </dependency>
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>eve-frontend-common-api</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://incubator.apache.org/directory/subprojects/eve/frontend/common/api</url>
+      </dependency>
+      <dependency>
+        <groupId>directory</groupId>
+        <artifactId>ldap-common</artifactId>
+        <version>SNAPSHOT</version>
+        <url>http://incubator.apache.org/directory/subprojects/ldap/common</url>
+      </dependency>
+    </dependencies>
+</project>
+
