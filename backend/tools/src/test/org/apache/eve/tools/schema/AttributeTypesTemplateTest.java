@@ -16,24 +16,88 @@
  */
 package org.apache.eve.tools.schema;
 
-import junit.framework.TestCase;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.ldap.common.schema.*;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
+
+import junit.framework.TestCase;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.apache.eve.schema.bootstrap.BootstrapSchema;
+import org.apache.eve.schema.bootstrap.ProducerTypeEnum;
+import org.apache.eve.schema.bootstrap.AbstractBootstrapSchema;
 
 
 /**
- * Document me.
+ * A test which tries to generate AttributeType producers for all schemas.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class AttributeTypesTemplateTest extends TestCase
 {
+    private OpenLdapSchemaParser parser;
+
+
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+
+        parser = new OpenLdapSchemaParser();
+        parser.setParserMonitor( new ConsoleParserMonitor() );
+    }
+
+
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+        parser = null;
+    }
+
+
+    public AttributeTypeLiteral[] getSchemaAttributes( String schemaFile )
+        throws Exception
+    {
+        InputStream in = getClass().getResourceAsStream( schemaFile );
+        parser.parse( in );
+        int size = parser.getAttributeTypes().size();
+        AttributeTypeLiteral[] attributeTypes = new AttributeTypeLiteral[size];
+        attributeTypes = ( AttributeTypeLiteral[] )
+            parser.getAttributeTypes().values().toArray( attributeTypes );
+        return attributeTypes;
+    }
+
+
+    public void generateAttributeTypeProducer( BootstrapSchema schema )
+        throws Exception
+    {
+        AttributeTypeLiteral[] attributeTypes =
+            getSchemaAttributes( schema.getSchemaName() + ".schema" );
+
+        VelocityContext context = new VelocityContext();
+        context.put( "package", schema.getPackageName() );
+        context.put( "classname",
+            schema.getUnqualifiedClassName( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER ) );
+        context.put( "schema", schema.getSchemaName() );
+        context.put( "owner", schema.getOwner() ) ;
+        context.put( "schemaDepCount", new Integer( schema.getDependencies().length ) );
+        context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
+        context.put( "attrTypeCount", new Integer( attributeTypes.length ) );
+        context.put( "attrTypes", attributeTypes );
+
+        FileReader template = getResourceReader( "AttributeTypes.template" );
+        FileWriter writer = getResourceWriter( "target/schema",
+            schema.getPackageName(),
+            schema.getUnqualifiedClassName( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER ) );
+        Velocity.init();
+        Velocity.evaluate( context, writer, "LOG", template );
+        writer.flush();
+        writer.close();
+    }
+
+
     private FileReader getResourceReader( String res ) throws Exception
     {
         String path = getClass().getResource( res ).getFile() ;
@@ -75,154 +139,65 @@ public class AttributeTypesTemplateTest extends TestCase
     }
 
 
-    public void testGeneration() throws Exception
+    public void testCoreAttributeTypeGeneration() throws Exception
     {
-        Syntax syntax = new Syntax(){
-            public boolean isHumanReadable()
-            {
-                return false;
-            }
-
-            public String getName()
-            {
-                return null;
-            }
-
-            public String getOid()
-            {
-                return "2.3.3.6";
-            }
-
-            public SyntaxChecker getSyntaxChecker()
-            {
-                return null;
-            }
-
-            public String getDescription()
-            {
-                return null;
-            }
-        };
-
-        TestAttributeType[] attributeTypes = new TestAttributeType[2];
-        attributeTypes[0] = new TestAttributeType( "1.1.1.1" );
-        attributeTypes[0].setUsage( UsageEnum.USERAPPLICATIONS );
-        attributeTypes[0].setSyntax( syntax );
-        attributeTypes[0].setAllNames( new String[] { "commonName", "cn", "abc" } );
-
-        attributeTypes[1] = new TestAttributeType( "1.1.1.2" );
-        attributeTypes[1].setUsage( UsageEnum.DIRECTORYOPERATION );
-
-        VelocityContext context = new VelocityContext();
-        context.put( "package", "org.apache.eve.schema.config" );
-        context.put( "classname", "CoreAttributeTypes" );
-        context.put( "schema", "core" );
-        context.put( "owner", "uid=admin,ou=system" ) ;
-        context.put( "schemaDepCount", new Integer( 2 ) );
-        context.put( "schemaDeps", new String[] { "dep1", "dep2" }  ) ;
-        context.put( "attrTypeCount", new Integer( attributeTypes.length ) );
-        context.put( "attrTypes", attributeTypes );
-
-        FileReader template = getResourceReader( "AttributeTypes.template" );
-        FileWriter writer = getResourceWriter( "target/schema",
-            "org.apache.eve.schema.config", "CoreAttributeTypes" );
-        Velocity.init();
-        Velocity.evaluate( context, writer, "LOG", template );
-        writer.flush();
-        writer.close();
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+            "uid=admin,ou=system", "core", "org.apache.eve.schema.bootstrap",
+            new String[] { "dep1", "dep2" }) {};
+        generateAttributeTypeProducer( schema );
     }
 
 
-    class TestAttributeType extends BaseAttributeType
+    public void testJavaAttributeTypeGeneration() throws Exception
     {
-        protected TestAttributeType( String oid )
-        {
-            super( oid );
-        }
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+            "uid=admin,ou=system", "java", "org.apache.eve.schema.bootstrap",
+            new String[] { "dep1", "dep2" }) {};
+        generateAttributeTypeProducer( schema );
+    }
 
-        protected void setSuperior( AttributeType superior )
-        {
-            super.setSuperior( superior );
-        }
 
-        protected void setAllNames( String[] names )
-        {
-            super.setAllNames( names );
-        }
+    public void testCorbaAttributeTypeGeneration() throws Exception
+    {
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+            "uid=admin,ou=system", "corba", "org.apache.eve.schema.bootstrap",
+            new String[] { "dep1", "dep2" }) {};
+        generateAttributeTypeProducer( schema );
+    }
 
-        protected void setEquality( MatchingRule equality )
-        {
-            super.setEquality( equality );
-        }
 
-        protected void setSubstr( MatchingRule substr )
-        {
-            super.setSubstr( substr );
-        }
+    public void testCosineAttributeTypeGeneration() throws Exception
+    {
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+            "uid=admin,ou=system", "cosine", "org.apache.eve.schema.bootstrap",
+            new String[] { "dep1", "dep2" }) {};
+        generateAttributeTypeProducer( schema );
+    }
 
-        protected void setOrdering( MatchingRule ordering )
-        {
-            super.setOrdering( ordering );
-        }
 
-        protected void setSyntax( Syntax syntax )
-        {
-            super.setSyntax( syntax );
-        }
+    public void testInetorgpersonAttributeTypeGeneration() throws Exception
+    {
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+            "uid=admin,ou=system", "inetorgperson", "org.apache.eve.schema.bootstrap",
+            new String[] { "dep1", "dep2" }) {};
+        generateAttributeTypeProducer( schema );
+    }
 
-        protected void setSingleValue( boolean singleValue )
-        {
-            super.setSingleValue( singleValue );
-        }
 
-        protected void setCollective( boolean collective )
-        {
-            super.setCollective( collective );
-        }
+    public void testMiscAttributeTypeGeneration() throws Exception
+    {
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+            "uid=admin,ou=system", "misc", "org.apache.eve.schema.bootstrap",
+            new String[] { "dep1", "dep2" }) {};
+        generateAttributeTypeProducer( schema );
+    }
 
-        protected void setCanUserModify( boolean canUserModify )
-        {
-            super.setCanUserModify( canUserModify );
-        }
 
-        protected void setObsolete( boolean obsolete )
-        {
-            super.setObsolete( obsolete );
-        }
-
-        protected void setUsage( UsageEnum usage )
-        {
-            super.setUsage( usage );
-        }
-
-        protected void setLength( int length )
-        {
-            super.setLength( length );
-        }
-
-        public String getSuperiorOid()
-        {
-            return super.getSuperior() != null ? super.getSuperior().getOid() : null;
-        }
-
-        public String getSubstrOid()
-        {
-            return super.getSubstr() != null ? super.getSubstr().getOid() : null;
-        }
-
-        public String getOrderingOid()
-        {
-            return super.getOrdering() != null ? super.getOrdering().getOid() : null;
-        }
-
-        public String getEqualityOid()
-        {
-            return super.getEquality() != null ? super.getEquality().getOid() : null;
-        }
-
-        public String getSyntaxOid()
-        {
-            return super.getSyntax() != null ? super.getSyntax().getOid() : null;
-        }
+    public void testNisAttributeTypeGeneration() throws Exception
+    {
+        AbstractBootstrapSchema schema = new AbstractBootstrapSchema(
+            "uid=admin,ou=system", "nis", "org.apache.eve.schema.bootstrap",
+            new String[] { "dep1", "dep2" }) {};
+        generateAttributeTypeProducer( schema );
     }
 }

@@ -22,180 +22,72 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.*;
 
-#if ( $package != "org.apache.eve.schema" )
-import org.apache.eve.schema.*;
+#if ( $package != "org.apache.eve.schema.bootstrap" )
+import org.apache.eve.schema.bootstrap.*;
 #end
-#if ( $package != "org.apache.eve.schema.config" )
-import org.apache.eve.schema.config.*;
-#end
-
 
 /**
- * A configuration set of schema attributeType definations for the $schema
- * schema.  This code has been automatically generated from velocity templates
- * and the OpenLDAP syntax specified $schema.schema file.  This has been done
+ * A producer of schema attributeType definations for the $schema schema.  This
+ * code has been automatically generated using schema files in the OpenLDAP
+ * format along with the eve schema plugin for maven.  This has been done
  * to facilitate Eve<->OpenLDAP schema interoperability.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
- * @version \$Rev\$
+ * @version $Rev$
  */
-public class $classname implements AttributeTypeConfigSet
+public class $classname extends AbstractBootstrapProducer
 {
     /** a reused empty String array */
     private static final String[] EMPTY = new String[0];
-    /** the DN of the owner of the objects within this SyntaxConfigSet */
-    private static final String OWNER = "$owner";
-    /** the logical schema the objects within this SyntaxConfigSet belong to */
-    private static final String SCHEMA = "$schema";
 
-
-    private String[] schemaDeps;
-
-
-    // ------------------------------------------------------------------------
-    // Configuration Set Methods
-    // ------------------------------------------------------------------------
-
-
-    public String getOwner()
+    public $classname()
     {
-        return OWNER;
-    }
-
-
-    public String getSchemaName()
-    {
-        return SCHEMA;
-    }
-
-
-    public String[] getDependentSchemas()
-    {
-        if ( schemaDeps == null )
-        {
-            schemaDeps = new String[$schemaDepCount];
-            #foreach ( $dep in $schemaDeps )
-            #set ( $ii = $velocityCount - 1 )
-schemaDeps[$ii] = "$dep";
-            #end
-        }
-
-        return schemaDeps;
+        super( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER );
     }
 
 
     // ------------------------------------------------------------------------
-    // Syntax Configuration Set Methods
+    // BootstrapProducer Methods
     // ------------------------------------------------------------------------
 
 
-    public AttributeType[] load( SyntaxRegistry syntaxReg,
-                                 MatchingRuleRegistry mruleReg,
-                                 AttributeTypeRegistry attrTypeReg )
+    /**
+     * @see BootstrapProducer#produce(BootstrapRegistries, ProducerCallback)
+     */
+    public void produce( BootstrapRegistries registries, ProducerCallback cb )
         throws NamingException
     {
         ArrayList names = new ArrayList();
-        MutableAttributeType[] attributeTypes = new MutableAttributeType[$attrTypeCount];
+        BootstrapAttributeType attributeType;
 
         #foreach ( $attrType in $attrTypes )
-        #set ( $ii = $velocityCount - 1 )
 
         // --------------------------------------------------------------------
         // AttributeType $attrType.getOid() $!attrType.getName()
         // --------------------------------------------------------------------
 
+        attributeType = new BootstrapAttributeType( "$attrType.getOid()", registries );
+        attributeType.setSingleValue( $attrType.isSingleValue() );
+        attributeType.setCollective( $attrType.isCollective() );
+        attributeType.setObsolete( $attrType.isObsolete() );
+        attributeType.setCanUserModify( $attrType.isNoUserModification() );
+        attributeType.setLength( $attrType.getLength() );
+        attributeType.setUsage( UsageEnum.getUsage( "$attrType.getUsage().getName()" ) );
+#if ( $attrType.getSuperiorOid() )        attributeType.setSuperiorId( "$attrType.getSuperiorOid()" ); #end
+#if ( $attrType.getEqualityOid() )        attributeType.setEqualityId( "$attrType.getEqualityOid()" );#end
+#if ( $attrType.getSubstrOid() )        attributeType.setSubstrId( "$attrType.getSubstrOid()" );#end
+#if ( $attrType.getOrderingOid() )        attributeType.setOrderingId( "$attrType.getOrderingOid()" );#end
+#if ( $attrType.getSyntaxOid() )        attributeType.setSyntaxId( "$attrType.getSyntaxOid()" );#end
 
-        attributeTypes[$ii] = new MutableAttributeType( "$attrType.getOid()" );
-        attributeTypes[$ii].setSingleValue( $attrType.isSingleValue() );
-        attributeTypes[$ii].setCollective( $attrType.isCollective() );
-        attributeTypes[$ii].setObsolete( $attrType.isObsolete() );
-        attributeTypes[$ii].setCanUserModify( $attrType.isCanUserModify() );
-        attributeTypes[$ii].setLength( $attrType.getLength() );
-        attributeTypes[$ii].setUsage( UsageEnum.getUsage( "$attrType.getUsage().getName()" ) );
-#if ( $attrType.getSuperiorOid() )        attributeTypes[$ii].setSuperior( attrTypeReg.lookup( "$attrType.getSuperiorOid()" ) ); #end
-#if ( $attrType.getEqualityOid() )        attributeTypes[$ii].setEquality( mruleReg.lookup( "$attrType.getEqualityOid()" ) );#end
-#if ( $attrType.getSubstrOid() )        attributeTypes[$ii].setSubstr( mruleReg.lookup( "$attrType.getSubstrOid()" ) );#end
-#if ( $attrType.getOrderingOid() )        attributeTypes[$ii].setOrdering( mruleReg.lookup( "$attrType.getOrderingOid()" ) );#end
-#if ( $attrType.getSyntaxOid() )        attributeTypes[$ii].setSyntax( syntaxReg.lookup( "$attrType.getSyntaxOid()" ) );#end
-
-        #if ( $attrType.getAllNames() )
+        #if ( $attrType.getNames() )
 names.clear();
-       #foreach ( $name in $attrType.getAllNames() ) names.add( "$name" );
+       #foreach ( $name in $attrType.getNames() ) names.add( "$name" );
        #end
- attributeTypes[$ii].setAllNames( ( String[] ) names.toArray( EMPTY ) );
+ attributeType.setNames( ( String[] ) names.toArray( EMPTY ) );
+        #else
+ attributeType.setNames( EMPTY );
         #end
+cb.schemaObjectProduced( this, "$attrType.getOid()", attributeType );
 
-        #end
-
-        return attributeTypes;
-    }
-
-
-    private static class MutableAttributeType extends BaseAttributeType
-    {
-        public MutableAttributeType( String oid )
-        {
-            super( oid );
-        }
-
-        protected void setSuperior( AttributeType superior )
-        {
-            super.setSuperior( superior );
-        }
-
-        protected void setAllNames( String[] nameArray )
-        {
-            super.setAllNames( nameArray );
-        }
-
-        protected void setEquality( MatchingRule equality )
-        {
-            super.setEquality( equality );
-        }
-
-        protected void setSubstr( MatchingRule substr )
-        {
-            super.setSubstr( substr );
-        }
-
-        protected void setOrdering( MatchingRule ordering )
-        {
-            super.setOrdering( ordering );
-        }
-
-        protected void setSyntax( Syntax syntax )
-        {
-            super.setSyntax( syntax );
-        }
-
-        protected void setSingleValue( boolean singleValue )
-        {
-            super.setSingleValue( singleValue );
-        }
-
-        protected void setCollective( boolean collective )
-        {
-            super.setCollective( collective );
-        }
-
-        protected void setCanUserModify( boolean canUserModify )
-        {
-            super.setCanUserModify( canUserModify );
-        }
-
-        protected void setObsolete( boolean obsolete )
-        {
-            super.setObsolete( obsolete );
-        }
-
-        protected void setUsage( UsageEnum usage )
-        {
-            super.setUsage( usage );
-        }
-
-        protected void setLength( int length )
-        {
-            super.setLength( length );
-        }
-    }
+ #end   }
 }
