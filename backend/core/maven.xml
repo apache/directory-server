@@ -7,7 +7,15 @@
   xmlns:maven="jelly:maven" 
   >
 
- <preGoal name="java:compile">
-   <attainGoal name="eve:schema"/>
- </preGoal> 
+  <preGoal name="java:compile">
+    <attainGoal name="eve:schema"/>
+  </preGoal> 
+ 
+  <preGoal name="aspectj:compile">
+    <attainGoal name="eve:schema"/>
+  </preGoal> 
+ 
+  <postGoal name="java:compile">
+    <attainGoal name="aspectj:compile"/>
+  </postGoal>
 </project>

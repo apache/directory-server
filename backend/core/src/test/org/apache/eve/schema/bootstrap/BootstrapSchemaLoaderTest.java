@@ -17,7 +17,6 @@
 package org.apache.eve.schema.bootstrap;
 
 
-import java.util.Iterator;
 import java.util.List;
 import java.io.StringWriter;
 import java.io.PrintWriter;
@@ -25,9 +24,6 @@ import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.schema.ObjectClass;
-import org.apache.ldap.common.schema.MatchingRule;
-import org.apache.ldap.common.schema.Syntax;
 
 
 /**

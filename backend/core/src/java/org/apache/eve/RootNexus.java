@@ -306,7 +306,7 @@ public class RootNexus implements PartitionNexus
                 return ( ContextPartition ) backends.get( clonedDn.toString() );
             }
             
-            clonedDn.remove( 0 );
+            clonedDn.remove( clonedDn.size() - 1 );
         }
         
         throw new NameNotFoundException();

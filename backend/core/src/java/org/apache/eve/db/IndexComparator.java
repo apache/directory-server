@@ -28,8 +28,7 @@ import org.apache.ldap.common.util.BigIntegerComparator;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexComparator
-    implements TupleComparator
+public class IndexComparator implements TupleComparator
 {
     /** Whether or not the key/value is swapped */
     private final boolean isForwardMap;

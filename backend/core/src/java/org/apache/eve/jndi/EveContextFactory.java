@@ -2,17 +2,24 @@ package org.apache.eve.jndi;
 
 
 import java.util.Hashtable;
+import java.util.List;
+import java.io.File;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.common.schema.Syntax;
-import org.apache.eve.schema.bootstrap.BootstrapSyntaxRegistry;
-import org.apache.eve.schema.bootstrap.BootstrapOidRegistry;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.schema.AttributeType;
 
-import org.apache.eve.schema.bootstrap. SystemSyntaxProducer;
+import org.apache.eve.RootNexus;
+import org.apache.eve.SystemPartition;
+import org.apache.eve.db.*;
+import org.apache.eve.db.jdbm.JdbmDatabase;
+import org.apache.eve.schema.bootstrap.BootstrapRegistries;
+import org.apache.eve.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.eve.schema.AttributeTypeRegistry;
+import org.apache.eve.schema.OidRegistry;
 
 
 /**
@@ -28,6 +35,29 @@ import org.apache.eve.schema.bootstrap. SystemSyntaxProducer;
  */
 public class EveContextFactory implements InitialContextFactory
 {
+    /** key base for a set of user indices provided as comma sep list of attribute names or oids */
+    public static final String USER_INDICES_ENV_BASE = "eve.user.db.indices";
+    /** the path to eve's working directory - relative or absolute */
+    public static final String WKDIR_ENV = "eve.wkdir";
+    /** default path to working directory if WKDIR_ENV property is not set */
+    public static final String DEFAULT_WKDIR = "eve";
+    /** a comma separated list of schema class files to load */
+    public static final String SCHEMAS_ENV = "eve.schemas";
+    /** default schema classes for the SCHEMAS_ENV property if not set */
+    private static final String[] DEFAULT_SCHEMAS = new String[]
+    {
+        "org.apache.eve.schema.bootstrap.AutofsSchema",
+        "org.apache.eve.schema.bootstrap.CorbaSchema",
+        "org.apache.eve.schema.bootstrap.CoreSchema",
+        "org.apache.eve.schema.bootstrap.CosineSchema",
+        "org.apache.eve.schema.bootstrap.EveSchema",
+        "org.apache.eve.schema.bootstrap.InetorgpersonSchema",
+        "org.apache.eve.schema.bootstrap.JavaSchema",
+        "org.apache.eve.schema.bootstrap.Krb5kdcSchema",
+        "org.apache.eve.schema.bootstrap.NisSchema",
+        "org.apache.eve.schema.bootstrap.SystemSchema"
+    };
+
     /** The singleton EveJndiProvider instance */
     private EveJndiProvider provider = null;
     /** the initial context environment that fired up the backend subsystem */
@@ -65,15 +95,115 @@ public class EveContextFactory implements InitialContextFactory
         if ( null == provider )
         {
             this.initialEnv = env;
-            throw new NotImplementedException();
+            initialize();
         }
         
         return provider.getLdapContext( env );
     }
 
 
-    private EveJndiProvider create( Hashtable env )
+    private void initialize() throws NamingException
     {
-        throw new NotImplementedException( "bootstrap code not yet written" );
+        // --------------------------------------------------------------------
+        // Load the schema here and check that it is ok!
+        // --------------------------------------------------------------------
+
+        BootstrapRegistries registries = new BootstrapRegistries();
+        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+
+        String[] schemas = DEFAULT_SCHEMAS;
+        if ( initialEnv.containsKey( SCHEMAS_ENV ) )
+        {
+            schemas = ( ( String ) initialEnv.get( SCHEMAS_ENV ) ).split( "," );
+        }
+
+        loader.load( schemas, registries );
+        List errors = registries.checkRefInteg();
+        if ( ! errors.isEmpty() )
+        {
+            NamingException e = new NamingException();
+            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+            throw e;
+        }
+
+        // --------------------------------------------------------------------
+        // Fire up the system partition
+        // --------------------------------------------------------------------
+
+
+        String wkdir = DEFAULT_WKDIR;
+        if ( initialEnv.containsKey( WKDIR_ENV ) )
+        {
+            wkdir = ( ( String ) initialEnv.get( WKDIR_ENV ) ).trim();
+        }
+
+        File wkdirFile = new File( wkdir );
+        if ( wkdirFile.isAbsolute() )
+        {
+            if ( ! wkdirFile.exists() )
+            {
+                throw new NamingException( "working directory " +  wkdir
+                    + " does not exist" );
+            }
+        }
+        else
+        {
+            File current = new File( "." );
+            mkdirs( current.getAbsolutePath(), wkdir );
+        }
+
+        LdapName suffix = new LdapName();
+        suffix.add( SystemPartition.SUFFIX );
+        Database db = new JdbmDatabase( suffix, wkdir );
+
+        AttributeTypeRegistry attributeTypeRegistry;
+        attributeTypeRegistry = registries.getAttributeTypeRegistry();
+        OidRegistry oidRegistry;
+        oidRegistry = registries.getOidRegistry();
+
+        ExpressionEvaluator evaluator;
+        evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
+
+        ExpressionEnumerator enumerator;
+        enumerator = new ExpressionEnumerator( db, evaluator );
+
+        SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
+
+        AttributeType[] attributes = new AttributeType[] {
+            attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ),
+            attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ),
+            attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ),
+            attributeTypeRegistry.lookup( SystemPartition.NDN_OID ),
+            attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ),
+            attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ),
+            attributeTypeRegistry.lookup( SystemPartition.UPDN_OID )
+        };
+
+        SystemPartition system = new SystemPartition( db, eng, attributes );
+        RootNexus root = new RootNexus( system );
+        this.provider = new EveJndiProvider( root );
+    }
+
+
+    protected boolean mkdirs( String base, String path )
+    {
+        String[] comps = path.split( "/" );
+        File file = new File( base );
+
+        if ( ! file.exists() )
+        {
+            file.mkdirs();
+        }
+
+        for ( int ii = 0; ii < comps.length; ii++ )
+        {
+            file = new File( file, comps[ii] );
+            if ( ! file.exists() )
+            {
+                file.mkdirs();
+            }
+        }
+
+        return file.exists();
     }
 }

@@ -278,9 +278,18 @@ public abstract class EveDirContext extends EveContext implements DirContext
         // Initialize the new context
         EveLdapContext l_ctx = new EveLdapContext( getNexusProxy(),
             getEnvironment(), l_target ) ;
-        Control [] l_controls = ( Control [] )
-            ( ( EveLdapContext ) this ).getRequestControls().clone() ;
-        l_ctx.setRequestControls( l_controls ) ;
+        
+        Control [] controls = ( ( EveLdapContext ) this ).getRequestControls();
+        if ( controls != null )
+        {
+        	controls = ( Control[] ) controls.clone();
+        }
+        else
+        {
+        	controls = new Control[0];
+        }
+        
+        l_ctx.setRequestControls( controls ) ;
         return l_ctx ;
     }
 
