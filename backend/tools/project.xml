@@ -85,9 +85,29 @@
 
     <resources>
       <resource>
-        <directory>src/java</directory>
+        <directory>${basedir}/src/java</directory>
         <includes>
           <include>**/*.template</include>
+          <include>**/*.dtd</include>
+          <include>**/*.properties</include>
+          <include>**/*.x*</include>
+        </includes>
+      </resource>
+
+      <resource>
+        <directory>${basedir}/conf</directory>
+        <targetPath>BLOCK-INF</targetPath>
+        <includes>
+          <include>block.xml</include>
+        </includes>
+      </resource>
+
+      <resource>
+        <directory>${basedir}/src/java/org/apache/eve/tools/schema</directory>
+        <targetPath>org/apache/eve/tools/schema</targetPath>
+        <includes>
+          <include>antlrTypeTokenTypes.txt</include>
+          <include>antlrOpenLdapSchemaParserTokenTypes.txt</include>
         </includes>
       </resource>
     </resources>
