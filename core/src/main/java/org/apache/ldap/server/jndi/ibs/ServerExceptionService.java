@@ -35,8 +35,8 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.jndi.request.interceptor.BaseInterceptor;
-import org.apache.ldap.server.jndi.request.interceptor.InterceptorException;
+import org.apache.ldap.server.jndi.call.interceptor.BaseInterceptor;
+import org.apache.ldap.server.jndi.call.interceptor.InterceptorException;
 
 
 /**

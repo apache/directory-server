@@ -174,7 +174,7 @@ public final class SystemPartition extends AbstractContextPartition
         }
         catch ( InvalidNameException e ) 
         {
-            ; // Never thrown - name will always be valid!
+            // Never thrown - name will always be valid!
         }
 
         // add the root entry for the system root context if it does not exist

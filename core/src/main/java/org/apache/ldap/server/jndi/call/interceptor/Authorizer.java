@@ -46,7 +46,6 @@ import org.apache.ldap.server.jndi.call.ModifyRN;
 import org.apache.ldap.server.jndi.call.Move;
 import org.apache.ldap.server.jndi.call.MoveAndModifyRN;
 import org.apache.ldap.server.jndi.call.Search;
-import org.apache.ldap.server.jndi.ibs.FilterService;
 
 
 /**
