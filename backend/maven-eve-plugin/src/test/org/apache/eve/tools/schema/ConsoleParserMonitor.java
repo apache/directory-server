@@ -18,16 +18,17 @@ package org.apache.eve.tools.schema;
 
 
 /**
- * A console reporting monitor.
+ * A console reporting monitor.  Add system property 'maven.eve.schema.parser.trace'
+ * to get this monitor to trace parser production execution.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ConsoleParserMonitor implements ParserMonitor
 {
-    public static final String TRACE_KEY = "schema.parser.trace";
+    public static final String TRACE_KEY = "maven.eve.schema.parser.trace";
 
-    
+
     public void matchedProduction( String prod )
     {
         if ( System.getProperties().containsKey( TRACE_KEY ) )

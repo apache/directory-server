@@ -7,11 +7,11 @@
   xmlns:util="jelly:util"
   xmlns:maven="jelly:maven">
 
-  <goal name="schema"> 
+  <goal name="eve"> 
     <echo>Schema plugin not implemented yet!</echo> 
   </goal> 
-
-  <goal name="schema:find">
+  
+  <goal name="eve:blah"> 
     <echo>Schema plugin not implemented yet!</echo> 
   </goal> 
   

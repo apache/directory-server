@@ -16,61 +16,55 @@
  * limitations under the License.
  */
  -->
-
-
 <project>
   <extend>${basedir}/../../project.xml</extend>
+  <pomVersion>1</pomVersion>
+  <artifactId>null</artifactId>
   <groupId>incubator-directory</groupId>
   <id>maven-eve-plugin</id>
-
   <name>maven-eve-plugin</name>
   <package>org.apache.eve.tools</package>
   <currentVersion>SNAPSHOT</currentVersion>
   <inceptionYear>2004</inceptionYear>
-
   <shortDescription>A collection of eve tools as a maven plugin</shortDescription>
-
   <description>
     A collection of tools as plugins to be used to develop Eve and program for Eve.
   </description>
-
   <dependencies>
-    <dependency>
-      <groupId>incubator-directory</groupId>
-      <artifactId>ldap-common</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>incubator-directory</groupId>
-      <artifactId>eve-backend</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>velocity</groupId>
-      <artifactId>velocity-dep</artifactId>
-      <version>1.4</version>
-    </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
+      <type>jar</type>
     </dependency>
-
     <dependency>
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.2</version>
+      <type>jar</type>
     </dependency>
-
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>incubator-directory</groupId>
+      <artifactId>eve-backend</artifactId>
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity-dep</artifactId>
+      <version>1.4</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
-
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-
     <unitTest>
       <resources>
         <resource>
@@ -78,19 +72,14 @@
           <includes>
             <include>**/*.schema</include>
           </includes>
+          <filtering>false</filtering>
         </resource>
       </resources>
-
       <includes>
         <include>**/*Test.java</include>
       </includes>
-      <excludes>
-        <exclude>**/NaughtyTest.java</exclude>
-      </excludes>
     </unitTest>
-
     <resources>
-
       <resources>
         <resource>
           <directory>src/java</directory>
@@ -99,21 +88,21 @@
           </includes>
         </resource>
       </resources>
-
       <resource>
         <directory>${basedir}/src/plugin-resources</directory>
         <targetPath>plugin-resources</targetPath>
+        <filtering>false</filtering>
       </resource>
       <resource>
         <directory>${basedir}</directory>
         <includes>
-            <include>plugin.jelly</include>
-            <include>plugin.properties</include>
-            <include>project.properties</include>
-            <include>project.xml</include>
+          <include>plugin.jelly</include>
+          <include>plugin.properties</include>
+          <include>project.properties</include>
+          <include>project.xml</include>
         </includes>
+        <filtering>false</filtering>
       </resource>
-
       <resource>
         <directory>${basedir}/src/java</directory>
         <includes>
@@ -122,16 +111,8 @@
           <include>**/*.properties</include>
           <include>**/*.x*</include>
         </includes>
+        <filtering>false</filtering>
       </resource>
-
-      <resource>
-        <directory>${basedir}/conf</directory>
-        <targetPath>BLOCK-INF</targetPath>
-        <includes>
-          <include>block.xml</include>
-        </includes>
-      </resource>
-
       <resource>
         <directory>${basedir}/src/java/org/apache/eve/tools/schema</directory>
         <targetPath>org/apache/eve/tools/schema</targetPath>
@@ -139,8 +120,9 @@
           <include>antlrTypeTokenTypes.txt</include>
           <include>antlrOpenLdapSchemaParserTokenTypes.txt</include>
         </includes>
+        <filtering>false</filtering>
       </resource>
     </resources>
-
   </build>
 </project>
+
