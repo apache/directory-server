@@ -32,8 +32,8 @@ import javax.naming.NamingException;
  */
 public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 {
-    /** maps an OID to an MatchingRuleUse */
-    private final Map byOid;
+    /** maps a name to an MatchingRuleUse */
+    private final Map byName;
     /** monitor notified via callback events */
     private MatchingRuleUseRegistryMonitor monitor;
 
@@ -48,7 +48,7 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
      */
     public DefaultMatchingRuleUseRegistry()
     {
-        byOid = new HashMap();
+        byName = new HashMap();
         monitor = new MatchingRuleUseRegistryMonitorAdapter();
     }
 
@@ -69,39 +69,40 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     // ------------------------------------------------------------------------
 
 
-    public void register( MatchingRuleUse attributeType ) throws NamingException
+    public void register( String name, MatchingRuleUse matchingRuleUse )
+        throws NamingException
     {
-        if ( byOid.containsKey( attributeType.getOid() ) )
+        if ( byName.containsKey( name ) )
         {
-            NamingException e = new NamingException( "attributeType w/ OID " +
-                attributeType.getOid() + " has already been registered!" );
-            monitor.registerFailed( attributeType, e );
+            NamingException e = new NamingException( "matchingRuleUse w/ name "
+                + name + " has already been registered!" );
+            monitor.registerFailed( matchingRuleUse, e );
             throw e;
         }
 
-        byOid.put( attributeType.getOid(), attributeType );
-        monitor.registered( attributeType );
+        byName.put( name, matchingRuleUse );
+        monitor.registered( matchingRuleUse );
     }
 
 
-    public MatchingRuleUse lookup( String oid ) throws NamingException
+    public MatchingRuleUse lookup( String name ) throws NamingException
     {
-        if ( ! byOid.containsKey( oid ) )
+        if ( ! byName.containsKey( name ) )
         {
-            NamingException e = new NamingException( "attributeType w/ OID "
-                + oid + " not registered!" );
-            monitor.lookupFailed( oid, e );
+            NamingException e = new NamingException( "matchingRuleUse w/ name "
+                + name + " not registered!" );
+            monitor.lookupFailed( name, e );
             throw e;
         }
 
-        MatchingRuleUse attributeType = ( MatchingRuleUse ) byOid.get( oid );
-        monitor.lookedUp( attributeType );
-        return attributeType;
+        MatchingRuleUse matchingRuleUse = ( MatchingRuleUse ) byName.get( name );
+        monitor.lookedUp( matchingRuleUse );
+        return matchingRuleUse;
     }
 
 
-    public boolean hasMatchingRuleUse( String oid )
+    public boolean hasMatchingRuleUse( String name )
     {
-        return byOid.containsKey( oid );
+        return byName.containsKey( name );
     }
 }
