@@ -169,19 +169,20 @@ public class EveContextFactory implements InitialContextFactory
                 msg += " is set using " + PRINCIPAL + " as well";
                 throw new ConfigurationException( msg );
             }
-            else if ( ! initialEnv.containsKey( Context.SECURITY_PRINCIPAL ) &&
-                   initialEnv.containsKey( Context.SECURITY_AUTHENTICATION ) &&
-                   initialEnv.get( Context.SECURITY_AUTHENTICATION ).equals( "none" ) )
+            else if ( ! initialEnv.containsKey( PRINCIPAL ) &&
+                   initialEnv.containsKey( TYPE ) &&
+                   initialEnv.get( TYPE ).equals( "none" ) )
             {
                 throw new ConfigurationException( "using authentication type none "
                         + "for anonymous binds while trying to bootstrap Eve "
                         + "- this is not allowed ONLY the admin can bootstrap" );
             }
-            else if ( initialEnv.containsKey( Context.SECURITY_PRINCIPAL ) &&
-                      ! initialEnv.get( Context.SECURITY_PRINCIPAL ).equals( SystemPartition.ADMIN_PRINCIPAL ) )
+            else if ( initialEnv.containsKey( PRINCIPAL ) &&
+                      ! initialEnv.get( PRINCIPAL ).equals(
+                              SystemPartition.ADMIN_PRINCIPAL ) )
             {
                 throw new ConfigurationException( "user "
-                        + initialEnv.get( Context.SECURITY_PRINCIPAL )
+                        + initialEnv.get( PRINCIPAL )
                         + " is not allowed to bootstrap the system. ONLY the "
                         + "admin can bootstrap" );
             }

@@ -22,10 +22,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
-import javax.naming.NamingException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.ConfigurationException;
+import javax.naming.*;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.util.ArrayUtils;
@@ -61,8 +58,8 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
      *   <li>bypasses normal setup for test3BuildDbNoNothing</li>
      *   <li>bypasses normal setup for test5BuildDbNoPassWithPrincAuthNone</li>
      *   <li>bypasses normal setup for test4BuildDbNoPassNoPrincAuthNone</li>
-     *   <li>bypasses normal setup for </li>
-     *   <li></li>
+     *   <li>bypasses normal setup for test6BuildDbNoPassNotAdminPrinc</li>
+     *   <li>bypasses normal setup for test7BuildDbNoPassNoPrincAuthNoneAnonOff</li>
      * </ul>
      *
      * @throws Exception
@@ -81,6 +78,8 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
 
         if ( getName().equals( "test3BuildDbNoNothing" ) ||
              getName().equals( "test5BuildDbNoPassWithPrincAuthNone" ) ||
+                getName().equals( "test6BuildDbNoPassNotAdminPrinc" ) ||
+                getName().equals( "test7BuildDbNoPassNoPrincAuthNoneAnonOff" ) ||
              getName().equals( "test4BuildDbNoPassNoPrincAuthNone" ) )
         {
             return;
@@ -138,7 +137,8 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
     /**
      * Checks that we can give basically the minimal set of properties without
      * any security information to build and bootstrap a new system.  The admin
-     * user is presumed and no password is used.
+     * user is presumed and no password is set.  The admin password defaults to
+     * the empty byte array.
      *
      * @throws Exception if there are problems
      */
@@ -168,8 +168,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
     /**
      * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
      * is set to "none" when trying to bootstrap the system.  Only the admin
-     * user is allowed to bootstrap.  Subsequent calls can 'bind' (authenticate
-     * in our case since there is no network connection) anonymously though.
+     * user is allowed to bootstrap.
      *
      * @throws Exception if anything goes wrong
      */
@@ -211,6 +210,15 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
     }
 
 
+    /**
+     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
+     * is set to "none" when trying to bootstrap the system even when the
+     * principal is set to the admin user.  Only the admin user is allowed to
+     * bootstrap.  This is a configuration issue or a nonsense set of property
+     * values.
+     *
+     * @throws Exception if anything goes wrong
+     */
     public void test5BuildDbNoPassWithPrincAuthNone() throws Exception
     {
         // clean out the database
@@ -228,33 +236,87 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         catch( ConfigurationException e )
         {
         }
+    }
 
-//        // clean out the database
-//        doDelete( new File( "target" + File.separator + "eve" ) );
-//        Hashtable env = new Hashtable();
-//        env.put( Context.SECURITY_AUTHENTICATION, "none" );
-//        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-//        EveLdapContext ctx = ( EveLdapContext ) setSysRoot( env );
-//        X500Principal principal = ctx.getPrincipal();
-//        assertTrue( principal.getName().equalsIgnoreCase( SystemPartition.ADMIN_PRINCIPAL ) );
-//        Attributes attributes = ctx.getAttributes( "uid=admin" );
-//        assertNotNull( attributes );
-//
-//        // Eve has started now so we access another context w/o the wkdir
-//        env = new Hashtable();
-//        env.put( Context.PROVIDER_URL, "ou=system" );
-//        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
-//        InitialContext initial = new InitialContext( env );
-//        ctx = ( EveLdapContext ) initial.lookup( "uid=admin" );
-//        assertNotNull( ctx );
-//        attributes = ctx.getAttributes( "" );
-//        assertNotNull( attributes );
-//
-//        assertTrue( attributes.get( "objectClass" ).contains( "top" ) );
-//        assertTrue( attributes.get( "objectClass" ).contains( "person" ) );
-//        assertTrue( attributes.get( "objectClass" ).contains( "organizationalPerson" ) );
-//        assertTrue( attributes.get( "objectClass" ).contains( "inetOrgPerson" ) );
-//        assertTrue( attributes.get( "userPassword" ).contains( ArrayUtils.EMPTY_BYTE_ARRAY ) );
-//        assertTrue( attributes.get( "displayName" ).contains( "Directory Superuser" ) );
+
+    /**
+     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
+     * is set to "simple" when trying to bootstrap the system but the admin is
+     * not the principal.  Only the admin user is allowed to bootstrap.
+     * Subsequent calls can 'bind' (authenticate in our case since there is no
+     * network connection) anonymously though.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    public void test6BuildDbNoPassNotAdminPrinc() throws Exception
+    {
+        // clean out the database
+        tearDown();
+        doDelete( new File( "target" + File.separator + "eve" ) );
+        Hashtable env = new Hashtable();
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+
+        try
+        {
+            setSysRoot( env );
+            fail( "should not get here due to exception" );
+        }
+        catch( ConfigurationException e )
+        {
+        }
+    }
+
+
+    /**
+     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
+     * is set to "none" when trying to get a context from an already
+     * bootstrapped system when anonymous users are not turned on.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    public void test7BuildDbNoPassNoPrincAuthNoneAnonOff() throws Exception
+    {
+        // clean out the database
+        tearDown();
+        doDelete( new File( "target" + File.separator + "eve" ) );
+
+        // ok this should start up the system now as admin
+        EveLdapContext ctx = ( EveLdapContext ) setSysRoot( new Hashtable() );
+        assertNotNull( ctx );
+
+        // now go in as anonymous user and we should be rejected
+        Hashtable env = new Hashtable();
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_AUTHENTICATION, "none" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+
+        try
+        {
+            new InitialContext( env );
+            fail( "should never get here due to an exception" );
+        }
+        catch ( NoPermissionException e )
+        {
+        }
+    }
+
+
+    /**
+     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
+     * is set to "none" when trying to get a context from an already
+     * bootstrapped system when anonymous users are not turned on.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    public void test8PassPrincAuthTypeSimple() throws Exception
+    {
+        // now go in as anonymous user and we should be rejected
+        Hashtable env = new Hashtable();
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "testing" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
+        assertNotNull( new InitialContext( env ) );
     }
 }

@@ -89,7 +89,7 @@ public abstract class BaseInterceptor implements Interceptor
      *
      * @see Interceptor#invoke(Invocation)
      */
-    public final void invoke( Invocation invocation ) throws NamingException
+    public void invoke( Invocation invocation ) throws NamingException
     {
         InvocationMethodEnum enum = invocation.getInvocationMethodEnum();
 

@@ -26,6 +26,8 @@ import org.apache.eve.jndi.exception.EveNameNotFoundException;
 import org.apache.eve.jndi.exception.EveNameAlreadyBoundException;
 
 import org.apache.eve.RootNexus;
+import org.apache.eve.exception.EveInterceptorException;
+import org.apache.eve.exception.EveException;
 
 
 /**
@@ -55,6 +57,34 @@ public class EveExceptionService extends BaseInterceptor
     public EveExceptionService( RootNexus nexus )
     {
         this.nexus = nexus;
+    }
+
+
+    public void invoke( Invocation invocation ) throws NamingException
+    {
+        if ( invocation.getState() == InvocationStateEnum.FAILUREHANDLING )
+        {
+            if ( invocation.getBeforeFailure() != null )
+            {
+                Throwable t = invocation.getBeforeFailure();
+                if ( t instanceof EveInterceptorException )
+                {
+                    EveInterceptorException eie = ( EveInterceptorException ) t;
+
+                    if ( eie.getRootCause() != null && ( eie instanceof EveException ) )
+                    {
+                        invocation.setBeforeFailure( eie.getRootCause() );
+                    }
+
+                    else if ( eie.getCause() != null && ( eie instanceof EveException ) )
+                    {
+                        invocation.setBeforeFailure( eie.getCause() );
+                    }
+                }
+            }
+        }
+
+        super.invoke( invocation );
     }
 
 
