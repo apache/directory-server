@@ -42,7 +42,7 @@ import org.apache.eve.schema.*;
 class antlrOpenLdapSchemaLexer extends Lexer ;
 
 options    {
-    k = 4 ;
+    k = 7 ;
     exportVocab=antlrOpenLdapSchema ;
     charVocabulary = '\3'..'\377' ;
     caseSensitive = false ;
@@ -64,7 +64,10 @@ WS  :   (   '#' (~'\n')* '\n' { newline(); }
 QUOTE              : '\''
     ;
 
-OPEN_PAREN         : '(' 
+DIGIT              : '0' .. '9'
+    ;
+
+OPEN_PAREN         : '('
     ;
 
 CLOSE_PAREN        : ')'
@@ -79,7 +82,6 @@ CLOSE_BRACKET      : '}'
 protected NUMERIC_STRING : ('0' .. '9')+
     ;
 
-
 NUMERICOID         :
         NUMERIC_STRING ( '.' NUMERIC_STRING )+
     ;
@@ -89,7 +91,15 @@ IDENTIFIER options { testLiterals=true; }
         ( 'a' .. 'z') ( 'a' .. 'z' | '0' .. '9' | '-' | ';' )*
     ;
 
+DESC
+    :
+        "desc" WS QUOTE ( ~'\'' )+ QUOTE
+    ;
 
+SYNTAX
+    :
+        "syntax" WS NUMERICOID OPEN_BRACKET ( DIGIT )+ CLOSE_BRACKET
+    ;
 
 class antlrOpenLdapSchemaParser extends Parser ;
 
@@ -275,7 +285,7 @@ attributeType returns [MutableAttributeType type]
         type = new MutableAttributeType( oid.getText() );
     }
         ( names[type] )?
-        ( "DESC" QUOTE desc:IDENTIFIER { type.setDescription( desc.getText() ); } QUOTE )?
+        ( desc[type] )?
         ( "OBSOLETE" { type.setObsolete( true ); } )?
         ( superior[type] )?
         ( equality[type] )?
@@ -289,6 +299,15 @@ attributeType returns [MutableAttributeType type]
 
     CLOSE_PAREN ;
 
+
+desc [MutableAttributeType type]
+{
+}
+    : d:DESC
+    {
+        type.setDescription( d.getText().split( "'" )[1] );
+    }
+    ;
 
 superior [MutableAttributeType type]
 {
@@ -400,17 +419,24 @@ syntax [MutableAttributeType type]
 {
     matchedProduction( "syntax()" ) ;
 }
-    : "SYNTAX"
-    (
-        oid:NUMERICOID
+    : token:SYNTAX
+    {
+        String[] comps = token.getText().split( " " );
+
+        int index = comps[1].indexOf( "{" );
+        if ( index == -1 )
         {
-            type.setSyntax( new MutableSyntax( oid.getText() ) );
+            type.setSyntax( new MutableSyntax( comps[1] ) );
+            return;
         }
-        ( OPEN_BRACKET length:NUMERIC_STRING
-        {
-            type.setLength( Integer.parseInt( length.getText() ) );
-        } OPEN_BRACKET )?
-    );
+
+        String oid = comps[1].substring( 0, index );
+        String length = comps[1].substring( index + 1, comps[1].length() - 1 );
+
+        type.setSyntax( new MutableSyntax( oid ) );
+        type.setLength( Integer.parseInt( length ) );
+    }
+    ;
 
 usage [MutableAttributeType type]
 {

@@ -34,11 +34,9 @@ public class AttributeTypeParserTest extends TestCase
     public void testParser() throws Exception
     {
         String attributeTypeData = "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
-            //"        DESC 'RFC2256: knowledge information'\n" +
-            //"        EQUALITY caseIgnoreMatch\n" +
-            //"        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
-
-            ")";
+            "        DESC 'RFC2256: knowledge information'\n" +
+            "        EQUALITY caseIgnoreMatch\n" +
+            "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         ByteArrayInputStream in = new ByteArrayInputStream( attributeTypeData.getBytes() );
         antlrOpenLdapSchemaLexer lexer = new antlrOpenLdapSchemaLexer( in );
         antlrOpenLdapSchemaParser parser = new antlrOpenLdapSchemaParser( lexer );
@@ -54,5 +52,12 @@ public class AttributeTypeParserTest extends TestCase
         registry.register( "caseIgnoreMatch", "1.1.1.1.1.1" );
         parser.setOidRegistry( registry );
         AttributeType type = parser.attributeType();
+
+        assertEquals( "2.5.4.2", type.getOid() );
+        assertEquals( "knowledgeInformation", type.getName() );
+        assertEquals( "RFC2256: knowledge information", type.getDescription() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.15",
+            type.getSyntax().getOid() );
+        assertEquals( 32768, type.getLength() );
     }
 }
