@@ -122,7 +122,7 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           files.  Properties from proerties files are the common denominator
           though.  Another means is however possible programatically.
         </p>
-        <h4>Partition Id</h4>
+        <h3>Partition Id</h3>
         <p>
           Breifly we'll explain these properties and the scheme used.  A
           partition's property set is associated as a set using the partition's
@@ -130,7 +130,7 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           <b>eve.db.partitions</b> property: above it lists the ids for the two
           partitions, <i>apache</i> and <i>test</i>.
         </p>
-        <h4>Naming Context</h4>
+        <h3>Naming Context</h3>
         <p>
           Partitions need to know the naming context they will store entries
           for.  This naming context is also referred to as the suffix since all
@@ -142,7 +142,7 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           if the partition id is foo, then the suffix key would be,
           <b>eve.db.partition.suffix.foo</b>.
         </p>
-        <h4>User Defined Indices</h4>
+        <h3>User Defined Indices</h3>
         <p>
           Partitions can have indices on attributes.  Unlike OpenLDAP where you
           can build specific types of indices, Eve indices are of a single type.
@@ -154,7 +154,7 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           partition has indices built on top of <b>ou</b>, <b>objectClass</b>
           and <b>uid</b>.
         </p>
-        <h4>Suffix Entry</h4>
+        <h3>Suffix Entry</h3>
         <p>
           When creating a context the root entry of the context corresponding
           to the suffix of the partition must be created.  This entry is
@@ -187,7 +187,7 @@ eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleOb
           how this can be done for the same example above:
         </p>
 
-<souce>
+<source>
 BasicAttributes attrs = new BasicAttributes( true );
 BasicAttribute attr = new BasicAttribute( "objectClass" );
 attr.add( "top" );
@@ -216,7 +216,7 @@ attrs.put( attr );
 extras.put( EnvKeys.SUFFIX + "example", "dc=example" );
 extras.put( EnvKeys.INDICES + "example", "ou dc objectClass" );
 extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
-</souce>
+</source>
 
         <p>
           Ok that does not look any shorter.  We'll add to this in the future.
