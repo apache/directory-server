@@ -33,7 +33,7 @@ import javax.naming.directory.ModificationItem;
 public class ModifyMany extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
     private final ModificationItem[] modificationItems;
 
@@ -50,6 +50,7 @@ public class ModifyMany extends Invocation
         }
 
         this.name = name;
+
         this.modificationItems = modificationItems;
     }
 
@@ -69,6 +70,13 @@ public class ModifyMany extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         store.modify( name, modificationItems );
+
         return null;
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

@@ -33,7 +33,7 @@ import javax.naming.NamingException;
 public class GetSuffix extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
     private final boolean normalized;
 
@@ -46,6 +46,7 @@ public class GetSuffix extends Invocation
         }
 
         this.name = name;
+
         this.normalized = normalized;
     }
 
@@ -65,5 +66,11 @@ public class GetSuffix extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         return ( ( ContextPartition ) store ).getSuffix( normalized );
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

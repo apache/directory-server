@@ -23,6 +23,7 @@ import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.schema.SchemaService;
 import org.apache.ldap.server.operational.OperationalAttributeService;
 import org.apache.ldap.server.exception.ExceptionService;
+import org.apache.ldap.server.normalization.NormalizationService;
 
 import javax.naming.NamingException;
 import java.util.*;
@@ -55,13 +56,22 @@ public class InterceptorChain implements Interceptor
     public static InterceptorChain newDefaultChain()
     {
         InterceptorChain chain = new InterceptorChain();
-        chain.addBefore( NEXT_INTERCEPTOR, "authenticator", new AuthenticationService() );
-        chain.addBefore( NEXT_INTERCEPTOR, "authorizer", new AuthorizationService() );
-        chain.addBefore( NEXT_INTERCEPTOR, "validator", new ExceptionService() );
-        chain.addBefore( NEXT_INTERCEPTOR, "schemaManager", new SchemaService() );
-        chain.addBefore( NEXT_INTERCEPTOR, "operationalAttributeInterceptor", new OperationalAttributeService() );
+
+        chain.addFirst( "normalizationService", new NormalizationService() );
+
+        chain.addBefore( NEXT_INTERCEPTOR, "authenticationService", new AuthenticationService() );
+
+        chain.addBefore( NEXT_INTERCEPTOR, "authorizationService", new AuthorizationService() );
+
+        chain.addBefore( NEXT_INTERCEPTOR, "exceptionService", new ExceptionService() );
+
+        chain.addBefore( NEXT_INTERCEPTOR, "schemaService", new SchemaService() );
+
+        chain.addBefore( NEXT_INTERCEPTOR, "operationalAttributeService", new OperationalAttributeService() );
+
         return chain;
     }
+
 
     private final Interceptor NEXT_INTERCEPTOR0 = new Interceptor()
     {
@@ -69,20 +79,25 @@ public class InterceptorChain implements Interceptor
         {
         }
 
+
         public void destroy()
         {
         }
+
 
         public void process( NextInterceptor nextInterceptor, Invocation invocation ) throws NamingException
         {
             if( parent != null )
             {
                 Entry e = ( Entry ) parent.interceptor2entry.get( InterceptorChain.this );
+
                 e.nextInterceptor.process( invocation );
             }
+
             nextInterceptor.process( invocation );
         }
     };
+
 
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
@@ -101,13 +116,12 @@ public class InterceptorChain implements Interceptor
         }
 
 
-        public void process( NextInterceptor nextInterceptor, Invocation call )
-                throws NamingException
+        public void process( NextInterceptor nextInterceptor, Invocation call ) throws NamingException
         {
             if ( parent == null )
             {
-                // execute the actual backend operation only when this chain
-                // is root.
+                // execute the actual backend operation only when this chain is root.
+
                 call.execute( ctx.getRootNexus() );
             }
         }
@@ -130,9 +144,12 @@ public class InterceptorChain implements Interceptor
     public InterceptorChain()
     {
         head.nextEntry = tail;
+
         tail.prevEntry = head;
+
         register( NEXT_INTERCEPTOR, head );
     }
+
 
     /**
      * Initializes all interceptors this chain contains.
@@ -140,16 +157,21 @@ public class InterceptorChain implements Interceptor
     public synchronized void init( InterceptorContext ctx ) throws NamingException
     {
         ListIterator it = getAll().listIterator();
+
         Interceptor interceptor = null;
+
         try
         {
             while ( it.hasNext() )
             {
                 interceptor = ( Interceptor ) it.next();
+
                 String name = getName( interceptor );
-                InterceptorContext newCtx = new InterceptorContext( ctx.getEnvironment(), ctx.getSystemPartition(),
-                        ctx.getGlobalRegistries(), ctx.getRootNexus(),
-                        InterceptorConfigBuilder.build( ctx.getConfig(), ( name == null ) ? "" : name ) );
+
+                Map config = InterceptorConfigBuilder.build( ctx.getConfig(), ( name == null ) ? "" : name );
+
+                InterceptorContext newCtx = new InterceptorContext( ctx.getEnvironment(),
+                        ctx.getSystemPartition(), ctx.getGlobalRegistries(), ctx.getRootNexus(), config );
 
                 interceptor.init( newCtx );
             }
@@ -159,6 +181,7 @@ public class InterceptorChain implements Interceptor
             while ( it.hasPrevious() )
             {
                 Interceptor i = ( Interceptor ) it.previous();
+
                 try
                 {
                     i.destroy();
@@ -175,8 +198,7 @@ public class InterceptorChain implements Interceptor
             }
             else
             {
-                throw new InterceptorException( interceptor, null,
-                        "Failed to initialize interceptor chain.", t );
+                throw new InterceptorException( interceptor, null, "Failed to initialize interceptor chain.", t );
             }
         }
     }
@@ -188,9 +210,11 @@ public class InterceptorChain implements Interceptor
     public synchronized void destroy()
     {
         ListIterator it = getAllReversed().listIterator();
+
         while ( it.hasNext() )
         {
             Interceptor interceptor = ( Interceptor ) it.next();
+
             try
             {
                 interceptor.destroy();
@@ -211,10 +235,12 @@ public class InterceptorChain implements Interceptor
     public Interceptor get( String name )
     {
         Entry e = ( Entry ) name2entry.get( name );
+
         if ( e == null )
         {
             return null;
         }
+
         return e.interceptor;
     }
 
@@ -222,10 +248,12 @@ public class InterceptorChain implements Interceptor
     private String getName( Interceptor interceptor )
     {
         Entry e = ( Entry ) interceptor2entry.get( interceptor );
+
         if ( e == null )
         {
             return null;
         }
+
         return e.name;
     }
 
@@ -239,7 +267,9 @@ public class InterceptorChain implements Interceptor
         checkAddable( name, interceptor );
 
         Entry newEntry = new Entry( null, head, name, interceptor );
+
         head.prevEntry = newEntry;
+
         head = newEntry;
 
         register( name, newEntry );
@@ -255,6 +285,7 @@ public class InterceptorChain implements Interceptor
         checkAddable( name, interceptor );
 
         Entry newEntry = new Entry( tail.prevEntry, tail, name, interceptor );
+
         if ( tail.prevEntry != null )
         {
             tail.prevEntry.nextEntry = newEntry;
@@ -263,6 +294,7 @@ public class InterceptorChain implements Interceptor
         {
             head = newEntry;
         }
+
         tail.prevEntry = newEntry;
 
         register( name, newEntry );
@@ -273,24 +305,27 @@ public class InterceptorChain implements Interceptor
      * Adds the specified interceptor with the specified name just before the interceptor whose name is
      * <code>baseName</code> in this chain.
      */
-    public synchronized void addBefore( String baseName,
-                                        String name,
-                                        Interceptor interceptor )
+    public synchronized void addBefore( String baseName, String name, Interceptor interceptor )
     {
         Entry baseEntry = checkOldName( baseName );
+
         checkAddable( name, interceptor );
 
         Entry prevEntry = baseEntry.prevEntry;
+
         Entry newEntry = new Entry( prevEntry, baseEntry, name, interceptor );
+
         if ( prevEntry == null )
         {
             baseEntry.prevEntry = newEntry;
+
             head = newEntry;
             
         }
         else
         {
             baseEntry.prevEntry = newEntry;
+
             prevEntry.nextEntry = newEntry;
         }
 
@@ -302,22 +337,25 @@ public class InterceptorChain implements Interceptor
      * Adds the specified interceptor with the specified name just after the interceptor whose name is
      * <code>baseName</code> in this chain.
      */
-    public synchronized void addAfter( String baseName,
-                                       String name,
-                                       Interceptor interceptor )
+    public synchronized void addAfter( String baseName, String name, Interceptor interceptor )
     {
         Entry baseEntry = checkOldName( baseName );
+
         checkAddable( name, interceptor );
 
         Entry nextEntry = baseEntry.nextEntry;
+
         Entry newEntry = new Entry( baseEntry, nextEntry, name, interceptor );
+
         if ( nextEntry == null )
         {
             throw new IllegalStateException();
         }
 
         nextEntry.prevEntry.nextEntry = newEntry;
+
         nextEntry.prevEntry = newEntry;
+
         register( name, newEntry );
     }
 
@@ -328,22 +366,30 @@ public class InterceptorChain implements Interceptor
     public synchronized void remove( String name )
     {
         Entry entry = checkOldName( name );
+
         Entry prevEntry = entry.prevEntry;
+
         Entry nextEntry = entry.nextEntry;
+
         if ( prevEntry == null )
         {
             nextEntry.prevEntry = null;
+
             head = entry;
         }
         else
         {
             prevEntry.nextEntry = nextEntry;
+
             nextEntry.prevEntry = prevEntry;
         }
 
         name2entry.remove( name );
+
         Interceptor interceptor = entry.interceptor;
+
         interceptor2entry.remove( interceptor );
+
         if ( interceptor instanceof InterceptorChain )
         {
             ( ( InterceptorChain ) interceptor ).parent = null;
@@ -357,6 +403,7 @@ public class InterceptorChain implements Interceptor
     public synchronized void clear()
     {
         Iterator it = new ArrayList( name2entry.keySet() ).iterator();
+
         while ( it.hasNext() )
         {
             this.remove( ( String ) it.next() );
@@ -367,8 +414,11 @@ public class InterceptorChain implements Interceptor
     private void register( String name, Entry newEntry )
     {
         Interceptor interceptor = newEntry.interceptor;
+
         name2entry.put( name, newEntry );
+
         interceptor2entry.put( newEntry.interceptor, newEntry );
+
         if ( interceptor instanceof InterceptorChain )
         {
             ( ( InterceptorChain ) interceptor ).parent = this;
@@ -384,11 +434,12 @@ public class InterceptorChain implements Interceptor
     private Entry checkOldName( String baseName )
     {
         Entry e = ( Entry ) name2entry.get( baseName );
+
         if ( e == null )
         {
-            throw new IllegalArgumentException( "Unknown interceptor name:" +
-                    baseName );
+            throw new IllegalArgumentException( "Unknown interceptor name:" + baseName );
         }
+
         return e;
     }
 
@@ -421,6 +472,7 @@ public class InterceptorChain implements Interceptor
     public void process( NextInterceptor nextInterceptor, Invocation invocation ) throws NamingException
     {
         Entry head = this.head;
+
         try
         {
             head.interceptor.process( head.nextInterceptor, invocation );
@@ -431,8 +483,7 @@ public class InterceptorChain implements Interceptor
         }
         catch ( Throwable e )
         {
-            throw new InterceptorException( head.interceptor, invocation,
-                    "Unexpected exception.", e );
+            throw new InterceptorException( head.interceptor, invocation, "Unexpected exception.", e );
         }
     }
 
@@ -443,10 +494,13 @@ public class InterceptorChain implements Interceptor
     public List getAll()
     {
         List list = new ArrayList();
+
         Entry e = head;
+
         do
         {
             list.add( e.interceptor );
+
             e = e.nextEntry;
         }
         while ( e != null );
@@ -461,12 +515,16 @@ public class InterceptorChain implements Interceptor
     public List getAllReversed()
     {
         List list = new ArrayList();
+
         Entry e = tail;
+
         do
         {
             list.add( e.interceptor );
+
             e = e.prevEntry;
         }
+
         while ( e != null );
 
         return list;
@@ -502,15 +560,19 @@ public class InterceptorChain implements Interceptor
             }
 
             this.prevEntry = prevEntry;
+
             this.nextEntry = nextEntry;
+
             this.name = name;
+
             this.interceptor = interceptor;
+
             this.nextInterceptor = new NextInterceptor()
             {
-                public void process( Invocation call )
-                        throws NamingException
+                public void process( Invocation call ) throws NamingException
                 {
                     Interceptor interceptor = Entry.this.nextEntry.interceptor;
+
                     try
                     {
                         interceptor.process( Entry.this.nextEntry.nextInterceptor, call );
@@ -521,8 +583,7 @@ public class InterceptorChain implements Interceptor
                     }
                     catch ( Throwable e )
                     {
-                        throw new InterceptorException( interceptor, call,
-                                "Unexpected exception.", e );
+                        throw new InterceptorException( interceptor, call, "Unexpected exception.", e );
                     }
                 }
             };

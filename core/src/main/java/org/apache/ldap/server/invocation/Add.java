@@ -35,7 +35,7 @@ public class Add extends Invocation
 
     private final String userProvidedName;
 
-    private final Name normalizedName;
+    private Name normalizedName;
 
     private final Attributes attributes;
 
@@ -58,7 +58,9 @@ public class Add extends Invocation
         }
 
         this.userProvidedName = userProvidedName;
+
         this.normalizedName = normalizedName;
+
         this.attributes = attributes;
     }
 
@@ -75,6 +77,12 @@ public class Add extends Invocation
     }
 
 
+    public void setNormalizedName( Name normalizedName )
+    {
+        this.normalizedName = normalizedName;
+    }
+
+
     public String getUserProvidedName()
     {
         return userProvidedName;
@@ -84,6 +92,7 @@ public class Add extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         store.add( userProvidedName, normalizedName, attributes );
+
         return null;
     }
 }

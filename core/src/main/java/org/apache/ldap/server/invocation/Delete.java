@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 public class Delete extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
 
     public Delete( Name name )
@@ -55,6 +55,13 @@ public class Delete extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         store.delete( name );
+
         return null;
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

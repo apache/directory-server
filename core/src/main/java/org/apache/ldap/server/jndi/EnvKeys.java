@@ -39,21 +39,30 @@ public class EnvKeys
     // Properties for setting working directory, schemas and allowing anon binds
     // ------------------------------------------------------------------------
 
+    //    Not enabled anywhere but in the protocol client at the time being ...
+    //    public static final String ICF_INSTANCE = "server.use.factory.instance";
+
     /** bootstrap prop: path to eve's working directory - relative or absolute */
     public static final String WKDIR = "server.wkdir";
+
     /** a comma separated list of schema class files to load */
     public static final String SCHEMAS = "server.schemas";
+
     /** bootstrap prop: if key is present it enables anonymous users */
     public static final String DISABLE_ANONYMOUS = "server.disable.anonymous";
+
     /** a comma separated list of authenticator names */
     public static final String AUTHENTICATORS = "server.authenticators";
+
     /** the envprop key base to the authenticator implementation class */
     public static final String AUTHENTICATOR_CLASS = "server.authenticator.class.";
+
     /** the envprop key base to the properties of an authenticator */
     public static final String AUTHENTICATOR_PROPERTIES = "server.authenticator.properties.";
 
     /**
-     * bootstrap property: {@link Interceptor} or {@link InterceptorChain}
+     * Bootstrap property: {@link org.apache.ldap.server.interceptor.Interceptor} or
+     * {@link org.apache.ldap.server.interceptor.InterceptorChain}
      * that will intercept directory operations when they are invoked.  You
      * don't need to specify this property if you want to use the default
      * interceptor chain.  If you specify this property, you might have to

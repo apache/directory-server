@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 public class LookupWithAttrIds extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
     private final String[] attributeIds;
 
@@ -44,6 +44,7 @@ public class LookupWithAttrIds extends Invocation
             throw new NullPointerException( "name" );
         }
         this.name = name;
+
         this.attributeIds = attributeIds;
     }
 
@@ -63,5 +64,11 @@ public class LookupWithAttrIds extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         return store.lookup( name, attributeIds );
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

@@ -49,9 +49,13 @@ public class InterceptorContext
                                Map config )
     {
         this.environment = environment;
+
         this.systemPartition = systemPartition;
+
         this.globalRegistries = globalRegistries;
+
         this.rootNexus = rootNexus;
+
         this.config = config;
     }
 

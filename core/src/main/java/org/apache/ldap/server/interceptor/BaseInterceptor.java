@@ -25,12 +25,13 @@ import javax.naming.NamingException;
 
 
 /**
- * A easy-to-use implementation of {@link Interceptor} that demultiplexes invocations using method signature
- * overloading.
+ * A easy-to-use implementation of {@link Interceptor} that demultiplexes invocations
+ * using method signature overloading.
  * <p/>
- * This {@link Interceptor} forwards received process requests to an appropriate <code>process(NextInterceptor,
- * <em>ConcreteInvocation</em>)</code> methods.  Users can override any <code>process(..)</code> methods that
- * corresponds to {@link Invocation} types that he or she wants to filter.
+ * This {@link Interceptor} forwards received process requests to an appropriate
+ * <code>process(NextInterceptor, <em>ConcreteInvocation</em>)</code> methods.  Users
+ * can override any <code>process(..)</code> methods that correspond to
+ * {@link Invocation} types that he or she wants to filter.
  * <p/>
  * For example, if user wants to filter {@link Add} invocation:
  * <pre>
@@ -43,7 +44,8 @@ import javax.naming.NamingException;
  *     }
  * }
  * </pre>
- * <code>BaseInterceptor</code> handles all long and tedious if-elseif blocks behind the scene.
+ * <code>BaseInterceptor</code> handles all long and tedious if-elseif blocks behind the
+ * scenes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -65,6 +67,7 @@ public abstract class BaseInterceptor implements Interceptor
     protected BaseInterceptor()
     {
     }
+
 
     // ------------------------------------------------------------------------
     // Interceptor's Invoke Method
@@ -147,117 +150,103 @@ public abstract class BaseInterceptor implements Interceptor
         }
     }
 
+
     // ------------------------------------------------------------------------
     // Invocation Analogs
     // ------------------------------------------------------------------------
 
-    protected void process( NextInterceptor nextInterceptor, Add call )
-            throws NamingException
+
+    protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Delete call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Delete call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, GetMatchedDN call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, GetMatchedDN call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, GetSuffix call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, GetSuffix call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, HasEntry call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, HasEntry call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, IsSuffix call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, IsSuffix call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, List call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ListSuffixes call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ListSuffixes call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Lookup call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Modify call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyMany call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRN call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Move call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
     {
         nextInterceptor.process( call );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Search call )
-            throws NamingException
+    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
     {
         nextInterceptor.process( call );
     }

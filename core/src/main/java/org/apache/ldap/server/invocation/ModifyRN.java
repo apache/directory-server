@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 public class ModifyRN extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
     private final String newRelativeName;
 
@@ -53,7 +53,9 @@ public class ModifyRN extends Invocation
         }
 
         this.name = name;
+
         this.newRelativeName = newRelativeName;
+
         this.deleteOldName = deleteOldName;
     }
 
@@ -79,6 +81,13 @@ public class ModifyRN extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         store.modifyRn( name, newRelativeName, deleteOldName );
+
         return null;
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

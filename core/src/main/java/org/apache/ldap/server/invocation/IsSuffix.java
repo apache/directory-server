@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 public class IsSuffix extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
 
     public IsSuffix( Name name )
@@ -55,5 +55,11 @@ public class IsSuffix extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         return store.isSuffix( name ) ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

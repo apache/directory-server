@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 public class List extends Invocation
 {
 
-    private final Name baseName;
+    private Name baseName;
 
 
     public List( Name baseName )
@@ -55,5 +55,11 @@ public class List extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         return store.list( baseName );
+    }
+
+
+    public void setBaseName( Name baseName )
+    {
+        this.baseName = baseName;
     }
 }

@@ -32,7 +32,7 @@ import javax.naming.NamingException;
 public class Lookup extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
 
     public Lookup( Name name )
@@ -55,5 +55,11 @@ public class Lookup extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         return store.lookup( name );
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

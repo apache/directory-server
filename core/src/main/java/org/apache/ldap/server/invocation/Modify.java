@@ -33,7 +33,7 @@ import javax.naming.directory.Attributes;
 public class Modify extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
     private final int modOp;
 
@@ -48,7 +48,9 @@ public class Modify extends Invocation
         }
 
         this.name = name;
+
         this.modOp = modOp;
+
         this.attributes = attributes;
     }
 
@@ -74,6 +76,13 @@ public class Modify extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         store.modify( name, modOp, attributes );
+
         return null;
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
     }
 }

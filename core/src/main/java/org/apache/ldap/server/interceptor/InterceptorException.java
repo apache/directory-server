@@ -53,7 +53,9 @@ public class InterceptorException extends LdapNamingException
     public InterceptorException( Interceptor interceptor, Invocation invocation )
     {
         super( ResultCodeEnum.OTHER );
+
         this.invocation = invocation;
+
         this.interceptor = interceptor;
     }
 
@@ -65,11 +67,12 @@ public class InterceptorException extends LdapNamingException
      * @param invocation  the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      */
-    public InterceptorException( Interceptor interceptor,
-                                 Invocation invocation, String explanation )
+    public InterceptorException( Interceptor interceptor, Invocation invocation, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
+
         this.invocation = invocation;
+
         this.interceptor = interceptor;
     }
 
@@ -81,10 +84,10 @@ public class InterceptorException extends LdapNamingException
      * @param invocation  the Invocation the Interceptor failed on
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException( Interceptor interceptor,
-                                 Invocation invocation, Throwable rootCause )
+    public InterceptorException( Interceptor interceptor, Invocation invocation, Throwable rootCause )
     {
         this( interceptor, invocation );
+
         super.setRootCause( rootCause );
     }
 
@@ -97,12 +100,11 @@ public class InterceptorException extends LdapNamingException
      * @param explanation String explanation of why the Interceptor failed
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException( Interceptor interceptor,
-                                 Invocation invocation,
-                                 String explanation,
+    public InterceptorException( Interceptor interceptor, Invocation invocation, String explanation,
                                  Throwable rootCause )
     {
         this( interceptor, invocation, explanation );
+
         super.setRootCause( rootCause );
     }
 

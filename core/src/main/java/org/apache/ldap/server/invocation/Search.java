@@ -35,7 +35,7 @@ import java.util.Map;
 public class Search extends Invocation
 {
 
-    private final Name baseName;
+    private Name baseName;
 
     private final Map environment;
 
@@ -65,8 +65,11 @@ public class Search extends Invocation
         }
 
         this.baseName = baseName;
+
         this.environment = environment;
+
         this.filter = filters;
+
         this.controls = controls;
     }
 
@@ -98,5 +101,11 @@ public class Search extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         return store.search( baseName, environment, filter, controls );
+    }
+
+
+    public void setBaseName( Name baseName )
+    {
+        this.baseName = baseName;
     }
 }

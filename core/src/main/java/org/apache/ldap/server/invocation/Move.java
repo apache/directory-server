@@ -32,9 +32,9 @@ import javax.naming.NamingException;
 public class Move extends Invocation
 {
 
-    private final Name name;
+    private Name name;
 
-    private final Name newParentName;
+    private Name newParentName;
 
 
     public Move( Name name, Name newParentName )
@@ -50,6 +50,7 @@ public class Move extends Invocation
         }
 
         this.name = name;
+
         this.newParentName = newParentName;
     }
 
@@ -69,6 +70,19 @@ public class Move extends Invocation
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         store.move( name, newParentName );
+
         return null;
+    }
+
+
+    public void setName( Name name )
+    {
+        this.name = name;
+    }
+
+
+    public void setNewParentName( Name newParentName )
+    {
+        this.newParentName = newParentName;
     }
 }

@@ -33,7 +33,8 @@ import javax.naming.NamingException;
 public interface NextInterceptor
 {
     /**
-     * Passes the control of current invocation to the next {@link org.apache.ldap.server.interceptor.Interceptor} in the {@link org.apache.ldap.server.interceptor.InterceptorChain}.
+     * Passes the control of current invocation to the next {@link org.apache.ldap.server.interceptor.Interceptor} in
+     * the {@link org.apache.ldap.server.interceptor.InterceptorChain}.
      *
      * @param incovation
      * @throws NamingException

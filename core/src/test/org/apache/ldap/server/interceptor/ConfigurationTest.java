@@ -32,18 +32,29 @@ public class ConfigurationTest extends AbstractServerTest
     protected void setUp() throws Exception
     {
         rootChain.addLast( "A", interceptorA );
+
         rootChain.addLast( "child", childChain );
+
         childChain.addBefore( InterceptorChain.NEXT_INTERCEPTOR, "B", interceptorB );
+
         rootChain.addLast( "default", InterceptorChain.newDefaultChain() );
 
         extras.put( EnvKeys.INTERCEPTORS, rootChain );
+
         extras.put( EnvKeys.INTERCEPTORS + "#root", "1" );
+
         extras.put( EnvKeys.INTERCEPTORS + ".A", "2" );
+
         extras.put( EnvKeys.INTERCEPTORS + ".A#A", "3" );
+
         extras.put( EnvKeys.INTERCEPTORS + ".A#A.A", "4" );
+
         extras.put( EnvKeys.INTERCEPTORS + ".child#child", "5" );
+
         extras.put( EnvKeys.INTERCEPTORS + ".child.B", "6" );
+
         extras.put( EnvKeys.INTERCEPTORS + ".child.B#B", "7" );
+
         extras.put( EnvKeys.INTERCEPTORS + ".child.B#B.B", "8" );
 
         super.setUp();
@@ -53,12 +64,19 @@ public class ConfigurationTest extends AbstractServerTest
     public void testRootChain() throws Exception
     {
         Map expected = new HashMap();
+
         expected.put( "root", "1" );
+
         expected.put( "A#A", "3" );
+
         expected.put( "A#A.A", "4" );
+
         expected.put( "child#child", "5" );
+
         expected.put( "child.B#B", "7" );
+
         expected.put( "child.B#B.B", "8" );
+
         Assert.assertEquals( expected, rootChain.config );
     }
 
@@ -66,9 +84,13 @@ public class ConfigurationTest extends AbstractServerTest
     public void testChildChain() throws Exception
     {
         Map expected = new HashMap();
+
         expected.put( "child", "5" );
+
         expected.put( "B#B", "7" );
+
         expected.put( "B#B.B", "8" );
+
         Assert.assertEquals( expected, childChain.config );
     }
 
@@ -76,8 +98,11 @@ public class ConfigurationTest extends AbstractServerTest
     public void testA() throws Exception
     {
         Map expected = new HashMap();
+
         expected.put( "A", "3" );
+
         expected.put( "A.A", "4" );
+
         Assert.assertEquals( expected, interceptorA.config );
     }
 
@@ -85,8 +110,11 @@ public class ConfigurationTest extends AbstractServerTest
     public void testB() throws Exception
     {
         Map expected = new HashMap();
+
         expected.put( "B", "7" );
+
         expected.put( "B.B", "8" );
+
         Assert.assertEquals( expected, interceptorB.config );
     }
 
@@ -99,6 +127,7 @@ public class ConfigurationTest extends AbstractServerTest
         public synchronized void init( InterceptorContext ctx ) throws NamingException
         {
             config = ctx.getConfig();
+
             super.init( ctx );
         }
 

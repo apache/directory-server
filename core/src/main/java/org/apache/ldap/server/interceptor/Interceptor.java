@@ -24,15 +24,15 @@ import javax.naming.NamingException;
 
 
 /**
- * Filters any directory operations.  You can filter any {@link Invocation}s
+ * Filters any directory operations.  You can filter any {@link Invocation}
  * performed on {@link BackingStore}s just like Servlet filters do.
  * <p/>
  * <h2>Interceptor Chaining</h2> Interceptors should usually pass the control
  * of current invocation to the next interceptor by calling
  * {@link NextInterceptor#process(Invocation)}. The flow control is returned
  * when the next interceptor's {@link Interceptor#process(NextInterceptor, Invocation)}
- * returns. You can therefore implement pre-, post-, around- invocation
- * handler by how you place the statement.
+ * returns. You can therefore implement pre-, post-, around- invocation handler
+ * by how you place the statement.
  * <p/>
  * <h3>Pre-invocation Filtering</h3>
  * <pre>
@@ -74,10 +74,12 @@ import javax.naming.NamingException;
  * When you create an implementation of Interceptor, you have to follow the
  * basic class naming convention to avoid others' confusion:
  * <ul>
- *  <li>Class name must be an agent noun or end with '<code>Interceptor</code>'.</li>
+ *  <li>Class name must be an agent noun or end with <code>Interceptor</code> or
+ * <code>Service</code>.</li>
  * </ul>
- * Plus, placing your interceptor implementations to packages like
- * '<code>interceptor</code>' would be the best practice.
+ * Plus, placing your interceptor implementations into relavent packages like
+ * <code>interceptor</code> or ones that reflect its purpose would be a good
+ * practice.
  * <p/>
  * <h2>Overriding Default Interceptor Settings</h2>
  * <p/>
@@ -116,6 +118,5 @@ public interface Interceptor
      * @param invocation      the invocation to process
      * @throws NamingException on failures while handling the invocation
      */
-    void process( NextInterceptor nextInterceptor, Invocation invocation )
-            throws NamingException;
+    void process( NextInterceptor nextInterceptor, Invocation invocation ) throws NamingException;
 }
