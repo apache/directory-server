@@ -89,6 +89,19 @@ public class SearchHandler extends AbstractManyReplyHandler
             ctx = ( LdapContext ) ictx.lookup( "" );
             ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases().getName() );
             list = ctx.search( req.getBase(), req.getFilter().toString(), controls );
+            if ( list.hasMore() )
+            {
+                return new SearchResponseIterator( req, list );
+            }
+            else
+            {
+                list.close();
+                SearchResponseDone resp = new SearchResponseDoneImpl( req.getMessageId() );
+                resp.setLdapResult( new LdapResultImpl( resp ) );
+                resp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+                resp.getLdapResult().setMatchedDn( req.getBase() );
+                return Collections.singleton( resp ).iterator();        
+            }
         }
         catch ( NamingException e )
         {
@@ -111,7 +124,7 @@ public class SearchHandler extends AbstractManyReplyHandler
             return Collections.singleton( resp ).iterator();
         }
 
-        return new SearchResponseIterator( req, list );
+
     }
 
 
