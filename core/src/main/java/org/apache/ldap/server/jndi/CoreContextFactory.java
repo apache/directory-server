@@ -46,6 +46,7 @@ import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.auth.AbstractAuthenticator;
 import org.apache.ldap.server.auth.AnonymousAuthenticator;
+import org.apache.ldap.server.auth.Authenticator;
 import org.apache.ldap.server.auth.AuthenticatorConfig;
 import org.apache.ldap.server.auth.AuthenticatorContext;
 import org.apache.ldap.server.auth.SimpleAuthenticator;
@@ -55,12 +56,10 @@ import org.apache.ldap.server.db.ExpressionEnumerator;
 import org.apache.ldap.server.db.ExpressionEvaluator;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
-import org.apache.ldap.server.jndi.ibs.FilterService;
-import org.apache.ldap.server.jndi.ibs.FilterServiceImpl;
-import org.apache.ldap.server.jndi.ibs.OperationalAttributeService;
-import org.apache.ldap.server.jndi.ibs.SchemaService;
-import org.apache.ldap.server.jndi.ibs.ServerExceptionService;
-import org.apache.ldap.server.jndi.request.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.call.interceptor.Authorizer;
+import org.apache.ldap.server.jndi.call.interceptor.DefaultAttributeTagger;
+import org.apache.ldap.server.jndi.call.interceptor.SchemaManager;
+import org.apache.ldap.server.jndi.call.interceptor.Validator;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
@@ -499,16 +498,33 @@ public class CoreContextFactory implements InitialContextFactory
         // --------------------------------------------------------------------
         // Adding interceptors
         // --------------------------------------------------------------------
+        addDefaultInterceptors();
 
+        // fire up the app partitions now!
+        if ( initialEnv.get( EnvKeys.PARTITIONS ) != null )
+        {
+            startUpAppPartitions( wkdir );
+        }
+    }
+    
+    private void addDefaultInterceptors() throws NamingException
+    {
+        addAuthenticator();
+        addAuthorizer();
+        addValidator();
+        addSchemaManager();
+        addDefaultAttributeTagger();
+    }
+    
+    private void addAuthenticator() throws NamingException
+    {
         /*
          * Create and add the Authentication service interceptor to before
          * interceptor chain.
          */
-        InvocationStateEnum[] state = new InvocationStateEnum[]{InvocationStateEnum.PREINVOCATION};
-
         boolean allowAnonymous = !initialEnv.containsKey( EnvKeys.DISABLE_ANONYMOUS );
-
-        AuthenticationService authenticationService = new AuthenticationService();
+        org.apache.ldap.server.jndi.call.interceptor.Authenticator authenticationService =
+                new org.apache.ldap.server.jndi.call.interceptor.Authenticator();
 
         // create authenticator context
         AuthenticatorContext authenticatorContext = new AuthenticatorContext();
@@ -522,7 +538,7 @@ public class CoreContextFactory implements InitialContextFactory
             authenticatorConfig.setAuthenticatorName( "none" );
             authenticatorConfig.setAuthenticatorContext( authenticatorContext );
 
-            AbstractAuthenticator authenticator = new AnonymousAuthenticator();
+            Authenticator authenticator = new AnonymousAuthenticator();
             authenticator.init( authenticatorConfig );
             authenticationService.register( authenticator );
 
@@ -564,76 +580,51 @@ public class CoreContextFactory implements InitialContextFactory
                 e.printStackTrace();
             }
         }
+        
+        provider.getInterceptorChain().addLast( "authenticator", authenticationService );
+    }
 
-        provider.addInterceptor( authenticationService, state );
-
-        /*
-         * Create and add the Eve Exception service interceptor to both the
-         * before and onError interceptor chains.
-         */
-        state = new InvocationStateEnum[]{InvocationStateEnum.POSTINVOCATION};
-
-        FilterService filterService = new FilterServiceImpl();
-
-        Interceptor interceptor = ( Interceptor ) filterService;
-
-        provider.addInterceptor( interceptor, state );
-
+    private void addAuthorizer() throws NamingException
+    {
         /*
          * Create and add the Authorization service interceptor to before
          * interceptor chain.
          */
-        state = new InvocationStateEnum[]{InvocationStateEnum.PREINVOCATION};
-
-        ConcreteNameComponentNormalizer normalizer;
 
         AttributeTypeRegistry atr = globalRegistries.getAttributeTypeRegistry();
-
-        normalizer = new ConcreteNameComponentNormalizer( atr );
-
-        interceptor = new AuthorizationService( normalizer, filterService );
-
-        provider.addInterceptor( interceptor, state );
-
+        ConcreteNameComponentNormalizer normalizer = new ConcreteNameComponentNormalizer( atr );
+        Authorizer authorizer = new Authorizer( normalizer );
+        provider.getInterceptorChain().addLast( "authorizer", authorizer );
+    }
+    
+    private void addValidator()
+    {
         /*
          * Create and add the Eve Exception service interceptor to both the
          * before and onError interceptor chains.
          */
-        state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION, InvocationStateEnum.FAILUREHANDLING};
-
-        interceptor = new ServerExceptionService( nexus );
-
-        provider.addInterceptor( interceptor, state );
-
+        Validator validator = new Validator( nexus );
+        provider.getInterceptorChain().addLast( "validator", validator );
+    }
+    
+    private void addSchemaManager() throws NamingException
+    {
         /*
          * Create and add the Eve schema service interceptor to before chain.
          */
-        state = new InvocationStateEnum[]{InvocationStateEnum.PREINVOCATION};
-
-        interceptor = new SchemaService( nexus, globalRegistries, filterService );
-
-        provider.addInterceptor( interceptor, state );
-
+        SchemaManager schemaManager = new SchemaManager( nexus, globalRegistries );
+        provider.getInterceptorChain().addLast( "schemaManager", schemaManager );
+    }
+    
+    private void addDefaultAttributeTagger()
+    {
         /*
          * Create and add the Eve operational attribute managment service
          * interceptor to both the before and after interceptor chains.
          */
-        state = new InvocationStateEnum[]{
-            InvocationStateEnum.PREINVOCATION,
-            InvocationStateEnum.POSTINVOCATION};
-
-        interceptor = new OperationalAttributeService( nexus, globalRegistries, filterService );
-
-        provider.addInterceptor( interceptor, state );
-
-        // fire up the app partitions now!
-        if ( initialEnv.get( EnvKeys.PARTITIONS ) != null )
-        {
-            startUpAppPartitions( wkdir );
-        }
+        DefaultAttributeTagger tagger = new DefaultAttributeTagger( nexus, globalRegistries );
+        provider.getInterceptorChain().addLast( "defaultAttributeTagger", tagger );
     }
-
 
     /**
      * Starts up all the application partitions that will be attached to naming contexts in the system.  Partition
