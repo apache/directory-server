@@ -18,7 +18,7 @@ package org.apache.eve.event ;
 
 
 import org.apache.eve.listener.ClientKey ;
-import org.apache.ldap.common.message.Message ;
+import org.apache.ldap.common.message.Request ;
 
 
 /**
@@ -31,7 +31,7 @@ import org.apache.ldap.common.message.Message ;
 public class RequestEvent extends ClientEvent
 {
     /** the LDAP request message */
-    private final Message request ;
+    private final Request request ;
 
     
     /**
@@ -41,7 +41,7 @@ public class RequestEvent extends ClientEvent
      * @param clientKey the key of the client associated with this event
      * @param request the LDAP request message
      */
-    public RequestEvent( Object source, ClientKey clientKey, Message request )
+    public RequestEvent( Object source, ClientKey clientKey, Request request )
     {
         super( source, clientKey ) ;
         this.request = request ; 
@@ -53,7 +53,7 @@ public class RequestEvent extends ClientEvent
      * 
      * @return the LDAP request message associated with this event
      */
-    public Message getRequest()
+    public Request getRequest()
     {
         return request ;
     }

@@ -33,7 +33,7 @@ import java.util.EventObject ;
 public class DefaultStage implements Stage
 {
     /** driver max wait/timeout in millis */
-    private static final long DRIVER_WAIT = 200 ;
+    //private static final long DRIVER_WAIT = 200 ;
     /** the configuration bean */
     protected final StageConfig m_config ;
     /** this Stage's event queue */
@@ -149,7 +149,7 @@ public class DefaultStage implements Stage
                     {
                         try 
                         {
-                            m_queue.wait( DRIVER_WAIT ) ;
+                            m_queue.wait() ; //DRIVER_WAIT ) ;
                         } 
                         catch( InterruptedException e ) 
                         {
@@ -246,16 +246,15 @@ public class DefaultStage implements Stage
      */
     public void stop() throws InterruptedException
     {
-        synchronized( m_hasStarted )
-        {
-            m_hasStarted = new Boolean( false ) ;
+        m_hasStarted = new Boolean( false ) ;
 
-            synchronized( m_activeWorkers ) 
+        while ( m_thread.isAlive() || ! m_activeWorkers.isEmpty() )
+        {
+            Thread.sleep( 100 ) ;
+            
+            synchronized( m_queue )
             {
-                while ( m_thread.isAlive() || ! m_activeWorkers.isEmpty() )
-                {
-                    Thread.sleep( 100 ) ;
-                }
+                m_queue.notifyAll() ;
             }
         }
         

@@ -18,6 +18,7 @@ package org.apache.eve.seda ;
 
 
 import java.util.List ;
+import java.util.ArrayList ;
 
 import org.apache.eve.thread.ThreadPool ;
 
@@ -34,7 +35,7 @@ public class DefaultStageConfig implements StageConfig
     /** the name of this Stage */
     private final String name ;
     /** this Stage's handler */
-    private final StageHandler handler ;
+    private StageHandler handler ;
     /** the enqueue predicates for this Stage */
     private final List predicates ;
     /** the thread pool used for this Stages workers */
@@ -55,7 +56,41 @@ public class DefaultStageConfig implements StageConfig
         this.tp = tp ;
         this.name = name ;
         this.handler = handler ;
-        this.predicates = predicates ;
+        
+        if ( predicates == null )
+        {
+            this.predicates = new ArrayList() ;
+        }
+        else
+        {    
+            this.predicates = predicates ;
+        }
+    }
+
+
+    /**
+     * Creates a default stage configuration bean.
+     * 
+     * @param name the name of this Stage
+     * @param handler this Stage's handler 
+     * @param predicates the enqueue predicates for this Stage
+     * @param tp the thread pool used for this Stages workers
+     */
+    public DefaultStageConfig( String name, List predicates, ThreadPool tp )
+    {
+        this( name, null, predicates, tp ) ;
+    }
+
+
+    /**
+     * Creates a default stage configuration bean.
+     * 
+     * @param name the name of this Stage
+     * @param tp the thread pool used for this Stage's workers
+     */
+    public DefaultStageConfig( String name, ThreadPool tp )
+    {
+        this( name, null, null, tp ) ;
     }
 
 
@@ -74,6 +109,12 @@ public class DefaultStageConfig implements StageConfig
     public StageHandler getHandler()
     {
         return handler ;
+    }
+    
+    
+    public void setHandler( StageHandler handler )
+    {
+        this.handler = handler ;
     }
 
     

@@ -21,7 +21,8 @@ import java.util.EventObject ;
 
 
 /**
- * A do nothing adapter for a stage.
+ * A do nothing adapter for a stage.  For safty's sake this adapter throws 
+ * runtime exceptions wrapping failure exception notifications.
  *
  * @author <a href="mailto:directory-dev@incubator.apache.org">
  * Apache Directory Project</a>
@@ -105,6 +106,7 @@ public class StageMonitorAdapter implements StageMonitor
      */
     public void driverFailed( Stage stage, InterruptedException fault )
     {
+        throw new RuntimeException( fault ) ;
     }
 
     
@@ -114,5 +116,6 @@ public class StageMonitorAdapter implements StageMonitor
      */
     public void handlerFailed( Stage stage, EventObject event, Throwable fault )
     {
+        throw new RuntimeException( fault ) ;
     }
 }
