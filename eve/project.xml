@@ -6,6 +6,12 @@
     <name>Eve Directory Server</name>
     <package>org.apache.eve</package>
 
+  <organization>
+      <name>The Apache Directory Project</name>
+      <url>http://incubator.apache.org/directory</url>
+      <logo>/images/apache-avalon-logo.png</logo>
+  </organization>
+
     <inceptionYear>2003</inceptionYear>
     <url>http://directory.apache.org/${module.path}modules</url>
     <issueTrackingUrl>
@@ -60,67 +66,6 @@
         </mailingList>
     </mailingLists>
     
-    <developers>
-      <developer>
-        <name>Alex Karasulu</name>
-        <id>akarasulu</id>
-        <email>akarasulu at apache.org</email>
-        <roles>
-          <role>PM</role>
-          <role>Chair</role>
-          <role>Founder</role>
-          <role>Developer</role>
-          <role>Architect</role>
-          <role>Lead Developer</role>
-        </roles>
-      </developer>
-      <developer>
-        <name>Robb Penoyer</name>
-        <id>rpenoyer</id>
-        <email>rpenoyer at apache.org</email>
-        <roles>
-          <role>Developer</role>
-        </roles>
-      </developer>
-      <developer>
-        <name>Jeff Machols</name>
-        <id>jmachols</id>
-        <email>jmachols at apache.org</email>
-        <roles>
-          <role>Developer</role>
-          <role>Infrastructure Support</role>
-        </roles>
-      </developer>
-      <developer>
-        <name>Wes McKean</name>
-        <id>wesmckean</id>
-        <email>wesmckean at apache.org</email>
-        <roles>
-          <role>Developer</role>
-        </roles>
-      </developer>
-      <developer>
-        <name>Noel Bergman</name>
-        <id>noeljb</id>
-        <email>noeljb at apache.org</email>
-        <roles>
-          <role>Mentor</role>
-          <role>Advisor</role>
-          <role>Sponsor</role>
-        </roles>
-      </developer>
-      <developer>
-        <name>Stephen McConnell</name>
-        <id>mcconnell</id>
-        <email>mcconnell at apache.org</email>
-        <roles>
-          <role>Mentor</role>
-          <role>Sponsor</role>
-          <role>Advisor</role>
-        </roles>
-      </developer>
-    </developers>
-
     <licenses>
       <license>
         <name>Apache 1.1 License</name>
