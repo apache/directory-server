@@ -32,6 +32,8 @@ import javax.naming.NamingException;
  */
 public class SerializableComparator implements Comparator, Serializable
 {
+    private static final long serialVersionUID = 3257566226288162870L;
+
     /** the system global Comparator registry */
     private static ComparatorRegistry registry = null;
     /** the OID of the matchingRule for this comparator */

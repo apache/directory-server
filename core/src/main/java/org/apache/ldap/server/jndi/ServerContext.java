@@ -153,7 +153,6 @@ public abstract class ServerContext implements Context
 
     /**
      * Gets the principal of the authenticated user which also happens to own
-     * @return
      */
     public LdapPrincipal getPrincipal()
     {

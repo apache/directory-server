@@ -29,6 +29,8 @@ import javax.naming.NamingException;
 public class IndexNotFoundException
     extends NamingException
 {
+    private static final long serialVersionUID = 3906088970608981815L;
+
     /** the name of the index that was not found */
     private final String indexName;
 

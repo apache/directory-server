@@ -37,6 +37,8 @@ import javax.swing.tree.TreeModel;
  */
 public class SearchResultDialog extends JDialog implements ListSelectionListener
 {
+    private static final long serialVersionUID = 3256999964914757684L;
+
     private JPanel jPanel1 = new JPanel();
     private JTree jTree1 = new JTree();
     private JPanel jPanel2 = new JPanel();

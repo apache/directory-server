@@ -72,9 +72,9 @@ public interface BackingStore
      * modification with.
      * @throws NamingException if there are any problems
      * @see javax.naming.directory.DirContext
-     * @see javax.naming.directory.DirContext.ADD_ATTRIBUTE
-     * @see javax.naming.directory.DirContext.REMOVE_ATTRIBUTE
-     * @see javax.naming.directory.DirContext.REPLACE_ATTRIBUTE
+     * @see javax.naming.directory.DirContext#ADD_ATTRIBUTE
+     * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
+     * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
     void modify( Name name, int modOp, Attributes mods ) throws NamingException;
 

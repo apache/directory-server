@@ -34,6 +34,7 @@ import javax.swing.tree.TreeModel;
 public class AnnotatedFilterTreeDialog
     extends JDialog
 {
+    private static final long serialVersionUID = 3690476917916513074L;
     private JPanel jPanel1 = new JPanel();
     private JTree jTree1 = new JTree();
     private JPanel jPanel2 = new JPanel();

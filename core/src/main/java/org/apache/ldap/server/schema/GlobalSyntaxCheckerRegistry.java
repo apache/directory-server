@@ -123,7 +123,7 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 
         if ( bootstrap.hasSyntaxChecker( oid ) )
         {
-            c = ( SyntaxChecker ) bootstrap.lookup( oid );
+            c = bootstrap.lookup( oid );
             monitor.lookedUp( oid, c );
             return c;
         }

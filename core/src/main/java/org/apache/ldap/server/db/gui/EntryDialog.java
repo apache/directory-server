@@ -32,6 +32,8 @@ import javax.swing.*;
  */
 public class EntryDialog extends JDialog
 {
+    private static final long serialVersionUID = 3761684611092001592L;
+
     private JPanel m_namePnl = new JPanel() ;
     private JPanel m_attrPnl = new JPanel() ;
     private JPanel m_buttonPnl = new JPanel() ;

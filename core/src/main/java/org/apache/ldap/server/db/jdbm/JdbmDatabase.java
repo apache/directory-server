@@ -776,7 +776,7 @@ public class JdbmDatabase implements Database
 
             if ( hasUserIndexOn( attr ) )
             {
-                Index index = ( Index ) getUserIndex( attr );
+                Index index = getUserIndex( attr );
                 NamingEnumeration values = entry.get( attr ).getAll();
                 
                 while ( values.hasMore() )

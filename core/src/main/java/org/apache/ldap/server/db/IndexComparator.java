@@ -29,9 +29,13 @@ import org.apache.ldap.server.schema.SerializableComparator;
  */
 public class IndexComparator implements TupleComparator
 {
+    private static final long serialVersionUID = 3257283621751633459L;
+
     private static final SerializableComparator BIG_INTEGER_COMPARATOR = 
         new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.2" )
         {
+            private static final long serialVersionUID = 3690478030414165816L;
+
             public int compare( Object o1, Object o2 )
             {
                 return BigIntegerComparator.INSTANCE.compare( o1, o2 );

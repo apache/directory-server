@@ -33,6 +33,8 @@ import org.apache.ldap.common.name.LdapName;
  */
 public class LdapPrincipal implements Principal, Serializable
 {
+    private static final long serialVersionUID = 3906650782395676720L;
+
     /** the normalized distinguished name of the principal */
     private final Name name;
     /** the no name anonymous user whose DN is the empty String */
@@ -78,7 +80,6 @@ public class LdapPrincipal implements Principal, Serializable
      * Gets the normalized distinguished name of the principal as a String.
      *
      * @see Principal#getName()
-     * @return
      */
     public String getName()
     {

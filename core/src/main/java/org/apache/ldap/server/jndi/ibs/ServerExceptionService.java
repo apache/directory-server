@@ -87,12 +87,12 @@ public class ServerExceptionService extends BaseInterceptor
                 {
                     InterceptorException eie = ( InterceptorException ) t;
 
-                    if ( eie.getRootCause() != null && ( eie instanceof LdapException ) )
+                    if ( eie.getRootCause() != null )
                     {
                         invocation.setBeforeFailure( eie.getRootCause() );
                     }
 
-                    else if ( eie.getCause() != null && ( eie instanceof LdapException ) )
+                    else if ( eie.getCause() != null )
                     {
                         invocation.setBeforeFailure( eie.getCause() );
                     }
@@ -106,12 +106,12 @@ public class ServerExceptionService extends BaseInterceptor
                 {
                     InterceptorException eie = ( InterceptorException ) t;
 
-                    if ( eie.getRootCause() != null && ( eie instanceof LdapException ) )
+                    if ( eie.getRootCause() != null )
                     {
                         invocation.setAfterFailure( eie.getRootCause() );
                     }
 
-                    else if ( eie.getCause() != null && ( eie instanceof LdapException ) )
+                    else if ( eie.getCause() != null )
                     {
                         invocation.setAfterFailure( eie.getCause() );
                     }

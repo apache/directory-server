@@ -32,6 +32,8 @@ import javax.naming.directory.SearchResult;
  */
 public class DbSearchResult extends SearchResult
 {
+    private static final long serialVersionUID = 3976739172700860977L;
+
     /** the primary key used for the resultant entry */
     private final BigInteger id;
     

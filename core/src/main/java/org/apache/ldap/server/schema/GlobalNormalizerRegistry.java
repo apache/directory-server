@@ -123,7 +123,7 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
 
         if ( bootstrap.hasNormalizer( oid ) )
         {
-            c = ( Normalizer ) bootstrap.lookup( oid );
+            c = bootstrap.lookup( oid );
             monitor.lookedUp( oid, c );
             return c;
         }

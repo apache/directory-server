@@ -376,5 +376,3 @@ public abstract class BaseInterceptor implements Interceptor
     {
     }
 }
-
-

@@ -33,7 +33,9 @@ import javax.swing.border.TitledBorder;
  */
 public class FilterDialog extends JDialog
 {
-	public static final String RUN_MODE = "Run" ;
+	private static final long serialVersionUID = 3760565295319626294L;
+
+    public static final String RUN_MODE = "Run" ;
     public static final String LOAD_MODE = "Load" ;
     public static final String DEBUG_MODE = "Debug" ;
 	public static final String ANNOTATE_MODE = "Annotate" ;

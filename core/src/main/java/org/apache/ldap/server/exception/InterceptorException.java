@@ -34,6 +34,8 @@ import org.apache.ldap.server.jndi.Invocation;
  */
 public class InterceptorException extends LdapNamingException
 {
+    private static final long serialVersionUID = 3258690996517746233L;
+
     /** The Invokation the Interceptor failed on */
     private final Invocation invocation;
     /** The Interceptor causing the failure */

@@ -66,6 +66,8 @@ import org.apache.ldap.server.db.SearchEngine;
  */
 public class MainFrame extends JFrame
 {
+    private static final long serialVersionUID = 4049353102291513657L;
+
     // Swing Stuff
     private JLabel statusBar = new JLabel( "Ready" );
     private JPanel mainPnl = new JPanel();
@@ -779,11 +781,11 @@ public class MainFrame extends JFrame
         
         if ( isSystem )
         {
-            index = ( Index ) database.getSystemIndex( idxAttr );
+            index = database.getSystemIndex( idxAttr );
         }
         else 
         {
-            index = ( Index ) database.getUserIndex( idxAttr );
+            index = database.getUserIndex( idxAttr );
         }
 
         if ( index != null )

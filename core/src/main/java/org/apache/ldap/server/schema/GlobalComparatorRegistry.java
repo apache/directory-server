@@ -126,7 +126,7 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
 
         if ( bootstrap.hasComparator( oid ) )
         {
-            c = ( Comparator ) bootstrap.lookup( oid );
+            c = bootstrap.lookup( oid );
             monitor.lookedUp( oid, c );
             return c;
         }

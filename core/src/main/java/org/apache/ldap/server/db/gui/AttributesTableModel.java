@@ -34,6 +34,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class AttributesTableModel extends AbstractTableModel
 {
+    private static final long serialVersionUID = 3256443603340310841L;
     /** name for the key column */
     public static final String KEY_COL = "Keys";
     /** name for the values column */
@@ -86,7 +87,7 @@ public class AttributesTableModel extends AbstractTableModel
         while ( list.hasMoreElements() )
         {
             String l_key = ( String ) list.nextElement();
-            Attribute l_attr = ( Attribute ) this.entry.get( l_key );
+            Attribute l_attr = this.entry.get( l_key );
             
             for ( int ii = 0; ii < l_attr.size(); ii++ )
             {

@@ -39,6 +39,8 @@ import org.apache.regexp.RE;
  */
 public class IndexDialog extends JDialog
 {
+    private static final long serialVersionUID = 3689917253680445238L;
+
     public static final String DEFAULT_CURSOR = "Default" ;
     public static final String EQUALITY_CURSOR = "Equality" ;
     public static final String GREATER_CURSOR = "Greater" ;

@@ -28,6 +28,8 @@ import org.apache.ldap.common.util.ValuedEnum;
  */
 public class InvocationStateEnum extends ValuedEnum
 {
+    private static final long serialVersionUID = 3256720693239558450L;
+
     /** The enumeration constant value for the preinvocation state */
     public static final int PREINVOCATION_VAL = 0;
     /** The enumeration constant value for the postinvocation state */

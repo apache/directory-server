@@ -34,6 +34,8 @@ import java.util.*;
  */
 public class Invocation implements Serializable
 {
+    private static final long serialVersionUID = 4120852153129907510L;
+
     /**
      * The interceptor processing state of this Invocation.
      */

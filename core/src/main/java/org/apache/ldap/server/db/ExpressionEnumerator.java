@@ -79,7 +79,7 @@ public class ExpressionEnumerator implements Enumerator
 
         if ( node instanceof ScopeNode )
         {
-            list = scopeEnumerator.enumerate( ( ScopeNode ) node );
+            list = scopeEnumerator.enumerate( node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -111,8 +111,7 @@ public class ExpressionEnumerator implements Enumerator
                 list = enumPresence( ( PresenceNode ) node );
                 break;
             case( LeafNode.SUBSTRING ):
-                list = substringEnumerator.enumerate( ( SubstringNode )
-                    leaf );
+                list = substringEnumerator.enumerate( leaf );
                 break;
             default:
                 throw new IllegalArgumentException( "Unknown leaf assertion" );

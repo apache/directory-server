@@ -32,6 +32,8 @@ import javax.swing.*;
  */
 public class AboutDialog extends JDialog
 {
+    private static final long serialVersionUID = 3257853194544952884L;
+
     private String title = "About";
     private String product = "Eve jdbm partition inspector";
     private String version = "0.1";

@@ -34,6 +34,8 @@ import org.apache.ldap.common.util.ValuedEnum;
  */
 public class InvocationMethodEnum extends ValuedEnum
 {
+    private static final long serialVersionUID = 3258133574338491959L;
+
     /** name/signature for the getMatchedDn() method */
     public static final String GETMATCHEDDN_STR = "getMatchedDn()";
     /** name/signature for the getSuffix() method */

@@ -31,6 +31,8 @@ import org.apache.ldap.server.schema.SerializableComparator;
 public class KeyOnlyComparator
     implements TupleComparator, Serializable
 {
+    private static final long serialVersionUID = 3544956549803161397L;
+
     /** TODO */
     private SerializableComparator keyComparator = null;
 

@@ -40,6 +40,8 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
     private static final SerializableComparator BIG_INTEGER_COMPARATOR =
         new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.2" )
         {
+            private static final long serialVersionUID = 4048791282048841016L;
+
             public int compare( Object o1, Object o2 )
             {
                 return BigIntegerComparator.INSTANCE.compare( o1, o2 );
@@ -48,6 +50,8 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
     private static final SerializableComparator STRING_COMPARATOR =
         new SerializableComparator( "1.2.6.1.4.1.18060.1.1.1.2.3" )
         {
+            private static final long serialVersionUID = 3258689922792961845L;
+
             public int compare( Object o1, Object o2 )
             {
                 return STRCOMP.compare( o1, o2 );

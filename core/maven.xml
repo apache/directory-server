@@ -7,6 +7,10 @@
   xmlns:maven="jelly:maven" 
   >
 
+  <preGoal name="eclipse">
+    <attainGoal name="directory:schema"/>
+  </preGoal> 
+ 
   <preGoal name="java:compile">
     <attainGoal name="directory:schema"/>
   </preGoal> 

@@ -36,6 +36,8 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
  */
 public class AddEntryDialog extends JDialog implements ActionListener
 {
+    private static final long serialVersionUID = 3544671793504663604L;
+
     private JPanel m_namePnl = new JPanel();
     private JPanel m_attrPnl = new JPanel();
     private JPanel m_buttonPnl = new JPanel();
@@ -263,6 +265,8 @@ public class AddEntryDialog extends JDialog implements ActionListener
         DefaultCellEditor l_textEditor = 
             new DefaultCellEditor( l_textField ) 
         {
+            private static final long serialVersionUID = 3256727286014554675L;
+
             //Override DefaultCellEditor's getCellEditorValue method
             //to return an Integer, not a String:
             public Object getCellEditorValue() 

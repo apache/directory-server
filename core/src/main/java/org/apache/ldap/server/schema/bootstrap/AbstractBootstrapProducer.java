@@ -193,6 +193,8 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      */
     public static class BootstrapAttributeType extends AbstractAttributeType
     {
+        private static final long serialVersionUID = 4050205236738471984L;
+
         private final SyntaxRegistry syntaxRegistry;
         private final MatchingRuleRegistry matchingRuleRegistry;
         private final AttributeTypeRegistry attributeTypeRegistry;
