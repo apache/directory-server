@@ -8,10 +8,13 @@
         <resource id="avalon-framework:avalon-framework-api" version="4.1.5"/>
         <resource id="directory:eve-frontend-common-api" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-event-spi" version="SNAPSHOT"/>
-        <resource id="directory:eve-frontend-event-impl" version="SNAPSHOT"/>
+        <resource id="directory:eve-frontend-event-pojo-impl" version="SNAPSHOT"/>
+        <resource id="directory:eve-frontend-event-merlin-impl" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-buffer-spi" version="SNAPSHOT"/>
-        <resource id="directory:eve-frontend-buffer-impl" version="SNAPSHOT"/>
+        <resource id="directory:eve-frontend-buffer-pojo-impl" version="SNAPSHOT"/>
+        <resource id="directory:eve-frontend-buffer-merlin-impl" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-input-spi" version="SNAPSHOT"/>
+        <resource id="directory:eve-frontend-input-pojo-impl" version="SNAPSHOT"/>
       </repository>
     </classpath>
   </classloader>

@@ -2,7 +2,7 @@
 <project>
     <extend>${basedir}/../../../project.xml</extend>
     <groupId>directory</groupId>
-    <id>eve-frontend-input-impl</id>
+    <id>eve-frontend-input-merlin-impl</id>
   
     <name>Eve Frontend Input Manager Implementation</name>
     <package>org.apache.eve.input</package>
@@ -43,7 +43,7 @@
 
         <dependency>
             <groupId>directory</groupId>
-            <artifactId>eve-frontend-event-impl</artifactId>
+            <artifactId>eve-frontend-event-pojo-impl</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org</url>
         </dependency>
@@ -51,6 +51,13 @@
         <dependency>
             <groupId>directory</groupId>
             <artifactId>eve-frontend-input-spi</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://directory.apache.org</url>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>eve-frontend-input-pojo-impl</artifactId>
             <version>SNAPSHOT</version>
             <url>http://directory.apache.org</url>
         </dependency>
