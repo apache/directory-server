@@ -17,8 +17,6 @@
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
-import java.util.Properties;
-
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -31,6 +29,7 @@ import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.jndi.invocation.Add;
 import org.apache.ldap.server.jndi.invocation.Delete;
@@ -58,21 +57,19 @@ import org.apache.ldap.server.jndi.invocation.Search;
 public class Validator extends BaseInterceptor
 {
     /** the root nexus of the system */
-    private RootNexus nexus = null;
+    private RootNexus nexus;
 
 
     /**
      * Creates an interceptor that is also the exception handling service.
-     *
-     * @param nexus the root partition nexus
      */
-    public Validator( RootNexus nexus )
+    public Validator()
     {
-        this.nexus = nexus;
     }
     
-    public void init( Properties config )
+    public void init( InterceptorContext ctx )
     {
+        this.nexus = ctx.getRootNexus();
     }
 
     public void destroy()

@@ -16,10 +16,9 @@
  */
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
-import java.util.Properties;
-
 import javax.naming.NamingException;
 
+import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.jndi.invocation.Invocation;
 
 /**
@@ -96,10 +95,10 @@ public interface Interceptor
      * @param config the configuration properties for this interceptor
      * @throws NamingException if failed to initialize this interceptor
      */
-    void init( Properties config ) throws NamingException;
+    void init( InterceptorContext context ) throws NamingException;
 
     /**
-     * Deinitialized this interceptor.  This is invoked by directory service
+     * Deinitializes this interceptor.  This is invoked by directory service
      * provider when this intercepter is unloaded from interceptor chain.
      */
     void destroy();

@@ -17,12 +17,13 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -31,9 +32,15 @@ import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
+import org.apache.ldap.server.auth.AbstractAuthenticator;
+import org.apache.ldap.server.auth.AnonymousAuthenticator;
+import org.apache.ldap.server.auth.AuthenticatorConfig;
+import org.apache.ldap.server.auth.AuthenticatorContext;
 import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.auth.SimpleAuthenticator;
 import org.apache.ldap.server.jndi.invocation.Invocation;
 import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorContext;
 import org.apache.ldap.server.jndi.invocation.interceptor.NextInterceptor;
 
 /**
@@ -61,6 +68,76 @@ public class Authenticator implements Interceptor
      */
     public Authenticator()
     {
+    }
+
+    public void init( InterceptorContext ctx ) throws NamingException
+    {
+        /*
+         * Create and add the Authentication service interceptor to before
+         * interceptor chain.
+         */
+        boolean allowAnonymous = !ctx.getEnvironment().containsKey( EnvKeys.DISABLE_ANONYMOUS );
+
+        // create authenticator context
+        AuthenticatorContext authenticatorContext = new AuthenticatorContext();
+        authenticatorContext.setPartitionNexus( ctx.getRootNexus() );
+        authenticatorContext.setAllowAnonymous( allowAnonymous );
+
+        try // initialize default authenticators
+        {
+            // create anonymous authenticator
+            AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig();
+            authenticatorConfig.setAuthenticatorName( "none" );
+            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
+
+            org.apache.ldap.server.auth.Authenticator authenticator = new AnonymousAuthenticator();
+            authenticator.init( authenticatorConfig );
+            this.register( authenticator );
+
+            // create simple authenticator
+            authenticatorConfig = new AuthenticatorConfig();
+            authenticatorConfig.setAuthenticatorName( "simple" );
+            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
+
+            authenticator = new SimpleAuthenticator();
+            authenticator.init( authenticatorConfig );
+            this.register( authenticator );
+        }
+        catch ( Exception e )
+        {
+            throw new NamingException( e.getMessage() );
+        }
+
+        AuthenticatorConfig[] configs = null;
+        configs = AuthenticatorConfigBuilder
+                .getAuthenticatorConfigs( new Hashtable( ctx.getEnvironment() ) );
+
+        for ( int ii = 0; ii < configs.length; ii++ )
+        {
+            try
+            {
+                configs[ii].setAuthenticatorContext( authenticatorContext );
+
+                String authenticatorClass = configs[ii].getAuthenticatorClass();
+                Class clazz = Class.forName( authenticatorClass );
+                Constructor constructor = clazz.getConstructor( new Class[] { } );
+
+                AbstractAuthenticator authenticator = ( AbstractAuthenticator ) constructor.newInstance( new Object[] { } );
+                authenticator.init( configs[ii] );
+
+                this.register( authenticator );
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+            }
+        }
+
+    }
+    
+    public void destroy()
+    {
+        authenticators.clear();
     }
 
     /**
@@ -112,14 +189,6 @@ public class Authenticator implements Interceptor
         return (Collection)authenticators.get( type );
     }
     
-    public void init( Properties config )
-    {
-    }
-    
-    public void destroy()
-    {
-    }
-
     public void process( NextInterceptor nextProcessor, Invocation call ) throws NamingException
     {
         // check if we are already authenticated and if so we return making

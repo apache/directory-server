@@ -35,11 +35,11 @@ import org.apache.ldap.server.ContextPartition;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.jndi.invocation.Add;
-import org.apache.ldap.server.jndi.invocation.Invocation;
 import org.apache.ldap.server.jndi.invocation.Delete;
 import org.apache.ldap.server.jndi.invocation.GetMatchedDN;
 import org.apache.ldap.server.jndi.invocation.GetSuffix;
 import org.apache.ldap.server.jndi.invocation.HasEntry;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 import org.apache.ldap.server.jndi.invocation.IsSuffix;
 import org.apache.ldap.server.jndi.invocation.List;
 import org.apache.ldap.server.jndi.invocation.ListSuffixes;
@@ -51,6 +51,7 @@ import org.apache.ldap.server.jndi.invocation.ModifyRN;
 import org.apache.ldap.server.jndi.invocation.Move;
 import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
 import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorChain;
 
 
@@ -65,8 +66,8 @@ public class JndiProvider implements BackendSubsystem
     /** Singleton instance of this class */
     private static JndiProvider s_singleton;
     
-    /** The interceptor chain for this provider */
-    private InterceptorChain interceptors;
+    /** The interceptor (or interceptor chain) for this provider */
+    private Interceptor interceptor;
     /** RootNexus as it was given to us by the ServiceManager */
     private RootNexus nexus;
     /** PartitionNexus proxy wrapping nexus to inject services */
@@ -98,7 +99,7 @@ public class JndiProvider implements BackendSubsystem
 
         s_singleton = this;
         this.nexus = nexus;
-        this.interceptors = new InterceptorChain( nexus );
+        this.interceptor = new InterceptorChain();
         this.proxy = new PartitionNexusImpl();
     }
 
@@ -161,20 +162,30 @@ public class JndiProvider implements BackendSubsystem
         this.nexus.close();
         this.nexus = null;
         this.proxy = null;
-        this.interceptors.clear();
+        this.interceptor.destroy();
+        this.interceptor = null;
         this.isShutdown = true;
         s_singleton = null;
     }
     
-    public InterceptorChain getInterceptorChain()
+    public Interceptor getInterceptor()
     {
-        return interceptors;
+        return interceptor;
+    }
+
+    public void setInterceptor( Interceptor interceptor )
+    {
+        if( interceptor == null )
+        {
+            throw new NullPointerException( "interceptor" );
+        }
+        this.interceptor = interceptor;
     }
 
 
     public Object invoke( Invocation call ) throws NamingException
     {
-        interceptors.process( call );
+        interceptor.process( null, call );
         return call.getResponse();
     }
 

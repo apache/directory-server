@@ -52,6 +52,15 @@ public class EnvKeys
     /** the envprop key base to the properties of an authenticator */
     public static final String AUTHENTICATOR_PROPERTIES = "server.authenticator.properties.";
 
+    /**
+     * bootstrap property: {@link Interceptor} or {@link InterceptorChain}
+     * that will intercept directory operations when they are invoked.  You
+     * don't need to specify this property if you want to use the default
+     * interceptor chain.  If you specify this property, you might have to
+     * add some default interceptors in <tt>org.apache.ldap.server.jndi.invocation.interceptor</tt>
+     * package in your custom interceptor chain. 
+     */
+    public static final String INTERCEPTOR = "server.interceptor";
 
     // ------------------------------------------------------------------------
     // Properties for protocol/network settings

@@ -20,7 +20,6 @@ package org.apache.ldap.server.jndi.invocation.interceptor;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -73,14 +72,14 @@ public class SchemaManager extends BaseInterceptor
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 
     /** the root nexus to all database partitions */
-    private final RootNexus nexus;
+    private RootNexus nexus;
     /** a binary attribute tranforming filter: String -> byte[] */
-    private final BinaryAttributeFilter binaryAttributeFilter;
+    private BinaryAttributeFilter binaryAttributeFilter;
     /** the global schema object registries */
-    private final GlobalRegistries globalRegistries;
-    private final AttributeTypeRegistry attributeRegistry;
+    private GlobalRegistries globalRegistries;
+    private AttributeTypeRegistry attributeRegistry;
     /** subschemaSubentry attribute's value from Root DSE */
-    private final String subentryDn;
+    private String subentryDn;
 
 
     /**
@@ -90,31 +89,20 @@ public class SchemaManager extends BaseInterceptor
      * @param globalRegistries the global schema object registries
      * @param filterService
      */
-    public SchemaManager( RootNexus nexus, GlobalRegistries globalRegistries )
-            throws NamingException
+    public SchemaManager()
     {
-        this.nexus = nexus;
-        if ( this.nexus == null )
-        {
-            throw new NullPointerException( "the nexus cannot be null" );
-        }
+    }
 
-        this.globalRegistries = globalRegistries;
-        if ( this.globalRegistries == null )
-        {
-            throw new NullPointerException( "the global registries cannot be null" );
-        }
-
+    public void init( InterceptorContext ctx ) throws NamingException
+    {
+        this.nexus = ctx.getRootNexus();
+        this.globalRegistries = ctx.getGlobalRegistries();
         attributeRegistry = globalRegistries.getAttributeTypeRegistry();
         binaryAttributeFilter = new BinaryAttributeFilter();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
         subentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
-    }
-
-    public void init( Properties config )
-    {
     }
     
     public void destroy()

@@ -18,7 +18,6 @@ package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
 import java.util.HashSet;
-import java.util.Properties;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -48,7 +47,6 @@ import org.apache.ldap.server.jndi.invocation.Move;
 import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.jndi.invocation.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.GlobalRegistries;
 
 
 /**
@@ -80,36 +78,23 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     };
 
     /** the root nexus of the system */
-    private final RootNexus nexus;
-    private final AttributeTypeRegistry registry;
+    private RootNexus nexus;
+    private AttributeTypeRegistry registry;
 
 
     /**
      * Creates the operational attribute management service interceptor.
-     *
-     * @param nexus the root nexus of the system
-     * @param globalRegistries the global schema object registries
      */
-    public OperationalAttributeInterceptor( RootNexus nexus,
-                                            GlobalRegistries globalRegistries )
+    public OperationalAttributeInterceptor()
     {
-        this.nexus = nexus;
-        if ( this.nexus == null )
-        {
-            throw new NullPointerException( "the nexus cannot be null" );
-        }
+    }
 
-        if ( globalRegistries == null )
-        {
-            throw new NullPointerException( "the global registries cannot be null" );
-        }
-        this.registry = globalRegistries.getAttributeTypeRegistry();
+    public void init( InterceptorContext ctx ) throws NamingException {
+        nexus = ctx.getRootNexus();
+        registry = ctx.getGlobalRegistries().getAttributeTypeRegistry();
     }
 
     public void destroy() {
-    }
-
-    public void init(Properties config) throws NamingException {
     }
 
     /**

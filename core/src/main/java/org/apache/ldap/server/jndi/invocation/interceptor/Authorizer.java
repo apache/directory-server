@@ -16,9 +16,6 @@
  */
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
-
-import java.util.Properties;
-
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,14 +27,14 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.common.name.NameComponentNormalizer;
+import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.invocation.Invocation;
 import org.apache.ldap.server.jndi.invocation.Delete;
 import org.apache.ldap.server.jndi.invocation.HasEntry;
+import org.apache.ldap.server.jndi.invocation.Invocation;
 import org.apache.ldap.server.jndi.invocation.List;
 import org.apache.ldap.server.jndi.invocation.Lookup;
 import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
@@ -47,6 +44,8 @@ import org.apache.ldap.server.jndi.invocation.ModifyRN;
 import org.apache.ldap.server.jndi.invocation.Move;
 import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 
 
 /**
@@ -71,23 +70,20 @@ public class Authorizer extends BaseInterceptor
     private static final Name GROUP_BASE_DN = SystemPartition.getGroupsBaseDn();
 
     /** the name parser used by this service */
-    private final DnParser dnParser;
+    private DnParser dnParser; 
 
 
     /**
      * Creates an authorization service interceptor.
-     *
-     * @param normalizer a schema enabled name component normalizer
-     * @param filterService a {@link FilterService} to register filters with
      */
-    public Authorizer( NameComponentNormalizer normalizer )
-            throws NamingException
+    public Authorizer()
     {
-        this.dnParser = new DnParser( normalizer );
     }
     
-    public void init( Properties config )
+    public void init( InterceptorContext ctx ) throws NamingException
     {
+        AttributeTypeRegistry atr = ctx.getGlobalRegistries().getAttributeTypeRegistry();
+        dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );
     }
     
     public void destroy()

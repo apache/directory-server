@@ -44,23 +44,16 @@ import org.apache.ldap.server.ContextPartition;
 import org.apache.ldap.server.ContextPartitionConfig;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.auth.AbstractAuthenticator;
-import org.apache.ldap.server.auth.AnonymousAuthenticator;
-import org.apache.ldap.server.auth.AuthenticatorConfig;
-import org.apache.ldap.server.auth.AuthenticatorContext;
-import org.apache.ldap.server.auth.SimpleAuthenticator;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.DefaultSearchEngine;
 import org.apache.ldap.server.db.ExpressionEnumerator;
 import org.apache.ldap.server.db.ExpressionEvaluator;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
-import org.apache.ldap.server.jndi.invocation.interceptor.Authorizer;
-import org.apache.ldap.server.jndi.invocation.interceptor.OperationalAttributeInterceptor;
-import org.apache.ldap.server.jndi.invocation.interceptor.SchemaManager;
-import org.apache.ldap.server.jndi.invocation.interceptor.Validator;
+import org.apache.ldap.server.jndi.invocation.interceptor.Interceptor;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorChain;
+import org.apache.ldap.server.jndi.invocation.interceptor.InterceptorContext;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.MatchingRuleRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
@@ -497,131 +490,21 @@ public class CoreContextFactory implements InitialContextFactory
         // --------------------------------------------------------------------
         // Adding interceptors
         // --------------------------------------------------------------------
-        addDefaultInterceptors();
+        Interceptor interceptor = (Interceptor) initialEnv.get( EnvKeys.INTERCEPTOR );
+        if( interceptor == null ) {
+            // If custom interceptor is not specified, use defaule one.
+            interceptor = InterceptorChain.newDefaultChain();
+        }
+        // FIXME interceptor config is passed incorrectly
+        interceptor.init( new InterceptorContext(
+                initialEnv, system, globalRegistries, nexus, initialEnv ) );
+        provider.setInterceptor( interceptor );
 
         // fire up the app partitions now!
         if ( initialEnv.get( EnvKeys.PARTITIONS ) != null )
         {
             startUpAppPartitions( wkdir );
         }
-    }
-    
-    private void addDefaultInterceptors() throws NamingException
-    {
-        addAuthenticator();
-        addAuthorizer();
-        addValidator();
-        addSchemaManager();
-        addDefaultAttributeTagger();
-    }
-    
-    private void addAuthenticator() throws NamingException
-    {
-        /*
-         * Create and add the Authentication service interceptor to before
-         * interceptor chain.
-         */
-        boolean allowAnonymous = !initialEnv.containsKey( EnvKeys.DISABLE_ANONYMOUS );
-        Authenticator authenticationService = new Authenticator();
-
-        // create authenticator context
-        AuthenticatorContext authenticatorContext = new AuthenticatorContext();
-        authenticatorContext.setRootNexus( nexus );
-        authenticatorContext.setAllowAnonymous( allowAnonymous );
-
-        try // initialize default authenticators
-        {
-            // create anonymous authenticator
-            AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig();
-            authenticatorConfig.setAuthenticatorName( "none" );
-            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
-
-            org.apache.ldap.server.auth.Authenticator authenticator = new AnonymousAuthenticator();
-            authenticator.init( authenticatorConfig );
-            authenticationService.register( authenticator );
-
-            // create simple authenticator
-            authenticatorConfig = new AuthenticatorConfig();
-            authenticatorConfig.setAuthenticatorName( "simple" );
-            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
-
-            authenticator = new SimpleAuthenticator();
-            authenticator.init( authenticatorConfig );
-            authenticationService.register( authenticator );
-        }
-        catch ( Exception e )
-        {
-            throw new NamingException( e.getMessage() );
-        }
-
-        AuthenticatorConfig[] configs = null;
-        configs = AuthenticatorConfigBuilder
-                .getAuthenticatorConfigs( initialEnv );
-
-        for ( int ii = 0; ii < configs.length; ii++ )
-        {
-            try
-            {
-                configs[ii].setAuthenticatorContext( authenticatorContext );
-
-                String authenticatorClass = configs[ii].getAuthenticatorClass();
-                Class clazz = Class.forName( authenticatorClass );
-                Constructor constructor = clazz.getConstructor( new Class[] { } );
-
-                AbstractAuthenticator authenticator = ( AbstractAuthenticator ) constructor.newInstance( new Object[] { } );
-                authenticator.init( configs[ii] );
-
-                authenticationService.register( authenticator );
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-            }
-        }
-        
-        provider.getInterceptorChain().addLast( "authenticator", authenticationService );
-    }
-
-    private void addAuthorizer() throws NamingException
-    {
-        /*
-         * Create and add the Authorization service interceptor to before
-         * interceptor chain.
-         */
-
-        AttributeTypeRegistry atr = globalRegistries.getAttributeTypeRegistry();
-        ConcreteNameComponentNormalizer normalizer = new ConcreteNameComponentNormalizer( atr );
-        Authorizer authorizer = new Authorizer( normalizer );
-        provider.getInterceptorChain().addLast( "authorizer", authorizer );
-    }
-    
-    private void addValidator()
-    {
-        /*
-         * Create and add the Eve Exception service interceptor to both the
-         * before and onError interceptor chains.
-         */
-        Validator validator = new Validator( nexus );
-        provider.getInterceptorChain().addLast( "validator", validator );
-    }
-    
-    private void addSchemaManager() throws NamingException
-    {
-        /*
-         * Create and add the Eve schema service interceptor to before chain.
-         */
-        SchemaManager schemaManager = new SchemaManager( nexus, globalRegistries );
-        provider.getInterceptorChain().addLast( "schemaManager", schemaManager );
-    }
-    
-    private void addDefaultAttributeTagger()
-    {
-        /*
-         * Create and add the Eve operational attribute managment service
-         * interceptor to both the before and after interceptor chains.
-         */
-        OperationalAttributeInterceptor tagger = new OperationalAttributeInterceptor( nexus, globalRegistries );
-        provider.getInterceptorChain().addLast( "defaultAttributeTagger", tagger );
     }
 
     /**
