@@ -1,4 +1,0 @@
-dn: dc=domain,dc=com
-objectclass: dcObject
-dc: domain
-

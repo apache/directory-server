@@ -1,7 +1,0 @@
-dn: cn=testuser,dc=domain,dc=com
-objectclass: inetOrgPerson
-cn: testuser
-sn: nobody
-userPassword: dumass
-
-
