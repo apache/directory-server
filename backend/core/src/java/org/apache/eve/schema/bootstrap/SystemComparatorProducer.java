@@ -29,9 +29,9 @@ import org.apache.ldap.common.schema.*;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CoreComparatorProducer extends AbstractBootstrapProducer
+public class SystemComparatorProducer extends AbstractBootstrapProducer
 {
-    public CoreComparatorProducer()
+    public SystemComparatorProducer()
     {
         super( ProducerTypeEnum.COMPARATOR_PRODUCER );
     }

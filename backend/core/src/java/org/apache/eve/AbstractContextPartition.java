@@ -47,20 +47,55 @@ import org.apache.eve.db.SearchResultEnumeration;
  */
 public abstract class AbstractContextPartition implements ContextPartition
 {
+    /** ===================================================================
+
+     The following OID branch is reserved for the directory TLP once it
+     graduates the incubator:
+
+       1.2.6.1.4.1.18060.1.1
+
+     The following branch is reserved for eve:
+
+       1.2.6.1.4.1.18060.1.1.1
+
+      The following branch is reserved for use by eve Syntaxes:
+
+        1.2.6.1.4.1.18060.1.1.1.1
+
+      The following branch is reserved for use by eve MatchingRules:
+
+        1.2.6.1.4.1.18060.1.1.1.2
+
+      The following branch is reserved for use by even AttributeTypes:
+
+        1.2.6.1.4.1.18060.1.1.1.3
+
+          * 1.2.6.1.4.1.18060.1.1.1.3.1 - _ndn
+          * 1.2.6.1.4.1.18060.1.1.1.3.2 - _updn
+          * 1.2.6.1.4.1.18060.1.1.1.3.3 - _existance
+          * 1.2.6.1.4.1.18060.1.1.1.3.4 - _hierarchy
+
+      The following branch is reserved for use by eve ObjectClasses:
+
+        1.2.6.1.4.1.18060.1.1.1.4
+
+    ==================================================================== */
+
+
     /** Private OID (1.2.6.1.4.1.18060.1.1.3.1) for _ndn op attrib */
-    public static final String NDN_OID       = "1.2.6.1.4.1.18060.1.1.3.1" ;
+    public static final String NDN_OID       = "1.2.6.1.4.1.18060.1.1.1.3.1" ;
     /** Private OID (1.2.6.1.4.1.18060.1.1.3.2) for _updn op attrib */
-    public static final String UPDN_OID      = "1.2.6.1.4.1.18060.1.1.3.2" ;
+    public static final String UPDN_OID      = "1.2.6.1.4.1.18060.1.1.1.3.2" ;
     /** Private OID (1.2.6.1.4.1.18060.1.1.3.3) for _existance op attrib */
-    public static final String EXISTANCE_OID = "1.2.6.1.4.1.18060.1.1.3.3" ;
+    public static final String EXISTANCE_OID = "1.2.6.1.4.1.18060.1.1.1.3.3" ;
     /** Private OID (1.2.6.1.4.1.18060.1.1.3.4) for _hierarchy op attrib */
-    public static final String HIERARCHY_OID = "1.2.6.1.4.1.18060.1.1.3.4" ;
+    public static final String HIERARCHY_OID = "1.2.6.1.4.1.18060.1.1.1.3.4" ;
     /** Private OID (1.2.6.1.4.1.18060.1.1.3.5) for _oneAlias index */
-    public static final String ONEALIAS_OID  = "1.2.6.1.4.1.18060.1.1.3.5" ;
+    public static final String ONEALIAS_OID  = "1.2.6.1.4.1.18060.1.1.1.3.5" ;
     /** Private OID (1.2.6.1.4.1.18060.1.1.3.6) for _subAlias index */
-    public static final String SUBALIAS_OID  = "1.2.6.1.4.1.18060.1.1.3.6" ;
+    public static final String SUBALIAS_OID  = "1.2.6.1.4.1.18060.1.1.1.3.6" ;
     /** Private OID (1.2.6.1.4.1.18060.1.1.3.7) for _alias index */
-    public static final String ALIAS_OID     = "1.2.6.1.4.1.18060.1.1.3.7" ;
+    public static final String ALIAS_OID     = "1.2.6.1.4.1.18060.1.1.1.3.7" ;
 
     /**
      * the database used for this backing store which is also initialized during
