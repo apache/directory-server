@@ -20,10 +20,7 @@ package org.apache.ldap.server.jndi;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
-import javax.naming.ConfigurationException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.naming.*;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -337,12 +334,27 @@ public class SimpleAuthenticationTest extends AbstractServerTest
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        Hashtable env = new Hashtable();
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "none" );
+        final Hashtable env = new Hashtable();
 
-        InitialContext ctx = new InitialContext( env );
-        
-        assertNotNull( ctx );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
+
+        env.put( Context.SECURITY_AUTHENTICATION, "none" );
+
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+
+        InitialContext ctx = null;
+
+        try
+        {
+            ctx = new InitialContext( env );
+
+            fail( "If anonymous binds are disabled we should never get here!" );
+        }
+        catch ( NoPermissionException e )
+        {
+            assertNull( ctx );
+
+            assertNotNull( e );
+        }
     }
 }
