@@ -175,8 +175,8 @@
 
 <source>
 Hashtable env = new Hashtable();
-env.setProperty( Context.PROVIDER_URL, "ou=system" );
-env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+env.put( Context.PROVIDER_URL, "ou=system" );
+env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 InitialDirContext ctx = new InitialDirContext( env );
 </source>
 
@@ -203,17 +203,16 @@ InitialDirContext ctx = new InitialDirContext( env );
 Hashtable env = new Hashtable();
 
 // Standard JNDI properties
-env.setProperty( Context.PROVIDER_URL, "ou=system" );
-env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
-env.setProperty( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-env.setProperty( Context.SECURITY_CREDENTIALS, "secret" );
-env.setProperty( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+env.put( Context.PROVIDER_URL, "ou=system" );
+env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
 // Eve specifice JNDI properties
-env.setProperty( EnvKeys.WKDIR, "/var/ldap" );
-env.setProperty( EnvKeys.DISABLE_ANONYMOUS, "true" );
-env.setProperty( EnvKeys.LDAP_PORT, "10389" );
-env.setProperty( EnvKeys.PARTITIONS, "apache" );
+env.put( EnvKeys.WKDIR, "/var/ldap" );
+env.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
+env.put( EnvKeys.LDAP_PORT, "10389" );
+env.put( EnvKeys.PARTITIONS, "apache" );
 
 // Setup new partition for Apache
 BasicAttributes attrs = new BasicAttributes( true );
