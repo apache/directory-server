@@ -2,7 +2,7 @@
 <project>
     <extend>${basedir}/../../../project.xml</extend>
     <groupId>directory</groupId>
-    <id>eve-frontend-buffer-impl</id>
+    <id>eve-frontend-buffer-pojo-impl</id>
   
     <name>Eve Frontend Buffer Pool Implementation</name>
     <package>org.apache.eve.buffer</package>
@@ -10,7 +10,7 @@
     <inceptionYear>2003</inceptionYear>
       
     <shortDescription>
-    Direct buffer pool implementation used by Eve's frontend
+    Direct buffer pool POJO implementation used by Eve's frontend
     </shortDescription>
 
     <description>
@@ -24,12 +24,6 @@
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>avalon-framework</groupId>
-            <artifactId>avalon-framework-api</artifactId>
-            <version>4.1.5</version>
-            <url>http://avalon.apache.org/framework</url>
-        </dependency>
 
         <dependency>
             <groupId>directory</groupId>
