@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
@@ -20,7 +20,7 @@
         
         <tr>
           <td>
-            <a href="../projects/server/index.html">main</a>
+            <a href="../projects/apacheds-main/index.html">main</a>
           </td>
           <td>
             Command line server application with <code>main()</code>
