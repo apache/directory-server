@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Partitions</title>
+  </properties>
+  
+  <body>
+    <section name="Partitions">
+      <p>
+        Partitions are entry stores assigned to a naming context.  The idea
+        behind a partition is that it stores a subset of the Directory
+        Information Base (DIB).  Partitions can be implemented in any way so
+        long as they adhere to interfaces.
+      </p>
+
+      <subsection name="Status">
+        <p>
+          Presently Eve has a single partition implementation which is used for
+          both the system partition and user partitions.  It uses
+          <a href="http://jdbm.sourceforge.net/">JDBM</a> as the underlying
+          B+Tree implementation for storing entries.
+        </p>
+
+        <p>
+          Other implementations are possible.  I'm particularly interested in
+          memory based partitions either BTree based or based on something like
+          Prevayer.
+        </p>
+
+        <p>
+          Partitions have simple interfaces that can be used to align any data
+          source to the LDAP data model thereby accessing it via JNDI or via
+          LDAP over the wire.  This makes Eve very flexible as a bridge to
+          standardize access to disparate data sources and formats.  Dynamic
+          mapping based backends are also interesting.
+        </p>
+      </subsection>
+
+      <subsection name="System Partition">
+        <p>
+          The system partition is a very special partition that is hardcoded to
+          hang off of the <b>ou=system</b> naming context.  It is always present
+          and contains administrative and operational information needed by the
+          server to operate.  Hence its name.
+        </p>
+
+        <p>
+          Eve's subsystems will use this partition to store information critical
+          to their operation.  Things like triggers, stored procedures, access
+          control instructions and schema information can be maintained here.
+        </p>
+      </subsection>
+
+      <subsection name="Root Nexus">
+        <p>
+          Several partitions can be assigned to different naming contexts within
+          Eve so long as their names do not overlap such that one partition's
+          naming context is contained within anothers.  The root nexus is a fake
+          partition that does not really store entries.  It maps other entry
+          storing partitions to naming contexts and routes backing store calls
+          to the partition containing the entry associated with the operation.
+        </p>
+      </subsection>
+
+      <subsection name="User/Application Partitions">
+        <p>
+          User partitions are partitions added by users.  When you download and
+          start using Eve you may want to create a separate partition to store
+          the entries of your application.  To us user and application partition
+          means the same thing: not the system partition!
+        </p>
+
+        <p>
+          Adding new application partitions to the server is a matter of
+          setting the right JNDI environment properties.  These properties are
+          used in both standalone and in embedded configurations.  Below is an
+          example of a properties configuration for two partitions hanging off
+          of the naming contexts <code>dc=apache,dc=org</code> and
+          <code>ou=test</code>:
+        </p>
+
+        <source>
+# all multivalued properties are space separated like the list of partions here
+eve.db.partitions=apache test
+
+# apache partition configuration
+eve.db.partition.suffix.apache=dc=apache,dc=org
+eve.db.partition.indices.apache=ou cn objectClass uid
+eve.db.partition.attributes.apache.dc=apache
+eve.db.partition.attributes.apache.objectClass=top domain extensibleObject
+
+# test partition configuration
+eve.db.partition.suffix.test=ou=test
+eve.db.partition.indices.test=ou objectClass
+eve.db.partition.attributes.test.ou=test
+eve.db.partition.attributes.test.objectClass=top organizationalUnit extensibleObject
+        </source>
+
+        <p>
+          Although somewhat ugly the way we use properties for settings does
+          work and hopefully we can build a tool on top of this to save the
+          user some hassle.  Another approach may be to use XML or something
+          easier to generate these properties from them.  For now its the best
+          non-specific means we have to inject settings through JNDI env
+          Hashtables while still being able to load settings via properties
+          files.  Ultimately JNDI properties are the common denominator.
+        </p>
+
+        <p>
+          Breifly we'll explain these properties.  All partition properties
+          are associated with one another using some partition id.  All
+          partition ids are listed as a space separated list using the <b>
+          eve.db.partitions</b> property: above it lists the ids for the too
+          partitions, <i>apache</i> and <i>test</i>.
+        </p>
+
+        <p>
+          Partitions need to know the naming context they will store entries
+          for.  This naming context is also referred to as the suffix since all
+          entries in the partition have this common suffix.  You guessed it,
+          the suffix is a distinguished name.  The property key for the suffix
+          of a partition is composed of the following property key base
+          <b>eve.db.partition.suffix.</b> concatenated with the id of the
+          partition: <b>eve.db.partition.suffix.</b><i>${id}</i>.  For example
+          if the partition id is foo, then the suffix key would be,
+          <b>eve.db.partition.suffix.foo</b>.
+         </p>
+
+        <p>
+          Partitions can have indices on attributes.  Unlike OpenLDAP where you
+          can build specific types of indices, Eve indices are of a single type.
+          For each partition a key is assembled from the partition id and the
+          property key base: <b>eve.db.partition.indices.</b><i>${id}</i>.  So
+          again for foo the key for attribute indices would be
+          <b>eve.db.partition.indices.foo</b>.  This value is a space separated
+          list of attributeType names to index.  For example the apache
+          partition has indices built on top of <b>ou</b>, <b>objectClass</b>
+          and <b>uid</b>.
+        </p>
+
+        <p>
+          When creating a context the root entry of the context corresponding
+          to the suffix of the partition must be created.  This entry is
+          composed of single-valued and multi-valued attributes.  We must
+          specify these attributes as well as their values.  To do so we again
+          use a key composed of a base, however this time we use both the id
+          of the partition and the name of the attribute:
+          <b>eve.db.partition.attributes.</b><i>${id}</i>.<i>${name}</i>.  So
+          for partition foo and attribute bar the following key would be used:
+          <b>eve.db.partition.attributes.foo.bar</b>.    The value of the key
+          is a space separated list of values for the bar attribute.  For
+          example the apache partition's suffix has an objectClass attribute
+          and its values are set to: top domain extensibleObject.
+        </p>
+      </subsection>
+
+      <subsection name="Future Progress">
+        <p>
+          Today we have some limitations to the way we can partition the DIB.
+          Namely we can't have a partition within a partition and sometimes this
+          makes sense.  Eventually we intend to enable this kind of
+          functionality using a special type of nexus which is both a router
+          and a backing store for entries.  It's smart enough to know what to
+          route verses when to use its own database.  Here's a <a href=
+          "http://nagoya.apache.org/jira/browse/DIREVE-23">JIRA improvement</a>
+          specifically aimed at achieving this goal.
+        </p>
+
+        <p>
+          Obviously we want as many different kinds of partitions as possible.
+          Ones using RDBMS' and ones using LDAP servers are welcome as well
+          so we can serve their content as well in one unified view.
+        </p>
+
+        <p>
+          Other aspirations include entry partitioning within a container
+          context.  Imagine having 250 million entries under
+          <code>ou=citizens,dc=census,dc=gov</code>.  You don't want all 250
+          million in one partition but would like to sub partition these entries
+          under the same context based on some attribute.  Basically we will be
+          using the attribute value to implement sub partitioning where within
+          a single context we are partitioning entries.
+        </p>
+      </subsection>
+
+    </section>
+  </body>
+</document>

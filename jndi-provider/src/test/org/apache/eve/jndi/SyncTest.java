@@ -36,7 +36,7 @@ public class SyncTest extends AbstractJndiTest
      */
     public void testSyncNoException() throws Exception
     {
-        overrides.put( EveContextFactory.SYNC_OP_ENV, "true" );
+        overrides.put( EnvKeys.SYNC, "true" );
         sysRoot = setSysRoot( "uid=admin,ou=system", "secret" );
         assertNotNull( sysRoot );
     }
@@ -50,7 +50,7 @@ public class SyncTest extends AbstractJndiTest
      */
     public void testPostSyncLookup() throws Exception
     {
-        overrides.put( EveContextFactory.SYNC_OP_ENV, "true" );
+        overrides.put( EnvKeys.SYNC, "true" );
         sysRoot = setSysRoot( "uid=admin,ou=system", "secret" );
         Attributes users = sysRoot.getAttributes( "ou=users" );
 

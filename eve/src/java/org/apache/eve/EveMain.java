@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.ldap.common.util.PropertiesUtils;
-import org.apache.eve.jndi.EveContextFactory;
+import org.apache.eve.jndi.EnvKeys;
 import org.apache.seda.listener.AvailablePortFinder;
 
 
@@ -62,7 +62,7 @@ public class EveMain
             env = new Properties();
         }
 
-        if ( ! env.containsKey( EveContextFactory.EVE_LDAP_PORT ) )
+        if ( ! env.containsKey( EnvKeys.EVE_LDAP_PORT ) )
         {
             int port = LDAP_PORT;
 
@@ -73,7 +73,7 @@ public class EveMain
                         + " is not available, using " + port + " instead" );
             }
 
-            env.setProperty( EveContextFactory.EVE_LDAP_PORT, String.valueOf( port ) );
+            env.setProperty( EnvKeys.EVE_LDAP_PORT, String.valueOf( port ) );
         }
 
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
@@ -101,7 +101,7 @@ public class EveMain
 
                 try
                 {
-                    env.setProperty( EveContextFactory.SYNC_OP_ENV, "true" );
+                    env.setProperty( EnvKeys.SYNC, "true" );
                     new InitialDirContext( env );
                 }
                 catch ( NamingException e )

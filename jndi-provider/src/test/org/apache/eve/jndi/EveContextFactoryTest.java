@@ -45,10 +45,10 @@ public class EveContextFactoryTest extends AbstractJndiTest
         attr.add( "testing" );
         attrs.put( attr );
 
-        extras.put( EveContextFactory.PARTITIONS_ENV, "testing example" );
-        extras.put( EveContextFactory.SUFFIX_BASE_ENV + "testing", "ou=testing" );
-        extras.put( EveContextFactory.INDICES_BASE_ENV + "testing", "ou objectClass" );
-        extras.put( EveContextFactory.ATTRIBUTES_BASE_ENV + "testing", attrs );
+        extras.put( EnvKeys.PARTITIONS, "testing example" );
+        extras.put( EnvKeys.SUFFIX + "testing", "ou=testing" );
+        extras.put( EnvKeys.INDICES + "testing", "ou objectClass" );
+        extras.put( EnvKeys.ATTRIBUTES + "testing", attrs );
 
         attrs = new BasicAttributes( true );
         attr = new BasicAttribute( "objectClass" );
@@ -60,9 +60,9 @@ public class EveContextFactoryTest extends AbstractJndiTest
         attr.add( "example" );
         attrs.put( attr );
 
-        extras.put( EveContextFactory.SUFFIX_BASE_ENV + "example", "dc=example" );
-        extras.put( EveContextFactory.INDICES_BASE_ENV + "example", "ou dc objectClass" );
-        extras.put( EveContextFactory.ATTRIBUTES_BASE_ENV + "example", attrs );
+        extras.put( EnvKeys.SUFFIX + "example", "dc=example" );
+        extras.put( EnvKeys.INDICES + "example", "ou dc objectClass" );
+        extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
     }
 
 

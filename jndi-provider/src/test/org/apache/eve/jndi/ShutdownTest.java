@@ -40,7 +40,7 @@ public class ShutdownTest extends AbstractJndiTest
      */
     public void testShutdownNonNullContext() throws Exception
     {
-        overrides.put( EveContextFactory.SHUTDOWN_OP_ENV, "true" );
+        overrides.put( EnvKeys.SHUTDOWN, "true" );
 
         try
         {
@@ -48,7 +48,7 @@ public class ShutdownTest extends AbstractJndiTest
         }
         finally
         {
-            overrides.remove( EveContextFactory.SHUTDOWN_OP_ENV );
+            overrides.remove( EnvKeys.SHUTDOWN );
         }
 
         assertNotNull( sysRoot );
@@ -62,7 +62,7 @@ public class ShutdownTest extends AbstractJndiTest
      */
     public void testShutdownRestart() throws Exception
     {
-        overrides.put( EveContextFactory.SHUTDOWN_OP_ENV, "true" );
+        overrides.put( EnvKeys.SHUTDOWN, "true" );
 
         try
         {
@@ -70,7 +70,7 @@ public class ShutdownTest extends AbstractJndiTest
         }
         finally
         {
-            overrides.remove( EveContextFactory.SHUTDOWN_OP_ENV );
+            overrides.remove( EnvKeys.SHUTDOWN );
         }
 
         assertNotNull( sysRoot );

@@ -86,7 +86,7 @@ public class RootDSETest extends TestCase
         Hashtable env = new Hashtable();
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.eve.jndi.EveContextFactory" );
-        env.put( EveContextFactory.SHUTDOWN_OP_ENV, "" );
+        env.put( EnvKeys.SHUTDOWN, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         try { new InitialContext( env ); } catch( Exception e ) {}
@@ -102,7 +102,7 @@ public class RootDSETest extends TestCase
     public void testGetInitialContext() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
+        env.put( EnvKeys.WKDIR, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -121,7 +121,7 @@ public class RootDSETest extends TestCase
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
+        env.put( EnvKeys.WKDIR, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -143,7 +143,7 @@ public class RootDSETest extends TestCase
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
+        env.put( EnvKeys.WKDIR, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -168,7 +168,7 @@ public class RootDSETest extends TestCase
     public void testDelete() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
+        env.put( EnvKeys.WKDIR, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -202,7 +202,7 @@ public class RootDSETest extends TestCase
     public void testRename() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
+        env.put( EnvKeys.WKDIR, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -236,7 +236,7 @@ public class RootDSETest extends TestCase
     public void testModify() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
+        env.put( EnvKeys.WKDIR, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -272,7 +272,7 @@ public class RootDSETest extends TestCase
     public void testModify2() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EveContextFactory.WKDIR_ENV, "target/eve" );
+        env.put( EnvKeys.WKDIR, "target/eve" );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );

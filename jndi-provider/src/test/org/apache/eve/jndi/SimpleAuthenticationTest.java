@@ -178,7 +178,7 @@ public class SimpleAuthenticationTest extends AbstractJndiTest
         doDelete( new File( "target" + File.separator + "eve" ) );
         Hashtable env = new Hashtable();
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( EveContextFactory.DISABLE_ANONYMOUS_ENV, "true" );
+        env.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
 
         try
         {

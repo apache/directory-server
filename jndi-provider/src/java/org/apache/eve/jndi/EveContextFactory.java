@@ -83,6 +83,8 @@ public class EveContextFactory implements InitialContextFactory
 {
     /** the default LDAP port to use */
     private static final int LDAP_PORT = 389;
+    /** default path to working directory if WKDIR_ENV property is not set */
+    public static final String DEFAULT_WKDIR = "eve";
 
     // for convenience
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
@@ -91,43 +93,6 @@ public class EveContextFactory implements InitialContextFactory
     private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
     private static final Name ADMIN_NAME = SystemPartition.getAdminDn();
 
-    // ------------------------------------------------------------------------
-    // Custom JNDI properties
-    // ------------------------------------------------------------------------
-
-    /** property used to shutdown the system */
-    public static final String SHUTDOWN_OP_ENV = "eve.operation.shutdown";
-    /** property used to sync the system with disk */
-    public static final String SYNC_OP_ENV = "eve.operation.sync";
-    /** key base for a set of user indices provided as comma sep list of attribute names or oids */
-    public static final String USER_INDICES_ENV_BASE = "eve.user.db.indices";
-    /** bootstrap prop: path to eve's working directory - relative or absolute */
-    public static final String WKDIR_ENV = "eve.wkdir";
-    /** default path to working directory if WKDIR_ENV property is not set */
-    public static final String DEFAULT_WKDIR = "eve";
-    /** a comma separated list of schema class files to load */
-    public static final String SCHEMAS_ENV = "eve.schemas";
-    /** bootstrap prop: if key is present it enables anonymous users */
-    public static final String DISABLE_ANONYMOUS_ENV = "eve.disable.anonymous";
-
-
-    /** key used to disable the networking layer (wire protocol) */
-    public static final String DISABLE_PROTOCOL = "eve.net.disable.protocol";
-    public static final String EVE_LDAP_PORT = "eve.net.ldap.port";
-    public static final String EVE_LDAPS_PORT = "eve.net.ldaps.port";
-
-    // ------------------------------------------------------------------------
-    // Custom JNDI properties for adding new application partitions
-    // ------------------------------------------------------------------------
-
-    /** a comma separated list of partition names */
-    public static final String PARTITIONS_ENV = "eve.db.partitions";
-    /** the envprop key base to the suffix of a partition */
-    public static final String SUFFIX_BASE_ENV = "eve.db.partition.suffix.";
-    /** the envprop key base to the space separated list of indices for a partition */
-    public static final String INDICES_BASE_ENV = "eve.db.partition.indices.";
-    /** the envprop key base to the Attributes for the context nexus entry */
-    public static final String ATTRIBUTES_BASE_ENV = "eve.db.partition.attributes.";
     /** default schema classes for the SCHEMAS_ENV property if not set */
     private static final String[] DEFAULT_SCHEMAS = new String[]
     {
@@ -194,7 +159,7 @@ public class EveContextFactory implements InitialContextFactory
         env = ( Hashtable ) env.clone();
         Context ctx = null;
 
-        if ( env.containsKey( SHUTDOWN_OP_ENV ) )
+        if ( env.containsKey( EnvKeys.SHUTDOWN ) )
         {
             if ( this.provider == null )
             {
@@ -225,7 +190,7 @@ public class EveContextFactory implements InitialContextFactory
             return ctx;
         }
 
-        if ( env.containsKey( SYNC_OP_ENV ) )
+        if ( env.containsKey( EnvKeys.SYNC ) )
         {
             provider.sync();
             return provider.getLdapContext( env );
@@ -243,11 +208,11 @@ public class EveContextFactory implements InitialContextFactory
         {
             // we need to check this here instead of in AuthenticationService
             // because otherwise we are going to start up the system incorrectly
-            if ( isAnonymous( env ) && env.containsKey( DISABLE_ANONYMOUS_ENV ) )
+            if ( isAnonymous( env ) && env.containsKey( EnvKeys.DISABLE_ANONYMOUS ) )
             {
                 throw new LdapNoPermissionException( "cannot bind as anonymous "
                     + "on startup while disabling anonymous binds w/ property: "
-                    + DISABLE_ANONYMOUS_ENV );
+                    + EnvKeys.DISABLE_ANONYMOUS );
             }
 
             this.initialEnv = env;
@@ -261,7 +226,7 @@ public class EveContextFactory implements InitialContextFactory
             }
 
             // fire up the front end if we have not explicitly disabled it
-            if ( ! initialEnv.containsKey( DISABLE_PROTOCOL ) )
+            if ( ! initialEnv.containsKey( EnvKeys.DISABLE_PROTOCOL ) )
             {
                 startUpWireProtocol();
             }
@@ -419,9 +384,9 @@ public class EveContextFactory implements InitialContextFactory
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
 
         String[] schemas = DEFAULT_SCHEMAS;
-        if ( initialEnv.containsKey( SCHEMAS_ENV ) )
+        if ( initialEnv.containsKey( EnvKeys.SCHEMAS ) )
         {
-            schemas = ( ( String ) initialEnv.get( SCHEMAS_ENV ) ).split( "," );
+            schemas = ( ( String ) initialEnv.get( EnvKeys.SCHEMAS ) ).split( "," );
             for ( int ii = 0; ii < schemas.length; ii++ )
             {
                 schemas[ii] = schemas[ii].trim();
@@ -443,9 +408,9 @@ public class EveContextFactory implements InitialContextFactory
 
 
         String wkdir = DEFAULT_WKDIR;
-        if ( initialEnv.containsKey( WKDIR_ENV ) )
+        if ( initialEnv.containsKey( EnvKeys.WKDIR ) )
         {
-            wkdir = ( ( String ) initialEnv.get( WKDIR_ENV ) ).trim();
+            wkdir = ( ( String ) initialEnv.get( EnvKeys.WKDIR ) ).trim();
         }
 
         File wkdirFile = new File( wkdir );
@@ -507,7 +472,7 @@ public class EveContextFactory implements InitialContextFactory
         InvocationStateEnum[] state = new InvocationStateEnum[]{
             InvocationStateEnum.PREINVOCATION
         };
-        boolean allowAnonymous = ! initialEnv.containsKey( DISABLE_ANONYMOUS_ENV );
+        boolean allowAnonymous = ! initialEnv.containsKey( EnvKeys.DISABLE_ANONYMOUS );
         Interceptor interceptor = new AuthenticationService( nexus, allowAnonymous );
         provider.addInterceptor( interceptor, state );
 
@@ -561,7 +526,7 @@ public class EveContextFactory implements InitialContextFactory
         provider.addInterceptor( interceptor, state );
 
         // fire up the app partitions now!
-        if ( initialEnv.get( PARTITIONS_ENV ) != null )
+        if ( initialEnv.get( EnvKeys.PARTITIONS ) != null )
         {
             startUpAppPartitions( wkdir );
         }
@@ -585,7 +550,7 @@ public class EveContextFactory implements InitialContextFactory
 
         proto = new LdapProtocolProvider( ( Hashtable) initialEnv.clone(), fe.getEventRouter() );
 
-        int port = PropertiesUtils.get( initialEnv, EVE_LDAP_PORT, LDAP_PORT );
+        int port = PropertiesUtils.get( initialEnv, EnvKeys.EVE_LDAP_PORT, LDAP_PORT );
         srvEntry = new InetServiceEntry( proto.getName(), port, proto, TransportTypeEnum.TCP );
         ( ( DefaultInetServicesDatabase ) fe.getInetServicesDatabase()).addEntry( srvEntry );
 
@@ -632,7 +597,7 @@ public class EveContextFactory implements InitialContextFactory
         MatchingRuleRegistry reg = globalRegistries.getMatchingRuleRegistry();
 
         // start getting all the parameters from the initial environment
-        String[] names = ( ( String ) initialEnv.get( PARTITIONS_ENV ) ).split( " " );
+        String[] names = ( ( String ) initialEnv.get( EnvKeys.PARTITIONS ) ).split( " " );
 
         for ( int ii = 0; ii < names.length; ii++ )
         {
@@ -640,7 +605,7 @@ public class EveContextFactory implements InitialContextFactory
             // create working directory under eve directory for app partition
             // ----------------------------------------------------------------
 
-            String suffix = ( String ) initialEnv.get( SUFFIX_BASE_ENV + names[ii] );
+            String suffix = ( String ) initialEnv.get( EnvKeys.SUFFIX + names[ii] );
             String wkdir = eveWkdir + File.separator + names[ii];
             mkdirs( eveWkdir, names[ii] );
 
@@ -680,9 +645,9 @@ public class EveContextFactory implements InitialContextFactory
             // if user indices are specified add those attribute types as well
             // ----------------------------------------------------------------
 
-            if ( initialEnv.containsKey( INDICES_BASE_ENV + names[ii] ) )
+            if ( initialEnv.containsKey( EnvKeys.INDICES + names[ii] ) )
             {
-                String[] indices = ( ( String ) initialEnv.get( INDICES_BASE_ENV
+                String[] indices = ( ( String ) initialEnv.get( EnvKeys.INDICES
                         + names[ii] ) ).split( " " );
 
                 for ( int jj = 0; jj < indices.length; jj++ )
@@ -706,7 +671,7 @@ public class EveContextFactory implements InitialContextFactory
             // ----------------------------------------------------------------
 
             Attributes rootAttrs;
-            Object rootEntry = initialEnv.get( ATTRIBUTES_BASE_ENV + names[ii] );
+            Object rootEntry = initialEnv.get( EnvKeys.ATTRIBUTES + names[ii] );
 
             if ( rootEntry instanceof String )
             {
