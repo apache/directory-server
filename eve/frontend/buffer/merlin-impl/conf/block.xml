@@ -6,6 +6,7 @@
     <classpath>
       <repository>
         <resource id="avalon-framework:avalon-framework-api" version="4.1.5"/>
+        <resource id="commons-lang:commons-lang" version="2.0"/>
         <resource id="directory:eve-frontend-common-api" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-buffer-spi" version="SNAPSHOT"/>
         <resource id="directory:eve-frontend-buffer-pojo-impl" version="SNAPSHOT"/>

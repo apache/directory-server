@@ -37,11 +37,6 @@
     </copy>
   </goal>
   
-  <goal name="cleanall">
-    <attainGoal name="clean"/>
-    <delete dir="home"/>
-  </goal>
-  
   <goal name="buildall" description="Build All Jar Files And Intall">
     <maven:reactor basedir="${basedir}" postProcessing="true" 
       includes="**/project.xml" excludes="./project.xml" goals="jar:install" 
@@ -62,11 +57,14 @@
   
   <goal name="clean-all" description="Clean all sandbox projects">
     <maven:reactor basedir="${basedir}" postProcessing="true" 
-      includes="*/project.xml" goals="clean" banner="Clean All" 
+      includes="**/project.xml" excludes="./project.xml" goals="cleanall" 
+      banner="Clean All" 
       ignoreFailures="true"/>
+    <attainGoal name="clean"/>
+    <delete dir="home"/>
   </goal>
   
-  <goal name="eclipse-all" 
+  <goal name="eclipseall" 
     description="Generate eclipse descriptors for all projects">
     <maven:reactor basedir="${basedir}" postProcessing="true" 
       includes="*/project.xml" goals="clean" banner="Clean All" 

@@ -7,6 +7,8 @@
       <repository>
 
         <resource 
+          id="commons-lang:commons-lang" version="2.0"/>
+        <resource 
           id="commons-collections:commons-collections" version="2.1"/>
 
         <resource 
@@ -67,15 +69,6 @@
      <configuration>
        <thread-group>
          <name>default</name>
-         <priority>5</priority> 
-         <is-daemon>false</is-daemon>
-         <max-threads>5</max-threads>
-         <min-threads>2</min-threads>
-         <min-spare-threads>1</min-spare-threads>
-       </thread-group>
-
-       <thread-group>
-         <name>input-consumer</name>
          <priority>5</priority> 
          <is-daemon>false</is-daemon>
          <max-threads>5</max-threads>

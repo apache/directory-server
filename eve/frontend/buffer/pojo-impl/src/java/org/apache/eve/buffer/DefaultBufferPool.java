@@ -191,8 +191,8 @@ public class DefaultBufferPool implements BufferPool
         // if the list of interested parties hits zero then we release buf
         if ( l_list.size() == 0 )
         {
-            m_inUseList.remove( a_buffer ) ;
-            m_freeList.add( a_buffer ) ;
+            m_inUseList.remove( l_list ) ;
+            m_freeList.add( l_list ) ;
             m_monitor.bufferReleased( this, a_buffer, a_party ) ;
         }
     }
@@ -213,7 +213,7 @@ public class DefaultBufferPool implements BufferPool
      */
     public synchronized int size()
     {
-        return m_freeList.size() + m_inUseList.size() ;
+        return m_allList.size() ;
     }
     
 
