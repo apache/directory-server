@@ -19,8 +19,6 @@ package org.apache.eve.decoder.impl ;
 
 import java.nio.ByteBuffer ;
 
-import org.apache.commons.lang.NotImplementedException ;
-
 import org.apache.commons.codec.DecoderException ;
 import org.apache.commons.codec.stateful.DecoderMonitor ;
 import org.apache.commons.codec.stateful.DecoderCallback ;
@@ -152,8 +150,6 @@ public class MerlinDecoderManager
     /**
      * @avalon.dependency type="org.apache.eve.event.EventRouter"
      *      key="event-router" version="1.0"
-     * @avalon.dependency type="org.apache.eve.buffer.BufferPool"
-     *      key="buffer-pool" version="1.0"
      * @avalon.dependency key="thread-manager"
      *      type="org.apache.avalon.cornerstone.services.threads.ThreadManager"
      *  
