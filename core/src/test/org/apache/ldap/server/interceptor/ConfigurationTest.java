@@ -1,10 +1,10 @@
-package org.apache.ldap.server.jndi.invocation.interceptor;
+package org.apache.ldap.server.interceptor;
 
 
 import junit.framework.Assert;
 import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.ldap.server.jndi.invocation.Invocation;
 
 import javax.naming.NamingException;
 import java.util.HashMap;

@@ -18,7 +18,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.ContextPartition;
-import org.apache.ldap.server.jndi.invocation.Invocation;
+import org.apache.ldap.server.invocation.Invocation;
 
 
 /**
