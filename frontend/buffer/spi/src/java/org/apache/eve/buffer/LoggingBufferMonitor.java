@@ -41,7 +41,7 @@ public class LoggingBufferMonitor implements BufferPoolMonitor
     /**
      * Creates a buffer pool logging monitor.
      */
-    public BufferPoolConsoleLogger()
+    public LoggingBufferMonitor()
     {
         log = LogFactory.getLog( DEFAULT ) ;
     }
@@ -52,7 +52,7 @@ public class LoggingBufferMonitor implements BufferPoolMonitor
      * 
      * @param name the logging channel name
      */
-    public BufferPoolConsoleLogger( String name )
+    public LoggingBufferMonitor( String name )
     {
         log = LogFactory.getLog( name ) ;
     }
