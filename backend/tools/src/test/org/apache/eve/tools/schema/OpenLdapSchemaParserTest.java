@@ -20,6 +20,7 @@ package org.apache.eve.tools.schema;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import org.apache.ldap.common.schema.ObjectClassTypeEnum;
 
 
 /**
@@ -55,7 +56,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
-    public void testSimpleAttributeType() throws Exception
+    public void testSimpleAttributeTypeParse() throws Exception
     {
         String attributeTypeData = "# adding a comment  \n" +
             "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n" +
@@ -75,7 +76,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
-    public void testComplexAttributeType() throws Exception
+    public void testComplexAttributeTypeParse() throws Exception
     {
         String attributeTypeData = "# adding a comment  \n" +
             "attributetype ( 2.5.4.2 NAME ( 'knowledgeInformation' 'asdf' ) \n" +
@@ -95,7 +96,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
-    public void testSimpleObjectClass() throws Exception
+    public void testObjectClassParse() throws Exception
     {
         String objectClassData = "objectclass ( 2.5.6.6 NAME 'person'\n" +
             "        DESC 'RFC2256: a person'\n" +
@@ -107,5 +108,15 @@ public class OpenLdapSchemaParserTest extends TestCase
         ObjectClassLiteral objectClass = ( ObjectClassLiteral ) objectClasses.get( "2.5.6.6" );
 
         assertNotNull( objectClass );
+        assertEquals( "2.5.6.6", objectClass.getOid() );
+        assertEquals( "person", objectClass.getNames()[0] );
+        assertEquals( "RFC2256: a person", objectClass.getDescription() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, objectClass.getClassType() );
+        assertEquals( "sn", objectClass.getMust()[0] );
+        assertEquals( "cn", objectClass.getMust()[1] );
+        assertEquals( "userPassword", objectClass.getMay()[0] );
+        assertEquals( "telephoneNumber", objectClass.getMay()[1] );
+        assertEquals( "seeAlso", objectClass.getMay()[2] );
+        assertEquals( "description", objectClass.getMay()[3] );
     }
 }
