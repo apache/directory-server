@@ -12,6 +12,7 @@
   </goal>
 
   <goal name="clean">
+    <ant:delete dir="eve"/>
     <ant:delete>
       <fileset dir="." includes="*.db"/>
       <fileset dir="." includes="*.lg"/>
