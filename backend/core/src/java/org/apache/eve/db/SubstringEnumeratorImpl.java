@@ -204,201 +204,123 @@
  */
 
 /*
- * $Id: ScopeEvaluatorImpl.java,v 1.3 2003/10/15 01:59:46 akarasulu Exp $
+ * $Id: SubstringEnumeratorImpl.java,v 1.2 2003/10/17 00:10:46 akarasulu Exp $
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --
  * -- any LDAPd project for copyright and distribution information.      --
  *
- * Created on Oct 9, 2003
+ * Created on Oct 13, 2003
  */
-package org.apache.eve.db.jdbm;
+package org.apache.eve.db;
 
-
-import java.math.BigInteger;
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
+import javax.naming.NamingEnumeration;
+
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.filter.ScopeNode;
-import org.apache.ldap.common.message.DerefAliasesEnum;
-
-import org.apache.eve.db.Index;
-import org.apache.eve.db.Database;
-import org.apache.eve.db.IndexRecord;
-import org.apache.eve.db.ScopeEvaluator;
+import org.apache.ldap.common.filter.SubstringNode;
 
 
 /**
- * Evaluates ScopeNode assertions on candidates using a database.
+ * Enumerator that creates a NamingEnumeration over the set of candidates that 
+ * satisfy a substring filter expression.
  * 
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
-public class ScopeEvaluatorImpl implements ScopeEvaluator
+public class SubstringEnumeratorImpl implements SubstringEnumerator
 {
-    /** Database used to evaluate scope with */
-    private Database db;
+    /** Database used */
+    private Database db = null;
+    /** Evaluator used is an Avalon dependent object */
+    private SubstringEvaluator evaluator = null;
 
 
     /**
-     * Creates a scope node evaluator for search expressions.
+     * Creates a SubstringEnumerator for a database.
      *
-     * @param db the database used to evaluate scope node
+     * @param db the database
+     * @param evaluator a substring evaluator
      */
-    public ScopeEvaluatorImpl( Database db )
+    public SubstringEnumeratorImpl( Database db, SubstringEvaluator evaluator )
     {
         this.db = db;
+        this.evaluator = evaluator;
     }
 
 
+    // ------------------------------------------------------------------------
+    // SubstringEnumerator Methods
+    // ------------------------------------------------------------------------
+    
+    
     /**
-     * @see org.apache.eve.db.Evaluator#evaluate(ExprNode, IndexRecord)
+     * @see Enumerator#enumerate(
+     * org.apache.ldap.common.filter.ExprNode)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record )
+    public NamingEnumeration enumerate( final ExprNode node )
         throws NamingException
     {
-        ScopeNode snode = ( ScopeNode ) node;
-        
-        switch( snode.getScope() )
-        {
-        case( SearchControls.OBJECT_SCOPE ):
-            String dn = db.getEntryDn( record.getEntryId() );
-            return dn.equals( snode.getBaseDn() );
-        case( SearchControls.ONELEVEL_SCOPE ):
-            return assertOneLevelScope( snode, record.getEntryId() );
-        case( SearchControls.SUBTREE_SCOPE ):
-            return assertSubtreeScope( snode, record.getEntryId() );
-        default:
-            throw new NamingException( "Unrecognized search scope!" );
-        }
-    }
+        RE regex = null;
+        Index idx = null;
+        final SubstringNode snode = ( SubstringNode ) node;
     
-    
-    /**
-     * Asserts whether or not a candidate has one level scope while taking
-     * alias dereferencing into account.
-     * 
-     * @param node the scope node containing the base and alias handling mode
-     * @param id the candidate to assert which can be any db entry's id
-     * @return true if the candidate is within one level scope whether or not
-     * alias dereferencing is enabled.
-     * @throws NamingException if the index lookups fail.
-     */
-    public boolean assertSubtreeScope( final ScopeNode node, 
-        final BigInteger id ) throws NamingException
-    {
-        String dn = db.getEntryDn( id );
-        DerefAliasesEnum mode = node.getDerefAliases();
-        Object baseId = db.getEntryId( node.getBaseDn() );
-        boolean isDescendant = dn.endsWith( node.getBaseDn() );
-        
-        /*
-         * The candidate id could be any entry in the db.  If search 
-         * dereferencing is not enabled then we return the results of the 
-         * descendant test.
-         */
-        if ( ! mode.derefInSearching() )
+        if ( db.hasUserIndexOn( snode.getAttribute() ) )
         {
-            return isDescendant;
-        }
+            /*
+             * Build out regex in this block so we do not do it twice in the
+             * evaluator if there is no index on the attribute of the substr ava
+             */
+            try 
+            {
+                regex = snode.getRegex();
+            } 
+            catch ( RESyntaxException e ) 
+            {
+                NamingException ne = new NamingException( "SubstringNode '" 
+                    + node + "' had incorrect syntax" );
+                ne.setRootCause( e );
+                throw ne;
+            }
 
-        /*
-         * From here down alias dereferencing is enabled.  We determine if the
-         * candidate id is an alias, if so we reject it since aliases should
-         * not be returned.
-         */
-        Index idx = db.getAliasIndex();
-        if ( null != idx.reverseLookup( id ) )
-        {
-            return false;
+            /*
+             * Get the user index and return an index enumeration using the the
+             * compiled regular expression.  Try to constrain even further if
+             * an initial term is available in the substring expression.
+             */
+            idx = db.getUserIndex( snode.getAttribute() );
+            if ( null == snode.getInitial() )
+            {
+                return idx.listIndices( regex );
+            } 
+            else 
+            {
+                return idx.listIndices( regex, snode.getInitial() );
+            }
         }
         
         /*
-         * The candidate is NOT an alias at this point.  So if it is a 
-         * descendant we just return it since it is in normal subtree scope.
+         * From this point on we are dealing with an enumeration over entries
+         * based on an attribute that is not indexed.  We have no choice but
+         * to perform a full table scan but need to leverage an index for the
+         * underlying enumeration.  We know that all entries are listed under 
+         * the ndn index and so this will enumerate over all entries as the 
+         * underlying enumeration.  An evaluator in an assertion is used to 
+         * constrain the result set.
          */
-        if ( isDescendant )
+        NamingEnumeration underlying = db.getNdnIndex().listIndices();
+        IndexAssertion assertion = new IndexAssertion()
         {
-            return true;
-        }
-        
-        /*
-         * At this point the candidate is not a descendant and it is not an 
-         * alias.  We need to check if the candidate is in extended subtree 
-         * scope by performing a lookup on the subtree alias index.  This index 
-         * stores a tuple mapping the baseId to the ids of objects brought 
-         * into subtree scope of the base by an alias: 
-         * 
-         * ( baseId, aliasedObjId )
-         * 
-         * If the candidate id is an object brought into subtree scope then 
-         * the lookup returns true accepting the candidate.  Otherwise the 
-         * candidate is rejected with a false return because it is not in scope.
-         */
-        idx = db.getSubAliasIndex();
-        return idx.hasValue( baseId, id );
-    }
-    
-    
-    /**
-     * Asserts whether or not a candidate has one level scope while taking
-     * alias dereferencing into account.
-     * 
-     * @param node the scope node containing the base and alias handling mode
-     * @param id the candidate to assert which can be any db entry's id 
-     * @return true if the candidate is within one level scope whether or not
-     * alias dereferencing is enabled.
-     * @throws NamingException if the index lookups fail.
-     */
-    public boolean assertOneLevelScope( final ScopeNode node, 
-        final BigInteger id ) throws NamingException
-    {
-        DerefAliasesEnum mode = node.getDerefAliases();
-        Object baseId = db.getEntryId( node.getBaseDn() );
-        Index idx = db.getHeirarchyIndex();
-        boolean isChild = idx.hasValue( baseId, id );
+            public boolean assertCandidate( final IndexRecord record ) throws NamingException
+            {
+                return evaluator.evaluate( node, record );
+            }
+        };
 
-        /*
-         * The candidate id could be any entry in the db.  If search 
-         * dereferencing is not enabled then we return the results of the child 
-         * test. 
-         */
-        if ( ! mode.derefInSearching() )
-        {
-            return isChild;
-        }
-
-        /*
-         * From here down alias dereferencing is enabled.  We determine if the
-         * candidate id is an alias, if so we reject it since aliases should
-         * not be returned.
-         */
-        idx = db.getAliasIndex();
-        if ( null != idx.reverseLookup( id ) )
-        {
-            return false;
-        }
-        
-        /*
-         * The candidate is NOT an alias at this point.  So if it is a child we
-         * just return it since it is in normal one level scope.
-         */
-        if ( isChild )
-        {
-            return true;
-        }
-        
-        /*
-         * At this point the candidate is not a child and it is not an alias.
-         * We need to check if the candidate is in extended one level scope by 
-         * performing a lookup on the one level alias index.  This index stores
-         * a tuple mapping the baseId to the id of objects brought into the 
-         * one level scope of the base by an alias: ( baseId, aliasedObjId )
-         * If the candidate id is an object brought into one level scope then 
-         * the lookup returns true accepting the candidate.  Otherwise the 
-         * candidate is rejected with a false return because it is not in scope.
-         */
-        idx = db.getOneAliasIndex();
-        return idx.hasValue( baseId, id );
+        return new IndexAssertionEnumeration( underlying, assertion );
     }
 }

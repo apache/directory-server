@@ -1,4 +1,20 @@
-package org.apache.eve.db.jdbm;
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.db;
 
 
 import java.math.BigInteger;
@@ -17,11 +33,6 @@ import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.NotImplementedException;
 
-import org.apache.eve.db.Index;
-import org.apache.eve.db.Database;
-import org.apache.eve.db.IndexRecord;
-import org.apache.eve.db.LeafEvaluator;
-
 import org.apache.eve.schema.NormalizerRegistry;
 import org.apache.eve.schema.ComparatorRegistry;
 
@@ -29,6 +40,8 @@ import org.apache.eve.schema.ComparatorRegistry;
 /**
  * Evaluates LeafNode assertions on candidates using a database.
  * 
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 public class LeafEvaluatorImpl implements LeafEvaluator
 {
