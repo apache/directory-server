@@ -16,26 +16,30 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link BackingStore#lookup(Name, String[])}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LookupWithAttrIds extends Invocation {
+public class LookupWithAttrIds extends Invocation
+{
 
     private final Name name;
+
     private final String[] attributeIds;
-    
+
+
     public LookupWithAttrIds( Name name, String[] attributeIds )
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
@@ -43,15 +47,21 @@ public class LookupWithAttrIds extends Invocation {
         this.attributeIds = attributeIds;
     }
 
-    public Name getName() {
+
+    public Name getName()
+    {
         return name;
     }
-    
-    public String[] getAttributeIds() {
+
+
+    public String[] getAttributeIds()
+    {
         return attributeIds;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         return store.lookup( name, attributeIds );
     }
 }

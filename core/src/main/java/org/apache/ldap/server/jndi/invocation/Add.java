@@ -16,60 +16,73 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
+
+import org.apache.ldap.server.BackingStore;
+
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.BackingStore;
 
 /**
  * Represents an {@link Invocation} on {@link BackingStore#add(String, Name, Attributes)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Add extends Invocation {
+public class Add extends Invocation
+{
 
     private final String userProvidedName;
+
     private final Name normalizedName;
+
     private final Attributes attributes;
-    
+
+
     public Add( String userProvidedName, Name normalizedName, Attributes attributes )
     {
-        if( userProvidedName == null )
+        if ( userProvidedName == null )
         {
             throw new NullPointerException( "userProvidedName" );
         }
-        
-        if( normalizedName == null )
+
+        if ( normalizedName == null )
         {
             throw new NullPointerException( "normalizedName" );
         }
-        
-        if( attributes == null )
+
+        if ( attributes == null )
         {
             throw new NullPointerException( "attributes" );
         }
-        
+
         this.userProvidedName = userProvidedName;
         this.normalizedName = normalizedName;
         this.attributes = attributes;
     }
 
-    public Attributes getAttributes() {
+
+    public Attributes getAttributes()
+    {
         return attributes;
     }
 
-    public Name getNormalizedName() {
+
+    public Name getNormalizedName()
+    {
         return normalizedName;
     }
-    
-    public String getUserProvidedName() {
+
+
+    public String getUserProvidedName()
+    {
         return userProvidedName;
     }
 
-    protected Object doExecute( BackingStore store ) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         store.add( userProvidedName, normalizedName, attributes );
         return null;
     }

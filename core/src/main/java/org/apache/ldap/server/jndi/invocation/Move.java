@@ -16,50 +16,58 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link BackingStore#move(Name, Name)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Move extends Invocation {
+public class Move extends Invocation
+{
 
     private final Name name;
+
     private final Name newParentName;
-    
+
+
     public Move( Name name, Name newParentName )
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-        
-        if( newParentName == null )
+
+        if ( newParentName == null )
         {
             throw new NullPointerException( "newParentName" );
         }
-        
+
         this.name = name;
         this.newParentName = newParentName;
     }
-    
+
+
     public Name getName()
     {
         return name;
     }
+
 
     public Name getNewParentName()
     {
         return newParentName;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         store.move( name, newParentName );
         return null;
     }

@@ -17,56 +17,41 @@
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
-import java.util.HashSet;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.jndi.invocation.Add;
-import org.apache.ldap.server.jndi.invocation.List;
-import org.apache.ldap.server.jndi.invocation.Lookup;
-import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.invocation.Modify;
-import org.apache.ldap.server.jndi.invocation.ModifyMany;
-import org.apache.ldap.server.jndi.invocation.ModifyRN;
-import org.apache.ldap.server.jndi.invocation.Move;
-import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.jndi.invocation.*;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
+import java.util.HashSet;
 
 
 /**
- * An {@link Interceptor} that adds or modifies the default attributes of entries.
- * There are four default attributes for now;<code>'creatorsName'</code>,
- * <code>'createTimestamp'</code>, <code>'modifiersName'</code>, and
+ * An {@link Interceptor} that adds or modifies the default attributes
+ * of entries. There are four default attributes for now;<code>'creatorsName'
+ * </code>, <code>'createTimestamp'</code>, <code>'modifiersName'</code>, and
  * <code>'modifyTimestamp'</code>.
  *
- * @author The Apache Directory Project (dev@directory.apache.org)
- * @author Alex Karasulu (akarasulu@apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class OperationalAttributeInterceptor extends BaseInterceptor
 {
-    /** the database search result filter to register with filter service */
+    /**
+     * the database search result filter to register with filter service
+     */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
-            throws NamingException
+                throws NamingException
         {
             if ( controls.getReturningAttributes() == null )
             {
@@ -77,8 +62,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     };
 
-    /** the root nexus of the system */
+    /**
+     * the root nexus of the system
+     */
     private RootNexus nexus;
+
     private AttributeTypeRegistry registry;
 
 
@@ -89,13 +77,18 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
     }
 
-    public void init( InterceptorContext ctx ) throws NamingException {
+
+    public void init( InterceptorContext ctx ) throws NamingException
+    {
         nexus = ctx.getRootNexus();
         registry = ctx.getGlobalRegistries().getAttributeTypeRegistry();
     }
 
-    public void destroy() {
+
+    public void destroy()
+    {
     }
+
 
     /**
      * Adds extra operational attributes to the entry before it is added.
@@ -114,7 +107,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         attribute = new BasicAttribute( "createTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
-        
+
         nextInterceptor.process( call );
     }
 
@@ -210,18 +203,21 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    protected void process(NextInterceptor nextInterceptor, Lookup call) throws NamingException {
+    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    {
         nextInterceptor.process( call );
-        
+
         Attributes attributes = ( Attributes ) call.getResponse();
         Attributes retval = ( Attributes ) attributes.clone();
         filter( retval );
         call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds call) throws NamingException {
+
+    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    {
         nextInterceptor.process( call );
-        
+
         Attributes attributes = ( Attributes ) call.getResponse();
         if ( attributes == null )
         {
@@ -233,10 +229,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, List call) throws NamingException {
+
+    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    {
         nextInterceptor.process( call );
-        
-        NamingEnumeration e ;
+
+        NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         e = ( NamingEnumeration ) call.getResponse();
@@ -244,16 +242,18 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, Search call) throws NamingException {
+
+    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    {
         nextInterceptor.process( call );
-        
+
         SearchControls searchControls = call.getControls();
         if ( searchControls.getReturningAttributes() != null )
         {
             return;
         }
 
-        NamingEnumeration e ;
+        NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         e = ( NamingEnumeration ) call.getResponse();
@@ -261,9 +261,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         call.setResponse( retval );
     }
 
+
     /**
-     * Filters out the operational attributes within a search results
-     * attributes.  The attributes are directly modified.
+     * Filters out the operational attributes within a search results attributes.  The attributes are directly
+     * modified.
      *
      * @param attributes the resultant attributes to filter
      * @return true always
@@ -291,8 +292,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         return true;
     }
 
+
     private void filter( Name dn, Attributes entry, String[] ids )
-        throws NamingException
+            throws NamingException
     {
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )
@@ -300,23 +302,23 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             OperationalAttributeInterceptor.this.filter( entry );
             return;
         }
-        
+
         if ( dn.size() == 0 )
         {
             HashSet idsSet = new HashSet( ids.length );
-            
+
             for ( int ii = 0; ii < ids.length; ii++ )
             {
                 idsSet.add( ids[ii].toLowerCase() );
             }
 
             NamingEnumeration list = entry.getIDs();
-            
+
             while ( list.hasMore() )
             {
                 String attrId = ( ( String ) list.nextElement() ).toLowerCase();
-                
-                if ( ! idsSet.contains( attrId ) )
+
+                if ( !idsSet.contains( attrId ) )
                 {
                     entry.remove( attrId );
                 }

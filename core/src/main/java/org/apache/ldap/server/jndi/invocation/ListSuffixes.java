@@ -16,32 +16,39 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.PartitionNexus;
 
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link PartitionNexus#listSuffixes(boolean)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ListSuffixes extends Invocation {
+public class ListSuffixes extends Invocation
+{
 
     private final boolean normalized;
-    
+
+
     public ListSuffixes( boolean normalized )
     {
         this.normalized = normalized;
     }
 
-    public boolean isNormalized() {
+
+    public boolean isNormalized()
+    {
         return normalized;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         return ( ( PartitionNexus ) store ).listSuffixes( normalized );
     }
 }

@@ -16,6 +16,18 @@
  */
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
+
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.db.ResultFilteringEnumeration;
+import org.apache.ldap.server.db.SearchResultFilter;
+import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.server.jndi.invocation.*;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -25,52 +37,37 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.db.ResultFilteringEnumeration;
-import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.invocation.Delete;
-import org.apache.ldap.server.jndi.invocation.HasEntry;
-import org.apache.ldap.server.jndi.invocation.Invocation;
-import org.apache.ldap.server.jndi.invocation.List;
-import org.apache.ldap.server.jndi.invocation.Lookup;
-import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.invocation.Modify;
-import org.apache.ldap.server.jndi.invocation.ModifyMany;
-import org.apache.ldap.server.jndi.invocation.ModifyRN;
-import org.apache.ldap.server.jndi.invocation.Move;
-import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.invocation.Search;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
-
 
 /**
  * An {@link Interceptor} that controls access to {@link BackingStore}
  * operations.  If a user tries to perform any operations that requires
- * permission he or she doesn't have, {@link NamingException} will be thrown
- * and therefore the current invocation chain will terminate.
+ * permission he or she doesn't have, {@link NamingException} will be
+ * thrown and therefore the current invocation chain will terminate.
  *
- * @author The Apache Directory Project (dev@directory.apache.org)
- * @author Alex Karasulu (akarasulu@apache.org)
- * @author Trustin Lee (trustin@apache.org)
- *  
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class Authorizer extends BaseInterceptor
 {
-    /** the administrator's distinguished {@link Name} */
+    /**
+     * the administrator's distinguished {@link Name}
+     */
     private static final Name ADMIN_DN = SystemPartition.getAdminDn();
-    /** the base distinguished {@link Name} for all users */
+
+    /**
+     * the base distinguished {@link Name} for all users
+     */
     private static final Name USER_BASE_DN = SystemPartition.getUsersBaseDn();
-    /** the base distinguished {@link Name} for all groups */
+
+    /**
+     * the base distinguished {@link Name} for all groups
+     */
     private static final Name GROUP_BASE_DN = SystemPartition.getGroupsBaseDn();
 
-    /** the name parser used by this service */
-    private DnParser dnParser; 
+    /**
+     * the name parser used by this service
+     */
+    private DnParser dnParser;
 
 
     /**
@@ -79,17 +76,20 @@ public class Authorizer extends BaseInterceptor
     public Authorizer()
     {
     }
-    
+
+
     public void init( InterceptorContext ctx ) throws NamingException
     {
         AttributeTypeRegistry atr = ctx.getGlobalRegistries().getAttributeTypeRegistry();
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );
     }
-    
+
+
     public void destroy()
     {
     }
-    
+
+
     public void process( NextInterceptor nextInterceptor, Invocation call ) throws NamingException
     {
         super.process( nextInterceptor, call );
@@ -119,7 +119,7 @@ public class Authorizer extends BaseInterceptor
         }
 
         if ( name.size() > 2 && name.startsWith( USER_BASE_DN )
-                && ! principalDn.equals( ADMIN_DN ) )
+                && !principalDn.equals( ADMIN_DN ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to delete the user account: ";
@@ -128,25 +128,23 @@ public class Authorizer extends BaseInterceptor
         }
 
         if ( name.size() > 2 && name.startsWith( GROUP_BASE_DN )
-                && ! principalDn.equals( ADMIN_DN ) )
+                && !principalDn.equals( ADMIN_DN ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to delete the group entry: ";
             msg += name + ". Only the admin can delete groups.";
             throw new LdapNoPermissionException( msg );
         }
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
      * Note that we do nothing here. First because this is not an externally
-     * exposed function via the JNDI interfaces.  It is used internally by the
-     * provider for optimization purposes so there is no reason for us to start
-     * to constrain it.
-     *
-     * @see org.apache.ldap.server.jndi.BaseInterceptor#hasEntry(Name)
+     * exposed function via the JNDI interfaces.  It is used internally by
+     * the provider for optimization purposes so there is no reason for us to
+     * start to constrain it.
      */
     protected void process( NextInterceptor nextInterceptor, HasEntry call ) throws NamingException
     {
@@ -160,12 +158,10 @@ public class Authorizer extends BaseInterceptor
 
 
     /**
-     * This policy needs to be really tight too because some attributes may
-     * take part in giving the user permissions to protected resources.  We
-     * do not want users to self access these resources.  As far as we're
-     * concerned no one but the admin needs access.
-     *
-     * @see BaseInterceptor#modify(Name, int, Attributes)
+     * This policy needs to be really tight too because some attributes may take
+     * part in giving the user permissions to protected resources.  We do not want
+     * users to self access these resources.  As far as we're concerned no one but
+     * the admin needs access.
      */
     protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
     {
@@ -175,12 +171,10 @@ public class Authorizer extends BaseInterceptor
 
 
     /**
-     * This policy needs to be really tight too because some attributes may
-     * take part in giving the user permissions to protected resources.  We
-     * do not want users to self access these resources.  As far as we're
-     * concerned no one but the admin needs access.
-     *
-     * @see BaseInterceptor#modify(Name, ModificationItem[])
+     * This policy needs to be really tight too because some attributes may take part
+     * in giving the user permissions to protected resources.  We do not want users to
+     * self access these resources.  As far as we're concerned no one but the admin
+     * needs access.
      */
     protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
     {
@@ -199,7 +193,7 @@ public class Authorizer extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( ! principalDn.equals( ADMIN_DN ) )
+        if ( !principalDn.equals( ADMIN_DN ) )
         {
             if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) )
             {
@@ -279,7 +273,7 @@ public class Authorizer extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+        if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
         {
             String msg = "User '" + principalDn;
             msg += "' does not have permission to move or rename the user";
@@ -288,7 +282,7 @@ public class Authorizer extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) && ! principalDn.equals( ADMIN_DN ) )
+        if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) && !principalDn.equals( ADMIN_DN ) )
         {
             String msg = "User " + principalDn;
             msg += " does not have permission to move or rename the group entry ";
@@ -296,12 +290,14 @@ public class Authorizer extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
     }
-    
-    protected void process(NextInterceptor nextInterceptor, Lookup call) throws NamingException {
-        super.process(nextInterceptor, call);
-        
+
+
+    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    {
+        super.process( nextInterceptor, call );
+
         Attributes attributes = ( Attributes ) call.getResponse();
-        if( attributes == null )
+        if ( attributes == null )
         {
             return;
         }
@@ -312,11 +308,13 @@ public class Authorizer extends BaseInterceptor
         call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds call) throws NamingException {
-        super.process(nextInterceptor, call);
-        
+
+    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    {
+        super.process( nextInterceptor, call );
+
         Attributes attributes = ( Attributes ) call.getResponse();
-        if( attributes == null )
+        if ( attributes == null )
         {
             return;
         }
@@ -326,12 +324,13 @@ public class Authorizer extends BaseInterceptor
         protectLookUp( ctx, call.getName() );
         call.setResponse( retval );
     }
-    
+
+
     private void protectLookUp( LdapContext ctx, Name dn ) throws NamingException
     {
         Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getDn();
 
-        if ( ! principalDn.equals( ADMIN_DN ) )
+        if ( !principalDn.equals( ADMIN_DN ) )
         {
             if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
             {
@@ -376,38 +375,42 @@ public class Authorizer extends BaseInterceptor
             }
         }
     }
-    
-    protected void process(NextInterceptor nextInterceptor, Search call) throws NamingException {
-        super.process(nextInterceptor, call);
-        
+
+
+    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    {
+        super.process( nextInterceptor, call );
+
         SearchControls searchControls = call.getControls();
         if ( searchControls.getReturningAttributes() != null )
         {
             return;
         }
 
-        NamingEnumeration e ;
+        NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         e = ( NamingEnumeration ) call.getResponse();
         retval = new ResultFilteringEnumeration( e, searchControls, ctx,
-            new SearchResultFilter()
-            {
-                public boolean accept( LdapContext ctx, SearchResult result,
-                                       SearchControls controls )
-                        throws NamingException
+                new SearchResultFilter()
                 {
-                    return Authorizer.this.isSearchable( ctx, result );
-                }
-            } );
+                    public boolean accept( LdapContext ctx, SearchResult result,
+                                           SearchControls controls )
+                            throws NamingException
+                    {
+                        return Authorizer.this.isSearchable( ctx, result );
+                    }
+                } );
 
         call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, List call) throws NamingException {
-        super.process(nextInterceptor, call);
-        
-        NamingEnumeration e ;
+
+    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    {
+        super.process( nextInterceptor, call );
+
+        NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         e = ( NamingEnumeration ) call.getResponse();
@@ -425,34 +428,35 @@ public class Authorizer extends BaseInterceptor
         call.setResponse( retval );
     }
 
+
     private boolean isSearchable( LdapContext ctx, SearchResult result )
             throws NamingException
     {
         Name dn;
 
-        synchronized( dnParser )
+        synchronized ( dnParser )
         {
             dn = dnParser.parse( result.getName() );
         }
-        
+
         Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getDn();
-        if ( ! principalDn.equals( ADMIN_DN ) )
+        if ( !principalDn.equals( ADMIN_DN ) )
         {
-            if ( dn.size() > 2  )
+            if ( dn.size() > 2 )
             {
                 if ( dn.startsWith( USER_BASE_DN ) || dn.startsWith( GROUP_BASE_DN ) )
                 {
                     return false;
                 }
             }
-            
+
             if ( dn.equals( ADMIN_DN ) )
             {
                 return false;
             }
-            
+
         }
-        
+
         return true;
     }
 }

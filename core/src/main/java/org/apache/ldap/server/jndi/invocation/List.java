@@ -16,37 +16,44 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link BackingStore#list(Name)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class List extends Invocation {
+public class List extends Invocation
+{
 
     private final Name baseName;
-    
+
+
     public List( Name baseName )
     {
-        if( baseName == null )
+        if ( baseName == null )
         {
             throw new NullPointerException( "baseName" );
         }
-        
+
         this.baseName = baseName;
     }
 
-    public Name getBaseName() {
+
+    public Name getBaseName()
+    {
         return baseName;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         return store.list( baseName );
     }
 }

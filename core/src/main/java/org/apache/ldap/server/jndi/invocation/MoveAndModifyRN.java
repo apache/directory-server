@@ -16,68 +16,80 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link BackingStore#move(Name, Name, String, boolean)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MoveAndModifyRN extends Invocation {
+public class MoveAndModifyRN extends Invocation
+{
 
     private final Name name;
+
     private final Name newParentName;
+
     private final String newRelativeName;
+
     private final boolean deleteOldName;
-    
+
+
     public MoveAndModifyRN( Name name, Name newParentName, String newRelativeName,
-                                           boolean deleteOldName )
+                            boolean deleteOldName )
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-        if( newParentName == null )
+        if ( newParentName == null )
         {
             throw new NullPointerException( "newParentName" );
         }
-        if( newRelativeName == null )
+        if ( newRelativeName == null )
         {
             throw new NullPointerException( "newRelativeName" );
         }
-        
+
         this.name = name;
         this.newParentName = newParentName;
         this.newRelativeName = newRelativeName;
         this.deleteOldName = deleteOldName;
     }
-    
+
+
     public Name getName()
     {
         return name;
     }
-    
+
+
     public Name getNewParentName()
     {
         return newParentName;
     }
 
+
     public String getNewRelativeName()
     {
         return newRelativeName;
     }
-    
+
+
     public boolean isDeleteOldName()
     {
         return deleteOldName;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         store.move( name, newParentName, newRelativeName, deleteOldName );
         return null;
     }

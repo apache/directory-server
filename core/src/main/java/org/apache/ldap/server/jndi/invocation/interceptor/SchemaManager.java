@@ -17,34 +17,13 @@
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.schema.DITContentRule;
-import org.apache.ldap.common.schema.DITStructureRule;
-import org.apache.ldap.common.schema.MatchingRule;
-import org.apache.ldap.common.schema.MatchingRuleUse;
-import org.apache.ldap.common.schema.NameForm;
-import org.apache.ldap.common.schema.ObjectClass;
-import org.apache.ldap.common.schema.SchemaUtils;
-import org.apache.ldap.common.schema.Syntax;
+import org.apache.ldap.common.schema.*;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.db.ResultFilteringEnumeration;
@@ -57,41 +36,64 @@ import org.apache.ldap.server.jndi.invocation.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 
 /**
  * An {@link Interceptor} that manages and enforces schemas.
- * TODO Better interceptor description required.
  *
- * @author The Apache Directory Project (dev@directory.apache.org)
- * @author Alex Karasulu (akarasulu@apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ * @todo Better interceptor description required.
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class SchemaManager extends BaseInterceptor
 {
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 
-    /** the root nexus to all database partitions */
+    /**
+     * the root nexus to all database partitions
+     */
     private RootNexus nexus;
-    /** a binary attribute tranforming filter: String -> byte[] */
+
+    /**
+     * a binary attribute tranforming filter: String -> byte[]
+     */
     private BinaryAttributeFilter binaryAttributeFilter;
-    /** the global schema object registries */
+
+    /**
+     * the global schema object registries
+     */
     private GlobalRegistries globalRegistries;
+
     private AttributeTypeRegistry attributeRegistry;
-    /** subschemaSubentry attribute's value from Root DSE */
+
+    /**
+     * subschemaSubentry attribute's value from Root DSE
+     */
     private String subentryDn;
 
 
     /**
      * Creates a schema service interceptor.
      *
-     * @param nexus the root nexus to access all database partitions
+     * @param nexus            the root nexus to access all database partitions
      * @param globalRegistries the global schema object registries
      * @param filterService
      */
     public SchemaManager()
     {
     }
+
 
     public void init( InterceptorContext ctx ) throws NamingException
     {
@@ -104,15 +106,18 @@ public class SchemaManager extends BaseInterceptor
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
         subentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
     }
-    
+
+
     public void destroy()
     {
     }
 
-    protected void process(NextInterceptor nextInterceptor, List call) throws NamingException {
+
+    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    {
         nextInterceptor.process( call );
-        
-        NamingEnumeration e ;
+
+        NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         e = ( NamingEnumeration ) call.getResponse();
@@ -120,10 +125,11 @@ public class SchemaManager extends BaseInterceptor
         call.setResponse( retval );
     }
 
+
     protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
-        if ( ! subentryDn.equals( call.getBaseName().toString() ) )
+        if ( !subentryDn.equals( call.getBaseName().toString() ) )
         {
             nextInterceptor.process( call );
             return;
@@ -133,14 +139,14 @@ public class SchemaManager extends BaseInterceptor
         SearchControls searchControls = call.getControls();
         ExprNode filter = call.getFilter();
         if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
-             filter instanceof SimpleNode )
+                filter instanceof SimpleNode )
         {
             SimpleNode node = ( SimpleNode ) filter;
 
             if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) &&
-                 node.getValue().equalsIgnoreCase( "subschema" ) &&
-                 node.getAssertionType() == SimpleNode.EQUALITY
-               )
+                    node.getValue().equalsIgnoreCase( "subschema" ) &&
+                    node.getAssertionType() == SimpleNode.EQUALITY
+            )
             {
                 // call.setBypass( true );
                 Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
@@ -151,7 +157,7 @@ public class SchemaManager extends BaseInterceptor
             }
         }
         else if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
-                 filter instanceof PresenceNode )
+                filter instanceof PresenceNode )
         {
             PresenceNode node = ( PresenceNode ) filter;
 
@@ -166,17 +172,17 @@ public class SchemaManager extends BaseInterceptor
             }
         }
 
-        if( !bypass )
+        if ( !bypass )
         {
             nextInterceptor.process( call );
         }
-        
+
         if ( searchControls.getReturningAttributes() != null )
         {
             return;
         }
 
-        NamingEnumeration e ;
+        NamingEnumeration e;
         ResultFilteringEnumeration retval;
         LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
         e = ( NamingEnumeration ) call.getResponse();
@@ -310,9 +316,11 @@ public class SchemaManager extends BaseInterceptor
         return attrs;
     }
 
-    protected void process(NextInterceptor nextInterceptor, Lookup call) throws NamingException {
+
+    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    {
         nextInterceptor.process( call );
-        
+
         ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
         Attributes attributes = ( Attributes ) call.getResponse();
         Attributes retval = ( Attributes ) attributes.clone();
@@ -320,7 +328,9 @@ public class SchemaManager extends BaseInterceptor
         call.setResponse( retval );
     }
 
-    protected void process(NextInterceptor nextInterceptor, LookupWithAttrIds call) throws NamingException {
+
+    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    {
         nextInterceptor.process( call );
 
         ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
@@ -335,15 +345,16 @@ public class SchemaManager extends BaseInterceptor
         call.setResponse( retval );
     }
 
+
     private void doFilter( LdapContext ctx, Attributes entry )
-        throws NamingException
+            throws NamingException
     {
         // set of AttributeType objects that are to behave as binaries
         Set binaries;
         
         // construct the set for fast lookups while filtering
         String binaryIds = ( String ) ctx.getEnvironment().get( BINARY_KEY );
-        
+
         if ( binaryIds == null )
         {
             binaries = Collections.EMPTY_SET;
@@ -351,13 +362,13 @@ public class SchemaManager extends BaseInterceptor
         else
         {
             String[] binaryArray = binaryIds.split( " " );
-            
+
             binaries = new HashSet( binaryArray.length );
-            
+
             for ( int ii = 0; ii < binaryArray.length; ii++ )
             {
                 AttributeType type = attributeRegistry.lookup( binaryArray[ii] );
-                
+
                 binaries.add( type );
             }
         }
@@ -367,37 +378,37 @@ public class SchemaManager extends BaseInterceptor
          * human readable and those that are in the binaries set
          */
         NamingEnumeration list = entry.getIDs();
-        
+
         while ( list.hasMore() )
         {
             String id = ( String ) list.next();
-            
+
             AttributeType type = null;
-            
+
             boolean asBinary = false;
-            
+
             if ( attributeRegistry.hasAttributeType( id ) )
             {
                 type = attributeRegistry.lookup( id );
             }
-            
+
             if ( type != null )
             {
-                asBinary = ! type.getSyntax().isHumanReadible();
-                
+                asBinary = !type.getSyntax().isHumanReadible();
+
                 asBinary = asBinary || binaries.contains( type );
             }
-            
+
             if ( asBinary )
             {
                 Attribute attribute = entry.get( id );
-                
+
                 Attribute binary = new LockableAttributeImpl( id );
-                
+
                 for ( int ii = 0; ii < attribute.size(); ii++ )
                 {
                     Object value = attribute.get( ii );
-                    
+
                     if ( value instanceof String )
                     {
                         binary.add( ii, ( ( String ) value ).getBytes() );
@@ -407,29 +418,29 @@ public class SchemaManager extends BaseInterceptor
                         binary.add( ii, value );
                     }
                 }
-                
+
                 entry.remove( id );
-                
+
                 entry.put( binary );
             }
         }
     }
 
+
     /**
-     * A special filter over entry attributes which replaces Attribute String
-     * values with their respective byte[] representations using schema
-     * information and the value held in the JNDI environment property:
+     * A special filter over entry attributes which replaces Attribute String values with their respective byte[]
+     * representations using schema information and the value held in the JNDI environment property:
      * <code>java.naming.ldap.attributes.binary</code>.
      *
-     * @see <a href=
-     * "http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#binary">
-     * java.naming.ldap.attributes.binary</a>
+     * @see <a href= "http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#binary">
+     *      java.naming.ldap.attributes.binary</a>
      */
     private class BinaryAttributeFilter implements SearchResultFilter
     {
-        public BinaryAttributeFilter( )
+        public BinaryAttributeFilter()
         {
         }
+
 
         public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls ) throws NamingException
         {

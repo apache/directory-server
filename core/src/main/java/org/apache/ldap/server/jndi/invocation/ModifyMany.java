@@ -16,50 +16,58 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
+
+import org.apache.ldap.server.BackingStore;
+
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.ModificationItem;
 
-import org.apache.ldap.server.BackingStore;
 
 /**
  * Represents an {@link Invocation} on {@link BackingStore#modify(Name, ModificationItem[])}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyMany extends Invocation {
+public class ModifyMany extends Invocation
+{
 
     private final Name name;
+
     private final ModificationItem[] modificationItems;
-    
+
+
     public ModifyMany( Name name, ModificationItem[] modificationItems )
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-        if( modificationItems == null )
+        if ( modificationItems == null )
         {
             throw new NullPointerException( "modificationItems" );
         }
-        
+
         this.name = name;
         this.modificationItems = modificationItems;
     }
+
 
     public Name getName()
     {
         return name;
     }
-    
+
+
     public ModificationItem[] getModificationItems()
     {
         return modificationItems;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         store.modify( name, modificationItems );
         return null;
     }

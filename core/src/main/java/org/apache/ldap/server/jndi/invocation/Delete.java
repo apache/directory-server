@@ -16,37 +16,44 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link BackingStore#delete(Name)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Delete extends Invocation {
+public class Delete extends Invocation
+{
 
     private final Name name;
-    
+
+
     public Delete( Name name )
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-        
+
         this.name = name;
     }
 
-    public Name getName() {
+
+    public Name getName()
+    {
         return name;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         store.delete( name );
         return null;
     }

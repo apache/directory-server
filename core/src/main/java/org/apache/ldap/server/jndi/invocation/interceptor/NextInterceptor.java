@@ -16,25 +16,25 @@
  */
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.jndi.invocation.Invocation;
 
+import javax.naming.NamingException;
+
+
 /**
  * Represents the next {@link Interceptor} in the interceptor chain.
- * 
- * @author The Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
- * 
  * @see Interceptor
  * @see InterceptorChain
  */
-public interface NextInterceptor {
+public interface NextInterceptor
+{
     /**
-     * Passes the control of current invocation to the next
-     * {@link Interceptor} in the {@link InterceptorChain}.
-     * 
+     * Passes the control of current invocation to the next {@link Interceptor} in the {@link InterceptorChain}.
+     *
      * @param call
      * @throws NamingException
      */

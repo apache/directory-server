@@ -17,12 +17,6 @@
 package org.apache.ldap.server.jndi.invocation.interceptor;
 
 
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
 import org.apache.ldap.common.exception.LdapNameAlreadyBoundException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
@@ -31,32 +25,29 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.jndi.invocation.Add;
-import org.apache.ldap.server.jndi.invocation.Delete;
-import org.apache.ldap.server.jndi.invocation.List;
-import org.apache.ldap.server.jndi.invocation.Lookup;
-import org.apache.ldap.server.jndi.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.jndi.invocation.Modify;
-import org.apache.ldap.server.jndi.invocation.ModifyMany;
-import org.apache.ldap.server.jndi.invocation.ModifyRN;
-import org.apache.ldap.server.jndi.invocation.Move;
-import org.apache.ldap.server.jndi.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.jndi.invocation.Search;
+import org.apache.ldap.server.jndi.invocation.*;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 
 
 /**
- * An {@link Interceptor} that detects any operations that breaks
- * integrity of {@link BackingStore} and terminates the current
- * invocation chain by throwing a {@link NamingException}.
- * Those operations include when an entry already exists at a DN and is
- * added once again to the same DN.
+ * An {@link Interceptor} that detects any operations that breaks integrity
+ * of {@link BackingStore} and terminates the current invocation chain by
+ * throwing a {@link NamingException}. Those operations include when an entry
+ * already exists at a DN and is added once again to the same DN.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class Validator extends BaseInterceptor
 {
-    /** the root nexus of the system */
+    /**
+     * the root nexus of the system
+     */
     private RootNexus nexus;
 
 
@@ -66,20 +57,22 @@ public class Validator extends BaseInterceptor
     public Validator()
     {
     }
-    
+
+
     public void init( InterceptorContext ctx )
     {
         this.nexus = ctx.getRootNexus();
     }
 
+
     public void destroy()
     {
     }
 
+
     /**
-     * In the pre-invocation state this interceptor method checks to see if
-     * the entry to be added already exists.  If it does an exception is
-     * raised.
+     * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
+     * does an exception is raised.
      *
      * @see BaseInterceptor#add(String, Name, Attributes)
      */
@@ -113,13 +106,14 @@ public class Validator extends BaseInterceptor
             e.setResolvedName( parentDn );
             throw e;
         }
-        
+
         nextInterceptor.process( call );
     }
 
+
     /**
-     * Checks to make sure the entry being deleted exists, and has no children,
-     * otherwise throws the appropriate LdapException.
+     * Checks to make sure the entry being deleted exists, and has no children, otherwise throws the appropriate
+     * LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, Delete call ) throws NamingException
     {
@@ -144,28 +138,26 @@ public class Validator extends BaseInterceptor
             e.setResolvedName( name );
             throw e;
         }
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the base being searched exists, otherwise throws the
-     * appropriate LdapException.
+     * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
     {
         // check if entry to search exists
         String msg = "Attempt to search under non-existant entry: ";
         assertHasEntry( msg, call.getBaseName() );
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to make sure the entry being looked up exists other wise throws
-     * the appropriate LdapException.
+     * Checks to make sure the entry being looked up exists other wise throws the appropriate LdapException.
      *
      * @see org.apache.ldap.server.jndi.BaseInterceptor#lookup(javax.naming.Name)
      */
@@ -173,56 +165,52 @@ public class Validator extends BaseInterceptor
     {
         String msg = "Attempt to lookup non-existant entry: ";
         assertHasEntry( msg, call.getName() );
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the base being searched exists, otherwise throws the
-     * appropriate LdapException.
+     * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
     {
         // check if entry to lookup exists
         String msg = "Attempt to lookup non-existant entry: ";
         assertHasEntry( msg, call.getName() );
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the entry being modified exists, otherwise throws the
-     * appropriate LdapException.
+     * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
         assertHasEntry( msg, call.getName() );
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the entry being modified exists, otherwise throws the
-     * appropriate LdapException.
+     * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
         assertHasEntry( msg, call.getName() );
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the entry being renamed exists, otherwise throws the
-     * appropriate LdapException.
+     * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
     {
@@ -239,18 +227,18 @@ public class Validator extends BaseInterceptor
         {
             LdapNameAlreadyBoundException e = null;
             e = new LdapNameAlreadyBoundException( "target entry " + target
-                + " already exists!" );
+                    + " already exists!" );
             e.setResolvedName( target );
             throw e;
         }
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the entry being moved exists, and so does its parent,
-     * otherwise throws the appropriate LdapException.
+     * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
+     * LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
     {
@@ -270,18 +258,18 @@ public class Validator extends BaseInterceptor
         {
             LdapNameAlreadyBoundException e = null;
             e = new LdapNameAlreadyBoundException( "target entry " + target
-                + " already exists!" );
+                    + " already exists!" );
             e.setResolvedName( target );
             throw e;
         }
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the entry being moved exists, and so does its parent,
-     * otherwise throws the appropriate LdapException.
+     * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
+     * LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
     {
@@ -300,18 +288,17 @@ public class Validator extends BaseInterceptor
         {
             LdapNameAlreadyBoundException e = null;
             e = new LdapNameAlreadyBoundException( "target entry " + target
-                + " already exists!" );
+                    + " already exists!" );
             e.setResolvedName( target );
             throw e;
         }
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Checks to see the entry being searched exists, otherwise throws the
-     * appropriate LdapException.
+     * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
     protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
     {
@@ -323,33 +310,32 @@ public class Validator extends BaseInterceptor
             nextInterceptor.process( call );
             return;
         }
-        
+
         Attribute attr = nexus.getRootDSE().get( "subschemaSubentry" );
         if ( ( ( String ) attr.get() ).equalsIgnoreCase( base.toString() ) )
         {
             nextInterceptor.process( call );
             return;
-        }  
+        }
 
         assertHasEntry( msg, base );
-        
+
         nextInterceptor.process( call );
     }
 
 
     /**
-     * Asserts that an entry is present and as a side effect if it is not,
-     * creates a LdapNameNotFoundException, which is used to set the before
-     * exception on the invocation - eventually the exception is thrown.
+     * Asserts that an entry is present and as a side effect if it is not, creates a LdapNameNotFoundException, which is
+     * used to set the before exception on the invocation - eventually the exception is thrown.
      *
-     * @param msg the message to prefix to the distinguished name for explanation
-     * @param dn the distinguished name of the entry that is asserted
+     * @param msg        the message to prefix to the distinguished name for explanation
+     * @param dn         the distinguished name of the entry that is asserted
      * @param invocation the invocation object to alter if the entry does not exist
      * @throws NamingException if the entry does not exist
      */
     private void assertHasEntry( String msg, Name dn ) throws NamingException
     {
-        if ( ! nexus.hasEntry( dn ) )
+        if ( !nexus.hasEntry( dn ) )
         {
             LdapNameNotFoundException e = null;
 

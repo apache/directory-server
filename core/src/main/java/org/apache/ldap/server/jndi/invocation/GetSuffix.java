@@ -16,44 +16,54 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.ContextPartition;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link ContextPartition#getSuffix(boolean)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetSuffix extends Invocation {
+public class GetSuffix extends Invocation
+{
 
     private final Name name;
+
     private final boolean normalized;
-    
+
+
     public GetSuffix( Name name, boolean normalized )
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-        
+
         this.name = name;
         this.normalized = normalized;
     }
 
-    public boolean isNormalized() {
+
+    public boolean isNormalized()
+    {
         return normalized;
     }
 
-    public Name getName() {
+
+    public Name getName()
+    {
         return name;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
-        return ( ( ContextPartition) store ).getSuffix( normalized );
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
+        return ( ( ContextPartition ) store ).getSuffix( normalized );
     }
 }

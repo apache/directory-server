@@ -16,76 +16,87 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import java.util.Map;
-
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+import java.util.Map;
+
+
 /**
  * Represents an {@link Invocation} on {@link BackingStore#search(Name, Map, ExprNode, SearchControls)}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Search extends Invocation {
+public class Search extends Invocation
+{
 
     private final Name baseName;
+
     private final Map environment;
+
     private final ExprNode filter;
+
     private final SearchControls controls;
-    
+
+
     public Search( Name baseName, Map environment, ExprNode filters,
                    SearchControls controls )
     {
-        if( baseName == null )
+        if ( baseName == null )
         {
             throw new NullPointerException( "baseName" );
         }
-        if( environment == null )
+        if ( environment == null )
         {
             throw new NullPointerException( "environment" );
         }
-        if( filters == null )
+        if ( filters == null )
         {
             throw new NullPointerException( "filter" );
         }
-        if( controls == null )
+        if ( controls == null )
         {
             throw new NullPointerException( "controls" );
         }
-        
+
         this.baseName = baseName;
         this.environment = environment;
         this.filter = filters;
         this.controls = controls;
     }
 
+
     public Name getBaseName()
     {
         return baseName;
     }
-    
+
+
     public Map getEnvironment()
     {
         return environment;
     }
-    
+
+
     public ExprNode getFilter()
     {
         return filter;
     }
-    
+
+
     public SearchControls getControls()
     {
         return controls;
     }
 
-    protected Object doExecute( BackingStore store ) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         return store.search( baseName, environment, filter, controls );
     }
 }

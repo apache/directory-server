@@ -16,58 +16,68 @@
  */
 package org.apache.ldap.server.jndi.invocation;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.BackingStore;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+
 /**
  * Represents an {@link Invocation} on {@link BackingStore#modifyRn(Name, String, boolean)\}.
- * 
- * @author Apache Directory Project (dev@directory.apache.org)
- * @author Trustin Lee (trustin@apache.org)
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyRN extends Invocation {
+public class ModifyRN extends Invocation
+{
 
     private final Name name;
+
     private final String newRelativeName;
+
     private final boolean deleteOldName;
-    
+
+
     public ModifyRN( Name name, String newRelativeName,
-                                      boolean deleteOldName )
+                     boolean deleteOldName )
     {
-        if( name == null )
+        if ( name == null )
         {
             throw new NullPointerException( "name" );
         }
-        
-        if( newRelativeName == null )
+
+        if ( newRelativeName == null )
         {
             throw new NullPointerException( "newRelativeName" );
         }
-        
+
         this.name = name;
         this.newRelativeName = newRelativeName;
         this.deleteOldName = deleteOldName;
     }
-    
+
+
     public Name getName()
     {
         return name;
     }
 
+
     public String getNewRelativeName()
     {
         return newRelativeName;
     }
-    
+
+
     public boolean isDeleteOldName()
     {
         return deleteOldName;
     }
 
-    protected Object doExecute(BackingStore store) throws NamingException {
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
         store.modifyRn( name, newRelativeName, deleteOldName );
         return null;
     }
