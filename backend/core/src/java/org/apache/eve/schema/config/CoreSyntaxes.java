@@ -28,10 +28,14 @@ import org.apache.eve.schema.SyntaxCheckerRegistry;
  * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SyntaxConfig implements SyntaxConfigSet
+public class CoreSyntaxes implements SyntaxConfigSet
 {
-    /** an empty array */
+    /** an empty string array */
     private final static String[] EMPTY_ARRAY = new String[0];
+    /** the DN of the owner of the objects within this SyntaxConfigSet */
+    private static final String OWNER = "uid=admin,ou=system";
+    /** the logical schema the objects within this SyntaxConfigSet belong to */  
+    private static final String SCHEMA = "core";
 
 
     // ------------------------------------------------------------------------
@@ -41,13 +45,13 @@ public class SyntaxConfig implements SyntaxConfigSet
 
     public String getOwner()
     {
-        return "uid=admin,ou=system";
+        return OWNER;
     }
 
 
     public String getSchemaName()
     {
-        return "core";
+        return SCHEMA;
     }
 
 
