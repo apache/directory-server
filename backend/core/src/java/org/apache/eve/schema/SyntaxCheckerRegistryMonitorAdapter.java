@@ -35,7 +35,7 @@ public class SyntaxCheckerRegistryMonitorAdapter
      * @see org.apache.eve.schema.SyntaxCheckerRegistryMonitor#registered(
      * org.apache.eve.schema.SyntaxChecker)
      */
-    public void registered( SyntaxChecker syntaxChecker)
+    public void registered( String oid, SyntaxChecker syntaxChecker )
     {
     }
 
@@ -44,7 +44,7 @@ public class SyntaxCheckerRegistryMonitorAdapter
      * @see org.apache.eve.schema.SyntaxCheckerRegistryMonitor#lookedUp(
      * org.apache.eve.schema.SyntaxChecker)
      */
-    public void lookedUp( SyntaxChecker syntaxChecker )
+    public void lookedUp( String oid, SyntaxChecker syntaxChecker )
     {
     }
 
@@ -66,7 +66,7 @@ public class SyntaxCheckerRegistryMonitorAdapter
      * @see org.apache.eve.schema.SyntaxCheckerRegistryMonitor#registerFailed(
      * org.apache.eve.schema.SyntaxChecker, javax.naming.NamingException)
      */
-    public void registerFailed( SyntaxChecker syntaxChecker,
+    public void registerFailed( String oid, SyntaxChecker syntaxChecker,
                                 NamingException fault )
     {
         if ( fault != null )

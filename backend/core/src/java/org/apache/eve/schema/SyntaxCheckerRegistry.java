@@ -34,10 +34,10 @@ public interface SyntaxCheckerRegistry
      * Registers a SyntaxChecker with this registry.
      * 
      * @param syntaxChecker the SyntaxChecker to register
-     * @throws NamingException if the SyntaxChecker is already registered or the 
+     * @throws NamingException if the SyntaxChecker is already registered or the
      *      registration operation is not supported
      */
-    void register( SyntaxChecker syntaxChecker, String oid )
+    void register( String oid, SyntaxChecker syntaxChecker )
         throws NamingException;
     
     /**

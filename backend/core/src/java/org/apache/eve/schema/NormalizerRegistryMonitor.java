@@ -33,16 +33,18 @@ public interface NormalizerRegistryMonitor
     /**
      * Monitors when a Normalizer is registered successfully.
      * 
+     * @param oid
      * @param normalizer the Normalizer registered
      */
-    void registered( Normalizer normalizer );
+    void registered( String oid, Normalizer normalizer );
 
     /**
      * Monitors when a Normalizer is successfully looked up.
      * 
+     * @param oid
      * @param normalizer the Normalizer looked up
      */
-    void lookedUp( Normalizer normalizer );
+    void lookedUp( String oid, Normalizer normalizer );
 
     /**
      * Monitors when a lookup attempt fails.
@@ -55,8 +57,9 @@ public interface NormalizerRegistryMonitor
     /**
      * Monitors when a registration attempt fails.
      * 
+     * @param oid
      * @param normalizer the Normalizer which failed registration
      * @param fault the exception to be thrown for the fault
      */
-    void registerFailed( Normalizer normalizer, NamingException fault );
+    void registerFailed( String oid, Normalizer normalizer, NamingException fault );
 }

@@ -34,10 +34,10 @@ public interface NormalizerRegistry
      * Registers a Normalizer with this registry.
      * 
      * @param normalizer the Normalizer to register
-     * @throws NamingException if the Normalizer is already registered or the 
+     * @throws NamingException if the Normalizer is already registered or the
      *      registration operation is not supported
      */
-    void register( Normalizer normalizer, String oid ) throws NamingException;
+    void register( String oid, Normalizer normalizer ) throws NamingException;
     
     /**
      * Looks up a Normalizer by its unique Object Identifier.

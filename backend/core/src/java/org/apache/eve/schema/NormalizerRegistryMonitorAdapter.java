@@ -35,7 +35,7 @@ public class NormalizerRegistryMonitorAdapter
      * @see org.apache.eve.schema.NormalizerRegistryMonitor#registered(
      * org.apache.eve.schema.Normalizer)
      */
-    public void registered( Normalizer normalizer)
+    public void registered( String oid, Normalizer normalizer )
     {
     }
 
@@ -44,7 +44,7 @@ public class NormalizerRegistryMonitorAdapter
      * @see org.apache.eve.schema.NormalizerRegistryMonitor#lookedUp(
      * org.apache.eve.schema.Normalizer)
      */
-    public void lookedUp( Normalizer normalizer )
+    public void lookedUp( String oid, Normalizer normalizer )
     {
     }
 
@@ -66,7 +66,7 @@ public class NormalizerRegistryMonitorAdapter
      * @see org.apache.eve.schema.NormalizerRegistryMonitor#registerFailed(
      * org.apache.eve.schema.Normalizer, javax.naming.NamingException)
      */
-    public void registerFailed( Normalizer normalizer, NamingException fault )
+    public void registerFailed( String oid, Normalizer normalizer, NamingException fault )
     {
         if ( fault != null )
         {

@@ -1,0 +1,108 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.eve.schema;
+
+
+import org.apache.ldap.common.schema.Normalizer;
+
+import java.util.Map;
+import java.util.HashMap;
+import javax.naming.NamingException;
+
+
+/**
+ * The POJO implementation for the NormalizerRegistry service.
+ *
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * @version $Rev$
+ */
+public class DefaultNormalizerRegistry implements NormalizerRegistry
+{
+    /** a map of Normalizers looked up by OID */
+    private final Map byOid;
+    /** the monitor used to deliver callback notification events */
+    private NormalizerRegistryMonitor monitor;
+
+
+    // ------------------------------------------------------------------------
+    // C O N S T R U C T O R S
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Creates a default normalizer registry.
+     */
+    public DefaultNormalizerRegistry()
+    {
+        byOid = new HashMap();
+        monitor = new NormalizerRegistryMonitorAdapter();
+    }
+
+
+    /**
+     * Sets the monitor used to deliver notification events to via callbacks.
+     *
+     * @param monitor the monitor to recieve callback events
+     */
+    public void setMonitor( NormalizerRegistryMonitor monitor )
+    {
+        this.monitor = monitor;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Service Methods
+    // ------------------------------------------------------------------------
+
+
+    public void register( String oid, Normalizer normalizer )
+        throws NamingException
+    {
+        if ( byOid.containsKey( oid ) )
+        {
+            NamingException e = new NamingException( "Normalizer already " +
+                "registered for OID " + oid );
+            monitor.registerFailed( oid, normalizer, e );
+            throw e;
+        }
+
+        byOid.put( oid, normalizer );
+        monitor.registered( oid, normalizer );
+    }
+
+
+    public Normalizer lookup( String oid ) throws NamingException
+    {
+        if ( ! byOid.containsKey( oid ) )
+        {
+            NamingException e = new NamingException( "Normalizer for OID "
+                + oid + " does not exist!" );
+            monitor.lookupFailed( oid, e );
+            throw e;
+        }
+
+        Normalizer normalizer = ( Normalizer ) byOid.get( oid );
+        monitor.lookedUp( oid, normalizer );
+        return normalizer;
+    }
+
+
+    public boolean hasNormalizer( String oid )
+    {
+        return byOid.containsKey( oid );
+    }
+}
