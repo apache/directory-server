@@ -16,13 +16,22 @@
  */
 package org.apache.eve.schema.config;
 
+
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.eve.schema.SyntaxRegistry;
+import org.apache.eve.schema.MatchingRuleRegistry;
+import org.apache.eve.schema.AttributeTypeRegistry;
+
+
 /**
  * Document me.
  *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory
- *         Project</a>
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface AttributeTypeConfigSet
 {
+    AttributeType[] load( SyntaxRegistry syntaxReg, 
+                          MatchingRuleRegistry mruleReg,
+                          AttributeTypeRegistry attrTypeReg );
 }

@@ -81,7 +81,7 @@ public class EveContextFactory implements InitialContextFactory
         DefaultSyntaxRegistry syntaxRegistry;
 
         coreSyntaxes = new CoreSyntaxes();
-        syntaxes = coreSyntaxes.loadSyntaxes( null );
+        syntaxes = coreSyntaxes.load( null );
         oidRegistry = new DefaultOidRegistry();
         syntaxRegistry = new DefaultSyntaxRegistry( syntaxes, oidRegistry );
 
