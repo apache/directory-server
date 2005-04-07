@@ -47,7 +47,7 @@
       <item name="Combined Javadocs" href="/apidocs"/>
       <item name="Wiki" href="http://wiki.apache.org/directory"/>
       <item name="Open Issues" href="http://issues.apache.org/jira/browse/DIREVE"/>
-      <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/incubator/directory/apacheds/trunk/?root=Apache-SVN"/>
+      <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/directory/apacheds/trunk/?root=Apache-SVN"/>
       <item name="Mailing Lists" href="/mailing-lists.html"/>
       <item name="License" href="/license.html"/>
       <item name="Notices" href="/notices.html"/>

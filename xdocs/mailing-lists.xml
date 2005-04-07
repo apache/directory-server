@@ -25,13 +25,13 @@
           <tr>
             <td>Apache Directory Developement - use [server] prefix</td>
             <td>
-              <a href="mailto:directory-dev-subscribe@incubator.apache.org">Subscribe</a>
+              <a href="mailto:dev-subscribe@directory.apache.org">Subscribe</a>
             </td>
             <td>
-              <a href="mailto:directory-dev-unsubscribe@incubator.apache.org">Unsubscribe</a>
+              <a href="mailto:dev-unsubscribe@directory.apache.org">Unsubscribe</a>
             </td>
             <td>
-              <a href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=181">Archive</a>
+              <a href="http://mail-archives.apache.org/eyebrowse/SummarizeList?listId=181">Archive</a>
             </td>
           </tr>
         </tbody>

@@ -12,7 +12,7 @@ here:
 
 or online here,
 
-http://incubator.apache.org/directory/subprojects/apacheds/index.html
+http://directory.apache.org/subprojects/apacheds/index.html
 
 
 Running
@@ -30,7 +30,7 @@ java -jar apacheds-0.9-main.jar your.properties
 Connecting
 ----------
 
-see http://incubator.apache.org/directory/subprojects/apacheds/users/authentication.html
+see http://directory.apache.org/subprojects/apacheds/users/authentication.html
 
 
 Building 
