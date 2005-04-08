@@ -120,9 +120,9 @@ public aspect ProviderNexusAspect
     {
         Stack stack = ( Stack ) JndiProvider.s_contextStacks.get();
         
-        if ( null == stack )
+        if ( stack == null )
         {
-            throw new NullPointerException( "Thread had null stack" );
+            return null;
         }
         
         return ( Stack ) stack.clone();
