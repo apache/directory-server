@@ -155,7 +155,7 @@ public abstract class AbstractContextPartition implements ContextPartition
                 }
                 else if ( oid.equals( HIERARCHY_OID ) )
                 {
-                    db.setHeirarchyIndexOn( indexAttributes[ii] );
+                    db.setHierarchyIndexOn( indexAttributes[ii] );
                 }
                 else if ( oid.equals( UPDN_OID ) )
                 {
