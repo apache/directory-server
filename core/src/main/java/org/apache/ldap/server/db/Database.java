@@ -88,9 +88,9 @@ public interface Database
      * Gets the Index mapping the BigInteger primary keys of parents to the 
      * BigInteger primary keys of their children.
      *
-     * @return the heirarchy Index
+     * @return the hierarchy Index
      */
-    Index getHeirarchyIndex();
+    Index getHierarchyIndex();
     
     /**
      * Gets the Index mapping user provided distinguished names of entries as 
@@ -150,11 +150,11 @@ public interface Database
     void setExistanceIndexOn( AttributeType attrType ) throws NamingException;
 
     /**
-     * Sets the heirarchy Index.
+     * Sets the hierarchy Index.
      *
-     * @param attrType the heirarchy Index
+     * @param attrType the hierarchy Index
      */    
-    void setHeirarchyIndexOn( AttributeType attrType ) throws NamingException;
+    void setHierarchyIndexOn( AttributeType attrType ) throws NamingException;
 
     /**
      * Sets the user provided distinguished name Index.
