@@ -81,7 +81,7 @@ public class JdbmDatabase implements Database
     /** the attribute existance index */
     private Index existanceIdx;
     /** the parent child relationship index */
-    private Index heirarchyIdx;
+    private Index hierarchyIdx;
     /** the one level scope alias index */
     private Index oneAliasIdx;
     /** the subtree scope alias index */
@@ -172,27 +172,27 @@ public class JdbmDatabase implements Database
 
     
     /**
-     * @see org.apache.ldap.server.db.Database#getHeirarchyIndex()
+     * @see org.apache.ldap.server.db.Database#getHierarchyIndex()
      */
-    public Index getHeirarchyIndex() 
+    public Index getHierarchyIndex() 
     {
-        return heirarchyIdx;
+        return hierarchyIdx;
     }
     
 
     /**
      * @see Database#setExistanceIndexOn(AttributeType)
      */
-    public void setHeirarchyIndexOn( AttributeType attrType ) throws NamingException
+    public void setHierarchyIndexOn( AttributeType attrType ) throws NamingException
     {
-        if ( heirarchyIdx != null )
+        if ( hierarchyIdx != null )
         {
             NamingException e = new NamingException( "Index already set!" );
             throw e;
         }
 
-        heirarchyIdx = new JdbmIndex( attrType, wkdir );
-        sysIndices.put( attrType.getName().toLowerCase(), heirarchyIdx );
+        hierarchyIdx = new JdbmIndex( attrType, wkdir );
+        sysIndices.put( attrType.getName().toLowerCase(), hierarchyIdx );
     }
 
     
@@ -435,7 +435,7 @@ public class JdbmDatabase implements Database
     public BigInteger getParentId( String dn ) throws NamingException
     {
         BigInteger childId = ndnIdx.forwardLookup( dn );
-        return ( BigInteger ) heirarchyIdx.reverseLookup( childId );
+        return ( BigInteger ) hierarchyIdx.reverseLookup( childId );
     }
 
 
@@ -444,7 +444,7 @@ public class JdbmDatabase implements Database
      */
     public BigInteger getParentId( BigInteger childId ) throws NamingException
     {
-        return ( BigInteger ) heirarchyIdx.reverseLookup( childId );
+        return ( BigInteger ) hierarchyIdx.reverseLookup( childId );
     }
     
     
@@ -480,7 +480,7 @@ public class JdbmDatabase implements Database
      * Removes the index entries for an alias before the entry is deleted from
      * the master table.
      * 
-     * @todo Optimize this by walking the heirarchy index instead of the name 
+     * @todo Optimize this by walking the hierarchy index instead of the name 
      * @param aliasId the id of the alias entry in the master table
      * @throws NamingException if we cannot delete the indices
      */
@@ -710,7 +710,7 @@ public class JdbmDatabase implements Database
         
         ndnIdx.add( dn.toString(), id );
         updnIdx.add( updn, id );
-        heirarchyIdx.add( parentId, id );
+        hierarchyIdx.add( parentId, id );
         
         // Now work on the user defined indices
         NamingEnumeration list = entry.getIDs();
@@ -762,12 +762,12 @@ public class JdbmDatabase implements Database
 
         ndnIdx.drop( id );
         updnIdx.drop( id );
-        heirarchyIdx.drop( id );
+        hierarchyIdx.drop( id );
         
         // Remove parent's reference to entry only if entry is not the upSuffix
         if ( ! parentId.equals( BigInteger.ZERO ) )
         {
-            heirarchyIdx.drop( parentId, id );
+            hierarchyIdx.drop( parentId, id );
         }
         
         while ( attrs.hasMore() ) 
@@ -797,7 +797,7 @@ public class JdbmDatabase implements Database
      */
     public NamingEnumeration list( BigInteger id ) throws  NamingException
     {
-        return heirarchyIdx.listIndices( id );
+        return hierarchyIdx.listIndices( id );
     }
 
 
@@ -806,7 +806,7 @@ public class JdbmDatabase implements Database
      */
     public int getChildCount( BigInteger id ) throws NamingException
     {
-        return heirarchyIdx.count( id );
+        return hierarchyIdx.count( id );
     }
 
 
@@ -847,7 +847,7 @@ public class JdbmDatabase implements Database
         array.add( aliasIdx );
         array.add( oneAliasIdx );
         array.add( subAliasIdx );
-        array.add( heirarchyIdx );
+        array.add( hierarchyIdx );
         array.add( existanceIdx );
         
         Iterator list = array.iterator();
@@ -937,9 +937,9 @@ public class JdbmDatabase implements Database
             array.add( subAliasIdx );
         }
 
-        if ( null != heirarchyIdx )
+        if ( null != hierarchyIdx )
         {
-            array.add( heirarchyIdx );
+            array.add( hierarchyIdx );
         }
 
         if ( null != existanceIdx )
@@ -1078,7 +1078,7 @@ public class JdbmDatabase implements Database
 
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
-        list = heirarchyIdx.listIndices( id );
+        list = hierarchyIdx.listIndices( id );
         while ( list.hasMore() ) 
         {
             IndexRecord rec = ( IndexRecord ) list.next();
@@ -1552,8 +1552,8 @@ public class JdbmDatabase implements Database
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
          */
-        heirarchyIdx.drop( oldParentId, childId );
-        heirarchyIdx.add( newParentId, childId );
+        hierarchyIdx.drop( oldParentId, childId );
+        hierarchyIdx.add( newParentId, childId );
 
         /*
          * Build the new user provided DN (updn) for the child using the child's
