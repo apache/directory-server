@@ -31,7 +31,7 @@ import javax.naming.NamingException;
  */
 public class PreferencesUtils
 {
-    /** the dn base of the system preference heirarchy */
+    /** the dn base of the system preference hierarchy */
     static final String SYSPREF_BASE = "prefNodeName=sysPrefRoot,ou=system";
 
 
