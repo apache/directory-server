@@ -94,7 +94,7 @@ public class ScopeEnumerator implements Enumerator
     private NamingEnumeration enumerateChildren( String dn, boolean deref )
         throws NamingException
     {
-        Index idx = db.getHeirarchyIndex();
+        Index idx = db.getHierarchyIndex();
         final BigInteger id = db.getEntryId( dn );
         final NamingEnumeration children = idx.listIndices( id );
         
