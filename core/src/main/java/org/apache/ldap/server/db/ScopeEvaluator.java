@@ -163,7 +163,7 @@ public class ScopeEvaluator implements Evaluator
     {
         DerefAliasesEnum mode = node.getDerefAliases();
         Object baseId = db.getEntryId( node.getBaseDn() );
-        Index idx = db.getHeirarchyIndex();
+        Index idx = db.getHierarchyIndex();
         boolean isChild = idx.hasValue( baseId, id );
 
         /*
