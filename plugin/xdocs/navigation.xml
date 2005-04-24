@@ -8,12 +8,13 @@
 
     <links>
       <item name="Directory" href="../../../../index.html"/>
-      <item name="LDAP" href="../../../directory-ldap/index.html"/>
-      <item name="Naming" href="../../../directory-naming/index.html"/>
+      <item name="ApacheDS" href="../../../apacheds/index.html"/>
+      <item name="LDAP" href="../../../ldap/index.html"/>
+      <item name="Naming" href="../../../naming/index.html"/>
       <item name="ASN.1" href="../../../asn1/index.html"/>
-      <item name="AuthX" href="../../../authx/index.html"/>
       <item name="Kerberos" href="../../../kerberos/index.html"/>
-      <item name="APSEDA" href="../../../apseda/index.html"/>
+      <item name="AuthX" href="../../../authx/index.html"/>
+      <item name="Network Layer (MINA)" href="../../../network/index.html"/>
     </links>
 
     <menu name="Apache Directory Server">
