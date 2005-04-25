@@ -52,15 +52,6 @@
 
         <tr>
           <td>
-            <a href="../projects/apacheds-protocol/index.html">protocol</a>
-          </td>
-          <td>
-            The server's LDAP Protocol Provider
-          </td>
-        </tr>
-
-        <tr>
-          <td>
             <a href="../projects/maven-directory-plugin/index.html">plugin</a>
           </td>
           <td>

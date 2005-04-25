@@ -27,7 +27,6 @@
         <item name="main" href="../../projects/apacheds-main/index.html"/>
         <item name="core" href="../../projects/apacheds-core/index.html"/>
         <item name="shared" href="../../projects/apacheds-shared/index.html"/>
-        <item name="protocol" href="../../projects/apacheds-protocol/index.html"/>
         <item name="plugin" href="/index.html"/>
       </item>
     </menu>

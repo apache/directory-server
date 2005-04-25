@@ -44,7 +44,7 @@
     </menu>
     
     <menu name="Project Information">
-      <item name="Combined Javadocs" href="/apidocs"/>
+      <item name="Combined Javadocs" href="/apidocs/index.html"/>
       <item name="Wiki" href="http://wiki.apache.org/directory"/>
       <item name="Open Issues" href="http://issues.apache.org/jira/browse/DIREVE"/>
       <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/directory/apacheds/trunk/?root=Apache-SVN"/>
