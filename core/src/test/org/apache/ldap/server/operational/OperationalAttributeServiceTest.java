@@ -18,7 +18,7 @@ package org.apache.ldap.server.operational;
 
 
 import org.apache.ldap.common.message.DerefAliasesEnum;
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -32,7 +32,7 @@ import javax.naming.directory.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OperationalAttributeServiceTest extends AbstractServerTest
+public class OperationalAttributeServiceTest extends AbstractCoreTest
 {
     private static final String CREATORS_NAME = "creatorsName";
     private static final String CREATE_TIMESTAMP = "createTimestamp";

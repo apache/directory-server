@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -32,7 +32,7 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerContextFactoryTest extends AbstractServerTest
+public class ServerContextFactoryTest extends AbstractCoreTest
 {
     public ServerContextFactoryTest()
     {

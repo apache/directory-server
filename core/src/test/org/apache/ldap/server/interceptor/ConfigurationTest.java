@@ -2,7 +2,7 @@ package org.apache.ldap.server.interceptor;
 
 
 import junit.framework.Assert;
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.jndi.EnvKeys;
 
@@ -17,7 +17,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ConfigurationTest extends AbstractServerTest
+public class ConfigurationTest extends AbstractCoreTest
 {
 
     private TestInterceptorChain rootChain = new TestInterceptorChain();

@@ -17,7 +17,7 @@
 package org.apache.ldap.server.prefs;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -29,7 +29,7 @@ import java.util.prefs.Preferences;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerSystemPreferencesTest extends AbstractServerTest
+public class ServerSystemPreferencesTest extends AbstractCoreTest
 {
     /**
      * Tests to make sure the system preferences root has entry (test, abc123).

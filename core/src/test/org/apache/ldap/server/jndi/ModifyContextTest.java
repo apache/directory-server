@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.NamingException;
 import javax.naming.directory.*;
@@ -30,7 +30,7 @@ import javax.naming.directory.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyContextTest extends AbstractServerTest
+public class ModifyContextTest extends AbstractCoreTest
 {
     protected void setUp() throws Exception
     {

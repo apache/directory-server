@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RFC2713Tests extends AbstractServerTest
+public class RFC2713Tests extends AbstractCoreTest
 {
     public void testSerialization() throws Exception
     {

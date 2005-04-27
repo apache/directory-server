@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 import org.apache.mina.registry.ServiceRegistry;
 import org.apache.mina.registry.SimpleServiceRegistry;
 
@@ -28,7 +28,7 @@ import org.apache.mina.registry.SimpleServiceRegistry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServiceRegistryPassthruTest extends AbstractServerTest
+public class ServiceRegistryPassthruTest extends AbstractCoreTest
 {
     private ServiceRegistry registry;
 

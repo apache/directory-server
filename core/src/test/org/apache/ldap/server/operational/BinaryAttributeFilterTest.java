@@ -17,7 +17,7 @@
 package org.apache.ldap.server.operational;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -34,7 +34,7 @@ import javax.naming.directory.DirContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BinaryAttributeFilterTest extends AbstractServerTest
+public class BinaryAttributeFilterTest extends AbstractCoreTest
 {
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 

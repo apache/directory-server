@@ -20,7 +20,7 @@ package org.apache.ldap.server.authn;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.mina.util.AvailablePortFinder;
 
@@ -42,7 +42,7 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SimpleAuthenticationTest extends AbstractServerTest
+public class SimpleAuthenticationTest extends AbstractCoreTest
 {
     /**
      * Cleans up old database files on creation.

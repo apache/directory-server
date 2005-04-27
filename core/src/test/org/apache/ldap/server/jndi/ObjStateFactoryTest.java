@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -34,7 +34,7 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjStateFactoryTest extends AbstractServerTest
+public class ObjStateFactoryTest extends AbstractCoreTest
 {
     public void testObjectFactory() throws NamingException
     {

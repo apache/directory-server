@@ -22,7 +22,7 @@ import org.apache.ldap.common.exception.LdapNameAlreadyBoundException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -37,7 +37,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExceptionServiceTest extends AbstractServerTest
+public class ExceptionServiceTest extends AbstractCoreTest
 {
     // ------------------------------------------------------------------------
     // Search Operation Tests

@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -30,7 +30,7 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractMultiUserJndiTest extends AbstractServerTest
+public abstract class AbstractMultiUserJndiTest extends AbstractCoreTest
 {
     protected ServerLdapContext sysRootAsNonAdminUser;
 
@@ -38,7 +38,7 @@ public abstract class AbstractMultiUserJndiTest extends AbstractServerTest
     /**
      * Set's up a context for an authenticated non-root user.
      *
-     * @see org.apache.ldap.server.AbstractServerTest#setUp()
+     * @see org.apache.ldap.server.AbstractCoreTest#setUp()
      */
     protected void setUp() throws Exception
     {

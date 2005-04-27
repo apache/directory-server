@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 
 /**
@@ -26,7 +26,7 @@ import org.apache.ldap.server.AbstractServerTest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ShutdownTest extends AbstractServerTest
+public class ShutdownTest extends AbstractCoreTest
 {
     protected void tearDown() throws Exception
     {

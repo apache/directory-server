@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.directory.Attributes;
 
@@ -28,7 +28,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SyncTest extends AbstractServerTest
+public class SyncTest extends AbstractCoreTest
 {
     /**
      * Makes sure the changes to the JNDI provider take effect where a sync op

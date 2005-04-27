@@ -47,7 +47,7 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractServerTest extends TestCase
+public abstract class AbstractCoreTest extends TestCase
 {
     /** the context root for the system partition */
     protected LdapContext sysRoot;

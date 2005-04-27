@@ -23,7 +23,7 @@ import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.AbstractServerTest;
+import org.apache.ldap.server.AbstractCoreTest;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -40,7 +40,7 @@ import java.io.InputStream;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ImportConfirmationTest extends AbstractServerTest
+public class ImportConfirmationTest extends AbstractCoreTest
 {
     /**
      * Tests to make sure we can authenticate after the database has already
