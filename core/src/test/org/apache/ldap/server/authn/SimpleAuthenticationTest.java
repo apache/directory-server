@@ -87,11 +87,6 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
             return;
         }
 
-        if ( getName().equals( "test11DisableAnonymousBinds" ) )
-        {
-            extras.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
-        }
-
         super.setUp();
     }
 
@@ -322,40 +317,5 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
         assertNotNull( new InitialContext( env ) );
-    }
-
-
-    /**
-     * Test to make sure anonymous binds are disabled when going through
-     * the wire protocol.
-     *
-     * @throws Exception if anything goes wrong
-     */
-    public void test11DisableAnonymousBinds() throws Exception
-    {
-        // Use the SUN JNDI provider to hit server port and bind as anonymous
-
-        final Hashtable env = new Hashtable();
-
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
-
-        env.put( Context.SECURITY_AUTHENTICATION, "none" );
-
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-
-        InitialContext ctx = null;
-
-        try
-        {
-            ctx = new InitialContext( env );
-
-            fail( "If anonymous binds are disabled we should never get here!" );
-        }
-        catch ( NoPermissionException e )
-        {
-            assertNull( ctx );
-
-            assertNotNull( e );
-        }
     }
 }

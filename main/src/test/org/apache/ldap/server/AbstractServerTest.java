@@ -40,14 +40,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 
-                                                                                                            
+
 /**
  * A simple testcase for testing JNDI provider functionality.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractCoreTest extends TestCase
+public abstract class AbstractServerTest extends TestCase
 {
     /** the context root for the system partition */
     protected LdapContext sysRoot;

@@ -51,6 +51,12 @@
       <url>http://jakarta.apache.org/commons/collections</url>
     </dependency>
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.0</version>
+      <url>http://jakarta.apache.org/commons/io</url>
+    </dependency>
+    <dependency>
       <groupId>commons-primitives</groupId>
       <artifactId>commons-primitives</artifactId>
       <version>20041207.202534</version>
