@@ -21,7 +21,7 @@ import org.apache.ldap.common.Lockable;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.util.PreferencesDictionary;
-import org.apache.ldap.server.jndi.ServerContextFactory;
+import org.apache.ldap.server.jndi.CoreContextFactory;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
@@ -72,7 +72,7 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         Hashtable env = new Hashtable();
 
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
 

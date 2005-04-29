@@ -135,11 +135,6 @@ public class ServerContextFactory extends CoreContextFactory
             startUpWireProtocol();
         }
 
-        if ( createMode )
-        {
-            importLdif();
-        }
-
         return ctx;
     }
 
@@ -190,60 +185,6 @@ public class ServerContextFactory extends CoreContextFactory
             lce.setRootCause( e );
 
             throw lce;
-        }
-    }
-
-
-    /**
-     * Imports the LDIF entries packaged with the Eve JNDI provider jar into the newly created system partition to prime
-     * it up for operation.  Note that only ou=system entries will be added - entries for other partitions cannot be
-     * imported and will blow chunks.
-     *
-     * @throws javax.naming.NamingException if there are problems reading the ldif file and adding those entries to the system
-     *                         partition
-     */
-    protected void importLdif() throws NamingException
-    {
-        Hashtable env = new Hashtable();
-
-        env.putAll( initialEnv );
-
-        env.put( Context.PROVIDER_URL, "ou=system" );
-
-        LdapContext ctx = provider.getLdapContext( env );
-
-        InputStream in = getClass().getResourceAsStream( "system.ldif" );
-
-        LdifParser parser = new LdifParserImpl();
-
-        try
-        {
-            LdifIterator iterator = new LdifIterator( in );
-
-            while ( iterator.hasNext() )
-            {
-                Attributes attributes = new LockableAttributesImpl();
-
-                String ldif = ( String ) iterator.next();
-
-                parser.parse( attributes, ldif );
-
-                Name dn = new LdapName( ( String ) attributes.remove( "dn" ).get() );
-
-                dn.remove( 0 );
-
-                ctx.createSubcontext( dn, attributes );
-            }
-        }
-        catch ( Exception e )
-        {
-            String msg = "failed while trying to parse system ldif file";
-
-            NamingException ne = new LdapConfigurationException( msg );
-
-            ne.setRootCause( e );
-
-            throw ne;
         }
     }
 }
