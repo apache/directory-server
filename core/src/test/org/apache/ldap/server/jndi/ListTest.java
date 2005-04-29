@@ -36,15 +36,20 @@ public class ListTest extends AbstractMultiUserJndiTest
     public void testListSystemAsAdmin() throws NamingException
     {
         HashSet set = new HashSet();
+
         NamingEnumeration list = sysRoot.list( "" );
+
         while ( list.hasMore() )
         {
             NameClassPair ncp = ( NameClassPair ) list.next();
+
             set.add( ncp.getName() );
         }
 
         assertTrue( set.contains( "uid=admin,ou=system" ) );
+
         assertTrue( set.contains( "ou=users,ou=system" ) );
+
         assertTrue( set.contains( "ou=groups,ou=system" ) );
     }
 
@@ -52,15 +57,20 @@ public class ListTest extends AbstractMultiUserJndiTest
     public void testListSystemAsNonAdmin() throws NamingException
     {
         HashSet set = new HashSet();
+
         NamingEnumeration list = sysRootAsNonAdminUser.list( "" );
+
         while ( list.hasMore() )
         {
             NameClassPair ncp = ( NameClassPair ) list.next();
+
             set.add( ncp.getName() );
         }
 
         assertFalse( set.contains( "uid=admin,ou=system" ) );
+
         assertTrue( set.contains( "ou=users,ou=system" ) );
+
         assertTrue( set.contains( "ou=groups,ou=system" ) );
     }
 
@@ -68,10 +78,13 @@ public class ListTest extends AbstractMultiUserJndiTest
     public void testListUsersAsAdmin() throws NamingException
     {
         HashSet set = new HashSet();
+
         NamingEnumeration list = sysRoot.list( "ou=users" );
+
         while ( list.hasMore() )
         {
             NameClassPair ncp = ( NameClassPair ) list.next();
+
             set.add( ncp.getName() );
         }
 
@@ -82,10 +95,13 @@ public class ListTest extends AbstractMultiUserJndiTest
     public void testListUsersAsNonAdmin() throws NamingException
     {
         HashSet set = new HashSet();
+
         NamingEnumeration list = sysRootAsNonAdminUser.list( "ou=users" );
+
         while ( list.hasMore() )
         {
             NameClassPair ncp = ( NameClassPair ) list.next();
+
             set.add( ncp.getName() );
         }
 

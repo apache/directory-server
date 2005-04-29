@@ -43,15 +43,23 @@ public abstract class AbstractMultiUserJndiTest extends AbstractCoreTest
     protected void setUp() throws Exception
     {
         // bring the system up
+
         super.setUp();
 
         // authenticate as akarasulu
+
         Hashtable env = new Hashtable( );
+
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "test" );
+
         InitialContext ictx = new InitialContext( env );
+
         sysRootAsNonAdminUser = ( ServerLdapContext ) ictx.lookup( "" );
     }
 
@@ -59,6 +67,7 @@ public abstract class AbstractMultiUserJndiTest extends AbstractCoreTest
     protected void tearDown() throws Exception
     {
         super.tearDown();
+
         sysRootAsNonAdminUser = null;
     }
 }

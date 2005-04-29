@@ -112,4 +112,13 @@ public class EnvKeys
     public static final String INDICES = "server.db.partition.indices.";
     /** the envprop key base to the Attributes for the context nexus entry */
     public static final String ATTRIBUTES = "server.db.partition.attributes.";
+
+    /**
+     * Unfortunately to test non-root user startup of the core and make sure
+     * all the appropriate functionality is there we need to load more user
+     * entries at startup due to a chicken and egg like problem.  The value
+     * of this property is a list of attributes to be added.  It should only
+     * be used to test the server and not as a feature since it may go away.
+     */
+    public static final String TEST_ENTRIES = "server.test.entries";
 }

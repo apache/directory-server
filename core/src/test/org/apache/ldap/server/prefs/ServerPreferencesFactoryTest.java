@@ -38,6 +38,6 @@ public class ServerPreferencesFactoryTest extends AbstractCoreTest
 
         assertNotNull( prefs );
 
-        assertEquals( "abc123", prefs.get( "test", "blah" ) );
+        assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "sysPrefRoot" ) );
     }
 }

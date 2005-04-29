@@ -143,7 +143,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
         InitialDirContext ic = new InitialDirContext( env );
         Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
         Attribute ou = attrs.get( "ou" );
@@ -207,7 +207,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
 
         // now go in as anonymous user and we should be wh
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
 
         InitialLdapContext initial = new InitialLdapContext( env, null );
 
@@ -297,7 +297,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
         assertNotNull( new InitialContext( env ) );
     }
 
@@ -315,7 +315,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
         assertNotNull( new InitialContext( env ) );
     }
 }

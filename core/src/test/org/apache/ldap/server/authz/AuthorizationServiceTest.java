@@ -157,21 +157,28 @@ public class AuthorizationServiceTest extends AbstractMultiUserJndiTest
     public void testSearchSubtreeByAdmin() throws NamingException
     {
         SearchControls controls = new SearchControls();
+
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
         HashSet set = new HashSet();
+
         NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", controls );
+
         while ( list.hasMore() )
         {
             DbSearchResult result = ( DbSearchResult ) list.next();
+
             set.add( result.getName() );
         }
 
         assertTrue( set.contains( "ou=system" ) );
+
         assertTrue( set.contains( "ou=groups,ou=system" ) );
-        assertTrue( set.contains( "cn=administrators,ou=groups,ou=system" ) );
+
         assertTrue( set.contains( "ou=users,ou=system" ) );
+
         assertTrue( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
+
         assertTrue( set.contains( "uid=admin,ou=system" ) );
     }
 

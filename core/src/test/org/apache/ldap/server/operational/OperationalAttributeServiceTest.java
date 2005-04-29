@@ -132,9 +132,8 @@ public class OperationalAttributeServiceTest extends AbstractCoreTest
      */
     public void testConfirmNonAdminUserDnIsCreatorsName() throws NamingException
     {
-        Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users",
-                new String[] { "creatorsName" } );
-        assertFalse( "uid=akarasulu,ou=users,ou=system"
-                .equals( attributes.get( "creatorsName" ).get() ) );
+        Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users", new String[] { "creatorsName" } );
+        
+        assertFalse( "uid=akarasulu,ou=users,ou=system".equals( attributes.get( "creatorsName" ).get() ) );
     }
 }

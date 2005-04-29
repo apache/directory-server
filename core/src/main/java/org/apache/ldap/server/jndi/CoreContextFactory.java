@@ -44,6 +44,7 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.Attribute;
 import javax.naming.spi.InitialContextFactory;
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -210,7 +211,35 @@ public class CoreContextFactory implements InitialContextFactory
 
             initialize();
 
-            createMode = createAdminAccount();
+            createMode = createBootstrapEntries();
+
+            /*
+             * Unfortunately to test non-root user startup of the core and make sure
+             * all the appropriate functionality is there we need to load more user
+             * entries at startup due to a chicken and egg like problem.  The value
+             * of this property is a list of attributes to be added.
+             */
+
+            if ( createMode && env.containsKey( EnvKeys.TEST_ENTRIES ) )
+            {
+                ArrayList list = ( ArrayList ) initialEnv.get( EnvKeys.TEST_ENTRIES );
+
+                if ( list != null )
+                {
+                    for ( int ii = 0; ii < list.size(); ii++ )
+                    {
+                        Attributes attributes = ( Attributes ) list.get( ii );
+
+                        attributes.put( "creatorsName", ADMIN );
+
+                        attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+                        Attribute dn = attributes.remove( "dn" );
+
+                        nexus.add( ( String ) dn.get(), new LdapName( ( String ) dn.get() ), attributes );
+                    }
+                }
+            }
         }
 
         ctx = ( ServerContext ) provider.getLdapContext( env );
@@ -313,48 +342,142 @@ public class CoreContextFactory implements InitialContextFactory
 
 
     /**
-     * Returns true if we had to create the admin account since this is the first time we started the server.  Otherwise
-     * if the account exists then we are not starting for the first time.
+     * Returns true if we had to create the bootstrap entries on the first
+     * start of the server.  Otherwise if all entries exist, meaning none
+     * had to be created, then we are not starting for the first time.
      *
      * @throws javax.naming.NamingException
      */
-    protected boolean createAdminAccount() throws NamingException
+    private boolean createBootstrapEntries() throws NamingException
     {
+        boolean isFirstStart = false;
+
+        // -------------------------------------------------------------------
+        // create admin entry
+        // -------------------------------------------------------------------
+
         /*
          * If the admin entry is there, then the database was already created
-         * before so we just need to lookup the userPassword field to see if
-         * the password matches.
          */
         if ( nexus.hasEntry( ADMIN_NAME ) )
         {
-            return false;
+            isFirstStart = false;
+        }
+        else
+        {
+            isFirstStart = true;
+
+            Attributes attributes = new LockableAttributesImpl();
+
+            attributes.put( "objectClass", "top" );
+
+            attributes.put( "objectClass", "person" );
+
+            attributes.put( "objectClass", "organizationalPerson" );
+
+            attributes.put( "objectClass", "inetOrgPerson" );
+
+            attributes.put( "uid", SystemPartition.ADMIN_UID );
+
+            attributes.put( "userPassword", SystemPartition.ADMIN_PW );
+
+            attributes.put( "displayName", "Directory Superuser" );
+
+            attributes.put( "creatorsName", ADMIN );
+
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            attributes.put( "displayName", "Directory Superuser" );
+
+            nexus.add( ADMIN, ADMIN_NAME, attributes );
         }
 
-        Attributes attributes = new LockableAttributesImpl();
+        // -------------------------------------------------------------------
+        // create system users area
+        // -------------------------------------------------------------------
 
-        attributes.put( "objectClass", "top" );
+        if ( nexus.hasEntry( new LdapName( "ou=users,ou=system" ) ) )
+        {
+            isFirstStart = false;
+        }
+        else
+        {
+            isFirstStart = true;
 
-        attributes.put( "objectClass", "person" );
+            Attributes attributes = new LockableAttributesImpl();
 
-        attributes.put( "objectClass", "organizationalPerson" );
+            attributes.put( "objectClass", "top" );
 
-        attributes.put( "objectClass", "inetOrgPerson" );
+            attributes.put( "objectClass", "organizationalUnit" );
 
-        attributes.put( "uid", SystemPartition.ADMIN_UID );
+            attributes.put( "ou", "users" );
 
-        attributes.put( "userPassword", SystemPartition.ADMIN_PW );
+            attributes.put( "creatorsName", ADMIN );
 
-        attributes.put( "displayName", "Directory Superuser" );
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-        attributes.put( "creatorsName", ADMIN );
+            nexus.add( "ou=users,ou=system", new LdapName( "ou=users,ou=system" ), attributes );
+        }
 
-        attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+        // -------------------------------------------------------------------
+        // create system groups area
+        // -------------------------------------------------------------------
 
-        attributes.put( "displayName", "Directory Superuser" );
+        if ( nexus.hasEntry( new LdapName( "ou=groups,ou=system" ) ) )
+        {
+            isFirstStart = false;
+        }
+        else
+        {
+            isFirstStart = true;
 
-        nexus.add( ADMIN, ADMIN_NAME, attributes );
+            Attributes attributes = new LockableAttributesImpl();
 
-        return true;
+            attributes.put( "objectClass", "top" );
+
+            attributes.put( "objectClass", "organizationalUnit" );
+
+            attributes.put( "ou", "groups" );
+
+            attributes.put( "creatorsName", ADMIN );
+
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            nexus.add( "ou=groups,ou=system", new LdapName( "ou=groups,ou=system" ), attributes );
+        }
+
+        // -------------------------------------------------------------------
+        // create system preferences area
+        // -------------------------------------------------------------------
+
+        if ( nexus.hasEntry( new LdapName( "prefNodeName=sysPrefRoot,ou=system" ) ) )
+        {
+            isFirstStart = false;
+        }
+        else
+        {
+            isFirstStart = true;
+
+            Attributes attributes = new LockableAttributesImpl();
+
+            attributes.put( "objectClass", "top" );
+
+            attributes.put( "objectClass", "prefNode" );
+
+            attributes.put( "objectClass", "extensibleObject" );
+
+            attributes.put( "prefNodeName", "sysPrefRoot" );
+
+            attributes.put( "creatorsName", ADMIN );
+
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            LdapName dn = new LdapName( "prefNodeName=sysPrefRoot,ou=system" );
+
+            nexus.add( "prefNodeName=sysPrefRoot,ou=system", dn, attributes );
+        }
+
+        return isFirstStart;
     }
 
 

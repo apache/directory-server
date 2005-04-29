@@ -38,13 +38,7 @@ public class ServerSystemPreferencesTest extends AbstractCoreTest
     {
         ServerSystemPreferences prefs = new ServerSystemPreferences();
 
-        assertEquals( "abc123", prefs.get( "test", "not the value" ) );
-
-        String[] keys = prefs.keys();
-
-        assertEquals( 1, keys.length );
-
-        assertEquals( "test", keys[0] );
+        assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "not the value" ) );
     }
 
 

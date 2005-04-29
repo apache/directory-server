@@ -54,6 +54,7 @@ public class RootDSETest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
+
         doDelete( new File( "target" + File.separator + "eve" ) );
     }
 
@@ -83,16 +84,18 @@ public class RootDSETest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
+
         Hashtable env = new Hashtable();
+
         env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
+
         env.put( EnvKeys.SHUTDOWN, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
 
         try { new InitialContext( env ); } catch( Exception e ) {}
     }
@@ -107,17 +110,19 @@ public class RootDSETest extends TestCase
     public void testGetInitialContext() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EnvKeys.WKDIR, "target/eve" );
+
+        env.put( EnvKeys.WKDIR, "target/server" );
+
         env.put( Context.PROVIDER_URL, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
+
         assertNotNull( initCtx );
     }
 
@@ -131,23 +136,27 @@ public class RootDSETest extends TestCase
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EnvKeys.WKDIR, "target/eve" );
+
+        env.put( EnvKeys.WKDIR, "target/server" );
+
         env.put( Context.PROVIDER_URL, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
+
         assertNotNull( initCtx );
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
+
         Attributes attributes = ctx.getAttributes( "" );
 
         // Added some objectClass attributes to the rootDSE
+
         assertEquals( 1, attributes.size() );
     }
 
@@ -160,23 +169,29 @@ public class RootDSETest extends TestCase
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EnvKeys.WKDIR, "target/eve" );
+
+        env.put( EnvKeys.WKDIR, "target/server" );
+
         env.put( Context.PROVIDER_URL, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
+
         assertNotNull( initCtx );
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
+
         Attributes attributes = ctx.getAttributes( "", new String[]{ "namingContexts", "vendorName" });
+
         assertEquals( 2, attributes.size() );
+
         assertEquals( "Apache Software Foundation", attributes.get( "vendorName" ).get() );
+
         assertTrue( attributes.get( "namingContexts" ).contains( "ou=system" ) );
     }
 
@@ -189,17 +204,19 @@ public class RootDSETest extends TestCase
     public void testDelete() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EnvKeys.WKDIR, "target/eve" );
+
+        env.put( EnvKeys.WKDIR, "target/server" );
+
         env.put( Context.PROVIDER_URL, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
+
         assertNotNull( initCtx );
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
@@ -209,6 +226,7 @@ public class RootDSETest extends TestCase
         try
         {
             ctx.destroySubcontext( "" );
+
             fail( "we should never get here" );
         }
         catch ( LdapNoPermissionException e )
@@ -228,17 +246,19 @@ public class RootDSETest extends TestCase
     public void testRename() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EnvKeys.WKDIR, "target/eve" );
+
+        env.put( EnvKeys.WKDIR, "target/server" );
+
         env.put( Context.PROVIDER_URL, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
+
         assertNotNull( initCtx );
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
@@ -248,6 +268,7 @@ public class RootDSETest extends TestCase
         try
         {
             ctx.rename( "", "ou=system" );
+
             fail( "we should never get here" );
         }
         catch ( LdapNoPermissionException e )
@@ -267,17 +288,19 @@ public class RootDSETest extends TestCase
     public void testModify() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EnvKeys.WKDIR, "target/eve" );
+
+        env.put( EnvKeys.WKDIR, "target/server" );
+
         env.put( Context.PROVIDER_URL, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
+
         assertNotNull( initCtx );
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
@@ -287,6 +310,7 @@ public class RootDSETest extends TestCase
         try
         {
             ctx.modifyAttributes( "", 0, null );
+
             fail( "we should never get here" );
         }
         catch ( LdapNoPermissionException e )
@@ -298,8 +322,6 @@ public class RootDSETest extends TestCase
     }
 
 
-
-
     /**
      * Checks for lack of permissions to modify this entry.
      *
@@ -308,17 +330,19 @@ public class RootDSETest extends TestCase
     public void testModify2() throws NamingException
     {
         Hashtable env = new Hashtable();
-        env.put( EnvKeys.WKDIR, "target/eve" );
+
+        env.put( EnvKeys.WKDIR, "target/server" );
+
         env.put( Context.PROVIDER_URL, "" );
+
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
+
         assertNotNull( initCtx );
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
@@ -328,6 +352,7 @@ public class RootDSETest extends TestCase
         try
         {
             ctx.modifyAttributes( "", new ModificationItem[]{} );
+
             fail( "we should never get here" );
         }
         catch ( LdapNoPermissionException e )

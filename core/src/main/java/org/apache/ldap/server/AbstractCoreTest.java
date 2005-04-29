@@ -19,6 +19,7 @@ package org.apache.ldap.server;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.exception.NestableRuntimeException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
@@ -26,7 +27,6 @@ import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.mina.util.AvailablePortFinder;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
+import java.util.ArrayList;
 
                                                                                                             
 /**
@@ -49,6 +50,24 @@ import java.util.Hashtable;
  */
 public abstract class AbstractCoreTest extends TestCase
 {
+    public static final String LDIF = "dn: uid=akarasulu,ou=users,ou=system\n" +
+            "cn: Alex Karasulu\n" +
+            "sn: Karasulu\n" +
+            "givenname: Alex\n" +
+            "objectclass: top\n" +
+            "objectclass: person\n" +
+            "objectclass: organizationalPerson\n" +
+            "objectclass: inetOrgPerson\n" +
+            "ou: Engineering\n" +
+            "ou: People\n" +
+            "l: Bogusville\n" +
+            "uid: akarasulu\n" +
+            "mail: akarasulu@apache.org\n" +
+            "telephonenumber: +1 408 555 4798\n" +
+            "facsimiletelephonenumber: +1 408 555 9751\n" +
+            "roomnumber: 4612\n" +
+            "userpassword: test\n";
+
     /** the context root for the system partition */
     protected LdapContext sysRoot;
 
@@ -61,7 +80,32 @@ public abstract class AbstractCoreTest extends TestCase
     /** extra environment parameters that can be added before setUp to override values */
     protected Hashtable overrides = new Hashtable();
 
-    protected int port = -1;
+
+    private ArrayList list = null;
+
+
+    public AbstractCoreTest()
+    {
+        list = new ArrayList();
+
+        Attributes attributes = new LockableAttributesImpl();
+
+        LdifParserImpl parser = new LdifParserImpl();
+
+        try
+        {
+            parser.parse( attributes, LDIF );
+        }
+        catch ( NamingException e )
+        {
+            e.printStackTrace();
+
+            throw new NestableRuntimeException( e );
+        }
+
+        list.add( attributes );
+    }
+
 
     /**
      * Get's the initial context factory for the provider's ou=system context
@@ -73,6 +117,8 @@ public abstract class AbstractCoreTest extends TestCase
     {
         super.setUp();
 
+        extras.put( EnvKeys.TEST_ENTRIES, list );
+        
         if ( overrides.containsKey( EnvKeys.WKDIR ) )
         {
             doDelete( new File( ( String ) overrides.get( EnvKeys.WKDIR ) ) );
@@ -81,10 +127,6 @@ public abstract class AbstractCoreTest extends TestCase
         {
             doDelete( new File( "target" + File.separator + "apacheds" ) );
         }
-
-        port = AvailablePortFinder.getNextAvailable( 1024 );
-        
-        extras.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
 
         setSysRoot( "uid=admin,ou=system", "secret" );
     }
@@ -152,7 +194,7 @@ public abstract class AbstractCoreTest extends TestCase
 
         envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "apacheds" );
 
-        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
 
         envFinal.putAll( overrides );
 
@@ -173,7 +215,7 @@ public abstract class AbstractCoreTest extends TestCase
 
         env.put( Context.PROVIDER_URL, "ou=system" );
 
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
 
         env.put( EnvKeys.SHUTDOWN, "" );
 
