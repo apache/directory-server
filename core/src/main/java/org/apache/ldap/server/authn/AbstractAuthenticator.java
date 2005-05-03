@@ -18,6 +18,7 @@ package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.common.name.LdapName;
 
 import javax.naming.NamingException;
 import java.util.Enumeration;
@@ -33,8 +34,10 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
 
     /** authenticator config */
     public AuthenticatorConfig authenticatorConfig;
+
     /** authenticator type */
     public String authenticatorType;
+
 
     /**
      * Create a new AuthenticationService.
@@ -55,6 +58,7 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
         return authenticatorConfig.getAuthenticatorContext();
     }
 
+
     /**
      * Returns this authenticator's type.
      */
@@ -62,6 +66,7 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
     {
         return authenticatorType;
     }
+
 
     /**
      * Return this authenticator's AuthenticatorConfig object.
@@ -71,8 +76,10 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
         return authenticatorConfig;
     }
 
+
     /**
-     * Called by the server to indicate to an authenticator that the authenticator is being placed into service.
+     * Called by the server to indicate to an authenticator that the authenticator
+     * is being placed into service.
      */
     public void init( AuthenticatorConfig authenticatorConfig ) throws NamingException
     {
@@ -81,17 +88,21 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
         init();
     }
 
+
     /**
-     * A convenience method which can be overridden so that there's no need to call super.init( authenticatorConfig ).
+     * A convenience method which can be overridden so that there's no need to
+     * call super.init( authenticatorConfig ).
      */
     public void init() throws NamingException
     {
     }
 
+
     /**
      * Perform the authentication operation and return the authorization id if successfull.
      */
     public abstract LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
+
 
     /**
      * Returns the name of this authenticator instance.
@@ -101,6 +112,7 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
         return authenticatorConfig.getAuthenticatorName();
     }
 
+
     /**
      * Returns a String containing the value of the named initialization parameter, or null if the parameter does not exist.
      */
@@ -109,6 +121,7 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
         return authenticatorConfig.getInitParameter( name );
     }
 
+
     /**
      * Returns the names of the servlet's initialization parameters as an Enumeration of String objects, or an empty Enumeration if the servlet has no initialization parameters.
      */
@@ -116,5 +129,22 @@ public abstract class AbstractAuthenticator implements Authenticator, Authentica
     {
         return authenticatorConfig.getInitParameterNames();
     }
+
+
+    /**
+     * Allows a means to create an LDAP principal without exposing LdapPrincipal creation
+     * to the rest of the world.
+     *
+     * @param dn the distinguished name of the X.500 principal
+     * @return the principal for the dn
+     * @throws NamingException if there is a problem parsing the dn
+     */
+    protected LdapPrincipal createLdapPrincipal( String dn ) throws NamingException
+    {
+        LdapName principalDn = new LdapName( dn );
+
+        return new LdapPrincipal( principalDn );
+    }
+
 
 }

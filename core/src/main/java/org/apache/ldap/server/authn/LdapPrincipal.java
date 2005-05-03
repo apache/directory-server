@@ -31,7 +31,7 @@ import java.security.Principal;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapPrincipal implements Principal, Serializable
+public final class LdapPrincipal implements Principal, Serializable
 {
     private static final long serialVersionUID = 3906650782395676720L;
 
