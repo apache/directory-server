@@ -74,11 +74,16 @@
       <version>0.20-dev</version>
       <url>http://jdbm.sourceforge.net</url>
     </dependency>
-    <dependency>
-      <groupId>directory-shared</groupId>
-      <artifactId>ldap-common</artifactId>
-      <version>0.9-SNAPSHOT</version>
-    </dependency>
+      <dependency>
+        <groupId>directory-shared</groupId>
+        <artifactId>ldap-common</artifactId>
+        <version>0.9-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>directory-shared</groupId>
+        <artifactId>kerberos-common</artifactId>
+        <version>0.4-SNAPSHOT</version>
+      </dependency>
     <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
@@ -93,11 +98,16 @@
       <artifactId>apacheds-shared</artifactId>
       <version>0.9-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <groupId>directory-protocols</groupId>
-      <artifactId>ldap-protocol</artifactId>
-      <version>0.9-SNAPSHOT</version>
-    </dependency>
+      <dependency>
+        <groupId>directory-protocols</groupId>
+        <artifactId>ldap-protocol</artifactId>
+        <version>0.9-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>directory-protocols</groupId>
+        <artifactId>kerberos-protocol</artifactId>
+        <version>0.4-SNAPSHOT</version>
+      </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-codec</artifactId>

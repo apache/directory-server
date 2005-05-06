@@ -64,7 +64,6 @@ public final class LdapPrincipal implements Principal, Serializable
     }
 
 
-
     /**
      * Gets a cloned copy of the normalized distinguished name of this
      * principal as a JNDI Name.  It must be cloned to protect this Principal

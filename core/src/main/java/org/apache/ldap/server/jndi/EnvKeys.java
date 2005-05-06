@@ -121,4 +121,11 @@ public class EnvKeys
      * be used to test the server and not as a feature since it may go away.
      */
     public static final String TEST_ENTRIES = "server.test.entries";
+
+    /**
+     * Switch used to start up the kerberos server.  This should be used when
+     * firing up the server for the first time.  This is used with the
+     * ServerContextFactory which means the property should probably not be here.
+     */
+    public static final String ENABLE_KERBEROS = "server.enable.kerberos" ;
 }
