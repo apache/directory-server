@@ -46,12 +46,12 @@
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <version>0.9</version>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-shared</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
       <groupId>velocity</groupId>

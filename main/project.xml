@@ -77,12 +77,12 @@
       <dependency>
         <groupId>directory-shared</groupId>
         <artifactId>ldap-common</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9</version>
       </dependency>
       <dependency>
         <groupId>directory-shared</groupId>
         <artifactId>kerberos-common</artifactId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.4</version>
       </dependency>
     <dependency>
       <groupId>aspectj</groupId>
@@ -94,44 +94,44 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-shared</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <version>${pom.currentVersion}</version>
     </dependency>
       <dependency>
         <groupId>directory-protocols</groupId>
         <artifactId>ldap-protocol</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9</version>
       </dependency>
       <dependency>
         <groupId>directory-protocols</groupId>
         <artifactId>kerberos-protocol</artifactId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.4</version>
       </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-codec</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <version>0.3</version>
     </dependency>
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>apache-ldapber-provider</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <version>0.9</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-ber</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <version>0.3</version>
     </dependency>
     <dependency>
       <groupId>directory-network</groupId>
       <artifactId>mina</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>0.7</version>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-core</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
       <groupId>maven-plugins</groupId>
