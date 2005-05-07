@@ -10,3 +10,8 @@ Changes in 0.9
    factory when there are multiple alternatives
  o added Authenticator (thanks to Endi)
  o added support for multiple types of backends (thanks to Endi)
+ o removed apseda and using new network layer, MINA
+ o revamped interceptor factory: interceptors easier to manage and to add
+   custom interceptors.  Design is similar to filter chaining.
+ o several performance improvements
+ o refactored and cleaned up APIs in general

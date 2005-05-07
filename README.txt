@@ -20,11 +20,11 @@ Running
 
 To run with defaults,
 
-java -jar apacheds-0.9-main.jar 
+java -jar apacheds-main-0.9.jar 
 
 or with custom settings,
 
-java -jar apacheds-0.9-main.jar your.properties
+java -jar apacheds-main-0.9.jar your.properties
 
 
 Connecting
@@ -36,12 +36,13 @@ see http://directory.apache.org/subprojects/apacheds/users/authentication.html
 Building 
 --------
 
-maven multiproject 
+maven multiproject:install 
 
 
 Notes
 -----
 
- o The kerberos service as well as other services are not included within this 
-   release.  
+ o The kerberos service has been added to this distribution but is off by 
+   default.  Please check documentation on kerberos section of site for
+   configuring the kerberos protocol provider plugin. 
 
