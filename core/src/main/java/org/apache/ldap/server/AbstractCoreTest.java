@@ -211,6 +211,7 @@ public abstract class AbstractCoreTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
+
         Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ou=system" );
@@ -226,6 +227,8 @@ public abstract class AbstractCoreTest extends TestCase
         try { new InitialContext( env ); } catch( Exception e ) {}
 
         sysRoot = null;
+
+        Runtime.getRuntime().gc();
     }
 
 
