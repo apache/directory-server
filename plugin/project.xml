@@ -49,9 +49,9 @@
       <version>0.9</version>
     </dependency>
     <dependency>
-      <groupId>${pom.groupId}</groupId>
+      <groupId>directory</groupId>
       <artifactId>apacheds-shared</artifactId>
-      <version>${pom.currentVersion}</version>
+      <version>0.9</version>
     </dependency>
     <dependency>
       <groupId>velocity</groupId>
