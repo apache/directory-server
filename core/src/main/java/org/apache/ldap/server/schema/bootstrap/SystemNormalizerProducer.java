@@ -91,6 +91,13 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "2.5.13.4", normalizer );
 
         /*
+         ( 2.5.13.6 NAME 'caseExactOrderingMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "2.5.13.6", normalizer );
+
+        /*
         ( 2.5.13.0 NAME 'objectIdentifierMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
           */
@@ -117,6 +124,13 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
           */
         normalizer = new NoOpNormalizer();
         cb.schemaObjectProduced( this, "2.5.13.14", normalizer );
+
+        /*
+        ( 2.5.13.14 NAME 'integerOrderingMatch'
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+          */
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "2.5.13.15", normalizer );
 
         /*
         ( 2.5.13.16 NAME 'bitStringMatch'

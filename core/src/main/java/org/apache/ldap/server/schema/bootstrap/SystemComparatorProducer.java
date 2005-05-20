@@ -88,6 +88,13 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          cb.schemaObjectProduced( this, "2.5.13.4", comparator );
 
         /*
+         ( 2.5.13.6 NAME 'caseExactOrderingMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+         comparator = new ComparableComparator();
+         cb.schemaObjectProduced( this, "2.5.13.6", comparator );
+
+        /*
         ( 2.5.13.8 NAME 'numericStringMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
           */
@@ -110,12 +117,19 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
                  new ComparableComparator() );
          cb.schemaObjectProduced( this, "2.5.13.11", comparator );
 
-         /*
-        ( 2.5.13.14 NAME 'integerMatch'
-          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
-          */
-         comparator = new ComparableComparator();
-         cb.schemaObjectProduced( this, "2.5.13.14", comparator );
+        /*
+       ( 2.5.13.14 NAME 'integerMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         */
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, "2.5.13.14", comparator );
+
+        /*
+       ( 2.5.13.14 NAME 'integerOrderingMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         */
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, "2.5.13.15", comparator );
 
         /*
        ( 2.5.13.16 NAME 'bitStringMatch'

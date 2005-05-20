@@ -85,6 +85,19 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
+         * Straight out of RFC 3698: Section 2.3
+         * http://www.faqs.org/rfcs/rfc3698.html
+         * =======================================
+         ( 2.5.13.6 NAME 'caseExactOrderingMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+
+        mrule = new BootstrapMatchingRule( "2.5.13.6", registries  );
+        mrule.setNames( new String[] { "caseExactOrderingMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
          * Straight out of RFC 2252: Section 8
          * =======================================
         ( 2.5.13.8 NAME 'numericStringMatch'
@@ -123,6 +136,19 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
 
         mrule = new BootstrapMatchingRule( "2.5.13.14", registries  );
         mrule.setNames( new String[] { "integerMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * Straight out of RFC 3698: Section 2.7
+         * http://www.faqs.org/rfcs/rfc3698.html
+         * =======================================
+         ( 2.5.13.15 NAME 'integerOrderingMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         */
+
+        mrule = new BootstrapMatchingRule( "2.5.13.15", registries  );
+        mrule.setNames( new String[] { "integerOrderingMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
