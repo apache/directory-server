@@ -111,7 +111,7 @@
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-codec</artifactId>
-      <version>0.3</version>
+      <version>0.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-shared</groupId>
@@ -126,7 +126,7 @@
     <dependency>
       <groupId>directory-network</groupId>
       <artifactId>mina</artifactId>
-      <version>0.7</version>
+      <version>0.7.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
