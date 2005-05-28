@@ -20,7 +20,6 @@ package org.apache.ldap.server.jndi;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.mina.util.AvailablePortFinder;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
