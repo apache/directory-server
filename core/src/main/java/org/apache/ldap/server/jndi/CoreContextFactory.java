@@ -23,6 +23,8 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
@@ -33,10 +35,7 @@ import org.apache.ldap.server.db.jdbm.JdbmDatabase;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.interceptor.InterceptorConfigBuilder;
 import org.apache.ldap.server.interceptor.InterceptorContext;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.GlobalRegistries;
-import org.apache.ldap.server.schema.MatchingRuleRegistry;
-import org.apache.ldap.server.schema.OidRegistry;
+import org.apache.ldap.server.schema.*;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 
@@ -236,7 +235,15 @@ public class CoreContextFactory implements InitialContextFactory
 
                         Attribute dn = attributes.remove( "dn" );
 
-                        nexus.add( ( String ) dn.get(), new LdapName( ( String ) dn.get() ), attributes );
+                        AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
+
+                        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
+
+                        DnParser parser = new DnParser( ncn );
+
+                        Name ndn = parser.parse( ( String ) dn.get() );
+                        
+                        nexus.add( ( String ) dn.get(), ndn, attributes );
                     }
                 }
             }
