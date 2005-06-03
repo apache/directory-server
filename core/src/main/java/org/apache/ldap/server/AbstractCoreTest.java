@@ -35,9 +35,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Hashtable;
 import java.util.ArrayList;
 
@@ -80,13 +78,56 @@ public abstract class AbstractCoreTest extends TestCase
     /** extra environment parameters that can be added before setUp to override values */
     protected Hashtable overrides = new Hashtable();
 
+    /** A testEntries of entries as Attributes to add to the DIT for testing */
+    protected ArrayList testEntries = new ArrayList();
 
-    private ArrayList list = null;
+    /** An optional LDIF file path if set and present is read to add more test entries */
+    private String ldifPath;
+
+    /** Load resources relative to this class */
+    private Class loadClass;
 
 
-    public AbstractCoreTest()
+    /**
+     * Sets the LDIF path as a relative resource path to use with the
+     * loadClass parameter to load the resource.
+     *
+     * @param ldifPath the relative resource path to the LDIF file
+     * @param loadClass the class used to load the LDIF as a resource stream
+     */
+    protected void setLdifPath( String ldifPath, Class loadClass )
     {
-        list = new ArrayList();
+        this.loadClass = loadClass;
+
+        this.ldifPath = ldifPath;
+    }
+
+
+    /**
+     * Sets the LDIF path to use.  If the path is relative to this class then it
+     * is first tested
+     *
+     * @param ldifPath the path to the LDIF file
+     */
+    protected void setLdifPath( String ldifPath )
+    {
+        this.ldifPath = ldifPath;
+    }
+
+
+    /**
+     * Get's the initial context factory for the provider's ou=system context
+     * root.
+     *
+     * @see junit.framework.TestCase#setUp()
+     */
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+
+        // -------------------------------------------------------------------
+        // Add a single test entry
+        // -------------------------------------------------------------------
 
         Attributes attributes = new LockableAttributesImpl();
 
@@ -103,21 +144,55 @@ public abstract class AbstractCoreTest extends TestCase
             throw new NestableRuntimeException( e );
         }
 
-        list.add( attributes );
-    }
+        testEntries.add( attributes );
 
+        // -------------------------------------------------------------------
+        // Add more from an optional LDIF file if they exist
+        // -------------------------------------------------------------------
 
-    /**
-     * Get's the initial context factory for the provider's ou=system context
-     * root.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception
-    {
-        super.setUp();
+        InputStream in = null;
 
-        extras.put( EnvKeys.TEST_ENTRIES, list );
+        if ( loadClass == null && ldifPath != null )
+        {
+            File ldifFile = new File( ldifPath );
+
+            if ( ldifFile.exists() )
+            {
+                in = new FileInputStream( ldifPath );
+            }
+            else
+            {
+                in = getClass().getResourceAsStream( ldifPath );
+            }
+
+            throw new FileNotFoundException( ldifPath );
+        }
+        else if ( loadClass != null && ldifPath != null )
+        {
+            in = loadClass.getResourceAsStream( ldifPath );
+        }
+
+        if ( in != null )
+        {
+            LdifIterator list = new LdifIterator( in );
+
+            while ( list.hasNext() )
+            {
+                String ldif = ( String ) list.next();
+
+                attributes = new LockableAttributesImpl();
+
+                parser.parse( attributes, ldif );
+
+                testEntries.add( attributes );
+            }
+        }
+
+        // -------------------------------------------------------------------
+        // Add key for extra entries to the testEntries of extras
+        // -------------------------------------------------------------------
+
+        extras.put( EnvKeys.TEST_ENTRIES, testEntries );
         
         if ( overrides.containsKey( EnvKeys.WKDIR ) )
         {
@@ -229,6 +304,8 @@ public abstract class AbstractCoreTest extends TestCase
         sysRoot = null;
 
         Runtime.getRuntime().gc();
+
+        testEntries.clear();
     }
 
 
