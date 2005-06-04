@@ -237,16 +237,7 @@ public class ServerContextFactory extends CoreContextFactory
 
         InitialLdapContext ctx = new InitialLdapContext( initialEnv, new Control[]{} );
 
-        Object baseStr = initialEnv.get( JndiPrincipalStoreImpl.KDC_STORE_SEARCHBASE );
-
-        if ( baseStr == null )
-        {
-            throw new LdapConfigurationException( "Trying to start kerberos service without setting " + JndiPrincipalStoreImpl.KDC_STORE_SEARCHBASE );
-        }
-
-        LdapName base = new LdapName( ( String ) baseStr );
-
-        PrincipalStore store = new JndiPrincipalStoreImpl( ctx, base );
+        PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=User" ) );
 
         try
         {
