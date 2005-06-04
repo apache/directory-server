@@ -261,7 +261,10 @@ public abstract class AbstractCoreTest extends TestCase
 
         envFinal.putAll( env );
 
-        envFinal.put( Context.PROVIDER_URL, "ou=system" );
+        if ( ! envFinal.containsKey( Context.PROVIDER_URL ) )
+        {
+            envFinal.put( Context.PROVIDER_URL, "ou=system" );
+        }
 
         envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "apacheds" );
 
