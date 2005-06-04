@@ -73,7 +73,7 @@
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>0.9</version>
+      <version>0.9.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>aspectj</groupId>
