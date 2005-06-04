@@ -237,7 +237,7 @@ public class ServerContextFactory extends CoreContextFactory
 
         InitialLdapContext ctx = new InitialLdapContext( initialEnv, new Control[]{} );
 
-        PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=User" ) );
+        PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=Users" ) );
 
         try
         {
