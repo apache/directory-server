@@ -38,9 +38,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
     {
     }
 
-    public void setAuthenticators( Set authenticators )
+    public void setAuthenticatorConfigurations( Set authenticators )
     {
-        super.setAuthenticators( authenticators );
+        super.setAuthenticatorConfigurations( authenticators );
     }
 
     public void setBootstrapSchemas( Set bootstrapSchemas )

@@ -25,7 +25,6 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.authn.Authenticator;
 import org.apache.ldap.server.authn.SimpleAuthenticator;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.schema.bootstrap.ApacheSchema;
@@ -48,48 +47,69 @@ public class StartupConfiguration extends Configuration
 {
     private static final long serialVersionUID = 4826762196566871677L;
 
-    protected File workingDirectory;
+    protected File workingDirectory = new File( "server-work" );
     protected boolean allowAnonymousAccess;
-    protected Set authenticators = new HashSet(); // Set<Authenticator> and their properties>?
+    protected Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     protected InterceptorChain interceptors = InterceptorChain.newDefaultChain();
     protected ServiceRegistry minaServiceRegistry = new SimpleServiceRegistry();
     protected int ldapPort = 389;
     protected int ldapsPort = 636;
     protected boolean enableKerberos;
     
-    protected Set bootstrapSchemas = new HashSet(); // Set<BootstrapSchema>
+    protected Set bootstrapSchemas; // Set<BootstrapSchema>
     protected Set contextPartitionConfigurations; // Set<ContextPartitionConfiguration>
     protected Set testEntries = new HashSet(); // Set<Attributes>
     
     protected StartupConfiguration()
     {
-        // Set default authenticators
-        authenticators.add( new SimpleAuthenticator() );
+        Set set; 
+        
+        // Set default authenticator configurations
+        set = new HashSet();
+        
+        MutableAuthenticatorConfiguration authCfg = new MutableAuthenticatorConfiguration();
+        authCfg.setName( "Simple" );
+        authCfg.setAuthenticator( new SimpleAuthenticator() );
+        set.add( authCfg );
+        
+        setAuthenticatorConfigurations( set );
         
         // Set default bootstrap schemas
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new CosineSchema() );        
-        bootstrapSchemas.add( new ApacheSchema() );        
-        bootstrapSchemas.add( new InetorgpersonSchema() );        
-        bootstrapSchemas.add( new JavaSchema() );        
-        bootstrapSchemas.add( new SystemSchema() );        
+        set = new HashSet();
+        
+        set.add( new CoreSchema() );
+        set.add( new CosineSchema() );        
+        set.add( new ApacheSchema() );        
+        set.add( new InetorgpersonSchema() );        
+        set.add( new JavaSchema() );        
+        set.add( new SystemSchema() );
+        
+        setBootstrapSchemas( set );
     }
 
     /**
-     * Returns {@link Authenticator}s to use for authenticating clients.
+     * Returns {@link AuthenticatorConfiguration}s to use for authenticating clients.
      */
-    public Set getAuthenticators()
+    public Set getAuthenticatorConfigurations()
     {
-        return ConfigurationUtil.getClonedSet( authenticators );
+        return ConfigurationUtil.getClonedSet( authenticatorConfigurations );
     }
 
     /**
-     * Sets {@link Authenticator}s to use for authenticating clients.
+     * Sets {@link AuthenticatorConfiguration}s to use for authenticating clients.
      */
-    protected void setAuthenticators( Set authenticators )
+    protected void setAuthenticatorConfigurations( Set authenticatorConfigurations )
     {
-        this.authenticators = ConfigurationUtil.getTypeSafeSet(
-                authenticators, Authenticator.class );
+        Set newSet = ConfigurationUtil.getTypeSafeSet(
+                authenticatorConfigurations, AuthenticatorConfiguration.class );
+        
+        Iterator i = newSet.iterator();
+        while( i.hasNext() )
+        {
+            ( ( AuthenticatorConfiguration ) i.next() ).validate();
+        }
+        
+        this.authenticatorConfigurations = newSet;
     }
 
     /**
@@ -289,10 +309,7 @@ public class StartupConfiguration extends Configuration
     
     public void validate()
     {
-        if( workingDirectory == null )
-        {
-            throw new ConfigurationException( "WorkingDirectory is not specified." );
-        }
+        setWorkingDirectory( workingDirectory );
         
         if( contextPartitionConfigurations == null || contextPartitionConfigurations.size() == 0 )
         {

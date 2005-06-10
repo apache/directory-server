@@ -37,6 +37,7 @@ import org.apache.ldap.server.ContextPartition;
  */
 public class ContextPartitionConfiguration
 {
+    private String name;
     private String suffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
     private Attributes rootEntry = new BasicAttributes();
@@ -47,6 +48,17 @@ public class ContextPartitionConfiguration
      */
     protected ContextPartitionConfiguration()
     {
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public void setName( String name )
+    {
+        // TODO name can be a directory name.
+        this.name = name.trim();
     }
 
     public Set getIndexedAttributes()
@@ -108,6 +120,11 @@ public class ContextPartitionConfiguration
      */
     public void validate()
     {
+        if( getName() == null )
+        {
+            throw new ConfigurationException( "Name is not specified." );
+        }
+
         if( getSuffix() == null )
         {
             throw new ConfigurationException( "Suffix is not specified." );
