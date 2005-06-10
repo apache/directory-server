@@ -28,7 +28,7 @@ import org.apache.ldap.server.ContextPartition;
  * A mutable version of {@link ContextPartitionConfiguration}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Id$
+ * @version $Rev$, $Date$
  */
 public class MutableContextPartitionConfiguration extends
         ContextPartitionConfiguration

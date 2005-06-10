@@ -33,7 +33,7 @@ import org.apache.ldap.server.ContextPartition;
  * A configuration for {@link ContextPartition}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Id$
+ * @version $Rev$, $Date$
  */
 public class ContextPartitionConfiguration
 {
