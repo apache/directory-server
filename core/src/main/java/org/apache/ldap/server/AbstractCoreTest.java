@@ -292,5 +292,7 @@ public abstract class AbstractCoreTest extends TestCase
         ldifPath = null;
 
         loadClass = null;
+        
+        configuration = new MutableStartupConfiguration();
     }
 }

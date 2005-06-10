@@ -48,7 +48,7 @@ public abstract class AbstractMultiUserJndiTest extends AbstractCoreTest
 
         // authenticate as akarasulu
 
-        Hashtable env = new Hashtable( );
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.PROVIDER_URL, "ou=system" );
 

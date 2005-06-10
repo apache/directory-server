@@ -17,22 +17,32 @@
 package org.apache.ldap.server.prefs;
 
 
-import org.apache.ldap.common.Lockable;
-import org.apache.ldap.common.message.LockableAttributeImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.util.PreferencesDictionary;
-import org.apache.ldap.server.jndi.CoreContextFactory;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.prefs.AbstractPreferences;
+import java.util.prefs.BackingStoreException;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.util.*;
-import java.util.prefs.AbstractPreferences;
-import java.util.prefs.BackingStoreException;
+
+import org.apache.ldap.common.Lockable;
+import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.util.PreferencesDictionary;
+import org.apache.ldap.server.configuration.MutableStartupConfiguration;
+import org.apache.ldap.server.jndi.CoreContextFactory;
 
 
 /**
@@ -70,7 +80,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         super.newNode = false;
 
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setAllowAnonymousAccess( true );
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
 
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 

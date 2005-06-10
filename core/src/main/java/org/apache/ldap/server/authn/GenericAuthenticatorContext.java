@@ -43,10 +43,6 @@ public class GenericAuthenticatorContext implements AuthenticatorContext
             AuthenticatorConfiguration configuration,
             PartitionNexus partitionNexus )
     {
-        assert rootConfiguration != null;
-        assert configuration != null;
-        assert partitionNexus != null;
-
         this.rootConfiguration = rootConfiguration;
         this.configuration = configuration;
         this.partitionNexus = partitionNexus;

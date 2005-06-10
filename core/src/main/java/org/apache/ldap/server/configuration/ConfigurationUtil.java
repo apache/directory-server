@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.naming.directory.Attributes;
+
 /**
  * A utility class that provides common functionality while validating configuration.
  * 
@@ -64,6 +66,20 @@ class ConfigurationUtil
         return newSet;
     }
     
+    /**
+     * Returns the deep clone of the specified {@link Attributes} set.
+     */
+    static Set getClonedAttributesSet( Set set )
+    {
+        Set newSet = new HashSet();
+        Iterator i = set.iterator();
+        while( i.hasNext() )
+        {
+            newSet.add( ( ( Attributes ) i.next() ).clone() );
+        }
+        return newSet;
+    }
+
     static void validatePortNumber( int port )
     {
         if( port < 0 || port > 65535 )

@@ -40,7 +40,8 @@ import org.apache.mina.registry.SimpleServiceRegistry;
 
 /**
  * A {@link Configuration} that starts up ApacheDS.
- *
+ * TODO Move ldapPort, ldapsPort, enableKerberos, minaServiceRegistry to apacheds/main
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -278,7 +279,7 @@ public class StartupConfiguration extends Configuration
      */
     public Set getTestEntries()
     {
-        return ConfigurationUtil.getClonedSet( testEntries );
+        return ConfigurationUtil.getClonedAttributesSet( testEntries );
     }
 
     /**
@@ -287,8 +288,20 @@ public class StartupConfiguration extends Configuration
      */
     protected void setTestEntries( Set testEntries )
     {
-        this.testEntries = ConfigurationUtil.getTypeSafeSet(
-                testEntries, Attributes.class );
+         testEntries = ConfigurationUtil.getClonedAttributesSet(
+                ConfigurationUtil.getTypeSafeSet( testEntries, Attributes.class ) );
+         
+         Iterator i = testEntries.iterator();
+         while( i.hasNext() )
+         {
+             Attributes entry = ( Attributes ) i.next();
+             if( entry.get( "dn" ) == null )
+             {
+                 throw new ConfigurationException( "Test entries must have DN attributes" );
+             }
+         }
+
+         this.testEntries = testEntries;
     }
 
     /**
