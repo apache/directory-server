@@ -198,6 +198,11 @@ public final class SystemPartition extends AbstractContextPartition
     // B A C K E N D   M E T H O D S 
     // ------------------------------------------------------------------------
 
+    public final void init( Name upSuffix, Name normalizedSuffix )
+    {
+        // This method may not be called.
+        throw new IllegalStateException( "SystemPartition is already initialized." );
+    }
 
     /**
      * @see org.apache.ldap.server.ContextPartition#getSuffix(boolean)

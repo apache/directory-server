@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.ldap.server.authn.AnonymousAuthenticator;
 import org.apache.ldap.server.authn.SimpleAuthenticator;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.schema.bootstrap.ApacheSchema;
@@ -57,7 +58,7 @@ public class StartupConfiguration extends Configuration
     protected boolean enableKerberos;
     
     protected Set bootstrapSchemas; // Set<BootstrapSchema>
-    protected Set contextPartitionConfigurations; // Set<ContextPartitionConfiguration>
+    protected Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
     protected Set testEntries = new HashSet(); // Set<Attributes>
     
     protected StartupConfiguration()
@@ -67,7 +68,16 @@ public class StartupConfiguration extends Configuration
         // Set default authenticator configurations
         set = new HashSet();
         
-        MutableAuthenticatorConfiguration authCfg = new MutableAuthenticatorConfiguration();
+        MutableAuthenticatorConfiguration authCfg;
+
+        // Anonymous
+        authCfg = new MutableAuthenticatorConfiguration();
+        authCfg.setName( "Anonymous" );
+        authCfg.setAuthenticator( new AnonymousAuthenticator() );
+        set.add( authCfg );
+
+        // Simple
+        authCfg = new MutableAuthenticatorConfiguration();
         authCfg.setName( "Simple" );
         authCfg.setAuthenticator( new SimpleAuthenticator() );
         set.add( authCfg );
@@ -310,10 +320,5 @@ public class StartupConfiguration extends Configuration
     public void validate()
     {
         setWorkingDirectory( workingDirectory );
-        
-        if( contextPartitionConfigurations == null || contextPartitionConfigurations.size() == 0 )
-        {
-            throw new ConfigurationException( "ContextPartitionConfiguration is not specified." );
-        }
     }
 }

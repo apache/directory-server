@@ -40,7 +40,7 @@ public class ContextPartitionConfiguration
     private String name;
     private String suffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
-    private Attributes rootEntry = new BasicAttributes();
+    private Attributes contextEntry = new BasicAttributes();
     private ContextPartition contextPartition;
     
     /**
@@ -86,19 +86,22 @@ public class ContextPartitionConfiguration
         return contextPartition;
     }
     
+    /**
+     * Set this to null if you want to use {@link org.apache.ldap.server.ApplicationPartition}.
+     */
     protected void setContextPartition( ContextPartition partition )
     {
         this.contextPartition = partition;
     }
     
-    public Attributes getRootEntry()
+    public Attributes getContextEntry()
     {
-        return ( Attributes ) rootEntry.clone();
+        return ( Attributes ) contextEntry.clone();
     }
     
-    protected void setRootEntry( Attributes rootEntry )
+    protected void setContextEntry( Attributes rootEntry )
     {
-        this.rootEntry = ( Attributes ) rootEntry.clone();
+        this.contextEntry = ( Attributes ) rootEntry.clone();
     }
     
     public String getSuffix()
@@ -128,11 +131,6 @@ public class ContextPartitionConfiguration
         if( getSuffix() == null )
         {
             throw new ConfigurationException( "Suffix is not specified." );
-        }
-        
-        if( getContextPartition() == null )
-        {
-            throw new ConfigurationException( "Partition is not specified." );
         }
     }
 }

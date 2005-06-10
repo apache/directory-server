@@ -49,7 +49,7 @@ class ConfigurationUtil
                         "Invalid element type: " + e.getClass() +
                         " (expected " + type );
             }
-            set.add( e );
+            newSet.add( e );
         }
         return newSet;
     }

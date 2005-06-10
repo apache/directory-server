@@ -17,9 +17,9 @@
 package org.apache.ldap.server.jndi;
 
 
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -27,9 +27,13 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.server.configuration.MutableStartupConfiguration;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
 
 
 /**
@@ -90,7 +94,7 @@ public class RootDSETest extends TestCase
 
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
 
-        env.put( EnvKeys.SHUTDOWN, "" );
+        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
 
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
 
@@ -108,20 +112,16 @@ public class RootDSETest extends TestCase
      */
     public void testGetInitialContext() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        env.put( EnvKeys.WKDIR, "target/server" );
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
-
         assertNotNull( initCtx );
     }
 
@@ -134,16 +134,13 @@ public class RootDSETest extends TestCase
      */
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        env.put( EnvKeys.WKDIR, "target/server" );
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -167,16 +164,13 @@ public class RootDSETest extends TestCase
      */
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        env.put( EnvKeys.WKDIR, "target/server" );
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -202,16 +196,13 @@ public class RootDSETest extends TestCase
      */
     public void testDelete() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        env.put( EnvKeys.WKDIR, "target/server" );
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -244,16 +235,13 @@ public class RootDSETest extends TestCase
      */
     public void testRename() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        env.put( EnvKeys.WKDIR, "target/server" );
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -286,10 +274,10 @@ public class RootDSETest extends TestCase
      */
     public void testModify() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        env.put( EnvKeys.WKDIR, "target/server" );
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
 
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -328,10 +316,10 @@ public class RootDSETest extends TestCase
      */
     public void testModify2() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        env.put( EnvKeys.WKDIR, "target/server" );
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
 
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );

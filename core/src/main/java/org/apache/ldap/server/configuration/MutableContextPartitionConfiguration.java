@@ -50,9 +50,9 @@ public class MutableContextPartitionConfiguration extends
         super.setContextPartition( partition );
     }
 
-    public void setRootEntry( Attributes rootEntry )
+    public void setContextEntry( Attributes rootEntry )
     {
-        super.setRootEntry( rootEntry );
+        super.setContextEntry( rootEntry );
     }
 
     public void setSuffix( String suffix )

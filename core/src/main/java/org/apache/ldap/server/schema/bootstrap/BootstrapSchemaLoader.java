@@ -17,13 +17,40 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import org.apache.ldap.common.schema.*;
-import org.apache.ldap.server.jndi.ServerDirObjectFactory;
-import org.apache.ldap.server.jndi.ServerDirStateFactory;
-import org.apache.ldap.server.schema.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
 
 import javax.naming.NamingException;
-import java.util.*;
+
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.DITContentRule;
+import org.apache.ldap.common.schema.DITStructureRule;
+import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.ldap.common.schema.MatchingRuleUse;
+import org.apache.ldap.common.schema.NameForm;
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.schema.ObjectClass;
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.ldap.common.schema.SyntaxChecker;
+import org.apache.ldap.server.jndi.ServerDirObjectFactory;
+import org.apache.ldap.server.jndi.ServerDirStateFactory;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.ComparatorRegistry;
+import org.apache.ldap.server.schema.DITContentRuleRegistry;
+import org.apache.ldap.server.schema.DITStructureRuleRegistry;
+import org.apache.ldap.server.schema.MatchingRuleRegistry;
+import org.apache.ldap.server.schema.MatchingRuleUseRegistry;
+import org.apache.ldap.server.schema.NameFormRegistry;
+import org.apache.ldap.server.schema.NormalizerRegistry;
+import org.apache.ldap.server.schema.ObjectClassRegistry;
+import org.apache.ldap.server.schema.ObjectFactoryRegistry;
+import org.apache.ldap.server.schema.StateFactoryRegistry;
+import org.apache.ldap.server.schema.SyntaxCheckerRegistry;
+import org.apache.ldap.server.schema.SyntaxRegistry;
 
 
 /**
@@ -66,39 +93,30 @@ public class BootstrapSchemaLoader
      * Loads a set of schemas by loading and running all producers for each
      * dependent schema first.
      *
-     * @param schemaClasses the full qualified class names of the schema classes
+     * @param bootstrapSchemas Collection of {@link BootstrapSchema}s to load
      * @param registries the registries to fill with producer created objects
      * @throws NamingException if there are any failures during this process
      */
-    public final void load( String[] schemaClasses, BootstrapRegistries registries )
+    public final void load( Collection bootstrapSchemas, BootstrapRegistries registries )
         throws NamingException
     {
-        BootstrapSchema[] schemas = new BootstrapSchema[schemaClasses.length];
+        BootstrapSchema[] schemas = new BootstrapSchema[ bootstrapSchemas.size() ];
+        schemas = ( BootstrapSchema[] ) bootstrapSchemas.toArray( schemas );
         HashMap loaded = new HashMap();
         HashMap notLoaded = new HashMap();
 
-
         for ( int ii = 0; ii < schemas.length; ii++ )
         {
-            try
-            {
-                Class schemaClass = Class.forName( schemaClasses[ii] );
-                schemas[ii] = ( BootstrapSchema ) schemaClass.newInstance();
-                notLoaded.put( schemas[ii].getSchemaName(), schemas[ii] );
-            }
-            catch ( Exception e )
-            {
-                String msg = "problem loading/creating " + schemaClasses[ii];
-                NamingException ne = new NamingException( msg );
-                ne.setRootCause( e );
-                throw ne;
-            }
+            notLoaded.put( schemas[ii].getSchemaName(), schemas[ii] );
         }
-
-        // kick it off by loading system which will never depend on anything
-        BootstrapSchema schema = ( BootstrapSchema ) notLoaded.get( "system" );
+        
+        BootstrapSchema schema;
+        
+        // Create system schema and kick it off by loading system which
+        // will never depend on anything.
+        schema = new SystemSchema();
         load( schema, registries );
-        notLoaded.remove( "system" );
+        notLoaded.remove( schema.getSchemaName() ); // Remove if user specified it.
         loaded.put( schema.getSchemaName(), schema );
 
         Iterator list = notLoaded.values().iterator();

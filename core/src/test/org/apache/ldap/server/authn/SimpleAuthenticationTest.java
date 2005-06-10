@@ -17,22 +17,25 @@
 package org.apache.ldap.server.authn;
 
 
-import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.AbstractCoreTest;
-import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.mina.util.AvailablePortFinder;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
-import javax.naming.*;
+import javax.naming.ConfigurationException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
+
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.server.AbstractCoreTest;
+import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
@@ -182,11 +185,9 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         doDelete( new File( "target" + File.separator + "eve" ) );
         Hashtable env = new Hashtable();
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
-
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        
+        configuration.setAllowAnonymousAccess( false );
+        configuration.setLdapPort( AvailablePortFinder.getNextAvailable( 1024 ) );
 
         try
         {
@@ -200,7 +201,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         // ok this should start up the system now as admin
         Hashtable anonymous = new Hashtable();
 
-        anonymous.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        configuration.setLdapPort( AvailablePortFinder.getNextAvailable( 1024 ) );
 
         InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( anonymous );
         assertNotNull( ctx );

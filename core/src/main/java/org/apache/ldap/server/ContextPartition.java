@@ -18,6 +18,7 @@ package org.apache.ldap.server;
 
 
 import javax.naming.Name;
+import javax.naming.NamingException;
 
 
 /**
@@ -30,6 +31,11 @@ import javax.naming.Name;
  */
 public interface ContextPartition extends BackingStore
 {
+    /**
+     * Initializes this partition.
+     */
+    void init( Name userProvidedSuffix, Name normalizedSuffix ) throws NamingException;
+    
     /**
      * Gets the distinguished/absolute name of the suffix for all entries
      * stored within this BackingStore.

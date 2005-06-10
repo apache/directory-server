@@ -18,6 +18,8 @@ package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
+import org.apache.ldap.server.configuration.StartupConfiguration;
 
 
 /**
@@ -30,14 +32,18 @@ import org.apache.ldap.server.PartitionNexus;
  */
 public interface AuthenticatorContext
 {
+    /**
+     * Returns root configuration.
+     */
+    public StartupConfiguration getRootConfiguration();
 
     /**
-     * Returns a reference to the PartitionNexus.
+     * Returns configuration of the {@link Authenticator}.
+     */
+    public AuthenticatorConfiguration getConfiguration();
+
+    /**
+     * Returns {@link PartitionNexus}.
      */
     public PartitionNexus getPartitionNexus();
-
-    /**
-     * Returns the value of server.disable.anonymous JNDI Property.
-     */
-    public boolean getAllowAnonymous();
 }

@@ -35,10 +35,11 @@ public class ServiceRegistryPassthruTest extends AbstractCoreTest
 
     protected void setUp() throws Exception
     {
+        registry = new SimpleServiceRegistry();
+
         if ( getName().equals( "testUsePassthru" ) )
         {
-            registry = new SimpleServiceRegistry();
-            super.extras.put( EnvKeys.PASSTHRU, registry );
+            configuration.setMinaServiceRegistry( registry );
         }
 
         super.setUp();
@@ -48,18 +49,18 @@ public class ServiceRegistryPassthruTest extends AbstractCoreTest
     protected void tearDown() throws Exception
     {
         super.tearDown();
-        registry = null;
+        registry.unbindAll();
     }
 
 
     public void testUsePassthru() throws Exception
     {
-        assertTrue( sysRoot.getEnvironment().containsKey( EnvKeys.PASSTHRU ) );
+        assertEquals( 1, registry.getAllServices().size() );
     }
 
 
     public void testDoNotUsePassthru() throws Exception
     {
-        assertFalse( sysRoot.getEnvironment().containsKey( EnvKeys.PASSTHRU ) );
+        assertEquals( 0, registry.getAllServices().size() );
     }
 }

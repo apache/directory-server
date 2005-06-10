@@ -17,22 +17,26 @@
 package org.apache.ldap.server.authn;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
+import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.jndi.EnvKeys;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.ServerLdapContext;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import java.lang.reflect.Constructor;
-import java.util.*;
 
 
 /**
@@ -52,7 +56,7 @@ public class AuthenticationService implements Interceptor
     private static final String CREDS = Context.SECURITY_CREDENTIALS;
 
     /** authenticators **/
-    public Map authenticators = new LinkedHashMap();
+    public Map authenticators = new HashMap();
 
 
     /**
@@ -64,82 +68,27 @@ public class AuthenticationService implements Interceptor
 
     public void init( InterceptorContext ctx ) throws NamingException
     {
-        /*
-         * Create and add the Authentication service interceptor to before
-         * interceptor chain.
-         */
-        boolean allowAnonymous = !ctx.getEnvironment().containsKey( EnvKeys.DISABLE_ANONYMOUS );
-
-        // create authenticator context
-
-        GenericAuthenticatorContext authenticatorContext = new GenericAuthenticatorContext();
-
-        authenticatorContext.setPartitionNexus( ctx.getRootNexus() );
-
-        authenticatorContext.setAllowAnonymous( allowAnonymous );
-
-        try // initialize default authenticators
+        // Register all authenticators
+        Iterator i = ctx.getConfiguration().getAuthenticatorConfigurations().iterator();
+        while( i.hasNext() )
         {
-            // create anonymous authenticator
-
-            GenericAuthenticatorConfig authenticatorConfig = new GenericAuthenticatorConfig();
-
-            authenticatorConfig.setAuthenticatorName( "none" );
-
-            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
-
-            org.apache.ldap.server.authn.Authenticator authenticator = new AnonymousAuthenticator();
-
-            authenticator.init( authenticatorConfig );
-
-            this.register( authenticator );
-
-            // create simple authenticator
-            authenticatorConfig = new GenericAuthenticatorConfig();
-
-            authenticatorConfig.setAuthenticatorName( "simple" );
-
-            authenticatorConfig.setAuthenticatorContext( authenticatorContext );
-
-            authenticator = new SimpleAuthenticator();
-
-            authenticator.init( authenticatorConfig );
-
-            this.register( authenticator );
-        }
-        catch ( Exception e )
-        {
-            throw new NamingException( e.getMessage() );
-        }
-
-        GenericAuthenticatorConfig[] configs = null;
-
-        configs = AuthenticatorConfigBuilder.getAuthenticatorConfigs( new Hashtable( ctx.getEnvironment() ) );
-
-        for ( int ii = 0; ii < configs.length; ii++ )
-        {
-            try
-            {
-                configs[ii].setAuthenticatorContext( authenticatorContext );
-
-                String authenticatorClass = configs[ii].getAuthenticatorClass();
-
-                Class clazz = Class.forName( authenticatorClass );
-
-                Constructor constructor = clazz.getConstructor( new Class[] { } );
-
-                AbstractAuthenticator authenticator = ( AbstractAuthenticator ) constructor.newInstance( new Object[] { } );
-
-                authenticator.init( configs[ii] );
-
-                this.register( authenticator );
+            try {
+                AuthenticatorConfiguration cfg = ( AuthenticatorConfiguration ) i.next();
+                
+                // Create context
+                AuthenticatorContext authenticatorContext =
+                    new GenericAuthenticatorContext( ctx.getConfiguration(), cfg, ctx.getRootNexus() );
+    
+                cfg.getAuthenticator().init( authenticatorContext );
+                
+                this.register( cfg.getAuthenticator() );
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
+                throw ( NamingException ) new NamingException(
+                        "Failed to register authenticator." ).initCause( e );
             }
         }
-
     }
     
     public void destroy()
@@ -155,7 +104,7 @@ public class AuthenticationService implements Interceptor
      * @param authenticator AuthenticationService component to register with this
      * AuthenticatorService.
      */
-    public void register( org.apache.ldap.server.authn.Authenticator authenticator )
+    public void register( Authenticator authenticator )
     {
         Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
 

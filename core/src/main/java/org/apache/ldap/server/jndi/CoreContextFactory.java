@@ -17,39 +17,54 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.spi.InitialContextFactory;
+
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
-import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.*;
-import org.apache.ldap.server.db.*;
+import org.apache.ldap.server.ApplicationPartition;
+import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.RootNexus;
+import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.configuration.Configuration;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
+import org.apache.ldap.server.configuration.StartupConfiguration;
+import org.apache.ldap.server.configuration.SyncConfiguration;
+import org.apache.ldap.server.db.Database;
+import org.apache.ldap.server.db.DefaultSearchEngine;
+import org.apache.ldap.server.db.ExpressionEnumerator;
+import org.apache.ldap.server.db.ExpressionEvaluator;
+import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.jdbm.JdbmDatabase;
 import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.interceptor.InterceptorConfigBuilder;
 import org.apache.ldap.server.interceptor.InterceptorContext;
-import org.apache.ldap.server.schema.*;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.ldap.server.schema.GlobalRegistries;
+import org.apache.ldap.server.schema.MatchingRuleRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
-
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
-import javax.naming.spi.InitialContextFactory;
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
 
 
 /**
@@ -90,20 +105,6 @@ public class CoreContextFactory implements InitialContextFactory
     /** shorthand reference to the admin principal distinguished name */
     protected static final Name ADMIN_NAME = SystemPartition.getAdminDn();
 
-    /** default path to working directory if WKDIR_ENV property is not set */
-    public static final String DEFAULT_WKDIR = "server-work";
-
-    /** default schema classes for the SCHEMAS_ENV property if not set */
-    protected static final String[] DEFAULT_SCHEMAS = new String[]
-    {
-        "org.apache.ldap.server.schema.bootstrap.CoreSchema",
-        "org.apache.ldap.server.schema.bootstrap.CosineSchema",
-        "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
-        "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
-        "org.apache.ldap.server.schema.bootstrap.JavaSchema",
-        "org.apache.ldap.server.schema.bootstrap.SystemSchema"
-    };
-
     // ------------------------------------------------------------------------
     // Members
     // ------------------------------------------------------------------------
@@ -113,6 +114,9 @@ public class CoreContextFactory implements InitialContextFactory
 
     /** the initial context environment that fired up the backend subsystem */
     protected Hashtable initialEnv;
+    
+    /** the configuration */
+    protected StartupConfiguration configuration;
 
     /** the system partition used by the context factory */
     protected SystemPartition system;
@@ -149,11 +153,11 @@ public class CoreContextFactory implements InitialContextFactory
 
     public Context getInitialContext( Hashtable env ) throws NamingException
     {
-        env = ( Hashtable ) env.clone();
 
-        Context ctx = null;
-
-        if ( env.containsKey( EnvKeys.SHUTDOWN ) )
+        Configuration cfg = Configuration.toConfiguration( env );
+        
+        Context ctx;
+        if( cfg instanceof ShutdownConfiguration )
         {
             if ( this.provider == null )
             {
@@ -163,6 +167,7 @@ public class CoreContextFactory implements InitialContextFactory
             try
             {
                 this.provider.shutdown();
+                return new DeadContext();
             }
             catch ( Throwable t )
             {
@@ -170,22 +175,23 @@ public class CoreContextFactory implements InitialContextFactory
             }
             finally
             {
-                ctx = new DeadContext();
-
                 provider = null;
-
                 initialEnv = null;
+                configuration = null;
             }
-
-            return ctx;
         }
-
-        if ( env.containsKey( EnvKeys.SYNC ) )
+        else if( cfg instanceof SyncConfiguration )
         {
+            if ( this.provider == null )
+            {
+                return new DeadContext();
+            }
+            
             provider.sync();
-
             return provider.getLdapContext( env );
         }
+        
+        StartupConfiguration startupCfg = ( StartupConfiguration ) cfg;
 
         checkSecuritySettings( env );
 
@@ -199,15 +205,15 @@ public class CoreContextFactory implements InitialContextFactory
         {
             // we need to check this here instead of in AuthenticationService
             // because otherwise we are going to start up the system incorrectly
-            if ( isAnonymous( env ) && env.containsKey( EnvKeys.DISABLE_ANONYMOUS ) )
+            if ( isAnonymous( env ) && !startupCfg.isAllowAnonymousAccess() )
             {
-                throw new LdapNoPermissionException( "cannot bind as anonymous "
-                        + "on startup while disabling anonymous binds w/ property: "
-                        + EnvKeys.DISABLE_ANONYMOUS );
+                throw new LdapNoPermissionException(
+                        "ApacheDS is configured to disallow anonymous access" );
             }
 
+            startupCfg.validate();
             this.initialEnv = env;
-
+            this.configuration = startupCfg;
             initialize();
 
             createMode = createBootstrapEntries();
@@ -218,34 +224,21 @@ public class CoreContextFactory implements InitialContextFactory
              * entries at startup due to a chicken and egg like problem.  The value
              * of this property is a list of attributes to be added.
              */
-
-            if ( createMode && env.containsKey( EnvKeys.TEST_ENTRIES ) )
+            
+            Iterator i = configuration.getTestEntries().iterator();
+            while( i.hasNext() )
             {
-                ArrayList list = ( ArrayList ) initialEnv.get( EnvKeys.TEST_ENTRIES );
-
-                if ( list != null )
-                {
-                    for ( int ii = 0; ii < list.size(); ii++ )
-                    {
-                        Attributes attributes = ( Attributes ) list.get( ii );
-
-                        attributes.put( "creatorsName", ADMIN );
-
-                        attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
-
-                        Attribute dn = attributes.remove( "dn" );
-
-                        AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
-
-                        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
-
-                        DnParser parser = new DnParser( ncn );
-
-                        Name ndn = parser.parse( ( String ) dn.get() );
-                        
-                        nexus.add( ( String ) dn.get(), ndn, attributes );
-                    }
-                }
+                Attributes entry = ( Attributes ) i.next();
+                entry.put( "creatorsName", ADMIN );
+                entry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+                
+                Attribute dn = entry.remove( "dn" );
+                AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
+                NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
+                DnParser parser = new DnParser( ncn );
+                Name ndn = parser.parse( ( String ) dn.get() );
+                
+                nexus.add( ( String ) dn.get(), ndn, entry );
             }
         }
 
@@ -502,24 +495,7 @@ public class CoreContextFactory implements InitialContextFactory
         BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-
-        String[] schemas = DEFAULT_SCHEMAS;
-
-        if ( initialEnv.containsKey( EnvKeys.SCHEMAS ) )
-        {
-            String schemaList = ( String ) initialEnv.get( EnvKeys.SCHEMAS );
-
-            schemaList = StringTools.deepTrim( schemaList );
-
-            schemas = schemaList.split( " " );
-
-            for ( int ii = 0; ii < schemas.length; ii++ )
-            {
-                schemas[ii] = schemas[ii].trim();
-            }
-        }
-
-        loader.load( schemas, bootstrapRegistries );
+        loader.load( configuration.getBootstrapSchemas(), bootstrapRegistries );
 
         List errors = bootstrapRegistries.checkRefInteg();
 
@@ -536,34 +512,13 @@ public class CoreContextFactory implements InitialContextFactory
         // Fire up the system partition
         // --------------------------------------------------------------------
 
-        String wkdir = DEFAULT_WKDIR;
-
-        if ( initialEnv.containsKey( EnvKeys.WKDIR ) )
-        {
-            wkdir = ( ( String ) initialEnv.get( EnvKeys.WKDIR ) ).trim();
-        }
-
-        File wkdirFile = new File( wkdir );
-
-        if ( wkdirFile.isAbsolute() )
-        {
-            if ( !wkdirFile.exists() )
-            {
-                throw new NamingException( "working directory " + wkdir + " does not exist" );
-            }
-        }
-        else
-        {
-            File current = new File( "." );
-
-            mkdirs( current.getAbsolutePath(), wkdir );
-        }
+        File workDir = configuration.getWorkingDirectory();
 
         LdapName suffix = new LdapName();
 
         suffix.add( SystemPartition.SUFFIX );
 
-        Database db = new JdbmDatabase( suffix, suffix, wkdir );
+        Database db = new JdbmDatabase( suffix, suffix, workDir.getPath() );
 
         AttributeTypeRegistry attributeTypeRegistry;
 
@@ -586,109 +541,76 @@ public class CoreContextFactory implements InitialContextFactory
         AttributeType[] attributes = new AttributeType[]
         {
             attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ),
-
             attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ),
-
             attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ),
-
             attributeTypeRegistry.lookup( SystemPartition.NDN_OID ),
-
             attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ),
-
             attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ),
-
             attributeTypeRegistry.lookup( SystemPartition.UPDN_OID )
         };
 
         system = new SystemPartition( db, eng, attributes );
-
         globalRegistries = new GlobalRegistries( system, bootstrapRegistries );
-
         nexus = new RootNexus( system, new LockableAttributesImpl() );
-
         provider = new JndiProvider( nexus );
 
         // --------------------------------------------------------------------
         // Adding interceptors
         // --------------------------------------------------------------------
-        InterceptorChain interceptor = ( InterceptorChain ) initialEnv.get( EnvKeys.INTERCEPTORS );
-
-        if( interceptor == null )
-        {
-            // If custom interceptor is not specified, use defaule one.
-
-            interceptor = InterceptorChain.newDefaultChain();
-        }
-
-        interceptor.init( new InterceptorContext( initialEnv, system, globalRegistries, nexus,
-                InterceptorConfigBuilder.build( initialEnv, EnvKeys.INTERCEPTORS ) ) );
+        InterceptorChain interceptor = configuration.getInterceptors();
+        interceptor.init( new InterceptorContext( configuration, system, globalRegistries, nexus ) );
 
         provider.setInterceptor( interceptor );
 
         // fire up the app partitions now!
-        if ( initialEnv.get( EnvKeys.PARTITIONS ) != null )
-        {
-            startUpAppPartitions( wkdir );
-        }
+        startUpAppPartitions();
     }
 
     /**
      * Starts up all the application partitions that will be attached to naming contexts in the system.  Partition
      * database files are created within a subdirectory immediately under the Eve working directory base.
      *
-     * @param eveWkdir the base Eve working directory
      * @throws javax.naming.NamingException if there are problems creating and starting these new application
      *                                      partitions
      */
-    protected void startUpAppPartitions( String eveWkdir ) throws NamingException
+    protected void startUpAppPartitions() throws NamingException
     {
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
-
         AttributeTypeRegistry attributeTypeRegistry;
-
         attributeTypeRegistry = globalRegistries.getAttributeTypeRegistry();
-
         MatchingRuleRegistry reg = globalRegistries.getMatchingRuleRegistry();
 
-        // start getting all the parameters from the initial environment
-        ContextPartitionConfig[] configs = null;
+        File workDir = configuration.getWorkingDirectory();
 
-        configs = PartitionConfigBuilder.getContextPartitionConfigs( initialEnv );
-
-        for ( int ii = 0; ii < configs.length; ii++ )
+        Iterator i = configuration.getContextPartitionConfigurations().iterator();
+        while( i.hasNext() )
         {
+            ContextPartitionConfiguration cfg = ( ContextPartitionConfiguration ) i.next();
+            
             // ----------------------------------------------------------------
             // create working directory under eve directory for app partition
             // ----------------------------------------------------------------
 
-            String wkdir = eveWkdir + File.separator + configs[ii].getId();
-
-            mkdirs( eveWkdir, configs[ii].getId() );
+            File partitionWorkDir = new File( workDir.getPath() + File.separator + cfg.getName() );
+            partitionWorkDir.mkdirs();
 
             // ----------------------------------------------------------------
             // create the database/store
             // ----------------------------------------------------------------
 
-            Name upSuffix = new LdapName( configs[ii].getSuffix() );
-
+            Name upSuffix = new LdapName( cfg.getSuffix() );
             Normalizer dnNorm = reg.lookup( "distinguishedNameMatch" ) .getNormalizer();
-
-            Name normSuffix = new LdapName( ( String ) dnNorm.normalize( configs[ii].getSuffix() ) );
-
-            Database db = new JdbmDatabase( upSuffix, normSuffix, wkdir );
+            Name normSuffix = new LdapName( ( String ) dnNorm.normalize( cfg.getSuffix() ) );
+            Database db = new JdbmDatabase( upSuffix, normSuffix, partitionWorkDir.getPath() );
 
             // ----------------------------------------------------------------
             // create the search engine using db, enumerators and evaluators
             // ----------------------------------------------------------------
 
             ExpressionEvaluator evaluator;
-
             evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
-
             ExpressionEnumerator enumerator;
-
             enumerator = new ExpressionEnumerator( db, attributeTypeRegistry, evaluator );
-
             SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
 
             // ----------------------------------------------------------------
@@ -696,29 +618,24 @@ public class CoreContextFactory implements InitialContextFactory
             // ----------------------------------------------------------------
 
             ArrayList attributeTypeList = new ArrayList();
-
             attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ) );
-
             attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ) );
-
             attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ) );
-
             attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.NDN_OID ) );
-
             attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ) );
-
             attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ) );
-
             attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.UPDN_OID ) );
 
             // ----------------------------------------------------------------
             // if user indices are specified add those attribute types as well
             // ----------------------------------------------------------------
 
-            for ( int jj = 0; jj < configs[ii].getIndices().length; jj++ )
+            Iterator j = cfg.getIndexedAttributes().iterator();
+            while( j.hasNext() )
             {
+                String attribute = ( String ) j.next();
                 attributeTypeList.add( attributeTypeRegistry
-                        .lookup( configs[ii].getIndices()[jj] ) );
+                        .lookup( attribute ) );
             }
 
             // ----------------------------------------------------------------
@@ -728,79 +645,31 @@ public class CoreContextFactory implements InitialContextFactory
             AttributeType[] indexTypes = ( AttributeType[] ) attributeTypeList
                     .toArray( new AttributeType[attributeTypeList.size()] );
 
-            String partitionClass = configs[ii].getPartitionClass();
+            ContextPartition partition = cfg.getContextPartition();
 
-            String properties = configs[ii].getProperties();
-
-            ContextPartition partition = null;
-
-            if ( partitionClass == null )
+            if ( partition == null )
             {
                 // If custom partition is not defined, use the ApplicationPartion.
-                partition = new ApplicationPartition( upSuffix, normSuffix, db, eng, indexTypes );
-
+                partition = new ApplicationPartition( db, eng, indexTypes );
             }
-            else
+
+            // Initialize the partition
+            try
             {
-                // If custom partition is defined, instantiate it.
-                try
-                {
-                    Class clazz = Class.forName( partitionClass );
-
-                    Constructor constructor = clazz.getConstructor(
-                            new Class[] { Name.class, Name.class, String.class } );
-
-                    partition = ( ContextPartition ) constructor.newInstance(
-                            new Object[] { upSuffix, normSuffix, properties } );
-                }
-                catch ( Exception e )
-                {
-                    e.printStackTrace();
-                }
-            }
-
-            if ( partition != null ) 
-            { 
+                partition.init( upSuffix, normSuffix );
                 nexus.register( partition );
+            }
+            catch ( Exception e )
+            {
+                throw ( NamingException ) new NamingException(
+                        "Failed to initialize custom partition." ).initCause( e );
             }
 
             // ----------------------------------------------------------------
             // add the nexus context entry
             // ----------------------------------------------------------------
 
-            partition.add( configs[ii].getSuffix(), normSuffix, configs[ii].getAttributes() );
+            partition.add( cfg.getSuffix(), normSuffix, cfg.getContextEntry() );
         }
-    }
-
-
-    /**
-     * Recursively creates a bunch of directories from a base down to a path.
-     *
-     * @param base the base directory to start at
-     * @param path the path to recursively create if we have to
-     * @return true if the target directory has been created or exists, false if we fail along the way somewhere
-     */
-    protected boolean mkdirs( String base, String path )
-    {
-        String[] comps = path.split( "/" );
-
-        File file = new File( base );
-
-        if ( !file.exists() )
-        {
-            file.mkdirs();
-        }
-
-        for ( int ii = 0; ii < comps.length; ii++ )
-        {
-            file = new File( file, comps[ii] );
-
-            if ( !file.exists() )
-            {
-                file.mkdirs();
-            }
-        }
-
-        return file.exists();
     }
 }

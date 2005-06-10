@@ -34,10 +34,9 @@ public class ServerSystemPreferencesTest extends AbstractCoreTest
     /**
      * Tests to make sure the system preferences root has entry (test, abc123).
      */
-    public void testRoot() throws BackingStoreException
+    public void testRoot() throws Exception
     {
         ServerSystemPreferences prefs = new ServerSystemPreferences();
-
         assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "not the value" ) );
     }
 
@@ -50,11 +49,9 @@ public class ServerSystemPreferencesTest extends AbstractCoreTest
     public void testCreate() throws BackingStoreException
     {
         Preferences prefs = new ServerSystemPreferences();
-
         Preferences testNode = prefs.node( "testNode" );
 
         testNode.put( "testNodeKey", "testNodeValue" );
-
         testNode.sync();
     }
 

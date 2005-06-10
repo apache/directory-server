@@ -18,6 +18,8 @@ package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.PartitionNexus;
+import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
+import org.apache.ldap.server.configuration.StartupConfiguration;
 
 
 /**
@@ -28,36 +30,40 @@ import org.apache.ldap.server.PartitionNexus;
  */
 public class GenericAuthenticatorContext implements AuthenticatorContext
 {
-
+    private StartupConfiguration rootConfiguration;
+    private AuthenticatorConfiguration configuration;
     /** the root nexus to all database partitions */
     private PartitionNexus partitionNexus;
-    /** whether or not to allow anonymous users */
-    private boolean allowAnonymous = false;
 
     /**
      * Create a new AuthenticatorContext.
      */
-    public GenericAuthenticatorContext()
+    public GenericAuthenticatorContext(
+            StartupConfiguration rootConfiguration,
+            AuthenticatorConfiguration configuration,
+            PartitionNexus partitionNexus )
     {
+        assert rootConfiguration != null;
+        assert configuration != null;
+        assert partitionNexus != null;
+
+        this.rootConfiguration = rootConfiguration;
+        this.configuration = configuration;
+        this.partitionNexus = partitionNexus;
+    }
+    
+    public StartupConfiguration getRootConfiguration()
+    {
+        return rootConfiguration;
+    }
+    
+    public AuthenticatorConfiguration getConfiguration()
+    {
+        return configuration;
     }
 
     public PartitionNexus getPartitionNexus()
     {
         return partitionNexus;
     }
-    public void setPartitionNexus( PartitionNexus rootNexus )
-    {
-        this.partitionNexus = rootNexus;
-    }
-
-    public boolean getAllowAnonymous()
-    {
-        return allowAnonymous;
-    }
-
-    public void setAllowAnonymous( boolean allowAnonymous )
-    {
-        this.allowAnonymous = allowAnonymous;
-    }
-
 }
