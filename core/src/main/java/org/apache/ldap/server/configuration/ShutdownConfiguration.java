@@ -27,4 +27,11 @@ package org.apache.ldap.server.configuration;
 public class ShutdownConfiguration extends Configuration
 {
     private static final long serialVersionUID = 3141844093107051149L;
+
+    /**
+     * Creates a new instance.
+     */
+    public ShutdownConfiguration()
+    {
+    }
 }

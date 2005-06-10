@@ -27,4 +27,11 @@ package org.apache.ldap.server.configuration;
 public class SyncConfiguration extends Configuration
 {
     private static final long serialVersionUID = -3260859085299322327L;
+
+    /**
+     * Creates a new instance.
+     */
+    public SyncConfiguration()
+    {
+    }
 }
