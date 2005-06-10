@@ -19,11 +19,18 @@
 package org.apache.ldap.server.configuration;
 
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+
+import org.apache.ldap.server.ContextPartition;
 
 
 /**
- * A configuration bean for ContextPartitions.
+ * A configuration for {@link ContextPartition}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Id$
@@ -31,77 +38,72 @@ import javax.naming.directory.Attributes;
 public class ContextPartitionConfiguration
 {
     private String suffix;
-    private String id;
-    private String[] indices;
-    private Attributes attributes;
-    private String partitionClass;
-    private String properties;
+    private Set indexedAttributes = new HashSet(); // Set<String>
+    private Attributes rootEntry = new BasicAttributes();
+    private ContextPartition partition;
+    
+    /**
+     * Creates a new instance.
+     */
+    protected ContextPartitionConfiguration()
+    {
+    }
 
+    public Set getIndexedAttributes()
+    {
+        Set result = new HashSet();
+        result.addAll( indexedAttributes );
+        return result;
+    }
+    
+    protected void setIndexedAttributes( Set indexedAttributes )
+    {
+        Set newIndexedAttributes = new HashSet();
 
+        Iterator i = indexedAttributes.iterator();
+        while( i.hasNext() )
+        {
+            Object e = i.next();
+            if( !(e instanceof String) )
+            {
+                throw new ConfigurationException( "All elements of indexedAttributes must be strings." );
+            }
+            
+            // TODO Attribute name must be normalized and validated
+            String attr = ( ( String ) e ).trim();
+            newIndexedAttributes.add( attr );
+        }
+        this.indexedAttributes = newIndexedAttributes;
+    }
+    
+    public ContextPartition getPartition()
+    {
+        return partition;
+    }
+    
+    protected void setPartition( ContextPartition partition )
+    {
+        this.partition = partition;
+    }
+    
+    public Attributes getRootEntry()
+    {
+        return ( Attributes ) rootEntry.clone();
+    }
+    
+    protected void setRootEntry( Attributes rootEntry )
+    {
+        this.rootEntry = ( Attributes ) rootEntry.clone();
+    }
+    
     public String getSuffix()
     {
         return suffix;
     }
-
-
-    public void setSuffix( String suffix )
+    
+    protected void setSuffix( String suffix )
     {
-        this.suffix = suffix;
-    }
-
-
-    public String getId()
-    {
-        return id;
-    }
-
-
-    public void setId( String id )
-    {
-        this.id = id;
-    }
-
-
-    public String[] getIndices()
-    {
-        return indices;
-    }
-
-
-    public void setIndices( String[] indices )
-    {
-        this.indices = indices;
-    }
-
-
-    public Attributes getAttributes()
-    {
-        return attributes;
-    }
-
-
-    public void setAttributes( Attributes attributes )
-    {
-        this.attributes = attributes;
-    }
-
-    public String getPartitionClass()
-    {
-        return partitionClass;
-    }
-
-    public void setPartitionClass( String partitionClass )
-    {
-        this.partitionClass = partitionClass;
-    }
-
-    public String getProperties()
-    {
-        return properties;
-    }
-
-    public void setProperties( String properties )
-    {
-        this.properties = properties;
+        // TODO Suffix should be normalized before being set
+        this.suffix = suffix.trim();
     }
 }

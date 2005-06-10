@@ -39,15 +39,15 @@ public abstract class Configuration implements Cloneable, Serializable
      * Gets {@link Configuration} instance from the specified JNDI environment
      * {@link Hashtable}.
      * 
-     * @throws IllegalArgumentException if the specified environment doesn't
-     *                                  contain the configuration instance.
+     * @throws ConfigurationException if the specified environment doesn't
+     *                                contain the configuration instance.
      */
     public static Configuration toConfiguration( Hashtable jndiEnvironment )
     {
         Object value = jndiEnvironment.get( JNDI_KEY );
         if( value == null || !( value instanceof Configuration ) )
         {
-            throw new IllegalArgumentException( "Not an ApacheDS configuration: " + value );
+            throw new ConfigurationException( "Not an ApacheDS configuration: " + value );
         }
         
         return ( Configuration ) value;
