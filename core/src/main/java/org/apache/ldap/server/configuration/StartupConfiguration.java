@@ -50,7 +50,7 @@ public class StartupConfiguration extends Configuration
     private static final long serialVersionUID = 4826762196566871677L;
 
     protected File workingDirectory = new File( "server-work" );
-    protected boolean allowAnonymousAccess;
+    protected boolean allowAnonymousAccess = true; // allow by default
     protected Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     protected InterceptorChain interceptors = InterceptorChain.newDefaultChain();
     protected ServiceRegistry minaServiceRegistry = new SimpleServiceRegistry();

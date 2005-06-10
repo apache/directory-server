@@ -294,5 +294,7 @@ public abstract class AbstractCoreTest extends TestCase
         loadClass = null;
         
         configuration = new MutableStartupConfiguration();
+        
+        doDelete( configuration.getWorkingDirectory() );
     }
 }

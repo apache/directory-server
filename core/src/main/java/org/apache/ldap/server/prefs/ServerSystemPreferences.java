@@ -82,19 +82,18 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setAllowAnonymousAccess( true );
+        
         Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-
         env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
 
         try
         {
             ctx = new InitialLdapContext( env, null );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            e.printStackTrace();
+            throw new ServerSystemPreferenceException( "Failed to initialize InitialLdapContext.", e );
         }
     }
 
@@ -125,9 +124,9 @@ public class ServerSystemPreferences extends AbstractPreferences
             {
                 setUpNode( name );
             }
-            catch ( NamingException e )
+            catch ( Exception e )
             {
-                e.printStackTrace();
+                throw new ServerSystemPreferenceException( "Failed to set up node.", e );
             }
         }
     }
@@ -402,9 +401,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
             value = ( String ) attr.get();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            e.printStackTrace();
+            throw new ServerSystemPreferenceException( "Failed to get SPI.", e );
         }
 
         return value;
