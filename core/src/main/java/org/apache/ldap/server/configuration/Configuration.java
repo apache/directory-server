@@ -26,7 +26,7 @@ import java.util.Hashtable;
  * to configure ApacheDS.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 189903 $, $Date$
+ * @version $Rev$, $Date$
  */
 public abstract class Configuration implements Cloneable, Serializable
 {

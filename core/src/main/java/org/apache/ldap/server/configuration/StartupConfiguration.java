@@ -19,18 +19,36 @@
 package org.apache.ldap.server.configuration;
 
 import java.io.File;
+import java.util.Set;
+
+import org.apache.ldap.server.interceptor.InterceptorChain;
+import org.apache.mina.registry.ServiceRegistry;
 
 /**
  * A {@link Configuration} that starts up ApacheDS.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 189903 $, $Date$
+ * @version $Rev$, $Date$
  */
 public class StartupConfiguration extends Configuration
 {
     private static final long serialVersionUID = 4826762196566871677L;
 
+    protected File homeDirectory;
     protected File workingDirectory;
+    protected boolean enableAnonymousAccess;
+    protected Set authenticators; // Set<Authenticator> and their properties>?
+    protected InterceptorChain interceptors; // and their properties?
+    protected ServiceRegistry minaServiceRegistry;
+    protected int ldapPort = 389;
+    protected int ldapsPort = 636;
+    protected boolean enableKerberos;
     
+    protected Set bootstrapSchemas; // Set<BootstrapSchema>
+    protected Set contextParitions; // Set<suffix, partition, indices, attributes, and properties>?
+    protected Set testEntries; // Set<Attributes?>
     
+    protected StartupConfiguration()
+    {
+    }
 }

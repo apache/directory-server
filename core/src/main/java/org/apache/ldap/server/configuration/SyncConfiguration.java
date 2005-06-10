@@ -22,7 +22,7 @@ package org.apache.ldap.server.configuration;
  * A {@link Configuration} that syncs ApacheDS backend storage with disk.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 189903 $, $Date$
+ * @version $Rev$, $Date$
  */
 public class SyncConfiguration extends Configuration
 {
