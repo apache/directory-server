@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.Set;
 
 import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.mina.registry.ServiceRegistry;
 
 /**
  * A mutable version of {@link StartupConfiguration}.
@@ -58,29 +57,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
         super.setAllowAnonymousAccess( enableAnonymousAccess );
     }
 
-    public void setEnableKerberos( boolean enableKerberos )
-    {
-        super.setEnableKerberos( enableKerberos );
-    }
-
     public void setInterceptors( InterceptorChain interceptors )
     {
         super.setInterceptors( interceptors );
-    }
-
-    public void setLdapPort( int ldapPort )
-    {
-        super.setLdapPort( ldapPort );
-    }
-
-    public void setLdapsPort( int ldapsPort )
-    {
-        super.setLdapsPort( ldapsPort );
-    }
-
-    public void setMinaServiceRegistry( ServiceRegistry minaServiceRegistry )
-    {
-        super.setMinaServiceRegistry( minaServiceRegistry );
     }
 
     public void setTestEntries( Set testEntries )

@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.ldap.common.util.PropertiesUtils;
-import org.apache.ldap.server.jndi.EnvKeys;
 
 
 /**

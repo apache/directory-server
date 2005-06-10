@@ -35,12 +35,9 @@ import org.apache.ldap.server.schema.bootstrap.CosineSchema;
 import org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema;
 import org.apache.ldap.server.schema.bootstrap.JavaSchema;
 import org.apache.ldap.server.schema.bootstrap.SystemSchema;
-import org.apache.mina.registry.ServiceRegistry;
-import org.apache.mina.registry.SimpleServiceRegistry;
 
 /**
  * A {@link Configuration} that starts up ApacheDS.
- * TODO Move ldapPort, ldapsPort, enableKerberos, minaServiceRegistry to apacheds/main
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -49,18 +46,14 @@ public class StartupConfiguration extends Configuration
 {
     private static final long serialVersionUID = 4826762196566871677L;
 
-    protected File workingDirectory = new File( "server-work" );
-    protected boolean allowAnonymousAccess = true; // allow by default
-    protected Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
-    protected InterceptorChain interceptors = InterceptorChain.newDefaultChain();
-    protected ServiceRegistry minaServiceRegistry = new SimpleServiceRegistry();
-    protected int ldapPort = 389;
-    protected int ldapsPort = 636;
-    protected boolean enableKerberos;
+    private File workingDirectory = new File( "server-work" );
+    private boolean allowAnonymousAccess = true; // allow by default
+    private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
+    private InterceptorChain interceptors = InterceptorChain.newDefaultChain();
     
-    protected Set bootstrapSchemas; // Set<BootstrapSchema>
-    protected Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
-    protected Set testEntries = new HashSet(); // Set<Attributes>
+    private Set bootstrapSchemas; // Set<BootstrapSchema>
+    private Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
+    private Set testEntries = new HashSet(); // Set<Attributes>
     
     protected StartupConfiguration()
     {
@@ -182,22 +175,6 @@ public class StartupConfiguration extends Configuration
     }
 
     /**
-     * Returns <tt>true</tt> if Kerberos support is enabled.
-     */
-    public boolean isEnableKerberos()
-    {
-        return enableKerberos;
-    }
-
-    /**
-     * Sets whether to enable Kerberos support or not.
-     */
-    protected void setEnableKerberos( boolean enableKerberos )
-    {
-        this.enableKerberos = enableKerberos;
-    }
-
-    /**
      * Returns interceptor chain.
      */
     public InterceptorChain getInterceptors()
@@ -215,62 +192,6 @@ public class StartupConfiguration extends Configuration
             throw new ConfigurationException( "Interceptors cannot be null" );
         }
         this.interceptors = interceptors;
-    }
-
-    /**
-     * Returns LDAP TCP/IP port number to listen to.
-     */
-    public int getLdapPort()
-    {
-        return ldapPort;
-    }
-
-    /**
-     * Sets LDAP TCP/IP port number to listen to.
-     */
-    protected void setLdapPort( int ldapPort )
-    {
-        ConfigurationUtil.validatePortNumber( ldapPort );
-        this.ldapPort = ldapPort;
-    }
-
-    /**
-     * Returns LDAPS TCP/IP port number to listen to.
-     */
-    public int getLdapsPort()
-    {
-        return ldapsPort;
-    }
-
-    /**
-     * Sets LDAPS TCP/IP port number to listen to.
-     */
-    protected void setLdapsPort( int ldapsPort )
-    {
-        ConfigurationUtil.validatePortNumber( ldapsPort );
-        this.ldapsPort = ldapsPort;
-    }
-
-    /**
-     * Returns <a href="http://directory.apache.org/subprojects/network/">MINA</a>
-     * {@link ServiceRegistry} that will be used by ApacheDS.
-     */
-    public ServiceRegistry getMinaServiceRegistry()
-    {
-        return minaServiceRegistry;
-    }
-
-    /**
-     * Sets <a href="http://directory.apache.org/subprojects/network/">MINA</a>
-     * {@link ServiceRegistry} that will be used by ApacheDS.
-     */
-    protected void setMinaServiceRegistry( ServiceRegistry minaServiceRegistry )
-    {
-        if( interceptors == null )
-        {
-            throw new ConfigurationException( "MinaServiceRegistry cannot be null" );
-        }
-        this.minaServiceRegistry = minaServiceRegistry;
     }
 
     /**

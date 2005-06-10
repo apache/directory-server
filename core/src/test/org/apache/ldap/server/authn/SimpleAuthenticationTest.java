@@ -35,7 +35,6 @@ import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.AbstractCoreTest;
-import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
@@ -187,7 +186,6 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         
         configuration.setAllowAnonymousAccess( false );
-        configuration.setLdapPort( AvailablePortFinder.getNextAvailable( 1024 ) );
 
         try
         {
