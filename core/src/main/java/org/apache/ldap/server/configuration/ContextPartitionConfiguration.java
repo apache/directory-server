@@ -40,7 +40,7 @@ public class ContextPartitionConfiguration
     private String suffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
     private Attributes rootEntry = new BasicAttributes();
-    private ContextPartition partition;
+    private ContextPartition contextPartition;
     
     /**
      * Creates a new instance.
@@ -51,39 +51,32 @@ public class ContextPartitionConfiguration
 
     public Set getIndexedAttributes()
     {
-        Set result = new HashSet();
-        result.addAll( indexedAttributes );
-        return result;
+        return ConfigurationUtil.getClonedSet( indexedAttributes );
     }
     
     protected void setIndexedAttributes( Set indexedAttributes )
     {
-        Set newIndexedAttributes = new HashSet();
+        Set newIndexedAttributes = ConfigurationUtil.getTypeSafeSet(
+                indexedAttributes, String.class );
 
-        Iterator i = indexedAttributes.iterator();
+        Iterator i = newIndexedAttributes.iterator();
         while( i.hasNext() )
         {
-            Object e = i.next();
-            if( !(e instanceof String) )
-            {
-                throw new ConfigurationException( "All elements of indexedAttributes must be strings." );
-            }
-            
+            String attribute = ( String ) i.next();
             // TODO Attribute name must be normalized and validated
-            String attr = ( ( String ) e ).trim();
-            newIndexedAttributes.add( attr );
+            newIndexedAttributes.add( attribute );
         }
         this.indexedAttributes = newIndexedAttributes;
     }
     
-    public ContextPartition getPartition()
+    public ContextPartition getContextPartition()
     {
-        return partition;
+        return contextPartition;
     }
     
-    protected void setPartition( ContextPartition partition )
+    protected void setContextPartition( ContextPartition partition )
     {
-        this.partition = partition;
+        this.contextPartition = partition;
     }
     
     public Attributes getRootEntry()
@@ -105,5 +98,24 @@ public class ContextPartitionConfiguration
     {
         // TODO Suffix should be normalized before being set
         this.suffix = suffix.trim();
+    }
+    
+    
+    /**
+     * Validates this configuration.
+     * 
+     * @throws ConfigurationException if this configuration is not valid
+     */
+    public void validate()
+    {
+        if( getSuffix() == null )
+        {
+            throw new ConfigurationException( "Suffix is not specified." );
+        }
+        
+        if( getContextPartition() == null )
+        {
+            throw new ConfigurationException( "Partition is not specified." );
+        }
     }
 }

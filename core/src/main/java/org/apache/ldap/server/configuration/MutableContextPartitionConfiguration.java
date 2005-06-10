@@ -45,9 +45,9 @@ public class MutableContextPartitionConfiguration extends
         super.setIndexedAttributes( indexedAttributes );
     }
 
-    public void setPartition( ContextPartition partition )
+    public void setContextPartition( ContextPartition partition )
     {
-        super.setPartition( partition );
+        super.setContextPartition( partition );
     }
 
     public void setRootEntry( Attributes rootEntry )
@@ -58,23 +58,5 @@ public class MutableContextPartitionConfiguration extends
     public void setSuffix( String suffix )
     {
         super.setSuffix( suffix );
-    }
-    
-    /**
-     * Validates this configuration.
-     * 
-     * @throws ConfigurationException if this configuration is not valid
-     */
-    public void validate()
-    {
-        if( getSuffix() == null )
-        {
-            throw new ConfigurationException( "Suffix is not specified." );
-        }
-        
-        if( getPartition() == null )
-        {
-            throw new ConfigurationException( "Partition is not specified." );
-        }
     }
 }

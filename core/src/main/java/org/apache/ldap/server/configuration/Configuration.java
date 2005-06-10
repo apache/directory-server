@@ -54,6 +54,15 @@ public abstract class Configuration implements Cloneable, Serializable
     }
 
     /**
+     * Valids this configuration.
+     * 
+     * @throws ConfigurationException if this configuration is invalid
+     */
+    public void validate()
+    {
+    }
+    
+    /**
      * Converts this configuration to JNDI environment {@link Hashtable}.
      * This method simple returns a {@link Hashtable} that contains an entry
      * whose key is {@link #JNDI_KEY} and whose value is <tt>this</tt>.
