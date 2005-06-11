@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="environment" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+    	<props>
+    		<prop key="asn.1.berlib.provider">org.apache.ldap.common.berlib.asn1.SnickersProvider</prop>
+    		<prop key="java.naming.security.authentication">simple</prop>
+    		<prop key="java.naming.security.principal">uid=admin,ou=system</prop>
+    		<prop key="java.naming.security.credentials">secret</prop>
+    		<!--
+    		<prop key="java.naming.ldap.attributes.binary"></prop>
+    		-->
+    	</props>
+    </property>
+  </bean>
+  
+  <bean id="configuration" class="org.apache.ldap.server.configuration.MutableServerStartupConfiguration">
+    <property name="workingDirectory"><value>apache.org</value></property>
+    <property name="allowAnonymousAccess"><value>false</value></property>
+    <property name="ldapPort"><value>10389</value></property>
+    <property name="contextPartitionConfigurations">
+      <set>
+        <ref bean="apachePartitionConfiguration"/>
+      </set>
+    </property>
+    <property name="bootstrapSchemas">
+      <set>
+        <bean class="org.apache.ldap.server.schema.bootstrap.AutofsSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.CorbaSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.CoreSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.CosineSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.ApacheSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.JavaSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.Krb5kdcSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.NisSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.SystemSchema"/>
+      </set>
+    </property>
+  </bean>
+  
+  <bean id="apachePartitionConfiguration" class="org.apache.ldap.server.configuration.MutableContextPartitionConfiguration">
+    <property name="name"><value>apache</value></property>
+    <property name="suffix"><value>dc=apache,dc=org</value></property>
+    <property name="indexedAttributes">
+      <set>
+        <value>objectClass</value>
+        <value>ou</value>
+        <value>uid</value>
+      </set>
+    </property>
+    <property name="contextEntry">
+      <value>
+        objectClass: top
+        objectClass: domain
+        objectClass: extensibleObject
+        dc: apache
+      </value>
+    </property>
+  </bean>
+
+  <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+    <property name="customEditors">
+      <map>
+        <entry key="javax.naming.directory.Attributes">
+          <bean class="org.apache.ldap.server.configuration.AttributesPropertyEditor"/>
+        </entry>
+      </map>
+   </property>
+  </bean>
+</beans>
