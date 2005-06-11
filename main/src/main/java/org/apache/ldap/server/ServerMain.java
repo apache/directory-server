@@ -36,9 +36,6 @@ import org.apache.ldap.common.util.PropertiesUtils;
  */
 public class ServerMain
 {
-    /** the default LDAP port to use */
-    private static final int LDAP_PORT = 389;
-
     /**
      * Takes a single argument, an optional properties file to load with server
      * startup settings.

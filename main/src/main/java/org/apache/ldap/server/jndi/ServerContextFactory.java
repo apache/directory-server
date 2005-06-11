@@ -95,14 +95,12 @@ public class ServerContextFactory extends CoreContextFactory
                     if ( ldapService != null )
                     {
                         minaRegistry.unbind( ldapService );
-
                         ldapService = null;
                     }
 
                     if ( kerberosService != null )
                     {
                         minaRegistry.unbind( kerberosService );
-
                         kerberosService = null;
                     }
                 }
@@ -114,23 +112,21 @@ public class ServerContextFactory extends CoreContextFactory
             catch( Throwable t )
             {
                 NamingException ne = new NamingException( "Failed to shutdown." );
-
                 ne.setRootCause( t );
-
                 throw ne;
             }
             finally
             {
                 ctx = new DeadContext();
-
                 provider = null;
-
                 initialEnv = null;
+                configuration = null;
             }
 
             return ctx;
         }
 
+        boolean firstRun = provider == null;
         ctx = super.getInitialContext( env );
 
         // fire up the front end if we have not explicitly disabled it
@@ -140,7 +136,7 @@ public class ServerContextFactory extends CoreContextFactory
             return ctx;
         }
         
-        if( provider == null )
+        if( firstRun )
         {
             ServerStartupConfiguration cfg =
                 ( ServerStartupConfiguration ) cfg0;
