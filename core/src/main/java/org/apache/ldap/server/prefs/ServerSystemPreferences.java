@@ -42,6 +42,7 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.util.PreferencesDictionary;
 import org.apache.ldap.server.configuration.MutableStartupConfiguration;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.jndi.CoreContextFactory;
 
 
@@ -93,7 +94,28 @@ public class ServerSystemPreferences extends AbstractPreferences
         }
         catch ( Exception e )
         {
-            throw new ServerSystemPreferenceException( "Failed to initialize InitialLdapContext.", e );
+            throw new ServerSystemPreferenceException( "Failed to open.", e );
+        }
+    }
+    
+    public synchronized void close()
+    {
+        if( this.parent() != null )
+        {
+            throw new ServerSystemPreferenceException( "Cannot close child preferences." );
+        }
+
+        Hashtable env = new Hashtable( new ShutdownConfiguration().toJndiEnvironment() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
+
+        try
+        {
+            ctx = new InitialLdapContext( env, null );
+        }
+        catch ( Exception e )
+        {
+            throw new ServerSystemPreferenceException( "Failed to close.", e );
         }
     }
 

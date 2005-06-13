@@ -146,12 +146,42 @@ class DefaultContextFactoryContext implements ContextFactoryContext
     // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
 
-    public synchronized Context getJndiContext() throws NamingException
+    public Context getJndiContext() throws NamingException
+    {
+        return this.getJndiContext( "" );
+    }
+
+    public Context getJndiContext( String rootDN ) throws NamingException
+    {
+        return this.getJndiContext( "", "", rootDN );
+    }
+    
+    public synchronized Context getJndiContext( String username, String password, String rootDN ) throws NamingException
     {
         if ( !started )
         {
             return new DeadContext();
         }
+        
+        if( username == null )
+        {
+            username = "";
+        }
+        
+        if( password == null )
+        {
+            password = "";
+        }
+        
+        if( rootDN == null )
+        {
+            rootDN = "";
+        }
+
+        Hashtable environment = getEnvironment();
+        environment.put( Context.SECURITY_PRINCIPAL, username );
+        environment.put( Context.SECURITY_CREDENTIALS, password );
+        environment.put( Context.PROVIDER_URL, rootDN );
 
         return new ServerLdapContext( proxy, environment );
     }
@@ -171,7 +201,9 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         {
             env.put( PRINCIPAL, "" );
         }
-
+        
+        env.put( Context.PROVIDER_URL, "" );
+        
         // we need to check this here instead of in AuthenticationService
         // because otherwise we are going to start up the system incorrectly
         if ( isAnonymous( env ) && !cfg.isAllowAnonymousAccess() )

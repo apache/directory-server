@@ -51,7 +51,7 @@ import org.apache.ldap.server.configuration.ShutdownConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractCoreTest extends TestCase
+public abstract class AbstractTestCase extends TestCase
 {
     public static final String LDIF = "dn: uid=akarasulu,ou=users,ou=system\n" +
             "cn: Alex Karasulu\n" +
@@ -70,6 +70,10 @@ public abstract class AbstractCoreTest extends TestCase
             "facsimiletelephonenumber: +1 408 555 9751\n" +
             "roomnumber: 4612\n" +
             "userpassword: test\n";
+    
+    private final String username;
+    
+    private final String password;
 
     /** the context root for the system partition */
     protected LdapContext sysRoot;
@@ -88,6 +92,16 @@ public abstract class AbstractCoreTest extends TestCase
     /** Load resources relative to this class */
     private Class loadClass;
 
+    protected AbstractTestCase( String username, String password )
+    {
+        if( username == null || password == null )
+        {
+            throw new NullPointerException();
+        }
+
+        this.username = username;
+        this.password = password;
+    }
 
     /**
      * Sets the LDIF path as a relative resource path to use with the
@@ -195,7 +209,7 @@ public abstract class AbstractCoreTest extends TestCase
 
         configuration.setTestEntries( testEntries );
         doDelete( configuration.getWorkingDirectory() );
-        setSysRoot( "uid=admin,ou=system", "secret", configuration );
+        setSysRoot( username, password, configuration );
     }
 
 

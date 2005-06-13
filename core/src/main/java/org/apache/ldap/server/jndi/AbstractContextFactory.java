@@ -66,6 +66,10 @@ public abstract class AbstractContextFactory implements InitialContextFactory
     {
         Configuration cfg = Configuration.toConfiguration( env );
         
+        String username = null;
+        String password = null;
+        String providerUrl = null;
+
         if( cfg instanceof ShutdownConfiguration )
         {
             provider.shutdown();
@@ -77,6 +81,10 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         else if( cfg instanceof StartupConfiguration )
         {
             // fire up the backend subsystem if we need to
+            username = env.remove( Context.SECURITY_PRINCIPAL ).toString();
+            password = env.remove( Context.SECURITY_CREDENTIALS ).toString();
+
+            providerUrl = env.remove( Context.PROVIDER_URL ).toString();
             ( ( DefaultContextFactoryContext ) provider ).startup( this, env );
         }
         else
@@ -84,7 +92,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory
             throw new NamingException( "Unknown configuration: " + cfg );
         }
         
-        return provider.getJndiContext();
+        return provider.getJndiContext( username, password, providerUrl );
     }
     
     protected abstract void beforeStartup( ContextFactoryContext ctx ) throws NamingException;
