@@ -17,15 +17,20 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
-import java.util.Hashtable;
+
+import org.apache.ldap.server.AbstractAdminTestCase;
 
 
 /**
@@ -34,7 +39,7 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjStateFactoryTest extends AbstractCoreTest
+public class ObjStateFactoryTest extends AbstractAdminTestCase
 {
     public void testObjectFactory() throws NamingException
     {

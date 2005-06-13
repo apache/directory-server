@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
+import org.apache.ldap.server.AbstractAdminTestCase;
 
 
 /**
@@ -27,7 +27,7 @@ import org.apache.ldap.server.AbstractCoreTest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ComparatorNPEBugTest extends AbstractCoreTest
+public class ComparatorNPEBugTest extends AbstractAdminTestCase
 {
     public ComparatorNPEBugTest()
     {

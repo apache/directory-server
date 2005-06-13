@@ -17,7 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
+import org.apache.ldap.server.AbstractAdminTestCase;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 
 
@@ -27,7 +27,7 @@ import org.apache.ldap.server.configuration.ShutdownConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ShutdownTest extends AbstractCoreTest
+public class ShutdownTest extends AbstractAdminTestCase
 {
     protected void tearDown() throws Exception
     {

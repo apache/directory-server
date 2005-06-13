@@ -17,9 +17,9 @@
 package org.apache.ldap.server.prefs;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
-
 import java.util.prefs.Preferences;
+
+import org.apache.ldap.server.AbstractAdminTestCase;
 
 
 /**
@@ -28,16 +28,14 @@ import java.util.prefs.Preferences;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerPreferencesFactoryTest extends AbstractCoreTest
+public class ServerPreferencesFactoryTest extends AbstractAdminTestCase
 {
     public void testSystemRoot()
     {
         ServerPreferencesFactory factory = new ServerPreferencesFactory();
-
         Preferences prefs = factory.systemRoot();
 
         assertNotNull( prefs );
-
-        assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "sysPrefRoot" ) );
+        assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "default value" ) );
     }
 }
