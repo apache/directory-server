@@ -48,10 +48,7 @@ public class DisableAnonBindTest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        if ( getName().equals( "testDisableAnonymousBinds" ) )
-        {
-            configuration.setAllowAnonymousAccess( false );
-        }
+        configuration.setAllowAnonymousAccess( false );
         super.setUp();
     }
 
@@ -69,9 +66,7 @@ public class DisableAnonBindTest extends AbstractServerTest
         final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
-
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
         try

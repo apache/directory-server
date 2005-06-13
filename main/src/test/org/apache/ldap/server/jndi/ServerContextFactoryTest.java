@@ -30,7 +30,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.ldap.server.AbstractCoreTest;
+import org.apache.ldap.server.AbstractAdminTestCase;
 import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 
 
@@ -40,7 +40,7 @@ import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerContextFactoryTest extends AbstractCoreTest
+public class ServerContextFactoryTest extends AbstractAdminTestCase
 {
     public ServerContextFactoryTest()
     {
@@ -184,11 +184,9 @@ public class ServerContextFactoryTest extends AbstractCoreTest
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.PROVIDER_URL, "dc=example" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
@@ -218,11 +216,9 @@ public class ServerContextFactoryTest extends AbstractCoreTest
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.PROVIDER_URL, "ou=testing" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
@@ -252,11 +248,9 @@ public class ServerContextFactoryTest extends AbstractCoreTest
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.PROVIDER_URL, "dc=MixedCase" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );

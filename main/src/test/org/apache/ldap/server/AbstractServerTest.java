@@ -41,6 +41,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
+import org.apache.ldap.server.jndi.ServerContextFactory;
 import org.apache.mina.util.AvailablePortFinder;
 
 
@@ -114,8 +115,8 @@ public abstract class AbstractServerTest extends TestCase
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.SECURITY_PRINCIPAL, user );
-
         env.put( Context.SECURITY_CREDENTIALS, passwd );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
         return setSysRoot( env );
     }
@@ -134,7 +135,7 @@ public abstract class AbstractServerTest extends TestCase
     {
         Hashtable envFinal = new Hashtable( env );
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
-        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
