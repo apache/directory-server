@@ -26,7 +26,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
@@ -66,12 +65,12 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 
 
 /**
- * The BackendSubsystem service implementation.
+ * Provides everything required to {@link AbstractContextFactory}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class JndiProvider implements ContextFactoryContext
+class DefaultContextFactoryContext implements ContextFactoryContext
 {
     /** shorthand reference to the authentication type property */
     private static final String TYPE = Context.SECURITY_AUTHENTICATION;
@@ -125,7 +124,7 @@ class JndiProvider implements ContextFactoryContext
     /**
      * Creates a new instance.
      */
-    public JndiProvider()
+    public DefaultContextFactoryContext()
     {
         // Register shutdown hook.
         Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
@@ -147,7 +146,7 @@ class JndiProvider implements ContextFactoryContext
     // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
 
-    public synchronized LdapContext getLdapContext() throws NamingException
+    public synchronized Context getJndiContext() throws NamingException
     {
         if ( !started )
         {

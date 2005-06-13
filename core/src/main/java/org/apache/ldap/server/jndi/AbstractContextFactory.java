@@ -53,7 +53,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory
     // ------------------------------------------------------------------------
 
     /** The singleton JndiProvider instance */
-    private static final JndiProvider provider = new JndiProvider();
+    private static final ContextFactoryContext provider = new DefaultContextFactoryContext();
 
     /**
      * Default constructor that sets the provider of this ServerContextFactory.
@@ -77,14 +77,14 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         else if( cfg instanceof StartupConfiguration )
         {
             // fire up the backend subsystem if we need to
-            provider.startup( this, env );
+            ( ( DefaultContextFactoryContext ) provider ).startup( this, env );
         }
         else
         {
             throw new NamingException( "Unknown configuration: " + cfg );
         }
         
-        return provider.getLdapContext();
+        return provider.getJndiContext();
     }
     
     protected abstract void beforeStartup( ContextFactoryContext ctx ) throws NamingException;

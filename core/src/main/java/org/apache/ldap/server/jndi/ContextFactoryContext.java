@@ -18,6 +18,7 @@ package org.apache.ldap.server.jndi;
 
 import java.util.Hashtable;
 
+import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.RootNexus;
@@ -64,8 +65,14 @@ public interface ContextFactoryContext
      */
     boolean isStarted();
     
+    Context getJndiContext() throws NamingException;
+
     /**
      * Invokes {@link Invocation} to this context.
      */
     Object invoke( Invocation call ) throws NamingException;
+    
+    void sync() throws NamingException;
+    
+    void shutdown() throws NamingException;
 }

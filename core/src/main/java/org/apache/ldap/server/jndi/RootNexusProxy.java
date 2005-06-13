@@ -49,9 +49,9 @@ import org.apache.ldap.server.invocation.Search;
 
 class RootNexusProxy implements PartitionNexus
 {
-    private final JndiProvider provider;
+    private final ContextFactoryContext provider;
 
-    RootNexusProxy( JndiProvider provider )
+    RootNexusProxy( ContextFactoryContext provider )
     {
         this.provider = provider;
     }
