@@ -40,10 +40,6 @@ import org.apache.ldap.server.schema.SchemaService;
  * Manages the chain of {@link Interceptor}s.  <tt>InterceptorChain</tt>
  * is also an {@link Interceptor}, and thus you can create hiararchical
  * interceptor structure to break down complex interceptors.
- * <p/>
- * {@link org.apache.ldap.server.jndi.JndiProvider#invoke(Invocation)}
- * redirects {@link Invocation}s to {@link #process(NextInterceptor, Invocation)}
- * and the chain starts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

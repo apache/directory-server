@@ -26,9 +26,8 @@ import org.apache.ldap.server.BackingStore;
 
 
 /**
- * Represents a method invocation on {@link BackingStore}s. You can perform any
- * {@link BackingStore} calls by invoking {@link
- * org.apache.ldap.server.jndi.JndiProvider#invoke(Invocation)}.<p/>
+ * Represents a method invocation on {@link BackingStore}s.
+ * <p/>
  * This class is abstract, and developers should extend this class to
  * represent the actual method invocations.
  *

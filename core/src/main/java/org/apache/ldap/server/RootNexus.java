@@ -83,6 +83,7 @@ public class RootNexus implements PartitionNexus
      */
     public RootNexus( SystemPartition system, Attributes rootDSE )
     {
+        System.out.println( "new RootNexus()" );
         if ( null != s_singleton )
         {
             throw new IllegalStateException();
@@ -115,25 +116,6 @@ public class RootNexus implements PartitionNexus
 
         // register will add to the list of namingContexts as well
         register( this.system );
-
-        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
-            public void run()
-            {
-                try
-                {
-                    if ( ! isClosed() )
-                    {
-                        RootNexus.this.close();
-                    }
-                }
-                catch ( NamingException e )
-                {
-                    e.printStackTrace();
-                    // @todo again we need to monitor this failure and report
-                    // that it occured on shutdown specifically
-                }
-            }
-        }, "RootNexusShutdownHook" ) );
     }
 
 
@@ -547,7 +529,6 @@ public class RootNexus implements PartitionNexus
             try
             {
                 store.sync();
-
                 store.close();
             }
             catch ( NamingException e )

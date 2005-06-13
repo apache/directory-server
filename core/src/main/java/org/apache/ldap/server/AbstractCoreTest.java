@@ -272,13 +272,9 @@ public abstract class AbstractCoreTest extends TestCase
         Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
-
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         try { new InitialContext( env ); } catch( Exception e ) {}
