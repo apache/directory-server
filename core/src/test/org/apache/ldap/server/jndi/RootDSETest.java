@@ -119,6 +119,7 @@ public class RootDSETest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -141,6 +142,7 @@ public class RootDSETest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -171,6 +173,7 @@ public class RootDSETest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -203,6 +206,7 @@ public class RootDSETest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -242,6 +246,7 @@ public class RootDSETest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -279,11 +284,9 @@ public class RootDSETest extends TestCase
 
         Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
@@ -321,11 +324,9 @@ public class RootDSETest extends TestCase
 
         Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
