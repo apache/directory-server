@@ -72,21 +72,6 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
  */
 class DefaultContextFactoryContext implements ContextFactoryContext
 {
-    /** shorthand reference to the authentication type property */
-    private static final String TYPE = Context.SECURITY_AUTHENTICATION;
-
-    /** shorthand reference to the authentication credentials property */
-    private static final String CREDS = Context.SECURITY_CREDENTIALS;
-
-    /** shorthand reference to the authentication principal property */
-    private static final String PRINCIPAL = Context.SECURITY_PRINCIPAL;
-
-    /** shorthand reference to the admin principal name */
-    private static final String ADMIN = SystemPartition.ADMIN_PRINCIPAL;
-
-    /** shorthand reference to the admin principal distinguished name */
-    private static final Name ADMIN_NAME = SystemPartition.getAdminDn();
-
     private AbstractContextFactory factory;
     
     /** the initial context environment that fired up the backend subsystem */
@@ -171,6 +156,11 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             environment.put( Context.SECURITY_CREDENTIALS, credential );
         }
         
+        if( authentication != null )
+        {
+            environment.put( Context.SECURITY_AUTHENTICATION, authentication );
+        }
+        
         if( rootDN == null )
         {
             rootDN = "";
@@ -189,21 +179,8 @@ class DefaultContextFactoryContext implements ContextFactoryContext
 
         StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
 
-        if ( isAnonymous( env ) )
-        {
-            env.put( PRINCIPAL, "" );
-        }
-        
         env.put( Context.PROVIDER_URL, "" );
         
-        // we need to check this here instead of in AuthenticationService
-        // because otherwise we are going to start up the system incorrectly
-        if ( isAnonymous( env ) && !cfg.isAllowAnonymousAccess() )
-        {
-            throw new LdapNoPermissionException(
-                    "ApacheDS is configured to disallow anonymous access" );
-        }
-
         cfg.validate();
         this.environment = env;
         this.configuration = cfg;
@@ -333,13 +310,13 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             if ( credential == null )
             {
                 throw new LdapConfigurationException( "missing required "
-                        + CREDS + " property for simple authentication" );
+                        + Context.SECURITY_CREDENTIALS + " property for simple authentication" );
             }
 
             if ( principal == null )
             {
                 throw new LdapConfigurationException( "missing required "
-                        + PRINCIPAL + " property for simple authentication" );
+                        + Context.SECURITY_PRINCIPAL + " property for simple authentication" );
             }
         }
         /*
@@ -352,13 +329,18 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             {
                 throw new LdapConfigurationException( "ambiguous bind "
                         + "settings encountered where bind is anonymous yet "
-                        + CREDS + " property is set" );
+                        + Context.SECURITY_CREDENTIALS + " property is set" );
             }
             if ( principal != null )
             {
                 throw new LdapConfigurationException( "ambiguous bind "
                         + "settings encountered where bind is anonymous yet "
-                        + PRINCIPAL + " property is set" );
+                        + Context.SECURITY_PRINCIPAL + " property is set" );
+            }
+            
+            if( configuration.isAllowAnonymousAccess() )
+            {
+                throw new LdapNoPermissionException( "Anonymous access disabled." );
             }
         }
         else
@@ -390,7 +372,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !rootNexus.hasEntry( ADMIN_NAME ) )
+        if ( !rootNexus.hasEntry( SystemPartition.ADMIN_PRINCIPAL_NAME ) )
         {
             firstStart = true;
 
@@ -402,11 +384,11 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             attributes.put( "uid", SystemPartition.ADMIN_UID );
             attributes.put( "userPassword", SystemPartition.ADMIN_PW );
             attributes.put( "displayName", "Directory Superuser" );
-            attributes.put( "creatorsName", ADMIN );
+            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             attributes.put( "displayName", "Directory Superuser" );
             
-            rootNexus.add( ADMIN, ADMIN_NAME, attributes );
+            rootNexus.add( SystemPartition.ADMIN_PRINCIPAL, SystemPartition.ADMIN_PRINCIPAL_NAME, attributes );
         }
 
         // -------------------------------------------------------------------
@@ -421,7 +403,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             attributes.put( "objectClass", "top" );
             attributes.put( "objectClass", "organizationalUnit" );
             attributes.put( "ou", "users" );
-            attributes.put( "creatorsName", ADMIN );
+            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             rootNexus.add( "ou=users,ou=system", new LdapName( "ou=users,ou=system" ), attributes );
@@ -439,7 +421,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             attributes.put( "objectClass", "top" );
             attributes.put( "objectClass", "organizationalUnit" );
             attributes.put( "ou", "groups" );
-            attributes.put( "creatorsName", ADMIN );
+            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             rootNexus.add( "ou=groups,ou=system", new LdapName( "ou=groups,ou=system" ), attributes );
@@ -458,7 +440,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             attributes.put( "objectClass", "prefNode" );
             attributes.put( "objectClass", "extensibleObject" );
             attributes.put( "prefNodeName", "sysPrefRoot" );
-            attributes.put( "creatorsName", ADMIN );
+            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             LdapName dn = new LdapName( "prefNodeName=sysPrefRoot,ou=system" );
@@ -482,7 +464,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         while( i.hasNext() )
         {
             Attributes entry = ( Attributes ) i.next();
-            entry.put( "creatorsName", ADMIN );
+            entry.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
             entry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             
             Attribute dn = entry.remove( "dn" );
@@ -664,32 +646,5 @@ class DefaultContextFactoryContext implements ContextFactoryContext
 
             partition.add( cfg.getSuffix(), normSuffix, cfg.getContextEntry() );
         }
-    }
-
-
-    /**
-     * Checks to see if an anonymous bind is being attempted.
-     *
-     * @return true if bind is anonymous, false otherwise
-     */
-    private static boolean isAnonymous( Hashtable env )
-    {
-
-        if ( env.containsKey( TYPE ) && env.get( TYPE ) != null )
-        {
-            if ( env.get( TYPE ).equals( "none" ) )
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        if ( env.containsKey( CREDS ) )
-        {
-            return false;
-        }
-
-        return true;
     }
 }
