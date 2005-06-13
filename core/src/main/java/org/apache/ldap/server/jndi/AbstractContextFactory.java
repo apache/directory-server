@@ -81,10 +81,26 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         else if( cfg instanceof StartupConfiguration )
         {
             // fire up the backend subsystem if we need to
-            username = env.remove( Context.SECURITY_PRINCIPAL ).toString();
-            password = env.remove( Context.SECURITY_CREDENTIALS ).toString();
+            Object value = env.remove( Context.SECURITY_PRINCIPAL );
+            if( value == null )
+            {
+                value = "";
+            }
+            username = value.toString();
+            
+            value = env.remove( Context.SECURITY_CREDENTIALS );
+            if( value == null )
+            {
+                value = "";
+            }
+            password = value.toString();
 
-            providerUrl = env.remove( Context.PROVIDER_URL ).toString();
+            value = env.remove( Context.PROVIDER_URL );
+            if( value == null )
+            {
+                value = "";
+            }
+            providerUrl = value.toString();
             ( ( DefaultContextFactoryContext ) provider ).startup( this, env );
         }
         else
