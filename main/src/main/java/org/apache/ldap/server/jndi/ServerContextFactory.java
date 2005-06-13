@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
@@ -35,9 +34,7 @@ import org.apache.kerberos.store.PrincipalStore;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.PropertiesUtils;
-import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
-import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
