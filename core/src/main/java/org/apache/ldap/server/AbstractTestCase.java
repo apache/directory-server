@@ -291,6 +291,7 @@ public abstract class AbstractTestCase extends TestCase
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
         try { new InitialContext( env ); } catch( Exception e ) {}
 

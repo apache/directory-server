@@ -237,6 +237,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         finally
         {
             environment = null;
+            interceptorChain = null;
             configuration = null;
             factory.afterShutdown( this );
         }
@@ -338,7 +339,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
                         + Context.SECURITY_PRINCIPAL + " property is set" );
             }
             
-            if( configuration.isAllowAnonymousAccess() )
+            if( !configuration.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous access disabled." );
             }

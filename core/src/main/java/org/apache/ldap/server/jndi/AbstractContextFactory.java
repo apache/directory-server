@@ -71,6 +71,8 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         String authentication;
         String providerUrl;
 
+        env = ( Hashtable ) env.clone();
+
         // Remove properties that can be changed
         Object value = env.remove( Context.SECURITY_PRINCIPAL );
         if( value == null )

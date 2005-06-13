@@ -181,12 +181,10 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
     {
         // clean out the database
         tearDown();
-        doDelete( new File( "target" + File.separator + "eve" ) );
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         
         configuration.setAllowAnonymousAccess( false );
-
         try
         {
             setSysRoot( env );
@@ -195,8 +193,11 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
         catch( LdapNoPermissionException e )
         {
         }
+        tearDown();
 
         // ok this should start up the system now as admin
+        env = new Hashtable( configuration.toJndiEnvironment() );
+        env.put( Context.SECURITY_AUTHENTICATION, "none" );
         configuration.setAllowAnonymousAccess( true );
 
         InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( env );
