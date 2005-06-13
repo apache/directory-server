@@ -146,41 +146,35 @@ class DefaultContextFactoryContext implements ContextFactoryContext
     // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
 
-    public Context getJndiContext() throws NamingException
-    {
-        return this.getJndiContext( "" );
-    }
-
     public Context getJndiContext( String rootDN ) throws NamingException
     {
-        return this.getJndiContext( "", "", rootDN );
+        return this.getJndiContext( null, null, "none", rootDN );
     }
-    
-    public synchronized Context getJndiContext( String username, String password, String rootDN ) throws NamingException
+
+    public synchronized Context getJndiContext( String principal, String credential, String authentication, String rootDN ) throws NamingException
     {
+        checkSecuritySettings( principal, credential, authentication );
+        
         if ( !started )
         {
             return new DeadContext();
         }
         
-        if( username == null )
+        Hashtable environment = getEnvironment();
+        if( principal != null )
         {
-            username = "";
+            environment.put( Context.SECURITY_PRINCIPAL, principal );
         }
         
-        if( password == null )
+        if( credential != null )
         {
-            password = "";
+            environment.put( Context.SECURITY_CREDENTIALS, credential );
         }
         
         if( rootDN == null )
         {
             rootDN = "";
         }
-
-        Hashtable environment = getEnvironment();
-        environment.put( Context.SECURITY_PRINCIPAL, username );
-        environment.put( Context.SECURITY_CREDENTIALS, password );
         environment.put( Context.PROVIDER_URL, rootDN );
 
         return new ServerLdapContext( proxy, environment );
@@ -194,8 +188,6 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         }
 
         StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
-
-        checkSecuritySettings( env );
 
         if ( isAnonymous( env ) )
         {
@@ -325,63 +317,57 @@ class DefaultContextFactoryContext implements ContextFactoryContext
      *
      * @throws javax.naming.NamingException if the security settings are not correctly configured.
      */
-    private void checkSecuritySettings( Hashtable env ) throws NamingException
+    private void checkSecuritySettings( String principal, String credential, String authentication ) throws NamingException
     {
-        if ( env.containsKey( TYPE ) && env.get( TYPE ) != null )
+        if( authentication == null )
         {
-            /*
-             * If bind is simple make sure we have the credentials and the
-             * principal name set within the environment, otherwise complain
-             */
-            if ( env.get( TYPE ).equals( "simple" ) )
+            authentication = "";
+        }
+        
+        /*
+         * If bind is simple make sure we have the credentials and the
+         * principal name set within the environment, otherwise complain
+         */
+        if ( "simple".equalsIgnoreCase( authentication ) )
+        {
+            if ( credential == null )
             {
-                if ( !env.containsKey( CREDS ) )
-                {
-                    throw new LdapConfigurationException( "missing required "
-                            + CREDS + " property for simple authentication" );
-                }
+                throw new LdapConfigurationException( "missing required "
+                        + CREDS + " property for simple authentication" );
+            }
 
-                if ( !env.containsKey( PRINCIPAL ) )
-                {
-                    throw new LdapConfigurationException( "missing required "
-                            + PRINCIPAL + " property for simple authentication" );
-                }
-            }
-            /*
-             * If bind is none make sure credentials and the principal
-             * name are NOT set within the environment, otherwise complain
-             */
-            else if ( env.get( TYPE ).equals( "none" ) )
+            if ( principal == null )
             {
-                if ( env.containsKey( CREDS ) )
-                {
-                    throw new LdapConfigurationException( "ambiguous bind "
-                            + "settings encountered where bind is anonymous yet "
-                            + CREDS + " property is set" );
-                }
-                if ( env.containsKey( PRINCIPAL ) )
-                {
-                    throw new LdapConfigurationException( "ambiguous bind "
-                            + "settings encountered where bind is anonymous yet "
-                            + PRINCIPAL + " property is set" );
-                }
+                throw new LdapConfigurationException( "missing required "
+                        + PRINCIPAL + " property for simple authentication" );
             }
+        }
+        /*
+         * If bind is none make sure credentials and the principal
+         * name are NOT set within the environment, otherwise complain
+         */
+        else if ( "none".equalsIgnoreCase( authentication ) )
+        {
+            if ( credential != null )
+            {
+                throw new LdapConfigurationException( "ambiguous bind "
+                        + "settings encountered where bind is anonymous yet "
+                        + CREDS + " property is set" );
+            }
+            if ( principal != null )
+            {
+                throw new LdapConfigurationException( "ambiguous bind "
+                        + "settings encountered where bind is anonymous yet "
+                        + PRINCIPAL + " property is set" );
+            }
+        }
+        else
+        {
             /*
              * If bind is anything other than simple or none we need to
              * complain because SASL is not a supported auth method yet
              */
-            else
-            {
-                throw new LdapAuthenticationNotSupportedException( ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
-            }
-        }
-        else if ( env.containsKey( CREDS ) )
-        {
-            if ( !env.containsKey( PRINCIPAL ) )
-            {
-                throw new LdapConfigurationException( "credentials provided "
-                        + "without principal name property: " + PRINCIPAL );
-            }
+            throw new LdapAuthenticationNotSupportedException( "Unknown authentication type: '" + authentication + "'", ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
         }
     }
 

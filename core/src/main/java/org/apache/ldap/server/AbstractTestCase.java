@@ -247,6 +247,7 @@ public abstract class AbstractTestCase extends TestCase
         Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         return setSysRoot( env );
     }
 
