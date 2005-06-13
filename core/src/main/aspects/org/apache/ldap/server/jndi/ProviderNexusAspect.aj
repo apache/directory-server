@@ -26,7 +26,7 @@ import org.apache.ldap.server.invocation.Invocation;
  * injection of interceptors between calls to the nexus from the JNDI.
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
- * @author $Author: akarasulu $
+ * @author $Author$
  * @version $Revision$
  */
 public aspect ProviderNexusAspect

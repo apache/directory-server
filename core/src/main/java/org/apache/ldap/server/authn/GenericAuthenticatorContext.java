@@ -26,7 +26,7 @@ import org.apache.ldap.server.configuration.StartupConfiguration;
  * Default implementation of AuthenticatorContext.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 124525 $
+ * @version $Rev$
  */
 public class GenericAuthenticatorContext implements AuthenticatorContext
 {

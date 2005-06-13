@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: SubstringEnumerator.java,v 1.2 2003/10/17 00:10:46 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

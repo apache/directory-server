@@ -28,7 +28,7 @@ import org.apache.ldap.server.configuration.StartupConfiguration;
  * anonymous connection.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 124525 $
+ * @version $Rev$
  */
 public interface AuthenticatorContext
 {
