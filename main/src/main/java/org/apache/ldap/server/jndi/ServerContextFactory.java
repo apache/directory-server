@@ -20,26 +20,25 @@ package org.apache.ldap.server.jndi;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Hashtable;
-import java.util.Properties;
 import java.util.Iterator;
+import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.Control;
+import javax.naming.ldap.InitialLdapContext;
 
+import org.apache.kerberos.protocol.KerberosProtocolProvider;
+import org.apache.kerberos.service.KdcConfiguration;
+import org.apache.kerberos.store.JndiPrincipalStoreImpl;
+import org.apache.kerberos.store.PrincipalStore;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.PropertiesUtils;
+import org.apache.ldap.server.configuration.ServerStartupConfiguration;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
-import org.apache.mina.registry.SimpleServiceRegistry;
-import org.apache.kerberos.service.KdcConfiguration;
-import org.apache.kerberos.protocol.KerberosProtocolProvider;
-import org.apache.kerberos.store.PrincipalStore;
-import org.apache.kerberos.store.JndiPrincipalStoreImpl;
 
 
 /**
@@ -52,11 +51,6 @@ import org.apache.kerberos.store.JndiPrincipalStoreImpl;
  */
 public class ServerContextFactory extends CoreContextFactory
 {
-    /** the default LDAP port to use */
-    private static final int LDAP_PORT = 389;
-
-    private static final ServiceRegistry DEFAULT_MINA_REGISTRY;
-    
     private static Service ldapService;
 
     private static Service kerberosService;
@@ -64,142 +58,52 @@ public class ServerContextFactory extends CoreContextFactory
     private static ServiceRegistry minaRegistry;
 
 
-    static
-    {
-        ServiceRegistry tmp = null;
-
-        try
-        {
-            tmp = new SimpleServiceRegistry();
-        }
-        catch( IOException e )
-        {
-            e.printStackTrace();
-        }
-        
-        DEFAULT_MINA_REGISTRY = tmp;
-    }
-
     // ------------------------------------------------------------------------
     // Members
     // ------------------------------------------------------------------------
 
-
-    /**
-     * Checks first for a shutdown operation and if so stops the server.  Otherwise
-     * it initializes the networking subsystem starting up the mina registery and
-     * other protocol provider services if enabled including the LDAP provider.
-     *
-     * @param env the JNDI environment parameters
-     * @return the new LDAP context to be wrapped by InitialContext
-     * @throws NamingException if there are problems starting or stopping the server
-     */
-    public Context getInitialContext( Hashtable env ) throws NamingException
+    protected void afterShutdown( ContextFactoryContext ctx )
     {
-        Context ctx = null;
-
-        if ( env.containsKey( EnvKeys.SHUTDOWN ) )
+        if ( minaRegistry != null )
         {
-            if ( this.provider == null )
+            if ( ldapService != null )
             {
-                return new DeadContext();
+                minaRegistry.unbind( ldapService );
+                ldapService = null;
             }
 
-            try
+            if ( kerberosService != null )
             {
-                this.provider.shutdown();
-
-                if ( minaRegistry != null )
-                {
-                    if ( ldapService != null )
-                    {
-                        minaRegistry.unbind( ldapService );
-
-                        ldapService = null;
-                    }
-
-                    if ( kerberosService != null )
-                    {
-                        minaRegistry.unbind( kerberosService );
-
-                        kerberosService = null;
-                    }
-                }
-            }
-            catch( NamingException ne )
-            {
-                throw ne;
-            }
-            catch( Throwable t )
-            {
-                NamingException ne = new NamingException( "Failed to shutdown." );
-
-                ne.setRootCause( t );
-
-                throw ne;
-            }
-            finally
-            {
-                ctx = new DeadContext();
-
-                provider = null;
-
-                initialEnv = null;
-            }
-
-            return ctx;
-        }
-
-        ctx = super.getInitialContext( env );
-
-        // fire up the front end if we have not explicitly disabled it
-
-        if ( initialEnv != null && ! initialEnv.containsKey( EnvKeys.DISABLE_PROTOCOL ) )
-        {
-            setupRegistry();
-
-            startLdapProtocol();
-
-            if ( initialEnv.containsKey( EnvKeys.ENABLE_KERBEROS ) )
-            {
-                startKerberosProtocol();
+                minaRegistry.unbind( kerberosService );
+                kerberosService = null;
             }
         }
-
-        return ctx;
     }
+    
+    protected void afterStartup( ContextFactoryContext ctx ) throws NamingException
+    {
+        ServerStartupConfiguration cfg =
+            ( ServerStartupConfiguration ) ctx.getConfiguration();
+        Hashtable env = ctx.getEnvironment();
 
+        if ( cfg.isEnableNetworking() )
+        {
+            setupRegistry( cfg );
+            startLdapProtocol( cfg, env );
+
+            if ( cfg.isEnableKerberos() )
+            {
+                startKerberosProtocol( env );
+            }
+        }
+    }
 
     /**
      * Starts up the MINA registry so various protocol providers can be started.
-     *
-     * @throws NamingException if there is a problem initializing the registry
      */
-    private void setupRegistry() throws NamingException
+    private void setupRegistry( ServerStartupConfiguration cfg )
     {
-        ServiceRegistry registry = null;
-
-        if ( initialEnv.containsKey( EnvKeys.PASSTHRU ) )
-        {
-            registry = ( ServiceRegistry ) initialEnv.get( EnvKeys.PASSTHRU );
-
-            if ( registry != null )
-            {
-                initialEnv.put( EnvKeys.PASSTHRU, "Handoff Succeeded!" );
-            }
-        }
-
-        if( DEFAULT_MINA_REGISTRY == null )
-        {
-            throw new NamingException( "Default MINA service registry is not available." );
-        }
-
-        if( registry == null )
-        {
-            registry = DEFAULT_MINA_REGISTRY;
-        }
-
-        minaRegistry = registry;
+        minaRegistry = cfg.getMinaServiceRegistry();
     }
 
 
@@ -208,7 +112,7 @@ public class ServerContextFactory extends CoreContextFactory
      *
      * @throws NamingException if there are problems starting up the Kerberos provider
      */
-    private void startKerberosProtocol() throws NamingException
+    private void startKerberosProtocol( Hashtable env ) throws NamingException
     {
         /*
          * Looks like KdcConfiguration takes properties and we use Hashtable for JNDI
@@ -216,26 +120,24 @@ public class ServerContextFactory extends CoreContextFactory
          */
 
         Properties props = new Properties();
-
-        Iterator list = initialEnv.keySet().iterator();
-
+        Iterator list = env.keySet().iterator();
         while ( list.hasNext() )
         {
             String key = ( String ) list.next();
 
-            if ( initialEnv.get( key ) instanceof String )
+            if ( env.get( key ) instanceof String )
             {
-                props.setProperty( key, ( String ) initialEnv.get( key ) );
+                props.setProperty( key, ( String ) env.get( key ) );
             }
         }
 
         KdcConfiguration config = new KdcConfiguration( props );
 
-        int port = PropertiesUtils.get( initialEnv, KdcConfiguration.KERBEROS_PORT_KEY, KdcConfiguration.DEFAULT_KERBEROS_PORT );
+        int port = PropertiesUtils.get( env, KdcConfiguration.KERBEROS_PORT_KEY, KdcConfiguration.DEFAULT_KERBEROS_PORT );
 
         Service service= new Service( "kerberos", TransportType.DATAGRAM, new InetSocketAddress( port ) );
 
-        InitialLdapContext ctx = new InitialLdapContext( initialEnv, new Control[]{} );
+        InitialLdapContext ctx = new InitialLdapContext( env, new Control[]{} );
 
         PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=Users" ) );
 
@@ -257,15 +159,15 @@ public class ServerContextFactory extends CoreContextFactory
      *
      * @throws NamingException if there are problems starting the LDAP provider
      */
-    private void startLdapProtocol() throws NamingException
+    private void startLdapProtocol( ServerStartupConfiguration cfg, Hashtable env ) throws NamingException
     {
-        int port = PropertiesUtils.get( initialEnv, EnvKeys.LDAP_PORT, LDAP_PORT );
+        int port = cfg.getLdapPort();
 
         Service service = new Service( "ldap", TransportType.SOCKET, new InetSocketAddress( port ) );
 
         try
         {
-            minaRegistry.bind( service, new LdapProtocolProvider( ( Hashtable ) initialEnv.clone() ) );
+            minaRegistry.bind( service, new LdapProtocolProvider( ( Hashtable ) env.clone() ) );
 
             ldapService = service;
         }

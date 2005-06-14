@@ -17,10 +17,13 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.util.HashSet;
+
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import java.util.HashSet;
+
+import org.apache.ldap.server.AbstractAdminTestCase;
 
 
 /**
@@ -31,7 +34,7 @@ import java.util.HashSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ListTest extends AbstractMultiUserJndiTest
+public class ListAsAdminTest extends AbstractAdminTestCase
 {
     public void testListSystemAsAdmin() throws NamingException
     {
@@ -54,27 +57,6 @@ public class ListTest extends AbstractMultiUserJndiTest
     }
 
 
-    public void testListSystemAsNonAdmin() throws NamingException
-    {
-        HashSet set = new HashSet();
-
-        NamingEnumeration list = sysRootAsNonAdminUser.list( "" );
-
-        while ( list.hasMore() )
-        {
-            NameClassPair ncp = ( NameClassPair ) list.next();
-
-            set.add( ncp.getName() );
-        }
-
-        assertFalse( set.contains( "uid=admin,ou=system" ) );
-
-        assertTrue( set.contains( "ou=users,ou=system" ) );
-
-        assertTrue( set.contains( "ou=groups,ou=system" ) );
-    }
-
-
     public void testListUsersAsAdmin() throws NamingException
     {
         HashSet set = new HashSet();
@@ -89,22 +71,5 @@ public class ListTest extends AbstractMultiUserJndiTest
         }
 
         assertTrue( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
-    }
-
-
-    public void testListUsersAsNonAdmin() throws NamingException
-    {
-        HashSet set = new HashSet();
-
-        NamingEnumeration list = sysRootAsNonAdminUser.list( "ou=users" );
-
-        while ( list.hasMore() )
-        {
-            NameClassPair ncp = ( NameClassPair ) list.next();
-
-            set.add( ncp.getName() );
-        }
-
-        assertFalse( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
     }
 }

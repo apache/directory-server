@@ -17,15 +17,17 @@
 package org.apache.ldap.server;
 
 
-import java.io.File;
 import java.util.Properties;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.ldap.common.util.PropertiesUtils;
-import org.apache.ldap.server.jndi.EnvKeys;
+import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
+import org.apache.ldap.server.configuration.ServerStartupConfiguration;
+import org.apache.ldap.server.configuration.SyncConfiguration;
+import org.apache.ldap.server.jndi.ServerContextFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 
 /**
@@ -37,48 +39,37 @@ import org.apache.ldap.server.jndi.EnvKeys;
  */
 public class ServerMain
 {
-    /** the default LDAP port to use */
-    private static final int LDAP_PORT = 389;
-
     /**
      * Takes a single argument, an optional properties file to load with server
      * startup settings.
      *
      * @param args the arguments
      */
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
         long startTime = System.currentTimeMillis();
         Properties env;
+        ServerStartupConfiguration cfg;
 
         if ( args.length > 0 )
         {
-            System.out.println( "server: loading properties from " + args[0] );
-            env = PropertiesUtils.getProperties( new File( args[0] ) );
+            System.out.println( "server: loading settings from " + args[0] );
+            ApplicationContext factory = new FileSystemXmlApplicationContext( args[0] );
+            cfg = ( ServerStartupConfiguration ) factory.getBean( "configuration" );
+            env = ( Properties ) factory.getBean( "environment" );
         }
         else
         {
-            System.out.println( "server: using default properties ..." );
+            System.out.println( "server: using default settings ..." );
             env = new Properties();
-        }
-
-        if ( ! env.containsKey( EnvKeys.LDAP_PORT ) )
-        {
-            int port = LDAP_PORT;
-            env.setProperty( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+            cfg = new MutableServerStartupConfiguration();
         }
 
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
-        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+        env.putAll( cfg.toJndiEnvironment() );
 
-        try
-        {
-            new InitialDirContext( env );
-        }
-        catch ( NamingException e )
-        {
-            e.printStackTrace();
-        }
+        new InitialDirContext( env );
 
         System.out.println( "server: started in "
                 + ( System.currentTimeMillis() - startTime )
@@ -90,21 +81,13 @@ public class ServerMain
             {
                 // this is a big time cludge for now to just play
                 Thread.sleep( 20000 );
-
-                try
-                {
-                    env.setProperty( EnvKeys.SYNC, "true" );
-                    new InitialDirContext( env );
-                }
-                catch ( NamingException e )
-                {
-                    e.printStackTrace();
-                }
             }
             catch ( InterruptedException e )
             {
-                e.printStackTrace();
             }
+
+            env.putAll( new SyncConfiguration().toJndiEnvironment() );
+            new InitialDirContext( env );
         }
     }
 }

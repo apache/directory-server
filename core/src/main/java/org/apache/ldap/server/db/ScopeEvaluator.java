@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: ScopeEvaluator.java,v 1.3 2003/10/15 01:59:46 akarasulu Exp $
+ * $Id$
  *
  * -- (c) LDAPd Group                                                    --
  * -- Please refer to the LICENSE.txt file in the root directory of      --

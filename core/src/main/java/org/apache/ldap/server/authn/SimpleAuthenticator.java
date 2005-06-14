@@ -47,7 +47,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         super( "simple" );
     }
 
-
+    protected void doInit()
+    {
+    }
+    
     /**
      * Uses the userPassword field of the user to authenticate.
      *
@@ -90,7 +93,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         LdapName principalDn = new LdapName( principal );
 
-        PartitionNexus rootNexus = getAuthenticatorContext().getPartitionNexus();
+        PartitionNexus rootNexus = getContext().getPartitionNexus();
 
         Attributes userEntry = rootNexus.lookup( principalDn );
 

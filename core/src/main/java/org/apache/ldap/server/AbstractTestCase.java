@@ -17,13 +17,14 @@
 package org.apache.ldap.server;
 
 
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.exception.NestableRuntimeException;
-import org.apache.ldap.common.ldif.LdifIterator;
-import org.apache.ldap.common.ldif.LdifParserImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.server.jndi.EnvKeys;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -31,9 +32,17 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.*;
-import java.util.Hashtable;
-import java.util.ArrayList;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.exception.NestableRuntimeException;
+import org.apache.ldap.common.ldif.LdifIterator;
+import org.apache.ldap.common.ldif.LdifParserImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.server.configuration.Configuration;
+import org.apache.ldap.server.configuration.MutableStartupConfiguration;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
 
                                                                                                             
 /**
@@ -42,7 +51,7 @@ import java.util.ArrayList;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractCoreTest extends TestCase
+public abstract class AbstractTestCase extends TestCase
 {
     public static final String LDIF = "dn: uid=akarasulu,ou=users,ou=system\n" +
             "cn: Alex Karasulu\n" +
@@ -61,21 +70,21 @@ public abstract class AbstractCoreTest extends TestCase
             "facsimiletelephonenumber: +1 408 555 9751\n" +
             "roomnumber: 4612\n" +
             "userpassword: test\n";
+    
+    private final String username;
+    
+    private final String password;
 
     /** the context root for the system partition */
     protected LdapContext sysRoot;
 
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
-
-    /** extra environment parameters that can be added before setUp */
-    protected Hashtable extras = new Hashtable();
-
-    /** extra environment parameters that can be added before setUp to override values */
-    protected Hashtable overrides = new Hashtable();
+    
+    protected MutableStartupConfiguration configuration = new MutableStartupConfiguration();
 
     /** A testEntries of entries as Attributes to add to the DIT for testing */
-    protected ArrayList testEntries = new ArrayList();
+    protected Set testEntries = new HashSet();
 
     /** An optional LDIF file path if set and present is read to add more test entries */
     private String ldifPath;
@@ -83,6 +92,16 @@ public abstract class AbstractCoreTest extends TestCase
     /** Load resources relative to this class */
     private Class loadClass;
 
+    protected AbstractTestCase( String username, String password )
+    {
+        if( username == null || password == null )
+        {
+            throw new NullPointerException();
+        }
+
+        this.username = username;
+        this.password = password;
+    }
 
     /**
      * Sets the LDIF path as a relative resource path to use with the
@@ -188,18 +207,9 @@ public abstract class AbstractCoreTest extends TestCase
         // Add key for extra entries to the testEntries of extras
         // -------------------------------------------------------------------
 
-        extras.put( EnvKeys.TEST_ENTRIES, testEntries );
-        
-        if ( overrides.containsKey( EnvKeys.WKDIR ) )
-        {
-            doDelete( new File( ( String ) overrides.get( EnvKeys.WKDIR ) ) );
-        }
-        else
-        {
-            doDelete( new File( "target" + File.separator + "apacheds" ) );
-        }
-
-        setSysRoot( "uid=admin,ou=system", "secret" );
+        configuration.setTestEntries( testEntries );
+        doDelete( configuration.getWorkingDirectory() );
+        setSysRoot( username, password, configuration );
     }
 
 
@@ -232,14 +242,12 @@ public abstract class AbstractCoreTest extends TestCase
      * @return the sysRoot context which is also set
      * @throws NamingException if there is a failure of any kind
      */
-    protected LdapContext setSysRoot( String user, String passwd ) throws NamingException
+    protected LdapContext setSysRoot( String user, String passwd, Configuration cfg ) throws NamingException
     {
-        Hashtable env = new Hashtable();
-
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, user );
-
         env.put( Context.SECURITY_CREDENTIALS, passwd );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         return setSysRoot( env );
     }
 
@@ -255,23 +263,13 @@ public abstract class AbstractCoreTest extends TestCase
      */
     protected LdapContext setSysRoot( Hashtable env ) throws NamingException
     {
-        Hashtable envFinal = new Hashtable();
-
-        envFinal.putAll( extras );
-
-        envFinal.putAll( env );
-
+        Hashtable envFinal = new Hashtable( env );
         if ( ! envFinal.containsKey( Context.PROVIDER_URL ) )
         {
             envFinal.put( Context.PROVIDER_URL, "ou=system" );
         }
 
-        envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "apacheds" );
-
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
-
-        envFinal.putAll( overrides );
-
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
 
@@ -289,14 +287,11 @@ public abstract class AbstractCoreTest extends TestCase
         Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
-
-        env.put( EnvKeys.SHUTDOWN, "" );
-
+        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
         try { new InitialContext( env ); } catch( Exception e ) {}
 
@@ -309,5 +304,9 @@ public abstract class AbstractCoreTest extends TestCase
         ldifPath = null;
 
         loadClass = null;
+        
+        configuration = new MutableStartupConfiguration();
+        
+        doDelete( configuration.getWorkingDirectory() );
     }
 }

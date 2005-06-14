@@ -17,7 +17,8 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
+import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
 
 
 /**
@@ -26,7 +27,7 @@ import org.apache.ldap.server.AbstractCoreTest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ShutdownTest extends AbstractCoreTest
+public class ShutdownTest extends AbstractAdminTestCase
 {
     protected void tearDown() throws Exception
     {
@@ -43,17 +44,7 @@ public class ShutdownTest extends AbstractCoreTest
      */
     public void testShutdownNonNullContext() throws Exception
     {
-        overrides.put( EnvKeys.SHUTDOWN, "true" );
-
-        try
-        {
-            setSysRoot( "uid=admin,ou=system", "secret" );
-        }
-        finally
-        {
-            overrides.remove( EnvKeys.SHUTDOWN );
-        }
-
+        setSysRoot( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
         assertNotNull( sysRoot );
     }
 
@@ -65,20 +56,13 @@ public class ShutdownTest extends AbstractCoreTest
      */
     public void testShutdownRestart() throws Exception
     {
-        overrides.put( EnvKeys.SHUTDOWN, "true" );
-
-        try
-        {
-            setSysRoot( "uid=admin,ou=system", "secret" );
-        }
-        finally
-        {
-            overrides.remove( EnvKeys.SHUTDOWN );
-        }
-
+        setSysRoot( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
         assertNotNull( sysRoot );
 
         // restart the system now
-        setSysRoot( "uid=admin,ou=system", "secret" );
+        setSysRoot( "uid=admin,ou=system", "secret", configuration );
+        
+        // Shutdown again (tearDown is overriden)
+        setSysRoot( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
     }
 }

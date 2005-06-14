@@ -37,13 +37,13 @@ public class ApplicationPartition extends AbstractContextPartition
      * user provided suffix distinguished name for this backend set during
      * the Avalon configuration life-cycle phase.
      */
-    private Name upSuffix = null ;
+    private Name upSuffix;
     
     /**
      * normalized suffix distinguished name for this backend set during
      * the Avalon configuration life-cycle phase.
      */
-    private Name normalizedSuffix = null ;
+    private Name normalizedSuffix;
 
 
     // ------------------------------------------------------------------------
@@ -53,22 +53,16 @@ public class ApplicationPartition extends AbstractContextPartition
 
     /**
      *
-     * @param upSuffix the user provided suffix without normalization
-     * @param normalizedSuffix the normalized suffix
      * @param db the database to use for this partition
      * @param searchEngine the search engine to use for this partition
      * @param indexAttributes the index attrivutes including system attributes
      * @throws NamingException on failures while creating this partition
      */
-    public ApplicationPartition( Name upSuffix, Name normalizedSuffix, Database db,
-                           SearchEngine searchEngine,
-                           AttributeType[] indexAttributes )
+    public ApplicationPartition(
+            Database db, SearchEngine searchEngine, AttributeType[] indexAttributes )
         throws NamingException
     {
         super( db, searchEngine, indexAttributes );
-
-        this.normalizedSuffix = normalizedSuffix;
-        this.upSuffix = upSuffix;
     }
 
 
@@ -77,6 +71,11 @@ public class ApplicationPartition extends AbstractContextPartition
     // Backend Interface Method Implementations
     // ------------------------------------------------------------------------
 
+    public void init( Name upSuffix, Name normSuffix )
+    {
+        this.upSuffix = upSuffix;
+        this.normalizedSuffix = normSuffix;
+    }
 
     /**
      * @see ContextPartition#getSuffix( boolean )

@@ -17,9 +17,10 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
-
 import javax.naming.directory.Attributes;
+
+import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.configuration.SyncConfiguration;
 
 
 /**
@@ -28,7 +29,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SyncTest extends AbstractCoreTest
+public class SyncTest extends AbstractAdminTestCase
 {
     /**
      * Makes sure the changes to the JNDI provider take effect where a sync op
@@ -38,8 +39,7 @@ public class SyncTest extends AbstractCoreTest
      */
     public void testSyncNoException() throws Exception
     {
-        overrides.put( EnvKeys.SYNC, "true" );
-        sysRoot = setSysRoot( "uid=admin,ou=system", "secret" );
+        sysRoot = setSysRoot( "uid=admin,ou=system", "secret", new SyncConfiguration() );
         assertNotNull( sysRoot );
     }
 
@@ -52,8 +52,8 @@ public class SyncTest extends AbstractCoreTest
      */
     public void testPostSyncLookup() throws Exception
     {
-        overrides.put( EnvKeys.SYNC, "true" );
-        sysRoot = setSysRoot( "uid=admin,ou=system", "secret" );
+        sysRoot = setSysRoot( "uid=admin,ou=system", "secret", new SyncConfiguration() );
+        
         Attributes users = sysRoot.getAttributes( "ou=users" );
 
         // assert making sure the entry is ok

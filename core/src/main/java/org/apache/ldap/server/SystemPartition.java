@@ -42,6 +42,8 @@ public final class SystemPartition extends AbstractContextPartition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
+    /** the DN of the default user principal */
+    public final static Name ADMIN_PRINCIPAL_NAME = getAdminDn();
     /** the admin super user uid */
     public final static String ADMIN_UID = "admin";
     /** the initial admin passwd set on startup */
@@ -134,8 +136,6 @@ public final class SystemPartition extends AbstractContextPartition
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
-            // should never really happen since names are correct
         }
 
         return adminDn;
@@ -198,6 +198,11 @@ public final class SystemPartition extends AbstractContextPartition
     // B A C K E N D   M E T H O D S 
     // ------------------------------------------------------------------------
 
+    public final void init( Name upSuffix, Name normalizedSuffix )
+    {
+        // This method may not be called.
+        throw new IllegalStateException( "SystemPartition is already initialized." );
+    }
 
     /**
      * @see org.apache.ldap.server.ContextPartition#getSuffix(boolean)

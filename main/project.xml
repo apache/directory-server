@@ -101,7 +101,7 @@
       <dependency>
         <groupId>directory-protocols</groupId>
         <artifactId>ldap-protocol</artifactId>
-        <version>0.9</version>
+        <version>0.9.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>directory-protocols</groupId>
@@ -126,7 +126,7 @@
     <dependency>
       <groupId>directory-network</groupId>
       <artifactId>mina</artifactId>
-      <version>0.7.2-SNAPSHOT</version>
+      <version>0.7.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
@@ -138,6 +138,24 @@
       <artifactId>maven-javaapp-plugin</artifactId>
       <version>1.3</version>
       <type>plugin</type>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>1.2.1</version>
+      <url>http://www.springframework.com/</url>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>1.2.1</version>
+      <url>http://www.springframework.com/</url>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>1.2.1</version>
+      <url>http://www.springframework.com/</url>
     </dependency>
   </dependencies>
 

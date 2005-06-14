@@ -28,11 +28,14 @@ import javax.naming.NamingException;
  */
 public class AnonymousAuthenticator extends AbstractAuthenticator
 {
-    public AnonymousAuthenticator( )
+    public AnonymousAuthenticator()
     {
         super( "none" );
     }
 
+    protected void doInit()
+    {
+    }
 
     /**
      * This will be called when the authentication is set to "none" on the client.
@@ -40,7 +43,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {
-        if ( getAuthenticatorContext().getAllowAnonymous() )
+        if ( getContext().getRootConfiguration().isAllowAnonymousAccess() )
         {
             return LdapPrincipal.ANONYMOUS ;
         }

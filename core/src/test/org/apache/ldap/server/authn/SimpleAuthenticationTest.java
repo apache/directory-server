@@ -17,22 +17,24 @@
 package org.apache.ldap.server.authn;
 
 
-import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.AbstractCoreTest;
-import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.mina.util.AvailablePortFinder;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
-import javax.naming.*;
+import javax.naming.ConfigurationException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
+
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.server.AbstractAdminTestCase;
 
 
 /**
@@ -42,7 +44,7 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SimpleAuthenticationTest extends AbstractCoreTest
+public class SimpleAuthenticationTest extends AbstractAdminTestCase
 {
     /**
      * Cleans up old database files on creation.
@@ -138,7 +140,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
 
     public void test3UseAkarasulu() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -179,15 +181,10 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
     {
         // clean out the database
         tearDown();
-        doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
-
-        int port = AvailablePortFinder.getNextAvailable( 1024 );
-
-        env.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
-
+        
+        configuration.setAllowAnonymousAccess( false );
         try
         {
             setSysRoot( env );
@@ -196,13 +193,14 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         catch( LdapNoPermissionException e )
         {
         }
+        tearDown();
 
         // ok this should start up the system now as admin
-        Hashtable anonymous = new Hashtable();
+        env = new Hashtable( configuration.toJndiEnvironment() );
+        env.put( Context.SECURITY_AUTHENTICATION, "none" );
+        configuration.setAllowAnonymousAccess( true );
 
-        anonymous.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
-
-        InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( anonymous );
+        InitialLdapContext ctx = ( InitialLdapContext ) setSysRoot( env );
         assertNotNull( ctx );
 
         // now go in as anonymous user and we should be wh
@@ -240,7 +238,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         // clean out the database
         tearDown();
         doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
 
@@ -269,7 +267,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
         // clean out the database
         tearDown();
         doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
 
@@ -292,7 +290,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
      */
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -310,7 +308,7 @@ public class SimpleAuthenticationTest extends AbstractCoreTest
      */
     public void test10TestNonAdminUser() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );

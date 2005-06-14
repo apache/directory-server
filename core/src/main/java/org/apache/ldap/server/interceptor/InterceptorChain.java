@@ -17,26 +17,29 @@
 package org.apache.ldap.server.interceptor;
 
 
-import org.apache.ldap.server.authn.AuthenticationService;
-import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.authz.AuthorizationService;
-import org.apache.ldap.server.schema.SchemaService;
-import org.apache.ldap.server.operational.OperationalAttributeService;
-import org.apache.ldap.server.exception.ExceptionService;
-import org.apache.ldap.server.normalization.NormalizationService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 import javax.naming.NamingException;
-import java.util.*;
+
+import org.apache.ldap.server.authn.AuthenticationService;
+import org.apache.ldap.server.authz.AuthorizationService;
+import org.apache.ldap.server.exception.ExceptionService;
+import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.normalization.NormalizationService;
+import org.apache.ldap.server.operational.OperationalAttributeService;
+import org.apache.ldap.server.schema.SchemaService;
 
 
 /**
  * Manages the chain of {@link Interceptor}s.  <tt>InterceptorChain</tt>
  * is also an {@link Interceptor}, and thus you can create hiararchical
  * interceptor structure to break down complex interceptors.
- * <p/>
- * {@link org.apache.ldap.server.jndi.JndiProvider#invoke(Invocation)}
- * redirects {@link Invocation}s to {@link #process(NextInterceptor, Invocation)}
- * and the chain starts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -165,15 +168,7 @@ public class InterceptorChain implements Interceptor
             while ( it.hasNext() )
             {
                 interceptor = ( Interceptor ) it.next();
-
-                String name = getName( interceptor );
-
-                Map config = InterceptorConfigBuilder.build( ctx.getConfig(), ( name == null ) ? "" : name );
-
-                InterceptorContext newCtx = new InterceptorContext( ctx.getEnvironment(),
-                        ctx.getSystemPartition(), ctx.getGlobalRegistries(), ctx.getRootNexus(), config );
-
-                interceptor.init( newCtx );
+                interceptor.init( ctx );
             }
         }
         catch ( Throwable t )
@@ -242,19 +237,6 @@ public class InterceptorChain implements Interceptor
         }
 
         return e.interceptor;
-    }
-
-
-    private String getName( Interceptor interceptor )
-    {
-        Entry e = ( Entry ) interceptor2entry.get( interceptor );
-
-        if ( e == null )
-        {
-            return null;
-        }
-
-        return e.name;
     }
 
 

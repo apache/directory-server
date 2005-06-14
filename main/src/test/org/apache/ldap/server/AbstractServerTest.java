@@ -17,16 +17,10 @@
 package org.apache.ldap.server;
 
 
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
-import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.ldap.common.ldif.LdifIterator;
-import org.apache.ldap.common.ldif.LdifParser;
-import org.apache.ldap.common.ldif.LdifParserImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.jndi.EnvKeys;
-import org.apache.mina.util.AvailablePortFinder;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -35,10 +29,20 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Hashtable;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.ldap.common.exception.LdapConfigurationException;
+import org.apache.ldap.common.ldif.LdifIterator;
+import org.apache.ldap.common.ldif.LdifParser;
+import org.apache.ldap.common.ldif.LdifParserImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
+import org.apache.ldap.server.jndi.ServerContextFactory;
+import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
@@ -55,11 +59,7 @@ public abstract class AbstractServerTest extends TestCase
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
-    /** extra environment parameters that can be added before setUp */
-    protected Hashtable extras = new Hashtable();
-
-    /** extra environment parameters that can be added before setUp to override values */
-    protected Hashtable overrides = new Hashtable();
+    protected MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
 
     protected int port = -1;
 
@@ -73,18 +73,9 @@ public abstract class AbstractServerTest extends TestCase
     {
         super.setUp();
 
-        if ( overrides.containsKey( EnvKeys.WKDIR ) )
-        {
-            doDelete( new File( ( String ) overrides.get( EnvKeys.WKDIR ) ) );
-        }
-        else
-        {
-            doDelete( new File( "target" + File.separator + "apacheds" ) );
-        }
-
+        doDelete( configuration.getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        
-        extras.put( EnvKeys.LDAP_PORT, String.valueOf( port ) );
+        configuration.setLdapPort( port );
 
         setSysRoot( "uid=admin,ou=system", "secret" );
     }
@@ -121,11 +112,11 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected LdapContext setSysRoot( String user, String passwd ) throws NamingException
     {
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.SECURITY_PRINCIPAL, user );
-
         env.put( Context.SECURITY_CREDENTIALS, passwd );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
         return setSysRoot( env );
     }
@@ -142,23 +133,12 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected LdapContext setSysRoot( Hashtable env ) throws NamingException
     {
-        Hashtable envFinal = new Hashtable();
-
-        envFinal.putAll( extras );
-
-        envFinal.putAll( env );
-
+        Hashtable envFinal = new Hashtable( env );
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
-
-        envFinal.put( EnvKeys.WKDIR, "target" + File.separator + "apacheds" );
-
-        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
-
-        envFinal.putAll( overrides );
+        envFinal.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
-
 
 
     /**
@@ -176,7 +156,7 @@ public abstract class AbstractServerTest extends TestCase
 
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
-        env.put( EnvKeys.SHUTDOWN, "" );
+        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
 
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
 
@@ -185,8 +165,8 @@ public abstract class AbstractServerTest extends TestCase
         try { new InitialContext( env ); } catch( Exception e ) {}
 
         sysRoot = null;
-
-        Runtime.getRuntime().gc();
+        doDelete( configuration.getWorkingDirectory() );
+        configuration = new MutableServerStartupConfiguration();
     }
 
 

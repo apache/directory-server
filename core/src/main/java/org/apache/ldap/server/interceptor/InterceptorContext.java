@@ -3,9 +3,8 @@ package org.apache.ldap.server.interceptor;
 
 import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.schema.GlobalRegistries;
-
-import java.util.Map;
 
 
 /**
@@ -17,14 +16,9 @@ public class InterceptorContext
 {
 
     /**
-     * the initial context environment that fired up the backend subsystem
+     * the configuration
      */
-    private final Map environment;
-
-    /**
-     * Configuration for the interceptor.
-     */
-    private final Map config;
+    private final StartupConfiguration configuration;
 
     /**
      * the system partition used by the context factory
@@ -42,33 +36,24 @@ public class InterceptorContext
     private final RootNexus rootNexus;
 
 
-    public InterceptorContext( Map environment,
+    public InterceptorContext( StartupConfiguration configuration,
                                SystemPartition systemPartition,
                                GlobalRegistries globalRegistries,
-                               RootNexus rootNexus,
-                               Map config )
+                               RootNexus rootNexus )
     {
-        this.environment = environment;
+        this.configuration = configuration;
 
         this.systemPartition = systemPartition;
 
         this.globalRegistries = globalRegistries;
 
         this.rootNexus = rootNexus;
-
-        this.config = config;
     }
 
 
-    public Map getEnvironment()
+    public StartupConfiguration getConfiguration()
     {
-        return environment;
-    }
-
-
-    public Map getConfig()
-    {
-        return config;
+        return configuration;
     }
 
 

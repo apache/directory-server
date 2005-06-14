@@ -17,13 +17,21 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
-import java.util.Hashtable;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 
 
 /**
@@ -32,85 +40,94 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerContextFactoryTest extends AbstractCoreTest
+public class ServerContextFactoryTest extends AbstractAdminTestCase
 {
     public ServerContextFactoryTest()
     {
-        BasicAttributes attrs = new BasicAttributes( true );
-
-        BasicAttribute attr = new BasicAttribute( "objectClass" );
-
-        attr.add( "top" );
-
-        attr.add( "organizationalUnit" );
-
-        attr.add( "extensibleObject" );
-
-        attrs.put( attr );
-
-        attr = new BasicAttribute( "ou" );
-
-        attr.add( "testing" );
-
-        attrs.put( attr );
-
-        extras.put( EnvKeys.PARTITIONS, "testing example MixedCase" );
-
-        extras.put( EnvKeys.SUFFIX + "testing", "ou=testing" );
-
-        extras.put( EnvKeys.INDICES + "testing", "ou objectClass" );
-
-        extras.put( EnvKeys.ATTRIBUTES + "testing", attrs );
-
-        attrs = new BasicAttributes( true );
-
-        attr = new BasicAttribute( "objectClass" );
-
-        attr.add( "top" );
-
-        attr.add( "domain" );
-
-        attr.add( "extensibleObject" );
-
-        attrs.put( attr );
-
-        attr = new BasicAttribute( "dc" );
-
-        attr.add( "example" );
-
-        attrs.put( attr );
-
-        extras.put( EnvKeys.SUFFIX + "example", "dc=example" );
-
-        extras.put( EnvKeys.INDICES + "example", "ou dc objectClass" );
-
-        extras.put( EnvKeys.ATTRIBUTES + "example", attrs );
-
-        attrs = new BasicAttributes( true );
-
-        attr = new BasicAttribute( "objectClass" );
-
-        attr.add( "top" );
-
-        attr.add( "domain" );
-
-        attr.add( "extensibleObject" );
-
-        attrs.put( attr );
-
-        attr = new BasicAttribute( "dc" );
-
-        attr.add( "MixedCase" );
-
-        attrs.put( attr );
-
-        extras.put( EnvKeys.SUFFIX + "MixedCase", "dc=MixedCase" );
-
-        extras.put( EnvKeys.INDICES + "MixedCase", "dc objectClass" );
-
-        extras.put( EnvKeys.ATTRIBUTES + "MixedCase", attrs );
     }
 
+    public void setUp() throws Exception
+    {
+        BasicAttributes attrs;
+        Set indexedAttrs;
+        Set pcfgs = new HashSet();
+
+        MutableContextPartitionConfiguration pcfg;
+        
+        // Add partition 'testing'
+        pcfg = new MutableContextPartitionConfiguration();
+        pcfg.setName( "testing" );
+        pcfg.setSuffix( "ou=testing" );
+        
+        indexedAttrs = new HashSet();
+        indexedAttrs.add( "ou" );
+        indexedAttrs.add( "objectClass" );
+        pcfg.setIndexedAttributes( indexedAttrs );
+
+        attrs = new BasicAttributes( true );
+        BasicAttribute attr = new BasicAttribute( "objectClass" );
+        attr.add( "top" );
+        attr.add( "organizationalUnit" );
+        attr.add( "extensibleObject" );
+        attrs.put( attr );
+        attr = new BasicAttribute( "ou" );
+        attr.add( "testing" );
+        attrs.put( attr );
+        pcfg.setContextEntry( attrs );
+        
+        pcfgs.add( pcfg );
+        
+        // Add partition 'example'
+        pcfg = new MutableContextPartitionConfiguration();
+        pcfg.setName( "example" );
+        pcfg.setSuffix( "dc=example" );
+        
+        indexedAttrs = new HashSet();
+        indexedAttrs.add( "ou" );
+        indexedAttrs.add( "dc" );
+        indexedAttrs.add( "objectClass" );
+        pcfg.setIndexedAttributes( indexedAttrs );
+        
+        attrs = new BasicAttributes( true );
+        attr = new BasicAttribute( "objectClass" );
+        attr.add( "top" );
+        attr.add( "domain" );
+        attr.add( "extensibleObject" );
+        attrs.put( attr );
+        attr = new BasicAttribute( "dc" );
+        attr.add( "example" );
+        attrs.put( attr );
+        pcfg.setContextEntry( attrs );
+        
+        pcfgs.add( pcfg );
+
+        // Add partition 'MixedCase'
+        pcfg = new MutableContextPartitionConfiguration();
+        pcfg.setName( "example" );
+        pcfg.setSuffix( "dc=MixedCase" );
+        
+        indexedAttrs = new HashSet();
+        indexedAttrs.add( "dc" );
+        indexedAttrs.add( "objectClass" );
+        pcfg.setIndexedAttributes( indexedAttrs );
+
+        attrs = new BasicAttributes( true );
+        attr = new BasicAttribute( "objectClass" );
+        attr.add( "top" );
+        attr.add( "domain" );
+        attr.add( "extensibleObject" );
+        attrs.put( attr );
+        attr = new BasicAttribute( "dc" );
+        attr.add( "MixedCase" );
+        attrs.put( attr );
+        pcfg.setContextEntry( attrs );
+        
+        pcfgs.add( pcfg );
+        
+        configuration.setContextPartitionConfigurations( pcfgs );
+
+        super.setUp();
+    }
 
     /**
      * Makes sure the system context has the right attributes and values.
@@ -164,14 +181,12 @@ public class ServerContextFactoryTest extends AbstractCoreTest
 
     public void testAppPartitionExample() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.PROVIDER_URL, "dc=example" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
@@ -198,14 +213,12 @@ public class ServerContextFactoryTest extends AbstractCoreTest
 
     public void testAppPartitionTesting() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.PROVIDER_URL, "ou=testing" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
@@ -232,14 +245,12 @@ public class ServerContextFactoryTest extends AbstractCoreTest
 
     public void testAppPartitionMixedCase() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
 
         env.put( Context.PROVIDER_URL, "dc=MixedCase" );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );

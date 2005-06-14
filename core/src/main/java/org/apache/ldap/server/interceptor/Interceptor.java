@@ -17,10 +17,11 @@
 package org.apache.ldap.server.interceptor;
 
 
-import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.invocation.Invocation;
-
 import javax.naming.NamingException;
+
+import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.configuration.StartupConfiguration;
+import org.apache.ldap.server.invocation.Invocation;
 
 
 /**
@@ -83,8 +84,7 @@ import javax.naming.NamingException;
  * <p/>
  * <h2>Overriding Default Interceptor Settings</h2>
  * <p/>
- * See {@link org.apache.ldap.server.jndi.EnvKeys#INTERCEPTORS} and
- * {@link InterceptorChain#newDefaultChain()}.
+ * See {@link StartupConfiguration} and {@link InterceptorChain#newDefaultChain()}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

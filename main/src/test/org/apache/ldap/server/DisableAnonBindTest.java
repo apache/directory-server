@@ -17,12 +17,11 @@
 package org.apache.ldap.server;
 
 
-import org.apache.ldap.server.jndi.EnvKeys;
-
-import javax.naming.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.Hashtable;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NoPermissionException;
 
 
 /**
@@ -36,11 +35,9 @@ public class DisableAnonBindTest extends AbstractServerTest
 {
     /**
      * Cleans up old database files on creation.
-     * @throws IOException 
      */
-    public DisableAnonBindTest() throws IOException
+    public DisableAnonBindTest()
     {
-        doDelete( new File( "target" + File.separator + "server" ) );
     }
 
 
@@ -49,13 +46,9 @@ public class DisableAnonBindTest extends AbstractServerTest
      *
      * @throws Exception
      */
-    protected void setUp() throws Exception
+    public void setUp() throws Exception
     {
-        if ( getName().equals( "testDisableAnonymousBinds" ) )
-        {
-            extras.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
-        }
-
+        configuration.setAllowAnonymousAccess( false );
         super.setUp();
     }
 
@@ -73,24 +66,16 @@ public class DisableAnonBindTest extends AbstractServerTest
         final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
-
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-
-        InitialContext ctx = null;
 
         try
         {
-            ctx = new InitialContext( env );
-
+            new InitialContext( env );
             fail( "If anonymous binds are disabled we should never get here!" );
         }
         catch ( NoPermissionException e )
         {
-            assertNull( ctx );
-
-            assertNotNull( e );
         }
     }
 }

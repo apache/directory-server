@@ -17,22 +17,33 @@
 package org.apache.ldap.server.prefs;
 
 
-import org.apache.ldap.common.Lockable;
-import org.apache.ldap.common.message.LockableAttributeImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.util.PreferencesDictionary;
-import org.apache.ldap.server.jndi.CoreContextFactory;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.prefs.AbstractPreferences;
+import java.util.prefs.BackingStoreException;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.util.*;
-import java.util.prefs.AbstractPreferences;
-import java.util.prefs.BackingStoreException;
+
+import org.apache.ldap.common.Lockable;
+import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.util.PreferencesDictionary;
+import org.apache.ldap.server.configuration.MutableStartupConfiguration;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
+import org.apache.ldap.server.jndi.CoreContextFactory;
 
 
 /**
@@ -70,19 +81,41 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         super.newNode = false;
 
-        Hashtable env = new Hashtable();
-
+        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setAllowAnonymousAccess( true );
+        
+        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-
         env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
 
         try
         {
             ctx = new InitialLdapContext( env, null );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            e.printStackTrace();
+            throw new ServerSystemPreferenceException( "Failed to open.", e );
+        }
+    }
+    
+    public synchronized void close()
+    {
+        if( this.parent() != null )
+        {
+            throw new ServerSystemPreferenceException( "Cannot close child preferences." );
+        }
+
+        Hashtable env = new Hashtable( new ShutdownConfiguration().toJndiEnvironment() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
+
+        try
+        {
+            ctx = new InitialLdapContext( env, null );
+        }
+        catch ( Exception e )
+        {
+            throw new ServerSystemPreferenceException( "Failed to close.", e );
         }
     }
 
@@ -113,9 +146,9 @@ public class ServerSystemPreferences extends AbstractPreferences
             {
                 setUpNode( name );
             }
-            catch ( NamingException e )
+            catch ( Exception e )
             {
-                e.printStackTrace();
+                throw new ServerSystemPreferenceException( "Failed to set up node.", e );
             }
         }
     }
@@ -390,9 +423,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
             value = ( String ) attr.get();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            e.printStackTrace();
+            throw new ServerSystemPreferenceException( "Failed to get SPI.", e );
         }
 
         return value;

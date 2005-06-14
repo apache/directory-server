@@ -17,10 +17,14 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.server.AbstractCoreTest;
-
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import org.apache.ldap.server.AbstractAdminTestCase;
 
 
 /**
@@ -30,7 +34,7 @@ import javax.naming.directory.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyContextTest extends AbstractCoreTest
+public class ModifyContextTest extends AbstractAdminTestCase
 {
     protected void setUp() throws Exception
     {

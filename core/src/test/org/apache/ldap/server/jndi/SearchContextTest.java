@@ -17,13 +17,20 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.common.message.DerefAliasesEnum;
-import org.apache.ldap.server.AbstractCoreTest;
+import java.util.HashMap;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
-import java.util.HashMap;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
+import org.apache.ldap.common.message.DerefAliasesEnum;
+import org.apache.ldap.server.AbstractAdminTestCase;
 
 
 /**
@@ -32,7 +39,7 @@ import java.util.HashMap;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchContextTest extends AbstractCoreTest
+public class SearchContextTest extends AbstractAdminTestCase
 {
     protected void setUp() throws Exception
     {

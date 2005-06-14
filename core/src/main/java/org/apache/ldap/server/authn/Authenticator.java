@@ -36,24 +36,17 @@ import javax.naming.NamingException;
  */
 public interface Authenticator
 {
-    public AuthenticatorConfig getAuthenticatorConfig();
-
     public String getAuthenticatorType();
+    
+    public AuthenticatorContext getContext();
 
     /**
      * Called by the authenticator container to indicate that the authenticator is being placed into service.
-     *
-     * @param authenticatorConfig
-     * @throws NamingException
      */
-    public void init( AuthenticatorConfig authenticatorConfig ) throws NamingException;
+    public void init( AuthenticatorContext ctx ) throws NamingException;
 
     /**
      * Perform the authentication operation and return the authorization id if successfull.
-     *
-     * @param ctx
-     * @return the authorization id
-     * @throws NamingException
      */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
 }

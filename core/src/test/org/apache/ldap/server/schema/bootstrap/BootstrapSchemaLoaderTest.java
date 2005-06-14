@@ -17,13 +17,17 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import junit.framework.TestCase;
-import org.apache.ldap.common.schema.AttributeType;
-
-import javax.naming.NamingException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
+import junit.framework.TestCase;
+
+import org.apache.ldap.common.schema.AttributeType;
 
 
 /**
@@ -54,19 +58,19 @@ public class BootstrapSchemaLoaderTest extends TestCase
     public void testLoadAll() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        String[] schemaClasses = {
-            "org.apache.ldap.server.schema.bootstrap.AutofsSchema",
-            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
-            "org.apache.ldap.server.schema.bootstrap.CosineSchema",
-            "org.apache.ldap.server.schema.bootstrap.CorbaSchema",
-            "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
-            "org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema",
-            "org.apache.ldap.server.schema.bootstrap.JavaSchema",
-            "org.apache.ldap.server.schema.bootstrap.Krb5kdcSchema",
-            "org.apache.ldap.server.schema.bootstrap.NisSchema",
-            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
-        };
-        loader.load( schemaClasses, registries );
+        Set schemas = new HashSet();
+        schemas.add( new AutofsSchema() );
+        schemas.add( new CoreSchema() );
+        schemas.add( new CosineSchema() );
+        schemas.add( new CorbaSchema() );
+        schemas.add( new ApacheSchema() );
+        schemas.add( new InetorgpersonSchema() );
+        schemas.add( new JavaSchema() );
+        schemas.add( new Krb5kdcSchema() );
+        schemas.add( new NisSchema() );
+        schemas.add( new SystemSchema() );
+
+        loader.load( schemas, registries );
         AttributeType type;
 
         // from autofs.schema
@@ -153,11 +157,12 @@ public class BootstrapSchemaLoaderTest extends TestCase
     public void testEveDepsSchemaLoad() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        String[] schemaClasses = {
-            "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
-            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
-        };
-        loader.load( schemaClasses, registries );
+        
+        Set schemas = new HashSet();
+        schemas.add( new ApacheSchema() );
+        schemas.add( new SystemSchema() );
+        
+        loader.load( schemas, registries );
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
         assertNotNull( type );
@@ -193,11 +198,12 @@ public class BootstrapSchemaLoaderTest extends TestCase
     public void testCoreDepsSchemaLoad() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        String[] schemaClasses = {
-            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
-            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
-        };
-        loader.load( schemaClasses, registries );
+
+        Set schemas = new HashSet();
+        schemas.add( new CoreSchema() );
+        schemas.add( new SystemSchema() );
+        
+        loader.load( schemas, registries );
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "knowledgeInformation" );
         assertNotNull( type );
@@ -233,12 +239,13 @@ public class BootstrapSchemaLoaderTest extends TestCase
     public void testJavaDepsSchemaLoad() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        String[] schemaClasses = {
-            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
-            "org.apache.ldap.server.schema.bootstrap.JavaSchema",
-            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
-        };
-        loader.load( schemaClasses, registries );
+
+        Set schemas = new HashSet();
+        schemas.add( new CoreSchema() );
+        schemas.add( new JavaSchema() );
+        schemas.add( new SystemSchema() );
+        
+        loader.load( schemas, registries );
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "javaFactory" );
         assertNotNull( type );
@@ -254,13 +261,14 @@ public class BootstrapSchemaLoaderTest extends TestCase
     public void testEveAndJavaDepsSchemaLoad() throws NamingException
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        String[] schemaClasses = {
-            "org.apache.ldap.server.schema.bootstrap.ApacheSchema",
-            "org.apache.ldap.server.schema.bootstrap.CoreSchema",
-            "org.apache.ldap.server.schema.bootstrap.JavaSchema",
-            "org.apache.ldap.server.schema.bootstrap.SystemSchema"
-        };
-        loader.load( schemaClasses, registries );
+
+        Set schemas = new HashSet();
+        schemas.add( new ApacheSchema() );
+        schemas.add( new CoreSchema() );
+        schemas.add( new JavaSchema() );
+        schemas.add( new SystemSchema() );
+
+        loader.load( schemas, registries );
         AttributeType type;
         type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
         assertNotNull( type );

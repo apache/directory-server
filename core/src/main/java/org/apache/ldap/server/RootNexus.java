@@ -57,9 +57,6 @@ public class RootNexus implements PartitionNexus
     /** the namingContexts DSE operational attribute */
     private static final String NAMINGCTXS_ATTR = "namingContexts";
 
-    /** Handle on the singleton instance of this class within the entire JVM. */
-    private static RootNexus s_singleton = null;
-    
     /** the closed state of this partition */
     private boolean closed = false;
 
@@ -83,12 +80,6 @@ public class RootNexus implements PartitionNexus
      */
     public RootNexus( SystemPartition system, Attributes rootDSE )
     {
-        if ( null != s_singleton )
-        {
-            throw new IllegalStateException();
-        }
-        
-        s_singleton = this;
         this.system = system;
 
         // setup that root DSE
@@ -115,25 +106,6 @@ public class RootNexus implements PartitionNexus
 
         // register will add to the list of namingContexts as well
         register( this.system );
-
-        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
-            public void run()
-            {
-                try
-                {
-                    if ( ! isClosed() )
-                    {
-                        RootNexus.this.close();
-                    }
-                }
-                catch ( NamingException e )
-                {
-                    e.printStackTrace();
-                    // @todo again we need to monitor this failure and report
-                    // that it occured on shutdown specifically
-                }
-            }
-        }, "RootNexusShutdownHook" ) );
     }
 
 
@@ -547,7 +519,6 @@ public class RootNexus implements PartitionNexus
             try
             {
                 store.sync();
-
                 store.close();
             }
             catch ( NamingException e )
@@ -563,8 +534,6 @@ public class RootNexus implements PartitionNexus
                 error.addThrowable( e );
             }
         }
-
-        s_singleton = null;
 
         closed = true;
 
