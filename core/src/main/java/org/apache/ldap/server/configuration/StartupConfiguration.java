@@ -19,15 +19,22 @@
 package org.apache.ldap.server.configuration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.server.authn.AnonymousAuthenticator;
+import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.SimpleAuthenticator;
-import org.apache.ldap.server.interceptor.InterceptorChain;
+import org.apache.ldap.server.authz.AuthorizationService;
+import org.apache.ldap.server.exception.ExceptionService;
+import org.apache.ldap.server.normalization.NormalizationService;
+import org.apache.ldap.server.operational.OperationalAttributeService;
+import org.apache.ldap.server.schema.SchemaService;
 import org.apache.ldap.server.schema.bootstrap.ApacheSchema;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchema;
 import org.apache.ldap.server.schema.bootstrap.CoreSchema;
@@ -49,13 +56,20 @@ public class StartupConfiguration extends Configuration
     private File workingDirectory = new File( "server-work" );
     private boolean allowAnonymousAccess = true; // allow by default
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
-    private InterceptorChain interceptors = InterceptorChain.newDefaultChain();
+    private List interceptorConfigurations; // Set<InterceptorConfiguration>
     
     private Set bootstrapSchemas; // Set<BootstrapSchema>
     private Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
     private Set testEntries = new HashSet(); // Set<Attributes>
     
     protected StartupConfiguration()
+    {
+        setDefaultAuthenticatorConfigurations();
+        setDefaultBootstrapSchemas();
+        setDefaultInterceptorConfigurations();
+    }
+
+    private void setDefaultAuthenticatorConfigurations()
     {
         Set set; 
         
@@ -77,7 +91,11 @@ public class StartupConfiguration extends Configuration
         set.add( authCfg );
         
         setAuthenticatorConfigurations( set );
-        
+    }
+
+    private void setDefaultBootstrapSchemas()
+    {
+        Set set;
         // Set default bootstrap schemas
         set = new HashSet();
         
@@ -89,6 +107,45 @@ public class StartupConfiguration extends Configuration
         set.add( new SystemSchema() );
         
         setBootstrapSchemas( set );
+    }
+
+    private void setDefaultInterceptorConfigurations()
+    {
+        // Set default interceptor chains
+        InterceptorConfiguration interceptorCfg;
+        List list = new ArrayList();
+        
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "normalizationService" );
+        interceptorCfg.setInterceptor( new NormalizationService() );
+        list.add( interceptorCfg );
+        
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "authenticationService" );
+        interceptorCfg.setInterceptor( new AuthenticationService() );
+        list.add( interceptorCfg );
+        
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "authorizationService" );
+        interceptorCfg.setInterceptor( new AuthorizationService() );
+        list.add( interceptorCfg );
+        
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "exceptionService" );
+        interceptorCfg.setInterceptor( new ExceptionService() );
+        list.add( interceptorCfg );
+        
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "schemaService" );
+        interceptorCfg.setInterceptor( new SchemaService() );
+        list.add( interceptorCfg );
+        
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "operationalAttributeService" );
+        interceptorCfg.setInterceptor( new OperationalAttributeService() );
+        list.add( interceptorCfg );
+        
+        setInterceptorConfigurations( list );
     }
 
     /**
@@ -177,21 +234,26 @@ public class StartupConfiguration extends Configuration
     /**
      * Returns interceptor chain.
      */
-    public InterceptorChain getInterceptors()
+    public List getInterceptorConfigurations()
     {
-        return interceptors;
+        return ConfigurationUtil.getClonedList( interceptorConfigurations );
     }
 
     /**
      * Sets interceptor chain.
      */
-    protected void setInterceptors( InterceptorChain interceptors )
+    protected void setInterceptorConfigurations( List interceptorConfigurations )
     {
-        if( interceptors == null )
+        List newList = ConfigurationUtil.getTypeSafeList(
+                interceptorConfigurations, InterceptorConfiguration.class );
+        
+        Iterator i = newList.iterator();
+        while( i.hasNext() )
         {
-            throw new ConfigurationException( "Interceptors cannot be null" );
+            ( ( InterceptorConfiguration ) i.next() ).validate();
         }
-        this.interceptors = interceptors;
+
+        this.interceptorConfigurations = interceptorConfigurations;
     }
 
     /**

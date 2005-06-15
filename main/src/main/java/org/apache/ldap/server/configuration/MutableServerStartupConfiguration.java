@@ -19,9 +19,9 @@
 package org.apache.ldap.server.configuration;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.mina.registry.ServiceRegistry;
 
 /**
@@ -60,9 +60,9 @@ public class MutableServerStartupConfiguration extends
         super.setContextPartitionConfigurations( arg0 );
     }
 
-    public void setInterceptors( InterceptorChain arg0 )
+    public void setInterceptorConfigurations( List arg0 )
     {
-        super.setInterceptors( arg0 );
+        super.setInterceptorConfigurations( arg0 );
     }
 
     public void setTestEntries( Set arg0 )

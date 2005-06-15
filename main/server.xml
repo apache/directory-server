@@ -41,6 +41,47 @@
         <bean class="org.apache.ldap.server.schema.bootstrap.SystemSchema"/>
       </set>
     </property>
+    
+    <property name="interceptorConfigurations">
+      <list>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>normalizationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.normalization.NormalizationService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>authenticationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.authn.AuthenticationService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>authorizationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.authz.AuthorizationService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>exceptionService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.exception.ExceptionService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>schemaService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.schema.SchemaService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>operationalAttributeService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.operational.OperationalAttributeService" />
+          </property>
+        </bean>
+      </list>
+    </property>
   </bean>
   
   <bean id="apachePartitionConfiguration" class="org.apache.ldap.server.configuration.MutableContextPartitionConfiguration">

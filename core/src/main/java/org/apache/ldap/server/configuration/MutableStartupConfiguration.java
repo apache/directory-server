@@ -19,9 +19,8 @@
 package org.apache.ldap.server.configuration;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
-
-import org.apache.ldap.server.interceptor.InterceptorChain;
 
 /**
  * A mutable version of {@link StartupConfiguration}.
@@ -57,9 +56,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
         super.setAllowAnonymousAccess( enableAnonymousAccess );
     }
 
-    public void setInterceptors( InterceptorChain interceptors )
+    public void setInterceptorConfigurations( List interceptorConfigurations )
     {
-        super.setInterceptors( interceptors );
+        super.setInterceptorConfigurations( interceptorConfigurations );
     }
 
     public void setTestEntries( Set testEntries )

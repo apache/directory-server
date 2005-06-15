@@ -286,7 +286,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
             throw new IllegalStateException( "ApacheDS is not started yet." );
         }
         
-        interceptorChain.process( null, call );
+        interceptorChain.process( call );
         return call.getReturnValue();
     }
 
@@ -495,7 +495,6 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         loader.load( configuration.getBootstrapSchemas(), bootstrapRegistries );
 
         java.util.List errors = bootstrapRegistries.checkRefInteg();
-
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
@@ -535,7 +534,8 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         systemPartition = new SystemPartition( db, eng, attributes );
         globalRegistries = new GlobalRegistries( systemPartition, bootstrapRegistries );
         rootNexus = new RootNexus( systemPartition, new LockableAttributesImpl() );
-        interceptorChain = configuration.getInterceptors();
+        
+        interceptorChain = new InterceptorChain( configuration.getInterceptorConfigurations() );
         interceptorChain.init( new InterceptorContext( configuration, systemPartition, globalRegistries, rootNexus ) );
 
         // fire up the app partitions now!

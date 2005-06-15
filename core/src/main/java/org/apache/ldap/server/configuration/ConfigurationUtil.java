@@ -18,8 +18,11 @@
  */
 package org.apache.ldap.server.configuration;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.directory.Attributes;
@@ -41,7 +44,26 @@ class ConfigurationUtil
     static Set getTypeSafeSet( Set set, Class type )
     {
         Set newSet = new HashSet();
-        Iterator i = set.iterator();
+        getTypeSafeCollection( set, type, newSet );
+        return newSet;
+    }
+
+    /**
+     * Checks all elements of the specified list is of the specified type,
+     * and returns cloned list.
+     * 
+     * @throws ConfigurationException if the specified set has an element of wrong type
+     */
+    static List getTypeSafeList( List list, Class type )
+    {
+        List newList = new ArrayList();
+        getTypeSafeCollection( list, type, newList );
+        return newList;
+    }
+
+    private static void getTypeSafeCollection( Collection collection, Class type, Collection newCollection )
+    {
+        Iterator i = collection.iterator();
         while( i.hasNext() )
         {
             Object e = i.next();
@@ -51,9 +73,8 @@ class ConfigurationUtil
                         "Invalid element type: " + e.getClass() +
                         " (expected " + type );
             }
-            newSet.add( e );
+            newCollection.add( e );
         }
-        return newSet;
     }
     
     /**
@@ -64,6 +85,16 @@ class ConfigurationUtil
         Set newSet = new HashSet();
         newSet.addAll( set );
         return newSet;
+    }
+    
+    /**
+     * Returns the clone of the specified list.
+     */
+    static List getClonedList( List list )
+    {
+        List newList = new ArrayList();
+        newList.addAll( list );
+        return newList;
     }
     
     /**

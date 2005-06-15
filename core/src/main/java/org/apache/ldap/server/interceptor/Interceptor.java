@@ -84,7 +84,7 @@ import org.apache.ldap.server.invocation.Invocation;
  * <p/>
  * <h2>Overriding Default Interceptor Settings</h2>
  * <p/>
- * See {@link StartupConfiguration} and {@link InterceptorChain#newDefaultChain()}.
+ * See {@link StartupConfiguration}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
