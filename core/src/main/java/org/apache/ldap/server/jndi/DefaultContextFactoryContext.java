@@ -136,7 +136,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
         return this.getJndiContext( null, null, "none", rootDN );
     }
 
-    public synchronized Context getJndiContext( String principal, String credential, String authentication, String rootDN ) throws NamingException
+    public synchronized Context getJndiContext( String principal, byte[] credential, String authentication, String rootDN ) throws NamingException
     {
         checkSecuritySettings( principal, credential, authentication );
         
@@ -295,7 +295,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
      *
      * @throws javax.naming.NamingException if the security settings are not correctly configured.
      */
-    private void checkSecuritySettings( String principal, String credential, String authentication ) throws NamingException
+    private void checkSecuritySettings( String principal, byte[] credential, String authentication ) throws NamingException
     {
         if( authentication == null )
         {

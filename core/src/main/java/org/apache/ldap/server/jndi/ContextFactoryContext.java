@@ -66,7 +66,7 @@ public interface ContextFactoryContext
     boolean isStarted();
     
     Context getJndiContext( String rootDN ) throws NamingException;
-    Context getJndiContext( String principal, String credential, String authentication, String rootDN ) throws NamingException;
+    Context getJndiContext( String principal, byte[] credential, String authentication, String rootDN ) throws NamingException;
 
     /**
      * Invokes {@link Invocation} to this context.
