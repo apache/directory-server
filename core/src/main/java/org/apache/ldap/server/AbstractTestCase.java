@@ -77,7 +77,7 @@ public abstract class AbstractTestCase extends TestCase
 
     /** the context root for the system partition */
     protected LdapContext sysRoot;
-
+    
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
     
@@ -91,6 +91,8 @@ public abstract class AbstractTestCase extends TestCase
 
     /** Load resources relative to this class */
     private Class loadClass;
+
+    private Hashtable overrides = new Hashtable(); 
 
     protected AbstractTestCase( String username, String password )
     {
@@ -268,12 +270,21 @@ public abstract class AbstractTestCase extends TestCase
         {
             envFinal.put( Context.PROVIDER_URL, "ou=system" );
         }
-
+        
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
+        envFinal.putAll( overrides );
+
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
 
-
+    /**
+     * Overrides default JNDI environment properties.  Please call this method
+     * to override any JNDI environment properties this test case will set.
+     */
+    protected void overrideEnvironment( String key, Object value )
+    {
+        overrides.put( key, value );
+    }
 
     /**
      * Sets the system context root to null.
@@ -304,6 +315,8 @@ public abstract class AbstractTestCase extends TestCase
         ldifPath = null;
 
         loadClass = null;
+        
+        overrides.clear();
         
         configuration = new MutableStartupConfiguration();
         
