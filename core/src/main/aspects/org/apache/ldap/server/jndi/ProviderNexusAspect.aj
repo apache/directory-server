@@ -38,10 +38,10 @@ public aspect ProviderNexusAspect
     
     /** 
      * Adds a static ThreadLocal for a Stack of LdapContexts representing nested
-     * backend nexus calls made by the DefaultContextFactoryContext's contexts within the same 
+     * backend nexus calls made by the DefaultContextFactoryConfiguration's contexts within the same
      * thread of execution.
      */
-    private static ThreadLocal DefaultContextFactoryContext.s_contextStacks = new ThreadLocal();
+    private static ThreadLocal DefaultContextFactoryConfiguration.s_contextStacks = new ThreadLocal();
     
     
     // ------------------------------------------------------------------------
@@ -55,7 +55,7 @@ public aspect ProviderNexusAspect
      * 
      * @param context the caller or the current context for the nexus call
      */
-    private static void DefaultContextFactoryContext.push( LdapContext context )
+    private static void DefaultContextFactoryConfiguration.push( LdapContext context )
     {
         Stack stack = ( Stack ) s_contextStacks.get();
         
@@ -75,7 +75,7 @@ public aspect ProviderNexusAspect
      * 
      * @return the last LdapContext or caller
      */
-    private static LdapContext DefaultContextFactoryContext.pop()
+    private static LdapContext DefaultContextFactoryConfiguration.pop()
     {
         Stack stack = ( Stack ) s_contextStacks.get();
         
@@ -93,7 +93,7 @@ public aspect ProviderNexusAspect
      * 
      * @return the current LdapContext or caller
      */
-    static LdapContext DefaultContextFactoryContext.peek()
+    static LdapContext DefaultContextFactoryConfiguration.peek()
     {
         Stack stack = ( Stack ) s_contextStacks.get();
         
@@ -118,7 +118,7 @@ public aspect ProviderNexusAspect
      */    
     private static Stack getContextStack()
     {
-        Stack stack = ( Stack ) DefaultContextFactoryContext.s_contextStacks.get();
+        Stack stack = ( Stack ) DefaultContextFactoryConfiguration.s_contextStacks.get();
         
         if ( stack == null )
         {
@@ -192,7 +192,7 @@ public aspect ProviderNexusAspect
     before( Context caller ):
         jndiNexusCalls( caller )
         {
-    		DefaultContextFactoryContext.push( ( LdapContext ) caller );
+    		DefaultContextFactoryConfiguration.push( ( LdapContext ) caller );
             //System.out.println( "\npushed " + caller + " for join point "
             //    + thisJoinPoint );
         }
@@ -201,7 +201,7 @@ public aspect ProviderNexusAspect
     after( Context caller ):
         jndiNexusCalls( caller ) 
         {
-            LdapContext head = DefaultContextFactoryContext.pop();
+            LdapContext head = DefaultContextFactoryConfiguration.pop();
             //System.out.println( "\npopped " + caller + " for join point "
             //    + thisJoinPoint );
         }
