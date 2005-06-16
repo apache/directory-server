@@ -70,7 +70,7 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class DefaultContextFactoryContext implements ContextFactoryContext
+class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
 {
     private AbstractContextFactory factory;
     
@@ -109,7 +109,7 @@ class DefaultContextFactoryContext implements ContextFactoryContext
     /**
      * Creates a new instance.
      */
-    public DefaultContextFactoryContext()
+    public DefaultContextFactoryConfiguration()
     {
         // Register shutdown hook.
         Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {

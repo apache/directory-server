@@ -27,7 +27,7 @@ import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
-public interface ContextFactoryContext
+public interface ContextFactoryConfiguration
 {
     /**
      * Returns the initial context environment of this context factory.

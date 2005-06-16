@@ -54,7 +54,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory
     // ------------------------------------------------------------------------
 
     /** The singleton JndiProvider instance */
-    private static final ContextFactoryContext provider = new DefaultContextFactoryContext();
+    private static final ContextFactoryConfiguration provider = new DefaultContextFactoryConfiguration();
 
     /**
      * Default constructor that sets the provider of this ServerContextFactory.
@@ -84,7 +84,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         }
         else if( cfg instanceof StartupConfiguration )
         {
-            ( ( DefaultContextFactoryContext ) provider ).startup( this, env );
+            ( ( DefaultContextFactoryConfiguration ) provider ).startup( this, env );
         }
         else
         {
@@ -160,10 +160,10 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         return principal;
     }
     
-    protected abstract void beforeStartup( ContextFactoryContext ctx ) throws NamingException;
-    protected abstract void afterStartup( ContextFactoryContext ctx ) throws NamingException;
-    protected abstract void beforeShutdown( ContextFactoryContext ctx ) throws NamingException;
-    protected abstract void afterShutdown( ContextFactoryContext ctx ) throws NamingException;
-    protected abstract void beforeSync( ContextFactoryContext ctx ) throws NamingException;
-    protected abstract void afterSync( ContextFactoryContext ctx ) throws NamingException;
+    protected abstract void beforeStartup( ContextFactoryConfiguration ctx ) throws NamingException;
+    protected abstract void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException;
+    protected abstract void beforeShutdown( ContextFactoryConfiguration ctx ) throws NamingException;
+    protected abstract void afterShutdown( ContextFactoryConfiguration ctx ) throws NamingException;
+    protected abstract void beforeSync( ContextFactoryConfiguration ctx ) throws NamingException;
+    protected abstract void afterSync( ContextFactoryConfiguration ctx ) throws NamingException;
 }

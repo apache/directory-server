@@ -45,27 +45,27 @@ public class CoreContextFactory extends AbstractContextFactory implements Initia
     {
     }
 
-    protected void beforeStartup( ContextFactoryContext ctx ) throws NamingException
+    protected void beforeStartup( ContextFactoryConfiguration ctx ) throws NamingException
     {
     }
 
-    protected void afterStartup( ContextFactoryContext ctx ) throws NamingException
+    protected void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException
     {
     }
     
-    protected void beforeShutdown( ContextFactoryContext ctx ) throws NamingException
+    protected void beforeShutdown( ContextFactoryConfiguration ctx ) throws NamingException
     {
     }
     
-    protected void afterShutdown( ContextFactoryContext ctx ) throws NamingException
+    protected void afterShutdown( ContextFactoryConfiguration ctx ) throws NamingException
     {
     }
     
-    protected void beforeSync( ContextFactoryContext ctx ) throws NamingException
+    protected void beforeSync( ContextFactoryConfiguration ctx ) throws NamingException
     {
     }
 
-    protected void afterSync( ContextFactoryContext ctx ) throws NamingException
+    protected void afterSync( ContextFactoryConfiguration ctx ) throws NamingException
     {
     }
 }
