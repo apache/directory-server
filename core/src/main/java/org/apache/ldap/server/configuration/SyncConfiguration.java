@@ -26,6 +26,8 @@ package org.apache.ldap.server.configuration;
  */
 public class SyncConfiguration extends Configuration
 {
+    private static SyncConfiguration instance = new SyncConfiguration();
+
     private static final long serialVersionUID = -3260859085299322327L;
 
     /**
@@ -33,5 +35,26 @@ public class SyncConfiguration extends Configuration
      */
     public SyncConfiguration()
     {
+        if ( instance == null )
+        {
+            instance = this;
+        }
+    }
+
+
+    /**
+     * Returns existing static instance or creates a new one if
+     * it does not exist.
+     *
+     * @return a reusable static instance
+     */
+    public static SyncConfiguration getInstance()
+    {
+        if ( instance == null )
+        {
+            instance = new SyncConfiguration();
+        }
+
+        return instance;
     }
 }
