@@ -286,6 +286,13 @@ public abstract class AbstractTestCase extends TestCase
         overrides.put( key, value );
     }
 
+
+    protected Hashtable getOverriddenEnvironment()
+    {
+        return ( Hashtable ) overrides.clone();
+    }
+
+
     /**
      * Sets the system context root to null.
      *
