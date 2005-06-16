@@ -62,7 +62,7 @@ public class ServerContextFactory extends CoreContextFactory
     // Members
     // ------------------------------------------------------------------------
 
-    protected void afterShutdown( ContextFactoryContext ctx )
+    protected void afterShutdown( ContextFactoryConfiguration ctx )
     {
         if ( minaRegistry != null )
         {
@@ -80,7 +80,7 @@ public class ServerContextFactory extends CoreContextFactory
         }
     }
     
-    protected void afterStartup( ContextFactoryContext ctx ) throws NamingException
+    protected void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException
     {
         ServerStartupConfiguration cfg =
             ( ServerStartupConfiguration ) ctx.getConfiguration();
