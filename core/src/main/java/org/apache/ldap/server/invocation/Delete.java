@@ -29,40 +29,19 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Delete extends Invocation
+public class Delete extends EntryInvocation
 {
     private static final long serialVersionUID = 3258134639372677425L;
 
-    private Name name;
-
-
     public Delete( Name name )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-
-        this.name = name;
+        super( name );
     }
-
-
-    public Name getName()
-    {
-        return name;
-    }
-
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.delete( name );
+        store.delete( getName() );
 
         return null;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
     }
 }

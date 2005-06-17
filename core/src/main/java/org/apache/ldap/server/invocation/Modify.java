@@ -30,11 +30,9 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Modify extends Invocation
+public class Modify extends EntryInvocation
 {
     private static final long serialVersionUID = 3258134673732416053L;
-
-    private Name name;
 
     private final int modOp;
 
@@ -43,22 +41,9 @@ public class Modify extends Invocation
 
     public Modify( Name name, int modOp, Attributes attributes )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-
-        this.name = name;
-
+        super( name );
         this.modOp = modOp;
-
         this.attributes = attributes;
-    }
-
-
-    public Name getName()
-    {
-        return name;
     }
 
 
@@ -76,14 +61,7 @@ public class Modify extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.modify( name, modOp, attributes );
-
+        store.modify( getName(), modOp, attributes );
         return null;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
     }
 }

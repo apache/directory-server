@@ -29,38 +29,18 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class IsSuffix extends Invocation
+public class IsSuffix extends EntryInvocation
 {
     private static final long serialVersionUID = 3256723987429273908L;
 
-    private Name name;
-
-
     public IsSuffix( Name name )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-
-        this.name = name;
-    }
-
-
-    public Name getName()
-    {
-        return name;
+        super( name );
     }
 
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.isSuffix( name ) ? Boolean.TRUE : Boolean.FALSE;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
+        return store.isSuffix( getName() ) ? Boolean.TRUE : Boolean.FALSE;
     }
 }

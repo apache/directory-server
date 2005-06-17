@@ -30,27 +30,22 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Add extends Invocation
+public class Add extends EntryInvocation
 {
     private static final long serialVersionUID = 3258131362430333495L;
 
     private final String userProvidedName;
-
-    private Name normalizedName;
 
     private final Attributes attributes;
 
 
     public Add( String userProvidedName, Name normalizedName, Attributes attributes )
     {
+        super( normalizedName );
+        
         if ( userProvidedName == null )
         {
             throw new NullPointerException( "userProvidedName" );
-        }
-
-        if ( normalizedName == null )
-        {
-            throw new NullPointerException( "normalizedName" );
         }
 
         if ( attributes == null )
@@ -59,8 +54,6 @@ public class Add extends Invocation
         }
 
         this.userProvidedName = userProvidedName;
-
-        this.normalizedName = normalizedName;
 
         this.attributes = attributes;
     }
@@ -72,18 +65,6 @@ public class Add extends Invocation
     }
 
 
-    public Name getNormalizedName()
-    {
-        return normalizedName;
-    }
-
-
-    public void setNormalizedName( Name normalizedName )
-    {
-        this.normalizedName = normalizedName;
-    }
-
-
     public String getUserProvidedName()
     {
         return userProvidedName;
@@ -92,8 +73,7 @@ public class Add extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.add( userProvidedName, normalizedName, attributes );
-
+        store.add( userProvidedName, getName(), attributes );
         return null;
     }
 }

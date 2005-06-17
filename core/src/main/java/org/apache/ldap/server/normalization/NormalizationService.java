@@ -64,7 +64,7 @@ public class NormalizationService extends BaseInterceptor
     {
         synchronized( parser )
         {
-            call.setNormalizedName( parser.parse( call.getNormalizedName().toString() ) );
+            call.setName( parser.parse( call.getName().toString() ) );
         }
 
         super.process( nextInterceptor, call );

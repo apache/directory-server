@@ -30,35 +30,21 @@ import javax.naming.directory.ModificationItem;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyMany extends Invocation
+public class ModifyMany extends EntryInvocation
 {
     private static final long serialVersionUID = 3258695386024915001L;
-
-    private Name name;
 
     private final ModificationItem[] modificationItems;
 
 
     public ModifyMany( Name name, ModificationItem[] modificationItems )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
+        super( name );
         if ( modificationItems == null )
         {
             throw new NullPointerException( "modificationItems" );
         }
-
-        this.name = name;
-
         this.modificationItems = modificationItems;
-    }
-
-
-    public Name getName()
-    {
-        return name;
     }
 
 
@@ -70,14 +56,7 @@ public class ModifyMany extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.modify( name, modificationItems );
-
+        store.modify( getName(), modificationItems );
         return null;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
     }
 }

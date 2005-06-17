@@ -30,24 +30,16 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetSuffix extends Invocation
+public class GetSuffix extends EntryInvocation
 {
     private static final long serialVersionUID = 3256443599162980407L;
-
-    private Name name;
 
     private final boolean normalized;
 
 
     public GetSuffix( Name name, boolean normalized )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-
-        this.name = name;
-
+        super( name );
         this.normalized = normalized;
     }
 
@@ -58,20 +50,8 @@ public class GetSuffix extends Invocation
     }
 
 
-    public Name getName()
-    {
-        return name;
-    }
-
-
     protected Object doExecute( BackingStore store ) throws NamingException
     {
         return ( ( ContextPartition ) store ).getSuffix( normalized );
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
     }
 }

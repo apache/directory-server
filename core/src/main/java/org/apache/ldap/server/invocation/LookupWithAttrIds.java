@@ -29,30 +29,17 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LookupWithAttrIds extends Invocation
+public class LookupWithAttrIds extends EntryInvocation
 {
     private static final long serialVersionUID = 3257283613060970292L;
-
-    private Name name;
 
     private final String[] attributeIds;
 
 
     public LookupWithAttrIds( Name name, String[] attributeIds )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-        this.name = name;
-
+        super( name );
         this.attributeIds = attributeIds;
-    }
-
-
-    public Name getName()
-    {
-        return name;
     }
 
 
@@ -64,12 +51,6 @@ public class LookupWithAttrIds extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.lookup( name, attributeIds );
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
+        return store.lookup( getName(), attributeIds );
     }
 }

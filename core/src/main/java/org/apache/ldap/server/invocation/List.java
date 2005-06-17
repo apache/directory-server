@@ -29,38 +29,19 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class List extends Invocation
+public class List extends SubtreeInvocation
 {
     private static final long serialVersionUID = 3761971574936776755L;
-
-    private Name baseName;
 
 
     public List( Name baseName )
     {
-        if ( baseName == null )
-        {
-            throw new NullPointerException( "baseName" );
-        }
-
-        this.baseName = baseName;
-    }
-
-
-    public Name getBaseName()
-    {
-        return baseName;
+        super( baseName );
     }
 
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.list( baseName );
-    }
-
-
-    public void setBaseName( Name baseName )
-    {
-        this.baseName = baseName;
+        return store.list( getBaseName() );
     }
 }

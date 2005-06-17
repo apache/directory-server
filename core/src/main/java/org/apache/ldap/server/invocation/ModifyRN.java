@@ -29,11 +29,9 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyRN extends Invocation
+public class ModifyRN extends EntryInvocation
 {
     private static final long serialVersionUID = 3257849883007465528L;
-
-    private Name name;
 
     private final String newRelativeName;
 
@@ -43,27 +41,15 @@ public class ModifyRN extends Invocation
     public ModifyRN( Name name, String newRelativeName,
                      boolean deleteOldName )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
+        super( name );
 
         if ( newRelativeName == null )
         {
             throw new NullPointerException( "newRelativeName" );
         }
 
-        this.name = name;
-
         this.newRelativeName = newRelativeName;
-
         this.deleteOldName = deleteOldName;
-    }
-
-
-    public Name getName()
-    {
-        return name;
     }
 
 
@@ -81,14 +67,7 @@ public class ModifyRN extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.modifyRn( name, newRelativeName, deleteOldName );
-
+        store.modifyRn( getName(), newRelativeName, deleteOldName );
         return null;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
     }
 }

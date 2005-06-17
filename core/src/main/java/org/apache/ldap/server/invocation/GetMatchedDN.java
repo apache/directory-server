@@ -30,24 +30,16 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetMatchedDN extends Invocation
+public class GetMatchedDN extends EntryInvocation
 {
     private static final long serialVersionUID = 3834032467559723826L;
-
-    private Name name;
 
     private final boolean normalized;
 
 
     public GetMatchedDN( Name name, boolean normalized )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-
-        this.name = name;
-
+        super( name );
         this.normalized = normalized;
     }
 
@@ -58,20 +50,8 @@ public class GetMatchedDN extends Invocation
     }
 
 
-    public Name getName()
-    {
-        return name;
-    }
-
-
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return ( ( PartitionNexus ) store ).getMatchedDn( name, normalized );
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
+        return ( ( PartitionNexus ) store ).getMatchedDn( getName(), isNormalized() );
     }
 }

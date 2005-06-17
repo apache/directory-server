@@ -80,7 +80,7 @@ public class ExceptionService extends BaseInterceptor
     protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
     {
         // check if the entry already exists
-        Name normName = call.getNormalizedName();
+        Name normName = call.getName();
         String upName = call.getUserProvidedName();
         if ( nexus.hasEntry( normName ) )
         {

@@ -29,36 +29,17 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Move extends Invocation
+public class Move extends EntryInvocation
 {
     private static final long serialVersionUID = 3258132440382978098L;
-
-    private Name name;
 
     private Name newParentName;
 
 
     public Move( Name name, Name newParentName )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-
-        if ( newParentName == null )
-        {
-            throw new NullPointerException( "newParentName" );
-        }
-
-        this.name = name;
-
-        this.newParentName = newParentName;
-    }
-
-
-    public Name getName()
-    {
-        return name;
+        super( name );
+        setNewParentName( newParentName );
     }
 
 
@@ -68,22 +49,20 @@ public class Move extends Invocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
-    {
-        store.move( name, newParentName );
-
-        return null;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
-    }
-
-
     public void setNewParentName( Name newParentName )
     {
+        if ( newParentName == null )
+        {
+            throw new NullPointerException( "newParentName" );
+        }
+
         this.newParentName = newParentName;
+    }
+
+
+    protected Object doExecute( BackingStore store ) throws NamingException
+    {
+        store.move( getName(), newParentName );
+        return null;
     }
 }

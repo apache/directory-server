@@ -32,11 +32,9 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Search extends Invocation
+public class Search extends SubtreeInvocation
 {
     private static final long serialVersionUID = 3258410651234678579L;
-
-    private Name baseName;
 
     private final Map environment;
 
@@ -48,10 +46,7 @@ public class Search extends Invocation
     public Search( Name baseName, Map environment, ExprNode filters,
                    SearchControls controls )
     {
-        if ( baseName == null )
-        {
-            throw new NullPointerException( "baseName" );
-        }
+        super( baseName );
         if ( environment == null )
         {
             throw new NullPointerException( "environment" );
@@ -65,19 +60,11 @@ public class Search extends Invocation
             throw new NullPointerException( "controls" );
         }
 
-        this.baseName = baseName;
-
         this.environment = environment;
 
         this.filter = filters;
 
         this.controls = controls;
-    }
-
-
-    public Name getBaseName()
-    {
-        return baseName;
     }
 
 
@@ -101,12 +88,6 @@ public class Search extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.search( baseName, environment, filter, controls );
-    }
-
-
-    public void setBaseName( Name baseName )
-    {
-        this.baseName = baseName;
+        return store.search( getBaseName(), environment, filter, controls );
     }
 }

@@ -29,38 +29,18 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class HasEntry extends Invocation
+public class HasEntry extends EntryInvocation
 {
     private static final long serialVersionUID = 3257850974013240370L;
 
-    private Name name;
-
-
     public HasEntry( Name name )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-
-        this.name = name;
-    }
-
-
-    public Name getName()
-    {
-        return name;
+        super( name );
     }
 
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        return store.hasEntry( name ) ? Boolean.TRUE : Boolean.FALSE;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
+        return store.hasEntry( getName() ) ? Boolean.TRUE : Boolean.FALSE;
     }
 }

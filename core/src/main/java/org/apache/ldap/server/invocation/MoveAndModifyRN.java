@@ -29,11 +29,9 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MoveAndModifyRN extends Invocation
+public class MoveAndModifyRN extends EntryInvocation
 {
     private static final long serialVersionUID = 3258135751786248245L;
-
-    private Name name;
 
     private Name newParentName;
 
@@ -45,38 +43,32 @@ public class MoveAndModifyRN extends Invocation
     public MoveAndModifyRN( Name name, Name newParentName, String newRelativeName,
                             boolean deleteOldName )
     {
-        if ( name == null )
-        {
-            throw new NullPointerException( "name" );
-        }
-        if ( newParentName == null )
-        {
-            throw new NullPointerException( "newParentName" );
-        }
+        super( name );
+        setNewParentName( newParentName );
+
         if ( newRelativeName == null )
         {
             throw new NullPointerException( "newRelativeName" );
         }
 
-        this.name = name;
-
-        this.newParentName = newParentName;
-
         this.newRelativeName = newRelativeName;
-
         this.deleteOldName = deleteOldName;
-    }
-
-
-    public Name getName()
-    {
-        return name;
     }
 
 
     public Name getNewParentName()
     {
         return newParentName;
+    }
+
+
+    public void setNewParentName( Name newParentName )
+    {
+        if ( newParentName == null )
+        {
+            throw new NullPointerException( "newParentName" );
+        }
+        this.newParentName = newParentName;
     }
 
 
@@ -94,20 +86,7 @@ public class MoveAndModifyRN extends Invocation
 
     protected Object doExecute( BackingStore store ) throws NamingException
     {
-        store.move( name, newParentName, newRelativeName, deleteOldName );
-
+        store.move( getName(), newParentName, newRelativeName, deleteOldName );
         return null;
-    }
-
-
-    public void setName( Name name )
-    {
-        this.name = name;
-    }
-
-
-    public void setNewParentName( Name newParentName )
-    {
-        this.newParentName = newParentName;
     }
 }
