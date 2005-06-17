@@ -66,6 +66,7 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 
 /**
  * Provides everything required to {@link AbstractContextFactory}.
+ * FIXME Rename to DefaultContextFactoryContext
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

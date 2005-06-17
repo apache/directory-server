@@ -27,6 +27,7 @@ import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
+/** FIXME Rename to ContextFactoryContext */
 public interface ContextFactoryConfiguration
 {
     /**
