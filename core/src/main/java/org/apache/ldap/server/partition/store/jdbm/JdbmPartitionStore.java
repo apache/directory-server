@@ -61,7 +61,7 @@ import org.apache.ldap.server.partition.store.IndexRecord;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmDatabase implements PartitionStore
+public class JdbmPartitionStore implements PartitionStore
 {
     /** the JDBM record manager used by this database */
     private final RecordManager recMan;
@@ -110,7 +110,7 @@ public class JdbmDatabase implements PartitionStore
      * @param wkdirPath the path to the working directory where the db resides
      * @throws NamingException if db cannot be created
      */
-    public JdbmDatabase ( final Name upSuffix, final Name normSuffix, final String wkdirPath )
+    public JdbmPartitionStore ( final Name upSuffix, final Name normSuffix, final String wkdirPath )
         throws NamingException
     {
         this.upSuffix = upSuffix;
