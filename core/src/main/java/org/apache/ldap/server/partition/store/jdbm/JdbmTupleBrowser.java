@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.db.jdbm;
+package org.apache.ldap.server.partition.store.jdbm;
 
 
 import org.apache.ldap.server.partition.store.Tuple;

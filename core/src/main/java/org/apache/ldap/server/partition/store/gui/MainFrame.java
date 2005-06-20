@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.db.gui;
+package org.apache.ldap.server.partition.store.gui;
 
 
 import org.apache.ldap.common.filter.ExprNode;
