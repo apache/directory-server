@@ -28,6 +28,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.invocation.Add;
 import org.apache.ldap.server.invocation.Delete;
 import org.apache.ldap.server.invocation.GetMatchedDN;
@@ -44,7 +45,6 @@ import org.apache.ldap.server.invocation.ModifyRN;
 import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
-import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 class RootNexusProxy implements ContextPartitionNexus
@@ -70,14 +70,6 @@ class RootNexusProxy implements ContextPartitionNexus
 
     public Iterator listSuffixes(boolean normalized) throws NamingException {
         return ( Iterator ) this.provider.invoke( new ListSuffixes( normalized ) );
-    }
-
-    public void register(ContextPartition partition) {
-        this.provider.getRootNexus().register( partition );
-    }
-
-    public void unregister(ContextPartition partition) {
-        this.provider.getRootNexus().unregister( partition );
     }
 
     public void delete(Name name) throws NamingException {
@@ -142,5 +134,20 @@ class RootNexusProxy implements ContextPartitionNexus
 
     public boolean isInitialized() {
         return this.provider.getRootNexus().isInitialized();
+    }
+
+    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    {
+        throw new IllegalStateException();
+    }
+
+    public void destroy() throws NamingException
+    {
+        throw new IllegalStateException();
+    }
+
+    public Name getSuffix( boolean normalized )
+    {
+        return this.provider.getRootNexus().getSuffix( normalized );
     }
 }

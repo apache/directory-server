@@ -24,11 +24,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractNonAdminTestCase;
-import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartitionSearchResult;
 
 
 /**
@@ -110,7 +110,7 @@ public class AuthorizationServiceAsNonAdminTest extends AbstractNonAdminTestCase
                 "(objectClass=*)", controls );
         while ( list.hasMore() )
         {
-            BTreeContextPartitionSearchResult result = ( BTreeContextPartitionSearchResult ) list.next();
+            SearchResult result = ( SearchResult ) list.next();
             set.add( result.getName() );
         }
 

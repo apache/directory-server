@@ -29,7 +29,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.schema.MatchingRuleRegistry;
 
 
 /**
@@ -42,7 +44,6 @@ public class ContextPartitionConfiguration
 {
     private String name;
     private String suffix;
-    private Name normalizedSuffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
     private Attributes contextEntry = new BasicAttributes();
     private ContextPartition contextPartition;
@@ -110,23 +111,28 @@ public class ContextPartitionConfiguration
         return suffix;
     }
     
-    public Name getNormalizedSuffix()
+    public Name getNormalizedSuffix( MatchingRuleRegistry matchingRuleRegistry ) throws NamingException
     {
-        return normalizedSuffix;
+        return getNormalizedSuffix( matchingRuleRegistry.lookup( "distinguishedNameMatch" ).getNormalizer() );
+    }
+    
+    public Name getNormalizedSuffix( Normalizer normalizer ) throws NamingException
+    {
+        return new LdapName( normalizer.normalize( suffix ).toString() );
     }
     
     protected void setSuffix( String suffix )
     {
-        // TODO Suffix should be normalized before being set
-        this.suffix = suffix.trim();
+        suffix = suffix.trim();
         try
         {
-            this.normalizedSuffix = new LdapName( suffix );
+            new LdapName( suffix );
         }
         catch( NamingException e )
         {
             throw new ConfigurationException( "Failed to normalized the suffix: " + suffix );
         }
+        this.suffix = suffix;
     }
     
     

@@ -16,8 +16,6 @@
  */
 package org.apache.ldap.server.jndi;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -35,30 +33,18 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.partition.ApplicationPartition;
-import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.partition.RootNexus;
-import org.apache.ldap.server.partition.store.impl.btree.DefaultSearchEngine;
-import org.apache.ldap.server.partition.store.impl.btree.ExpressionEnumerator;
-import org.apache.ldap.server.partition.store.impl.btree.ExpressionEvaluator;
-import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
-import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
-import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmBTreeContextPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
-import org.apache.ldap.server.schema.MatchingRuleRegistry;
-import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 
@@ -79,9 +65,6 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     
     /** the configuration */
     private StartupConfiguration configuration;
-
-    /** the system partition used by the context factory */
-    private SystemPartition systemPartition;
 
     /** the registries for system schema objects */
     private GlobalRegistries globalRegistries;
@@ -254,11 +237,6 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return configuration;
     }
     
-    public SystemPartition getSystemPartition()
-    {
-        return systemPartition;
-    }
-
     public GlobalRegistries getGlobalRegistries()
     {
         return globalRegistries;
@@ -504,148 +482,10 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             throw e;
         }
 
-        // --------------------------------------------------------------------
-        // Fire up the system partition
-        // --------------------------------------------------------------------
-
-        File workDir = configuration.getWorkingDirectory();
-
-        LdapName suffix = new LdapName();
-        suffix.add( SystemPartition.SUFFIX );
-
-        BTreeContextPartition db = new JdbmBTreeContextPartition( suffix, suffix, workDir.getPath() );
-        AttributeTypeRegistry attributeTypeRegistry = bootstrapRegistries .getAttributeTypeRegistry();
-        OidRegistry oidRegistry = bootstrapRegistries.getOidRegistry();
-        ExpressionEvaluator evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
-        ExpressionEnumerator enumerator = new ExpressionEnumerator( db, attributeTypeRegistry, evaluator );
-        SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
-
-        AttributeType[] attributes = new AttributeType[]
-        {
-            attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.NDN_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ),
-            attributeTypeRegistry.lookup( SystemPartition.UPDN_OID )
-        };
-
-        systemPartition = new SystemPartition( db, eng, attributes );
-        globalRegistries = new GlobalRegistries( systemPartition, bootstrapRegistries );
-        rootNexus = new RootNexus( systemPartition, new LockableAttributesImpl() );
+        rootNexus = new RootNexus( new LockableAttributesImpl() );
+        globalRegistries = new GlobalRegistries( rootNexus.getSystemPartition(), bootstrapRegistries );
         
         interceptorChain = new InterceptorChain( configuration.getInterceptorConfigurations() );
-        interceptorChain.init( new InterceptorContext( configuration, systemPartition, globalRegistries, rootNexus ) );
-
-        // fire up the app partitions now!
-        startUpAppPartitions();
-    }
-
-    /**
-     * Starts up all the application partitions that will be attached to naming contexts in the system.  Partition
-     * database files are created within a subdirectory immediately under the Eve working directory base.
-     *
-     * @throws javax.naming.NamingException if there are problems creating and starting these new application
-     *                                      partitions
-     */
-    private void startUpAppPartitions() throws NamingException
-    {
-        OidRegistry oidRegistry = globalRegistries.getOidRegistry();
-        AttributeTypeRegistry attributeTypeRegistry;
-        attributeTypeRegistry = globalRegistries.getAttributeTypeRegistry();
-        MatchingRuleRegistry reg = globalRegistries.getMatchingRuleRegistry();
-
-        File workDir = configuration.getWorkingDirectory();
-
-        Iterator i = configuration.getContextPartitionConfigurations().iterator();
-        while( i.hasNext() )
-        {
-            ContextPartitionConfiguration cfg = ( ContextPartitionConfiguration ) i.next();
-            
-            // ----------------------------------------------------------------
-            // create working directory under eve directory for app partition
-            // ----------------------------------------------------------------
-
-            File partitionWorkDir = new File( workDir.getPath() + File.separator + cfg.getName() );
-            partitionWorkDir.mkdirs();
-
-            // ----------------------------------------------------------------
-            // create the database/store
-            // ----------------------------------------------------------------
-
-            Name upSuffix = new LdapName( cfg.getSuffix() );
-            Normalizer dnNorm = reg.lookup( "distinguishedNameMatch" ) .getNormalizer();
-            Name normSuffix = new LdapName( ( String ) dnNorm.normalize( cfg.getSuffix() ) );
-            BTreeContextPartition db = new JdbmBTreeContextPartition( upSuffix, normSuffix, partitionWorkDir.getPath() );
-
-            // ----------------------------------------------------------------
-            // create the search engine using db, enumerators and evaluators
-            // ----------------------------------------------------------------
-
-            ExpressionEvaluator evaluator;
-            evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
-            ExpressionEnumerator enumerator;
-            enumerator = new ExpressionEnumerator( db, attributeTypeRegistry, evaluator );
-            SearchEngine eng = new DefaultSearchEngine( db, evaluator, enumerator );
-
-            // ----------------------------------------------------------------
-            // fill up a list with the AttributeTypes for the system indices
-            // ----------------------------------------------------------------
-
-            ArrayList attributeTypeList = new ArrayList();
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ALIAS_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.EXISTANCE_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.HIERARCHY_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.NDN_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.ONEALIAS_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.SUBALIAS_OID ) );
-            attributeTypeList.add( attributeTypeRegistry.lookup( SystemPartition.UPDN_OID ) );
-
-            // ----------------------------------------------------------------
-            // if user indices are specified add those attribute types as well
-            // ----------------------------------------------------------------
-
-            Iterator j = cfg.getIndexedAttributes().iterator();
-            while( j.hasNext() )
-            {
-                String attribute = ( String ) j.next();
-                attributeTypeList.add( attributeTypeRegistry
-                        .lookup( attribute ) );
-            }
-
-            // ----------------------------------------------------------------
-            // fire up the appPartition & register it with the nexus
-            // ----------------------------------------------------------------
-
-            AttributeType[] indexTypes = ( AttributeType[] ) attributeTypeList
-                    .toArray( new AttributeType[attributeTypeList.size()] );
-
-            ContextPartition partition = cfg.getContextPartition();
-
-            if ( partition == null )
-            {
-                // If custom partition is not defined, use the ApplicationPartion.
-                partition = new ApplicationPartition( db, eng, indexTypes );
-            }
-
-            // Initialize the partition
-            try
-            {
-                partition.init( upSuffix, normSuffix );
-                rootNexus.register( partition );
-            }
-            catch ( Exception e )
-            {
-                throw ( NamingException ) new NamingException(
-                        "Failed to initialize custom partition." ).initCause( e );
-            }
-
-            // ----------------------------------------------------------------
-            // add the nexus context entry
-            // ----------------------------------------------------------------
-
-            partition.add( cfg.getSuffix(), normSuffix, cfg.getContextEntry() );
-        }
+        interceptorChain.init( new InterceptorContext( configuration, rootNexus.getSystemPartition(), globalRegistries, rootNexus ) );
     }
 }

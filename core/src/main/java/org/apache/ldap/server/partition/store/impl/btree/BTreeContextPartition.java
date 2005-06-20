@@ -142,7 +142,6 @@ public abstract class BTreeContextPartition implements ContextPartition
         sysOidSet.add( SUBALIAS_OID );
         sysOidSet.add( ALIAS_OID );
 
-        
         Iterator i = cfg.getIndexedAttributes().iterator();
         while( i.hasNext() )
         {

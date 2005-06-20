@@ -27,7 +27,7 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.schema.Syntax;
-import org.apache.ldap.server.jndi.SystemPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapAttributeTypeRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;

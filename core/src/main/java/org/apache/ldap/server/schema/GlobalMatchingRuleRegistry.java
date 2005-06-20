@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.jndi.SystemPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleRegistry;
 
 

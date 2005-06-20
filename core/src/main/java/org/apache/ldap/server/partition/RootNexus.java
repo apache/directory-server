@@ -20,9 +20,11 @@ package org.apache.ldap.server.partition;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
@@ -46,8 +48,8 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.jndi.SystemPartition;
 
                                 
 /**
@@ -91,10 +93,8 @@ public class RootNexus implements ContextPartitionNexus
      *
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
      */
-    public RootNexus( SystemPartition system, Attributes rootDSE )
+    public RootNexus( Attributes rootDSE )
     {
-        this.system = system;
-
         // setup that root DSE
         this.rootDSE = rootDSE;
         Attribute attr = new LockableAttributeImpl( "subschemaSubentry" );
@@ -116,9 +116,6 @@ public class RootNexus implements ContextPartitionNexus
         attr = new LockableAttributeImpl( VENDORNAME_ATTR );
         attr.add( ASF );
         rootDSE.put( attr );
-
-        // register will add to the list of namingContexts as well
-        register( this.system );
     }
 
 
@@ -131,8 +128,29 @@ public class RootNexus implements ContextPartitionNexus
             return;
         }
         
-        Iterator i = factoryCfg.getConfiguration().getContextPartitionConfigurations().iterator();
         List initializedPartitions = new ArrayList();
+        
+        // initialize system partition first
+        MutableContextPartitionConfiguration systemCfg = new MutableContextPartitionConfiguration();
+        system = new SystemPartition();
+        systemCfg.setName( "system" );
+        systemCfg.setSuffix( SystemPartition.SUFFIX );
+        systemCfg.setContextPartition( system );
+        Set indexedSystemAttrs = new HashSet();
+        indexedSystemAttrs.add( SystemPartition.ALIAS_OID );
+        indexedSystemAttrs.add( SystemPartition.EXISTANCE_OID );
+        indexedSystemAttrs.add( SystemPartition.HIERARCHY_OID );
+        indexedSystemAttrs.add( SystemPartition.NDN_OID );
+        indexedSystemAttrs.add( SystemPartition.ONEALIAS_OID );
+        indexedSystemAttrs.add( SystemPartition.SUBALIAS_OID );
+        indexedSystemAttrs.add( SystemPartition.UPDN_OID );
+        systemCfg.setIndexedAttributes( indexedSystemAttrs );
+        
+        system.init( factoryCfg, systemCfg );
+        register( system );
+        initializedPartitions.add( system );
+
+        Iterator i = factoryCfg.getConfiguration().getContextPartitionConfigurations().iterator();
         boolean success = false;
         try
         {
@@ -141,7 +159,11 @@ public class RootNexus implements ContextPartitionNexus
                 cfg = ( ContextPartitionConfiguration ) i.next();
                 ContextPartition partition = cfg.getContextPartition();
                 partition.init( factoryCfg, cfg );
-                initializedPartitions.add( partition );
+                partition.add(
+                        cfg.getSuffix(),
+                        cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ),
+                        cfg.getContextEntry() );
+                initializedPartitions.add( 0, partition );
                 register( partition );
             }
             success = true;
@@ -154,6 +176,7 @@ public class RootNexus implements ContextPartitionNexus
                 while( i.hasNext() )
                 {
                     ContextPartition partition = ( ContextPartition ) i.next();
+                    i.remove();
                     try
                     {
                         partition.destroy();
@@ -275,6 +298,11 @@ public class RootNexus implements ContextPartitionNexus
     // BackendNexus Interface Method Implementations
     // ------------------------------------------------------------------------
     
+    
+    public SystemPartition getSystemPartition()
+    {
+        return system;
+    }
 
     /**
      * @see ContextPartitionNexus#getLdapContext()

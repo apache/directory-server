@@ -48,7 +48,7 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
-import org.apache.ldap.server.configuration.StartupConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.Index;
@@ -112,12 +112,12 @@ public class JdbmContextPartition extends BTreeContextPartition
     {
     }
 
-    public synchronized void init( StartupConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    public synchronized void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
     {
         this.upSuffix = new LdapName( cfg.getSuffix() );
-        this.normSuffix = cfg.getNormalizedSuffix();
+        this.normSuffix = cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() );
 
-        this.workingDirectory = factoryCfg.getWorkingDirectory();
+        this.workingDirectory = factoryCfg.getConfiguration().getWorkingDirectory();
 
         try 
         {
@@ -137,6 +137,8 @@ public class JdbmContextPartition extends BTreeContextPartition
         master = new JdbmMasterTable( recMan );
         indices = new HashMap();
         sysIndices = new HashMap();
+        
+        super.init( factoryCfg, cfg );
         initialized = true;
     }
     

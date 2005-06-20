@@ -14,21 +14,19 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server.partition;
 
-import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
-import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
-import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmContextPartition;
 
 
 /**
@@ -39,7 +37,7 @@ import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public final class SystemPartition extends BTreeContextPartition
+public final class SystemPartition extends JdbmContextPartition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
@@ -62,9 +60,6 @@ public final class SystemPartition extends BTreeContextPartition
      */
     public static final String SUFFIX = "ou=system" ;
     
-    /** The suffix as a name. */
-    private final Name suffix ;
-
 
     // ------------------------------------------------------------------------
     // S T A T I C   M E T H O D S
@@ -152,35 +147,26 @@ public final class SystemPartition extends BTreeContextPartition
      * Creates the system partition which is used to store various peices of
      * information critical for server operation.  Things like the system
      * catalog and other operational information like system users are
-     * maintained within the context of this partition.  Unlike other
-     * ContextBackends which must have their suffix specified this one does
-     * not since it will stay fixed at the following namingContext: ou=system.
-     *
-     * @param db the database used for this partition
-     * @param searchEngine the search engine to conduct searches with
-     * @param indexAttributes the attributeTypes of indicies to build which must
-     * also contain all system index attribute types - if not the system will
-     * not operate correctly.
+     * maintained within the context of this partition.
      */
-    public SystemPartition( BTreeContextPartition db, SearchEngine searchEngine,
-                            AttributeType[] indexAttributes )
-        throws NamingException
+    public SystemPartition()
     {
-        super( db, searchEngine, indexAttributes );
-        suffix = new LdapName() ;
-        
-        try
-        {
-            suffix.add( SUFFIX ) ;
-        }
-        catch ( InvalidNameException e ) 
-        {
-            // Never thrown - name will always be valid!
-        }
+    }
 
+
+    // ------------------------------------------------------------------------
+    // B A C K E N D   M E T H O D S 
+    // ------------------------------------------------------------------------
+
+    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    {
+        super.init( factoryCfg, cfg );
+
+        Name suffix = cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() );
+        
         // add the root entry for the system root context if it does not exist
-        Attributes attributes = db.getSuffixEntry() ;
-        if ( null == attributes )
+        Attributes attributes = cfg.getContextEntry();
+        if( attributes == null || attributes.size() == 0 )
         {
             attributes = new LockableAttributesImpl() ;
             attributes.put( "objectClass", "top" ) ;
@@ -190,39 +176,7 @@ public final class SystemPartition extends BTreeContextPartition
             attributes.put( NamespaceTools.getRdnAttribute( SUFFIX ),
                 NamespaceTools.getRdnValue( SUFFIX ) ) ;
 
-            getDb().add( SUFFIX, suffix, attributes ) ;
+            add( suffix.toString(), suffix, attributes ) ;
         }
-    }
-
-
-    // ------------------------------------------------------------------------
-    // B A C K E N D   M E T H O D S 
-    // ------------------------------------------------------------------------
-
-    public final void init( Name upSuffix, Name normalizedSuffix )
-    {
-        // This method may not be called.
-        throw new IllegalStateException( "SystemPartition is already initialized." );
-    }
-
-    /**
-     * @see org.apache.ldap.server.partition.ContextPartition#getSuffix(boolean)
-     */
-    public final Name getSuffix( boolean normalized )
-    {
-        /*
-         * The suffix is presummed to be both the normalized and the user
-         * provided form so we do not need to take a_normalized into account.
-         */
-        return ( Name ) suffix.clone() ;
-    }
-
-
-    /**
-     * @see org.apache.ldap.server.partition.ContextPartition#isSuffix(javax.naming.Name)
-     */
-    public final boolean isSuffix( Name dn )
-    {
-        return SUFFIX.equals( dn.toString() ) ;
     }
 }

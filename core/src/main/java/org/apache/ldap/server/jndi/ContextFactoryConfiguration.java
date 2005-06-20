@@ -40,11 +40,6 @@ public interface ContextFactoryConfiguration
     StartupConfiguration getConfiguration();
     
     /**
-     * Returns the system partition used by this context factory.
-     */
-    SystemPartition getSystemPartition();
-
-    /**
      * Returns the registries for system schema objects
      */
     GlobalRegistries getGlobalRegistries();
