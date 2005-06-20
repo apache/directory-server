@@ -40,7 +40,7 @@ import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.partition.RootNexus;
+import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
 import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
@@ -70,7 +70,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     private GlobalRegistries globalRegistries;
 
     /** the root nexus */
-    private RootNexus rootNexus;
+    private DefaultContextPartitionNexus rootNexus;
 
     /** whether or not server is started for the first time */
     private boolean firstStart;
@@ -242,7 +242,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return globalRegistries;
     }
 
-    public RootNexus getRootNexus()
+    public DefaultContextPartitionNexus getRootNexus()
     {
         return rootNexus;
     }
@@ -482,7 +482,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             throw e;
         }
 
-        rootNexus = new RootNexus( new LockableAttributesImpl() );
+        rootNexus = new DefaultContextPartitionNexus( new LockableAttributesImpl() );
         globalRegistries = new GlobalRegistries( rootNexus.getSystemPartition(), bootstrapRegistries );
         
         interceptorChain = new InterceptorChain( configuration.getInterceptorConfigurations() );

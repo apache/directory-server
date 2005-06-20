@@ -2,7 +2,7 @@ package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
-import org.apache.ldap.server.partition.RootNexus;
+import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
 import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
@@ -33,13 +33,13 @@ public class InterceptorContext
     /**
      * the root nexus
      */
-    private final RootNexus rootNexus;
+    private final DefaultContextPartitionNexus rootNexus;
 
 
     public InterceptorContext( StartupConfiguration configuration,
                                SystemPartition systemPartition,
                                GlobalRegistries globalRegistries,
-                               RootNexus rootNexus )
+                               DefaultContextPartitionNexus rootNexus )
     {
         this.configuration = configuration;
 
@@ -63,7 +63,7 @@ public class InterceptorContext
     }
 
 
-    public RootNexus getRootNexus()
+    public DefaultContextPartitionNexus getRootNexus()
     {
         return rootNexus;
     }

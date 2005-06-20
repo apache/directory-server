@@ -61,7 +61,7 @@ import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RootNexus implements ContextPartitionNexus
+public class DefaultContextPartitionNexus implements ContextPartitionNexus
 {
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
@@ -93,7 +93,7 @@ public class RootNexus implements ContextPartitionNexus
      *
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
      */
-    public RootNexus( Attributes rootDSE )
+    public DefaultContextPartitionNexus( Attributes rootDSE )
     {
         // setup that root DSE
         this.rootDSE = rootDSE;
