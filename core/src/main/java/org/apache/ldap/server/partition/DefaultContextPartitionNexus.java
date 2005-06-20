@@ -360,11 +360,6 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
     }
 
 
-    /**
-     * Get's the RootDSE entry for the DSA.
-     *
-     * @return the attributes of the RootDSE
-     */
     public Attributes getRootDSE() 
     {
         return rootDSE;

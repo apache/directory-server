@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 
@@ -52,6 +53,13 @@ public interface ContextPartitionNexus extends ContextPartition
      * if no context is associated with the calling thread.
      */
     LdapContext getLdapContext();
+
+    /**
+     * Get's the RootDSE entry for the DSA.
+     *
+     * @return the attributes of the RootDSE
+     */
+    public Attributes getRootDSE(); 
 
     /**
      * Gets the most significant Dn that exists within the server for any Dn.

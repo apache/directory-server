@@ -23,7 +23,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
 /** FIXME Rename to ContextFactoryContext */
@@ -47,7 +47,7 @@ public interface ContextFactoryConfiguration
     /**
      * Returns the root nexus of this context factory.
      */
-    DefaultContextPartitionNexus getRootNexus();
+    ContextPartitionNexus getPartitionNexus();
     
     /**
      * Returns <tt>true</tt> if this context is started for the first time

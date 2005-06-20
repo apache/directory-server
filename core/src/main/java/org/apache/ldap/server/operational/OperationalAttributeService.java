@@ -46,7 +46,7 @@ import org.apache.ldap.server.invocation.ModifyRN;
 import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
-import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.partition.store.impl.btree.ResultFilteringEnumeration;
 import org.apache.ldap.server.partition.store.impl.btree.SearchResultFilter;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
@@ -83,7 +83,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * the root nexus of the system
      */
-    private DefaultContextPartitionNexus nexus;
+    private ContextPartitionNexus nexus;
 
     private AttributeTypeRegistry registry;
 

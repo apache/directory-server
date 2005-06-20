@@ -242,7 +242,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return globalRegistries;
     }
 
-    public DefaultContextPartitionNexus getRootNexus()
+    public ContextPartitionNexus getPartitionNexus()
     {
         return rootNexus;
     }

@@ -44,7 +44,7 @@ import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -61,7 +61,7 @@ public class ExceptionService extends BaseInterceptor
     /**
      * the root nexus of the system
      */
-    private DefaultContextPartitionNexus nexus;
+    private ContextPartitionNexus nexus;
 
 
     /**

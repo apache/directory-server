@@ -57,7 +57,7 @@ class RootNexusProxy implements ContextPartitionNexus
     }
 
     public LdapContext getLdapContext() {
-        return this.provider.getRootNexus().getLdapContext();
+        return this.provider.getPartitionNexus().getLdapContext();
     }
 
     public Name getMatchedDn(Name dn, boolean normalized) throws NamingException {
@@ -133,7 +133,7 @@ class RootNexusProxy implements ContextPartitionNexus
     }
 
     public boolean isInitialized() {
-        return this.provider.getRootNexus().isInitialized();
+        return this.provider.getPartitionNexus().isInitialized();
     }
 
     public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
@@ -148,6 +148,11 @@ class RootNexusProxy implements ContextPartitionNexus
 
     public Name getSuffix( boolean normalized )
     {
-        return this.provider.getRootNexus().getSuffix( normalized );
+        return this.provider.getPartitionNexus().getSuffix( normalized );
+    }
+
+    public Attributes getRootDSE()
+    {
+        return this.provider.getPartitionNexus().getRootDSE();
     }
 }
