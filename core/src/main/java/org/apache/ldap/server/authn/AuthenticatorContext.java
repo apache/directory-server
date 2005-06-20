@@ -17,9 +17,9 @@
 package org.apache.ldap.server.authn;
 
 
-import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
+import org.apache.ldap.server.partition.PartitionNexus;
 
 
 /**

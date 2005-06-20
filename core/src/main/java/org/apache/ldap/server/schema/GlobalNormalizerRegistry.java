@@ -18,7 +18,7 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapNormalizerRegistry;
 
 import javax.naming.NamingException;

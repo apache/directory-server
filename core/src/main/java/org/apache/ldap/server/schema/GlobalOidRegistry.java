@@ -17,7 +17,7 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
 
 import javax.naming.NamingException;

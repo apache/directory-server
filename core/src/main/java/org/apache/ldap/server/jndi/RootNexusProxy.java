@@ -28,8 +28,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.ContextPartition;
-import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.invocation.Add;
 import org.apache.ldap.server.invocation.Delete;
 import org.apache.ldap.server.invocation.GetMatchedDN;
@@ -46,6 +44,8 @@ import org.apache.ldap.server.invocation.ModifyRN;
 import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
+import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.PartitionNexus;
 
 class RootNexusProxy implements PartitionNexus
 {

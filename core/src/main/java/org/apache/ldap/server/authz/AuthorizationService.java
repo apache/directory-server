@@ -19,8 +19,6 @@ package org.apache.ldap.server.authz;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
@@ -28,6 +26,8 @@ import org.apache.ldap.server.db.ResultFilteringEnumeration;
 import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.invocation.*;
 import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 

@@ -14,13 +14,14 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.partition;
 
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.server.AbstractContextPartition;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
 
@@ -205,7 +206,7 @@ public final class SystemPartition extends AbstractContextPartition
     }
 
     /**
-     * @see org.apache.ldap.server.ContextPartition#getSuffix(boolean)
+     * @see org.apache.ldap.server.partition.ContextPartition#getSuffix(boolean)
      */
     public final Name getSuffix( boolean normalized )
     {
@@ -218,7 +219,7 @@ public final class SystemPartition extends AbstractContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#isSuffix(javax.naming.Name)
+     * @see org.apache.ldap.server.partition.BackingStore#isSuffix(javax.naming.Name)
      */
     public final boolean isSuffix( Name dn )
     {

@@ -22,7 +22,7 @@ import java.util.Stack;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.partition.BackingStore;
 
 
 /**

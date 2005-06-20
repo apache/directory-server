@@ -1,9 +1,9 @@
 package org.apache.ldap.server.interceptor;
 
 
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.configuration.StartupConfiguration;
+import org.apache.ldap.server.partition.RootNexus;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
 

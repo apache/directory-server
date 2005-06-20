@@ -21,10 +21,10 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.SystemPartition;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.partition.RootNexus;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
 /** FIXME Rename to ContextFactoryContext */

@@ -18,7 +18,7 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.SyntaxChecker;
-import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
 
 import javax.naming.NamingException;

@@ -27,6 +27,8 @@ import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.SearchResultEnumeration;
 import org.apache.ldap.server.db.gui.PartitionViewer;
+import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -225,7 +227,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#delete( Name )
+     * @see org.apache.ldap.server.partition.BackingStore#delete( Name )
      */
     public void delete( Name dn ) throws NamingException
     {
@@ -251,7 +253,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     
 
     /**
-     * @see org.apache.ldap.server.BackingStore#add( String, Name, Attributes )
+     * @see org.apache.ldap.server.partition.BackingStore#add( String, Name, Attributes )
      */
     public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
@@ -260,7 +262,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#modify( Name, int, Attributes )
+     * @see org.apache.ldap.server.partition.BackingStore#modify( Name, int, Attributes )
      */
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
@@ -269,7 +271,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#modify( Name,ModificationItem[] )
+     * @see org.apache.ldap.server.partition.BackingStore#modify( Name,ModificationItem[] )
      */
     public void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
@@ -278,7 +280,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#list( Name )
+     * @see org.apache.ldap.server.partition.BackingStore#list( Name )
      */
     public NamingEnumeration list( Name base ) throws NamingException
     {
@@ -290,7 +292,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     
     
     /**
-     * @see org.apache.ldap.server.BackingStore#search(Name, Map, ExprNode, SearchControls)
+     * @see org.apache.ldap.server.partition.BackingStore#search(Name, Map, ExprNode, SearchControls)
      */
     public NamingEnumeration search( Name base, Map env, ExprNode filter,
                                      SearchControls searchCtls )
@@ -306,7 +308,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#lookup( Name )
+     * @see org.apache.ldap.server.partition.BackingStore#lookup( Name )
      */
     public Attributes lookup( Name dn ) throws NamingException
     {
@@ -342,7 +344,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#hasEntry( Name )
+     * @see org.apache.ldap.server.partition.BackingStore#hasEntry( Name )
      */
     public boolean hasEntry( Name dn ) throws NamingException
     {
@@ -360,7 +362,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#move( Name, Name )
+     * @see org.apache.ldap.server.partition.BackingStore#move( Name, Name )
      */
     public void move( Name oldChildDn, Name newParentDn ) throws NamingException
     {
@@ -369,7 +371,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     
 
     /**
-     * @see org.apache.ldap.server.BackingStore#move( Name, Name, String, boolean )
+     * @see org.apache.ldap.server.partition.BackingStore#move( Name, Name, String, boolean )
      */
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
         boolean deleteOldRdn ) throws NamingException

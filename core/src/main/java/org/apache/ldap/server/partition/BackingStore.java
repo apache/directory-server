@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.partition;
 
 
 import org.apache.ldap.common.filter.ExprNode;

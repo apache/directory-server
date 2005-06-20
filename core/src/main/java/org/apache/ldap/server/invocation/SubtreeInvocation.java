@@ -20,7 +20,7 @@ package org.apache.ldap.server.invocation;
 
 import javax.naming.Name;
 
-import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.partition.BackingStore;
 
 /**
  * Represents a method invocation on a DIT in {@link BackingStore}s.

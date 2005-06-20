@@ -23,12 +23,12 @@ import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.BackingStore;
-import org.apache.ldap.server.RootNexus;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.*;
+import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.RootNexus;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;

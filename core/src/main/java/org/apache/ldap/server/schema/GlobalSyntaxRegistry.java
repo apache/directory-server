@@ -19,7 +19,7 @@ package org.apache.ldap.server.schema;
 
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxRegistry;
 
 import javax.naming.NamingException;

@@ -26,7 +26,7 @@ import java.util.Set;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
-import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
@@ -87,7 +87,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Set this to null if you want to use {@link org.apache.ldap.server.ApplicationPartition}.
+     * Set this to null if you want to use {@link org.apache.ldap.server.partition.ApplicationPartition}.
      */
     protected void setContextPartition( ContextPartition partition )
     {

@@ -14,10 +14,11 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.partition;
 
 
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.server.AbstractContextPartition;
 import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
 

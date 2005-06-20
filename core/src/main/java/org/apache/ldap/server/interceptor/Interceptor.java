@@ -19,9 +19,9 @@ package org.apache.ldap.server.interceptor;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.BackingStore;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.partition.BackingStore;
 
 
 /**

@@ -19,7 +19,7 @@ package org.apache.ldap.server.schema;
 
 import org.apache.ldap.common.schema.DITContentRule;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.SystemPartition;
+import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
 
 import javax.naming.NamingException;

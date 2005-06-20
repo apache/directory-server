@@ -20,8 +20,8 @@ package org.apache.ldap.server.jndi;
 import org.apache.ldap.common.filter.*;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.partition.PartitionNexus;
 
 import javax.naming.*;
 import javax.naming.directory.*;

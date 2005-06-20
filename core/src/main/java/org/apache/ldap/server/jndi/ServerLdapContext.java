@@ -18,8 +18,8 @@ package org.apache.ldap.server.jndi;
 
 
 import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.server.PartitionNexus;
 import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.partition.PartitionNexus;
 
 import javax.naming.Name;
 import javax.naming.NamingException;

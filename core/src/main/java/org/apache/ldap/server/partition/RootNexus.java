@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.partition;
 
 
 import org.apache.ldap.common.MultiException;
@@ -145,7 +145,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.PartitionNexus#getSuffix(javax.naming.Name, boolean)
+     * @see org.apache.ldap.server.partition.PartitionNexus#getSuffix(javax.naming.Name, boolean)
      */
     public Name getSuffix( Name dn, boolean normalized ) throws NamingException
     {
@@ -156,7 +156,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.PartitionNexus#listSuffixes(boolean)
+     * @see org.apache.ldap.server.partition.PartitionNexus#listSuffixes(boolean)
      */
     public Iterator listSuffixes( boolean normalized ) throws NamingException
     {
@@ -176,7 +176,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.PartitionNexus#register(
+     * @see org.apache.ldap.server.partition.PartitionNexus#register(
      * ContextPartition)
      */
     public void register( ContextPartition backend )
@@ -226,7 +226,7 @@ public class RootNexus implements PartitionNexus
      * here so backend implementors do not have to worry about performing these
      * kinds of checks.
      *
-     * @see org.apache.ldap.server.BackingStore#add(String, Name, Attributes)
+     * @see org.apache.ldap.server.partition.BackingStore#add(String, Name, Attributes)
      */
     public void add( String updn, Name dn, Attributes an_entry ) throws NamingException
     {
@@ -355,7 +355,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#lookup(javax.naming.Name, String[])
+     * @see org.apache.ldap.server.partition.BackingStore#lookup(javax.naming.Name, String[])
      */
     public Attributes lookup( Name dn, String[] attrIds )  throws NamingException
     {
@@ -497,7 +497,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.BackingStore#close()
+     * @see org.apache.ldap.server.partition.BackingStore#close()
      */
     public synchronized void close() throws NamingException
     {
