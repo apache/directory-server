@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.partition.store.impl.jdbm;
+package org.apache.ldap.server.partition.store.impl.btree.jdbm;
 
 
 import java.io.File;

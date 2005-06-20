@@ -54,7 +54,7 @@ import org.apache.ldap.server.partition.store.ExpressionEnumerator;
 import org.apache.ldap.server.partition.store.ExpressionEvaluator;
 import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.SearchEngine;
-import org.apache.ldap.server.partition.store.impl.jdbm.JdbmPartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmPartitionStore;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
