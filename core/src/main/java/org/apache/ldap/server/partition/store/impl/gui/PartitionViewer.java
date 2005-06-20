@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.partition.store.gui ;
+package org.apache.ldap.server.partition.store.impl.gui ;
 
 
 import java.awt.Dimension;

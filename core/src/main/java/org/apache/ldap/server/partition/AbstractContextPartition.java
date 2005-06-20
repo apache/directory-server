@@ -38,7 +38,7 @@ import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.SearchEngine;
 import org.apache.ldap.server.partition.store.SearchResultEnumeration;
-import org.apache.ldap.server.partition.store.gui.PartitionViewer;
+import org.apache.ldap.server.partition.store.impl.gui.PartitionViewer;
 
 
 /**
