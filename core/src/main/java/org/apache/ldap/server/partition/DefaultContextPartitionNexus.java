@@ -143,7 +143,26 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             {
                 cfg = ( ContextPartitionConfiguration ) i.next();
                 ContextPartition partition = cfg.getContextPartition();
-                partition.init( factoryCfg, cfg );
+                
+                // Turn on default indices
+                MutableContextPartitionConfiguration mcfg =
+                    new MutableContextPartitionConfiguration();
+                mcfg.setName( cfg.getName() );
+                mcfg.setSuffix( cfg.getSuffix() );
+                mcfg.setContextEntry( cfg.getContextEntry() );
+                mcfg.setContextPartition( partition );
+                
+                Set indexedAttrs = cfg.getIndexedAttributes();
+                indexedAttrs.add( Oid.ALIAS );
+                indexedAttrs.add( Oid.EXISTANCE );
+                indexedAttrs.add( Oid.HIERARCHY );
+                indexedAttrs.add( Oid.NDN );
+                indexedAttrs.add( Oid.ONEALIAS );
+                indexedAttrs.add( Oid.SUBALIAS );
+                indexedAttrs.add( Oid.UPDN );
+                mcfg.setIndexedAttributes( indexedAttrs );
+                
+                partition.init( factoryCfg, mcfg );
                 initializedPartitions.add( 0, partition );
                 register( partition );
             }
