@@ -17,16 +17,30 @@
 package org.apache.ldap.server.normalization;
 
 
+import javax.naming.NamingException;
+
+import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.name.NameComponentNormalizer;
+import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.invocation.*;
+import org.apache.ldap.server.invocation.Add;
+import org.apache.ldap.server.invocation.Delete;
+import org.apache.ldap.server.invocation.GetMatchedDN;
+import org.apache.ldap.server.invocation.GetSuffix;
+import org.apache.ldap.server.invocation.HasEntry;
+import org.apache.ldap.server.invocation.IsSuffix;
+import org.apache.ldap.server.invocation.List;
+import org.apache.ldap.server.invocation.Lookup;
+import org.apache.ldap.server.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.invocation.Modify;
+import org.apache.ldap.server.invocation.ModifyMany;
+import org.apache.ldap.server.invocation.ModifyRN;
+import org.apache.ldap.server.invocation.Move;
+import org.apache.ldap.server.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.common.name.NameComponentNormalizer;
-import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.common.schema.AttributeType;
-
-import javax.naming.NamingException;
 
 
 /**

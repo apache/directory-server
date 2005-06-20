@@ -16,10 +16,10 @@
  */
 package org.apache.ldap.server.authn;
 
+import javax.naming.NamingException;
+
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.server.jndi.ServerContext;
-
-import javax.naming.NamingException;
 
 /**
  * A default implentation of an AuthenticationService for handling anonymous connections.

@@ -17,11 +17,13 @@
 package org.apache.ldap.server.partition.store.gui ;
 
 
-import org.apache.ldap.server.partition.store.Database;
-import org.apache.ldap.server.partition.store.SearchEngine;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 
 import javax.naming.NamingException;
-import java.awt.*;
+
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.SearchEngine;
 
 
 /**

@@ -17,8 +17,9 @@
 package org.apache.ldap.server.partition.store;
 
 
-import javax.naming.NamingEnumeration;
 import java.util.Iterator;
+
+import javax.naming.NamingEnumeration;
 
 
 /**

@@ -17,11 +17,12 @@
 package org.apache.ldap.server.partition.store.jdbm;
 
 
-import org.apache.ldap.server.partition.store.Tuple;
-import org.apache.ldap.server.partition.store.TupleBrowser;
+import java.io.IOException;
 
 import javax.naming.NamingException;
-import java.io.IOException;
+
+import org.apache.ldap.server.partition.store.Tuple;
+import org.apache.ldap.server.partition.store.TupleBrowser;
 
 
 /**

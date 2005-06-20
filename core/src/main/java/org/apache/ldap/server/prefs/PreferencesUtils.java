@@ -17,10 +17,10 @@
 package org.apache.ldap.server.prefs;
 
 
-import org.apache.ldap.common.name.LdapName;
-
 import javax.naming.Name;
 import javax.naming.NamingException;
+
+import org.apache.ldap.common.name.LdapName;
 
 
 /**

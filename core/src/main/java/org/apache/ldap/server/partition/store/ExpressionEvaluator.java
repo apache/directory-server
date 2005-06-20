@@ -17,13 +17,14 @@
 package org.apache.ldap.server.partition.store;
 
 
+import java.util.Iterator;
+
+import javax.naming.NamingException;
+
 import org.apache.ldap.common.filter.BranchNode;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
-
-import javax.naming.NamingException;
-import java.util.Iterator;
 
 
 /**

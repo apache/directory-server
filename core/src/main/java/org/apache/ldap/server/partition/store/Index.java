@@ -17,13 +17,14 @@
 package org.apache.ldap.server.partition.store;
 
 
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.regexp.RE;
+import java.math.BigInteger;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import java.math.BigInteger;
+
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.regexp.RE;
 
 
 /**

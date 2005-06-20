@@ -17,20 +17,25 @@
 package org.apache.ldap.server.partition.store;
 
 
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.common.filter.*;
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.schema.MatchingRule;
-import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.OidRegistry;
+import java.math.BigInteger;
+import java.util.Comparator;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import java.math.BigInteger;
-import java.util.Comparator;
+
+import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.LeafNode;
+import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.filter.ScopeNode;
+import org.apache.ldap.common.filter.SimpleNode;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
 
 
 /**

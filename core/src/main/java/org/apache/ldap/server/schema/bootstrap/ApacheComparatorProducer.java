@@ -17,12 +17,14 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import jdbm.helper.StringComparator;
-import org.apache.ldap.common.schema.ComparableComparator;
-import org.apache.ldap.common.util.BigIntegerComparator;
+import java.util.Comparator;
 
 import javax.naming.NamingException;
-import java.util.Comparator;
+
+import jdbm.helper.StringComparator;
+
+import org.apache.ldap.common.schema.ComparableComparator;
+import org.apache.ldap.common.util.BigIntegerComparator;
 
 
 

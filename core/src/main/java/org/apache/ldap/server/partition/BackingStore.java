@@ -17,7 +17,7 @@
 package org.apache.ldap.server.partition;
 
 
-import org.apache.ldap.common.filter.ExprNode;
+import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -25,7 +25,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
-import java.util.Map;
+
+import org.apache.ldap.common.filter.ExprNode;
 
 
 /**

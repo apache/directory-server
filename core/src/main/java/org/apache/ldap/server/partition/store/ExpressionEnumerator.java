@@ -17,14 +17,21 @@
 package org.apache.ldap.server.partition.store;
 
 
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.common.filter.*;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import java.math.BigInteger;
+import java.util.ArrayList;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import java.math.BigInteger;
-import java.util.ArrayList;
+
+import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.filter.AssertionNode;
+import org.apache.ldap.common.filter.BranchNode;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.LeafNode;
+import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.filter.ScopeNode;
+import org.apache.ldap.common.filter.SimpleNode;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**

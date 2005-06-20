@@ -17,11 +17,29 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import org.apache.ldap.common.schema.*;
-import org.apache.ldap.server.schema.*;
+import java.util.Comparator;
 
 import javax.naming.NamingException;
-import java.util.Comparator;
+
+import org.apache.ldap.common.schema.AbstractAttributeType;
+import org.apache.ldap.common.schema.AbstractMatchingRule;
+import org.apache.ldap.common.schema.AbstractSchemaObject;
+import org.apache.ldap.common.schema.AbstractSyntax;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.MatchingRule;
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.schema.ObjectClass;
+import org.apache.ldap.common.schema.ObjectClassTypeEnum;
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.ldap.common.schema.SyntaxChecker;
+import org.apache.ldap.common.schema.UsageEnum;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.ComparatorRegistry;
+import org.apache.ldap.server.schema.MatchingRuleRegistry;
+import org.apache.ldap.server.schema.NormalizerRegistry;
+import org.apache.ldap.server.schema.ObjectClassRegistry;
+import org.apache.ldap.server.schema.SyntaxCheckerRegistry;
+import org.apache.ldap.server.schema.SyntaxRegistry;
 
 
 /**

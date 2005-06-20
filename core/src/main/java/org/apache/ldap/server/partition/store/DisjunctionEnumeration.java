@@ -17,11 +17,12 @@
 package org.apache.ldap.server.partition.store;
 
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 
 /**

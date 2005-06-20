@@ -17,6 +17,12 @@
 package org.apache.ldap.server.exception;
 
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
 import org.apache.ldap.common.exception.LdapNameAlreadyBoundException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
@@ -26,15 +32,19 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.invocation.*;
+import org.apache.ldap.server.invocation.Add;
+import org.apache.ldap.server.invocation.Delete;
+import org.apache.ldap.server.invocation.List;
+import org.apache.ldap.server.invocation.Lookup;
+import org.apache.ldap.server.invocation.LookupWithAttrIds;
+import org.apache.ldap.server.invocation.Modify;
+import org.apache.ldap.server.invocation.ModifyMany;
+import org.apache.ldap.server.invocation.ModifyRN;
+import org.apache.ldap.server.invocation.Move;
+import org.apache.ldap.server.invocation.MoveAndModifyRN;
+import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.partition.BackingStore;
 import org.apache.ldap.server.partition.RootNexus;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 
 /**

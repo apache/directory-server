@@ -17,11 +17,12 @@
 package org.apache.ldap.server.authn;
 
 
-import org.apache.ldap.common.name.LdapName;
-
-import javax.naming.Name;
 import java.io.Serializable;
 import java.security.Principal;
+
+import javax.naming.Name;
+
+import org.apache.ldap.common.name.LdapName;
 
 
 /**

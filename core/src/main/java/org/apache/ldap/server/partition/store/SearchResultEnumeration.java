@@ -17,12 +17,12 @@
 package org.apache.ldap.server.partition.store;
 
 
-import org.apache.ldap.common.message.LockableAttributesImpl;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+
+import org.apache.ldap.common.message.LockableAttributesImpl;
 
 
 /**

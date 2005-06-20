@@ -16,6 +16,11 @@
  */
 package org.apache.ldap.server.partition;
 
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
@@ -23,11 +28,6 @@ import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.partition.store.Database;
 import org.apache.ldap.server.partition.store.SearchEngine;
-
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 
 /**

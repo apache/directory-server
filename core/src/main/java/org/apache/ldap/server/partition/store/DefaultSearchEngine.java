@@ -17,19 +17,20 @@
 package org.apache.ldap.server.partition.store;
 
 
+import java.math.BigInteger;
+import java.util.Map;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.ldap.common.filter.AbstractExprNode;
 import org.apache.ldap.common.filter.BranchNode;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.ScopeNode;
 import org.apache.ldap.common.message.DerefAliasesEnum;
 import org.apache.ldap.common.name.LdapName;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-import java.math.BigInteger;
-import java.util.Map;
 
 
 /**

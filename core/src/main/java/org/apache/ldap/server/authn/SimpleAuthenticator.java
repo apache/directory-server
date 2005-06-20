@@ -17,17 +17,17 @@
 package org.apache.ldap.server.authn;
 
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
 import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.PartitionNexus;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 
 /**

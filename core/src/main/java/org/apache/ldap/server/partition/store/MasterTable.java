@@ -17,9 +17,10 @@
 package org.apache.ldap.server.partition.store;
 
 
+import java.math.BigInteger;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import java.math.BigInteger;
 
 
 /**

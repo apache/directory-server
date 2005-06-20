@@ -17,6 +17,27 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.io.Serializable;
+import java.util.Hashtable;
+
+import javax.naming.ConfigurationException;
+import javax.naming.Context;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.Control;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
@@ -25,17 +46,6 @@ import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.partition.PartitionNexus;
-
-import javax.naming.*;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.Control;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
-import java.io.Serializable;
-import java.util.Hashtable;
 
 
 /**

@@ -17,11 +17,12 @@
 package org.apache.ldap.server.partition.store;
 
 
-import org.apache.regexp.RE;
+import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import java.util.NoSuchElementException;
+
+import org.apache.regexp.RE;
 
 
 /**

@@ -17,9 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.partition.PartitionNexus;
+import java.util.Hashtable;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -27,7 +25,10 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
+
+import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.partition.PartitionNexus;
 
 
 /**

@@ -17,10 +17,10 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.server.jndi.ServerDirObjectFactory;
-
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.ldap.server.jndi.ServerDirObjectFactory;
 
 
 /**

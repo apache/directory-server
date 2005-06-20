@@ -17,9 +17,10 @@
 package org.apache.ldap.server.partition.store;
 
 
+import java.util.NoSuchElementException;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import java.util.NoSuchElementException;
 
 
 /**

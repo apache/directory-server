@@ -17,18 +17,23 @@
 package org.apache.ldap.server.partition.store.gui;
 
 
-import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.partition.store.Database;
-import org.apache.ldap.server.partition.store.IndexRecord;
-import org.apache.ldap.server.partition.store.SearchEngine;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.swing.tree.TreeNode;
-import java.math.BigInteger;
-import java.util.*;
+
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.IndexRecord;
+import org.apache.ldap.server.partition.store.SearchEngine;
 
 
 /**

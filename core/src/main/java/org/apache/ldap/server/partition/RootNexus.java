@@ -17,6 +17,22 @@
 package org.apache.ldap.server.partition;
 
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
@@ -26,17 +42,6 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.util.SingletonEnumeration;
-
-import javax.naming.Name;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.*;
-import javax.naming.ldap.LdapContext;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
                                 
 /**

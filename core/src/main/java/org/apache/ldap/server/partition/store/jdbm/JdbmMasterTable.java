@@ -17,15 +17,17 @@
 package org.apache.ldap.server.partition.store.jdbm;
 
 
-import jdbm.RecordManager;
-import jdbm.helper.StringComparator;
-import org.apache.ldap.common.util.BigIntegerComparator;
-import org.apache.ldap.server.partition.store.MasterTable;
-import org.apache.ldap.server.schema.SerializableComparator;
+import java.math.BigInteger;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import java.math.BigInteger;
+
+import jdbm.RecordManager;
+import jdbm.helper.StringComparator;
+
+import org.apache.ldap.common.util.BigIntegerComparator;
+import org.apache.ldap.server.partition.store.MasterTable;
+import org.apache.ldap.server.schema.SerializableComparator;
 
 
 /**

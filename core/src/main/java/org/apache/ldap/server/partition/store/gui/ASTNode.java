@@ -17,13 +17,14 @@
 package org.apache.ldap.server.partition.store.gui;
 
 
-import org.apache.ldap.common.filter.BranchNode;
-import org.apache.ldap.common.filter.ExprNode;
-
-import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+
+import javax.swing.tree.TreeNode;
+
+import org.apache.ldap.common.filter.BranchNode;
+import org.apache.ldap.common.filter.ExprNode;
 
 
 /**

@@ -17,10 +17,10 @@
 package org.apache.ldap.server.invocation;
 
 
+import javax.naming.NamingException;
+
 import org.apache.ldap.server.partition.BackingStore;
 import org.apache.ldap.server.partition.PartitionNexus;
-
-import javax.naming.NamingException;
 
 
 /**

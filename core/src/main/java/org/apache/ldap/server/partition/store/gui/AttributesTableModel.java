@@ -17,13 +17,14 @@
 package org.apache.ldap.server.partition.store.gui;
 
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.swing.table.AbstractTableModel;
-import java.math.BigInteger;
-import java.util.ArrayList;
 
 
 /**

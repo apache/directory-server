@@ -17,9 +17,9 @@
 package org.apache.ldap.server.authn;
 
 
-import org.apache.ldap.server.jndi.ServerContext;
-
 import javax.naming.NamingException;
+
+import org.apache.ldap.server.jndi.ServerContext;
 
 
 /**

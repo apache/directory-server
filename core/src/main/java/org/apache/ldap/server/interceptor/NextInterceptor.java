@@ -17,9 +17,9 @@
 package org.apache.ldap.server.interceptor;
 
 
-import org.apache.ldap.server.invocation.Invocation;
-
 import javax.naming.NamingException;
+
+import org.apache.ldap.server.invocation.Invocation;
 
 
 /**

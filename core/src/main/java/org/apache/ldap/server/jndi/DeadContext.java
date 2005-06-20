@@ -17,10 +17,13 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.common.exception.LdapServiceUnavailableException;
-import org.apache.ldap.common.message.ResultCodeEnum;
+import java.util.Hashtable;
 
-import javax.naming.*;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
@@ -29,7 +32,9 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
+
+import org.apache.ldap.common.exception.LdapServiceUnavailableException;
+import org.apache.ldap.common.message.ResultCodeEnum;
 
 
 /**
