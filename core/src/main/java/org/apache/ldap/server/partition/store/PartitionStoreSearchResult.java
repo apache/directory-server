@@ -31,7 +31,7 @@ import javax.naming.directory.SearchResult;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DbSearchResult extends SearchResult
+public class PartitionStoreSearchResult extends SearchResult
 {
     private static final long serialVersionUID = 3976739172700860977L;
 
@@ -52,7 +52,7 @@ public class DbSearchResult extends SearchResult
      * @param obj the object if any
      * @param attrs the attributes of the entry
      */
-    public DbSearchResult( BigInteger id, String name, Object obj,
+    public PartitionStoreSearchResult( BigInteger id, String name, Object obj,
         Attributes attrs )
     {
         super( name, obj, attrs );
@@ -69,7 +69,7 @@ public class DbSearchResult extends SearchResult
      * @param attrs the attributes of the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public DbSearchResult( BigInteger id, String name, Object obj,
+    public PartitionStoreSearchResult( BigInteger id, String name, Object obj,
         Attributes attrs, boolean isRelative )
     {
         super( name, obj, attrs, isRelative );
@@ -86,7 +86,7 @@ public class DbSearchResult extends SearchResult
      * @param obj the object if any
      * @param attrs the attributes of the entry
      */
-    public DbSearchResult( BigInteger id, String name, String className,
+    public PartitionStoreSearchResult( BigInteger id, String name, String className,
         Object obj, Attributes attrs )
     {
         super( name, className, obj, attrs );
@@ -104,7 +104,7 @@ public class DbSearchResult extends SearchResult
      * @param attrs the attributes of the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public DbSearchResult( BigInteger id, String name, String className,
+    public PartitionStoreSearchResult( BigInteger id, String name, String className,
         Object obj, Attributes attrs, boolean isRelative )
     {
         super( name, className, obj, attrs, isRelative );

@@ -35,7 +35,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.SearchEngine;
 import org.apache.ldap.server.partition.store.SearchResultEnumeration;
 import org.apache.ldap.server.partition.store.gui.PartitionViewer;
@@ -108,7 +108,7 @@ public abstract class AbstractContextPartition implements ContextPartition
      * the database used for this backing store which is also initialized during
      * configuration time
      */
-    private Database db = null;
+    private PartitionStore db = null;
     
     /**
      * the search engine used to search the database
@@ -127,7 +127,7 @@ public abstract class AbstractContextPartition implements ContextPartition
      * @param db the dedicated database for this backing store
      * @param searchEngine the search engine for this backing store
      */
-    public AbstractContextPartition( Database db, SearchEngine searchEngine,
+    public AbstractContextPartition( PartitionStore db, SearchEngine searchEngine,
                                      AttributeType[] indexAttributes )
         throws NamingException
     {
@@ -202,7 +202,7 @@ public abstract class AbstractContextPartition implements ContextPartition
      *
      * @return the database used
      */
-    public Database getDb()
+    public PartitionStore getDb()
     {
         return db;
     }

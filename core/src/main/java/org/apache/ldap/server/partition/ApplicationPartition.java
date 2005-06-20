@@ -21,7 +21,7 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.SearchEngine;
 
 
@@ -59,7 +59,7 @@ public class ApplicationPartition extends AbstractContextPartition
      * @throws NamingException on failures while creating this partition
      */
     public ApplicationPartition(
-            Database db, SearchEngine searchEngine, AttributeType[] indexAttributes )
+            PartitionStore db, SearchEngine searchEngine, AttributeType[] indexAttributes )
         throws NamingException
     {
         super( db, searchEngine, indexAttributes );

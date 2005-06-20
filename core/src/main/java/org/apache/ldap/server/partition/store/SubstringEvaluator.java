@@ -41,7 +41,7 @@ import org.apache.regexp.RESyntaxException;
 public class SubstringEvaluator implements Evaluator
 {
     /** Database used while evaluating candidates */
-    private Database db;
+    private PartitionStore db;
     /** Oid Registry used to translate attributeIds to OIDs */
     private OidRegistry oidRegistry;
     /** AttributeType registry needed for normalizing and comparing values */
@@ -55,7 +55,7 @@ public class SubstringEvaluator implements Evaluator
      * @param oidRegistry the OID registry for name to OID mapping
      * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator( Database db, OidRegistry oidRegistry,
+    public SubstringEvaluator( PartitionStore db, OidRegistry oidRegistry,
                                AttributeTypeRegistry attributeTypeRegistry )
     {
         this.db = db;

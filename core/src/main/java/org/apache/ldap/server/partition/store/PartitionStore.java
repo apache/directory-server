@@ -35,7 +35,7 @@ import org.apache.ldap.common.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Database
+public interface PartitionStore
 {
     // @todo do these alias constants need to go elsewhere?
     /** The objectClass name for aliases: 'alias' */

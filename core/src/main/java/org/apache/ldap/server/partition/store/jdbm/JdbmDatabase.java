@@ -47,7 +47,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.Index;
 import org.apache.ldap.server.partition.store.IndexAssertion;
 import org.apache.ldap.server.partition.store.IndexAssertionEnumeration;
@@ -61,7 +61,7 @@ import org.apache.ldap.server.partition.store.IndexRecord;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmDatabase implements Database
+public class JdbmDatabase implements PartitionStore
 {
     /** the JDBM record manager used by this database */
     private final RecordManager recMan;
@@ -144,7 +144,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#addIndexOn(AttributeType)
+     * @see PartitionStore#addIndexOn(AttributeType)
      */
     public void addIndexOn( AttributeType spec ) throws NamingException
     {
@@ -154,7 +154,7 @@ public class JdbmDatabase implements Database
 
     
     /**
-     * @see Database#getExistanceIndex()
+     * @see PartitionStore#getExistanceIndex()
      */
     public Index getExistanceIndex() 
     {
@@ -163,7 +163,7 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * @see Database#setExistanceIndexOn(AttributeType)
+     * @see PartitionStore#setExistanceIndexOn(AttributeType)
      */    
     public void setExistanceIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -179,7 +179,7 @@ public class JdbmDatabase implements Database
 
     
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getHierarchyIndex()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getHierarchyIndex()
      */
     public Index getHierarchyIndex() 
     {
@@ -188,7 +188,7 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * @see Database#setExistanceIndexOn(AttributeType)
+     * @see PartitionStore#setExistanceIndexOn(AttributeType)
      */
     public void setHierarchyIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -204,7 +204,7 @@ public class JdbmDatabase implements Database
 
     
     /**
-     * @see Database#getAliasIndex()
+     * @see PartitionStore#getAliasIndex()
      */
     public Index getAliasIndex()
     {
@@ -213,7 +213,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#setAliasIndexOn(AttributeType)
+     * @see PartitionStore#setAliasIndexOn(AttributeType)
      */
     public void setAliasIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -229,7 +229,7 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * @see Database#getOneAliasIndex()
+     * @see PartitionStore#getOneAliasIndex()
      */
     public Index getOneAliasIndex()
     {
@@ -238,7 +238,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#setOneAliasIndexOn(AttributeType)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#setOneAliasIndexOn(AttributeType)
      */
     public void setOneAliasIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -254,7 +254,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#getSubAliasIndex()
+     * @see PartitionStore#getSubAliasIndex()
      */
     public Index getSubAliasIndex()
     {
@@ -263,7 +263,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#setSubAliasIndexOn(AttributeType)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#setSubAliasIndexOn(AttributeType)
      */
     public void setSubAliasIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -279,7 +279,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#getUpdnIndex()
+     * @see PartitionStore#getUpdnIndex()
      */
     public Index getUpdnIndex()
     {
@@ -288,7 +288,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#setUpdnIndexOn(AttributeType)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#setUpdnIndexOn(AttributeType)
      */
     public void setUpdnIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -304,7 +304,7 @@ public class JdbmDatabase implements Database
 
     
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getNdnIndex()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getNdnIndex()
      */
     public Index getNdnIndex() 
     {
@@ -313,7 +313,7 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#setNdnIndexOn(AttributeType)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#setNdnIndexOn(AttributeType)
      */
     public void setNdnIndexOn( AttributeType attrType ) throws NamingException
     {
@@ -329,7 +329,7 @@ public class JdbmDatabase implements Database
 
     
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getUserIndices()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getUserIndices()
      */
     public Iterator getUserIndices()
     {
@@ -338,7 +338,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#getSystemIndices()
+     * @see PartitionStore#getSystemIndices()
      */
     public Iterator getSystemIndices()
     {
@@ -347,7 +347,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#hasUserIndexOn(String)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#hasUserIndexOn(String)
      */
     public boolean hasUserIndexOn( String attribute )
     {
@@ -357,7 +357,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#hasSystemIndexOn(String)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#hasSystemIndexOn(String)
      */
     public boolean hasSystemIndexOn( String attribute )
     {
@@ -370,7 +370,7 @@ public class JdbmDatabase implements Database
      * @todo replace lookups to use the OID instead of the name.  Also note
      * that the OID registry can be used to go between names and oids.
      * 
-     * @see org.apache.ldap.server.partition.store.Database#getUserIndex(String)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getUserIndex(String)
      */
     public Index getUserIndex( String attribute ) throws IndexNotFoundException
     {
@@ -396,7 +396,7 @@ public class JdbmDatabase implements Database
      * @todo replace lookups to use the OID instead of the name.  Also note
      * that the OID registry can be used to go between names and oids.
      * 
-     * @see Database#getEntryId(String)
+     * @see PartitionStore#getEntryId(String)
      */
     public Index getSystemIndex( String indexName ) throws IndexNotFoundException
     {
@@ -419,7 +419,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getEntryId(String)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getEntryId(String)
      */
     public BigInteger getEntryId( String dn ) throws NamingException
     {
@@ -428,7 +428,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getEntryDn(java.math.BigInteger)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getEntryDn(java.math.BigInteger)
      */
     public String getEntryDn( BigInteger id ) throws NamingException
     {
@@ -437,7 +437,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#getParentId(String)
+     * @see PartitionStore#getParentId(String)
      */
     public BigInteger getParentId( String dn ) throws NamingException
     {
@@ -447,7 +447,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#getParentId(BigInteger)
+     * @see PartitionStore#getParentId(BigInteger)
      */
     public BigInteger getParentId( BigInteger childId ) throws NamingException
     {
@@ -456,7 +456,7 @@ public class JdbmDatabase implements Database
     
     
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getEntryUpdn(BigInteger)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getEntryUpdn(BigInteger)
      */
     public String getEntryUpdn( BigInteger id ) throws NamingException
     {
@@ -465,7 +465,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getEntryUpdn(String)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getEntryUpdn(String)
      */
     public String getEntryUpdn( String dn ) throws NamingException
     {
@@ -475,7 +475,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#count()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#count()
      */
     public int count() throws NamingException
     {
@@ -668,7 +668,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#add(String,Name,Attributes)
+     * @see PartitionStore#add(String,Name,Attributes)
      */
     public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
@@ -745,7 +745,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#lookup(BigInteger)
+     * @see PartitionStore#lookup(BigInteger)
      */
     public Attributes lookup( BigInteger id ) throws NamingException
     {
@@ -754,7 +754,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#delete(BigInteger)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#delete(BigInteger)
      */
     public void delete( BigInteger id ) throws  NamingException
     {
@@ -800,7 +800,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#list(java.math.BigInteger)
+     * @see PartitionStore#list(java.math.BigInteger)
      */
     public NamingEnumeration list( BigInteger id ) throws  NamingException
     {
@@ -809,7 +809,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getChildCount(java.math.BigInteger)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getChildCount(java.math.BigInteger)
      */
     public int getChildCount( BigInteger id ) throws NamingException
     {
@@ -818,7 +818,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getSuffix()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getSuffix()
      */
     public Name getSuffix()
     {
@@ -827,7 +827,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getSuffixEntry()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getSuffixEntry()
      */
     public Attributes getSuffixEntry() throws NamingException
     {
@@ -843,7 +843,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#sync()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#sync()
      */
     public void sync() throws NamingException
     {
@@ -907,7 +907,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#close()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#close()
      */
     public synchronized void close() throws NamingException
     {
@@ -1016,7 +1016,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#isClosed()
+     * @see org.apache.ldap.server.partition.store.PartitionStore#isClosed()
      */
     public boolean isClosed()
     {
@@ -1025,7 +1025,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#setProperty(String, String)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#setProperty(String, String)
      */
     public void setProperty( String propertyName, String propertyValue )
         throws NamingException
@@ -1035,7 +1035,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#getProperty(String)
+     * @see org.apache.ldap.server.partition.store.PartitionStore#getProperty(String)
      */
     public String getProperty( String propertyName ) throws NamingException
     {
@@ -1044,7 +1044,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see Database#getIndices(java.math.BigInteger)
+     * @see PartitionStore#getIndices(java.math.BigInteger)
      */
     public Attributes getIndices( BigInteger id ) throws  NamingException
     {
@@ -1244,7 +1244,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#modify(javax.naming.Name, int,
+     * @see org.apache.ldap.server.partition.store.PartitionStore#modify(javax.naming.Name, int,
      * javax.naming.directory.Attributes)
      */
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
@@ -1298,7 +1298,7 @@ public class JdbmDatabase implements Database
     
 
     /**
-     * @see Database#modify(javax.naming.Name,
+     * @see PartitionStore#modify(javax.naming.Name,
      * javax.naming.directory.ModificationItem[])
      */
     public void modify( Name dn, ModificationItem [] mods ) throws NamingException
@@ -1347,7 +1347,7 @@ public class JdbmDatabase implements Database
      * @param deleteOldRdn whether or not to remove the old Rdn attr/val
      * @throws NamingException if there are any errors propagating the name 
      *        changes.
-     * @see org.apache.ldap.server.partition.store.Database#modifyRdn(javax.naming.Name,
+     * @see org.apache.ldap.server.partition.store.PartitionStore#modifyRdn(javax.naming.Name,
      * String, boolean)
      */
     public void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn )
@@ -1511,7 +1511,7 @@ public class JdbmDatabase implements Database
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Database#move(javax.naming.Name,
+     * @see org.apache.ldap.server.partition.store.PartitionStore#move(javax.naming.Name,
      * javax.naming.Name, String, boolean)
      */
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
@@ -1535,7 +1535,7 @@ public class JdbmDatabase implements Database
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws NamingException if something goes wrong
      *
-     * @see Database#move(javax.naming.Name,
+     * @see PartitionStore#move(javax.naming.Name,
      * javax.naming.Name)
      */
     public void move( Name oldChildDn, Name newParentDn ) throws NamingException

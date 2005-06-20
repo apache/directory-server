@@ -46,7 +46,7 @@ import org.apache.ldap.common.message.DerefAliasesEnum;
 public class ScopeEvaluator implements Evaluator
 {
     /** Database used to evaluate scope with */
-    private Database db;
+    private PartitionStore db;
 
 
     /**
@@ -54,7 +54,7 @@ public class ScopeEvaluator implements Evaluator
      *
      * @param db the database used to evaluate scope node
      */
-    public ScopeEvaluator( Database db )
+    public ScopeEvaluator( PartitionStore db )
     {
         this.db = db;
     }

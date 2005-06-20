@@ -39,7 +39,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 public class SearchResultEnumeration implements NamingEnumeration
 {
     /** Database used to lookup entries from */
-    private Database db = null;
+    private PartitionStore db = null;
     /** base of search for relative names */
     /** the attributes to return */
     private final String [] attrIds;
@@ -56,7 +56,7 @@ public class SearchResultEnumeration implements NamingEnumeration
      */
     public SearchResultEnumeration( String [] attrIds, 
                                     NamingEnumeration underlying,
-                                    Database db )
+                                    PartitionStore db )
     {
         this.db = db;
         this.attrIds = attrIds;
@@ -118,7 +118,7 @@ public class SearchResultEnumeration implements NamingEnumeration
             }
         }
 
-        return new DbSearchResult( rec.getEntryId(), name, null, entry );
+        return new PartitionStoreSearchResult( rec.getEntryId(), name, null, entry );
     }
 
     

@@ -26,7 +26,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.SearchEngine;
 
 
@@ -161,7 +161,7 @@ public final class SystemPartition extends AbstractContextPartition
      * also contain all system index attribute types - if not the system will
      * not operate correctly.
      */
-    public SystemPartition( Database db, SearchEngine searchEngine,
+    public SystemPartition( PartitionStore db, SearchEngine searchEngine,
                             AttributeType[] indexAttributes )
         throws NamingException
     {

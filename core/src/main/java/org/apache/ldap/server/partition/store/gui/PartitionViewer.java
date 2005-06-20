@@ -22,7 +22,7 @@ import java.awt.Toolkit;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.SearchEngine;
 
 
@@ -35,11 +35,11 @@ import org.apache.ldap.server.partition.store.SearchEngine;
 public class PartitionViewer
 {
     /** A handle on the atomic partition */
-    private Database db;
+    private PartitionStore db;
     private SearchEngine eng;
 
 
-    public PartitionViewer( Database db, SearchEngine eng )
+    public PartitionViewer( PartitionStore db, SearchEngine eng )
     {
         this.db = db;
         this.eng = eng;

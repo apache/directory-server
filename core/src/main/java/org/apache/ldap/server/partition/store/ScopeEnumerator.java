@@ -37,12 +37,12 @@ import org.apache.ldap.common.util.SingletonEnumeration;
 public class ScopeEnumerator implements Enumerator
 {
     /** Database used to enumerate based on scope */
-    private Database db = null;
+    private PartitionStore db = null;
     /** Filter scope expression evaluator */
     private ScopeEvaluator evaluator = null;
 
 
-    public ScopeEnumerator( Database db, ScopeEvaluator evaluator )
+    public ScopeEnumerator( PartitionStore db, ScopeEvaluator evaluator )
     {
         this.db = db;
         this.evaluator = evaluator;
