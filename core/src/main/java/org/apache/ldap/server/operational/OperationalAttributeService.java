@@ -33,6 +33,8 @@ import javax.naming.ldap.LdapContext;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
+import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
@@ -47,8 +49,6 @@ import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.partition.impl.btree.ResultFilteringEnumeration;
-import org.apache.ldap.server.partition.impl.btree.SearchResultFilter;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 

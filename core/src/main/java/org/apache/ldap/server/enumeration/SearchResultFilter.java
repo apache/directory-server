@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.partition.impl.btree;
+package org.apache.ldap.server.enumeration;
 
 
 import javax.naming.NamingException;
@@ -26,7 +26,7 @@ import javax.naming.ldap.LdapContext;
 /**
  * A filter is used to modify search results while they are being returned from
  * naming enumerations containing DbSearchResults.  These filters are used in
- * conjunction with a {@link org.apache.ldap.server.partition.impl.btree.ResultFilteringEnumeration}.  Multiple filters can
+ * conjunction with a {@link org.apache.ldap.server.enumeration.ResultFilteringEnumeration}.  Multiple filters can
  * be applied one after the other and hence they are stackable.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

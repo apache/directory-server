@@ -23,6 +23,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.server.enumeration.SearchResultEnumeration;
 
 
 /**
@@ -36,7 +37,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchResultEnumeration implements NamingEnumeration
+public class BTreeSearchResultEnumeration implements SearchResultEnumeration
 {
     /** Database used to lookup entries from */
     private BTreeContextPartition partition = null;
@@ -54,7 +55,7 @@ public class SearchResultEnumeration implements NamingEnumeration
      * @param attrIds the returned attributes
      * @param underlying the enumeration over IndexRecords
      */
-    public SearchResultEnumeration( String [] attrIds, 
+    public BTreeSearchResultEnumeration( String [] attrIds, 
                                     NamingEnumeration underlying,
                                     BTreeContextPartition db )
     {

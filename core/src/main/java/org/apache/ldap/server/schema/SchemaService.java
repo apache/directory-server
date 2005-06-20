@@ -46,6 +46,8 @@ import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.schema.SchemaUtils;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
+import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
@@ -55,8 +57,6 @@ import org.apache.ldap.server.invocation.LookupWithAttrIds;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.partition.impl.btree.ResultFilteringEnumeration;
-import org.apache.ldap.server.partition.impl.btree.SearchResultFilter;
 
 
 /**

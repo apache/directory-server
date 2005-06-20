@@ -37,6 +37,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.enumeration.SearchResultEnumeration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.Oid;
@@ -236,7 +237,7 @@ public abstract class BTreeContextPartition implements ContextPartition
     public NamingEnumeration list( Name base ) throws NamingException
     {
         SearchResultEnumeration list;
-        list = new SearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY,
+        list = new BTreeSearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY,
                 list( getEntryId( base.toString() ) ), this );
         return list;
     }
@@ -251,7 +252,7 @@ public abstract class BTreeContextPartition implements ContextPartition
         
         underlying = searchEngine.search( base, env, filter, searchCtls );
         
-        return new SearchResultEnumeration( attrIds, underlying, this );
+        return new BTreeSearchResultEnumeration( attrIds, underlying, this );
     }
 
 

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.partition.impl.btree;
+package org.apache.ldap.server.enumeration;
 
 
 import java.util.ArrayList;
