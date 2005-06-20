@@ -39,6 +39,7 @@ import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.Oid;
 import org.apache.ldap.server.partition.store.impl.btree.gui.PartitionViewer;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
@@ -92,21 +93,6 @@ public abstract class BTreeContextPartition implements ContextPartition
     ==================================================================== */
 
 
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.1) for _ndn op attrib */
-    public static final String NDN_OID       = "1.2.6.1.4.1.18060.1.1.1.3.1" ;
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.2) for _updn op attrib */
-    public static final String UPDN_OID      = "1.2.6.1.4.1.18060.1.1.1.3.2" ;
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.3) for _existance op attrib */
-    public static final String EXISTANCE_OID = "1.2.6.1.4.1.18060.1.1.1.3.3" ;
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.4) for _hierarchy op attrib */
-    public static final String HIERARCHY_OID = "1.2.6.1.4.1.18060.1.1.1.3.4" ;
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.5) for _oneAlias index */
-    public static final String ONEALIAS_OID  = "1.2.6.1.4.1.18060.1.1.1.3.5" ;
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.6) for _subAlias index */
-    public static final String SUBALIAS_OID  = "1.2.6.1.4.1.18060.1.1.1.3.6" ;
-    /** Private OID (1.2.6.1.4.1.18060.1.1.1.3.7) for _alias index */
-    public static final String ALIAS_OID     = "1.2.6.1.4.1.18060.1.1.1.3.7" ;
-
     /**
      * the search engine used to search the database
      */
@@ -134,13 +120,13 @@ public abstract class BTreeContextPartition implements ContextPartition
         this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator );
 
         HashSet sysOidSet = new HashSet();
-        sysOidSet.add( EXISTANCE_OID );
-        sysOidSet.add( HIERARCHY_OID );
-        sysOidSet.add( UPDN_OID );
-        sysOidSet.add( NDN_OID );
-        sysOidSet.add( ONEALIAS_OID );
-        sysOidSet.add( SUBALIAS_OID );
-        sysOidSet.add( ALIAS_OID );
+        sysOidSet.add( Oid.EXISTANCE );
+        sysOidSet.add( Oid.HIERARCHY );
+        sysOidSet.add( Oid.UPDN );
+        sysOidSet.add( Oid.NDN );
+        sysOidSet.add( Oid.ONEALIAS );
+        sysOidSet.add( Oid.SUBALIAS );
+        sysOidSet.add( Oid.ALIAS );
 
         Iterator i = cfg.getIndexedAttributes().iterator();
         while( i.hasNext() )
@@ -152,31 +138,31 @@ public abstract class BTreeContextPartition implements ContextPartition
             // check if attribute is a system attribute
             if ( sysOidSet.contains( oid ) )
             {
-                if ( oid.equals( EXISTANCE_OID ) )
+                if ( oid.equals( Oid.EXISTANCE ) )
                 {
                     setExistanceIndexOn( type );
                 }
-                else if ( oid.equals( HIERARCHY_OID ) )
+                else if ( oid.equals( Oid.HIERARCHY ) )
                 {
                     setHierarchyIndexOn( type );
                 }
-                else if ( oid.equals( UPDN_OID ) )
+                else if ( oid.equals( Oid.UPDN ) )
                 {
                     setUpdnIndexOn( type );
                 }
-                else if ( oid.equals( NDN_OID ) )
+                else if ( oid.equals( Oid.NDN ) )
                 {
                     setNdnIndexOn( type );
                 }
-                else if ( oid.equals( ONEALIAS_OID ) )
+                else if ( oid.equals( Oid.ONEALIAS ) )
                 {
                     setOneAliasIndexOn( type );
                 }
-                else if ( oid.equals( SUBALIAS_OID ) )
+                else if ( oid.equals( Oid.SUBALIAS ) )
                 {
                     setSubAliasIndexOn( type );
                 }
-                else if ( oid.equals( ALIAS_OID ) )
+                else if ( oid.equals( Oid.ALIAS ) )
                 {
                     setAliasIndexOn( type );
                 }

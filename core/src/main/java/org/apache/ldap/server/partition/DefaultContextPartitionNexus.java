@@ -187,13 +187,13 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         
         // Add indexed attributes for system partition
         Set indexedSystemAttrs = new HashSet();
-        indexedSystemAttrs.add( SystemPartition.ALIAS_OID );
-        indexedSystemAttrs.add( SystemPartition.EXISTANCE_OID );
-        indexedSystemAttrs.add( SystemPartition.HIERARCHY_OID );
-        indexedSystemAttrs.add( SystemPartition.NDN_OID );
-        indexedSystemAttrs.add( SystemPartition.ONEALIAS_OID );
-        indexedSystemAttrs.add( SystemPartition.SUBALIAS_OID );
-        indexedSystemAttrs.add( SystemPartition.UPDN_OID );
+        indexedSystemAttrs.add( Oid.ALIAS );
+        indexedSystemAttrs.add( Oid.EXISTANCE );
+        indexedSystemAttrs.add( Oid.HIERARCHY );
+        indexedSystemAttrs.add( Oid.NDN );
+        indexedSystemAttrs.add( Oid.ONEALIAS );
+        indexedSystemAttrs.add( Oid.SUBALIAS );
+        indexedSystemAttrs.add( Oid.UPDN );
         systemCfg.setIndexedAttributes( indexedSystemAttrs );
         
         // Add context entry for system partition
