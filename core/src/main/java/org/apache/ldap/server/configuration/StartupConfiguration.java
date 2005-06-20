@@ -164,10 +164,19 @@ public class StartupConfiguration extends Configuration
         Set newSet = ConfigurationUtil.getTypeSafeSet(
                 authenticatorConfigurations, AuthenticatorConfiguration.class );
         
+        Set names = new HashSet();
         Iterator i = newSet.iterator();
         while( i.hasNext() )
         {
-            ( ( AuthenticatorConfiguration ) i.next() ).validate();
+            AuthenticatorConfiguration cfg = ( AuthenticatorConfiguration ) i.next();
+            cfg.validate();
+            
+            String name = cfg.getName();
+            if( names.contains( name ) )
+            {
+                throw new ConfigurationException( "Duplicate authenticator name: " + name );
+            }
+            names.add( name );
         }
         
         this.authenticatorConfigurations = newSet;
@@ -206,10 +215,19 @@ public class StartupConfiguration extends Configuration
         Set newSet = ConfigurationUtil.getTypeSafeSet(
                 contextParitionConfigurations, ContextPartitionConfiguration.class );
         
+        Set names = new HashSet();
         Iterator i = newSet.iterator();
         while( i.hasNext() )
         {
-            ( ( ContextPartitionConfiguration ) i.next() ).validate();
+            ContextPartitionConfiguration cfg = ( ContextPartitionConfiguration ) i.next();
+            cfg.validate();
+
+            String name = cfg.getName();
+            if( names.contains( name ) )
+            {
+                throw new ConfigurationException( "Duplicate partition name: " + name );
+            }
+            names.add( name );
         }
         
         this.contextPartitionConfigurations = newSet;
@@ -247,10 +265,19 @@ public class StartupConfiguration extends Configuration
         List newList = ConfigurationUtil.getTypeSafeList(
                 interceptorConfigurations, InterceptorConfiguration.class );
         
+        Set names = new HashSet();
         Iterator i = newList.iterator();
         while( i.hasNext() )
         {
-            ( ( InterceptorConfiguration ) i.next() ).validate();
+            InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
+            cfg.validate();
+
+            String name = cfg.getName();
+            if( names.contains( name ) )
+            {
+                throw new ConfigurationException( "Duplicate interceptor name: " + name );
+            }
+            names.add( name );
         }
 
         this.interceptorConfigurations = interceptorConfigurations;

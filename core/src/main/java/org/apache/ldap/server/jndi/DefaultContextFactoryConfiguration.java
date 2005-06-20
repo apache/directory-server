@@ -35,6 +35,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.configuration.Configuration;
+import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.interceptor.InterceptorContext;
@@ -163,7 +164,17 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
 
         env.put( Context.PROVIDER_URL, "" );
         
-        cfg.validate();
+        try
+        {
+            cfg.validate();
+        }
+        catch( ConfigurationException e )
+        {
+            NamingException ne = new LdapConfigurationException( "Invalid configuration." );
+            ne.initCause( e );
+            throw ne;
+        }
+
         this.environment = env;
         this.configuration = cfg;
         
@@ -481,8 +492,10 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             throw e;
         }
 
+        globalRegistries = new GlobalRegistries( bootstrapRegistries );
+        
         partitionNexus = new DefaultContextPartitionNexus( new LockableAttributesImpl() );
-        globalRegistries = new GlobalRegistries( partitionNexus.getSystemPartition(), bootstrapRegistries );
+        partitionNexus.init( this, null );
         
         interceptorChain = new InterceptorChain( configuration.getInterceptorConfigurations() );
         interceptorChain.init( new InterceptorContext( configuration, partitionNexus.getSystemPartition(), globalRegistries, partitionNexus ) );

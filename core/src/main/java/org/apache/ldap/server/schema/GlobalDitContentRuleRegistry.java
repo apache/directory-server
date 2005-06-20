@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.DITContentRule;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
 
 
@@ -47,8 +46,6 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
     private DITContentRuleRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapDitContentRuleRegistry bootstrap;
-    /** the system partition where we keep attributeType updates */
-    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -59,8 +56,7 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
     /**
      * Creates an empty BootstrapDitContentRuleRegistry.
      */
-    public GlobalDitContentRuleRegistry( ContextPartition systemPartition,
-            BootstrapDitContentRuleRegistry bootstrap, OidRegistry oidRegistry )
+    public GlobalDitContentRuleRegistry( BootstrapDitContentRuleRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -71,12 +67,6 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 

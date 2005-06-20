@@ -15,10 +15,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.ContextPartition;
 import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
@@ -145,8 +144,7 @@ public aspect ProviderNexusAspect
     pointcut jndiNexusCalls( Context caller ):
         this( caller ) &&
         ! this( ContextPartition ) &&
-        target( PartitionNexus ) &&
-        ! target( Database ) &&
+        target( ContextPartitionNexus ) &&
         (
         // these are for the ContextPartition interface methods 
 

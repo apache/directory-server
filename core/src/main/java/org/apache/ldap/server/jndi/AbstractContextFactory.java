@@ -19,12 +19,12 @@ package org.apache.ldap.server.jndi;
 
 import java.util.Hashtable;
 
+import javax.naming.ConfigurationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.configuration.SyncConfiguration;
@@ -122,7 +122,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         return authentication;
     }
 
-    private byte[] extractCredential( Hashtable env )
+    private byte[] extractCredential( Hashtable env ) throws ConfigurationException
     {
         byte[] credential;
         Object value = env.remove( Context.SECURITY_CREDENTIALS );

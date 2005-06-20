@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapAttributeTypeRegistry;
 
 
@@ -47,8 +46,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     private AttributeTypeRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapAttributeTypeRegistry bootstrap;
-    /** the system partition where we keep attributeType updates */
-    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -64,8 +61,7 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
      * @param systemPartition the system database partition under ou=system
      * @param bootstrap the bootstrapping registry to delegate to
      */
-    public GlobalAttributeTypeRegistry( ContextPartition systemPartition,
-            BootstrapAttributeTypeRegistry bootstrap, OidRegistry oidRegistry )
+    public GlobalAttributeTypeRegistry( BootstrapAttributeTypeRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -81,12 +77,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 

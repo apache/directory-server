@@ -42,6 +42,9 @@ import org.apache.ldap.server.schema.MatchingRuleRegistry;
  */
 public class ContextPartitionConfiguration
 {
+    /** The name of reserved system partition */
+    public static final String SYSTEM_PARTITION_NAME = "system";
+
     private String name;
     private String suffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
@@ -63,7 +66,8 @@ public class ContextPartitionConfiguration
     protected void setName( String name )
     {
         // TODO name can be a directory name.
-        this.name = name.trim();
+        name = name.trim();
+        this.name = name;
     }
 
     public Set getIndexedAttributes()

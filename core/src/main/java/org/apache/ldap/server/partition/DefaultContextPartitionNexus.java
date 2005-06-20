@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.ConfigurationException;
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -136,7 +137,6 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         initializedPartitions.add( system );
         
         Iterator i = factoryCfg.getConfiguration().getContextPartitionConfigurations().iterator();
-        boolean success = false;
         try
         {
             while( i.hasNext() )
@@ -147,11 +147,11 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
                 initializedPartitions.add( 0, partition );
                 register( partition );
             }
-            success = true;
+            initialized = true;
         }
         finally
         {
-            if( !success )
+            if( !initialized )
             {
                 i = initializedPartitions.iterator();
                 while( i.hasNext() )
@@ -394,12 +394,19 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
      *
      * @param partition ContextPartition component to register with this
      * BackendNexus.
+     * @throws ConfigurationException 
      */
-    private void register( ContextPartition partition )
+    private void register( ContextPartition partition ) throws ConfigurationException
     {
+        String key = partition.getSuffix( true ).toString();
+        if( partitions.containsKey( key ) )
+        {
+            throw new ConfigurationException( "Duplicate partition suffix: " + key );
+        }
+        partitions.put( key, partition );
+
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.add( partition.getSuffix( false ).toString() );
-        partitions.put( partition.getSuffix( true ).toString(), partition );
     }
 
 
