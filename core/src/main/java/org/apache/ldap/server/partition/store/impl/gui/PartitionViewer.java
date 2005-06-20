@@ -22,8 +22,8 @@ import java.awt.Toolkit;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.store.PartitionStore;
-import org.apache.ldap.server.partition.store.SearchEngine;
+import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
 /**

@@ -24,11 +24,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#search(Name, Map, ExprNode, SearchControls)}.
+ * Represents an {@link Invocation} on {@link ContextPartition#search(Name, Map, ExprNode, SearchControls)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -87,7 +87,7 @@ public class Search extends SubtreeInvocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
         return store.search( getBaseName(), environment, filter, controls );
     }

@@ -39,8 +39,8 @@ import javax.swing.table.DefaultTableModel;
 
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.partition.store.Index;
-import org.apache.ldap.server.partition.store.IndexRecord;
+import org.apache.ldap.server.partition.store.impl.btree.Index;
+import org.apache.ldap.server.partition.store.impl.btree.IndexRecord;
 import org.apache.regexp.RE;
 
 

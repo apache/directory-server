@@ -21,12 +21,12 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
  * Filters any directory operations.  You can filter any {@link Invocation}
- * performed on {@link BackingStore}s just like Servlet filters do.
+ * performed on {@link ContextPartition}s just like Servlet filters do.
  * <p/>
  * <h2>Interceptor Chaining</h2> Interceptors should usually pass the control
  * of current invocation to the next interceptor by calling

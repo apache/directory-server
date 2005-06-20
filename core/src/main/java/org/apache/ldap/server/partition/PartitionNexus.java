@@ -25,15 +25,15 @@ import javax.naming.ldap.LdapContext;
 
 
 /**
- * The PartitionNexus is a special type of BackingStore designed to route
- * BackingStore operations to ContextPartitions based on namespace to respective
+ * The PartitionNexus is a special type of ContextPartition designed to route
+ * ContextPartition operations to ContextPartitions based on namespace to respective
  * ContextPartitions attached to the nexus at the appropriate naming contexts.
  * These naming contexts are also the suffixes of ContextPartitions.  All
  * entries within a ContextPartition have the same suffix.  The PartitionNexus
  * is a singleton where as ContextPartitions can be many hanging off of
  * different contexts on the nexus.
  *
- * The PartitionNexus routes or proxies BackingStore calls to the appropriate
+ * The PartitionNexus routes or proxies ContextPartition calls to the appropriate
  * PartitionContext implementation.  It also provides some extended operations
  * for the entire backend apparatus like listing the various naming contexts or
  * partition suffixes within the system.  The nexus is also responsibe for
@@ -43,7 +43,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface PartitionNexus extends BackingStore
+public interface PartitionNexus extends ContextPartition
 {
     /**
      * Gets the LdapContext associated with the calling thread.

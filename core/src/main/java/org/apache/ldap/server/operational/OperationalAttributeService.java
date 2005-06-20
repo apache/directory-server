@@ -47,8 +47,8 @@ import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.partition.RootNexus;
-import org.apache.ldap.server.partition.store.ResultFilteringEnumeration;
-import org.apache.ldap.server.partition.store.SearchResultFilter;
+import org.apache.ldap.server.partition.store.impl.btree.ResultFilteringEnumeration;
+import org.apache.ldap.server.partition.store.impl.btree.SearchResultFilter;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 

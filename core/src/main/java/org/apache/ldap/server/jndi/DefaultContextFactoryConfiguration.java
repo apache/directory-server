@@ -48,11 +48,11 @@ import org.apache.ldap.server.partition.ApplicationPartition;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.PartitionNexus;
 import org.apache.ldap.server.partition.RootNexus;
-import org.apache.ldap.server.partition.store.DefaultSearchEngine;
-import org.apache.ldap.server.partition.store.ExpressionEnumerator;
-import org.apache.ldap.server.partition.store.ExpressionEvaluator;
-import org.apache.ldap.server.partition.store.PartitionStore;
-import org.apache.ldap.server.partition.store.SearchEngine;
+import org.apache.ldap.server.partition.store.impl.btree.DefaultSearchEngine;
+import org.apache.ldap.server.partition.store.impl.btree.ExpressionEnumerator;
+import org.apache.ldap.server.partition.store.impl.btree.ExpressionEvaluator;
+import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmPartitionStore;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
@@ -230,7 +230,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         try
         {
             this.rootNexus.sync();
-            this.rootNexus.close();
+            this.rootNexus.destroy();
             this.interceptorChain.destroy();
             this.started = false;
         }

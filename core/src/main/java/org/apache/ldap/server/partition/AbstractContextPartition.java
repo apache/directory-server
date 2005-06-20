@@ -35,15 +35,15 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.partition.store.PartitionStore;
-import org.apache.ldap.server.partition.store.SearchEngine;
-import org.apache.ldap.server.partition.store.SearchResultEnumeration;
+import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
+import org.apache.ldap.server.partition.store.impl.btree.SearchResultEnumeration;
 import org.apache.ldap.server.partition.store.impl.gui.PartitionViewer;
 
 
 /**
- * An Abstract BackingStore using a formal database and a search engine.  All
- * the common code between a SystemBackingStore and a DefaultBackingStore
+ * An Abstract ContextPartition using a formal database and a search engine.  All
+ * the common code between a SystemContextPartition and a DefaultContextPartition
  * will be added to this super class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -221,13 +221,10 @@ public abstract class AbstractContextPartition implements ContextPartition
 
 
     // ------------------------------------------------------------------------
-    // BackingStore Interface Method Implementations
+    // ContextPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#delete( Name )
-     */
     public void delete( Name dn ) throws NamingException
     {
         BigInteger id = db.getEntryId( dn.toString() );
@@ -251,36 +248,24 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
     
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#add( String, Name, Attributes )
-     */
     public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
         db.add( updn, dn, entry );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#modify( Name, int, Attributes )
-     */
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
         db.modify( dn, modOp, mods );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#modify( Name,ModificationItem[] )
-     */
     public void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
         db.modify( dn, mods );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#list( Name )
-     */
     public NamingEnumeration list( Name base ) throws NamingException
     {
         SearchResultEnumeration list;
@@ -290,9 +275,6 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
     
     
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#search(Name, Map, ExprNode, SearchControls)
-     */
     public NamingEnumeration search( Name base, Map env, ExprNode filter,
                                      SearchControls searchCtls )
         throws NamingException
@@ -306,18 +288,12 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#lookup( Name )
-     */
     public Attributes lookup( Name dn ) throws NamingException
     {
         return db.lookup( db.getEntryId( dn.toString() ) );
     }
 
 
-    /**
-     * @see BackingStore#lookup(Name,String[])
-     */
     public Attributes lookup( Name dn, String [] attrIds ) throws NamingException
     {
         if ( attrIds == null || attrIds.length == 0 )
@@ -342,36 +318,24 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#hasEntry( Name )
-     */
     public boolean hasEntry( Name dn ) throws NamingException
     {
         return null != db.getEntryId( dn.toString() );
     }
 
 
-    /**
-     * @see BackingStore#modifyRn( Name, String, boolean )
-     */
     public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         db.modifyRdn( dn, newRdn, deleteOldRdn );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#move( Name, Name )
-     */
     public void move( Name oldChildDn, Name newParentDn ) throws NamingException
     {
         db.move( oldChildDn, newParentDn );
     }
     
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#move( Name, Name, String, boolean )
-     */
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
         boolean deleteOldRdn ) throws NamingException
     {
@@ -385,13 +349,13 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
 
-    public void close() throws NamingException
+    public void destroy() throws NamingException
     {
         db.close();
     }
 
 
-    public boolean isOpen()
+    public boolean isInitialized()
     {
         return db.isOpen();
     }

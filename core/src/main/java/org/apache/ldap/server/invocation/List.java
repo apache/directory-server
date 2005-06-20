@@ -20,11 +20,11 @@ package org.apache.ldap.server.invocation;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * Represents an {@link org.apache.ldap.server.invocation.Invocation} on {@link BackingStore#list(Name)}.
+ * Represents an {@link org.apache.ldap.server.invocation.Invocation} on {@link ContextPartition#list(Name)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -40,7 +40,7 @@ public class List extends SubtreeInvocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
         return store.list( getBaseName() );
     }

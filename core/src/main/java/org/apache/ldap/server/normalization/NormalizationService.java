@@ -70,7 +70,7 @@ public class NormalizationService extends BaseInterceptor
 
 
     // ------------------------------------------------------------------------
-    // Normalize all Name based arguments for BackingStore interface operations
+    // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
 
 

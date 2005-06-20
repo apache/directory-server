@@ -33,9 +33,9 @@ import jdbm.recman.CacheRecordManager;
 
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.LRUMap;
-import org.apache.ldap.server.partition.store.Index;
-import org.apache.ldap.server.partition.store.IndexComparator;
-import org.apache.ldap.server.partition.store.IndexEnumeration;
+import org.apache.ldap.server.partition.store.impl.btree.Index;
+import org.apache.ldap.server.partition.store.impl.btree.IndexComparator;
+import org.apache.ldap.server.partition.store.impl.btree.IndexEnumeration;
 import org.apache.ldap.server.schema.SerializableComparator;
 import org.apache.regexp.RE;
 
@@ -158,7 +158,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Index#getAttribute()
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#getAttribute()
      */
     public AttributeType getAttribute()
     {
@@ -192,7 +192,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Index#count(java.lang.Object, boolean)
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#count(java.lang.Object, boolean)
      */
     public int count( Object attrVal, boolean isGreaterThan )
         throws NamingException
@@ -232,7 +232,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Index#add(java.lang.Object,
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#add(java.lang.Object,
      * java.math.BigInteger)
      */
     public synchronized void add( Object attrVal, BigInteger id )
@@ -244,7 +244,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Index#add(
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#add(
      * javax.naming.directory.Attribute, java.math.BigInteger)
      */
     public synchronized void add( Attribute attr, BigInteger id ) 
@@ -275,7 +275,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Index#drop(java.lang.Object,
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#drop(java.lang.Object,
      * java.math.BigInteger)
      */
     public synchronized void drop( Object attrVal, BigInteger id )
@@ -332,7 +332,7 @@ public class JdbmIndex implements Index
         
     
     /**
-     * @see org.apache.ldap.server.partition.store.Index#drop(
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#drop(
      * javax.naming.directory.Attributes, java.math.BigInteger)
      */
     public void drop( Attributes attrs, BigInteger id )
@@ -368,7 +368,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Index#listIndices(java.lang.Object)
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#listIndices(java.lang.Object)
      */
     public IndexEnumeration listIndices( Object attrVal ) 
         throws NamingException
@@ -379,7 +379,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Index#listIndices(java.lang.Object,
+     * @see org.apache.ldap.server.partition.store.impl.btree.Index#listIndices(java.lang.Object,
      * boolean)
      */
     public IndexEnumeration listIndices( Object attrVal, 

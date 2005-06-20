@@ -21,11 +21,11 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.ModificationItem;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#modify(Name, ModificationItem[])}.
+ * Represents an {@link Invocation} on {@link ContextPartition#modify(Name, ModificationItem[])}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -54,7 +54,7 @@ public class ModifyMany extends EntryInvocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
         store.modify( getName(), modificationItems );
         return null;

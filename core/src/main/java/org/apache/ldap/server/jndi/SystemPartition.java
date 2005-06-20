@@ -27,8 +27,8 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.partition.AbstractContextPartition;
-import org.apache.ldap.server.partition.store.PartitionStore;
-import org.apache.ldap.server.partition.store.SearchEngine;
+import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
 /**
@@ -219,7 +219,7 @@ public final class SystemPartition extends AbstractContextPartition
 
 
     /**
-     * @see org.apache.ldap.server.partition.BackingStore#isSuffix(javax.naming.Name)
+     * @see org.apache.ldap.server.partition.ContextPartition#isSuffix(javax.naming.Name)
      */
     public final boolean isSuffix( Name dn )
     {

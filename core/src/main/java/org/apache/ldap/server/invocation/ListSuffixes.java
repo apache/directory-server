@@ -19,7 +19,7 @@ package org.apache.ldap.server.invocation;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.PartitionNexus;
 
 
@@ -48,7 +48,7 @@ public class ListSuffixes extends Invocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
         return ( ( PartitionNexus ) store ).listSuffixes( normalized );
     }

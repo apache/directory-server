@@ -20,10 +20,10 @@ package org.apache.ldap.server.invocation;
 
 import javax.naming.Name;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 /**
- * Represents a method invocation on a single entry in {@link BackingStore}s.
+ * Represents a method invocation on a single entry in {@link ContextPartition}s.
  * <p/>
  * This class is abstract, and developers should extend this class to
  * represent the actual method invocations.

@@ -21,8 +21,8 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.server.partition.store.PartitionStore;
-import org.apache.ldap.server.partition.store.SearchEngine;
+import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
 /**
@@ -77,9 +77,6 @@ public class ApplicationPartition extends AbstractContextPartition
         this.normalizedSuffix = normSuffix;
     }
 
-    /**
-     * @see ContextPartition#getSuffix( boolean )
-     */
     public Name getSuffix( boolean normalized )
     {
         if ( normalized )
@@ -91,9 +88,6 @@ public class ApplicationPartition extends AbstractContextPartition
     }
 
 
-    /**
-     * @see BackingStore#isSuffix( Name )
-     */
     public boolean isSuffix( Name dn ) throws NamingException
     {
         return normalizedSuffix.equals( dn ) ;

@@ -140,7 +140,7 @@ class RootNexusProxy implements PartitionNexus
         this.provider.shutdown();
     }
 
-    public boolean isOpen() {
-        return this.provider.getRootNexus().isOpen();
+    public boolean isInitialized() {
+        return this.provider.getRootNexus().isInitialized();
     }
 }

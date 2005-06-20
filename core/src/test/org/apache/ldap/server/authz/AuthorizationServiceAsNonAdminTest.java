@@ -28,7 +28,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractNonAdminTestCase;
-import org.apache.ldap.server.partition.store.PartitionStoreSearchResult;
+import org.apache.ldap.server.partition.store.impl.btree.PartitionStoreSearchResult;
 
 
 /**

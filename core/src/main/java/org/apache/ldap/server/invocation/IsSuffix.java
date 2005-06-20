@@ -20,11 +20,11 @@ package org.apache.ldap.server.invocation;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#isSuffix(Name)}.
+ * Represents an {@link Invocation} on {@link ContextPartition#isSuffix(Name)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -39,7 +39,7 @@ public class IsSuffix extends EntryInvocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
         return store.isSuffix( getName() ) ? Boolean.TRUE : Boolean.FALSE;
     }

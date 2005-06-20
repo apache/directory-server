@@ -20,7 +20,6 @@ package org.apache.ldap.server.invocation;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.BackingStore;
 import org.apache.ldap.server.partition.ContextPartition;
 
 
@@ -50,8 +49,8 @@ public class GetSuffix extends EntryInvocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
-        return ( ( ContextPartition ) store ).getSuffix( normalized );
+        return store.getSuffix( normalized );
     }
 }

@@ -44,15 +44,15 @@ import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.jndi.SystemPartition;
-import org.apache.ldap.server.partition.BackingStore;
-import org.apache.ldap.server.partition.store.ResultFilteringEnumeration;
-import org.apache.ldap.server.partition.store.SearchResultFilter;
+import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.store.impl.btree.ResultFilteringEnumeration;
+import org.apache.ldap.server.partition.store.impl.btree.SearchResultFilter;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 
 
 /**
- * An {@link org.apache.ldap.server.interceptor.Interceptor} that controls access to {@link BackingStore}
+ * An {@link org.apache.ldap.server.interceptor.Interceptor} that controls access to {@link ContextPartition}
  * operations.  If a user tries to perform any operations that requires
  * permission he or she doesn't have, {@link NamingException} will be
  * thrown and therefore the current invocation chain will terminate.

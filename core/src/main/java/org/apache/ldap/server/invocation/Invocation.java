@@ -22,11 +22,11 @@ import java.util.Stack;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * Represents a method invocation on {@link BackingStore}s.
+ * Represents a method invocation on {@link ContextPartition}s.
  * <p/>
  * This class is abstract, and developers should extend this class to
  * represent the actual method invocations.
@@ -94,12 +94,12 @@ public abstract class Invocation implements Serializable
 
     /**
      * Executes this invocation on the specified <code>store</code>. The default
-     * implementation calls an abstract method {@link #doExecute(BackingStore)}
+     * implementation calls an abstract method {@link #doExecute(ContextPartition)}
      * and sets the <code>returnValue</code> property of this invocation to its return value.
      *
      * @throws NamingException if the operation failed
      */
-    public void execute( BackingStore store ) throws NamingException
+    public void execute( ContextPartition store ) throws NamingException
     {
         setReturnValue( doExecute( store ) );
     }
@@ -111,5 +111,5 @@ public abstract class Invocation implements Serializable
      *
      * @throws NamingException if the operation failed
      */
-    protected abstract Object doExecute( BackingStore store ) throws NamingException;
+    protected abstract Object doExecute( ContextPartition store ) throws NamingException;
 }

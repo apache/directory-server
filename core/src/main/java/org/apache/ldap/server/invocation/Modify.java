@@ -21,11 +21,11 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * Represents an {@link Invocation} on {@link BackingStore#modify(Name, int, Attributes)}.
+ * Represents an {@link Invocation} on {@link ContextPartition#modify(Name, int, Attributes)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -59,7 +59,7 @@ public class Modify extends EntryInvocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
         store.modify( getName(), modOp, attributes );
         return null;

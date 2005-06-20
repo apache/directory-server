@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.store.Tuple;
-import org.apache.ldap.server.partition.store.TupleBrowser;
+import org.apache.ldap.server.partition.store.impl.btree.Tuple;
+import org.apache.ldap.server.partition.store.impl.btree.TupleBrowser;
 
 
 /**
@@ -51,7 +51,7 @@ public class JdbmTupleBrowser implements TupleBrowser
     
     
     /**
-     * @see TupleBrowser#getNext(org.apache.ldap.server.partition.store.Tuple)
+     * @see TupleBrowser#getNext(org.apache.ldap.server.partition.store.impl.btree.Tuple)
      */
     public boolean getNext( Tuple tuple ) throws NamingException
     {

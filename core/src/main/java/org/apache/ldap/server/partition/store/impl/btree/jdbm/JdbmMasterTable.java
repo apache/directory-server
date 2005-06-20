@@ -26,7 +26,7 @@ import jdbm.RecordManager;
 import jdbm.helper.StringComparator;
 
 import org.apache.ldap.common.util.BigIntegerComparator;
-import org.apache.ldap.server.partition.store.MasterTable;
+import org.apache.ldap.server.partition.store.impl.btree.MasterTable;
 import org.apache.ldap.server.schema.SerializableComparator;
 
 

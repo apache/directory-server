@@ -31,9 +31,9 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.partition.store.PartitionStore;
-import org.apache.ldap.server.partition.store.IndexRecord;
-import org.apache.ldap.server.partition.store.SearchEngine;
+import org.apache.ldap.server.partition.store.impl.btree.IndexRecord;
+import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
 /**

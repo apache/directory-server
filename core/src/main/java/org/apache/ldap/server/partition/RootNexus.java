@@ -48,6 +48,8 @@ import org.apache.ldap.server.jndi.SystemPartition;
 /**
  * A nexus for partitions dedicated for storing entries specific to a naming
  * context.
+ * 
+ * TODO init() should initialize all mounted child partitions. (destroy too)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -215,7 +217,7 @@ public class RootNexus implements PartitionNexus
     
     
     /**
-     * @see BackingStore#delete(javax.naming.Name)
+     * @see ContextPartition#delete(javax.naming.Name)
      */
     public void delete( Name dn ) throws NamingException
     {
@@ -232,7 +234,7 @@ public class RootNexus implements PartitionNexus
      * here so backend implementors do not have to worry about performing these
      * kinds of checks.
      *
-     * @see org.apache.ldap.server.partition.BackingStore#add(String, Name, Attributes)
+     * @see org.apache.ldap.server.partition.ContextPartition#add(String, Name, Attributes)
      */
     public void add( String updn, Name dn, Attributes an_entry ) throws NamingException
     {
@@ -243,7 +245,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see BackingStore#modify(Name, int,Attributes)
+     * @see ContextPartition#modify(Name, int,Attributes)
      */
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
@@ -254,7 +256,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see BackingStore#modify(javax.naming.Name,
+     * @see ContextPartition#modify(javax.naming.Name,
      * javax.naming.directory.ModificationItem[])
      */
     public void modify( Name dn, ModificationItem[] mods ) throws NamingException
@@ -266,7 +268,7 @@ public class RootNexus implements PartitionNexus
 
     
     /**
-     * @see BackingStore#list(javax.naming.Name)
+     * @see ContextPartition#list(javax.naming.Name)
      */
     public NamingEnumeration list( Name base ) throws NamingException
     {
@@ -277,7 +279,7 @@ public class RootNexus implements PartitionNexus
     
 
     /**
-     * @see BackingStore#search(Name, Map, ExprNode, SearchControls)
+     * @see ContextPartition#search(Name, Map, ExprNode, SearchControls)
      */
     public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
             throws NamingException
@@ -341,7 +343,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see BackingStore#lookup(javax.naming.Name)
+     * @see ContextPartition#lookup(javax.naming.Name)
      */
     public Attributes lookup( Name dn )  throws NamingException
     {
@@ -361,7 +363,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.partition.BackingStore#lookup(javax.naming.Name, String[])
+     * @see org.apache.ldap.server.partition.ContextPartition#lookup(javax.naming.Name, String[])
      */
     public Attributes lookup( Name dn, String[] attrIds )  throws NamingException
     {
@@ -392,7 +394,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see BackingStore#hasEntry(javax.naming.Name)
+     * @see ContextPartition#hasEntry(javax.naming.Name)
      */
     public boolean hasEntry( Name dn ) throws NamingException
     {
@@ -408,7 +410,7 @@ public class RootNexus implements PartitionNexus
 
     
     /**
-     * @see BackingStore#isSuffix(javax.naming.Name)
+     * @see ContextPartition#isSuffix(javax.naming.Name)
      */
     public boolean isSuffix( Name dn ) throws NamingException
     {
@@ -417,7 +419,7 @@ public class RootNexus implements PartitionNexus
 
     
     /**
-     * @see BackingStore#modifyRn(Name, String, boolean)
+     * @see ContextPartition#modifyRn(Name, String, boolean)
      */
     public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
@@ -428,7 +430,7 @@ public class RootNexus implements PartitionNexus
     
     
     /**
-     * @see BackingStore#move(Name, Name)
+     * @see ContextPartition#move(Name, Name)
      */
     public void move( Name oriChildName, Name newParentName ) throws NamingException
     {
@@ -439,7 +441,7 @@ public class RootNexus implements PartitionNexus
     
     
     /**
-     * @see BackingStore#move(javax.naming.Name,
+     * @see ContextPartition#move(javax.naming.Name,
      * javax.naming.Name, java.lang.String, boolean)
      */
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
@@ -452,7 +454,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see BackingStore#sync()
+     * @see ContextPartition#sync()
      */
     public void sync() throws NamingException
     {
@@ -462,7 +464,7 @@ public class RootNexus implements PartitionNexus
 
         while ( list.hasNext() )
         {
-            BackingStore store = ( BackingStore ) list.next();
+            ContextPartition store = ( ContextPartition ) list.next();
 
             try
             {
@@ -493,16 +495,13 @@ public class RootNexus implements PartitionNexus
     }
 
 
-    public boolean isOpen()
+    public boolean isInitialized()
     {
         return open;
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.BackingStore#close()
-     */
-    public synchronized void close() throws NamingException
+    public synchronized void destroy() throws NamingException
     {
         if ( !open )
         {
@@ -517,12 +516,12 @@ public class RootNexus implements PartitionNexus
         // have an attempt at closing down and synching their cached entries
         while ( list.hasNext() )
         {
-            BackingStore store = ( BackingStore ) list.next();
+            ContextPartition store = ( ContextPartition ) list.next();
 
             try
             {
                 store.sync();
-                store.close();
+                store.destroy();
             }
             catch ( NamingException e )
             {

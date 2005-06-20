@@ -43,13 +43,13 @@ import org.apache.ldap.server.invocation.ModifyRN;
 import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.RootNexus;
 
 
 /**
  * An {@link org.apache.ldap.server.interceptor.Interceptor} that detects any operations that breaks integrity
- * of {@link BackingStore} and terminates the current invocation chain by
+ * of {@link ContextPartition} and terminates the current invocation chain by
  * throwing a {@link NamingException}. Those operations include when an entry
  * already exists at a DN and is added once again to the same DN.
  *

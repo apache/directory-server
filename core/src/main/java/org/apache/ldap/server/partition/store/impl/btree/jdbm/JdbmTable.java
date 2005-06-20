@@ -33,14 +33,14 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.ldap.common.util.EmptyEnumeration;
 import org.apache.ldap.common.util.SingletonEnumeration;
-import org.apache.ldap.server.partition.store.DupsEnumeration;
-import org.apache.ldap.server.partition.store.KeyOnlyComparator;
-import org.apache.ldap.server.partition.store.NoDupsEnumeration;
-import org.apache.ldap.server.partition.store.Table;
-import org.apache.ldap.server.partition.store.Tuple;
-import org.apache.ldap.server.partition.store.TupleComparator;
-import org.apache.ldap.server.partition.store.TupleEnumeration;
-import org.apache.ldap.server.partition.store.TupleRenderer;
+import org.apache.ldap.server.partition.store.impl.btree.DupsEnumeration;
+import org.apache.ldap.server.partition.store.impl.btree.KeyOnlyComparator;
+import org.apache.ldap.server.partition.store.impl.btree.NoDupsEnumeration;
+import org.apache.ldap.server.partition.store.impl.btree.Table;
+import org.apache.ldap.server.partition.store.impl.btree.Tuple;
+import org.apache.ldap.server.partition.store.impl.btree.TupleComparator;
+import org.apache.ldap.server.partition.store.impl.btree.TupleEnumeration;
+import org.apache.ldap.server.partition.store.impl.btree.TupleRenderer;
 import org.apache.ldap.server.schema.SerializableComparator;
 
 
@@ -163,7 +163,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#getComparator()
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#getComparator()
      */
     public TupleComparator getComparator()
     {
@@ -172,7 +172,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#isDupsEnabled()
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#isDupsEnabled()
      */
     public boolean isDupsEnabled()
     {
@@ -181,7 +181,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#getName()
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#getName()
      */
     public String getName()
     {
@@ -190,7 +190,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#getRenderer()
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#getRenderer()
      */
     public TupleRenderer getRenderer()
     {
@@ -264,7 +264,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#count()
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#count()
      */
     public int count()
         throws NamingException
@@ -462,7 +462,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#has(java.lang.Object,
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#has(java.lang.Object,
      * java.lang.Object)
      */
     public boolean has( Object key, Object value )
@@ -502,7 +502,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#put(java.lang.Object,
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#put(java.lang.Object,
      * java.lang.Object)
      */
     public Object put( Object key, Object value )
@@ -804,7 +804,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#listTuples()
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#listTuples()
      */
     public NamingEnumeration listTuples()
         throws NamingException
@@ -833,7 +833,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#listTuples(java.lang.Object)
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#listTuples(java.lang.Object)
      */
     public NamingEnumeration listTuples( Object key )
         throws NamingException
@@ -933,7 +933,7 @@ public class JdbmTable implements Table
     
 
     /**
-     * @see org.apache.ldap.server.partition.store.Table#listTuples(java.lang.Object,
+     * @see org.apache.ldap.server.partition.store.impl.btree.Table#listTuples(java.lang.Object,
      * java.lang.Object, boolean)
      */
     public NamingEnumeration listTuples( Object key, Object val, 

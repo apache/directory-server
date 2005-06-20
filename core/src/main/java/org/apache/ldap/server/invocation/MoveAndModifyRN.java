@@ -20,11 +20,11 @@ package org.apache.ldap.server.invocation;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.BackingStore;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * Represents an {@link org.apache.ldap.server.invocation.Invocation} on {@link BackingStore#move(Name, Name, String, boolean)}.
+ * Represents an {@link org.apache.ldap.server.invocation.Invocation} on {@link ContextPartition#move(Name, Name, String, boolean)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -84,7 +84,7 @@ public class MoveAndModifyRN extends EntryInvocation
     }
 
 
-    protected Object doExecute( BackingStore store ) throws NamingException
+    protected Object doExecute( ContextPartition store ) throws NamingException
     {
         store.move( getName(), newParentName, newRelativeName, deleteOldName );
         return null;
