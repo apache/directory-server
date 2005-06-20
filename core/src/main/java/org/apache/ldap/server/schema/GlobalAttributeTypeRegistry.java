@@ -58,7 +58,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
      * the system partition and within the bootstrapping registry to service
      * AttributeType lookup requests.
      *
-     * @param systemPartition the system database partition under ou=system
      * @param bootstrap the bootstrapping registry to delegate to
      */
     public GlobalAttributeTypeRegistry( BootstrapAttributeTypeRegistry bootstrap, OidRegistry oidRegistry )
