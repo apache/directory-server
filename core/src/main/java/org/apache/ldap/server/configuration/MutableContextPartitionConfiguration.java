@@ -39,6 +39,11 @@ public class MutableContextPartitionConfiguration extends
     public MutableContextPartitionConfiguration()
     {
     }
+    
+    public void setName( String name )
+    {
+        super.setName( name );
+    }
 
     public void setIndexedAttributes( Set indexedAttributes )
     {

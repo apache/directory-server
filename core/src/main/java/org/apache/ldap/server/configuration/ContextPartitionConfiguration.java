@@ -59,7 +59,7 @@ public class ContextPartitionConfiguration
         return name;
     }
     
-    public void setName( String name )
+    protected void setName( String name )
     {
         // TODO name can be a directory name.
         this.name = name.trim();
