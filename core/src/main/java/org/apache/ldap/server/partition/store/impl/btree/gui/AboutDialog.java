@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.partition.store.impl.gui;
+package org.apache.ldap.server.partition.store.impl.btree.gui;
 
 
 import java.awt.BorderLayout;
