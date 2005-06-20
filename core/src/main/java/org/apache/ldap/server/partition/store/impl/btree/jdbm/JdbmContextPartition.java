@@ -63,7 +63,7 @@ import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmPartitionStore extends BTreeContextPartition
+public class JdbmContextPartition extends BTreeContextPartition
 {
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
@@ -107,7 +107,7 @@ public class JdbmPartitionStore extends BTreeContextPartition
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmPartitionStore( SearchEngine searchEngine, AttributeType[] indexedAttrs ) throws NamingException
+    public JdbmContextPartition( SearchEngine searchEngine, AttributeType[] indexedAttrs ) throws NamingException
     {
         super( searchEngine, indexedAttrs );
     }
