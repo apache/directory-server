@@ -32,6 +32,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -46,6 +47,8 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
@@ -122,34 +125,15 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
     public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
-        
         if( initialized )
         {
             return;
         }
         
         List initializedPartitions = new ArrayList();
-        
-        // initialize system partition first
-        MutableContextPartitionConfiguration systemCfg = new MutableContextPartitionConfiguration();
-        system = new SystemPartition();
-        systemCfg.setName( "system" );
-        systemCfg.setSuffix( SystemPartition.SUFFIX );
-        systemCfg.setContextPartition( system );
-        Set indexedSystemAttrs = new HashSet();
-        indexedSystemAttrs.add( SystemPartition.ALIAS_OID );
-        indexedSystemAttrs.add( SystemPartition.EXISTANCE_OID );
-        indexedSystemAttrs.add( SystemPartition.HIERARCHY_OID );
-        indexedSystemAttrs.add( SystemPartition.NDN_OID );
-        indexedSystemAttrs.add( SystemPartition.ONEALIAS_OID );
-        indexedSystemAttrs.add( SystemPartition.SUBALIAS_OID );
-        indexedSystemAttrs.add( SystemPartition.UPDN_OID );
-        systemCfg.setIndexedAttributes( indexedSystemAttrs );
-        
-        system.init( factoryCfg, systemCfg );
-        register( system );
+        initializeSystemPartition( factoryCfg );
         initializedPartitions.add( system );
-
+        
         Iterator i = factoryCfg.getConfiguration().getContextPartitionConfigurations().iterator();
         boolean success = false;
         try
@@ -159,10 +143,6 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
                 cfg = ( ContextPartitionConfiguration ) i.next();
                 ContextPartition partition = cfg.getContextPartition();
                 partition.init( factoryCfg, cfg );
-                partition.add(
-                        cfg.getSuffix(),
-                        cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ),
-                        cfg.getContextEntry() );
                 initializedPartitions.add( 0, partition );
                 register( partition );
             }
@@ -192,6 +172,42 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
                 }
             }
         }
+    }
+
+
+    private void initializeSystemPartition( ContextFactoryConfiguration factoryCfg ) throws NamingException
+    {
+        // initialize system partition first
+        MutableContextPartitionConfiguration systemCfg = new MutableContextPartitionConfiguration();
+        system = new SystemPartition();
+        systemCfg.setName( "system" );
+        systemCfg.setSuffix( SystemPartition.SUFFIX );
+        systemCfg.setContextPartition( system );
+        
+        // Add indexed attributes for system partition
+        Set indexedSystemAttrs = new HashSet();
+        indexedSystemAttrs.add( SystemPartition.ALIAS_OID );
+        indexedSystemAttrs.add( SystemPartition.EXISTANCE_OID );
+        indexedSystemAttrs.add( SystemPartition.HIERARCHY_OID );
+        indexedSystemAttrs.add( SystemPartition.NDN_OID );
+        indexedSystemAttrs.add( SystemPartition.ONEALIAS_OID );
+        indexedSystemAttrs.add( SystemPartition.SUBALIAS_OID );
+        indexedSystemAttrs.add( SystemPartition.UPDN_OID );
+        systemCfg.setIndexedAttributes( indexedSystemAttrs );
+        
+        // Add context entry for system partition
+        Attributes systemEntry = new BasicAttributes();
+        systemEntry.put( "objectClass", "top" ) ;
+        systemEntry.put( "objectClass", "organizationalUnit" ) ;
+        systemEntry.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL ) ;
+        systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() ) ;
+        systemEntry.put(
+                NamespaceTools.getRdnAttribute( SystemPartition.SUFFIX ),
+                NamespaceTools.getRdnValue( SystemPartition.SUFFIX ) ) ;
+        systemCfg.setContextEntry( systemEntry );
+
+        system.init( factoryCfg, systemCfg );
+        register( system );
     }
 
 

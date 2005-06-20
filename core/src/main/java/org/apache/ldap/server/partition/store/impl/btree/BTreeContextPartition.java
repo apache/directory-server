@@ -191,6 +191,10 @@ public abstract class BTreeContextPartition implements ContextPartition
                 addIndexOn( type );
             }
         }
+        
+        add( cfg.getSuffix(),
+                cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ),
+                cfg.getContextEntry() );
     }
 
     

@@ -18,14 +18,8 @@ package org.apache.ldap.server.partition;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
-import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.util.DateUtils;
-import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmContextPartition;
 
 
@@ -151,32 +145,5 @@ public final class SystemPartition extends JdbmContextPartition
      */
     public SystemPartition()
     {
-    }
-
-
-    // ------------------------------------------------------------------------
-    // B A C K E N D   M E T H O D S 
-    // ------------------------------------------------------------------------
-
-    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
-    {
-        super.init( factoryCfg, cfg );
-
-        Name suffix = cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() );
-        
-        // add the root entry for the system root context if it does not exist
-        Attributes attributes = cfg.getContextEntry();
-        if( attributes == null || attributes.size() == 0 )
-        {
-            attributes = new LockableAttributesImpl() ;
-            attributes.put( "objectClass", "top" ) ;
-            attributes.put( "objectClass", "organizationalUnit" ) ;
-            attributes.put( "creatorsName", ADMIN_PRINCIPAL ) ;
-            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() ) ;
-            attributes.put( NamespaceTools.getRdnAttribute( SUFFIX ),
-                NamespaceTools.getRdnValue( SUFFIX ) ) ;
-
-            add( suffix.toString(), suffix, attributes ) ;
-        }
     }
 }
