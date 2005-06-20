@@ -55,7 +55,7 @@ public class LeafEvaluator implements Evaluator
 
 
     /** Database used to evaluate leaf with */
-    private PartitionStore db;
+    private BTreeContextPartition db;
     /** Oid Registry used to translate attributeIds to OIDs */
     private OidRegistry oidRegistry;
     /** AttributeType registry needed for normalizing and comparing values */
@@ -73,7 +73,7 @@ public class LeafEvaluator implements Evaluator
      * @param scopeEvaluator
      * @param substringEvaluator
      */
-    public LeafEvaluator( PartitionStore db, OidRegistry oidRegistry,
+    public LeafEvaluator( BTreeContextPartition db, OidRegistry oidRegistry,
                           AttributeTypeRegistry attributeTypeRegistry,
                           ScopeEvaluator scopeEvaluator,
                           SubstringEvaluator substringEvaluator )

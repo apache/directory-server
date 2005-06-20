@@ -22,7 +22,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
@@ -60,7 +60,7 @@ public class ApplicationPartition extends BTreeContextPartition
      * @throws NamingException on failures while creating this partition
      */
     public ApplicationPartition(
-            PartitionStore db, SearchEngine searchEngine, AttributeType[] indexAttributes )
+            BTreeContextPartition db, SearchEngine searchEngine, AttributeType[] indexAttributes )
         throws NamingException
     {
         super( db, searchEngine, indexAttributes );

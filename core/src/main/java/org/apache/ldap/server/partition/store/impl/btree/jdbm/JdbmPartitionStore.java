@@ -53,7 +53,8 @@ import org.apache.ldap.server.partition.store.impl.btree.IndexAssertion;
 import org.apache.ldap.server.partition.store.impl.btree.IndexAssertionEnumeration;
 import org.apache.ldap.server.partition.store.impl.btree.IndexNotFoundException;
 import org.apache.ldap.server.partition.store.impl.btree.IndexRecord;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
+import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
 /**
@@ -62,7 +63,7 @@ import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmPartitionStore implements PartitionStore
+public class JdbmPartitionStore extends BTreeContextPartition
 {
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
@@ -80,7 +81,7 @@ public class JdbmPartitionStore implements PartitionStore
     private Map sysIndices;
 
     /** true if open */
-    private boolean open;
+    private boolean initialized;
 
     /** the normalized distinguished name index */
     private Index ndnIdx;
@@ -106,8 +107,9 @@ public class JdbmPartitionStore implements PartitionStore
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmPartitionStore ()
+    public JdbmPartitionStore( SearchEngine searchEngine, AttributeType[] indexedAttrs ) throws NamingException
     {
+        super( searchEngine, indexedAttrs );
     }
 
     public File getWorkingDirectory()
@@ -120,7 +122,7 @@ public class JdbmPartitionStore implements PartitionStore
         this.wkdir = workingDirectory;
     }
     
-    public synchronized void open( Name userProviderSuffix, Name normalizedSuffix ) throws NamingException
+    public synchronized void init( Name userProviderSuffix, Name normalizedSuffix ) throws NamingException
     {
         this.upSuffix = userProviderSuffix;
         this.normSuffix = normalizedSuffix;
@@ -143,13 +145,13 @@ public class JdbmPartitionStore implements PartitionStore
         master = new JdbmMasterTable( recMan );
         indices = new HashMap();
         sysIndices = new HashMap();
-        open = true;
+        initialized = true;
     }
     
     
-    public synchronized void close() throws NamingException
+    public synchronized void destroy() throws NamingException
     {
-        if ( !open )
+        if ( !initialized )
         {
             return;
         }
@@ -242,7 +244,7 @@ public class JdbmPartitionStore implements PartitionStore
             rootCause.addThrowable( t );
         }
 
-        open = false;
+        initialized = false;
 
         if ( null != rootCause )
         {
@@ -253,14 +255,19 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    public boolean isOpen()
+    public boolean isInitialized()
     {
-        return open;
+        return initialized;
     }
 
 
-    public void sync() throws NamingException
+    public synchronized void sync() throws NamingException
     {
+        if( !initialized )
+        {
+            return;
+        }
+
         ArrayList array = new ArrayList();
         array.addAll( indices.values() );
         array.add( ndnIdx );
@@ -325,9 +332,6 @@ public class JdbmPartitionStore implements PartitionStore
     // ------------------------------------------------------------------------
 
 
-    /**
-     * @see PartitionStore#addIndexOn(AttributeType)
-     */
     public void addIndexOn( AttributeType spec ) throws NamingException
     {
         Index idx = new JdbmIndex( spec, wkdir );
@@ -335,18 +339,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
     
-    /**
-     * @see PartitionStore#getExistanceIndex()
-     */
     public Index getExistanceIndex() 
     {
         return existanceIdx;
     }
     
 
-    /**
-     * @see PartitionStore#setExistanceIndexOn(AttributeType)
-     */    
     public void setExistanceIndexOn( AttributeType attrType ) throws NamingException
     {
         if ( existanceIdx != null )
@@ -360,18 +358,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
     
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getHierarchyIndex()
-     */
     public Index getHierarchyIndex() 
     {
         return hierarchyIdx;
     }
     
 
-    /**
-     * @see PartitionStore#setExistanceIndexOn(AttributeType)
-     */
     public void setHierarchyIndexOn( AttributeType attrType ) throws NamingException
     {
         if ( hierarchyIdx != null )
@@ -385,18 +377,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
     
-    /**
-     * @see PartitionStore#getAliasIndex()
-     */
     public Index getAliasIndex()
     {
         return aliasIdx;    
     }
 
 
-    /**
-     * @see PartitionStore#setAliasIndexOn(AttributeType)
-     */
     public void setAliasIndexOn( AttributeType attrType ) throws NamingException
     {
         if ( aliasIdx != null )
@@ -410,18 +396,12 @@ public class JdbmPartitionStore implements PartitionStore
     }    
     
 
-    /**
-     * @see PartitionStore#getOneAliasIndex()
-     */
     public Index getOneAliasIndex()
     {
         return oneAliasIdx;
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#setOneAliasIndexOn(AttributeType)
-     */
     public void setOneAliasIndexOn( AttributeType attrType ) throws NamingException
     {
         if ( oneAliasIdx != null )
@@ -435,18 +415,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see PartitionStore#getSubAliasIndex()
-     */
     public Index getSubAliasIndex()
     {
         return subAliasIdx;
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#setSubAliasIndexOn(AttributeType)
-     */
     public void setSubAliasIndexOn( AttributeType attrType ) throws NamingException
     {
         if ( subAliasIdx != null )
@@ -460,18 +434,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see PartitionStore#getUpdnIndex()
-     */
     public Index getUpdnIndex()
     {
         return updnIdx;
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#setUpdnIndexOn(AttributeType)
-     */
     public void setUpdnIndexOn( AttributeType attrType ) throws NamingException
     {
         if ( updnIdx != null )
@@ -485,18 +453,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
     
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getNdnIndex()
-     */
     public Index getNdnIndex() 
     {
         return ndnIdx;
     }
     
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#setNdnIndexOn(AttributeType)
-     */
     public void setNdnIndexOn( AttributeType attrType ) throws NamingException
     {
         if ( ndnIdx != null )
@@ -510,27 +472,18 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
     
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getUserIndices()
-     */
     public Iterator getUserIndices()
     {
         return indices.keySet().iterator();
     }
 
 
-    /**
-     * @see PartitionStore#getSystemIndices()
-     */
     public Iterator getSystemIndices()
     {
         return sysIndices.keySet().iterator();
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#hasUserIndexOn(String)
-     */
     public boolean hasUserIndexOn( String attribute )
     {
         return indices.containsKey( attribute ) ||
@@ -538,9 +491,6 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#hasSystemIndexOn(String)
-     */
     public boolean hasSystemIndexOn( String attribute )
     {
         return sysIndices.containsKey( attribute ) ||
@@ -552,7 +502,7 @@ public class JdbmPartitionStore implements PartitionStore
      * @todo replace lookups to use the OID instead of the name.  Also note
      * that the OID registry can be used to go between names and oids.
      * 
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getUserIndex(String)
+     * @see org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition#getUserIndex(String)
      */
     public Index getUserIndex( String attribute ) throws IndexNotFoundException
     {
@@ -578,7 +528,7 @@ public class JdbmPartitionStore implements PartitionStore
      * @todo replace lookups to use the OID instead of the name.  Also note
      * that the OID registry can be used to go between names and oids.
      * 
-     * @see PartitionStore#getEntryId(String)
+     * @see BTreeContextPartition#getEntryId(String)
      */
     public Index getSystemIndex( String indexName ) throws IndexNotFoundException
     {
@@ -600,27 +550,18 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getEntryId(String)
-     */
     public BigInteger getEntryId( String dn ) throws NamingException
     {
         return ndnIdx.forwardLookup( dn );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getEntryDn(java.math.BigInteger)
-     */
     public String getEntryDn( BigInteger id ) throws NamingException
     {
         return ( String ) ndnIdx.reverseLookup( id );
     }
 
 
-    /**
-     * @see PartitionStore#getParentId(String)
-     */
     public BigInteger getParentId( String dn ) throws NamingException
     {
         BigInteger childId = ndnIdx.forwardLookup( dn );
@@ -628,27 +569,18 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see PartitionStore#getParentId(BigInteger)
-     */
     public BigInteger getParentId( BigInteger childId ) throws NamingException
     {
         return ( BigInteger ) hierarchyIdx.reverseLookup( childId );
     }
     
     
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getEntryUpdn(BigInteger)
-     */
     public String getEntryUpdn( BigInteger id ) throws NamingException
     {
         return ( String ) updnIdx.reverseLookup( id );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getEntryUpdn(String)
-     */
     public String getEntryUpdn( String dn ) throws NamingException
     {
         BigInteger id = ndnIdx.forwardLookup( dn );
@@ -656,9 +588,6 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#count()
-     */
     public int count() throws NamingException
     {
         return master.count();
@@ -849,9 +778,6 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see PartitionStore#add(String,Name,Attributes)
-     */
     public void add( String updn, Name dn, Attributes entry ) throws NamingException
     {
         BigInteger id;
@@ -926,18 +852,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see PartitionStore#lookup(BigInteger)
-     */
     public Attributes lookup( BigInteger id ) throws NamingException
     {
         return master.get( id );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#delete(BigInteger)
-     */
     public void delete( BigInteger id ) throws  NamingException
     {
         Attributes entry = lookup( id );
@@ -981,36 +901,29 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see PartitionStore#list(java.math.BigInteger)
-     */
     public NamingEnumeration list( BigInteger id ) throws  NamingException
     {
         return hierarchyIdx.listIndices( id );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getChildCount(java.math.BigInteger)
-     */
     public int getChildCount( BigInteger id ) throws NamingException
     {
         return hierarchyIdx.count( id );
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getSuffix()
-     */
-    public Name getSuffix()
+    public Name getSuffix( boolean normalized )
     {
+        if ( normalized )
+        {
+            return normSuffix;
+        }
+        
         return upSuffix;
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getSuffixEntry()
-     */
     public Attributes getSuffixEntry() throws NamingException
     {
         BigInteger id = getEntryId( upSuffix.toString() );
@@ -1024,9 +937,6 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#setProperty(String, String)
-     */
     public void setProperty( String propertyName, String propertyValue )
         throws NamingException
     {
@@ -1034,18 +944,12 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#getProperty(String)
-     */
     public String getProperty( String propertyName ) throws NamingException
     {
         return master.getProperty( propertyName );
     }
 
 
-    /**
-     * @see PartitionStore#getIndices(java.math.BigInteger)
-     */
     public Attributes getIndices( BigInteger id ) throws  NamingException
     {
         Attributes attributes = new LockableAttributesImpl();
@@ -1243,10 +1147,6 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#modify(javax.naming.Name, int,
-     * javax.naming.directory.Attributes)
-     */
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
         NamingEnumeration attrs = null;
@@ -1297,10 +1197,6 @@ public class JdbmPartitionStore implements PartitionStore
     }
     
 
-    /**
-     * @see PartitionStore#modify(javax.naming.Name,
-     * javax.naming.directory.ModificationItem[])
-     */
     public void modify( Name dn, ModificationItem [] mods ) throws NamingException
     {
         BigInteger id = getEntryId( dn.toString() );
@@ -1347,10 +1243,8 @@ public class JdbmPartitionStore implements PartitionStore
      * @param deleteOldRdn whether or not to remove the old Rdn attr/val
      * @throws NamingException if there are any errors propagating the name 
      *        changes.
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#modifyRdn(javax.naming.Name,
-     * String, boolean)
      */
-    public void modifyRdn( Name dn, String newRdn, boolean deleteOldRdn )
+    public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn )
         throws NamingException
     {
         String newRdnAttr = NamespaceTools.getRdnAttribute( newRdn );
@@ -1510,14 +1404,10 @@ public class JdbmPartitionStore implements PartitionStore
     }
 
 
-    /**
-     * @see org.apache.ldap.server.partition.store.impl.btree.PartitionStore#move(javax.naming.Name,
-     * javax.naming.Name, String, boolean)
-     */
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
         boolean deleteOldRdn ) throws NamingException
     {
-        modifyRdn( oldChildDn, newRdn, deleteOldRdn );
+        modifyRn( oldChildDn, newRdn, deleteOldRdn );
         move( oldChildDn, newParentDn );
     }
 
@@ -1534,9 +1424,6 @@ public class JdbmPartitionStore implements PartitionStore
      * @param oldChildDn the normalized dn of the child to be moved
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws NamingException if something goes wrong
-     *
-     * @see PartitionStore#move(javax.naming.Name,
-     * javax.naming.Name)
      */
     public void move( Name oldChildDn, Name newParentDn ) throws NamingException
     {

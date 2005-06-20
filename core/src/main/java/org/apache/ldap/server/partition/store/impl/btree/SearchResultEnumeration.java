@@ -39,7 +39,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 public class SearchResultEnumeration implements NamingEnumeration
 {
     /** Database used to lookup entries from */
-    private PartitionStore db = null;
+    private BTreeContextPartition partition = null;
     /** base of search for relative names */
     /** the attributes to return */
     private final String [] attrIds;
@@ -56,9 +56,9 @@ public class SearchResultEnumeration implements NamingEnumeration
      */
     public SearchResultEnumeration( String [] attrIds, 
                                     NamingEnumeration underlying,
-                                    PartitionStore db )
+                                    BTreeContextPartition db )
     {
-        this.db = db;
+        this.partition = db;
         this.attrIds = attrIds;
         this.underlying = underlying;
     }
@@ -89,11 +89,11 @@ public class SearchResultEnumeration implements NamingEnumeration
     {
         IndexRecord rec = ( IndexRecord ) underlying.next();
         Attributes entry;
-        String name = db.getEntryUpdn( rec.getEntryId() );
+        String name = partition.getEntryUpdn( rec.getEntryId() );
         
         if ( null == rec.getAttributes() )
         {
-            rec.setAttributes( db.lookup( rec.getEntryId() ) );
+            rec.setAttributes( partition.lookup( rec.getEntryId() ) );
         }
 
         if ( attrIds == null )

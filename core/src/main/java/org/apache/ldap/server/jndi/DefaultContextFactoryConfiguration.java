@@ -51,9 +51,9 @@ import org.apache.ldap.server.partition.RootNexus;
 import org.apache.ldap.server.partition.store.impl.btree.DefaultSearchEngine;
 import org.apache.ldap.server.partition.store.impl.btree.ExpressionEnumerator;
 import org.apache.ldap.server.partition.store.impl.btree.ExpressionEvaluator;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
-import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmPartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmBTreeContextPartition;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
@@ -513,7 +513,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         LdapName suffix = new LdapName();
         suffix.add( SystemPartition.SUFFIX );
 
-        PartitionStore db = new JdbmPartitionStore( suffix, suffix, workDir.getPath() );
+        BTreeContextPartition db = new JdbmBTreeContextPartition( suffix, suffix, workDir.getPath() );
         AttributeTypeRegistry attributeTypeRegistry = bootstrapRegistries .getAttributeTypeRegistry();
         OidRegistry oidRegistry = bootstrapRegistries.getOidRegistry();
         ExpressionEvaluator evaluator = new ExpressionEvaluator( db, oidRegistry, attributeTypeRegistry );
@@ -577,7 +577,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             Name upSuffix = new LdapName( cfg.getSuffix() );
             Normalizer dnNorm = reg.lookup( "distinguishedNameMatch" ) .getNormalizer();
             Name normSuffix = new LdapName( ( String ) dnNorm.normalize( cfg.getSuffix() ) );
-            PartitionStore db = new JdbmPartitionStore( upSuffix, normSuffix, partitionWorkDir.getPath() );
+            BTreeContextPartition db = new JdbmBTreeContextPartition( upSuffix, normSuffix, partitionWorkDir.getPath() );
 
             // ----------------------------------------------------------------
             // create the search engine using db, enumerators and evaluators

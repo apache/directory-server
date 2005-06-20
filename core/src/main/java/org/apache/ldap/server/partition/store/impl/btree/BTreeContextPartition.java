@@ -19,6 +19,7 @@ package org.apache.ldap.server.partition.store.impl.btree;
 
 import java.math.BigInteger;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Name;
@@ -103,12 +104,6 @@ public abstract class BTreeContextPartition implements ContextPartition
     public static final String ALIAS_OID     = "1.2.6.1.4.1.18060.1.1.1.3.7" ;
 
     /**
-     * the database used for this backing store which is also initialized during
-     * configuration time
-     */
-    private PartitionStore db = null;
-    
-    /**
      * the search engine used to search the database
      */
     private SearchEngine searchEngine = null;
@@ -118,18 +113,14 @@ public abstract class BTreeContextPartition implements ContextPartition
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a context partition with a new database and a search engine.
      *
-     * @param db the dedicated database for this backing store
      * @param searchEngine the search engine for this backing store
      */
-    protected BTreeContextPartition( PartitionStore db, SearchEngine searchEngine,
-                                     AttributeType[] indexAttributes )
+    public BTreeContextPartition( SearchEngine searchEngine, AttributeType[] indexedAttrs )
         throws NamingException
     {
-        this.db = db;
         this.searchEngine = searchEngine;
 
         HashSet sysOidSet = new HashSet();
@@ -141,40 +132,40 @@ public abstract class BTreeContextPartition implements ContextPartition
         sysOidSet.add( SUBALIAS_OID );
         sysOidSet.add( ALIAS_OID );
 
-        for ( int ii = 0; ii < indexAttributes.length; ii ++ )
+        for ( int ii = 0; ii < indexedAttrs.length; ii ++ )
         {
-            String oid = indexAttributes[ii].getOid();
+            String oid = indexedAttrs[ii].getOid();
 
             // check if attribute is a system attribute
             if ( sysOidSet.contains( oid ) )
             {
                 if ( oid.equals( EXISTANCE_OID ) )
                 {
-                    db.setExistanceIndexOn( indexAttributes[ii] );
+                    setExistanceIndexOn( indexedAttrs[ii] );
                 }
                 else if ( oid.equals( HIERARCHY_OID ) )
                 {
-                    db.setHierarchyIndexOn( indexAttributes[ii] );
+                    setHierarchyIndexOn( indexedAttrs[ii] );
                 }
                 else if ( oid.equals( UPDN_OID ) )
                 {
-                    db.setUpdnIndexOn( indexAttributes[ii] );
+                    setUpdnIndexOn( indexedAttrs[ii] );
                 }
                 else if ( oid.equals( NDN_OID ) )
                 {
-                    db.setNdnIndexOn( indexAttributes[ii] );
+                    setNdnIndexOn( indexedAttrs[ii] );
                 }
                 else if ( oid.equals( ONEALIAS_OID ) )
                 {
-                    db.setOneAliasIndexOn( indexAttributes[ii] );
+                    setOneAliasIndexOn( indexedAttrs[ii] );
                 }
                 else if ( oid.equals( SUBALIAS_OID ) )
                 {
-                    db.setSubAliasIndexOn( indexAttributes[ii] );
+                    setSubAliasIndexOn( indexedAttrs[ii] );
                 }
                 else if ( oid.equals( ALIAS_OID ) )
                 {
-                    db.setAliasIndexOn( indexAttributes[ii] );
+                    setAliasIndexOn( indexedAttrs[ii] );
                 }
                 else
                 {
@@ -184,7 +175,7 @@ public abstract class BTreeContextPartition implements ContextPartition
             }
             else
             {
-                db.addIndexOn( indexAttributes[ii] );
+                addIndexOn( indexedAttrs[ii] );
             }
         }
     }
@@ -193,17 +184,6 @@ public abstract class BTreeContextPartition implements ContextPartition
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------
-
-
-    /**
-     * Gets the Database used by this ContextPartition.
-     *
-     * @return the database used
-     */
-    public PartitionStore getDb()
-    {
-        return db;
-    }
 
 
     /**
@@ -225,7 +205,7 @@ public abstract class BTreeContextPartition implements ContextPartition
 
     public void delete( Name dn ) throws NamingException
     {
-        BigInteger id = db.getEntryId( dn.toString() );
+        BigInteger id = getEntryId( dn.toString() );
 
         // don't continue if id is null
         if ( id == null )
@@ -234,7 +214,7 @@ public abstract class BTreeContextPartition implements ContextPartition
                     + dn + "' to delete it!");
         }
 
-        if ( db.getChildCount( id ) > 0 )
+        if ( getChildCount( id ) > 0 )
         {
             LdapContextNotEmptyException cnee = new LdapContextNotEmptyException(
                 "[66] Cannot delete entry " + dn + " it has children!" );
@@ -242,33 +222,19 @@ public abstract class BTreeContextPartition implements ContextPartition
             throw cnee;
         }
         
-        db.delete( id );
+        delete( id );
     }
     
-
-    public void add( String updn, Name dn, Attributes entry ) throws NamingException
-    {
-        db.add( updn, dn, entry );
-    }
-
-
-    public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
-    {
-        db.modify( dn, modOp, mods );
-    }
-
-
-    public void modify( Name dn, ModificationItem[] mods ) throws NamingException
-    {
-        db.modify( dn, mods );
-    }
+    public abstract void add( String updn, Name dn, Attributes entry ) throws NamingException;
+    public abstract void modify( Name dn, int modOp, Attributes mods ) throws NamingException;
+    public abstract void modify( Name dn, ModificationItem[] mods ) throws NamingException;
 
 
     public NamingEnumeration list( Name base ) throws NamingException
     {
         SearchResultEnumeration list;
         list = new SearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY,
-                db.list( db.getEntryId( base.toString() ) ), db );
+                list( getEntryId( base.toString() ) ), this );
         return list;
     }
     
@@ -282,13 +248,13 @@ public abstract class BTreeContextPartition implements ContextPartition
         
         underlying = searchEngine.search( base, env, filter, searchCtls );
         
-        return new SearchResultEnumeration( attrIds, underlying, db );
+        return new SearchResultEnumeration( attrIds, underlying, this );
     }
 
 
     public Attributes lookup( Name dn ) throws NamingException
     {
-        return db.lookup( db.getEntryId( dn.toString() ) );
+        return lookup( getEntryId( dn.toString() ) );
     }
 
 
@@ -318,50 +284,190 @@ public abstract class BTreeContextPartition implements ContextPartition
 
     public boolean hasEntry( Name dn ) throws NamingException
     {
-        return null != db.getEntryId( dn.toString() );
+        return null != getEntryId( dn.toString() );
     }
 
 
-    public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public abstract void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException;
+    public abstract void move( Name oldChildDn, Name newParentDn ) throws NamingException;
+    public abstract void move( Name oldChildDn, Name newParentDn, String newRdn,
+        boolean deleteOldRdn ) throws NamingException;
+
+
+    public abstract void sync() throws NamingException;
+    public abstract void destroy() throws NamingException;
+    public abstract boolean isInitialized();
+
+    public boolean isSuffix( Name dn ) throws NamingException
     {
-        db.modifyRdn( dn, newRdn, deleteOldRdn );
-    }
-
-
-    public void move( Name oldChildDn, Name newParentDn ) throws NamingException
-    {
-        db.move( oldChildDn, newParentDn );
-    }
-    
-
-    public void move( Name oldChildDn, Name newParentDn, String newRdn,
-        boolean deleteOldRdn ) throws NamingException
-    {
-        db.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
-    }
-
-
-    public void sync() throws NamingException
-    {
-        db.sync();
-    }
-
-
-    public void destroy() throws NamingException
-    {
-        db.close();
-    }
-
-
-    public boolean isInitialized()
-    {
-        return db.isOpen();
+        return getSuffix( true ).equals( dn ) ;
     }
 
 
     public void inspect() throws Exception
     {
-        PartitionViewer viewer = new PartitionViewer( db, searchEngine );
+        PartitionViewer viewer = new PartitionViewer( this, searchEngine );
         viewer.execute();
     }
+    
+    ////////////////////
+    // public abstract methods
+    
+    // ------------------------------------------------------------------------
+    // Index Operations 
+    // ------------------------------------------------------------------------
+
+
+    public abstract void addIndexOn( AttributeType attribute ) throws NamingException;
+    public abstract boolean hasUserIndexOn( String attribute );
+    public abstract boolean hasSystemIndexOn( String attribute );
+    public abstract Index getExistanceIndex();
+
+    /**
+     * Gets the Index mapping the BigInteger primary keys of parents to the 
+     * BigInteger primary keys of their children.
+     *
+     * @return the hierarchy Index
+     */
+    public abstract Index getHierarchyIndex();
+    
+    /**
+     * Gets the Index mapping user provided distinguished names of entries as 
+     * Strings to the BigInteger primary keys of entries.
+     *
+     * @return the user provided distinguished name Index
+     */
+    public abstract Index getUpdnIndex();
+
+    /**
+     * Gets the Index mapping the normalized distinguished names of entries as
+     * Strings to the BigInteger primary keys of entries.  
+     *
+     * @return the normalized distinguished name Index
+     */
+    public abstract Index getNdnIndex();
+
+    /**
+     * Gets the alias index mapping parent entries with scope expanding aliases 
+     * children one level below them; this system index is used to dereference
+     * aliases on one/single level scoped searches.
+     * 
+     * @return the one alias index
+     */
+    public abstract Index getOneAliasIndex();
+
+    /**
+     * Gets the alias index mapping relative entries with scope expanding 
+     * alias descendents; this system index is used to dereference aliases on 
+     * subtree scoped searches.
+     * 
+     * @return the sub alias index
+     */
+    public abstract Index getSubAliasIndex();
+
+    /**
+     * Gets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
+     * be the aliasedObjectName and for X.500 would be aliasedEntryName.
+     * 
+     * @return the index on the ALIAS_ATTRIBUTE
+     */
+    public abstract Index getAliasIndex();
+
+    /**
+     * Sets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
+     * be the aliasedObjectName and for X.500 would be aliasedEntryName.
+     * 
+     * @param attrType the index on the ALIAS_ATTRIBUTE
+     */
+    public abstract void setAliasIndexOn( AttributeType attrType ) throws NamingException;
+
+    /**
+     * Sets the attribute existance Index.
+     *
+     * @param attrType the attribute existance Index
+     */    
+    public abstract void setExistanceIndexOn( AttributeType attrType ) throws NamingException;
+
+    /**
+     * Sets the hierarchy Index.
+     *
+     * @param attrType the hierarchy Index
+     */    
+    public abstract void setHierarchyIndexOn( AttributeType attrType ) throws NamingException;
+
+    /**
+     * Sets the user provided distinguished name Index.
+     *
+     * @param attrType the updn Index
+     */    
+    public abstract void setUpdnIndexOn( AttributeType attrType ) throws NamingException;
+
+    /**
+     * Sets the normalized distinguished name Index.
+     *
+     * @param attrType the ndn Index
+     */    
+    public abstract void setNdnIndexOn( AttributeType attrType ) throws NamingException;
+    
+    /**
+     * Sets the alias index mapping parent entries with scope expanding aliases 
+     * children one level below them; this system index is used to dereference
+     * aliases on one/single level scoped searches.
+     * 
+     * @param attrType a one level alias index
+     */
+    public abstract void setOneAliasIndexOn( AttributeType attrType ) throws NamingException;
+    
+    /**
+     * Sets the alias index mapping relative entries with scope expanding 
+     * alias descendents; this system index is used to dereference aliases on 
+     * subtree scoped searches.
+     * 
+     * @param attrType a subtree alias index
+     */
+    public abstract void setSubAliasIndexOn( AttributeType attrType ) throws NamingException;
+    public abstract Index getUserIndex( String attribute ) throws IndexNotFoundException;
+    public abstract Index getSystemIndex( String attribute ) throws IndexNotFoundException;
+    public abstract BigInteger getEntryId( String dn ) throws NamingException;
+    public abstract String getEntryDn( BigInteger id ) throws NamingException;
+    public abstract BigInteger getParentId( String dn ) throws NamingException;
+    public abstract BigInteger getParentId( BigInteger childId ) throws NamingException;
+
+    /**
+     * Gets the user provided distinguished name.
+     *
+     * @param id the entry id
+     * @return the user provided distinguished name
+     * @throws NamingException if the updn index cannot be accessed
+     */
+    public abstract String getEntryUpdn( BigInteger id ) throws NamingException;
+
+    /**
+     * Gets the user provided distinguished name.
+     *
+     * @param dn the normalized distinguished name
+     * @return the user provided distinguished name
+     * @throws NamingException if the updn and ndn indices cannot be accessed
+     */
+    public abstract String getEntryUpdn( String dn ) throws NamingException;
+    public abstract Attributes lookup( BigInteger id ) throws NamingException;
+    public abstract void delete( BigInteger id ) throws NamingException;
+    public abstract NamingEnumeration list( BigInteger id ) throws NamingException;
+    public abstract int getChildCount( BigInteger id ) throws NamingException;
+    public abstract Attributes getSuffixEntry() throws NamingException;
+    public abstract void setProperty( String key, String value ) throws NamingException;
+    public abstract String getProperty( String key ) throws NamingException;
+    public abstract Iterator getUserIndices();
+    public abstract Iterator getSystemIndices();
+    public abstract Attributes getIndices( BigInteger id ) throws NamingException;
+
+    /**
+     * Gets the count of the total number of entries in the database.
+     *
+     * TODO shouldn't this be a BigInteger instead of an int? 
+     * 
+     * @return the number of entries in the database 
+     * @throws NamingException if there is a failure to read the count
+     */
+    public abstract int count() throws NamingException;
 }

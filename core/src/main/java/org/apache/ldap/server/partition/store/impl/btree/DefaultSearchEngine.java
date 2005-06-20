@@ -45,7 +45,7 @@ public class DefaultSearchEngine implements SearchEngine
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private PartitionStore db;
+    private BTreeContextPartition db;
     /** Evaluator flyweight used for filter expression assertions */
     private ExpressionEvaluator evaluator;
     /** Enumerator flyweight that creates enumerations on filter expressions */
@@ -61,7 +61,7 @@ public class DefaultSearchEngine implements SearchEngine
      * Creates a DefaultSearchEngine for searching a Database without setting
      * up the database.
      */
-    public DefaultSearchEngine( PartitionStore db,
+    public DefaultSearchEngine( BTreeContextPartition db,
                                 ExpressionEvaluator evaluator,
                                 ExpressionEnumerator enumerator )
     {

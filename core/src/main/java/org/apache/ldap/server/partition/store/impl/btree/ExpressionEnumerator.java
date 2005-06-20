@@ -43,7 +43,7 @@ import org.apache.ldap.server.schema.AttributeTypeRegistry;
 public class ExpressionEnumerator implements Enumerator
 {
     /** The database used by this enumerator */
-    private PartitionStore db = null;
+    private BTreeContextPartition db = null;
     /** Enumerator flyweight for evaulating filter scope assertions */
     private ScopeEnumerator scopeEnumerator;
     /** Enumerator flyweight for evaulating filter substring assertions */
@@ -58,7 +58,7 @@ public class ExpressionEnumerator implements Enumerator
      * @param db database used by this enumerator
      * @param evaluator
      */
-    public ExpressionEnumerator( PartitionStore db,
+    public ExpressionEnumerator( BTreeContextPartition db,
                                  AttributeTypeRegistry attributeTypeRegistry,
                                  ExpressionEvaluator evaluator )
     {

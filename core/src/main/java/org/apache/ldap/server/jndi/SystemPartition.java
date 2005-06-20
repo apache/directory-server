@@ -27,7 +27,7 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
@@ -162,7 +162,7 @@ public final class SystemPartition extends BTreeContextPartition
      * also contain all system index attribute types - if not the system will
      * not operate correctly.
      */
-    public SystemPartition( PartitionStore db, SearchEngine searchEngine,
+    public SystemPartition( BTreeContextPartition db, SearchEngine searchEngine,
                             AttributeType[] indexAttributes )
         throws NamingException
     {

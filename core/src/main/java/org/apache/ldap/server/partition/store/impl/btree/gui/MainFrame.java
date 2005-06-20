@@ -70,9 +70,9 @@ import org.apache.ldap.common.message.DerefAliasesEnum;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.StringTools;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.Index;
 import org.apache.ldap.server.partition.store.impl.btree.IndexRecord;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
@@ -106,7 +106,7 @@ public class MainFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private PartitionStore database = null;
+    private BTreeContextPartition partition = null;
     private boolean doCleanUp = false;
     private HashMap nodes = new HashMap();
     private EntryNode root = null;
@@ -116,14 +116,14 @@ public class MainFrame extends JFrame
     /**
      * Creates new form JFrame
      */
-    public MainFrame( PartitionStore db, SearchEngine eng )
+    public MainFrame( BTreeContextPartition db, SearchEngine eng )
         throws NamingException
     {
-        database = db;
+        partition = db;
         this.eng = eng;
 
         initGUI();
-        buildIndicesMenu( database );
+        buildIndicesMenu( partition );
         pack();
         load();
     }
@@ -349,7 +349,7 @@ public class MainFrame extends JFrame
         try 
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
-            String parentDn = database.getSuffix().toString();
+            String parentDn = partition.getSuffix( false ).toString();
 
             if ( null != path )
             {
@@ -394,7 +394,7 @@ public class MainFrame extends JFrame
         
         if ( null == path )
         {
-            return database.getSuffix().toString();
+            return partition.getSuffix( false ).toString();
         }        
         
         Object last = path.getLastPathComponent();
@@ -413,7 +413,7 @@ public class MainFrame extends JFrame
         } 
         else 
         {
-            base = database.getSuffix().toString();
+            base = partition.getSuffix( false ).toString();
         }
         
         return base;
@@ -449,9 +449,9 @@ public class MainFrame extends JFrame
                     new LdapName( StringTools.deepTrimToLower( updn ) );
                 attrs.remove( "dn" );
 
-                if ( null == database.getEntryId( ndn.toString() ) )
+                if ( null == partition.getEntryId( ndn.toString() ) )
                 {
-                    database.add( updn, ndn, attrs );
+                    partition.add( updn, ndn, attrs );
                     load();
                 }
             }
@@ -492,12 +492,12 @@ public class MainFrame extends JFrame
         setVisible( false );
         dispose();
 
-        if ( doCleanUp && database != null )
+        if ( doCleanUp && partition != null )
         {
             try
             {
-                database.sync();
-                database.close();
+                partition.sync();
+                partition.destroy();
             }
             catch ( NamingException e )
             {
@@ -559,7 +559,7 @@ public class MainFrame extends JFrame
         } 
         else 
         {
-            dialog.setBase( database.getSuffix().toString() );
+            dialog.setBase( partition.getSuffix( false ).toString() );
         }
 
         dialog.addActionListener( new ActionListener()
@@ -668,7 +668,7 @@ public class MainFrame extends JFrame
         {
             IndexRecord rec = ( IndexRecord ) cursor.next();
             row[0] = rec.getEntryId();
-            row[1] = database.getEntryDn( ( BigInteger ) row[0] );
+            row[1] = partition.getEntryDn( ( BigInteger ) row[0] );
             tableModel.addRow( row );
             count++;
         }
@@ -795,15 +795,15 @@ public class MainFrame extends JFrame
         throws Exception
     {
         Index index = null;
-        boolean isSystem = database.hasSystemIndexOn( idxAttr );
+        boolean isSystem = partition.hasSystemIndexOn( idxAttr );
         
         if ( isSystem )
         {
-            index = database.getSystemIndex( idxAttr );
+            index = partition.getSystemIndex( idxAttr );
         }
         else 
         {
-            index = database.getUserIndex( idxAttr );
+            index = partition.getUserIndex( idxAttr );
         }
 
         if ( index != null )
@@ -816,7 +816,7 @@ public class MainFrame extends JFrame
     }
 
 
-    public void buildIndicesMenu( PartitionStore database )
+    public void buildIndicesMenu( BTreeContextPartition partition )
     {
         JMenuItem item = null;
         
@@ -835,7 +835,7 @@ public class MainFrame extends JFrame
             }
         };
 
-        Iterator list = database.getSystemIndices();
+        Iterator list = partition.getSystemIndices();
         while ( list.hasNext() )
         {
             String idx = ( String ) list.next();
@@ -848,7 +848,7 @@ public class MainFrame extends JFrame
         }
 
         indices.add( new JSeparator() );
-        list = database.getUserIndices();
+        list = partition.getUserIndices();
         while ( list.hasNext() )
         {
             String idx = ( String ) list.next();
@@ -865,13 +865,13 @@ public class MainFrame extends JFrame
     void displayEntry( BigInteger id, Attributes entry )
         throws Exception
     {
-        String dn = database.getEntryUpdn( id );
+        String dn = partition.getEntryUpdn( id );
         AttributesTableModel model =
             new AttributesTableModel( entry, id, dn, false );
         entryTbl.setModel( model );
 
         model = new AttributesTableModel(
-            database.getIndices( id ), id, dn, false );
+            partition.getIndices( id ), id, dn, false );
         idxTbl.setModel( model );
 
         validate();
@@ -883,10 +883,10 @@ public class MainFrame extends JFrame
         // boolean doFiltered = false;
         nodes = new HashMap();
 
-        Attributes suffix = database.getSuffixEntry();
-        BigInteger id = database.getEntryId(
-            database.getSuffix().toString() );
-        root = new EntryNode( id, null, database, suffix, nodes );
+        Attributes suffix = partition.getSuffixEntry();
+        BigInteger id = partition.getEntryId(
+            partition.getSuffix( false ).toString() );
+        root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*
         int option = JOptionPane.showConfirmDialog( null,

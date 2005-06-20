@@ -31,8 +31,8 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.IndexRecord;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
@@ -45,25 +45,25 @@ import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 public class EntryNode
 	implements TreeNode
 {
-    private final PartitionStore db;
+    private final BTreeContextPartition partition;
     private final EntryNode parent;
 	private final Attributes entry;
     private final ArrayList children;
     private final BigInteger id;
 
 
-    public EntryNode( BigInteger id, EntryNode parent, PartitionStore db,
+    public EntryNode( BigInteger id, EntryNode parent, BTreeContextPartition partition,
         Attributes entry, HashMap map )
     {
-        this( id, parent, db, entry, map, null, null );
+        this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode( BigInteger id, EntryNode parent, PartitionStore db,
+    public EntryNode( BigInteger id, EntryNode parent, BTreeContextPartition db,
         Attributes entry, HashMap map, ExprNode exprNode,
         SearchEngine engine )
     {
-        this.db = db;
+        this.partition = db;
         this.id = id;
 		this.entry = entry;
         this.children = new ArrayList();
@@ -182,7 +182,7 @@ public class EntryNode
     public String getEntryDn()
         throws NamingException
     {
-        return db.getEntryDn( id );
+        return partition.getEntryDn( id );
     }
     
 
@@ -192,7 +192,7 @@ public class EntryNode
         
         try
         {
-            LdapName dn = new LdapName( db.getEntryDn( id ) );
+            LdapName dn = new LdapName( partition.getEntryDn( id ) );
             buf.append( "(" ).append( id ).append( ") " );
             buf.append( dn.getRdn() );
         }

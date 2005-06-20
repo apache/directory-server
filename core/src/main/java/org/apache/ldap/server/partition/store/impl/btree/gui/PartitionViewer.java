@@ -22,7 +22,7 @@ import java.awt.Toolkit;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
@@ -35,13 +35,13 @@ import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 public class PartitionViewer
 {
     /** A handle on the atomic partition */
-    private PartitionStore db;
+    private BTreeContextPartition partition;
     private SearchEngine eng;
 
 
-    public PartitionViewer( PartitionStore db, SearchEngine eng )
+    public PartitionViewer( BTreeContextPartition db, SearchEngine eng )
     {
-        this.db = db;
+        this.partition = db;
         this.eng = eng;
     }
 
@@ -81,7 +81,7 @@ public class PartitionViewer
 
     public void execute() throws NamingException
     {
-        MainFrame frame = new MainFrame( db, eng ) ;
+        MainFrame frame = new MainFrame( partition, eng ) ;
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize() ;
         Dimension frameSize = frame.getSize() ;

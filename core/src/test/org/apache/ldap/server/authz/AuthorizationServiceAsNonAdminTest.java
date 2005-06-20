@@ -28,7 +28,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractNonAdminTestCase;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStoreSearchResult;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartitionSearchResult;
 
 
 /**
@@ -110,7 +110,7 @@ public class AuthorizationServiceAsNonAdminTest extends AbstractNonAdminTestCase
                 "(objectClass=*)", controls );
         while ( list.hasMore() )
         {
-            PartitionStoreSearchResult result = ( PartitionStoreSearchResult ) list.next();
+            BTreeContextPartitionSearchResult result = ( BTreeContextPartitionSearchResult ) list.next();
             set.add( result.getName() );
         }
 
