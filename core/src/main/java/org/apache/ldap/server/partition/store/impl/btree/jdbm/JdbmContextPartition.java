@@ -47,14 +47,15 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.Index;
 import org.apache.ldap.server.partition.store.impl.btree.IndexAssertion;
 import org.apache.ldap.server.partition.store.impl.btree.IndexAssertionEnumeration;
 import org.apache.ldap.server.partition.store.impl.btree.IndexNotFoundException;
 import org.apache.ldap.server.partition.store.impl.btree.IndexRecord;
-import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
-import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
 
 /**
@@ -72,7 +73,7 @@ public class JdbmContextPartition extends BTreeContextPartition
     /** the normalized suffix of this backend database */
     private Name normSuffix;
     /** the working directory to use for files */
-    private File wkdir;
+    private File workingDirectory;
     /** the master table storing entries by primary key */
     private JdbmMasterTable master;
     /** a map of attribute names to user indices */
@@ -107,29 +108,20 @@ public class JdbmContextPartition extends BTreeContextPartition
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmContextPartition( SearchEngine searchEngine, AttributeType[] indexedAttrs ) throws NamingException
+    public JdbmContextPartition()
     {
-        super( searchEngine, indexedAttrs );
     }
 
-    public File getWorkingDirectory()
+    public synchronized void init( StartupConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
     {
-        return wkdir;
-    }
-    
-    public void setWorkingDirectory( File workingDirectory )
-    {
-        this.wkdir = workingDirectory;
-    }
-    
-    public synchronized void init( Name userProviderSuffix, Name normalizedSuffix ) throws NamingException
-    {
-        this.upSuffix = userProviderSuffix;
-        this.normSuffix = normalizedSuffix;
+        this.upSuffix = new LdapName( cfg.getSuffix() );
+        this.normSuffix = cfg.getNormalizedSuffix();
+
+        this.workingDirectory = factoryCfg.getWorkingDirectory();
 
         try 
         {
-            String path = this.wkdir.getPath() + File.separator + "master";
+            String path = workingDirectory.getPath() + File.separator + "master";
             BaseRecordManager base = new BaseRecordManager( path );
             base.disableTransactions();
             recMan = new CacheRecordManager( base, new MRU( 1000 ) );
@@ -334,7 +326,7 @@ public class JdbmContextPartition extends BTreeContextPartition
 
     public void addIndexOn( AttributeType spec ) throws NamingException
     {
-        Index idx = new JdbmIndex( spec, wkdir );
+        Index idx = new JdbmIndex( spec, workingDirectory );
         indices.put( spec.getName().toLowerCase(), idx );
     }
 
@@ -353,7 +345,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             throw e;
         }
 
-        existanceIdx = new JdbmIndex( attrType, wkdir );
+        existanceIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), existanceIdx );
     }
 
@@ -372,7 +364,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             throw e;
         }
 
-        hierarchyIdx = new JdbmIndex( attrType, wkdir );
+        hierarchyIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), hierarchyIdx );
     }
 
@@ -391,7 +383,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             throw e;
         }
 
-        aliasIdx = new JdbmIndex( attrType, wkdir );
+        aliasIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), aliasIdx );
     }    
     
@@ -410,7 +402,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             throw e;
         }
 
-        oneAliasIdx = new JdbmIndex( attrType, wkdir );
+        oneAliasIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), oneAliasIdx );
     }
 
@@ -429,7 +421,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             throw e;
         }
 
-        subAliasIdx = new JdbmIndex( attrType, wkdir );
+        subAliasIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), subAliasIdx );
     }
 
@@ -448,7 +440,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             throw e;
         }
 
-        updnIdx = new JdbmIndex( attrType, wkdir );
+        updnIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), updnIdx );
     }
 
@@ -467,7 +459,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             throw e;
         }
 
-        ndnIdx = new JdbmIndex( attrType, wkdir );
+        ndnIdx = new JdbmIndex( attrType, workingDirectory );
         sysIndices.put( attrType.getName().toLowerCase(), ndnIdx );
     }
 
