@@ -28,14 +28,14 @@ import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.db.ResultFilteringEnumeration;
-import org.apache.ldap.server.db.SearchResultFilter;
 import org.apache.ldap.server.invocation.List;
 import org.apache.ldap.server.invocation.Lookup;
 import org.apache.ldap.server.invocation.LookupWithAttrIds;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.RootNexus;
+import org.apache.ldap.server.partition.store.ResultFilteringEnumeration;
+import org.apache.ldap.server.partition.store.SearchResultFilter;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.GlobalRegistries;
 

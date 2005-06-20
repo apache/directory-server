@@ -21,8 +21,8 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.SearchEngine;
 
 import javax.naming.InvalidNameException;
 import javax.naming.Name;

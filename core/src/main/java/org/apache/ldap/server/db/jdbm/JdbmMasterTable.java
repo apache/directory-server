@@ -20,7 +20,7 @@ package org.apache.ldap.server.db.jdbm;
 import jdbm.RecordManager;
 import jdbm.helper.StringComparator;
 import org.apache.ldap.common.util.BigIntegerComparator;
-import org.apache.ldap.server.db.MasterTable;
+import org.apache.ldap.server.partition.store.MasterTable;
 import org.apache.ldap.server.schema.SerializableComparator;
 
 import javax.naming.NamingException;

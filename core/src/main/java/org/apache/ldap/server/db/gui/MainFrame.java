@@ -27,10 +27,10 @@ import org.apache.ldap.common.message.DerefAliasesEnum;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.Index;
-import org.apache.ldap.server.db.IndexRecord;
-import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.Index;
+import org.apache.ldap.server.partition.store.IndexRecord;
+import org.apache.ldap.server.partition.store.SearchEngine;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;

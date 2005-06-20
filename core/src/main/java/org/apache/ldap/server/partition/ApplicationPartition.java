@@ -18,8 +18,8 @@ package org.apache.ldap.server.partition;
 
 
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.SearchEngine;
 
 import javax.naming.Name;
 import javax.naming.NamingException;

@@ -23,10 +23,10 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.SearchEngine;
-import org.apache.ldap.server.db.SearchResultEnumeration;
 import org.apache.ldap.server.db.gui.PartitionViewer;
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.SearchEngine;
+import org.apache.ldap.server.partition.store.SearchResultEnumeration;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;

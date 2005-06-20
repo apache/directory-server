@@ -19,9 +19,9 @@ package org.apache.ldap.server.db.gui;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.IndexRecord;
-import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.IndexRecord;
+import org.apache.ldap.server.partition.store.SearchEngine;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;

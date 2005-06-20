@@ -20,7 +20,7 @@ package org.apache.ldap.server.authz;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractNonAdminTestCase;
-import org.apache.ldap.server.db.DbSearchResult;
+import org.apache.ldap.server.partition.store.DbSearchResult;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;

@@ -17,8 +17,8 @@
 package org.apache.ldap.server.db.gui ;
 
 
-import org.apache.ldap.server.db.Database;
-import org.apache.ldap.server.db.SearchEngine;
+import org.apache.ldap.server.partition.store.Database;
+import org.apache.ldap.server.partition.store.SearchEngine;
 
 import javax.naming.NamingException;
 import java.awt.*;

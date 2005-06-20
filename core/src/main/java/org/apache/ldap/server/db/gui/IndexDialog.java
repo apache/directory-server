@@ -19,8 +19,8 @@ package org.apache.ldap.server.db.gui ;
 
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.db.Index;
-import org.apache.ldap.server.db.IndexRecord;
+import org.apache.ldap.server.partition.store.Index;
+import org.apache.ldap.server.partition.store.IndexRecord;
 import org.apache.regexp.RE;
 
 import javax.naming.NamingEnumeration;
