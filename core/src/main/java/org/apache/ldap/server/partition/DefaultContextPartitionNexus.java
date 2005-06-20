@@ -33,6 +33,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -217,8 +218,10 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         
         // Add context entry for system partition
         Attributes systemEntry = new BasicAttributes();
-        systemEntry.put( "objectClass", "top" ) ;
-        systemEntry.put( "objectClass", "organizationalUnit" ) ;
+        Attribute objectClassAttr = new BasicAttribute( "objectClass" );
+        objectClassAttr.add( "top" );
+        objectClassAttr.add( "organizationalUnit" );
+        systemEntry.put( objectClassAttr );
         systemEntry.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL ) ;
         systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() ) ;
         systemEntry.put(
