@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.partition;
 
 
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
@@ -27,8 +27,6 @@ import org.apache.ldap.server.db.Database;
 import org.apache.ldap.server.db.SearchEngine;
 import org.apache.ldap.server.db.SearchResultEnumeration;
 import org.apache.ldap.server.db.gui.PartitionViewer;
-import org.apache.ldap.server.partition.BackingStore;
-import org.apache.ldap.server.partition.ContextPartition;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
