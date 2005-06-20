@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.MatchingRuleUse;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleUseRegistry;
 
 
@@ -48,7 +48,7 @@ public class GlobalMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapMatchingRuleUseRegistry bootstrap;
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class GlobalMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     /**
      * Creates an empty BootstrapMatchingRuleUseRegistry.
      */
-    public GlobalMatchingRuleUseRegistry( SystemPartition systemPartition,
+    public GlobalMatchingRuleUseRegistry( ContextPartition systemPartition,
             BootstrapMatchingRuleUseRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();

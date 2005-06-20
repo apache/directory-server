@@ -44,7 +44,7 @@ import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.partition.store.impl.btree.ResultFilteringEnumeration;
 import org.apache.ldap.server.partition.store.impl.btree.SearchResultFilter;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
@@ -65,17 +65,17 @@ public class AuthorizationService extends BaseInterceptor
     /**
      * the administrator's distinguished {@link Name}
      */
-    private static final Name ADMIN_DN = SystemPartition.getAdminDn();
+    private static final Name ADMIN_DN = ContextPartitionNexus.getAdminName();
 
     /**
      * the base distinguished {@link Name} for all users
      */
-    private static final Name USER_BASE_DN = SystemPartition.getUsersBaseDn();
+    private static final Name USER_BASE_DN = ContextPartitionNexus.getUsersBaseName();
 
     /**
      * the base distinguished {@link Name} for all groups
      */
-    private static final Name GROUP_BASE_DN = SystemPartition.getGroupsBaseDn();
+    private static final Name GROUP_BASE_DN = ContextPartitionNexus.getGroupsBaseName();
 
     /**
      * the name parser used by this service

@@ -41,7 +41,6 @@ import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
-import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
@@ -70,7 +69,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     private GlobalRegistries globalRegistries;
 
     /** the root nexus */
-    private DefaultContextPartitionNexus rootNexus;
+    private DefaultContextPartitionNexus partitionNexus;
 
     /** whether or not server is started for the first time */
     private boolean firstStart;
@@ -193,7 +192,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         factory.beforeSync( this );
         try
         {
-            this.rootNexus.sync();
+            this.partitionNexus.sync();
         }
         finally
         {
@@ -212,8 +211,8 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         factory.beforeShutdown( this );
         try
         {
-            this.rootNexus.sync();
-            this.rootNexus.destroy();
+            this.partitionNexus.sync();
+            this.partitionNexus.destroy();
             this.interceptorChain.destroy();
             this.started = false;
         }
@@ -244,7 +243,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
 
     public ContextPartitionNexus getPartitionNexus()
     {
-        return rootNexus;
+        return partitionNexus;
     }
     
     public boolean isFirstStart()
@@ -351,7 +350,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !rootNexus.hasEntry( SystemPartition.ADMIN_PRINCIPAL_NAME ) )
+        if ( !partitionNexus.hasEntry( ContextPartitionNexus.getAdminName() ) )
         {
             firstStart = true;
 
@@ -360,21 +359,21 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             attributes.put( "objectClass", "person" );
             attributes.put( "objectClass", "organizationalPerson" );
             attributes.put( "objectClass", "inetOrgPerson" );
-            attributes.put( "uid", SystemPartition.ADMIN_UID );
-            attributes.put( "userPassword", SystemPartition.ADMIN_PW );
+            attributes.put( "uid", ContextPartitionNexus.ADMIN_UID );
+            attributes.put( "userPassword", ContextPartitionNexus.ADMIN_PW );
             attributes.put( "displayName", "Directory Superuser" );
-            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             attributes.put( "displayName", "Directory Superuser" );
             
-            rootNexus.add( SystemPartition.ADMIN_PRINCIPAL, SystemPartition.ADMIN_PRINCIPAL_NAME, attributes );
+            partitionNexus.add( ContextPartitionNexus.ADMIN_PRINCIPAL, ContextPartitionNexus.getAdminName(), attributes );
         }
 
         // -------------------------------------------------------------------
         // create system users area
         // -------------------------------------------------------------------
 
-        if ( !rootNexus.hasEntry( new LdapName( "ou=users,ou=system" ) ) )
+        if ( !partitionNexus.hasEntry( new LdapName( "ou=users,ou=system" ) ) )
         {
             firstStart = true;
             
@@ -382,17 +381,17 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             attributes.put( "objectClass", "top" );
             attributes.put( "objectClass", "organizationalUnit" );
             attributes.put( "ou", "users" );
-            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            rootNexus.add( "ou=users,ou=system", new LdapName( "ou=users,ou=system" ), attributes );
+            partitionNexus.add( "ou=users,ou=system", new LdapName( "ou=users,ou=system" ), attributes );
         }
 
         // -------------------------------------------------------------------
         // create system groups area
         // -------------------------------------------------------------------
 
-        if ( !rootNexus.hasEntry( new LdapName( "ou=groups,ou=system" ) ) )
+        if ( !partitionNexus.hasEntry( new LdapName( "ou=groups,ou=system" ) ) )
         {
             firstStart = true;
 
@@ -400,17 +399,17 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             attributes.put( "objectClass", "top" );
             attributes.put( "objectClass", "organizationalUnit" );
             attributes.put( "ou", "groups" );
-            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
-            rootNexus.add( "ou=groups,ou=system", new LdapName( "ou=groups,ou=system" ), attributes );
+            partitionNexus.add( "ou=groups,ou=system", new LdapName( "ou=groups,ou=system" ), attributes );
         }
 
         // -------------------------------------------------------------------
         // create system preferences area
         // -------------------------------------------------------------------
 
-        if ( !rootNexus.hasEntry( new LdapName( "prefNodeName=sysPrefRoot,ou=system" ) ) )
+        if ( !partitionNexus.hasEntry( new LdapName( "prefNodeName=sysPrefRoot,ou=system" ) ) )
         {
             firstStart = true;
 
@@ -419,12 +418,12 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             attributes.put( "objectClass", "prefNode" );
             attributes.put( "objectClass", "extensibleObject" );
             attributes.put( "prefNodeName", "sysPrefRoot" );
-            attributes.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             LdapName dn = new LdapName( "prefNodeName=sysPrefRoot,ou=system" );
 
-            rootNexus.add( "prefNodeName=sysPrefRoot,ou=system", dn, attributes );
+            partitionNexus.add( "prefNodeName=sysPrefRoot,ou=system", dn, attributes );
         }
 
         return firstStart;
@@ -443,7 +442,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         while( i.hasNext() )
         {
             Attributes entry = ( Attributes ) i.next();
-            entry.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
+            entry.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             entry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             
             Attribute dn = entry.remove( "dn" );
@@ -452,7 +451,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             DnParser parser = new DnParser( ncn );
             Name ndn = parser.parse( ( String ) dn.get() );
             
-            rootNexus.add( ( String ) dn.get(), ndn, entry );
+            partitionNexus.add( ( String ) dn.get(), ndn, entry );
         }
     }
 
@@ -482,10 +481,10 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             throw e;
         }
 
-        rootNexus = new DefaultContextPartitionNexus( new LockableAttributesImpl() );
-        globalRegistries = new GlobalRegistries( rootNexus.getSystemPartition(), bootstrapRegistries );
+        partitionNexus = new DefaultContextPartitionNexus( new LockableAttributesImpl() );
+        globalRegistries = new GlobalRegistries( partitionNexus.getSystemPartition(), bootstrapRegistries );
         
         interceptorChain = new InterceptorChain( configuration.getInterceptorConfigurations() );
-        interceptorChain.init( new InterceptorContext( configuration, rootNexus.getSystemPartition(), globalRegistries, rootNexus ) );
+        interceptorChain.init( new InterceptorContext( configuration, partitionNexus.getSystemPartition(), globalRegistries, partitionNexus ) );
     }
 }

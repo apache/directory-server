@@ -25,7 +25,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
 
 
@@ -51,7 +51,7 @@ public class GlobalOidRegistry implements OidRegistry
     private BootstrapOidRegistry bootstrap;
 
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -62,7 +62,7 @@ public class GlobalOidRegistry implements OidRegistry
     /**
      * Creates a default OidRegistry by initializing the map and the montior.
      */
-    public GlobalOidRegistry( SystemPartition systemPartition,
+    public GlobalOidRegistry( ContextPartition systemPartition,
             BootstrapOidRegistry bootstrap )
     {
         this.bootstrap = bootstrap;

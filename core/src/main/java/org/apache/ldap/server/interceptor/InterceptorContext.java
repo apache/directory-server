@@ -2,8 +2,8 @@ package org.apache.ldap.server.interceptor;
 
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
 
@@ -23,7 +23,7 @@ public class InterceptorContext
     /**
      * the system partition used by the context factory
      */
-    private final SystemPartition systemPartition;
+    private final ContextPartition systemPartition;
 
     /**
      * the registries for system schema objects
@@ -37,7 +37,7 @@ public class InterceptorContext
 
 
     public InterceptorContext( StartupConfiguration configuration,
-                               SystemPartition systemPartition,
+                               ContextPartition systemPartition,
                                GlobalRegistries globalRegistries,
                                ContextPartitionNexus rootNexus )
     {
@@ -69,7 +69,7 @@ public class InterceptorContext
     }
 
 
-    public SystemPartition getSystemPartition()
+    public ContextPartition getSystemPartition()
     {
         return systemPartition;
     }

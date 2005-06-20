@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
 
 
@@ -44,7 +44,7 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapComparatorRegistry bootstrap;
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -56,7 +56,7 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
      * Creates a default ComparatorRegistry by initializing the map and the
      * montior.
      */
-    public GlobalComparatorRegistry( SystemPartition systemPartition,
+    public GlobalComparatorRegistry( ContextPartition systemPartition,
             BootstrapComparatorRegistry bootstrap )
     {
         this.oidToSchema = new HashMap();

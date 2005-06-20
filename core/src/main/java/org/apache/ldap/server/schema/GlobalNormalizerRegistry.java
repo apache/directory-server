@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapNormalizerRegistry;
 
 
@@ -44,7 +44,7 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapNormalizerRegistry bootstrap;
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -56,7 +56,7 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
      * Creates a default NormalizerRegistry by initializing the map and the
      * montior.
      */
-    public GlobalNormalizerRegistry( SystemPartition systemPartition,
+    public GlobalNormalizerRegistry( ContextPartition systemPartition,
             BootstrapNormalizerRegistry bootstrap )
     {
         this.oidToSchema = new HashMap();

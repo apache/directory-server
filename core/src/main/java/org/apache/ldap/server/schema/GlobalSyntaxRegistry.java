@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxRegistry;
 
 
@@ -48,7 +48,7 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapSyntaxRegistry bootstrap;
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
     /**
      * Creates an empty BootstrapSyntaxRegistry.
      */
-    public GlobalSyntaxRegistry( SystemPartition systemPartition,
+    public GlobalSyntaxRegistry( ContextPartition systemPartition,
             BootstrapSyntaxRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();

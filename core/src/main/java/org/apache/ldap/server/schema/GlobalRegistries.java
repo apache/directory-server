@@ -27,7 +27,7 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.schema.Syntax;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapAttributeTypeRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
@@ -65,7 +65,7 @@ public class GlobalRegistries implements Registries
     private GlobalSyntaxRegistry syntaxRegistry;
 
 
-    public GlobalRegistries( SystemPartition systemPartition,
+    public GlobalRegistries( ContextPartition systemPartition,
                              BootstrapRegistries bootstrapRegistries )
     {
         oidRegistry = new GlobalOidRegistry( systemPartition,

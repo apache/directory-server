@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.NameForm;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapNameFormRegistry;
 
 
@@ -48,7 +48,7 @@ public class GlobalNameFormRegistry implements NameFormRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapNameFormRegistry bootstrap;
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class GlobalNameFormRegistry implements NameFormRegistry
     /**
      * Creates an empty BootstrapNameFormRegistry.
      */
-    public GlobalNameFormRegistry( SystemPartition systemPartition,
+    public GlobalNameFormRegistry( ContextPartition systemPartition,
             BootstrapNameFormRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();

@@ -53,6 +53,7 @@ import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmContextPartition;
 
                                 
 /**
@@ -64,7 +65,7 @@ import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultContextPartitionNexus implements ContextPartitionNexus
+public class DefaultContextPartitionNexus extends ContextPartitionNexus
 {
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
@@ -79,7 +80,7 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
     private boolean initialized;
 
     /** the system backend */
-    private SystemPartition system;
+    private ContextPartition system;
 
     /** the backends keyed by normalized suffix strings */
     private HashMap partitions = new HashMap();
@@ -179,9 +180,9 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
     {
         // initialize system partition first
         MutableContextPartitionConfiguration systemCfg = new MutableContextPartitionConfiguration();
-        system = new SystemPartition();
+        system = new JdbmContextPartition(); // using default implementation.
         systemCfg.setName( "system" );
-        systemCfg.setSuffix( SystemPartition.SUFFIX );
+        systemCfg.setSuffix( ContextPartitionNexus.SYSTEM_PARTITION_SUFFIX );
         systemCfg.setContextPartition( system );
         
         // Add indexed attributes for system partition
@@ -199,11 +200,11 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
         Attributes systemEntry = new BasicAttributes();
         systemEntry.put( "objectClass", "top" ) ;
         systemEntry.put( "objectClass", "organizationalUnit" ) ;
-        systemEntry.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL ) ;
+        systemEntry.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL ) ;
         systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() ) ;
         systemEntry.put(
-                NamespaceTools.getRdnAttribute( SystemPartition.SUFFIX ),
-                NamespaceTools.getRdnValue( SystemPartition.SUFFIX ) ) ;
+                NamespaceTools.getRdnAttribute( ContextPartitionNexus.SYSTEM_PARTITION_SUFFIX ),
+                NamespaceTools.getRdnValue( ContextPartitionNexus.SYSTEM_PARTITION_SUFFIX ) ) ;
         systemCfg.setContextEntry( systemEntry );
 
         system.init( factoryCfg, systemCfg );
@@ -315,7 +316,7 @@ public class DefaultContextPartitionNexus implements ContextPartitionNexus
     // ------------------------------------------------------------------------
     
     
-    public SystemPartition getSystemPartition()
+    public ContextPartition getSystemPartition()
     {
         return system;
     }

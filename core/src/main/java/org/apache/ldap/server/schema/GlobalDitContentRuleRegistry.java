@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.DITContentRule;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
 
 
@@ -48,7 +48,7 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapDitContentRuleRegistry bootstrap;
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
     /**
      * Creates an empty BootstrapDitContentRuleRegistry.
      */
-    public GlobalDitContentRuleRegistry( SystemPartition systemPartition,
+    public GlobalDitContentRuleRegistry( ContextPartition systemPartition,
             BootstrapDitContentRuleRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();

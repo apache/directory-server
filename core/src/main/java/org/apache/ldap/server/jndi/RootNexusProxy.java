@@ -45,9 +45,10 @@ import org.apache.ldap.server.invocation.ModifyRN;
 import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 
-class RootNexusProxy implements ContextPartitionNexus
+class RootNexusProxy extends ContextPartitionNexus
 {
     private final ContextFactoryConfiguration provider;
 
@@ -154,5 +155,10 @@ class RootNexusProxy implements ContextPartitionNexus
     public Attributes getRootDSE()
     {
         return this.provider.getPartitionNexus().getRootDSE();
+    }
+
+    public ContextPartition getSystemPartition()
+    {
+        return this.provider.getPartitionNexus().getSystemPartition();
     }
 }

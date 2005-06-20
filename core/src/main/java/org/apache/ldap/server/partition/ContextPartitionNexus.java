@@ -24,6 +24,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.ldap.common.name.LdapName;
+
 
 /**
  * The PartitionNexus is a special type of ContextPartition designed to route
@@ -44,22 +46,104 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ContextPartitionNexus extends ContextPartition
+public abstract class ContextPartitionNexus implements ContextPartition
 {
+    /** the default user principal or DN */
+    public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
+    /** the admin super user uid */
+    public final static String ADMIN_UID = "admin";
+    /** the initial admin passwd set on startup */
+    public static final byte[] ADMIN_PW = "secret".getBytes();
+    /** the base dn under which all users reside */
+    public final static String USERS_BASE_NAME = "ou=users,ou=system";
+    /** the base dn under which all groups reside */
+    public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
+    /**
+     * System backend suffix constant.  Should be kept down to a single Dn name 
+     * component or the default constructor will have to parse it instead of 
+     * building the name.  Note that what ever the SUFFIX equals it should be 
+     * both the normalized and the user provided form.
+     */
+    public static final String SYSTEM_PARTITION_SUFFIX = "ou=system" ;
+
+    /**
+     * Gets the DN for the admin user.
+     * @return the admin user DN
+     */
+    public static final Name getAdminName()
+    {
+        Name adminDn = null;
+    
+        try
+        {
+            adminDn = new LdapName( ADMIN_PRINCIPAL );
+        }
+        catch ( NamingException e )
+        {
+            throw new InternalError();
+        }
+    
+        return adminDn;
+    }
+
+    /**
+     * Gets the DN for the base entry under which all groups reside.
+     * A new Name instance is created and returned every time.
+     * @return the groups base DN
+     */
+    public static final Name getGroupsBaseName()
+    {
+        Name groupsBaseDn = null;
+    
+        try
+        {
+            groupsBaseDn = new LdapName( GROUPS_BASE_NAME );
+        }
+        catch ( NamingException e )
+        {
+            throw new InternalError();
+        }
+    
+        return groupsBaseDn;
+    }
+
+    /**
+     * Gets the DN for the base entry under which all non-admin users reside.
+     * A new Name instance is created and returned every time.
+     * @return the users base DN
+     */
+    public static final Name getUsersBaseName()
+    {
+        Name usersBaseDn = null;
+    
+        try
+        {
+            usersBaseDn = new LdapName( USERS_BASE_NAME );
+        }
+        catch ( NamingException e )
+        {
+            throw new InternalError();
+        }
+    
+        return usersBaseDn;
+    }
+
     /**
      * Gets the LdapContext associated with the calling thread.
      * 
      * @return The LdapContext associated with the thread of execution or null
      * if no context is associated with the calling thread.
      */
-    LdapContext getLdapContext();
+    public abstract LdapContext getLdapContext();
 
     /**
      * Get's the RootDSE entry for the DSA.
      *
      * @return the attributes of the RootDSE
      */
-    public Attributes getRootDSE(); 
+    public abstract Attributes getRootDSE(); 
+
+    public abstract ContextPartition getSystemPartition();
 
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
@@ -73,7 +157,7 @@ public interface ContextPartitionNexus extends ContextPartition
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    Name getMatchedDn( Name dn, boolean normalized ) throws NamingException;
+    public abstract Name getMatchedDn( Name dn, boolean normalized ) throws NamingException;
 
     /**
      * Gets the distinguished name of the suffix that would hold an entry with
@@ -88,7 +172,7 @@ public interface ContextPartitionNexus extends ContextPartition
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    Name getSuffix( Name dn, boolean normalized ) throws NamingException;
+    public abstract Name getSuffix( Name dn, boolean normalized ) throws NamingException;
 
     /**
      * Gets an iteration over the Name suffixes of the Backends managed by this
@@ -100,5 +184,5 @@ public interface ContextPartitionNexus extends ContextPartition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws NamingException if there are any problems
      */
-    Iterator listSuffixes( boolean normalized ) throws NamingException;
+    public abstract Iterator listSuffixes( boolean normalized ) throws NamingException;
 }

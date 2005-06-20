@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapObjectClassRegistry;
 
 
@@ -48,7 +48,7 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapObjectClassRegistry bootstrap;
     /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
+    private ContextPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
     /**
      * Creates an empty BootstrapObjectClassRegistry.
      */
-    public GlobalObjectClassRegistry( SystemPartition systemPartition,
+    public GlobalObjectClassRegistry( ContextPartition systemPartition,
             BootstrapObjectClassRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
