@@ -47,6 +47,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.Index;
 import org.apache.ldap.server.partition.store.impl.btree.IndexAssertion;
 import org.apache.ldap.server.partition.store.impl.btree.IndexAssertionEnumeration;
@@ -891,9 +892,9 @@ public class JdbmPartitionStore implements PartitionStore
         // Start adding the system indices
         // Why bother doing a lookup if this is not an alias.
 
-        if ( entry.get( "objectClass" ).contains( ALIAS_OBJECT ) )
+        if ( entry.get( "objectClass" ).contains( ContextPartition.ALIAS_OBJECT ) )
         {
-            addAliasIndices( id, dn, ( String ) entry.get( ALIAS_ATTRIBUTE ).get() );
+            addAliasIndices( id, dn, ( String ) entry.get( ContextPartition.ALIAS_ATTRIBUTE ).get() );
         }
         
         ndnIdx.add( dn.toString(), id );
@@ -943,7 +944,7 @@ public class JdbmPartitionStore implements PartitionStore
         BigInteger parentId = getParentId( id );
         NamingEnumeration attrs = entry.getIDs();
         
-        if ( entry.get( "objectClass" ).contains( ALIAS_OBJECT ) )
+        if ( entry.get( "objectClass" ).contains( ContextPartition.ALIAS_OBJECT ) )
         {
             dropAliasIndices( id );
         }
@@ -1123,7 +1124,7 @@ public class JdbmPartitionStore implements PartitionStore
         
         entry.put( mods );
 
-        if ( mods.getID().equals( ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapName( ndnStr ), 
@@ -1185,7 +1186,7 @@ public class JdbmPartitionStore implements PartitionStore
         }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( mods.getID().equals( ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
         {
             dropAliasIndices( id );
         }
@@ -1225,7 +1226,7 @@ public class JdbmPartitionStore implements PartitionStore
             }
         }
 
-        if ( mods.getID().equals( ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
         {
             dropAliasIndices( id );
         }
@@ -1233,7 +1234,7 @@ public class JdbmPartitionStore implements PartitionStore
         // Automatically replaces old attributes with new modified ones
         entry.put( mods );
         
-        if ( mods.getID().equals( ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapName( ndnStr ), 

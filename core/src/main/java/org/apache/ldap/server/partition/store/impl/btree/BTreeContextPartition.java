@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.partition;
+package org.apache.ldap.server.partition.store.impl.btree;
 
 
 import java.math.BigInteger;
@@ -35,9 +35,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
-import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
-import org.apache.ldap.server.partition.store.impl.btree.SearchResultEnumeration;
+import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.gui.PartitionViewer;
 
 
@@ -49,7 +47,7 @@ import org.apache.ldap.server.partition.store.impl.btree.gui.PartitionViewer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractContextPartition implements ContextPartition
+public abstract class BTreeContextPartition implements ContextPartition
 {
     /** ===================================================================
 
@@ -113,7 +111,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     /**
      * the search engine used to search the database
      */
-    private SearchEngine engine = null;
+    private SearchEngine searchEngine = null;
 
 
     // ------------------------------------------------------------------------
@@ -127,12 +125,12 @@ public abstract class AbstractContextPartition implements ContextPartition
      * @param db the dedicated database for this backing store
      * @param searchEngine the search engine for this backing store
      */
-    public AbstractContextPartition( PartitionStore db, SearchEngine searchEngine,
+    protected BTreeContextPartition( PartitionStore db, SearchEngine searchEngine,
                                      AttributeType[] indexAttributes )
         throws NamingException
     {
         this.db = db;
-        this.engine = searchEngine;
+        this.searchEngine = searchEngine;
 
         HashSet sysOidSet = new HashSet();
         sysOidSet.add( EXISTANCE_OID );
@@ -214,9 +212,9 @@ public abstract class AbstractContextPartition implements ContextPartition
      *
      * @return the search engine
      */
-    public SearchEngine getEngine()
+    public SearchEngine getSearchEngine()
     {
-        return engine;
+        return searchEngine;
     }
 
 
@@ -282,7 +280,7 @@ public abstract class AbstractContextPartition implements ContextPartition
         String [] attrIds = searchCtls.getReturningAttributes();
         NamingEnumeration underlying = null;
         
-        underlying = engine.search( base, env, filter, searchCtls );
+        underlying = searchEngine.search( base, env, filter, searchCtls );
         
         return new SearchResultEnumeration( attrIds, underlying, db );
     }
@@ -363,7 +361,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
     public void inspect() throws Exception
     {
-        PartitionViewer viewer = new PartitionViewer( db, engine );
+        PartitionViewer viewer = new PartitionViewer( db, searchEngine );
         viewer.execute();
     }
 }

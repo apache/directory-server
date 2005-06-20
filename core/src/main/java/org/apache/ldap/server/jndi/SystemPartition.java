@@ -26,7 +26,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.partition.AbstractContextPartition;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
@@ -39,7 +39,7 @@ import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public final class SystemPartition extends AbstractContextPartition
+public final class SystemPartition extends BTreeContextPartition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";

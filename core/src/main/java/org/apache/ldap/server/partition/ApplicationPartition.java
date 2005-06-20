@@ -21,6 +21,7 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.server.partition.store.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.PartitionStore;
 import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
 
@@ -31,7 +32,7 @@ import org.apache.ldap.server.partition.store.impl.btree.SearchEngine;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ApplicationPartition extends AbstractContextPartition
+public class ApplicationPartition extends BTreeContextPartition
 {
     /**
      * user provided suffix distinguished name for this backend set during

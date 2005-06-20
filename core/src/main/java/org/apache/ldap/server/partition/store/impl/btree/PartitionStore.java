@@ -37,17 +37,6 @@ import org.apache.ldap.common.schema.AttributeType;
  */
 public interface PartitionStore
 {
-    // @todo do these alias constants need to go elsewhere?
-    /** The objectClass name for aliases: 'alias' */
-    String ALIAS_OBJECT = "alias";
-
-    /** 
-     * The aliased Dn attribute name: aliasedObjectName for LDAP and
-     * aliasedEntryName or X.500.
-     */ 
-    String ALIAS_ATTRIBUTE = "aliasedObjectName";
-
-
     // ------------------------------------------------------------------------
     // Open / Close / Sync 
     // ------------------------------------------------------------------------
