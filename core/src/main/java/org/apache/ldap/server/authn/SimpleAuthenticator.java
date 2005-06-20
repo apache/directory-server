@@ -27,7 +27,7 @@ import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -93,7 +93,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         LdapName principalDn = new LdapName( principal );
 
-        PartitionNexus rootNexus = getContext().getPartitionNexus();
+        ContextPartitionNexus rootNexus = getContext().getPartitionNexus();
 
         Attributes userEntry = rootNexus.lookup( principalDn );
 

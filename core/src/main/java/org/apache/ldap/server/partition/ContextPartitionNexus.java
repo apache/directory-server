@@ -43,7 +43,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface PartitionNexus extends ContextPartition
+public interface ContextPartitionNexus extends ContextPartition
 {
     /**
      * Gets the LdapContext associated with the calling thread.

@@ -54,7 +54,7 @@ import org.apache.ldap.server.jndi.SystemPartition;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RootNexus implements PartitionNexus
+public class RootNexus implements ContextPartitionNexus
 {
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
@@ -123,7 +123,7 @@ public class RootNexus implements PartitionNexus
     
 
     /**
-     * @see PartitionNexus#getLdapContext()
+     * @see ContextPartitionNexus#getLdapContext()
      */
     public LdapContext getLdapContext() 
     {
@@ -132,7 +132,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see PartitionNexus#getMatchedDn(javax.naming.Name, boolean)
+     * @see ContextPartitionNexus#getMatchedDn(javax.naming.Name, boolean)
      */
     public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
     {
@@ -153,7 +153,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.partition.PartitionNexus#getSuffix(javax.naming.Name, boolean)
+     * @see org.apache.ldap.server.partition.ContextPartitionNexus#getSuffix(javax.naming.Name, boolean)
      */
     public Name getSuffix( Name dn, boolean normalized ) throws NamingException
     {
@@ -164,7 +164,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.partition.PartitionNexus#listSuffixes(boolean)
+     * @see org.apache.ldap.server.partition.ContextPartitionNexus#listSuffixes(boolean)
      */
     public Iterator listSuffixes( boolean normalized ) throws NamingException
     {
@@ -184,7 +184,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.partition.PartitionNexus#register(
+     * @see org.apache.ldap.server.partition.ContextPartitionNexus#register(
      * ContextPartition)
      */
     public void register( ContextPartition backend )
@@ -198,7 +198,7 @@ public class RootNexus implements PartitionNexus
 
 
     /**
-     * @see PartitionNexus#unregister(
+     * @see ContextPartitionNexus#unregister(
      * ContextPartition)
      */
     public void unregister( ContextPartition backend )

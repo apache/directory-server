@@ -46,7 +46,7 @@ import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.partition.ApplicationPartition;
 import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.partition.RootNexus;
 import org.apache.ldap.server.partition.store.impl.btree.DefaultSearchEngine;
 import org.apache.ldap.server.partition.store.impl.btree.ExpressionEnumerator;
@@ -96,7 +96,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     private InterceptorChain interceptorChain;
     
     /** PartitionNexus proxy wrapping nexus to inject services */
-    private final PartitionNexus proxy = new RootNexusProxy(this);
+    private final ContextPartitionNexus proxy = new RootNexusProxy(this);
 
     /** whether or not this instance has been shutdown */
     private boolean started = false;

@@ -45,7 +45,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -60,7 +60,7 @@ public abstract class ServerContext implements Context
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN";
 
     /** The interceptor proxy to the backend nexus */
-    private final PartitionNexus nexusProxy;
+    private final ContextPartitionNexus nexusProxy;
 
     /** The cloned environment used by this Context */
     private final Hashtable env;
@@ -90,7 +90,7 @@ public abstract class ServerContext implements Context
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    protected ServerContext( ContextPartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
         String url;
 
@@ -142,7 +142,7 @@ public abstract class ServerContext implements Context
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    protected ServerContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         this.dn = ( LdapName ) dn.clone();
 
@@ -193,7 +193,7 @@ public abstract class ServerContext implements Context
      * 
      * @return the proxy to the backend nexus.
      */
-    protected PartitionNexus getNexusProxy()
+    protected ContextPartitionNexus getNexusProxy()
     {
        return nexusProxy ;
     }

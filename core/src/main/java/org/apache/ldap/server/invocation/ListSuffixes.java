@@ -20,11 +20,11 @@ package org.apache.ldap.server.invocation;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * Represents an {@link Invocation} on {@link PartitionNexus#listSuffixes(boolean)}.
+ * Represents an {@link Invocation} on {@link ContextPartitionNexus#listSuffixes(boolean)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -50,6 +50,6 @@ public class ListSuffixes extends Invocation
 
     protected Object doExecute( ContextPartition store ) throws NamingException
     {
-        return ( ( PartitionNexus ) store ).listSuffixes( normalized );
+        return ( ( ContextPartitionNexus ) store ).listSuffixes( normalized );
     }
 }

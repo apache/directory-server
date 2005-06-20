@@ -21,11 +21,11 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * Represents an {@link Invocation} on {@link PartitionNexus#getMatchedDn(Name, boolean)}.
+ * Represents an {@link Invocation} on {@link ContextPartitionNexus#getMatchedDn(Name, boolean)}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -52,6 +52,6 @@ public class GetMatchedDN extends EntryInvocation
 
     protected Object doExecute( ContextPartition store ) throws NamingException
     {
-        return ( ( PartitionNexus ) store ).getMatchedDn( getName(), isNormalized() );
+        return ( ( ContextPartitionNexus ) store ).getMatchedDn( getName(), isNormalized() );
     }
 }

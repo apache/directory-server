@@ -28,7 +28,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -52,7 +52,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerLdapContext( ContextPartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
         super( nexusProxy, env );
     }
@@ -67,7 +67,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    ServerLdapContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    ServerLdapContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }

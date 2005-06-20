@@ -19,7 +19,7 @@ package org.apache.ldap.server.authn;
 
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -43,7 +43,7 @@ public interface AuthenticatorContext
     public AuthenticatorConfiguration getConfiguration();
 
     /**
-     * Returns {@link PartitionNexus}.
+     * Returns {@link ContextPartitionNexus}.
      */
-    public PartitionNexus getPartitionNexus();
+    public ContextPartitionNexus getPartitionNexus();
 }

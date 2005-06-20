@@ -46,7 +46,7 @@ import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -71,7 +71,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerDirContext( ContextPartitionNexus nexusProxy, Hashtable env ) throws NamingException
     {
         super( nexusProxy, env );
     }
@@ -86,7 +86,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerDirContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    protected ServerDirContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }

@@ -45,9 +45,9 @@ import org.apache.ldap.server.invocation.Move;
 import org.apache.ldap.server.invocation.MoveAndModifyRN;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.PartitionNexus;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
-class RootNexusProxy implements PartitionNexus
+class RootNexusProxy implements ContextPartitionNexus
 {
     private final ContextFactoryConfiguration provider;
 
