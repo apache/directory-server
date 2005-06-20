@@ -55,8 +55,8 @@ import org.apache.ldap.server.invocation.LookupWithAttrIds;
 import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.partition.store.impl.btree.ResultFilteringEnumeration;
-import org.apache.ldap.server.partition.store.impl.btree.SearchResultFilter;
+import org.apache.ldap.server.partition.impl.btree.ResultFilteringEnumeration;
+import org.apache.ldap.server.partition.impl.btree.SearchResultFilter;
 
 
 /**

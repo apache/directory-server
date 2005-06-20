@@ -45,8 +45,8 @@ import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.partition.store.impl.btree.ResultFilteringEnumeration;
-import org.apache.ldap.server.partition.store.impl.btree.SearchResultFilter;
+import org.apache.ldap.server.partition.impl.btree.ResultFilteringEnumeration;
+import org.apache.ldap.server.partition.impl.btree.SearchResultFilter;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 

@@ -53,7 +53,7 @@ import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.store.impl.btree.jdbm.JdbmContextPartition;
+import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
 
                                 
 /**
