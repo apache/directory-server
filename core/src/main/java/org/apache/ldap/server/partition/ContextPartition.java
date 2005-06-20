@@ -25,8 +25,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 
 
 /**
@@ -51,7 +54,7 @@ public interface ContextPartition
     /**
      * Initializes this partition.
      */
-    void init( Name userProvidedSuffix, Name normalizedSuffix ) throws NamingException;
+    void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException;
     
     
     /**
@@ -144,8 +147,7 @@ public interface ContextPartition
      * retrieval.
      *
      * @param base the base distinguished/absolute name for the search/listing
-     * @return a NamingEnumeration containing objects of type
-     * {@link org.apache.ldap.server.partition.store.impl.btree.jdbm.BTreeContextPartitionSearchResult}
+     * @return a NamingEnumeration containing objects of type {@link SearchResult}
      * @throws NamingException if there are any problems
      */
     NamingEnumeration list( Name base ) throws NamingException;

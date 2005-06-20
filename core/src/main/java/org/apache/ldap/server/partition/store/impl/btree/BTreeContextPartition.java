@@ -36,8 +36,12 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.store.impl.btree.gui.PartitionViewer;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
 
 
 /**
@@ -114,14 +118,20 @@ public abstract class BTreeContextPartition implements ContextPartition
     // ------------------------------------------------------------------------
 
     /**
-     * Creates a context partition with a new database and a search engine.
-     *
-     * @param searchEngine the search engine for this backing store
+     * Creates a B-tree based context partition.
      */
-    public BTreeContextPartition( SearchEngine searchEngine, AttributeType[] indexedAttrs )
-        throws NamingException
+    protected BTreeContextPartition()
     {
-        this.searchEngine = searchEngine;
+    }
+    
+
+    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    {
+        AttributeTypeRegistry attributeTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
+        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
+        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
+        this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator );
 
         HashSet sysOidSet = new HashSet();
         sysOidSet.add( EXISTANCE_OID );
@@ -132,40 +142,44 @@ public abstract class BTreeContextPartition implements ContextPartition
         sysOidSet.add( SUBALIAS_OID );
         sysOidSet.add( ALIAS_OID );
 
-        for ( int ii = 0; ii < indexedAttrs.length; ii ++ )
+        
+        Iterator i = cfg.getIndexedAttributes().iterator();
+        while( i.hasNext() )
         {
-            String oid = indexedAttrs[ii].getOid();
-
+            String name = ( String ) i.next();
+            String oid = oidRegistry.getOid( name );
+            AttributeType type = attributeTypeRegistry.lookup( oid );
+            
             // check if attribute is a system attribute
             if ( sysOidSet.contains( oid ) )
             {
                 if ( oid.equals( EXISTANCE_OID ) )
                 {
-                    setExistanceIndexOn( indexedAttrs[ii] );
+                    setExistanceIndexOn( type );
                 }
                 else if ( oid.equals( HIERARCHY_OID ) )
                 {
-                    setHierarchyIndexOn( indexedAttrs[ii] );
+                    setHierarchyIndexOn( type );
                 }
                 else if ( oid.equals( UPDN_OID ) )
                 {
-                    setUpdnIndexOn( indexedAttrs[ii] );
+                    setUpdnIndexOn( type );
                 }
                 else if ( oid.equals( NDN_OID ) )
                 {
-                    setNdnIndexOn( indexedAttrs[ii] );
+                    setNdnIndexOn( type );
                 }
                 else if ( oid.equals( ONEALIAS_OID ) )
                 {
-                    setOneAliasIndexOn( indexedAttrs[ii] );
+                    setOneAliasIndexOn( type );
                 }
                 else if ( oid.equals( SUBALIAS_OID ) )
                 {
-                    setSubAliasIndexOn( indexedAttrs[ii] );
+                    setSubAliasIndexOn( type );
                 }
                 else if ( oid.equals( ALIAS_OID ) )
                 {
-                    setAliasIndexOn( indexedAttrs[ii] );
+                    setAliasIndexOn( type );
                 }
                 else
                 {
@@ -175,12 +189,12 @@ public abstract class BTreeContextPartition implements ContextPartition
             }
             else
             {
-                addIndexOn( indexedAttrs[ii] );
+                addIndexOn( type );
             }
         }
     }
 
-
+    
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------

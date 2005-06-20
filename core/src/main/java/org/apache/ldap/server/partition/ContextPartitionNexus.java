@@ -93,32 +93,4 @@ public interface ContextPartitionNexus extends ContextPartition
      * @throws NamingException if there are any problems
      */
     Iterator listSuffixes( boolean normalized ) throws NamingException;
-
-    /**
-     * Registers an ContextPartition with this BackendManager.  Called by each
-     * ContextPartition implementation after it has started to register for
-     * backend operation calls.  This method effectively puts the 
-     * ContextPartition's naming context online.
-     *
-     * Operations against the naming context should result in an LDAP BUSY
-     * result code in the returnValue if the naming context is not online.
-     *
-     * @param partition ContextPartition component to register with this
-     * BackendNexus.
-     */
-    void register( ContextPartition partition );
-
-    /**
-     * Unregisters an ContextPartition with this BackendManager.  Called for each
-     * registered Backend right befor it is to be stopped.  This prevents
-     * protocol server requests from reaching the Backend and effectively puts
-     * the ContextPartition's naming context offline.
-     *
-     * Operations against the naming context should result in an LDAP BUSY
-     * result code in the returnValue if the naming context is not online.
-     *
-     * @param partition ContextPartition component to unregister with this
-     * BackendNexus.
-     */
-    void unregister( ContextPartition partition );
 }

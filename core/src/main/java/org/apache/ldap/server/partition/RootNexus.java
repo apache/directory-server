@@ -17,9 +17,11 @@
 package org.apache.ldap.server.partition;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Name;
@@ -41,7 +43,10 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.SystemPartition;
 
                                 
@@ -66,13 +71,13 @@ public class RootNexus implements ContextPartitionNexus
     private static final String NAMINGCTXS_ATTR = "namingContexts";
 
     /** the closed state of this partition */
-    private boolean open = true;
+    private boolean initialized;
 
     /** the system backend */
     private SystemPartition system;
 
     /** the backends keyed by normalized suffix strings */
-    private HashMap backends = new HashMap();
+    private HashMap partitions = new HashMap();
 
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
@@ -117,6 +122,155 @@ public class RootNexus implements ContextPartitionNexus
     }
 
 
+    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    {
+        // NOTE: We ignore ContextPartitionConfiguration parameter here.
+        
+        if( initialized )
+        {
+            return;
+        }
+        
+        Iterator i = factoryCfg.getConfiguration().getContextPartitionConfigurations().iterator();
+        List initializedPartitions = new ArrayList();
+        boolean success = false;
+        try
+        {
+            while( i.hasNext() )
+            {
+                cfg = ( ContextPartitionConfiguration ) i.next();
+                ContextPartition partition = cfg.getContextPartition();
+                partition.init( factoryCfg, cfg );
+                initializedPartitions.add( partition );
+                register( partition );
+            }
+            success = true;
+        }
+        finally
+        {
+            if( !success )
+            {
+                i = initializedPartitions.iterator();
+                while( i.hasNext() )
+                {
+                    ContextPartition partition = ( ContextPartition ) i.next();
+                    try
+                    {
+                        partition.destroy();
+                    }
+                    catch( Exception e )
+                    {
+                        e.printStackTrace();
+                    }
+                    finally
+                    {
+                        unregister( partition );
+                    }
+                }
+            }
+        }
+    }
+
+
+    public boolean isInitialized()
+    {
+        return initialized;
+    }
+
+
+    public synchronized void destroy() throws NamingException
+    {
+        if ( !initialized )
+        {
+            return;
+        }
+
+        MultiException error = null;
+
+        Iterator list = this.partitions.values().iterator();
+
+        // make sure this loop is not fail fast so all backing stores can
+        // have an attempt at closing down and synching their cached entries
+        while ( list.hasNext() )
+        {
+            ContextPartition partition = ( ContextPartition ) list.next();
+
+            try
+            {
+                partition.sync();
+                partition.destroy();
+            }
+            catch ( NamingException e )
+            {
+                e.printStackTrace();
+
+                if ( error == null )
+                {
+                    error = new MultiException( "Grouping many exceptions on root nexus close()" );
+                }
+
+                // @todo really need to send this info to a monitor
+                error.addThrowable( e );
+            }
+        }
+
+        initialized = false;
+
+        if ( error != null )
+        {
+            String msg = "Encountered failures while performing a close() operation on backing stores";
+
+            NamingException total = new NamingException( msg );
+
+            total.setRootCause( error );
+
+            throw total;
+        }
+    }
+
+
+    /**
+     * @see ContextPartition#sync()
+     */
+    public void sync() throws NamingException
+    {
+        MultiException error = null;
+
+        Iterator list = this.partitions.values().iterator();
+
+        while ( list.hasNext() )
+        {
+            ContextPartition store = ( ContextPartition ) list.next();
+
+            try
+            {
+                store.sync();
+            }
+            catch ( NamingException e )
+            {
+                e.printStackTrace();
+
+                if ( error == null )
+                {
+                    error = new MultiException( "Grouping many exceptions on root nexus sync()" );
+                }
+
+                // @todo really need to send this info to a monitor
+                error.addThrowable( e );
+            }
+        }
+
+        if ( error != null )
+        {
+            String msg = "Encountered failures while performing a sync() operation on backing stores";
+
+            NamingException total = new NamingException( msg );
+
+            total.setRootCause( error );
+        }
+    }
+
+
     // ------------------------------------------------------------------------
     // BackendNexus Interface Method Implementations
     // ------------------------------------------------------------------------
@@ -152,6 +306,12 @@ public class RootNexus implements ContextPartitionNexus
     }
 
 
+    public Name getSuffix( boolean normalized )
+    {
+        return new LdapName();
+    }
+
+
     /**
      * @see org.apache.ldap.server.partition.ContextPartitionNexus#getSuffix(javax.naming.Name, boolean)
      */
@@ -168,7 +328,7 @@ public class RootNexus implements ContextPartitionNexus
      */
     public Iterator listSuffixes( boolean normalized ) throws NamingException
     {
-        return Collections.unmodifiableSet( backends.keySet() ).iterator();
+        return Collections.unmodifiableSet( partitions.keySet() ).iterator();
     }
 
 
@@ -184,30 +344,42 @@ public class RootNexus implements ContextPartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.partition.ContextPartitionNexus#register(
-     * ContextPartition)
+     * Registers an ContextPartition with this BackendManager.  Called by each
+     * ContextPartition implementation after it has started to register for
+     * backend operation calls.  This method effectively puts the 
+     * ContextPartition's naming context online.
+     *
+     * Operations against the naming context should result in an LDAP BUSY
+     * result code in the returnValue if the naming context is not online.
+     *
+     * @param partition ContextPartition component to register with this
+     * BackendNexus.
      */
-    public void register( ContextPartition backend )
+    private void register( ContextPartition partition )
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-
-        namingContexts.add( backend.getSuffix( false ).toString() );
-
-        backends.put( backend.getSuffix( true ).toString(), backend );
+        namingContexts.add( partition.getSuffix( false ).toString() );
+        partitions.put( partition.getSuffix( true ).toString(), partition );
     }
 
 
     /**
-     * @see ContextPartitionNexus#unregister(
-     * ContextPartition)
+     * Unregisters an ContextPartition with this BackendManager.  Called for each
+     * registered Backend right befor it is to be stopped.  This prevents
+     * protocol server requests from reaching the Backend and effectively puts
+     * the ContextPartition's naming context offline.
+     *
+     * Operations against the naming context should result in an LDAP BUSY
+     * result code in the returnValue if the naming context is not online.
+     *
+     * @param partition ContextPartition component to unregister with this
+     * BackendNexus.
      */
-    public void unregister( ContextPartition backend )
+    private void unregister( ContextPartition partition )
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-
-        namingContexts.remove( backend.getSuffix( false ).toString() );
-
-        backends.remove( backend.getSuffix( true ).toString() );
+        namingContexts.remove( partition.getSuffix( false ).toString() );
+        partitions.remove( partition.getSuffix( true ).toString() );
     }
 
 
@@ -414,7 +586,7 @@ public class RootNexus implements ContextPartitionNexus
      */
     public boolean isSuffix( Name dn ) throws NamingException
     {
-        return backends.containsKey( dn.toString() );
+        return partitions.containsKey( dn.toString() );
     }
 
     
@@ -452,106 +624,7 @@ public class RootNexus implements ContextPartitionNexus
         backend.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
     }
 
-
-    /**
-     * @see ContextPartition#sync()
-     */
-    public void sync() throws NamingException
-    {
-        MultiException error = null;
-
-        Iterator list = this.backends.values().iterator();
-
-        while ( list.hasNext() )
-        {
-            ContextPartition store = ( ContextPartition ) list.next();
-
-            try
-            {
-                store.sync();
-            }
-            catch ( NamingException e )
-            {
-                e.printStackTrace();
-
-                if ( error == null )
-                {
-                    error = new MultiException( "Grouping many exceptions on root nexus sync()" );
-                }
-
-                // @todo really need to send this info to a monitor
-                error.addThrowable( e );
-            }
-        }
-
-        if ( error != null )
-        {
-            String msg = "Encountered failures while performing a sync() operation on backing stores";
-
-            NamingException total = new NamingException( msg );
-
-            total.setRootCause( error );
-        }
-    }
-
-
-    public boolean isInitialized()
-    {
-        return open;
-    }
-
-
-    public synchronized void destroy() throws NamingException
-    {
-        if ( !open )
-        {
-            return;
-        }
-
-        MultiException error = null;
-
-        Iterator list = this.backends.values().iterator();
-
-        // make sure this loop is not fail fast so all backing stores can
-        // have an attempt at closing down and synching their cached entries
-        while ( list.hasNext() )
-        {
-            ContextPartition store = ( ContextPartition ) list.next();
-
-            try
-            {
-                store.sync();
-                store.destroy();
-            }
-            catch ( NamingException e )
-            {
-                e.printStackTrace();
-
-                if ( error == null )
-                {
-                    error = new MultiException( "Grouping many exceptions on root nexus close()" );
-                }
-
-                // @todo really need to send this info to a monitor
-                error.addThrowable( e );
-            }
-        }
-
-        open = false;
-
-        if ( error != null )
-        {
-            String msg = "Encountered failures while performing a close() operation on backing stores";
-
-            NamingException total = new NamingException( msg );
-
-            total.setRootCause( error );
-
-            throw total;
-        }
-    }
-
-
+    
     // ------------------------------------------------------------------------
     // Private Methods
     // ------------------------------------------------------------------------
@@ -570,9 +643,9 @@ public class RootNexus implements ContextPartitionNexus
 
         while ( clonedDn.size() > 0 )
         {
-            if ( backends.containsKey( clonedDn.toString() ) )
+            if ( partitions.containsKey( clonedDn.toString() ) )
             {
-                return ( ContextPartition ) backends.get( clonedDn.toString() );
+                return ( ContextPartition ) partitions.get( clonedDn.toString() );
             }
             
             clonedDn.remove( clonedDn.size() - 1 );

@@ -23,9 +23,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.partition.ContextPartition;
 
 
@@ -39,6 +42,7 @@ public class ContextPartitionConfiguration
 {
     private String name;
     private String suffix;
+    private Name normalizedSuffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
     private Attributes contextEntry = new BasicAttributes();
     private ContextPartition contextPartition;
@@ -86,9 +90,6 @@ public class ContextPartitionConfiguration
         return contextPartition;
     }
     
-    /**
-     * Set this to null if you want to use {@link org.apache.ldap.server.partition.ApplicationPartition}.
-     */
     protected void setContextPartition( ContextPartition partition )
     {
         this.contextPartition = partition;
@@ -109,10 +110,23 @@ public class ContextPartitionConfiguration
         return suffix;
     }
     
+    public Name getNormalizedSuffix()
+    {
+        return normalizedSuffix;
+    }
+    
     protected void setSuffix( String suffix )
     {
         // TODO Suffix should be normalized before being set
         this.suffix = suffix.trim();
+        try
+        {
+            this.normalizedSuffix = new LdapName( suffix );
+        }
+        catch( NamingException e )
+        {
+            throw new ConfigurationException( "Failed to normalized the suffix: " + suffix );
+        }
     }
     
     
@@ -131,6 +145,11 @@ public class ContextPartitionConfiguration
         if( getSuffix() == null )
         {
             throw new ConfigurationException( "Suffix is not specified." );
+        }
+        
+        if( getContextPartition() == null )
+        {
+            throw new ConfigurationException( "Context partition is not specifiec." );
         }
     }
 }
