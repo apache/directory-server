@@ -64,22 +64,22 @@ import org.apache.ldap.server.partition.store.IndexRecord;
 public class JdbmPartitionStore implements PartitionStore
 {
     /** the JDBM record manager used by this database */
-    private final RecordManager recMan;
+    private RecordManager recMan;
     /** the user provided suffix of this backend database */
-    private final Name upSuffix;
+    private Name upSuffix;
     /** the normalized suffix of this backend database */
-    private final Name normSuffix;
+    private Name normSuffix;
     /** the working directory to use for files */
-    private final String wkdir;
+    private File wkdir;
     /** the master table storing entries by primary key */
-    private final JdbmMasterTable master;
+    private JdbmMasterTable master;
     /** a map of attribute names to user indices */
-    private final Map indices;
+    private Map indices;
     /** a map of index names to system indices */
-    private final Map sysIndices;
+    private Map sysIndices;
 
-    /** the closed state of this Database */
-    private boolean closed = false;
+    /** true if open */
+    private boolean open;
 
     /** the normalized distinguished name index */
     private Index ndnIdx;
@@ -103,23 +103,30 @@ public class JdbmPartitionStore implements PartitionStore
 
 
     /**
-     * Creates a Databased based on JDBM B+Trees.
-     *
-     * @param upSuffix the user provided suffix name
-     * @param normSuffix the normalized suffix name
-     * @param wkdirPath the path to the working directory where the db resides
-     * @throws NamingException if db cannot be created
+     * Creates a store based on JDBM B+Trees.
      */
-    public JdbmPartitionStore ( final Name upSuffix, final Name normSuffix, final String wkdirPath )
-        throws NamingException
+    public JdbmPartitionStore ()
     {
-        this.upSuffix = upSuffix;
-        this.normSuffix = normSuffix;
-        this.wkdir = wkdirPath;
+    }
+
+    public File getWorkingDirectory()
+    {
+        return wkdir;
+    }
+    
+    public void setWorkingDirectory( File workingDirectory )
+    {
+        this.wkdir = workingDirectory;
+    }
+    
+    public synchronized void open( Name userProviderSuffix, Name normalizedSuffix ) throws NamingException
+    {
+        this.upSuffix = userProviderSuffix;
+        this.normSuffix = normalizedSuffix;
 
         try 
         {
-            String path = wkdirPath + File.separator + "master";
+            String path = this.wkdir.getPath() + File.separator + "master";
             BaseRecordManager base = new BaseRecordManager( path );
             base.disableTransactions();
             recMan = new CacheRecordManager( base, new MRU( 1000 ) );
@@ -135,6 +142,180 @@ public class JdbmPartitionStore implements PartitionStore
         master = new JdbmMasterTable( recMan );
         indices = new HashMap();
         sysIndices = new HashMap();
+        open = true;
+    }
+    
+    
+    public synchronized void close() throws NamingException
+    {
+        if ( !open )
+        {
+            return;
+        }
+
+        ArrayList array = new ArrayList();
+        array.addAll( indices.values() );
+        
+        if ( null != ndnIdx )
+        {
+            array.add( ndnIdx );
+        }
+        
+        if ( null != updnIdx )
+        {
+            array.add( updnIdx );
+        }
+
+        if ( null != aliasIdx )
+        {
+            array.add( aliasIdx );
+        }
+
+        if ( null != oneAliasIdx )
+        {
+            array.add( oneAliasIdx );
+        }
+
+        if ( null != subAliasIdx )
+        {
+            array.add( subAliasIdx );
+        }
+
+        if ( null != hierarchyIdx )
+        {
+            array.add( hierarchyIdx );
+        }
+
+        if ( null != existanceIdx )
+        {
+            array.add( existanceIdx );
+        }
+        
+        Iterator list = array.iterator();
+        MultiException rootCause = null;
+        
+        while ( list.hasNext() ) 
+        {
+            Index index = ( Index ) list.next();
+
+            try 
+            {
+               index.close();
+            } 
+            catch ( Throwable t ) 
+            {
+                if ( null == rootCause ) 
+                {
+                    rootCause = new MultiException();
+                }
+                
+                rootCause.addThrowable( t );
+            }
+        }
+
+        try 
+        {
+            master.close();
+        } 
+        catch ( Throwable t ) 
+        {
+            if ( null == rootCause ) 
+            {
+                rootCause = new MultiException();
+            }
+                
+            rootCause.addThrowable( t );
+        }
+
+        try 
+        {
+            recMan.close();
+        } 
+        catch ( Throwable t ) 
+        {
+            if ( null == rootCause ) 
+            {
+                rootCause = new MultiException();
+            }
+                
+            rootCause.addThrowable( t );
+        }
+
+        open = false;
+
+        if ( null != rootCause )
+        {
+            NamingException ne = new NamingException( "Failed to close all" );
+            ne.setRootCause( rootCause );
+            throw ne;
+        }        
+    }
+
+
+    public boolean isOpen()
+    {
+        return open;
+    }
+
+
+    public void sync() throws NamingException
+    {
+        ArrayList array = new ArrayList();
+        array.addAll( indices.values() );
+        array.add( ndnIdx );
+        array.add( updnIdx );
+        array.add( aliasIdx );
+        array.add( oneAliasIdx );
+        array.add( subAliasIdx );
+        array.add( hierarchyIdx );
+        array.add( existanceIdx );
+        
+        Iterator list = array.iterator();
+        MultiException rootCause = null;
+
+        // Sync all user defined indices
+        while ( list.hasNext() ) 
+        {
+            Index idx = ( Index ) list.next();
+
+            try 
+            {
+                idx.sync();
+            } 
+            catch ( Throwable t ) 
+            {
+                t.printStackTrace();
+                if ( null == rootCause ) 
+                {
+                    rootCause = new MultiException();
+                }
+                
+                rootCause.addThrowable( t );
+            }
+        }
+        
+        try 
+        {
+            master.sync();
+            recMan.commit();
+        }
+        catch ( Throwable t ) 
+        {
+            t.printStackTrace();
+            if ( null == rootCause ) 
+            {
+                rootCause = new MultiException();
+            }
+                
+            rootCause.addThrowable( t );
+        }
+
+        if ( null != rootCause )
+        {
+            NamingException ne = new NamingException( "Failed to sync all" );
+            ne.setRootCause( rootCause );
+            throw ne;
+        }        
     }
 
 
@@ -839,188 +1020,6 @@ public class JdbmPartitionStore implements PartitionStore
         }
 
         return lookup( id );
-    }
-
-
-    /**
-     * @see org.apache.ldap.server.partition.store.PartitionStore#sync()
-     */
-    public void sync() throws NamingException
-    {
-        ArrayList array = new ArrayList();
-        array.addAll( indices.values() );
-        array.add( ndnIdx );
-        array.add( updnIdx );
-        array.add( aliasIdx );
-        array.add( oneAliasIdx );
-        array.add( subAliasIdx );
-        array.add( hierarchyIdx );
-        array.add( existanceIdx );
-        
-        Iterator list = array.iterator();
-        MultiException rootCause = null;
-
-        // Sync all user defined indices
-        while ( list.hasNext() ) 
-        {
-            Index idx = ( Index ) list.next();
-
-            try 
-            {
-                idx.sync();
-            } 
-            catch ( Throwable t ) 
-            {
-                t.printStackTrace();
-                if ( null == rootCause ) 
-                {
-                    rootCause = new MultiException();
-                }
-                
-                rootCause.addThrowable( t );
-            }
-        }
-        
-        try 
-        {
-            master.sync();
-            recMan.commit();
-        }
-        catch ( Throwable t ) 
-        {
-            t.printStackTrace();
-            if ( null == rootCause ) 
-            {
-                rootCause = new MultiException();
-            }
-                
-            rootCause.addThrowable( t );
-        }
-
-        if ( null != rootCause )
-        {
-            NamingException ne = new NamingException( "Failed to sync all" );
-            ne.setRootCause( rootCause );
-            throw ne;
-        }        
-    }
-
-
-    /**
-     * @see org.apache.ldap.server.partition.store.PartitionStore#close()
-     */
-    public synchronized void close() throws NamingException
-    {
-        if ( closed )
-        {
-            return;
-        }
-
-        ArrayList array = new ArrayList();
-        array.addAll( indices.values() );
-        
-        if ( null != ndnIdx )
-        {
-            array.add( ndnIdx );
-        }
-        
-        if ( null != updnIdx )
-        {
-            array.add( updnIdx );
-        }
-
-        if ( null != aliasIdx )
-        {
-            array.add( aliasIdx );
-        }
-
-        if ( null != oneAliasIdx )
-        {
-            array.add( oneAliasIdx );
-        }
-
-        if ( null != subAliasIdx )
-        {
-            array.add( subAliasIdx );
-        }
-
-        if ( null != hierarchyIdx )
-        {
-            array.add( hierarchyIdx );
-        }
-
-        if ( null != existanceIdx )
-        {
-            array.add( existanceIdx );
-        }
-        
-        Iterator list = array.iterator();
-        MultiException rootCause = null;
-        
-        while ( list.hasNext() ) 
-        {
-            Index index = ( Index ) list.next();
-
-            try 
-            {
-               index.close();
-            } 
-            catch ( Throwable t ) 
-            {
-                if ( null == rootCause ) 
-                {
-                    rootCause = new MultiException();
-                }
-                
-                rootCause.addThrowable( t );
-            }
-        }
-
-        try 
-        {
-            master.close();
-        } 
-        catch ( Throwable t ) 
-        {
-            if ( null == rootCause ) 
-            {
-                rootCause = new MultiException();
-            }
-                
-            rootCause.addThrowable( t );
-        }
-
-        try 
-        {
-            recMan.close();
-        } 
-        catch ( Throwable t ) 
-        {
-            if ( null == rootCause ) 
-            {
-                rootCause = new MultiException();
-            }
-                
-            rootCause.addThrowable( t );
-        }
-
-        closed = true;
-
-        if ( null != rootCause )
-        {
-            NamingException ne = new NamingException( "Failed to close all" );
-            ne.setRootCause( rootCause );
-            throw ne;
-        }        
-    }
-
-
-    /**
-     * @see org.apache.ldap.server.partition.store.PartitionStore#isClosed()
-     */
-    public boolean isClosed()
-    {
-        return closed;
     }
 
 

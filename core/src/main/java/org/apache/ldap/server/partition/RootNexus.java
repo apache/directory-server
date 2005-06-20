@@ -42,6 +42,7 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.server.jndi.SystemPartition;
 
                                 
 /**
@@ -63,7 +64,7 @@ public class RootNexus implements PartitionNexus
     private static final String NAMINGCTXS_ATTR = "namingContexts";
 
     /** the closed state of this partition */
-    private boolean closed = false;
+    private boolean open = true;
 
     /** the system backend */
     private SystemPartition system;
@@ -492,12 +493,9 @@ public class RootNexus implements PartitionNexus
     }
 
 
-    /**
-     * @see ContextPartition#isClosed()
-     */
-    public boolean isClosed()
+    public boolean isOpen()
     {
-        return closed;
+        return open;
     }
 
 
@@ -506,7 +504,7 @@ public class RootNexus implements PartitionNexus
      */
     public synchronized void close() throws NamingException
     {
-        if ( closed )
+        if ( !open )
         {
             return;
         }
@@ -540,7 +538,7 @@ public class RootNexus implements PartitionNexus
             }
         }
 
-        closed = true;
+        open = false;
 
         if ( error != null )
         {

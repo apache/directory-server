@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.partition;
+package org.apache.ldap.server.jndi;
 
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
@@ -26,6 +26,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.server.partition.AbstractContextPartition;
 import org.apache.ldap.server.partition.store.PartitionStore;
 import org.apache.ldap.server.partition.store.SearchEngine;
 

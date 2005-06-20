@@ -48,7 +48,6 @@ import org.apache.ldap.server.partition.ApplicationPartition;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.PartitionNexus;
 import org.apache.ldap.server.partition.RootNexus;
-import org.apache.ldap.server.partition.SystemPartition;
 import org.apache.ldap.server.partition.store.DefaultSearchEngine;
 import org.apache.ldap.server.partition.store.ExpressionEnumerator;
 import org.apache.ldap.server.partition.store.ExpressionEvaluator;

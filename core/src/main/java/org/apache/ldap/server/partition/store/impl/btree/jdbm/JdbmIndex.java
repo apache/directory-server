@@ -99,10 +99,10 @@ public class JdbmIndex implements Index
      * @param wkDirPath TODO
      * @throws NamingException TODO
      */
-    public JdbmIndex( AttributeType attribute, String wkDirPath )
+    public JdbmIndex( AttributeType attribute, File wkDirPath )
         throws NamingException
     {
-        File file = new File( wkDirPath + File.separator 
+        File file = new File( wkDirPath.getPath() + File.separator 
             + attribute.getName() );
         this.attribute = attribute;
         keyCache = new LRUMap( 1000 );

@@ -40,6 +40,7 @@ public interface PartitionStore
     // @todo do these alias constants need to go elsewhere?
     /** The objectClass name for aliases: 'alias' */
     String ALIAS_OBJECT = "alias";
+
     /** 
      * The aliased Dn attribute name: aliasedObjectName for LDAP and
      * aliasedEntryName or X.500.
@@ -47,6 +48,36 @@ public interface PartitionStore
     String ALIAS_ATTRIBUTE = "aliasedObjectName";
 
 
+    // ------------------------------------------------------------------------
+    // Open / Close / Sync 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Opens this store.
+     * 
+     * @throws NamingException
+     */
+    void open( Name userProvidedSuffix, Name normalizedSuffix ) throws NamingException;
+
+    /**
+     * TODO Document me!
+     *
+     * @throws NamingException TODO
+     */
+    void sync() throws NamingException;
+
+    /**
+     * TODO Document me!
+     *
+     * @throws NamingException TODO
+     */
+    void close() throws NamingException;
+
+    /**
+     * Checks to see if this store is open or closed.
+     */
+    boolean isOpen();
+    
     // ------------------------------------------------------------------------
     // Index Operations 
     // ------------------------------------------------------------------------
@@ -318,28 +349,6 @@ public interface PartitionStore
      * @throws NamingException TODO
      */
     Attributes getSuffixEntry() throws NamingException;
-
-    /**
-     * TODO Document me!
-     *
-     * @throws NamingException TODO
-     */
-    void sync() throws NamingException;
-
-    /**
-     * TODO Document me!
-     *
-     * @throws NamingException TODO
-     */
-    void close() throws NamingException;
-
-    /**
-     * Checks to see if this BackingStore has been closed or shut down.
-     * Operations against closed BackingStores will fail.
-     *
-     * @return true if shut down, false otherwise
-     */
-    boolean isClosed();
 
     /**
      * TODO Document me!

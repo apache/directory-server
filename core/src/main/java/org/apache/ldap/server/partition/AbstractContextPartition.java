@@ -391,9 +391,9 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
 
-    public boolean isClosed()
+    public boolean isOpen()
     {
-        return db.isClosed();
+        return db.isOpen();
     }
 
 

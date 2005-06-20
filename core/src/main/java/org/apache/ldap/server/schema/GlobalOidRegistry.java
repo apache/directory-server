@@ -25,7 +25,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.SystemPartition;
+import org.apache.ldap.server.jndi.SystemPartition;
 import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
 
 
