@@ -86,7 +86,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         {
             ( ( DefaultContextFactoryConfiguration ) provider ).startup( this, env );
         }
-        else
+        else if( provider == null )
         {
             throw new NamingException( "Unknown configuration: " + cfg );
         }
