@@ -48,11 +48,11 @@ import org.apache.ldap.server.invocation.Search;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 
-class RootNexusProxy extends ContextPartitionNexus
+class ContextPartitionNexusProxy extends ContextPartitionNexus
 {
     private final ContextFactoryConfiguration provider;
 
-    RootNexusProxy( ContextFactoryConfiguration provider )
+    ContextPartitionNexusProxy( ContextFactoryConfiguration provider )
     {
         this.provider = provider;
     }

@@ -79,7 +79,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     private InterceptorChain interceptorChain;
     
     /** PartitionNexus proxy wrapping nexus to inject services */
-    private final ContextPartitionNexus proxy = new RootNexusProxy(this);
+    private final ContextPartitionNexus proxy = new ContextPartitionNexusProxy(this);
 
     /** whether or not this instance has been shutdown */
     private boolean started = false;
