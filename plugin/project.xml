@@ -82,14 +82,12 @@
       </includes>
     </unitTest>
     <resources>
-      <resources>
-        <resource>
-          <directory>src/main/java</directory>
-          <includes>
-            <include>**/*.template</include>
-          </includes>
-        </resource>
-      </resources>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.template</include>
+        </includes>
+      </resource>
       <resource>
         <directory>${basedir}/src/main/plugin-resources</directory>
         <targetPath>plugin-resources</targetPath>
