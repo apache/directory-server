@@ -17,32 +17,27 @@
 package org.apache.ldap.server.exception;
 
 
+import java.util.Map;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.exception.LdapContextNotEmptyException;
 import org.apache.ldap.common.exception.LdapNameAlreadyBoundException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapNamingException;
+import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
-import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.invocation.Add;
-import org.apache.ldap.server.invocation.Delete;
-import org.apache.ldap.server.invocation.List;
-import org.apache.ldap.server.invocation.Lookup;
-import org.apache.ldap.server.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.invocation.Modify;
-import org.apache.ldap.server.invocation.ModifyMany;
-import org.apache.ldap.server.invocation.ModifyRN;
-import org.apache.ldap.server.invocation.Move;
-import org.apache.ldap.server.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.invocation.Search;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 
@@ -72,9 +67,9 @@ public class ExceptionService extends BaseInterceptor
     }
 
 
-    public void init( InterceptorContext ctx )
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg )
     {
-        this.nexus = ctx.getRootNexus();
+        this.nexus = factoryCfg.getPartitionNexus();
     }
 
 
@@ -87,11 +82,9 @@ public class ExceptionService extends BaseInterceptor
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
      */
-    protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes entry ) throws NamingException
     {
         // check if the entry already exists
-        Name normName = call.getName();
-        String upName = call.getUserProvidedName();
         if ( nexus.hasEntry( normName ) )
         {
             NamingException ne = new LdapNameAlreadyBoundException();
@@ -118,7 +111,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.process( call );
+        nextInterceptor.add( upName, normName, entry );
     }
 
 
@@ -126,10 +119,8 @@ public class ExceptionService extends BaseInterceptor
      * Checks to make sure the entry being deleted exists, and has no children, otherwise throws the appropriate
      * LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, Delete call ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        Name name = call.getName();
-        
         // check if entry to delete exists
         String msg = "Attempt to delete non-existant entry: ";
         assertHasEntry( msg, name );
@@ -150,88 +141,85 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.process( call );
+        nextInterceptor.delete( name );
     }
 
 
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, Name baseName ) throws NamingException
     {
         // check if entry to search exists
         String msg = "Attempt to search under non-existant entry: ";
-        assertHasEntry( msg, call.getBaseName() );
+        assertHasEntry( msg, baseName );
 
-        nextInterceptor.process( call );
+        return nextInterceptor.list( baseName );
     }
 
 
     /**
      * Checks to make sure the entry being looked up exists other wise throws the appropriate LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         String msg = "Attempt to lookup non-existant entry: ";
-        assertHasEntry( msg, call.getName() );
+        assertHasEntry( msg, name );
 
-        nextInterceptor.process( call );
+        return nextInterceptor.lookup( name );
     }
 
 
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
     {
         // check if entry to lookup exists
         String msg = "Attempt to lookup non-existant entry: ";
-        assertHasEntry( msg, call.getName() );
+        assertHasEntry( msg, name );
 
-        nextInterceptor.process( call );
+        return nextInterceptor.lookup( name, attrIds );
     }
 
 
     /**
      * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs ) throws NamingException
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
-        assertHasEntry( msg, call.getName() );
+        assertHasEntry( msg, name );
 
-        nextInterceptor.process( call );
+        nextInterceptor.modify( name, modOp, attrs );
     }
 
 
     /**
      * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
-        assertHasEntry( msg, call.getName() );
+        assertHasEntry( msg, name );
 
-        nextInterceptor.process( call );
+        nextInterceptor.modify( name, items );
     }
 
 
     /**
      * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
+    public void modifyRn( NextInterceptor nextInterceptor, Name dn, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        Name dn = call.getName();
-        String newRdn = call.getNewRelativeName();
-        
         // check if entry to rename exists
         String msg = "Attempt to rename non-existant entry: ";
         assertHasEntry( msg, dn );
 
         // check to see if target entry exists
-        Name target = dn.getSuffix( 1 ).add( newRdn );
+        Name target = dn.getSuffix( 1 ).add( newRn );
         if ( nexus.hasEntry( target ) )
         {
             LdapNameAlreadyBoundException e = null;
@@ -241,7 +229,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.process( call );
+        nextInterceptor.modifyRn( dn, newRn, deleteOldRn );
     }
 
 
@@ -249,19 +237,19 @@ public class ExceptionService extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name oriChildName, Name newParentName ) throws NamingException
     {
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, call.getName() );
+        assertHasEntry( msg, oriChildName );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, call.getNewParentName() );
+        assertHasEntry( msg, newParentName );
 
         // check to see if target entry exists
-        String rdn = call.getName().get( call.getName().size() - 1 );
-        Name target = ( Name ) call.getNewParentName().clone();
+        String rdn = oriChildName.get( oriChildName.size() - 1 );
+        Name target = ( Name ) newParentName.clone();
         target.add( rdn );
         if ( nexus.hasEntry( target ) )
         {
@@ -272,7 +260,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.process( call );
+        nextInterceptor.move( oriChildName, newParentName );
     }
 
 
@@ -280,19 +268,21 @@ public class ExceptionService extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor,
+            Name oriChildName, Name newParentName, String newRn,
+            boolean deleteOldRn ) throws NamingException
     {
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, call.getName() );
+        assertHasEntry( msg, oriChildName );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, call.getNewParentName() );
+        assertHasEntry( msg, newParentName );
 
         // check to see if target entry exists
-        Name target = ( Name ) call.getNewParentName().clone();
-        target.add( call.getNewRelativeName() );
+        Name target = ( Name ) newParentName.clone();
+        target.add( newRn );
         if ( nexus.hasEntry( target ) )
         {
             LdapNameAlreadyBoundException e = null;
@@ -302,34 +292,33 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.process( call );
+        nextInterceptor.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
 
 
     /**
      * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
-    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, 
+            Name base, Map env, ExprNode filter,
+            SearchControls searchCtls ) throws NamingException
     {
         String msg = "Attempt to search under non-existant entry: ";
 
-        Name base = call.getBaseName();
         if ( base.size() == 0 )
         {
-            nextInterceptor.process( call );
-            return;
+            return nextInterceptor.search( base, env, filter, searchCtls );
         }
 
         Attribute attr = nexus.getRootDSE().get( "subschemaSubentry" );
         if ( ( ( String ) attr.get() ).equalsIgnoreCase( base.toString() ) )
         {
-            nextInterceptor.process( call );
-            return;
+            return nextInterceptor.search( base, env, filter, searchCtls );
         }
 
         assertHasEntry( msg, base );
 
-        nextInterceptor.process( call );
+        return nextInterceptor.search( base, env, filter, searchCtls );
     }
 
 

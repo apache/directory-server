@@ -71,9 +71,9 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext( ContextPartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerDirContext( ContextFactoryConfiguration cfg, Hashtable env ) throws NamingException
     {
-        super( nexusProxy, env );
+        super( cfg, env );
     }
 
 

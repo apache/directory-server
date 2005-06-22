@@ -18,8 +18,4 @@
   <preGoal name="java:compile">
     <attainGoal name="directory:schema"/>
   </preGoal> 
- 
-  <postGoal name="java:compile">
-    <attainGoal name="aspectj:compile"/>
-  </postGoal>
 </project>

@@ -20,8 +20,10 @@ package org.apache.ldap.server.schema;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -46,15 +48,12 @@ import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.schema.SchemaUtils;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
-import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.invocation.List;
-import org.apache.ldap.server.invocation.Lookup;
-import org.apache.ldap.server.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.invocation.Search;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 
@@ -101,10 +100,10 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public void init( InterceptorContext ctx ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        this.nexus = ctx.getRootNexus();
-        this.globalRegistries = ctx.getGlobalRegistries();
+        this.nexus = factoryCfg.getPartitionNexus();
+        this.globalRegistries = factoryCfg.getGlobalRegistries();
         attributeRegistry = globalRegistries.getAttributeTypeRegistry();
         binaryAttributeFilter = new BinaryAttributeFilter();
 
@@ -119,32 +118,25 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
-        nextInterceptor.process( call );
-
-        NamingEnumeration e;
-        ResultFilteringEnumeration retval;
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getReturnValue();
-        retval = new ResultFilteringEnumeration( e, new SearchControls(), ctx, binaryAttributeFilter );
-        call.setReturnValue( retval );
+        NamingEnumeration e = nextInterceptor.list( base );
+        LdapContext ctx = getContext();
+        return new ResultFilteringEnumeration( e, new SearchControls(), ctx, binaryAttributeFilter );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor,
+            Name base, Map env, ExprNode filter,
+            SearchControls searchCtls ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
-        if ( !subentryDn.equals( call.getBaseName().toString() ) )
+        if ( !subentryDn.equals( base.toString() ) )
         {
-            nextInterceptor.process( call );
-            return;
+            return nextInterceptor.search( base, env, filter, searchCtls );
         }
 
-        boolean bypass = false;
-        SearchControls searchControls = call.getControls();
-        ExprNode filter = call.getFilter();
-        if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
+        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
                 filter instanceof SimpleNode )
         {
             SimpleNode node = ( SimpleNode ) filter;
@@ -155,14 +147,12 @@ public class SchemaService extends BaseInterceptor
             )
             {
                 // call.setBypass( true );
-                Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
-                SearchResult result = new SearchResult( call.getBaseName().toString(), null, attrs );
-                SingletonEnumeration e = new SingletonEnumeration( result );
-                call.setReturnValue( e );
-                bypass = true;
+                Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
+                SearchResult result = new SearchResult( base.toString(), null, attrs );
+                return new SingletonEnumeration( result );
             }
         }
-        else if ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
+        else if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE &&
                 filter instanceof PresenceNode )
         {
             PresenceNode node = ( PresenceNode ) filter;
@@ -170,30 +160,21 @@ public class SchemaService extends BaseInterceptor
             if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) )
             {
                 // call.setBypass( true );
-                Attributes attrs = getSubschemaEntry( searchControls.getReturningAttributes() );
-                SearchResult result = new SearchResult( call.getBaseName().toString(), null, attrs );
-                SingletonEnumeration e = new SingletonEnumeration( result );
-                call.setReturnValue( e );
-                bypass = true;
+                Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
+                SearchResult result = new SearchResult( base.toString(), null, attrs );
+                return new SingletonEnumeration( result );
             }
         }
 
-        if ( !bypass )
+        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+
+        if ( searchCtls.getReturningAttributes() != null )
         {
-            nextInterceptor.process( call );
+            return e;
         }
 
-        if ( searchControls.getReturningAttributes() != null )
-        {
-            return;
-        }
-
-        NamingEnumeration e;
-        ResultFilteringEnumeration retval;
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getReturnValue();
-        retval = new ResultFilteringEnumeration( e, searchControls, ctx, binaryAttributeFilter );
-        call.setReturnValue( retval );
+        LdapContext ctx = getContext();
+        return new ResultFilteringEnumeration( e, searchCtls, ctx, binaryAttributeFilter );
     }
 
 
@@ -323,32 +304,27 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        nextInterceptor.process( call );
+        Attributes result = nextInterceptor.lookup( name );
 
-        ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
-        Attributes attributes = ( Attributes ) call.getReturnValue();
-        Attributes retval = ( Attributes ) attributes.clone();
-        doFilter( ctx, retval );
-        call.setReturnValue( retval );
+        ServerLdapContext ctx = ( ServerLdapContext ) getContext();
+        doFilter( ctx, result );
+        return result;
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
     {
-        nextInterceptor.process( call );
-
-        ServerLdapContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
-        Attributes attributes = ( Attributes ) call.getReturnValue();
-        if ( attributes == null )
+        Attributes result = nextInterceptor.lookup( name, attrIds );
+        if ( result == null )
         {
-            return;
+            return null;
         }
 
-        Attributes retval = ( Attributes ) attributes.clone();
-        doFilter( ctx, retval );
-        call.setReturnValue( retval );
+        ServerLdapContext ctx = ( ServerLdapContext ) getContext();
+        doFilter( ctx, result );
+        return result;
     }
 
 

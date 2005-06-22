@@ -20,6 +20,8 @@ package org.apache.ldap.server.authn;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 
 
@@ -30,9 +32,8 @@ import org.apache.ldap.server.jndi.ServerContext;
  */
 public abstract class AbstractAuthenticator implements Authenticator
 {
-
-    /** authenticator config */
-    private AuthenticatorContext ctx;
+    private ContextFactoryConfiguration factoryCfg;
+    private AuthenticatorConfiguration cfg;
 
     /** authenticator type */
     private String authenticatorType;
@@ -49,12 +50,14 @@ public abstract class AbstractAuthenticator implements Authenticator
     }
 
 
-    /**
-     * Returns a reference to the AuthenticatorContext in which this authenticator is running.
-     */
-    public AuthenticatorContext getContext()
+    public ContextFactoryConfiguration getFactoryConfiguration()
     {
-        return ctx;
+        return factoryCfg;
+    }
+    
+    public AuthenticatorConfiguration getConfiguration()
+    {
+        return cfg;
     }
 
 
@@ -71,9 +74,10 @@ public abstract class AbstractAuthenticator implements Authenticator
      * Called by the server to indicate to an authenticator that the authenticator
      * is being placed into service.
      */
-    public final void init( AuthenticatorContext ctx ) throws NamingException
+    public final void init( ContextFactoryConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException
     {
-        this.ctx = ctx;
+        this.factoryCfg = factoryCfg;
+        this.cfg = cfg;
         doInit();
     }
 
@@ -84,6 +88,9 @@ public abstract class AbstractAuthenticator implements Authenticator
      */
     protected abstract void doInit();
 
+    public void destroy()
+    {
+    }
 
     /**
      * Perform the authentication operation and return the authorization id if successfull.

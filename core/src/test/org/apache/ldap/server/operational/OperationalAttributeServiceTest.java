@@ -82,8 +82,6 @@ public class OperationalAttributeServiceTest extends AbstractAdminTestCase
         SearchResult result = ( SearchResult ) list.next();
         list.close();
 
-        System.out.println( result );
-
         assertNotNull( result.getAttributes().get( "ou" ) );
         assertNotNull( result.getAttributes().get( CREATORS_NAME ) );
         assertNotNull( result.getAttributes().get( CREATE_TIMESTAMP ) );

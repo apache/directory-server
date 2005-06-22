@@ -17,26 +17,23 @@
 package org.apache.ldap.server.interceptor;
 
 
-import javax.naming.NamingException;
+import java.util.Iterator;
+import java.util.Map;
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.LdapContext;
+
+import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.invocation.Add;
-import org.apache.ldap.server.invocation.Delete;
-import org.apache.ldap.server.invocation.GetMatchedDN;
-import org.apache.ldap.server.invocation.GetSuffix;
-import org.apache.ldap.server.invocation.HasEntry;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.invocation.IsSuffix;
-import org.apache.ldap.server.invocation.List;
-import org.apache.ldap.server.invocation.ListSuffixes;
-import org.apache.ldap.server.invocation.Lookup;
-import org.apache.ldap.server.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.invocation.Modify;
-import org.apache.ldap.server.invocation.ModifyMany;
-import org.apache.ldap.server.invocation.ModifyRN;
-import org.apache.ldap.server.invocation.Move;
-import org.apache.ldap.server.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.invocation.Search;
+import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 
 
@@ -73,10 +70,15 @@ public abstract class BaseInterceptor implements Interceptor
      *
      * @return the principal making the call
      */
-    public static LdapPrincipal getPrincipal( Invocation call )
+    public static LdapPrincipal getPrincipal()
     {
-        ServerContext ctx = ( ServerContext ) call.getContextStack().peek();
+        ServerContext ctx = ( ServerContext ) getContext();
         return ctx.getPrincipal();
+    }
+    
+    public static LdapContext getContext()
+    {
+        return ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
     }
 
 
@@ -85,185 +87,118 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    {
+    }
+
+
+    public void destroy()
+    {
+    }
+
+
     // ------------------------------------------------------------------------
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    /**
-     * Uses a switch on the invocation method type to call the respective member
-     * analog method that does the work of the Interceptor for that Invocation method.
-     */
-    public void process( NextInterceptor nextInterceptor, Invocation call )
-            throws NamingException
+    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
     {
-        if ( call instanceof Add )
-        {
-            process( nextInterceptor, ( Add ) call );
-        }
-        else if ( call instanceof Delete )
-        {
-            process( nextInterceptor, ( Delete ) call );
-        }
-        else if ( call instanceof GetMatchedDN )
-        {
-            process( nextInterceptor, ( GetMatchedDN ) call );
-        }
-        else if ( call instanceof GetSuffix )
-        {
-            process( nextInterceptor, ( GetSuffix ) call );
-        }
-        else if ( call instanceof HasEntry )
-        {
-            process( nextInterceptor, ( HasEntry ) call );
-        }
-        else if ( call instanceof IsSuffix )
-        {
-            process( nextInterceptor, ( IsSuffix ) call );
-        }
-        else if ( call instanceof List )
-        {
-            process( nextInterceptor, ( List ) call );
-        }
-        else if ( call instanceof ListSuffixes )
-        {
-            process( nextInterceptor, ( ListSuffixes ) call );
-        }
-        else if ( call instanceof Lookup )
-        {
-            process( nextInterceptor, ( Lookup ) call );
-        }
-        else if ( call instanceof LookupWithAttrIds )
-        {
-            process( nextInterceptor, ( LookupWithAttrIds ) call );
-        }
-        else if ( call instanceof Modify )
-        {
-            process( nextInterceptor, ( Modify ) call );
-        }
-        else if ( call instanceof ModifyMany )
-        {
-            process( nextInterceptor, ( ModifyMany ) call );
-        }
-        else if ( call instanceof ModifyRN )
-        {
-            process( nextInterceptor, ( ModifyRN ) call );
-        }
-        else if ( call instanceof Move )
-        {
-            process( nextInterceptor, ( Move ) call );
-        }
-        else if ( call instanceof MoveAndModifyRN )
-        {
-            process( nextInterceptor, ( MoveAndModifyRN ) call );
-        }
-        else if ( call instanceof Search )
-        {
-            process( nextInterceptor, ( Search ) call );
-        }
-        else
-        {
-            throw new IllegalArgumentException( "Unknown call type: " + call.getClass() );
-        }
+        next.add( upName, normName, entry );
     }
 
 
-    // ------------------------------------------------------------------------
-    // Invocation Analogs
-    // ------------------------------------------------------------------------
-
-
-    protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
+    public void delete( NextInterceptor next, Name name ) throws NamingException
     {
-        nextInterceptor.process( call );
+        next.delete( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Delete call ) throws NamingException
+    public Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.getMatchedDn( dn, normalized );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, GetMatchedDN call ) throws NamingException
+    public Attributes getRootDSE( NextInterceptor next ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.getRootDSE();
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, GetSuffix call ) throws NamingException
+    public Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.getSuffix( dn, normalized );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, HasEntry call ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.hasEntry( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, IsSuffix call ) throws NamingException
+    public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.isSuffix( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.list( base );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ListSuffixes call ) throws NamingException
+    public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.listSuffixes( normalized );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.lookup( dn, attrIds );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.lookup( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
+    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
-        nextInterceptor.process( call );
+        next.modify( name, modOp, mods );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
+    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
     {
-        nextInterceptor.process( call );
+        next.modify( name, mods );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
+    public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        nextInterceptor.process( call );
+        next.modifyRn( name, newRn, deleteOldRn );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        nextInterceptor.process( call );
+        next.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
     {
-        nextInterceptor.process( call );
+        next.move( oriChildName, newParentName );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
     {
-        nextInterceptor.process( call );
+        return next.search( base, env, filter, searchCtls );
     }
 }

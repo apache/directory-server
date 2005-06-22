@@ -18,8 +18,7 @@ package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
-import org.apache.ldap.server.configuration.StartupConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 
 
 /**
@@ -35,15 +34,10 @@ public interface AuthenticatorContext
     /**
      * Returns root configuration.
      */
-    public StartupConfiguration getRootConfiguration();
+    public ContextFactoryConfiguration getFactoryConfiguration();
 
     /**
      * Returns configuration of the {@link Authenticator}.
      */
     public AuthenticatorConfiguration getConfiguration();
-
-    /**
-     * Returns {@link ContextPartitionNexus}.
-     */
-    public ContextPartitionNexus getPartitionNexus();
 }

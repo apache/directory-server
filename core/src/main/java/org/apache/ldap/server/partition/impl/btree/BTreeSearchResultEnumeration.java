@@ -119,7 +119,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             }
         }
 
-        return new PartitionStoreSearchResult( rec.getEntryId(), name, null, entry );
+        return new BTreeSearchResult( rec.getEntryId(), name, null, entry );
     }
 
     

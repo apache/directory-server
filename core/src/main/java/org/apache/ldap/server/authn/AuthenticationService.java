@@ -24,19 +24,25 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
+import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.Interceptor;
-import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.jndi.ServerLdapContext;
 
 
 /**
@@ -58,6 +64,7 @@ public class AuthenticationService implements Interceptor
     /** authenticators **/
     public Map authenticators = new HashMap();
 
+    private ContextFactoryConfiguration factoryCfg;
 
     /**
      * Creates an authentication service interceptor.
@@ -66,25 +73,21 @@ public class AuthenticationService implements Interceptor
     {
     }
 
-    public void init( InterceptorContext ctx ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
+        this.factoryCfg = factoryCfg;
+
         // Register all authenticators
-        Iterator i = ctx.getConfiguration().getAuthenticatorConfigurations().iterator();
+        Iterator i = factoryCfg.getConfiguration().getAuthenticatorConfigurations().iterator();
         while( i.hasNext() )
         {
-            try {
-                AuthenticatorConfiguration cfg = ( AuthenticatorConfiguration ) i.next();
-                
-                // Create context
-                AuthenticatorContext authenticatorContext =
-                    new GenericAuthenticatorContext( ctx.getConfiguration(), cfg, ctx.getRootNexus() );
-    
-                cfg.getAuthenticator().init( authenticatorContext );
-                
-                this.register( cfg.getAuthenticator() );
+            try
+            {
+                this.register( ( AuthenticatorConfiguration ) i.next() );
             }
             catch ( Exception e )
             {
+                destroy();
                 throw ( NamingException ) new NamingException(
                         "Failed to register authenticator." ).initCause( e );
             }
@@ -93,6 +96,16 @@ public class AuthenticationService implements Interceptor
     
     public void destroy()
     {
+        Iterator i = new ArrayList( authenticators.values() ).iterator();
+        while( i.hasNext() )
+        {
+            Iterator j = new ArrayList( ( Collection ) i.next() ).iterator();
+            while( j.hasNext() )
+            {
+                unregister( ( Authenticator ) j.next() );
+            }
+        }
+        
         authenticators.clear();
     }
 
@@ -100,22 +113,19 @@ public class AuthenticationService implements Interceptor
      * Registers an AuthenticationService with the AuthenticationService.  Called by each
      * AuthenticationService implementation after it has started to register for
      * authentication operation calls.
-     *
-     * @param authenticator AuthenticationService component to register with this
-     * AuthenticatorService.
      */
-    public void register( Authenticator authenticator )
+    private void register( AuthenticatorConfiguration cfg ) throws NamingException
     {
-        Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
+        cfg.getAuthenticator().init( factoryCfg, cfg );
 
+        Collection authenticatorList = getAuthenticators( cfg.getAuthenticator().getAuthenticatorType() );
         if ( authenticatorList == null )
         {
             authenticatorList = new ArrayList();
-
-            authenticators.put( authenticator.getAuthenticatorType(), authenticatorList );
+            authenticators.put( cfg.getAuthenticator().getAuthenticatorType(), authenticatorList );
         }
 
-        authenticatorList.add( authenticator );
+        authenticatorList.add( cfg.getAuthenticator() );
     }
 
     /**
@@ -127,7 +137,7 @@ public class AuthenticationService implements Interceptor
      * @param authenticator AuthenticationService component to unregister with this
      * AuthenticationService.
      */
-    public void unregister( org.apache.ldap.server.authn.Authenticator authenticator )
+    private void unregister( Authenticator authenticator )
     {
         Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
 
@@ -137,6 +147,15 @@ public class AuthenticationService implements Interceptor
         }
 
         authenticatorList.remove( authenticator );
+        
+        try
+        {
+            authenticator.destroy();
+        }
+        catch( Throwable t )
+        {
+            t.printStackTrace();
+        }
     }
 
     /**
@@ -145,16 +164,137 @@ public class AuthenticationService implements Interceptor
      * @param type the authentication type
      * @return the authenticators with the specified type
      */
-    public Collection getAuthenticators( String type )
+    private Collection getAuthenticators( String type )
     {
         return ( Collection ) authenticators.get( type );
     }
     
-    public void process( NextInterceptor nextProcessor, Invocation call ) throws NamingException
+
+    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+    {
+        authenticate();
+        next.add( upName, normName, entry );
+    }
+
+
+    public void delete( NextInterceptor next, Name name ) throws NamingException
+    {
+        authenticate();
+        next.delete( name );
+    }
+
+
+    public Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    {
+        authenticate();
+        return next.getMatchedDn( dn, normalized );
+    }
+
+
+    public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+    {
+        authenticate();
+        return next.getRootDSE();
+    }
+
+
+    public Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    {
+        authenticate();
+        return next.getSuffix( dn, normalized );
+    }
+
+
+    public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
+    {
+        authenticate();
+        return next.hasEntry( name );
+    }
+
+
+    public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
+    {
+        authenticate();
+        return next.isSuffix( name );
+    }
+
+
+    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
+    {
+        authenticate();
+        return next.list( base );
+    }
+
+
+    public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
+    {
+        authenticate();
+        return next.listSuffixes( normalized );
+    }
+
+
+    public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
+    {
+        authenticate();
+        return next.lookup( dn, attrIds );
+    }
+
+
+    public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
+    {
+        authenticate();
+        return next.lookup( name );
+    }
+
+
+    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    {
+        authenticate();
+        next.modify( name, modOp, mods );
+    }
+
+
+    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    {
+        authenticate();
+        next.modify( name, mods );
+    }
+
+
+    public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        authenticate();
+        next.modifyRn( name, newRn, deleteOldRn );
+    }
+
+
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        authenticate();
+        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+    }
+
+
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
+    {
+        authenticate();
+        next.move( oriChildName, newParentName );
+    }
+
+
+    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+    {
+        authenticate();
+        return next.search( base, env, filter, searchCtls );
+    }
+
+
+    private void authenticate() throws NamingException
     {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
-        ServerContext ctx = ( ServerLdapContext ) call.getContextStack().peek();
+        ServerContext ctx =
+            ( ServerContext ) InvocationStack.getInstance().peek().getTarget();
 
         if ( ctx.getPrincipal() != null )
         {
@@ -162,9 +302,6 @@ public class AuthenticationService implements Interceptor
             {
                 ctx.removeFromEnvironment( CREDS );
             }
-
-            nextProcessor.process(call);
-
             return;
         }
 
@@ -232,9 +369,6 @@ public class AuthenticationService implements Interceptor
                 // remove creds so there is no security risk
 
                 ctx.removeFromEnvironment( CREDS );
-
-                nextProcessor.process(call);
-
                 return;
             }
             catch ( LdapAuthenticationException e )

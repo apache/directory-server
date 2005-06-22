@@ -720,6 +720,6 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             clonedDn.remove( clonedDn.size() - 1 );
         }
         
-        throw new NameNotFoundException();
+        throw new NameNotFoundException( dn.toString() );
     }
 }

@@ -43,7 +43,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {
-        if ( getContext().getRootConfiguration().isAllowAnonymousAccess() )
+        if ( getFactoryConfiguration().getConfiguration().isAllowAnonymousAccess() )
         {
             return LdapPrincipal.ANONYMOUS ;
         }

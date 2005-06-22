@@ -18,8 +18,7 @@ package org.apache.ldap.server.authn;
 
 
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
-import org.apache.ldap.server.configuration.StartupConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 
 
 /**
@@ -30,36 +29,27 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
  */
 public class GenericAuthenticatorContext implements AuthenticatorContext
 {
-    private StartupConfiguration rootConfiguration;
+    private ContextFactoryConfiguration factoryConfiguration;
     private AuthenticatorConfiguration configuration;
-    /** the root nexus to all database partitions */
-    private ContextPartitionNexus partitionNexus;
 
     /**
      * Create a new AuthenticatorContext.
      */
     public GenericAuthenticatorContext(
-            StartupConfiguration rootConfiguration,
-            AuthenticatorConfiguration configuration,
-            ContextPartitionNexus partitionNexus )
+            ContextFactoryConfiguration factoryConfiguration,
+            AuthenticatorConfiguration configuration )
     {
-        this.rootConfiguration = rootConfiguration;
+        this.factoryConfiguration = factoryConfiguration;
         this.configuration = configuration;
-        this.partitionNexus = partitionNexus;
     }
     
-    public StartupConfiguration getRootConfiguration()
+    public ContextFactoryConfiguration getFactoryConfiguration()
     {
-        return rootConfiguration;
+        return factoryConfiguration;
     }
     
     public AuthenticatorConfiguration getConfiguration()
     {
         return configuration;
-    }
-
-    public ContextPartitionNexus getPartitionNexus()
-    {
-        return partitionNexus;
     }
 }

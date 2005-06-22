@@ -17,9 +17,17 @@
 package org.apache.ldap.server.interceptor;
 
 
-import javax.naming.NamingException;
+import java.util.Iterator;
+import java.util.Map;
 
-import org.apache.ldap.server.invocation.Invocation;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+
+import org.apache.ldap.common.filter.ExprNode;
 
 
 /**
@@ -32,12 +40,23 @@ import org.apache.ldap.server.invocation.Invocation;
  */
 public interface NextInterceptor
 {
-    /**
-     * Passes the control of current invocation to the next {@link org.apache.ldap.server.interceptor.Interceptor} in
-     * the {@link org.apache.ldap.server.interceptor.InterceptorChain}.
-     *
-     * @param incovation
-     * @throws NamingException
-     */
-    void process( Invocation incovation ) throws NamingException;
+    Attributes getRootDSE() throws NamingException; 
+    Name getMatchedDn( Name dn, boolean normalized ) throws NamingException;
+    Name getSuffix( Name dn, boolean normalized ) throws NamingException;
+    Iterator listSuffixes( boolean normalized ) throws NamingException;
+    void delete( Name name ) throws NamingException;
+    void add( String upName, Name normName, Attributes entry ) throws NamingException;
+    void modify( Name name, int modOp, Attributes mods ) throws NamingException;
+    void modify( Name name, ModificationItem [] mods ) throws NamingException;
+    NamingEnumeration list( Name base ) throws NamingException;
+    NamingEnumeration search( Name base, Map env, ExprNode filter,
+                              SearchControls searchCtls ) throws NamingException;
+    Attributes lookup( Name name ) throws NamingException;
+    Attributes lookup( Name dn, String [] attrIds ) throws NamingException;
+    boolean hasEntry( Name name ) throws NamingException;
+    boolean isSuffix( Name name ) throws NamingException;
+    void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void move( Name oriChildName, Name newParentName ) throws NamingException;
+    void move( Name oriChildName, Name newParentName, String newRn,
+               boolean deleteOldRn ) throws NamingException;
 }

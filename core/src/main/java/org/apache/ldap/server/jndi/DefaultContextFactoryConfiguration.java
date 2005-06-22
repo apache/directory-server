@@ -38,8 +38,6 @@ import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.interceptor.InterceptorContext;
-import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
@@ -78,9 +76,6 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     /** The interceptor (or interceptor chain) for this provider */
     private InterceptorChain interceptorChain;
     
-    /** PartitionNexus proxy wrapping nexus to inject services */
-    private final ContextPartitionNexus proxy = new ContextPartitionNexusProxy(this);
-
     /** whether or not this instance has been shutdown */
     private boolean started = false;
 
@@ -150,7 +145,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         }
         environment.put( Context.PROVIDER_URL, rootDN );
 
-        return new ServerLdapContext( proxy, environment );
+        return new ServerLdapContext( this, environment );
     }
 
     public synchronized void startup( AbstractContextFactory factory, Hashtable env ) throws NamingException
@@ -257,6 +252,11 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return partitionNexus;
     }
     
+    public InterceptorChain getInterceptorChain()
+    {
+        return interceptorChain;
+    }
+    
     public boolean isFirstStart()
     {
         return firstStart;
@@ -267,17 +267,6 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return started;
     }
     
-    public Object invoke( Invocation call ) throws NamingException
-    {
-        if( !started )
-        {
-            throw new IllegalStateException( "ApacheDS is not started yet." );
-        }
-        
-        interceptorChain.process( call );
-        return call.getReturnValue();
-    }
-
     /**
      * Checks to make sure security environment parameters are set correctly.
      *
@@ -497,7 +486,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         partitionNexus = new DefaultContextPartitionNexus( new LockableAttributesImpl() );
         partitionNexus.init( this, null );
         
-        interceptorChain = new InterceptorChain( configuration.getInterceptorConfigurations() );
-        interceptorChain.init( new InterceptorContext( configuration, partitionNexus.getSystemPartition(), globalRegistries, partitionNexus ) );
+        interceptorChain = new InterceptorChain();
+        interceptorChain.init( this );
     }
 }

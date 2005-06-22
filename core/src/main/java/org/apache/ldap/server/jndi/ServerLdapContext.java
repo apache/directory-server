@@ -52,9 +52,9 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( ContextPartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerLdapContext( ContextFactoryConfiguration cfg, Hashtable env ) throws NamingException
     {
-        super( nexusProxy, env );
+        super( cfg, env );
     }
 
 

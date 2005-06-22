@@ -17,33 +17,27 @@
 package org.apache.ldap.server.authz;
 
 
+import java.util.Map;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
-import org.apache.ldap.server.interceptor.InterceptorContext;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.invocation.Delete;
-import org.apache.ldap.server.invocation.HasEntry;
-import org.apache.ldap.server.invocation.Invocation;
-import org.apache.ldap.server.invocation.List;
-import org.apache.ldap.server.invocation.Lookup;
-import org.apache.ldap.server.invocation.LookupWithAttrIds;
-import org.apache.ldap.server.invocation.Modify;
-import org.apache.ldap.server.invocation.ModifyMany;
-import org.apache.ldap.server.invocation.ModifyRN;
-import org.apache.ldap.server.invocation.Move;
-import org.apache.ldap.server.invocation.MoveAndModifyRN;
-import org.apache.ldap.server.invocation.Search;
+import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
@@ -91,9 +85,9 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void init( InterceptorContext ctx ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        AttributeTypeRegistry atr = ctx.getGlobalRegistries().getAttributeTypeRegistry();
+        AttributeTypeRegistry atr = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );
     }
 
@@ -103,19 +97,13 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void process( NextInterceptor nextInterceptor, Invocation call ) throws NamingException
-    {
-        super.process( nextInterceptor, call );
-    }
-
     // Note:
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    protected void process( NextInterceptor nextInterceptor, Delete call ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        Name name = call.getName();
-        Name principalDn = getPrincipal( call ).getDn();
+        Name principalDn = getPrincipal().getDn();
 
         if ( name.toString().equals( "" ) )
         {
@@ -149,7 +137,7 @@ public class AuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        nextInterceptor.process( call );
+        nextInterceptor.delete( name );
     }
 
 
@@ -159,9 +147,9 @@ public class AuthorizationService extends BaseInterceptor
      * the provider for optimization purposes so there is no reason for us to
      * start to constrain it.
      */
-    protected void process( NextInterceptor nextInterceptor, HasEntry call ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        super.process( nextInterceptor, call );
+        return super.hasEntry( nextInterceptor, name );
     }
 
 
@@ -176,10 +164,10 @@ public class AuthorizationService extends BaseInterceptor
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
      */
-    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        protectModifyAlterations( call, call.getName() );
-        nextInterceptor.process( call );
+        protectModifyAlterations( name );
+        nextInterceptor.modify( name, modOp, attrs );
     }
 
 
@@ -189,16 +177,16 @@ public class AuthorizationService extends BaseInterceptor
      * self access these resources.  As far as we're concerned no one but the admin
      * needs access.
      */
-    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
     {
-        protectModifyAlterations( call, call.getName() );
-        nextInterceptor.process( call );
+        protectModifyAlterations( name );
+        nextInterceptor.modify( name, items );
     }
 
 
-    private void protectModifyAlterations( Invocation call, Name dn ) throws LdapNoPermissionException
+    private void protectModifyAlterations( Name dn ) throws LdapNoPermissionException
     {
-        Name principalDn = getPrincipal( call ).getDn();
+        Name principalDn = getPrincipal().getDn();
 
         if ( dn.toString().equals( "" ) )
         {
@@ -246,30 +234,32 @@ public class AuthorizationService extends BaseInterceptor
     // ------------------------------------------------------------------------
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
+    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        protectDnAlterations( call, call.getName() );
-        nextInterceptor.process( call );
+        protectDnAlterations( name );
+        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name oriChildName, Name newParentName ) throws NamingException
     {
-        protectDnAlterations( call, call.getName() );
-        nextInterceptor.process( call );
+        protectDnAlterations( oriChildName );
+        nextInterceptor.move( oriChildName, newParentName );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor,
+            Name oriChildName, Name newParentName, String newRn,
+            boolean deleteOldRn ) throws NamingException
     {
-        protectDnAlterations( call, call.getName() );
-        nextInterceptor.process( call );
+        protectDnAlterations( oriChildName );
+        nextInterceptor.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
 
 
-    private void protectDnAlterations( Invocation call, Name dn ) throws LdapNoPermissionException
+    private void protectDnAlterations( Name dn ) throws LdapNoPermissionException
     {
-        Name principalDn = getPrincipal( call ).getDn();
+        Name principalDn = getPrincipal().getDn();
 
         if ( dn.toString().equals( "" ) )
         {
@@ -305,42 +295,36 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        super.process( nextInterceptor, call );
-
-        Attributes attributes = ( Attributes ) call.getReturnValue();
+        Attributes attributes = nextInterceptor.lookup( name );
         if ( attributes == null )
         {
-            return;
+            return null;
         }
 
-        Attributes retval = ( Attributes ) attributes.clone();
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        protectLookUp( ctx, call.getName() );
-        call.setReturnValue( retval );
+        protectLookUp( name );
+        return attributes;
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
     {
-        super.process( nextInterceptor, call );
-
-        Attributes attributes = ( Attributes ) call.getReturnValue();
+        Attributes attributes = nextInterceptor.lookup( name, attrIds );
         if ( attributes == null )
         {
-            return;
+            return null;
         }
 
-        Attributes retval = ( Attributes ) attributes.clone();
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        protectLookUp( ctx, call.getName() );
-        call.setReturnValue( retval );
+        protectLookUp( name );
+        return attributes;
     }
 
 
-    private void protectLookUp( LdapContext ctx, Name dn ) throws NamingException
+    private void protectLookUp( Name dn ) throws NamingException
     {
+        LdapContext ctx =
+            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
         Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getDn();
 
         if ( !principalDn.equals( ADMIN_DN ) )
@@ -390,21 +374,19 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor,
+            Name base, Map env, ExprNode filter,
+            SearchControls searchCtls ) throws NamingException
     {
-        super.process( nextInterceptor, call );
-
-        SearchControls searchControls = call.getControls();
-        if ( searchControls.getReturningAttributes() != null )
-        {
-            return;
-        }
-
-        NamingEnumeration e;
-        ResultFilteringEnumeration retval;
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getReturnValue();
-        retval = new ResultFilteringEnumeration( e, searchControls, ctx,
+        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        //if ( searchCtls.getReturningAttributes() != null )
+        //{
+        //    return null;
+        //}
+        
+        LdapContext ctx =
+            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+        return new ResultFilteringEnumeration( e, searchCtls, ctx,
                 new SearchResultFilter()
                 {
                     public boolean accept( LdapContext ctx, SearchResult result,
@@ -414,20 +396,16 @@ public class AuthorizationService extends BaseInterceptor
                         return AuthorizationService.this.isSearchable( ctx, result );
                     }
                 } );
-
-        call.setReturnValue( retval );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
-        super.process( nextInterceptor, call );
-
-        NamingEnumeration e;
-        ResultFilteringEnumeration retval;
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getReturnValue();
-        retval = new ResultFilteringEnumeration( e, null, ctx,
+        NamingEnumeration e = nextInterceptor.list( base );
+        LdapContext ctx =
+            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+        
+        return new ResultFilteringEnumeration( e, null, ctx,
             new SearchResultFilter()
             {
                 public boolean accept( LdapContext ctx, SearchResult result,
@@ -437,8 +415,6 @@ public class AuthorizationService extends BaseInterceptor
                     return AuthorizationService.this.isSearchable( ctx, result );
                 }
             } );
-
-        call.setReturnValue( retval );
     }
 
 

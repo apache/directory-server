@@ -296,7 +296,8 @@ public class JdbmTable implements Table
             }
         }
 
-        return getRaw( key );
+        Object value = getRaw( key );
+        return value;
     }
 
 
@@ -1113,7 +1114,7 @@ public class JdbmTable implements Table
             ne.setRootCause( e );
             throw ne;
         }
-        
+
         return val;
     }
 

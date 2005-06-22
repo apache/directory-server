@@ -17,10 +17,21 @@
 package org.apache.ldap.server.interceptor;
 
 
-import javax.naming.NamingException;
+import java.util.Iterator;
+import java.util.Map;
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
 
 
@@ -99,7 +110,7 @@ public interface Interceptor
      * @param context the configuration properties for this interceptor
      * @throws NamingException if failed to initialize this interceptor
      */
-    void init( InterceptorContext context ) throws NamingException;
+    void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException;
 
 
     /**
@@ -108,15 +119,23 @@ public interface Interceptor
      */
     void destroy();
 
-
-    /**
-     * Filters a particular invocation.  You can pass control to
-     * <code>nextInterceptor</code> by calling {@link NextInterceptor#process(
-     * org.apache.ldap.server.invocation.Invocation)}
-     *
-     * @param nextInterceptor the next interceptor in the interceptor chain
-     * @param invocation      the invocation to process
-     * @throws NamingException on failures while handling the invocation
-     */
-    void process( NextInterceptor nextInterceptor, Invocation invocation ) throws NamingException;
+    Attributes getRootDSE( NextInterceptor next ) throws NamingException; 
+    Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException;
+    Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException;
+    Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException;
+    void delete( NextInterceptor next, Name name ) throws NamingException;
+    void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException;
+    void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException;
+    void modify( NextInterceptor next, Name name, ModificationItem [] mods ) throws NamingException;
+    NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException;
+    NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
+                              SearchControls searchCtls ) throws NamingException;
+    Attributes lookup( NextInterceptor next, Name name ) throws NamingException;
+    Attributes lookup( NextInterceptor next, Name dn, String [] attrIds ) throws NamingException;
+    boolean hasEntry( NextInterceptor next, Name name ) throws NamingException;
+    boolean isSuffix( NextInterceptor next, Name name ) throws NamingException;
+    void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException;
+    void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn,
+               boolean deleteOldRn ) throws NamingException;
 }

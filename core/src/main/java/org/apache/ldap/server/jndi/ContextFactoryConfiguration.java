@@ -22,7 +22,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
-import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
@@ -50,6 +50,11 @@ public interface ContextFactoryConfiguration
     ContextPartitionNexus getPartitionNexus();
     
     /**
+     * Returns the interceptor chain of this context factory
+     */
+    InterceptorChain getInterceptorChain();
+    
+    /**
      * Returns <tt>true</tt> if this context is started for the first time
      * and bootstrap entries have been created.
      */
@@ -63,11 +68,6 @@ public interface ContextFactoryConfiguration
     Context getJndiContext( String rootDN ) throws NamingException;
     Context getJndiContext( String principal, byte[] credential, String authentication, String rootDN ) throws NamingException;
 
-    /**
-     * Invokes {@link Invocation} to this context.
-     */
-    Object invoke( Invocation call ) throws NamingException;
-    
     void sync() throws NamingException;
     
     void shutdown() throws NamingException;

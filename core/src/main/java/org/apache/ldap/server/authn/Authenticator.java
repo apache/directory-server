@@ -19,6 +19,8 @@ package org.apache.ldap.server.authn;
 
 import javax.naming.NamingException;
 
+import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 
 
@@ -38,12 +40,15 @@ public interface Authenticator
 {
     public String getAuthenticatorType();
     
-    public AuthenticatorContext getContext();
-
     /**
      * Called by the authenticator container to indicate that the authenticator is being placed into service.
      */
-    public void init( AuthenticatorContext ctx ) throws NamingException;
+    public void init( ContextFactoryConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException;
+    
+    /**
+     * Called by the authenticator container to indicate that the authenticator is being removed from service.
+     */
+    public void destroy();
 
     /**
      * Perform the authentication operation and return the authorization id if successfull.

@@ -19,16 +19,24 @@ package org.apache.ldap.server.interceptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import javax.naming.ConfigurationException;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
 
+import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -43,12 +51,11 @@ public class InterceptorChain
 {
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
-        private InterceptorContext ctx;
+        private ContextPartitionNexus nexus;
 
-
-        public void init( InterceptorContext context )
+        public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg )
         {
-            ctx = context;
+            this.nexus = factoryCfg.getPartitionNexus();
         }
 
 
@@ -58,83 +65,154 @@ public class InterceptorChain
         }
 
 
-        public void process( NextInterceptor nextInterceptor, Invocation call ) throws NamingException
+        public Attributes getRootDSE( NextInterceptor next ) throws NamingException
         {
-            if ( parent == null )
-            {
-                // execute the actual backend operation only when this chain is root.
+            return nexus.getRootDSE();
+        }
 
-                call.execute( ctx.getRootNexus() );
-            }
+
+        public Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+        {
+            return ( Name ) nexus.getMatchedDn( dn, normalized ).clone();
+        }
+
+
+        public Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+        {
+            return ( Name ) nexus.getSuffix( dn, normalized ).clone();
+        }
+
+
+        public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
+        {
+            return nexus.listSuffixes( normalized );
+        }
+
+
+        public void delete( NextInterceptor next, Name name ) throws NamingException
+        {
+            nexus.delete( name );
+        }
+
+
+        public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+        {
+            nexus.add( upName, normName, entry );
+        }
+
+
+        public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+        {
+            nexus.modify( name, modOp, mods );
+        }
+
+
+        public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+        {
+            nexus.modify( name, mods );
+        }
+
+
+        public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
+        {
+            return nexus.list( base );
+        }
+
+
+        public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+        {
+            return nexus.search( base, env, filter, searchCtls );
+        }
+
+
+        public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
+        {
+            return ( Attributes ) nexus.lookup( name ).clone();
+        }
+
+
+        public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
+        {
+            return ( Attributes ) nexus.lookup( dn, attrIds ).clone();
+        }
+
+
+        public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
+        {
+            return nexus.hasEntry( name );
+        }
+
+
+        public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
+        {
+            return nexus.isSuffix( name );
+        }
+
+
+        public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
+        {
+            nexus.modifyRn( name, newRn, deleteOldRn );
+        }
+
+
+        public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
+        {
+            nexus.move( oriChildName, newParentName );
+        }
+
+
+        public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+        {
+            nexus.move( oriChildName, newParentName, newRn, deleteOldRn );
         }
     };
 
-    private InterceptorChain parent;
-
     private final Map name2entry = new HashMap();
 
-    private final Map interceptor2entry = new IdentityHashMap();
+    private final Entry tail;
 
-    private final Entry tail = new Entry( null, null, "end", FINAL_INTERCEPTOR );
+    private Entry head;
 
-    private Entry head = tail;
-
+    private ContextFactoryConfiguration factoryCfg;
 
     /**
      * Create a new interceptor chain.
      */
     public InterceptorChain()
     {
-        this( new ArrayList() );
-    }
-    
-    /**
-     * Creates a new interceptor chain 
-     * @param configurations
-     */
-    public InterceptorChain( List configurations )
-    {
-        Iterator it = configurations.iterator();
-        while( it.hasNext() )
-        {
-            InterceptorConfiguration cfg = ( InterceptorConfiguration ) it.next();
-            this.addLast( cfg.getName(), cfg.getInterceptor() );
-        }
+        MutableInterceptorConfiguration tailCfg = new MutableInterceptorConfiguration();
+        tailCfg.setName( "tail" );
+        tailCfg.setInterceptor( FINAL_INTERCEPTOR );
+        tail = new Entry( null, null, tailCfg );
+        head = tail;
     }
 
 
     /**
      * Initializes all interceptors this chain contains.
      */
-    public synchronized void init( InterceptorContext ctx ) throws NamingException
+    public synchronized void init( ContextFactoryConfiguration factoryCfg ) throws NamingException
     {
-        ListIterator it = getAll().listIterator();
+        this.factoryCfg = factoryCfg;
 
+        // Initialize tail first.
+        FINAL_INTERCEPTOR.init( factoryCfg, null );
+        
+        // And register and initialize all interceptors
+        ListIterator i = factoryCfg.getConfiguration().getInterceptorConfigurations().listIterator();
         Interceptor interceptor = null;
-
         try
         {
-            while ( it.hasNext() )
+            while( i.hasNext() )
             {
-                interceptor = ( Interceptor ) it.next();
-                interceptor.init( ctx );
+                InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
+                register( cfg );
             }
         }
         catch ( Throwable t )
         {
-            while ( it.hasPrevious() )
-            {
-                Interceptor i = ( Interceptor ) it.previous();
-
-                try
-                {
-                    i.destroy();
-                }
-                catch ( Throwable t2 )
-                {
-                    t2.printStackTrace();
-                }
-            }
+            // destroy if failed to initialize all interceptors.
+            destroy();
 
             if ( t instanceof NamingException )
             {
@@ -142,7 +220,7 @@ public class InterceptorChain
             }
             else
             {
-                throw new InterceptorException( interceptor, null, "Failed to initialize interceptor chain.", t );
+                throw new InterceptorException( interceptor, "Failed to initialize interceptor chain.", t );
             }
         }
     }
@@ -153,163 +231,105 @@ public class InterceptorChain
      */
     public synchronized void destroy()
     {
-        ListIterator it = getAllReversed().listIterator();
-
-        while ( it.hasNext() )
+        List entries = new ArrayList();
+        Entry e = tail;
+        do
         {
-            Interceptor interceptor = ( Interceptor ) it.next();
+            entries.add( e );
+            e = e.prevEntry;
+        }
+        while ( e != null );
 
-            try
+        Iterator i = entries.iterator();
+        while ( i.hasNext() )
+        {
+            e = ( Entry ) i.next();
+            if( e != tail )
             {
-                interceptor.destroy();
-            }
-            catch ( Throwable t )
-            {
-                t.printStackTrace();
+                try
+                {
+                    deregister( e.configuration );
+                }
+                catch ( Throwable t )
+                {
+                    t.printStackTrace();
+                }
             }
         }
-    }
-
-
-    /**
-     * Returns the interceptor with the specified <code>name</code>.
-     *
-     * @return <code>null</code> if there is no interceptor with the specified <code>name</code>.
-     */
-    public Interceptor get( String name )
-    {
-        Entry e = ( Entry ) name2entry.get( name );
-
-        if ( e == null )
-        {
-            return null;
-        }
-
-        return e.interceptor;
-    }
-
-
-    /**
-     * Adds the specified interceptor with the specified name at the beginning of this chain.
-     */
-    public synchronized void addFirst( String name,
-                                       Interceptor interceptor )
-    {
-        checkAddable( name, interceptor );
-        register( name, interceptor, head );
     }
 
 
     /**
      * Adds the specified interceptor with the specified name at the end of this chain.
+     * @throws NamingException 
      */
-    public synchronized void addLast( String name,
-                                      Interceptor interceptor )
+    private void register( InterceptorConfiguration cfg ) throws NamingException
     {
-        checkAddable( name, interceptor );
-        register( name, interceptor, tail );
-    }
-
-
-    /**
-     * Adds the specified interceptor with the specified name just before the interceptor whose name is
-     * <code>baseName</code> in this chain.
-     */
-    public synchronized void addBefore( String baseName, String name, Interceptor interceptor )
-    {
-        Entry baseEntry = checkOldName( baseName );
-        checkAddable( name, interceptor );
-        register( name, interceptor, baseEntry );
-    }
-
-
-    /**
-     * Adds the specified interceptor with the specified name just after the interceptor whose name is
-     * <code>baseName</code> in this chain.
-     */
-    public synchronized void addAfter( String baseName, String name, Interceptor interceptor )
-    {
-        Entry baseEntry = checkOldName( baseName );
-        checkAddable( name, interceptor );
-        register( name, interceptor, baseEntry );
+        checkAddable( cfg );
+        register0( cfg, tail );
     }
 
 
     /**
      * Removes the interceptor with the specified name from this chain.
+     * @throws ConfigurationException 
      */
-    public synchronized void remove( String name )
+    private void deregister( InterceptorConfiguration cfg ) throws ConfigurationException
     {
+        String name = cfg.getName();
         Entry entry = checkOldName( name );
-
         Entry prevEntry = entry.prevEntry;
-
         Entry nextEntry = entry.nextEntry;
+
+        if( nextEntry == null )
+        {
+            // Don't deregister tail
+            return;
+        }
 
         if ( prevEntry == null )
         {
             nextEntry.prevEntry = null;
-
             head = entry;
         }
         else
         {
             prevEntry.nextEntry = nextEntry;
-
             nextEntry.prevEntry = prevEntry;
         }
 
         name2entry.remove( name );
-
-        Interceptor interceptor = entry.interceptor;
-
-        interceptor2entry.remove( interceptor );
-
-        if ( interceptor instanceof InterceptorChain )
-        {
-            ( ( InterceptorChain ) interceptor ).parent = null;
-        }
+        entry.configuration.getInterceptor().destroy();
     }
 
 
-    /**
-     * Removes all interceptors added to this chain.
-     */
-    public synchronized void clear()
+    private void register0( InterceptorConfiguration cfg, Entry nextEntry ) throws NamingException
     {
-        Iterator it = new ArrayList( name2entry.keySet() ).iterator();
-
-        while ( it.hasNext() )
-        {
-            this.remove( ( String ) it.next() );
-        }
-    }
-
-
-    private void register( String name, Interceptor interceptor, Entry nextEntry )
-    {
+        String name = cfg.getName();
+        Interceptor interceptor = cfg.getInterceptor();
+        interceptor.init( factoryCfg, cfg );
+        
         Entry newEntry;
         if( nextEntry == head )
         {
-            newEntry = new Entry( null, head, name, interceptor );
+            newEntry = new Entry( null, head, cfg );
             head.prevEntry = newEntry;
             head = newEntry;
         }
         else if( head == tail )
         {
-            newEntry = new Entry( null, tail, name, interceptor );
+            newEntry = new Entry( null, tail, cfg );
             tail.prevEntry = newEntry;
             head = newEntry;
         }
         else
         {
-            newEntry = new Entry( nextEntry.prevEntry, nextEntry, name, interceptor );
+            newEntry = new Entry( nextEntry.prevEntry, nextEntry, cfg );
             nextEntry.prevEntry.nextEntry = newEntry;
             nextEntry.prevEntry = newEntry;
         }
         
         name2entry.put( name, newEntry );
-        interceptor2entry.put( newEntry.interceptor, newEntry );
     }
 
 
@@ -318,13 +338,13 @@ public class InterceptorChain
      *
      * @return An interceptor entry with the specified name.
      */
-    private Entry checkOldName( String baseName )
+    private Entry checkOldName( String baseName ) throws ConfigurationException
     {
         Entry e = ( Entry ) name2entry.get( baseName );
 
         if ( e == null )
         {
-            throw new IllegalArgumentException( "Unknown interceptor name:" + baseName );
+            throw new ConfigurationException( "Unknown interceptor name:" + baseName );
         }
 
         return e;
@@ -334,35 +354,22 @@ public class InterceptorChain
     /**
      * Checks the specified interceptor name is already taken and throws an exception if already taken.
      */
-    private void checkAddable( String name, Interceptor interceptor )
+    private void checkAddable( InterceptorConfiguration cfg ) throws ConfigurationException
     {
-        if ( name2entry.containsKey( name ) )
+        if ( name2entry.containsKey( cfg.getName() ) )
         {
-            throw new IllegalArgumentException( "Other interceptor is using name '" + name + "'" );
-        }
-
-        if ( interceptor instanceof InterceptorChain )
-        {
-            if ( ( ( InterceptorChain ) interceptor ).parent != null )
-            {
-                throw new IllegalArgumentException( "This interceptor chain has its parent already." );
-            }
+            throw new ConfigurationException( "Other interceptor is using name '" + cfg.getName() + "'" );
         }
     }
 
 
-    /**
-     * Start invocation chain with the specified invocation.
-     *
-     * @throws NamingException if invocation failed
-     */
-    public void process( Invocation invocation ) throws NamingException
+    public Attributes getRootDSE() throws NamingException
     {
-        Entry head = this.head;
-
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
         try
         {
-            head.interceptor.process( head.nextInterceptor, invocation );
+            return head.getRootDSE( next );
         }
         catch ( NamingException ne )
         {
@@ -370,51 +377,322 @@ public class InterceptorChain
         }
         catch ( Throwable e )
         {
-            throw new InterceptorException( head.interceptor, invocation, "Unexpected exception.", e );
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
         }
     }
 
 
-    /**
-     * Returns the list of interceptors this chain in the order of evaluation.
-     */
-    public List getAll()
+    public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
     {
-        List list = new ArrayList();
-
-        Entry e = head;
-
-        do
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
         {
-            list.add( e.interceptor );
-
-            e = e.nextEntry;
+            return head.getMatchedDn( next, dn, normalized );
         }
-        while ( e != null );
-
-        return list;
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
     }
 
 
-    /**
-     * Returns the list of interceptors this chain in the reversed order of evaluation.
-     */
-    public List getAllReversed()
+    public Name getSuffix( Name dn, boolean normalized ) throws NamingException
     {
-        List list = new ArrayList();
-
-        Entry e = tail;
-
-        do
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
         {
-            list.add( e.interceptor );
-
-            e = e.prevEntry;
+            return head.getSuffix( next, dn, normalized );
         }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
 
-        while ( e != null );
 
-        return list;
+    public Iterator listSuffixes( boolean normalized ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.listSuffixes( next, normalized );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
+    public void delete( Name name ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.delete( next, name );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+
+    public void add( String upName, Name normName, Attributes entry ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.add( next, upName, normName, entry );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+
+    public void modify( Name name, int modOp, Attributes mods ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.modify( next, name, modOp, mods );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+
+    public void modify( Name name, ModificationItem[] mods ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.modify( next, name, mods );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+
+    public NamingEnumeration list( Name base ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.list( next, base );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
+    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.search( next, base, env, filter, searchCtls );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
+    public Attributes lookup( Name name ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.lookup( next, name );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
+    public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.lookup( next, dn, attrIds );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
+    public boolean hasEntry( Name name ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.hasEntry( next, name );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
+    public boolean isSuffix( Name name ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.isSuffix( next, name );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
+    public void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.modifyRn( next, name, newRn, deleteOldRn );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+
+    public void move( Name oriChildName, Name newParentName ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.move( next, oriChildName, newParentName );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+
+    public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.move( next, oriChildName, newParentName, newRn, deleteOldRn );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
     }
 
 
@@ -427,38 +705,34 @@ public class InterceptorChain
 
         private Entry nextEntry;
 
-        private final Interceptor interceptor;
+        private final InterceptorConfiguration configuration;
 
         private final NextInterceptor nextInterceptor;
 
 
         private Entry( Entry prevEntry, Entry nextEntry,
-                       String name, Interceptor interceptor )
+                       InterceptorConfiguration configuration )
         {
-            if ( interceptor == null )
+            if ( configuration == null )
             {
-                throw new NullPointerException( "interceptor" );
-            }
-            if ( name == null )
-            {
-                throw new NullPointerException( "name" );
+                throw new NullPointerException( "configuration" );
             }
 
             this.prevEntry = prevEntry;
 
             this.nextEntry = nextEntry;
 
-            this.interceptor = interceptor;
+            this.configuration = configuration;
 
             this.nextInterceptor = new NextInterceptor()
             {
-                public void process( Invocation call ) throws NamingException
+                public Attributes getRootDSE() throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.interceptor;
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.process( Entry.this.nextEntry.nextInterceptor, call );
+                        return interceptor.getRootDSE( Entry.this.nextEntry.nextInterceptor );
                     }
                     catch ( NamingException ne )
                     {
@@ -466,10 +740,314 @@ public class InterceptorChain
                     }
                     catch ( Throwable e )
                     {
-                        throw new InterceptorException( interceptor, call, "Unexpected exception.", e );
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.getMatchedDn( Entry.this.nextEntry.nextInterceptor, dn, normalized );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public Name getSuffix( Name dn, boolean normalized ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.getSuffix( Entry.this.nextEntry.nextInterceptor, dn, normalized );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public Iterator listSuffixes( boolean normalized ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.listSuffixes( Entry.this.nextEntry.nextInterceptor, normalized );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public void delete( Name name ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.delete( Entry.this.nextEntry.nextInterceptor, name );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public void add( String upName, Name normName, Attributes entry ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.add( Entry.this.nextEntry.nextInterceptor, upName, normName, entry );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public void modify( Name name, int modOp, Attributes mods ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.modify( Entry.this.nextEntry.nextInterceptor, name, modOp, mods );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public void modify( Name name, ModificationItem[] mods ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.modify( Entry.this.nextEntry.nextInterceptor, name, mods );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public NamingEnumeration list( Name base ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.list( Entry.this.nextEntry.nextInterceptor, base );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.search( Entry.this.nextEntry.nextInterceptor, base, env, filter, searchCtls );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public Attributes lookup( Name name ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.lookup( Entry.this.nextEntry.nextInterceptor, name );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.lookup( Entry.this.nextEntry.nextInterceptor, dn, attrIds );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public boolean hasEntry( Name name ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.hasEntry( Entry.this.nextEntry.nextInterceptor, name );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public boolean isSuffix( Name name ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.isSuffix( Entry.this.nextEntry.nextInterceptor, name );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.modifyRn( Entry.this.nextEntry.nextInterceptor, name, newRn, deleteOldRn );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public void move( Name oriChildName, Name newParentName ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.move( Entry.this.nextEntry.nextInterceptor, oriChildName, newParentName );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.move( Entry.this.nextEntry.nextInterceptor, oriChildName, newParentName, newRn, deleteOldRn );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
                     }
                 }
             };
         }
+    }
+
+
+    private static void throwInterceptorException( Interceptor interceptor, Throwable e ) throws InterceptorException
+    {
+        throw new InterceptorException( interceptor, "Unexpected exception.", e );
     }
 }

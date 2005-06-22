@@ -141,7 +141,7 @@ public abstract class ContextPartitionNexus implements ContextPartition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract Attributes getRootDSE(); 
+    public abstract Attributes getRootDSE() throws NamingException; 
 
     public abstract ContextPartition getSystemPartition();
 

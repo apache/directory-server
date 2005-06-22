@@ -93,9 +93,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         LdapName principalDn = new LdapName( principal );
 
-        ContextPartitionNexus rootNexus = getContext().getPartitionNexus();
-
-        Attributes userEntry = rootNexus.lookup( principalDn );
+        ContextPartitionNexus nexus = getFactoryConfiguration().getPartitionNexus();
+        Attributes userEntry = nexus.lookup( principalDn );
 
         if ( userEntry == null )
         {

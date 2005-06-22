@@ -119,7 +119,12 @@ public class IndexRecord
      */
     public Attributes getAttributes()
     {
-        return entry;
+        if( entry == null )
+        {
+            return null;
+        }
+
+        return ( Attributes ) entry.clone();
     }
 
 

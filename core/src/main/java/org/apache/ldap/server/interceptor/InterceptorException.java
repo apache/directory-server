@@ -34,11 +34,6 @@ public class InterceptorException extends LdapNamingException
     private static final long serialVersionUID = 3258690996517746233L;
 
     /**
-     * The Invocation the Interceptor failed on
-     */
-    private final Invocation invocation;
-
-    /**
      * The Interceptor causing the failure
      */
     private final Interceptor interceptor;
@@ -48,14 +43,10 @@ public class InterceptorException extends LdapNamingException
      * Creates an InterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
-     * @param invocation  the Invocation the Interceptor failed on
      */
-    public InterceptorException( Interceptor interceptor, Invocation invocation )
+    public InterceptorException( Interceptor interceptor )
     {
         super( ResultCodeEnum.OTHER );
-
-        this.invocation = invocation;
-
         this.interceptor = interceptor;
     }
 
@@ -64,15 +55,11 @@ public class InterceptorException extends LdapNamingException
      * Creates an InterceptorException with a custom message.
      *
      * @param interceptor the Interceptor causing the failure
-     * @param invocation  the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      */
-    public InterceptorException( Interceptor interceptor, Invocation invocation, String explanation )
+    public InterceptorException( Interceptor interceptor, String explanation )
     {
         super( explanation, ResultCodeEnum.OTHER );
-
-        this.invocation = invocation;
-
         this.interceptor = interceptor;
     }
 
@@ -81,13 +68,11 @@ public class InterceptorException extends LdapNamingException
      * Creates an InterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
-     * @param invocation  the Invocation the Interceptor failed on
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException( Interceptor interceptor, Invocation invocation, Throwable rootCause )
+    public InterceptorException( Interceptor interceptor, Throwable rootCause )
     {
-        this( interceptor, invocation );
-
+        this( interceptor );
         super.setRootCause( rootCause );
     }
 
@@ -96,27 +81,14 @@ public class InterceptorException extends LdapNamingException
      * Creates an InterceptorException without a message.
      *
      * @param interceptor the Interceptor causing the failure
-     * @param invocation  the Invocation the Interceptor failed on
      * @param explanation String explanation of why the Interceptor failed
      * @param rootCause   the root cause of this exception
      */
-    public InterceptorException( Interceptor interceptor, Invocation invocation, String explanation,
+    public InterceptorException( Interceptor interceptor, String explanation,
                                  Throwable rootCause )
     {
-        this( interceptor, invocation, explanation );
-
+        this( interceptor, explanation );
         super.setRootCause( rootCause );
-    }
-
-
-    /**
-     * Gets the invovation object this exception is associated with.
-     *
-     * @return the invovation object this exception is associated with
-     */
-    public Invocation getInvocation()
-    {
-        return invocation;
     }
 
 

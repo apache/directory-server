@@ -90,14 +90,13 @@ public abstract class ServerContext implements Context
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext( ContextPartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    protected ServerContext( ContextFactoryConfiguration cfg, Hashtable env ) throws NamingException
     {
-        String url;
-
         // set references to cloned env and the proxy
-        this.nexusProxy = nexusProxy;
-
-        this.env = ( Hashtable ) env.clone();
+        this.nexusProxy = new ContextPartitionNexusProxy( this, cfg );
+        
+        this.env = ( Hashtable ) cfg.getEnvironment().clone();
+        this.env.putAll( env );
 
         /* --------------------------------------------------------------------
          * check for the provider URL property and make sure it exists
@@ -106,18 +105,16 @@ public abstract class ServerContext implements Context
         if ( ! env.containsKey( Context.PROVIDER_URL ) )
         {
             String msg = "Expected property " + Context.PROVIDER_URL;
-
             msg += " but could not find it in env!";
 
             throw new ConfigurationException( msg );
         }
 
-        url = ( String ) env.get( Context.PROVIDER_URL );
+        String url = ( String ) env.get( Context.PROVIDER_URL );
 
         if ( url == null )
         {
             String msg = "Expected value for property " + Context.PROVIDER_URL;
-
             msg += " but it was set to null in env!";
 
             throw new ConfigurationException( msg );
