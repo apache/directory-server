@@ -84,14 +84,6 @@
         <artifactId>kerberos-common</artifactId>
         <version>0.5-SNAPSHOT</version>
       </dependency>
-    <dependency>
-      <groupId>aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>1.2</version>
-      <properties>
-        <gump.project>aspectj</gump.project>
-        <gump.id>aspectjrt</gump.id>
-      </properties>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
