@@ -21,10 +21,14 @@ public final class InvocationStack
     public static InvocationStack getInstance()
     {
         Thread currentThread = Thread.currentThread();
-        InvocationStack ctx = ( InvocationStack ) stacks.get( currentThread );
-        if( ctx == null )
+        InvocationStack ctx;
+        synchronized( stacks )
         {
-            ctx = new InvocationStack();
+            ctx = ( InvocationStack ) stacks.get( currentThread );
+            if( ctx == null )
+            {
+                ctx = new InvocationStack();
+            }
         }
         return ctx;
     }
@@ -36,6 +40,7 @@ public final class InvocationStack
     {
         Thread currentThread = Thread.currentThread();
         this.thread = currentThread;
+        // This operation is already synchronized from getInstance()
         stacks.put( currentThread, this );
     }
     
@@ -61,7 +66,10 @@ public final class InvocationStack
         Invocation invocation = ( Invocation ) this.stack.remove( 0 );
         if( this.stack.size() == 0 )
         {
-            stacks.remove( thread );
+            synchronized( stacks )
+            {
+                stacks.remove( thread );
+            }
         }
 
         return invocation;
