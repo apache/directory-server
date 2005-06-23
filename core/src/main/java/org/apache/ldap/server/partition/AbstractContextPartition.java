@@ -241,6 +241,6 @@ public abstract class AbstractContextPartition implements ContextPartition
      */
     public void move( Name oldName, Name newParentName ) throws NamingException
     {
-        throw new OperationNotSupportedException();
+        throw new OperationNotSupportedException( "Moving an entry to other parent entry is not supported." );
     }
 }
