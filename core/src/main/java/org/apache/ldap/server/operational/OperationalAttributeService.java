@@ -37,7 +37,7 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
+import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
@@ -243,7 +243,7 @@ public class OperationalAttributeService extends BaseInterceptor
         NamingEnumeration e = nextInterceptor.list( base );
         LdapContext ctx =
             ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
-        return new ResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
     }
 
 
@@ -259,7 +259,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         LdapContext ctx =
             ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
-        return new ResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );
     }
 
 

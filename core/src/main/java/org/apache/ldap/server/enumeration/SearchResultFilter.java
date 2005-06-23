@@ -26,8 +26,8 @@ import javax.naming.ldap.LdapContext;
 /**
  * A filter is used to modify search results while they are being returned from
  * naming enumerations containing DbSearchResults.  These filters are used in
- * conjunction with a {@link org.apache.ldap.server.enumeration.ResultFilteringEnumeration}.  Multiple filters can
- * be applied one after the other and hence they are stackable.
+ * conjunction with a {@link SearchResultFilteringEnumeration}.
+ * Multiple filters can be applied one after the other and hence they are stackable.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

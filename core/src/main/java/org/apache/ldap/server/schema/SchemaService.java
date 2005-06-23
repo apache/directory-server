@@ -49,7 +49,7 @@ import org.apache.ldap.common.schema.SchemaUtils;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
+import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
@@ -122,7 +122,7 @@ public class SchemaService extends BaseInterceptor
     {
         NamingEnumeration e = nextInterceptor.list( base );
         LdapContext ctx = getContext();
-        return new ResultFilteringEnumeration( e, new SearchControls(), ctx, binaryAttributeFilter );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, binaryAttributeFilter );
     }
 
 
@@ -174,7 +174,7 @@ public class SchemaService extends BaseInterceptor
         }
 
         LdapContext ctx = getContext();
-        return new ResultFilteringEnumeration( e, searchCtls, ctx, binaryAttributeFilter );
+        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, binaryAttributeFilter );
     }
 
 

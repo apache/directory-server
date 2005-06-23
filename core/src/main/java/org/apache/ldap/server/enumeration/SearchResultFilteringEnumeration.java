@@ -36,7 +36,7 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ResultFilteringEnumeration implements NamingEnumeration
+public class SearchResultFilteringEnumeration implements NamingEnumeration
 {
     /** the list of filters to be applied */
     private final List filters;
@@ -68,7 +68,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      * @param ctx the LDAP context that made the search creating this
      * enumeration
      */
-    public ResultFilteringEnumeration( NamingEnumeration decorated,
+    public SearchResultFilteringEnumeration( NamingEnumeration decorated,
                                        SearchControls searchControls,
                                        LdapContext ctx,
                                        SearchResultFilter filter )
@@ -100,7 +100,7 @@ public class ResultFilteringEnumeration implements NamingEnumeration
      * @param ctx the LDAP context that made the search creating this
      * enumeration
      */
-    public ResultFilteringEnumeration( NamingEnumeration decorated,
+    public SearchResultFilteringEnumeration( NamingEnumeration decorated,
                                        SearchControls searchControls,
                                        LdapContext ctx,
                                        List filters )

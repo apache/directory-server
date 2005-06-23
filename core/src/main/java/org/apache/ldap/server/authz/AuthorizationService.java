@@ -33,7 +33,7 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
+import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.Interceptor;
@@ -382,7 +382,7 @@ public class AuthorizationService extends BaseInterceptor
         
         LdapContext ctx =
             ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
-        return new ResultFilteringEnumeration( e, searchCtls, ctx,
+        return new SearchResultFilteringEnumeration( e, searchCtls, ctx,
                 new SearchResultFilter()
                 {
                     public boolean accept( LdapContext ctx, SearchResult result,
@@ -401,7 +401,7 @@ public class AuthorizationService extends BaseInterceptor
         LdapContext ctx =
             ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
         
-        return new ResultFilteringEnumeration( e, null, ctx,
+        return new SearchResultFilteringEnumeration( e, null, ctx,
             new SearchResultFilter()
             {
                 public boolean accept( LdapContext ctx, SearchResult result,
