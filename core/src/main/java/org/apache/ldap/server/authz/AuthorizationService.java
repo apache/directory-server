@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -35,20 +36,20 @@ import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.ResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 
 
 /**
- * An {@link org.apache.ldap.server.interceptor.Interceptor} that controls access to {@link ContextPartition}
- * operations.  If a user tries to perform any operations that requires
- * permission he or she doesn't have, {@link NamingException} will be
+ * An {@link Interceptor} that controls access to {@link ContextPartitionNexus}.
+ * If a user tries to perform any operations that requires
+ * permission he or she doesn't have, {@link NoPermissionException} will be
  * thrown and therefore the current invocation chain will terminate.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -78,7 +79,7 @@ public class AuthorizationService extends BaseInterceptor
 
 
     /**
-     * Creates an authorization service interceptor.
+     * Creates a new instance.
      */
     public AuthorizationService()
     {
@@ -89,11 +90,6 @@ public class AuthorizationService extends BaseInterceptor
     {
         AttributeTypeRegistry atr = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );
-    }
-
-
-    public void destroy()
-    {
     }
 
 
