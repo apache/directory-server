@@ -23,40 +23,44 @@ import java.util.List;
 
 import javax.naming.Context;
 
-import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * Represents a method invocation on {@link ContextPartition}s.
- * <p/>
- * This class is abstract, and developers should extend this class to
- * represent the actual method invocations.
+ * Represents a call from JNDI {@link Context} to {@link ContextPartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class Invocation
 {
-    private final Context target;
+    private final Context caller;
     private final String name;
     private final List parameters;
     
     /**
-     * Creates a new instance.
+     * Creates a new instance that represents an invocation without parameters.
+     * 
+     * @parem caller the JNDI {@link Context} that made this invocation
+     * @param name the name of the called method
      */
-    public Invocation( Context target, String name )
+    public Invocation( Context caller, String name )
     {
-        this( target, name, null );
+        this( caller, name, null );
     }
 
     /**
      * Creates a new instance.
+     * 
+     * @parem caller the JNDI {@link Context} that made this invocation
+     * @param name the name of the called method
+     * @param parameters the array of parameters passed to the called method
      */
-    public Invocation( Context target, String name, Object[] parameters )
+    public Invocation( Context caller, String name, Object[] parameters )
     {
-        if( target == null )
+        if( caller == null )
         {
-            throw new NullPointerException( "target" );
+            throw new NullPointerException( "caller" );
         }
         if( name == null )
         {
@@ -68,7 +72,7 @@ public class Invocation
             parameters = new Object[ 0 ];
         }
         
-        this.target = target;
+        this.caller = caller;
         this.name = name;
         
         List paramList = new ArrayList();
@@ -81,15 +85,15 @@ public class Invocation
     }
     
     /**
-     * Returns the target context of this invocation.
+     * Returns the JNDI {@link Context} which made this invocation.
      */
-    public Context getTarget()
+    public Context getCaller()
     {
-        return target;
+        return caller;
     }
     
     /**
-     * Returns the name of this invocation.
+     * Returns the name of the called method.
      */
     public String getName()
     {
@@ -97,7 +101,7 @@ public class Invocation
     }
     
     /**
-     * Returns the list of parameters
+     * Returns the list of parameters parameters passed to the called method.
      */
     public List getParameters()
     {

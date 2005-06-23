@@ -61,7 +61,7 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public static LdapContext getContext()
     {
-        return ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+        return ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
     }
 
 

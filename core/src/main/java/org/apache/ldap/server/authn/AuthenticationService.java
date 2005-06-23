@@ -295,7 +295,7 @@ public class AuthenticationService implements Interceptor
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
         ServerContext ctx =
-            ( ServerContext ) InvocationStack.getInstance().peek().getTarget();
+            ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
 
         if ( ctx.getPrincipal() != null )
         {

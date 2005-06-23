@@ -320,7 +320,7 @@ public class AuthorizationService extends BaseInterceptor
     private void protectLookUp( Name dn ) throws NamingException
     {
         LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
 
         if ( !principalDn.equals( ADMIN_DN ) )
@@ -381,7 +381,7 @@ public class AuthorizationService extends BaseInterceptor
         //}
         
         LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         return new SearchResultFilteringEnumeration( e, searchCtls, ctx,
                 new SearchResultFilter()
                 {
@@ -399,7 +399,7 @@ public class AuthorizationService extends BaseInterceptor
     {
         NamingEnumeration e = nextInterceptor.list( base );
         LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         
         return new SearchResultFilteringEnumeration( e, null, ctx,
             new SearchResultFilter()

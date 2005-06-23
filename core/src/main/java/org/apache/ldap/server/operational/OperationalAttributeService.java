@@ -242,7 +242,7 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         NamingEnumeration e = nextInterceptor.list( base );
         LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
     }
 
@@ -258,7 +258,7 @@ public class OperationalAttributeService extends BaseInterceptor
         }
 
         LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );
     }
 
