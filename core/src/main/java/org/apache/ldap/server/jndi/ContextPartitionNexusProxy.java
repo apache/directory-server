@@ -99,14 +99,14 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         return this.service.isStarted();
     }
 
-    public Name getMatchedDn(Name dn, boolean normalized) throws NamingException {
+    public Name getMatchedName(Name dn, boolean normalized) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "getMatchedDn",
                 new Object[] { dn, normalized? Boolean.TRUE : Boolean.FALSE } ) );
         try
         {
-            return this.configuration.getInterceptorChain().getMatchedDn( dn, normalized );
+            return this.configuration.getInterceptorChain().getMatchedName( dn, normalized );
         }
         finally
         {

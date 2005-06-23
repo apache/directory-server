@@ -221,14 +221,14 @@ public class NormalizationService extends BaseInterceptor
     // ------------------------------------------------------------------------
 
 
-    public Name getMatchedDn( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
+    public Name getMatchedName( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
     {
         synchronized( parser )
         {
             name = parser.parse( name.toString() );
         }
 
-        return nextInterceptor.getMatchedDn( name, normalized );
+        return nextInterceptor.getMatchedName( name, normalized );
     }
 
 

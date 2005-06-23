@@ -47,9 +47,7 @@ import org.apache.ldap.server.schema.OidRegistry;
 
 
 /**
- * An Abstract ContextPartition using a formal database and a search engine.  All
- * the common code between a SystemContextPartition and a DefaultContextPartition
- * will be added to this super class.
+ * An abstract {@link ContextPartition} that uses general BTree operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

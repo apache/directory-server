@@ -21,7 +21,7 @@ package org.apache.ldap.server.prefs;
 
 /**
  * A {@link RuntimeException} that is thrown when accessing
- * {@link org.apache.ldap.server.prefs.ServerSystemPreferences} failed.
+ * {@link ServerSystemPreferences} failed.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

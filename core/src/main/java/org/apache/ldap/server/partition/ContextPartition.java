@@ -19,6 +19,7 @@ package org.apache.ldap.server.partition;
 
 import java.util.Map;
 
+import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -33,9 +34,12 @@ import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 
 
 /**
- * ContextPartitions are indivisible ContextPartitions associated with a naming
- * context as a base suffix.  All JNDI Attributes entries at and under the
- * context of this suffix are stored within this partition.
+ * An interfaces that bridges between underlying JNDI entries and JNDI
+ * {@link Context} API.  DIT (Directory Information Tree) consists one or
+ * above {@link ContextPartition}s whose parent is {@link ContextPartitionNexus},
+ * and all of them are mapped to different
+ * base suffix.  Each partition contains entries whose name ends with that
+ * base suffix.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -58,8 +62,7 @@ public interface ContextPartition
     
     
     /**
-     * Closes or shuts down this ContextPartition.  Operations against closed
-     * ContextPartitions will fail.
+     * Deinitialized this partition.
      */
     void destroy();
 
@@ -69,9 +72,7 @@ public interface ContextPartition
     boolean isInitialized();
 
     /**
-     * Cue to ContextPartitions with caches to flush entry and index changes to disk.
-     *
-     * @throws NamingException if there are problems flushing caches
+     * Flushes any changes made to this partition now.
      */
     void sync() throws NamingException;
 
@@ -102,12 +103,12 @@ public interface ContextPartition
     /**
      * Adds an entry to this ContextPartition.
      *
-     * @param upName the user provided distinguished/absolute name of the entry
-     * @param normName the normalized distinguished/absolute name of the entry
+     * @param userProvidedName the user provided distinguished/absolute name of the entry
+     * @param normalizedName the normalized distinguished/absolute name of the entry
      * @param entry the entry to add to this ContextPartition
      * @throws NamingException if there are any problems
      */
-    void add( String upName, Name normName, Attributes entry ) throws NamingException;
+    void add( String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException;
 
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
@@ -117,7 +118,7 @@ public interface ContextPartition
      * @param modOp the modification operation to perform on the entry which
      * is one of constants specified by the DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
-     * @param mods the attributes and their values used to affect the
+     * @param attributes the attributes and their values used to affect the
      * modification with.
      * @throws NamingException if there are any problems
      * @see javax.naming.directory.DirContext
@@ -125,18 +126,18 @@ public interface ContextPartition
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( Name name, int modOp, Attributes mods ) throws NamingException;
+    void modify( Name name, int modOp, Attributes attributes ) throws NamingException;
 
     /**
      * Modifies an entry by using a combination of adds, removes or replace 
      * operations using a set of ModificationItems.
      *
      * @param name the normalized distinguished/absolute name of the entry to modify
-     * @param mods the ModificationItems used to affect the modification with
+     * @param items the ModificationItems used to affect the modification with
      * @throws NamingException if there are any problems
      * @see ModificationItem
      */
-    void modify( Name name, ModificationItem [] mods ) throws NamingException;
+    void modify( Name name, ModificationItem [] items ) throws NamingException;
 
     /**
      * A specialized form of one level search used to return a minimal set of 
@@ -144,11 +145,11 @@ public interface ContextPartition
      * used to optimize operations rather than conducting a full search with 
      * retrieval.
      *
-     * @param base the base distinguished/absolute name for the search/listing
+     * @param baseName the base distinguished/absolute name for the search/listing
      * @return a NamingEnumeration containing objects of type {@link SearchResult}
      * @throws NamingException if there are any problems
      */
-    NamingEnumeration list( Name base ) throws NamingException;
+    NamingEnumeration list( Name baseName ) throws NamingException;
     
     /**
      * Conducts a search against this ContextPartition.  Namespace specific
@@ -158,17 +159,17 @@ public interface ContextPartition
      * namespace specific or implementation specific key for the set of LDAP
      * Controls.
      *
-     * @param base the normalized distinguished/absolute name of the search base
-     * @param env the environment under which operation occurs
+     * @param baseName the normalized distinguished/absolute name of the search base
+     * @param environment the environment under which operation occurs
      * @param filter the root node of the filter expression tree
-     * @param searchCtls the search controls
+     * @param searchControls the search controls
      * @throws NamingException if there are any problems
      * @return a NamingEnumeration containing objects of type 
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration search( Name base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException;
+    NamingEnumeration search( Name baseName, Map environment, ExprNode filter,
+        SearchControls searchControls ) throws NamingException;
 
     /**
      * Looks up an entry by distinguished/absolute name.  This is a simplified
@@ -187,12 +188,12 @@ public interface ContextPartition
      * convenience with a set of attributes to return.  If the attributes is
      * null or empty, the returned entry will contain all attributes.
      *
-     * @param dn the normalized distinguished name of the object to lookup
+     * @param name the normalized distinguished name of the object to lookup
      * @param attrIds the set of attributes to return
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( Name dn, String [] attrIds ) throws NamingException;
+    Attributes lookup( Name name, String [] attrIds ) throws NamingException;
 
     /**
      * Fast operation to check and see if a particular entry exists.
@@ -235,11 +236,11 @@ public interface ContextPartition
      *
      * @param newParentName the normalized distinguished/absolute name of the
      * new parent to move the target entry to
-     * @param oriChildName the normalized distinguished/absolute name of the
+     * @param oldName the normalized distinguished/absolute name of the
      * original child name representing the child entry to move
      * @throws NamingException if there are any problems
      */
-    void move( Name oriChildName, Name newParentName ) throws NamingException;
+    void move( Name oldName, Name newParentName ) throws NamingException;
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
@@ -249,7 +250,7 @@ public interface ContextPartition
      * namespace this parameters is ignored.  An example of a namespace where
      * this parameter is significant is the LDAP namespace.
      *
-     * @param oriChildName the normalized distinguished/absolute name of the
+     * @param oldName the normalized distinguished/absolute name of the
      * original child name representing the child entry to move
      * @param newParentName the normalized distinguished/absolute name of the
      * new parent to move the targeted entry to
@@ -258,6 +259,6 @@ public interface ContextPartition
      * from the entry if set to true, and has no affect if set to false
      * @throws NamingException if there are any problems
      */
-    void move( Name oriChildName, Name newParentName, String newRn,
+    void move( Name oldName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
 }

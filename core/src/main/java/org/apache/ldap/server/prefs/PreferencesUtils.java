@@ -29,7 +29,7 @@ import org.apache.ldap.common.name.LdapName;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PreferencesUtils
+class PreferencesUtils
 {
     /** the dn base of the system preference hierarchy */
     static final String SYSPREF_BASE = "prefNodeName=sysPrefRoot,ou=system";

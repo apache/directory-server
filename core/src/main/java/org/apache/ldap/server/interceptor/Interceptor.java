@@ -117,13 +117,13 @@ public interface Interceptor
      */
     Attributes getRootDSE( NextInterceptor next ) throws NamingException; 
     /**
-     * Filters {@link ContextPartitionNexus#getMatchedDn(Name, boolean)} call.
+     * Filters {@link ContextPartitionNexus#getMatchedName(Name, boolean)} call.
      */
-    Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException;
+    Name getMatchedName( NextInterceptor next, Name name, boolean normalized ) throws NamingException;
     /**
      * Filters {@link ContextPartitionNexus#getSuffix(Name, boolean)} call.
      */
-    Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException;
+    Name getSuffix( NextInterceptor next, Name name, boolean normalized ) throws NamingException;
     /**
      * Filters {@link ContextPartitionNexus#listSuffixes(boolean)} call.
      */
@@ -135,24 +135,24 @@ public interface Interceptor
     /**
      * Filters {@link ContextPartition#add(String, Name, Attributes)} call.
      */
-    void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException;
+    void add( NextInterceptor next, String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException;
     /**
      * Filters {@link ContextPartition#modify(Name, int, Attributes)} call.
      */
-    void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException;
+    void modify( NextInterceptor next, Name name, int modOp, Attributes attributes ) throws NamingException;
     /**
      * Filters {@link ContextPartition#modify(Name, ModificationItem[])} call.
      */
-    void modify( NextInterceptor next, Name name, ModificationItem [] mods ) throws NamingException;
+    void modify( NextInterceptor next, Name name, ModificationItem [] items ) throws NamingException;
     /**
      * Filters {@link ContextPartition#list(Name)} call.
      */
-    NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException;
+    NamingEnumeration list( NextInterceptor next, Name baseName ) throws NamingException;
     /**
      * Filters {@link ContextPartition#search(Name, Map, ExprNode, SearchControls)} call.
      */
-    NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
-                              SearchControls searchCtls ) throws NamingException;
+    NamingEnumeration search( NextInterceptor next, Name baseName, Map environment, ExprNode filter,
+                              SearchControls searchControls ) throws NamingException;
     /**
      * Filters {@link ContextPartition#lookup(Name)} call.
      */
@@ -176,10 +176,10 @@ public interface Interceptor
     /**
      * Filters {@link ContextPartition#move(Name, Name)} call.
      */
-    void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException;
+    void move( NextInterceptor next, Name oldName, Name newParentName ) throws NamingException;
     /**
      * Filters {@link ContextPartition#move(Name, Name, String, boolean)} call.
      */
-    void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn,
+    void move( NextInterceptor next, Name oldName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
 }

@@ -185,10 +185,10 @@ public class AuthenticationService implements Interceptor
     }
 
 
-    public Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
     {
         authenticate();
-        return next.getMatchedDn( dn, normalized );
+        return next.getMatchedName( dn, normalized );
     }
 
 

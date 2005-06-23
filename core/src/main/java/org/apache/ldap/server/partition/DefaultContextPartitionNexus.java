@@ -62,8 +62,6 @@ import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
  * A nexus for partitions dedicated for storing entries specific to a naming
  * context.
  * 
- * TODO init() should initialize all mounted child partitions. (destroy too)
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -352,9 +350,9 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
 
     /**
-     * @see ContextPartitionNexus#getMatchedDn(javax.naming.Name, boolean)
+     * @see ContextPartitionNexus#getMatchedName(javax.naming.Name, boolean)
      */
-    public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
+    public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
     {
         dn = ( Name ) dn.clone();
 

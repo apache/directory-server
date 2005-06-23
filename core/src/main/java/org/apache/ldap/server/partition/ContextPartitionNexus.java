@@ -28,23 +28,13 @@ import org.apache.ldap.common.name.LdapName;
 
 
 /**
- * The PartitionNexus is a special type of ContextPartition designed to route
- * ContextPartition operations to ContextPartitions based on namespace to respective
- * ContextPartitions attached to the nexus at the appropriate naming contexts.
- * These naming contexts are also the suffixes of ContextPartitions.  All
- * entries within a ContextPartition have the same suffix.  The PartitionNexus
- * is a singleton where as ContextPartitions can be many hanging off of
- * different contexts on the nexus.
- *
- * The PartitionNexus routes or proxies ContextPartition calls to the appropriate
- * PartitionContext implementation.  It also provides some extended operations
- * for the entire backend apparatus like listing the various naming contexts or
- * partition suffixes within the system.  The nexus is also responsibe for
- * returning the entry Attributes for the root DSE when the approapriate search
- * is conducted: empty filter String and base scope search.
+ * A root {@link ContextPartition} that contains all other partitions, and
+ * routes all operations to the child partition that matches to its base suffixes.
+ * It also provides some extended operations such as accessing rootDSE and
+ * listing base suffixes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev$, $Date$
  */
 public abstract class ContextPartitionNexus implements ContextPartition
 {
@@ -58,6 +48,7 @@ public abstract class ContextPartitionNexus implements ContextPartition
     public final static String USERS_BASE_NAME = "ou=users,ou=system";
     /** the base dn under which all groups reside */
     public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
+
     /**
      * System backend suffix constant.  Should be kept down to a single Dn name 
      * component or the default constructor will have to parse it instead of 
@@ -148,7 +139,7 @@ public abstract class ContextPartitionNexus implements ContextPartition
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
      *
-     * @param dn the normalized distinguished name to use for matching.
+     * @param name the normalized distinguished name to use for matching.
      * @param normalized boolean if true cause the return of a normalized Dn,
      * if false it returns the original user provided distinguished name for 
      * the matched portion of the Dn as it was provided on entry creation.
@@ -157,14 +148,14 @@ public abstract class ContextPartitionNexus implements ContextPartition
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    public abstract Name getMatchedDn( Name dn, boolean normalized ) throws NamingException;
+    public abstract Name getMatchedName( Name name, boolean normalized ) throws NamingException;
 
     /**
      * Gets the distinguished name of the suffix that would hold an entry with
      * the supplied distinguished name parameter.  If the DN argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param dn the normalized distinguished name to use for finding a suffix.
+     * @param name the normalized distinguished name to use for finding a suffix.
      * @param normalized if true causes the return of a normalized Dn, but
      * if false it returns the original user provided distinguished name for 
      * the suffix Dn as it was provided on suffix entry creation.
@@ -172,7 +163,7 @@ public abstract class ContextPartitionNexus implements ContextPartition
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    public abstract Name getSuffix( Name dn, boolean normalized ) throws NamingException;
+    public abstract Name getSuffix( Name name, boolean normalized ) throws NamingException;
 
     /**
      * Gets an iteration over the Name suffixes of the Backends managed by this

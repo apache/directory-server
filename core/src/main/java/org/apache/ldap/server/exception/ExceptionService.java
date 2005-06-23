@@ -345,7 +345,7 @@ public class ExceptionService extends BaseInterceptor
                 e = new LdapNameNotFoundException( dn.toString() );
             }
 
-            e.setResolvedName( nexus.getMatchedDn( dn, false ) );
+            e.setResolvedName( nexus.getMatchedName( dn, false ) );
             throw e;
         }
     }

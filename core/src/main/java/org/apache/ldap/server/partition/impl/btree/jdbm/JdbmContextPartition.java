@@ -59,7 +59,8 @@ import org.apache.ldap.server.partition.impl.btree.IndexRecord;
 
 
 /**
- * A Database implementation based on JDBM B+Tree implementation.
+ * A {@link ContextPartition} that stores entries in
+ * <a href="http://jdbm.sourceforge.net/">JDBM</a> database.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

@@ -69,9 +69,9 @@ public class InterceptorChain
         }
 
 
-        public Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+        public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
         {
-            return ( Name ) nexus.getMatchedDn( dn, normalized ).clone();
+            return ( Name ) nexus.getMatchedName( dn, normalized ).clone();
         }
 
 
@@ -380,13 +380,13 @@ public class InterceptorChain
     }
 
 
-    public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
+    public Name getMatchedName( Name name, boolean normalized ) throws NamingException
     {
         Interceptor head = this.head.configuration.getInterceptor();
         NextInterceptor next = this.head.nextInterceptor;
         try
         {
-            return head.getMatchedDn( next, dn, normalized );
+            return head.getMatchedName( next, name, normalized );
         }
         catch ( NamingException ne )
         {
@@ -400,13 +400,13 @@ public class InterceptorChain
     }
 
 
-    public Name getSuffix( Name dn, boolean normalized ) throws NamingException
+    public Name getSuffix( Name name, boolean normalized ) throws NamingException
     {
         Interceptor head = this.head.configuration.getInterceptor();
         NextInterceptor next = this.head.nextInterceptor;
         try
         {
-            return head.getSuffix( next, dn, normalized );
+            return head.getSuffix( next, name, normalized );
         }
         catch ( NamingException ne )
         {
@@ -742,13 +742,13 @@ public class InterceptorChain
                     }
                 }
 
-                public Name getMatchedDn( Name dn, boolean normalized ) throws NamingException
+                public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
                 {
                     Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getMatchedDn( Entry.this.nextEntry.nextInterceptor, dn, normalized );
+                        return interceptor.getMatchedName( Entry.this.nextEntry.nextInterceptor, dn, normalized );
                     }
                     catch ( NamingException ne )
                     {

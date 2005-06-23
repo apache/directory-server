@@ -45,13 +45,13 @@ public interface NextInterceptor
      */
     Attributes getRootDSE() throws NamingException; 
     /**
-     * Calls the next interceptor's {@link Interceptor#getMatchedDn(NextInterceptor, Name, boolean)}.
+     * Calls the next interceptor's {@link Interceptor#getMatchedName(NextInterceptor, Name, boolean)}.
      */
-    Name getMatchedDn( Name dn, boolean normalized ) throws NamingException;
+    Name getMatchedName( Name name, boolean normalized ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#getSuffix(NextInterceptor, Name, boolean)}.
      */
-    Name getSuffix( Name dn, boolean normalized ) throws NamingException;
+    Name getSuffix( Name name, boolean normalized ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#listSuffixes(NextInterceptor, boolean)}.
      */
@@ -63,24 +63,24 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#add(NextInterceptor, String, Name, Attributes)}.
      */
-    void add( String upName, Name normName, Attributes entry ) throws NamingException;
+    void add( String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor, Name, int, Attributes)}.
      */
-    void modify( Name name, int modOp, Attributes mods ) throws NamingException;
+    void modify( Name name, int modOp, Attributes attributes ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor, Name, ModificationItem[])}.
      */
-    void modify( Name name, ModificationItem [] mods ) throws NamingException;
+    void modify( Name name, ModificationItem[] items ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#list(NextInterceptor, Name)}.
      */
-    NamingEnumeration list( Name base ) throws NamingException;
+    NamingEnumeration list( Name baseName ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#search(NextInterceptor, Name, Map, ExprNode, SearchControls)}.
      */
-    NamingEnumeration search( Name base, Map env, ExprNode filter,
-                              SearchControls searchCtls ) throws NamingException;
+    NamingEnumeration search( Name baseName, Map environment, ExprNode filter,
+                              SearchControls searchControls ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor, Name)}.
      */
@@ -88,7 +88,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor, Name, String[])}.
      */
-    Attributes lookup( Name dn, String [] attrIds ) throws NamingException;
+    Attributes lookup( Name name, String [] attrIds ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#hasEntry(NextInterceptor, Name)}.
      */
@@ -104,10 +104,10 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#move(NextInterceptor, Name, Name)}.
      */
-    void move( Name oriChildName, Name newParentName ) throws NamingException;
+    void move( Name oldName, Name newParentName ) throws NamingException;
     /**
      * Calls the next interceptor's {@link Interceptor#move(NextInterceptor, Name, Name, String, boolean)}.
      */
-    void move( Name oriChildName, Name newParentName, String newRn,
+    void move( Name oldName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
 }
