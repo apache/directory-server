@@ -469,7 +469,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             entry.put( "creatorsName", SystemPartition.ADMIN_PRINCIPAL );
             entry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             
-            Attribute dn = entry.remove( "dn" );
+            Attribute dn = ( Attribute ) entry.get( "dn" ).clone();
             AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
             NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
             DnParser parser = new DnParser( ncn );
