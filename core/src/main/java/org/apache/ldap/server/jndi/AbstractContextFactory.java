@@ -28,11 +28,12 @@ import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.configuration.SyncConfiguration;
+import org.apache.ldap.server.partition.ContextPartition;
 
 
 /**
- * A server-side provider implementation of a InitialContextFactory.  Can be
- * utilized via JNDI API in the standard fashion:
+ * A server-side provider implementation of {@link InitialContextFactory}.
+ * This class can be utilized via JNDI API in the standard fashion:
  *
  * <code>
  * Hashtable env = new Hashtable();
@@ -57,9 +58,9 @@ public abstract class AbstractContextFactory implements InitialContextFactory
     private static final ContextFactoryConfiguration provider = new DefaultContextFactoryConfiguration();
 
     /**
-     * Default constructor that sets the provider of this ServerContextFactory.
+     * Creates a new instance.
      */
-    public AbstractContextFactory()
+    protected AbstractContextFactory()
     {
     }
     
@@ -160,10 +161,28 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         return principal;
     }
     
+    /**
+     * Invoked before starting up JNDI provider.
+     */
     protected abstract void beforeStartup( ContextFactoryConfiguration ctx ) throws NamingException;
+    /**
+     * Invoked after starting up JNDI provider.
+     */
     protected abstract void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException;
+    /**
+     * Invoked before shutting down JNDI provider.
+     */
     protected abstract void beforeShutdown( ContextFactoryConfiguration ctx ) throws NamingException;
+    /**
+     * Invoked after shutting down JNDI provider.
+     */
     protected abstract void afterShutdown( ContextFactoryConfiguration ctx ) throws NamingException;
+    /**
+     * Invoked before calling {@link ContextPartition#sync()} for all registered {@link ContextPartition}s.
+     */
     protected abstract void beforeSync( ContextFactoryConfiguration ctx ) throws NamingException;
+    /**
+     * Invoked after calling {@link ContextPartition#sync()} for all registered {@link ContextPartition}s.
+     */
     protected abstract void afterSync( ContextFactoryConfiguration ctx ) throws NamingException;
 }
