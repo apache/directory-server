@@ -34,6 +34,12 @@ import org.apache.ldap.server.schema.GlobalRegistries;
  */
 public interface ContextFactoryConfiguration
 {
+    
+    /**
+     * Returns the listener that listens to service events.
+     */
+    ContextFactoryServiceListener getServiceListener();
+    
     /**
      * Returns the initial context environment of the {@link ContextFactoryService}.
      */
@@ -58,6 +64,12 @@ public interface ContextFactoryConfiguration
      * Returns the interceptor chain of the {@link ContextFactoryService}.
      */
     InterceptorChain getInterceptorChain();
+    
+    /**
+     * Returns <tt>true</tt> if this service is started
+     * and bootstrap entries have been created for the first time.
+     */
+    boolean isFirstStart();
     
     /**
      * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>

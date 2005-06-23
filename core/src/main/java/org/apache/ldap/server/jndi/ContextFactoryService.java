@@ -55,12 +55,6 @@ public interface ContextFactoryService
     void sync() throws NamingException;
     
     /**
-     * Returns <tt>true</tt> if this service is started
-     * and bootstrap entries have been created for the first time.
-     */
-    boolean isFirstStart();
-    
-    /**
      * Returns <tt>true</tt> if this service is started.
      */
     boolean isStarted();

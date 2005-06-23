@@ -53,15 +53,17 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class DefaultContextFactoryService implements ContextFactoryService, ContextFactoryConfiguration
+class DefaultContextFactoryService implements ContextFactoryService
 {
-    private ContextFactoryServiceListener listener;
+    private final ContextFactoryConfiguration configuration = new DefaultContextFactoryConfiguration( this );
+
+    private ContextFactoryServiceListener serviceListener;
     
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable environment;
     
     /** the configuration */
-    private StartupConfiguration configuration;
+    private StartupConfiguration startupConfiguration;
 
     /** the registries for system schema objects */
     private GlobalRegistries globalRegistries;
@@ -170,7 +172,7 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
         }
 
         this.environment = env;
-        this.configuration = cfg;
+        this.startupConfiguration = cfg;
         
         listener.beforeStartup( this );
         try
@@ -178,7 +180,7 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
             initialize();
             firstStart = createBootstrapEntries();
             createTestEntries();
-            this.listener = listener;
+            this.serviceListener = listener;
             started = true;
         }
         finally
@@ -194,14 +196,14 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
             return;
         }
 
-        listener.beforeSync( this );
+        serviceListener.beforeSync( this );
         try
         {
             this.partitionNexus.sync();
         }
         finally
         {
-            listener.afterSync( this );
+            serviceListener.afterSync( this );
         }
     }
 
@@ -213,7 +215,7 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
             return;
         }
 
-        listener.beforeShutdown( this );
+        serviceListener.beforeShutdown( this );
         try
         {
             this.partitionNexus.sync();
@@ -225,9 +227,14 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
         {
             environment = null;
             interceptorChain = null;
-            configuration = null;
-            listener.afterShutdown( this );
+            startupConfiguration = null;
+            serviceListener.afterShutdown( this );
         }
+    }
+    
+    public ContextFactoryConfiguration getConfiguration()
+    {
+        return configuration;
     }
     
     
@@ -236,14 +243,14 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
         return ( Hashtable ) environment.clone();
     }
     
-    public ContextFactoryConfiguration getConfiguration()
+    public ContextFactoryServiceListener getServiceListener()
     {
-        return this;
+        return serviceListener;
     }
     
     public StartupConfiguration getStartupConfiguration()
     {
-        return configuration;
+        return startupConfiguration;
     }
     
     public GlobalRegistries getGlobalRegistries()
@@ -320,7 +327,7 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
                         + Context.SECURITY_PRINCIPAL + " property is set" );
             }
             
-            if( !configuration.isAllowAnonymousAccess() )
+            if( !startupConfiguration.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous access disabled." );
             }
@@ -442,7 +449,7 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
          * entries at startup due to a chicken and egg like problem.  The value
          * of this property is a list of attributes to be added.
          */
-        Iterator i = configuration.getTestEntries().iterator();
+        Iterator i = startupConfiguration.getTestEntries().iterator();
         while( i.hasNext() )
         {
             Attributes entry = ( Attributes ) i.next();
@@ -473,7 +480,7 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
         BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        loader.load( configuration.getBootstrapSchemas(), bootstrapRegistries );
+        loader.load( startupConfiguration.getBootstrapSchemas(), bootstrapRegistries );
 
         java.util.List errors = bootstrapRegistries.checkRefInteg();
         if ( !errors.isEmpty() )
@@ -488,9 +495,9 @@ class DefaultContextFactoryService implements ContextFactoryService, ContextFact
         globalRegistries = new GlobalRegistries( bootstrapRegistries );
         
         partitionNexus = new DefaultContextPartitionNexus( new LockableAttributesImpl() );
-        partitionNexus.init( this, null );
+        partitionNexus.init( configuration, null );
         
         interceptorChain = new InterceptorChain();
-        interceptorChain.init( this );
+        interceptorChain.init( configuration );
     }
 }
