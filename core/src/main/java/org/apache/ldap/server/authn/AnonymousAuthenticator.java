@@ -22,24 +22,24 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.server.jndi.ServerContext;
 
 /**
- * A default implentation of an AuthenticationService for handling anonymous connections.
+ * An {@link Authenticator} that handles anonymous connections
+ * (type <tt>'none'</tt>).
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AnonymousAuthenticator extends AbstractAuthenticator
 {
+    /**
+     * Creates a new instance.
+     */
     public AnonymousAuthenticator()
     {
         super( "none" );
     }
 
-    protected void doInit()
-    {
-    }
-
     /**
-     * This will be called when the authentication is set to "none" on the client.
-     * If server is not configured to allow anonymous connections, it throws an exception.
+     * If the context is not configured to allow anonymous connections,
+     * this method throws a {@link javax.naming.NoPermissionException}.
      */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {

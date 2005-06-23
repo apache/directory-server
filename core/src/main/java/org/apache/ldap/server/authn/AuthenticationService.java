@@ -55,12 +55,6 @@ import org.apache.ldap.server.jndi.ServerContext;
  */
 public class AuthenticationService implements Interceptor
 {
-    /** short for Context.SECURITY_AUTHENTICATION */
-    private static final String AUTH_TYPE = Context.SECURITY_AUTHENTICATION;
-
-    /** short for Context.SECURITY_CREDENTIALS */
-    private static final String CREDS = Context.SECURITY_CREDENTIALS;
-
     /** authenticators **/
     public Map authenticators = new HashMap();
 
@@ -73,6 +67,9 @@ public class AuthenticationService implements Interceptor
     {
     }
 
+    /**
+     * Registers and initializes all {@link Authenticator}s to this service.
+     */
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         this.factoryCfg = factoryCfg;
@@ -94,6 +91,9 @@ public class AuthenticationService implements Interceptor
         }
     }
     
+    /**
+     * Deinitializes and deregisters all {@link Authenticator}s from this service.
+     */
     public void destroy()
     {
         Iterator i = new ArrayList( authenticators.values() ).iterator();
@@ -110,9 +110,8 @@ public class AuthenticationService implements Interceptor
     }
 
     /**
-     * Registers an AuthenticationService with the AuthenticationService.  Called by each
-     * AuthenticationService implementation after it has started to register for
-     * authentication operation calls.
+     * Initializes the specified {@link Authenticator} and registers it to
+     * this service.
      */
     private void register( AuthenticatorConfiguration cfg ) throws NamingException
     {
@@ -129,13 +128,8 @@ public class AuthenticationService implements Interceptor
     }
 
     /**
-     * Unregisters an AuthenticationService with the AuthenticationService.  Called for each
-     * registered AuthenticationService right before it is to be stopped.  This prevents
-     * protocol server calls from reaching the Backend and effectively puts
-     * the ContextPartition's naming context offline.
-     *
-     * @param authenticator AuthenticationService component to unregister with this
-     * AuthenticationService.
+     * Deinitializes the specified {@link Authenticator} and deregisters it from
+     * this service.
      */
     private void unregister( Authenticator authenticator )
     {
@@ -159,14 +153,21 @@ public class AuthenticationService implements Interceptor
     }
 
     /**
-     * Gets the authenticators with a specific type.
-     *
-     * @param type the authentication type
-     * @return the authenticators with the specified type
+     * Returns the list of {@link Authenticator}s with the specified type.
+     * 
+     * @return <tt>null</tt> if no authenticator is found.
      */
     private Collection getAuthenticators( String type )
     {
-        return ( Collection ) authenticators.get( type );
+        Collection result = ( Collection ) authenticators.get( type );
+        if( result != null && result.size() > 0 )
+        {
+            return result;
+        }
+        else
+        {
+            return null;
+        }
     }
     
 
@@ -298,18 +299,18 @@ public class AuthenticationService implements Interceptor
 
         if ( ctx.getPrincipal() != null )
         {
-            if ( ctx.getEnvironment().containsKey( CREDS ) )
+            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
             {
-                ctx.removeFromEnvironment( CREDS );
+                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             }
             return;
         }
 
-        String authList = ( String ) ctx.getEnvironment().get( AUTH_TYPE );
+        String authList = ( String ) ctx.getEnvironment().get( Context.SECURITY_AUTHENTICATION );
 
         if ( authList == null )
         {
-            if ( ctx.getEnvironment().containsKey( CREDS ) )
+            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
             {
                 // authentication type is simple here
 
@@ -368,7 +369,7 @@ public class AuthenticationService implements Interceptor
 
                 // remove creds so there is no security risk
 
-                ctx.removeFromEnvironment( CREDS );
+                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
                 return;
             }
             catch ( LdapAuthenticationException e )
@@ -382,6 +383,8 @@ public class AuthenticationService implements Interceptor
 
 
     /**
+     * FIXME This doesn't secure anything actually.
+     * 
      * Created this wrapper to pass to ctx.setPrincipal() which is public for added
      * security.  This adds more security because an instance of this class is not
      * easily accessible whereas LdapPrincipals can be accessed easily from a context

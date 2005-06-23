@@ -67,23 +67,29 @@ public final class LdapPrincipal implements Principal, Serializable
 
     /**
      * Gets a cloned copy of the normalized distinguished name of this
-     * principal as a JNDI Name.  It must be cloned to protect this Principal
-     * from alteration.
+     * principal as a JNDI {@link Name}.
      *
-     * @return the normalized distinguished name of the principal as a JNDI Name
+     * @return the normalized distinguished name of the principal as a JNDI {@link Name}
      */
-    public Name getDn()
+    public Name getJndiName()
     {
         return ( Name ) name.clone();
     }
 
 
     /**
-     * Gets the normalized distinguished name of the principal as a String.
-     *
-     * @see Principal#getName()
+     * Returns the normalized distinguished name of the principal as a String.
      */
     public String getName()
+    {
+        return name.toString();
+    }
+    
+    /**
+     * Returns string representation of the normalized distinguished name
+     * of this principal.
+     */
+    public String toString()
     {
         return name.toString();
     }

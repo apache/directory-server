@@ -103,7 +103,7 @@ public class AuthorizationService extends BaseInterceptor
 
     public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        Name principalDn = getPrincipal().getDn();
+        Name principalDn = getPrincipal().getJndiName();
 
         if ( name.toString().equals( "" ) )
         {
@@ -186,7 +186,7 @@ public class AuthorizationService extends BaseInterceptor
 
     private void protectModifyAlterations( Name dn ) throws LdapNoPermissionException
     {
-        Name principalDn = getPrincipal().getDn();
+        Name principalDn = getPrincipal().getJndiName();
 
         if ( dn.toString().equals( "" ) )
         {
@@ -259,7 +259,7 @@ public class AuthorizationService extends BaseInterceptor
 
     private void protectDnAlterations( Name dn ) throws LdapNoPermissionException
     {
-        Name principalDn = getPrincipal().getDn();
+        Name principalDn = getPrincipal().getJndiName();
 
         if ( dn.toString().equals( "" ) )
         {
@@ -325,7 +325,7 @@ public class AuthorizationService extends BaseInterceptor
     {
         LdapContext ctx =
             ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
-        Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getDn();
+        Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
 
         if ( !principalDn.equals( ADMIN_DN ) )
         {
@@ -428,7 +428,7 @@ public class AuthorizationService extends BaseInterceptor
             dn = dnParser.parse( result.getName() );
         }
 
-        Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getDn();
+        Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
         if ( !principalDn.equals( ADMIN_DN ) )
         {
             if ( dn.size() > 2 )
