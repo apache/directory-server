@@ -50,12 +50,12 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         return this.provider.getPartitionNexus().getLdapContext();
     }
 
-    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg )
     {
         throw new IllegalStateException();
     }
 
-    public void destroy() throws NamingException
+    public void destroy()
     {
         throw new IllegalStateException();
     }
@@ -65,7 +65,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         return this.provider.getPartitionNexus().getSystemPartition();
     }
 
-    public Name getSuffix( boolean normalized )
+    public Name getSuffix( boolean normalized ) throws NamingException
     {
         return this.provider.getPartitionNexus().getSuffix( normalized );
     }

@@ -418,7 +418,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
      * BackendNexus.
      * @throws ConfigurationException 
      */
-    private void register( ContextPartition partition ) throws ConfigurationException
+    private void register( ContextPartition partition ) throws NamingException
     {
         String key = partition.getSuffix( true ).toString();
         if( partitions.containsKey( key ) )
@@ -444,7 +444,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
      * @param partition ContextPartition component to unregister with this
      * BackendNexus.
      */
-    private void unregister( ContextPartition partition )
+    private void unregister( ContextPartition partition ) throws NamingException
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.remove( partition.getSuffix( false ).toString() );
@@ -653,7 +653,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     /**
      * @see ContextPartition#isSuffix(javax.naming.Name)
      */
-    public boolean isSuffix( Name dn ) throws NamingException
+    public boolean isSuffix( Name dn )
     {
         return partitions.containsKey( dn.toString() );
     }

@@ -303,7 +303,14 @@ public class MainFrame extends JFrame
             {
                 System.out.println( "action command = " 
                     + an_event.getActionCommand() );
-				doFilterDialog( an_event.getActionCommand() );
+                try
+                {
+                    doFilterDialog( an_event.getActionCommand() );
+                }
+                catch( NamingException e )
+                {
+                    e.printStackTrace();
+                }
             }
         };
 
@@ -388,7 +395,7 @@ public class MainFrame extends JFrame
      * @return the DN of the selected tree node or the root Dn of the tree if 
      * nothing has been selected yet.
      */
-    public String getSelectedDn()
+    public String getSelectedDn() throws NamingException
     {
         TreePath path = tree.getSelectionModel().getSelectionPath();
         
@@ -549,7 +556,7 @@ public class MainFrame extends JFrame
     }
 
 
-    public void doFilterDialog( final String mode )
+    public void doFilterDialog( final String mode ) throws NamingException
     {
         final FilterDialog dialog = new FilterDialog( mode, this, true );
 

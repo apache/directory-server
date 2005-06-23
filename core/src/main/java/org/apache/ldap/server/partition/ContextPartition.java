@@ -60,8 +60,6 @@ public interface ContextPartition
     /**
      * Closes or shuts down this ContextPartition.  Operations against closed
      * ContextPartitions will fail.
-     *
-     * @throws NamingException if there are problems shutting down
      */
     void destroy() throws NamingException;
 
@@ -88,7 +86,7 @@ public interface ContextPartition
      * @return Name representing the distinguished/absolute name of this
      * ContextPartitions root context.
      */
-    Name getSuffix( boolean normalized ) ;
+    Name getSuffix( boolean normalized ) throws NamingException;
 
     
     /**
@@ -184,10 +182,10 @@ public interface ContextPartition
     Attributes lookup( Name name ) throws NamingException;
 
     /**
-     * Looks up an entry by distinguished name.  This is a simplified version
-     * of the search operation used to point read an entry used for convenience
-     * with a set of attributes to return.  If the attributes are null or emty
-     * this defaults to the lookup opertion without the attributes.
+     * Looks up an entry by distinguished/absolute name.  This is a simplified
+     * version of the search operation used to point read an entry used for
+     * convenience with a set of attributes to return.  If the attributes is
+     * null or empty, the returned entry will contain all attributes.
      *
      * @param dn the normalized distinguished name of the object to lookup
      * @param attrIds the set of attributes to return
