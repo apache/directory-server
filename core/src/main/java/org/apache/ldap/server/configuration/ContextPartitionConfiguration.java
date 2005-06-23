@@ -59,11 +59,19 @@ public class ContextPartitionConfiguration
     {
     }
     
+    /**
+     * Returns user-defined name of the {@link ContextPartition} that
+     * this configuration configures.
+     */
     public String getName()
     {
         return name;
     }
     
+    /**
+     * Sets user-defined name of the {@link ContextPartition} that
+     * this configuration configures.
+     */
     protected void setName( String name )
     {
         // TODO name can be a directory name.
@@ -71,11 +79,17 @@ public class ContextPartitionConfiguration
         this.name = name;
     }
 
+    /**
+     * Returns the set of attribute type strings to create an index on.
+     */
     public Set getIndexedAttributes()
     {
         return ConfigurationUtil.getClonedSet( indexedAttributes );
     }
     
+    /**
+     * Sets the set of attribute type strings to create an index on.
+     */
     protected void setIndexedAttributes( Set indexedAttributes )
     {
         Set newIndexedAttributes = ConfigurationUtil.getTypeSafeSet(
@@ -91,11 +105,17 @@ public class ContextPartitionConfiguration
         this.indexedAttributes = newIndexedAttributes;
     }
     
+    /**
+     * Returns the {@link ContextPartition} that this configuration configures.
+     */
     public ContextPartition getContextPartition()
     {
         return contextPartition;
     }
     
+    /**
+     * Sets the {@link ContextPartition} that this configuration configures.
+     */
     protected void setContextPartition( ContextPartition partition )
     {
         if( partition == null )
@@ -105,31 +125,51 @@ public class ContextPartitionConfiguration
         this.contextPartition = partition;
     }
     
+    /**
+     * Returns root entry that will be added to the {@link ContextPartition}
+     * after it is initialized.
+     */
     public Attributes getContextEntry()
     {
         return ( Attributes ) contextEntry.clone();
     }
     
+    /**
+     * Sets root entry that will be added to the {@link ContextPartition}
+     * after it is initialized.
+     */
     protected void setContextEntry( Attributes rootEntry )
     {
         this.contextEntry = ( Attributes ) rootEntry.clone();
     }
     
+    /**
+     * Returns the suffix of the {@link ContextPartition}.
+     */
     public String getSuffix()
     {
         return suffix;
     }
     
+    /**
+     * Returns the normalized suffix of the {@link ContextPartition}.
+     */
     public Name getNormalizedSuffix( MatchingRuleRegistry matchingRuleRegistry ) throws NamingException
     {
         return getNormalizedSuffix( matchingRuleRegistry.lookup( "distinguishedNameMatch" ).getNormalizer() );
     }
     
+    /**
+     * Returns the normalized suffix of the {@link ContextPartition}.
+     */
     public Name getNormalizedSuffix( Normalizer normalizer ) throws NamingException
     {
         return new LdapName( normalizer.normalize( suffix ).toString() );
     }
     
+    /**
+     * Sets the suffix of the {@link ContextPartition}.
+     */
     protected void setSuffix( String suffix )
     {
         suffix = suffix.trim();

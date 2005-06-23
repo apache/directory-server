@@ -31,30 +31,52 @@ public class InterceptorConfiguration
     private String name;
     private Interceptor interceptor;
 
+    /**
+     * Creates a new instance.
+     */
     protected InterceptorConfiguration()
     {
     }
 
+    /**
+     * Returns the {@link Interceptor} that this configuration
+     * configures.
+     */
     public Interceptor getInterceptor()
     {
         return interceptor;
     }
 
+    /**
+     * Sets the {@link Interceptor} that this configuration
+     * configures.
+     */
     protected void setInterceptor( Interceptor authenticator )
     {
         this.interceptor = authenticator;
     }
 
+    /**
+     * Returns the name of the {@link Interceptor}.
+     */
     public String getName()
     {
         return name;
     }
 
+    /**
+     * Sets the name of the {@link Interceptor}.
+     */
     protected void setName( String name )
     {
         this.name = name.trim();
     }
 
+    /**
+     * Validates this configuration.
+     *
+     * @throws ConfigurationException if this configuration is not valid.
+     */
     public void validate()
     {
         if( name == null )

@@ -23,7 +23,7 @@ import java.util.Hashtable;
 
 /**
  * A configuration that provides required, optional, or default properties
- * to configure ApacheDS.
+ * to configure context factory.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -54,9 +54,8 @@ public abstract class Configuration implements Cloneable, Serializable
     }
 
     /**
-     * Valids this configuration.
-     * 
-     * @throws ConfigurationException if this configuration is invalid
+     * Validates this configuration.
+     * @throws ConfigurationException if this configuration is not valid
      */
     public void validate()
     {
@@ -73,7 +72,7 @@ public abstract class Configuration implements Cloneable, Serializable
         env.put( JNDI_KEY, this );
         return env;
     }
-    
+
     public Object clone()
     {
         try

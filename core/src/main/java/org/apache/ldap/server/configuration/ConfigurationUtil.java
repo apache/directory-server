@@ -111,6 +111,10 @@ class ConfigurationUtil
         return newSet;
     }
 
+    /**
+     * Throws a {@link ConfigurationException} if the specified port number
+     * is out of range.
+     */
     static void validatePortNumber( int port )
     {
         if( port < 0 || port > 65535 )

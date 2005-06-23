@@ -30,6 +30,9 @@ public class MutableInterceptorConfiguration extends
         InterceptorConfiguration
 {
 
+    /**
+     * Creates a new instance.
+     */
     public MutableInterceptorConfiguration()
     {
     }

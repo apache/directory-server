@@ -32,6 +32,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
 {
     private static final long serialVersionUID = -987437370955222007L;
 
+    /**
+     * Creates a new instance.
+     */
     public MutableStartupConfiguration()
     {
     }
