@@ -100,15 +100,16 @@ class ConfigurationUtil
     /**
      * Returns the deep clone of the specified {@link Attributes} set.
      */
-    static Set getClonedAttributesSet( Set set )
+    static List getClonedAttributesList( List list )
     {
-        Set newSet = new HashSet();
-        Iterator i = set.iterator();
-        while( i.hasNext() )
+        ArrayList newList = new ArrayList();
+
+        for( int ii = 0; ii < list.size(); ii++ )
         {
-            newSet.add( ( ( Attributes ) i.next() ).clone() );
+            newList.add( ( Attributes ) list.get( ii ) );
         }
-        return newSet;
+
+        return newList;
     }
 
     static void validatePortNumber( int port )

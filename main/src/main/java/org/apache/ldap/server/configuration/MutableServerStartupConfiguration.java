@@ -65,7 +65,7 @@ public class MutableServerStartupConfiguration extends
         super.setInterceptorConfigurations( arg0 );
     }
 
-    public void setTestEntries( Set arg0 )
+    public void setTestEntries( List arg0 )
     {
         super.setTestEntries( arg0 );
     }

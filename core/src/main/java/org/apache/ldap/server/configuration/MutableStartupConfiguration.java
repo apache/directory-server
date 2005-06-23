@@ -61,7 +61,7 @@ public class MutableStartupConfiguration extends StartupConfiguration
         super.setInterceptorConfigurations( interceptorConfigurations );
     }
 
-    public void setTestEntries( Set testEntries )
+    public void setTestEntries( List testEntries )
     {
         super.setTestEntries( testEntries );
     }

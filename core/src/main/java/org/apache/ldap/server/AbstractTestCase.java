@@ -22,9 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
+import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -84,7 +82,7 @@ public abstract class AbstractTestCase extends TestCase
     protected MutableStartupConfiguration configuration = new MutableStartupConfiguration();
 
     /** A testEntries of entries as Attributes to add to the DIT for testing */
-    protected Set testEntries = new HashSet();
+    protected List testEntries = new ArrayList();
 
     /** An optional LDIF file path if set and present is read to add more test entries */
     private String ldifPath;
