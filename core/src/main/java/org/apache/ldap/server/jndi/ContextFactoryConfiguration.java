@@ -26,49 +26,54 @@ import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
-/** FIXME Rename to ContextFactoryContext */
+/**
+ * Represents the global configuration of currently running
+ * {@link ContextFactoryService}.  You can access all properties of
+ * {@link ContextFactoryService} and get JNDI {@link Context}s it provides
+ * via this interface.
+ */
 public interface ContextFactoryConfiguration
 {
     /**
-     * Returns the initial context environment of this context factory.
+     * Returns the initial context environment of the {@link ContextFactoryService}.
      */
     Hashtable getEnvironment();
     
     /**
-     * Returns the startup configuration of this context factory.
+     * Returns the startup configuration of the {@link ContextFactoryService}.
      */
-    StartupConfiguration getConfiguration();
+    StartupConfiguration getStartupConfiguration();
     
     /**
-     * Returns the registries for system schema objects
+     * Returns the registries for system schema objects of the {@link ContextFactoryService}.
      */
     GlobalRegistries getGlobalRegistries();
 
     /**
-     * Returns the root nexus of this context factory.
+     * Returns the {@link ContextPartitionNexus} of the {@link ContextFactoryService}.
      */
     ContextPartitionNexus getPartitionNexus();
     
     /**
-     * Returns the interceptor chain of this context factory
+     * Returns the interceptor chain of the {@link ContextFactoryService}.
      */
     InterceptorChain getInterceptorChain();
     
     /**
-     * Returns <tt>true</tt> if this context is started for the first time
-     * and bootstrap entries have been created.
+     * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>
+     * @throws NamingException if failed to create a context
      */
-    boolean isFirstStart();
+    Context getJndiContext( String baseName ) throws NamingException;
     
     /**
-     * Returns <tt>true</tt> if this context is started.
+     * Returns a JNDI {@link Context} with the specified authentication information
+     * (<tt>principal</tt>, <tt>credential</tt>, and <tt>authentication</tt>) and
+     * <tt>baseName</tt>.
+     * 
+     * @param principal {@link Context#SECURITY_PRINCIPAL} value
+     * @param credential {@link Context#SECURITY_CREDENTIALS} value
+     * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
+     * @throws NamingException if failed to create a context
      */
-    boolean isStarted();
-    
-    Context getJndiContext( String rootDN ) throws NamingException;
-    Context getJndiContext( String principal, byte[] credential, String authentication, String rootDN ) throws NamingException;
-
-    void sync() throws NamingException;
-    
-    void shutdown() throws NamingException;
+    Context getJndiContext( String principal, byte[] credential, String authentication, String baseName ) throws NamingException;
 }

@@ -137,7 +137,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         initializeSystemPartition( factoryCfg );
         initializedPartitions.add( system );
         
-        Iterator i = factoryCfg.getConfiguration().getContextPartitionConfigurations().iterator();
+        Iterator i = factoryCfg.getStartupConfiguration().getContextPartitionConfigurations().iterator();
         try
         {
             while( i.hasNext() )
@@ -240,7 +240,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     }
 
 
-    public synchronized void destroy() throws NamingException
+    public synchronized void destroy()
     {
         if ( !initialized )
         {
@@ -285,8 +285,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             NamingException total = new NamingException( msg );
 
             total.setRootCause( error );
-
-            throw total;
+            total.printStackTrace();
         }
     }
 

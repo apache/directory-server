@@ -30,66 +30,83 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 
+/**
+ * A decorator that wraps other {@link ContextPartitionNexus} to enable
+ * {@link InterceptorChain} and {@link InvocationStack} support.
+ * All {@link Invocation}s made to this nexus is automatically pushed to
+ * {@link InvocationStack} of the current thread, and popped when
+ * the operation ends.  All invocations are filtered by {@link InterceptorChain}.
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 class ContextPartitionNexusProxy extends ContextPartitionNexus
 {
-    private final Context target;
-    private final ContextFactoryConfiguration provider;
+    private final Context caller;
+    private final ContextFactoryService service;
+    private final ContextFactoryConfiguration configuration;
 
-    ContextPartitionNexusProxy( Context target, ContextFactoryConfiguration provider )
+    /**
+     * Creates a new instance.
+     * 
+     * @param caller a JNDI {@link Context} object that will call this proxy
+     * @param service a JNDI service
+     */
+    ContextPartitionNexusProxy( Context caller, ContextFactoryService service )
     {
-        this.target = target;
-        this.provider = provider;
+        this.caller = caller;
+        this.service = service;
+        this.configuration = service.getConfiguration();
     }
     
     public LdapContext getLdapContext() {
-        return this.provider.getPartitionNexus().getLdapContext();
+        return this.configuration.getPartitionNexus().getLdapContext();
     }
 
     public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg )
     {
-        throw new IllegalStateException();
     }
 
     public void destroy()
     {
-        throw new IllegalStateException();
     }
 
     public ContextPartition getSystemPartition()
     {
-        return this.provider.getPartitionNexus().getSystemPartition();
+        return this.configuration.getPartitionNexus().getSystemPartition();
     }
 
     public Name getSuffix( boolean normalized ) throws NamingException
     {
-        return this.provider.getPartitionNexus().getSuffix( normalized );
+        return this.configuration.getPartitionNexus().getSuffix( normalized );
     }
 
     public void sync() throws NamingException {
-        this.provider.sync();
+        this.service.sync();
     }
 
     public void close() throws NamingException {
-        this.provider.shutdown();
+        this.service.shutdown();
     }
 
     public boolean isInitialized() {
-        return this.provider.isStarted();
+        return this.service.isStarted();
     }
 
     public Name getMatchedDn(Name dn, boolean normalized) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "getMatchedDn",
+                caller, "getMatchedDn",
                 new Object[] { dn, normalized? Boolean.TRUE : Boolean.FALSE } ) );
         try
         {
-            return this.provider.getInterceptorChain().getMatchedDn( dn, normalized );
+            return this.configuration.getInterceptorChain().getMatchedDn( dn, normalized );
         }
         finally
         {
@@ -100,11 +117,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public Name getSuffix(Name dn, boolean normalized) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "getSuffix",
+                caller, "getSuffix",
                 new Object[] { dn, normalized? Boolean.TRUE : Boolean.FALSE } ) );
         try
         {
-            return this.provider.getInterceptorChain().getSuffix( dn, normalized );
+            return this.configuration.getInterceptorChain().getSuffix( dn, normalized );
         }
         finally
         {
@@ -115,11 +132,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public Iterator listSuffixes(boolean normalized) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "listSuffixes",
+                caller, "listSuffixes",
                 new Object[] { normalized? Boolean.TRUE : Boolean.FALSE } ) );
         try
         {
-            return this.provider.getInterceptorChain().listSuffixes( normalized );
+            return this.configuration.getInterceptorChain().listSuffixes( normalized );
         }
         finally
         {
@@ -130,11 +147,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public void delete(Name name) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "delete",
+                caller, "delete",
                 new Object[] { name } ) );
         try
         {
-            this.provider.getInterceptorChain().delete( name );
+            this.configuration.getInterceptorChain().delete( name );
         }
         finally
         {
@@ -145,11 +162,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public void add(String upName, Name normName, Attributes entry) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "add",
+                caller, "add",
                 new Object[] { upName, normName, entry } ) );
         try
         {
-            this.provider.getInterceptorChain().add( upName, normName, entry );
+            this.configuration.getInterceptorChain().add( upName, normName, entry );
         }
         finally
         {
@@ -161,11 +178,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         InvocationStack stack = InvocationStack.getInstance();
         // TODO Use predefined modOp Interger constants.
         stack.push( new Invocation(
-                target, "modify",
+                caller, "modify",
                 new Object[] { name, new Integer( modOp ), mods } ) );
         try
         {
-            this.provider.getInterceptorChain().modify( name, modOp, mods );
+            this.configuration.getInterceptorChain().modify( name, modOp, mods );
         }
         finally
         {
@@ -176,11 +193,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public void modify(Name name, ModificationItem[] mods) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "modify",
+                caller, "modify",
                 new Object[] { name, mods } ) );
         try
         {
-            this.provider.getInterceptorChain().modify( name, mods );
+            this.configuration.getInterceptorChain().modify( name, mods );
         }
         finally
         {
@@ -191,11 +208,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public NamingEnumeration list(Name base) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "list",
+                caller, "list",
                 new Object[] { base } ) );
         try
         {
-            return this.provider.getInterceptorChain().list( base );
+            return this.configuration.getInterceptorChain().list( base );
         }
         finally
         {
@@ -206,11 +223,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public NamingEnumeration search(Name base, Map env, ExprNode filter, SearchControls searchCtls) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "search",
+                caller, "search",
                 new Object[] { base, env, filter, searchCtls } ) );
         try
         {
-            return this.provider.getInterceptorChain().search( base, env, filter, searchCtls );
+            return this.configuration.getInterceptorChain().search( base, env, filter, searchCtls );
         }
         finally
         {
@@ -221,11 +238,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public Attributes lookup(Name name) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "lookup",
+                caller, "lookup",
                 new Object[] { name } ) );
         try
         {
-            return this.provider.getInterceptorChain().lookup( name );
+            return this.configuration.getInterceptorChain().lookup( name );
         }
         finally
         {
@@ -236,11 +253,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public Attributes lookup(Name dn, String[] attrIds) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "lookup",
+                caller, "lookup",
                 new Object[] { dn, attrIds } ) );
         try
         {
-            return this.provider.getInterceptorChain().lookup( dn, attrIds );
+            return this.configuration.getInterceptorChain().lookup( dn, attrIds );
         }
         finally
         {
@@ -251,11 +268,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public boolean hasEntry(Name name) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "hasEntry",
+                caller, "hasEntry",
                 new Object[] { name } ) );
         try
         {
-            return this.provider.getInterceptorChain().hasEntry( name );
+            return this.configuration.getInterceptorChain().hasEntry( name );
         }
         finally
         {
@@ -266,11 +283,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public boolean isSuffix(Name name) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "isSuffix",
+                caller, "isSuffix",
                 new Object[] { name } ) );
         try
         {
-            return this.provider.getInterceptorChain().isSuffix( name );
+            return this.configuration.getInterceptorChain().isSuffix( name );
         }
         finally
         {
@@ -281,11 +298,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public void modifyRn(Name name, String newRn, boolean deleteOldRn) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "modifyRn",
+                caller, "modifyRn",
                 new Object[] { name, newRn, deleteOldRn? Boolean.TRUE : Boolean.FALSE } ) );
         try
         {
-            this.provider.getInterceptorChain().modifyRn( name, newRn, deleteOldRn );
+            this.configuration.getInterceptorChain().modifyRn( name, newRn, deleteOldRn );
         }
         finally
         {
@@ -296,11 +313,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public void move(Name oriChildName, Name newParentName) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "move",
+                caller, "move",
                 new Object[] { oriChildName, newParentName } ) );
         try
         {
-            this.provider.getInterceptorChain().move( oriChildName, newParentName );
+            this.configuration.getInterceptorChain().move( oriChildName, newParentName );
         }
         finally
         {
@@ -311,11 +328,11 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public void move(Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn) throws NamingException {
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
-                target, "move",
+                caller, "move",
                 new Object[] { oriChildName, newParentName, newRn, deleteOldRn? Boolean.TRUE : Boolean.FALSE } ) );
         try
         {
-            this.provider.getInterceptorChain().move( oriChildName, newParentName, newRn, deleteOldRn );
+            this.configuration.getInterceptorChain().move( oriChildName, newParentName, newRn, deleteOldRn );
         }
         finally
         {
@@ -326,10 +343,10 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     public Attributes getRootDSE() throws NamingException
     {
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation( target, "getRootDSE" ) );
+        stack.push( new Invocation( caller, "getRootDSE" ) );
         try
         {
-            return this.provider.getInterceptorChain().getRootDSE();
+            return this.configuration.getInterceptorChain().getRootDSE();
         }
         finally
         {

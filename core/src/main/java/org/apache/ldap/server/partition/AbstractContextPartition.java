@@ -93,9 +93,9 @@ public abstract class AbstractContextPartition implements ContextPartition
     /**
      * Calls {@link #doDestroy()} where you have to put your destroy code in,
      * and clears default properties.  Once this method is invoked, {@link #isInitialized()}
-     * will return <tt>false</tt> even if {@link #doDestroy()} failed.
+     * will return <tt>false</tt>.
      */
-    public final void destroy() throws NamingException
+    public final void destroy()
     {
         if( cfg == null )
         {
@@ -118,7 +118,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     /**
      * Override this method to put your initialization code.
      */
-    protected void doDestroy() throws NamingException
+    protected void doDestroy()
     {
     }
 

@@ -48,15 +48,14 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 
 
 /**
- * Provides everything required to {@link AbstractContextFactory}.
- * FIXME Rename to DefaultContextFactoryContext
+ * Default implementation of {@link ContextFactoryService}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
+class DefaultContextFactoryService implements ContextFactoryService, ContextFactoryConfiguration
 {
-    private AbstractContextFactory factory;
+    private ContextFactoryServiceListener listener;
     
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable environment;
@@ -73,7 +72,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     /** whether or not server is started for the first time */
     private boolean firstStart;
 
-    /** The interceptor (or interceptor chain) for this provider */
+    /** The interceptor (or interceptor chain) for this service */
     private InterceptorChain interceptorChain;
     
     /** whether or not this instance has been shutdown */
@@ -87,7 +86,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     /**
      * Creates a new instance.
      */
-    public DefaultContextFactoryConfiguration()
+    public DefaultContextFactoryService()
     {
         // Register shutdown hook.
         Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
@@ -148,7 +147,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return new ServerLdapContext( this, environment );
     }
 
-    public synchronized void startup( AbstractContextFactory factory, Hashtable env ) throws NamingException
+    public synchronized void startup( ContextFactoryServiceListener listener, Hashtable env ) throws NamingException
     {
         if( started )
         {
@@ -173,18 +172,18 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         this.environment = env;
         this.configuration = cfg;
         
-        factory.beforeStartup( this );
+        listener.beforeStartup( this );
         try
         {
             initialize();
             firstStart = createBootstrapEntries();
             createTestEntries();
-            this.factory = factory;
+            this.listener = listener;
             started = true;
         }
         finally
         {
-            factory.afterStartup( this );
+            listener.afterStartup( this );
         }
     }
 
@@ -195,14 +194,14 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             return;
         }
 
-        factory.beforeSync( this );
+        listener.beforeSync( this );
         try
         {
             this.partitionNexus.sync();
         }
         finally
         {
-            factory.afterSync( this );
+            listener.afterSync( this );
         }
     }
 
@@ -214,7 +213,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             return;
         }
 
-        factory.beforeShutdown( this );
+        listener.beforeShutdown( this );
         try
         {
             this.partitionNexus.sync();
@@ -227,7 +226,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
             environment = null;
             interceptorChain = null;
             configuration = null;
-            factory.afterShutdown( this );
+            listener.afterShutdown( this );
         }
     }
     
@@ -237,7 +236,12 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return ( Hashtable ) environment.clone();
     }
     
-    public StartupConfiguration getConfiguration()
+    public ContextFactoryConfiguration getConfiguration()
+    {
+        return this;
+    }
+    
+    public StartupConfiguration getStartupConfiguration()
     {
         return configuration;
     }

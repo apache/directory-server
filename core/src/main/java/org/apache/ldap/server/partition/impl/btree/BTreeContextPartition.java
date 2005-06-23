@@ -299,7 +299,7 @@ public abstract class BTreeContextPartition implements ContextPartition
 
 
     public abstract void sync() throws NamingException;
-    public abstract void destroy() throws NamingException;
+    public abstract void destroy();
     public abstract boolean isInitialized();
 
     public boolean isSuffix( Name dn ) throws NamingException

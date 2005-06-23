@@ -31,7 +31,7 @@ import javax.naming.spi.DirObjectFactory;
  * looks up the most specific object factory based on this additional
  * information.  This makes a huge difference when the number of ObjectFactory
  * instances is large.
- * <br/>
+ * <p/>
  * Eventually, it is highly feasible for generated schemas, to also include
  * state and object factories for various objectClasses, or domain objects.
  * This means the number of factories will increase.  By associating object and

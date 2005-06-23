@@ -32,7 +32,7 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * An Eve implementation of a JNDI LdapContext.
+ * An implementation of a JNDI LdapContext.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -48,13 +48,13 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     /**
      * Creates an instance of an ServerLdapContext.
      *
-     * @param nexusProxy the proxy to a partition nexus
+     * @param service the parent service that manages this context
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( ContextFactoryConfiguration cfg, Hashtable env ) throws NamingException
+    public ServerLdapContext( ContextFactoryService service, Hashtable env ) throws NamingException
     {
-        super( cfg, env );
+        super( service, env );
     }
 
 

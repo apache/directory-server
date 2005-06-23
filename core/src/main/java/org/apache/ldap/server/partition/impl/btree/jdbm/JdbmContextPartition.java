@@ -118,7 +118,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         this.normSuffix = cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() );
 
         File workingDirectory = new File(
-                factoryCfg.getConfiguration().getWorkingDirectory().getPath() +
+                factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath() +
                 File.separator + cfg.getName() );
         
         workingDirectory.mkdirs();
@@ -149,7 +149,7 @@ public class JdbmContextPartition extends BTreeContextPartition
     }
     
     
-    public synchronized void destroy() throws NamingException
+    public synchronized void destroy()
     {
         if ( !initialized )
         {
@@ -250,7 +250,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         {
             NamingException ne = new NamingException( "Failed to close all" );
             ne.setRootCause( rootCause );
-            throw ne;
+            ne.printStackTrace();
         }
     }
 

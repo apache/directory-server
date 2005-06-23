@@ -67,13 +67,13 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * Creates a new ServerDirContext by reading the PROVIDER_URL to resolve the
      * distinguished name for this context.
      *
-     * @param nexusProxy the proxy to the backend nexus
+     * @param service the parent service that manages this context
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext( ContextFactoryConfiguration cfg, Hashtable env ) throws NamingException
+    public ServerDirContext( ContextFactoryService service, Hashtable env ) throws NamingException
     {
-        super( cfg, env );
+        super( service, env );
     }
 
 

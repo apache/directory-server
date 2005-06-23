@@ -23,7 +23,7 @@ import javax.naming.spi.InitialContextFactory;
 /**
  * A simplistic implementation of {@link AbstractContextFactory}.
  * This class simply extends {@link AbstractContextFactory} and leaves all
- * abstract hook methods as empty.
+ * abstract event listener methods as empty.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -40,42 +40,42 @@ public class CoreContextFactory extends AbstractContextFactory implements Initia
     /**
      * Does nothing by default.
      */
-    protected void beforeStartup( ContextFactoryConfiguration ctx ) throws NamingException
+    public void beforeStartup( ContextFactoryService service ) throws NamingException
     {
     }
 
     /**
      * Does nothing by default.
      */
-    protected void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException
+    public void afterStartup( ContextFactoryService service ) throws NamingException
     {
     }
     
     /**
      * Does nothing by default.
      */
-    protected void beforeShutdown( ContextFactoryConfiguration ctx ) throws NamingException
+    public void beforeShutdown( ContextFactoryService service ) throws NamingException
     {
     }
     
     /**
      * Does nothing by default.
      */
-    protected void afterShutdown( ContextFactoryConfiguration ctx ) throws NamingException
+    public void afterShutdown( ContextFactoryService service ) throws NamingException
     {
     }
     
     /**
      * Does nothing by default.
      */
-    protected void beforeSync( ContextFactoryConfiguration ctx ) throws NamingException
+    public void beforeSync( ContextFactoryService service ) throws NamingException
     {
     }
 
     /**
      * Does nothing by default.
      */
-    protected void afterSync( ContextFactoryConfiguration ctx ) throws NamingException
+    public void afterSync( ContextFactoryService service ) throws NamingException
     {
     }
 }

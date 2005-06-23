@@ -21,9 +21,11 @@ package org.apache.ldap.server.configuration;
 import java.io.Serializable;
 import java.util.Hashtable;
 
+import org.apache.ldap.server.jndi.ContextFactoryService;
+
 /**
  * A configuration that provides required, optional, or default properties
- * to configure context factory.
+ * to configure {@link ContextFactoryService}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

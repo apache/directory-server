@@ -85,15 +85,17 @@ public abstract class ServerContext implements Context
      * referenced name actually exists within the system.  This constructor
      * is used for all InitialContext requests.
      * 
-     * @param nexusProxy the intercepting proxy to the nexus.
+     * @param service the parent service that manages this context
      * @param env the environment properties used by this context.
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext( ContextFactoryConfiguration cfg, Hashtable env ) throws NamingException
+    protected ServerContext( ContextFactoryService service, Hashtable env ) throws NamingException
     {
         // set references to cloned env and the proxy
-        this.nexusProxy = new ContextPartitionNexusProxy( this, cfg );
+        this.nexusProxy = new ContextPartitionNexusProxy( this, service );
+        
+        ContextFactoryConfiguration cfg = service.getConfiguration();
         
         this.env = ( Hashtable ) cfg.getEnvironment().clone();
         this.env.putAll( env );

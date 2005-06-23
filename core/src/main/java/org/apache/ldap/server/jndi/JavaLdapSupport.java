@@ -36,7 +36,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JavaLdapSupport
+class JavaLdapSupport
 {
     // ------------------------------------------------------------------------
     // Attribute Id Constants Used By The Java LDAP BootstrapSchema

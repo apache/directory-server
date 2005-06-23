@@ -198,7 +198,7 @@ public class InterceptorChain
         FINAL_INTERCEPTOR.init( factoryCfg, null );
         
         // And register and initialize all interceptors
-        ListIterator i = factoryCfg.getConfiguration().getInterceptorConfigurations().listIterator();
+        ListIterator i = factoryCfg.getStartupConfiguration().getInterceptorConfigurations().listIterator();
         Interceptor interceptor = null;
         try
         {

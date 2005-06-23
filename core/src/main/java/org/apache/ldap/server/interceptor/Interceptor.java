@@ -100,14 +100,14 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
 public interface Interceptor
 {
     /**
-     * Intializes this interceptor.  This is invoked by context factory
+     * Intializes this interceptor.  This is invoked by {@link InterceptorChain}
      * when this intercepter is loaded into interceptor chain.
      */
     void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException;
 
 
     /**
-     * Deinitializes this interceptor.  This is invoked by context factory
+     * Deinitializes this interceptor.  This is invoked by {@link InterceptorChain}
      * when this intercepter is unloaded from interceptor chain.
      */
     void destroy();

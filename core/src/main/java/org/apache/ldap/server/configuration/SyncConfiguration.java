@@ -18,13 +18,10 @@
  */
 package org.apache.ldap.server.configuration;
 
-import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.jndi.ContextFactoryService;
 
 /**
- * A {@link Configuration} that makes context factory to call
- * {@link ContextPartition#sync()} for all partitions that are registered
- * to {@link ContextPartitionNexus}. 
+ * A {@link Configuration} that makes a call to {@link ContextFactoryService#sync()}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

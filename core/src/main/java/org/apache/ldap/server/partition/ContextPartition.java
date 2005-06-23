@@ -61,7 +61,7 @@ public interface ContextPartition
      * Closes or shuts down this ContextPartition.  Operations against closed
      * ContextPartitions will fail.
      */
-    void destroy() throws NamingException;
+    void destroy();
 
     /**
      * Checks to see if this partition is initialized or not.

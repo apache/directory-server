@@ -37,9 +37,10 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
+import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
@@ -48,10 +49,10 @@ import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**
- * An {@link org.apache.ldap.server.interceptor.Interceptor} that adds or modifies the default attributes
- * of entries. There are four default attributes for now;<code>'creatorsName'
- * </code>, <code>'createTimestamp'</code>, <code>'modifiersName'</code>, and
- * <code>'modifyTimestamp'</code>.
+ * An {@link Interceptor} that adds or modifies the default attributes
+ * of entries. There are four default attributes for now;
+ * <tt>'creatorsName'</tt>, <tt>'createTimestamp'</tt>, <tt>'modifiersName'</tt>,
+ * and <tt>'modifyTimestamp'</tt>.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

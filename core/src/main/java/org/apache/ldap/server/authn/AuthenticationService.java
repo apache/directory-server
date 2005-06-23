@@ -75,7 +75,7 @@ public class AuthenticationService implements Interceptor
         this.factoryCfg = factoryCfg;
 
         // Register all authenticators
-        Iterator i = factoryCfg.getConfiguration().getAuthenticatorConfigurations().iterator();
+        Iterator i = factoryCfg.getStartupConfiguration().getAuthenticatorConfigurations().iterator();
         while( i.hasNext() )
         {
             try
