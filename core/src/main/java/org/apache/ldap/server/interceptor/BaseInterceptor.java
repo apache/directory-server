@@ -20,6 +20,7 @@ package org.apache.ldap.server.interceptor;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -31,34 +32,15 @@ import javax.naming.ldap.LdapContext;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 
 
 /**
- * A easy-to-use implementation of {@link Interceptor} that demultiplexes invocations
- * using method signature overloading.
- * <p/>
- * This {@link Interceptor} forwards received process requests to an appropriate
- * <code>process(NextInterceptor, <em>ConcreteInvocation</em>)</code> methods.  Users
- * can override any <code>process(..)</code> methods that correspond to
- * {@link Invocation} types that he or she wants to filter.
- * <p/>
- * For example, if user wants to filter {@link Add} invocation:
- * <pre>
- * public class MyInterceptor extends BaseInterceptor
- * {
- *     protected void process( NextInterceptor nextInterceptor, Add invocation )
- *     {
- *         nextInterceptor.process( invocation );
- *         System.out.println( "Item added!" );
- *     }
- * }
- * </pre>
- * <code>BaseInterceptor</code> handles all long and tedious if-elseif blocks behind the
- * scenes.
+ * A easy-to-use implementation of {@link Interceptor}.  All methods are
+ * implemented to pass the flow of control to next interceptor by defaults.
+ * Please override the methods you have concern in.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -66,9 +48,7 @@ import org.apache.ldap.server.jndi.ServerContext;
 public abstract class BaseInterceptor implements Interceptor
 {
     /**
-     * Gets the call's current context's Principal.
-     *
-     * @return the principal making the call
+     * Returns {@link LdapPrincipal} of current context.
      */
     public static LdapPrincipal getPrincipal()
     {
@@ -76,22 +56,34 @@ public abstract class BaseInterceptor implements Interceptor
         return ctx.getPrincipal();
     }
     
+    /**
+     * Returns the current JNDI {@link Context}.
+     */
     public static LdapContext getContext()
     {
         return ( LdapContext ) InvocationStack.getInstance().peek().getTarget();
     }
 
 
+    /**
+     * Creates a new instance.
+     */
     protected BaseInterceptor()
     {
     }
 
 
+    /**
+     * This method does nothing by default.
+     */
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
     }
 
 
+    /**
+     * This method does nothing by default.
+     */
     public void destroy()
     {
     }

@@ -40,9 +40,7 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * Manages the chain of {@link Interceptor}s.  <tt>InterceptorChain</tt>
- * is also an {@link Interceptor}, and thus you can create hiararchical
- * interceptor structure to break down complex interceptors.
+ * Manages the chain of {@link Interceptor}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -189,7 +187,8 @@ public class InterceptorChain
 
 
     /**
-     * Initializes all interceptors this chain contains.
+     * Initializes and registers all interceptors according to the specified
+     * {@link ContextFactoryConfiguration}.
      */
     public synchronized void init( ContextFactoryConfiguration factoryCfg ) throws NamingException
     {
@@ -227,7 +226,7 @@ public class InterceptorChain
 
 
     /**
-     * Deinitializes all interceptors this chain contains.
+     * Deinitializes and deregisters all interceptors this chain contains.
      */
     public synchronized void destroy()
     {
@@ -260,8 +259,7 @@ public class InterceptorChain
 
 
     /**
-     * Adds the specified interceptor with the specified name at the end of this chain.
-     * @throws NamingException 
+     * Adds and initializes an interceptor with the specified configuration.
      */
     private void register( InterceptorConfiguration cfg ) throws NamingException
     {
@@ -271,8 +269,7 @@ public class InterceptorChain
 
 
     /**
-     * Removes the interceptor with the specified name from this chain.
-     * @throws ConfigurationException 
+     * Removes and deinitializes the interceptor with the specified configuration.
      */
     private void deregister( InterceptorConfiguration cfg ) throws ConfigurationException
     {

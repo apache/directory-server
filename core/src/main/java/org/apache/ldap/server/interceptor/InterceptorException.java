@@ -17,19 +17,17 @@
 package org.apache.ldap.server.interceptor;
 
 
-import org.apache.ldap.common.exception.LdapException;
-import org.apache.ldap.common.exception.LdapNamingException;
-import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.server.invocation.Invocation;
+import javax.naming.NamingException;
 
 
 /**
- * A {@link LdapNamingException} that wraps uncaught runtime exceptions thrown from {@link Interceptor}s.
+ * A {@link NamingException} that wraps uncaught runtime exceptions thrown
+ * from {@link Interceptor}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class InterceptorException extends LdapNamingException
+public class InterceptorException extends NamingException
 {
     private static final long serialVersionUID = 3258690996517746233L;
 
@@ -46,7 +44,6 @@ public class InterceptorException extends LdapNamingException
      */
     public InterceptorException( Interceptor interceptor )
     {
-        super( ResultCodeEnum.OTHER );
         this.interceptor = interceptor;
     }
 
@@ -59,7 +56,7 @@ public class InterceptorException extends LdapNamingException
      */
     public InterceptorException( Interceptor interceptor, String explanation )
     {
-        super( explanation, ResultCodeEnum.OTHER );
+        super( explanation );
         this.interceptor = interceptor;
     }
 
@@ -100,21 +97,5 @@ public class InterceptorException extends LdapNamingException
     public Interceptor getInterceptor()
     {
         return interceptor;
-    }
-
-
-    /**
-     * Will return the resultCode of the root cause if the root cause implements LdapException.
-     *
-     * @see org.apache.ldap.common.exception.LdapException#getResultCode()
-     */
-    public ResultCodeEnum getResultCode()
-    {
-        if ( getRootCause() != null && ( getRootCause() instanceof LdapException ) )
-        {
-            return ( ( LdapException ) getRootCause() ).getResultCode();
-        }
-
-        return super.getResultCode();
     }
 }

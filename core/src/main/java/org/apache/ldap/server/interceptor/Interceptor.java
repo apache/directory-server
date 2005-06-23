@@ -29,49 +29,51 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.configuration.StartupConfiguration;
-import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * Filters any directory operations.  You can filter any {@link Invocation}
- * performed on {@link ContextPartition}s just like Servlet filters do.
+ * Filters invocations on {@link ContextPartitionNexus}.  {@link Interceptor}
+ * filters most method calls performed on {@link ContextPartitionNexus} just
+ * like Servlet filters do.
  * <p/>
- * <h2>Interceptor Chaining</h2> Interceptors should usually pass the control
- * of current invocation to the next interceptor by calling
- * {@link NextInterceptor#process(Invocation)}. The flow control is returned
- * when the next interceptor's {@link Interceptor#process(NextInterceptor, Invocation)}
- * returns. You can therefore implement pre-, post-, around- invocation handler
- * by how you place the statement.
+ * <h2>Interceptor Chaining</h2>
+ * 
+ * Interceptors should usually pass the control
+ * of current invocation to the next interceptor by calling an appropriate method
+ * on {@link NextInterceptor}.  The flow control is returned when the next 
+ * interceptor's filter method returns. You can therefore implement pre-, post-,
+ * around- invocation handler by how you place the statement.  Otherwise, you
+ * can transform the invocation into other(s).
  * <p/>
  * <h3>Pre-invocation Filtering</h3>
  * <pre>
- * public void process( NextInterceptor nextInterceptor, Invocation invocation )
+ * public void delete( NextInterceptor nextInterceptor, Name name )
  * {
  *     System.out.println( "Starting invocation." );
- *     nextInterceptor.process( invocation );
+ *     nextInterceptor.delete( name );
  * }
  * </pre>
  * <p/>
  * <h3>Post-invocation Filtering</h3>
  * <pre>
- * public void process( NextInterceptor nextInterceptor, Invocation invocation )
+ * public void delete( NextInterceptor nextInterceptor, Name name )
  * {
- *     nextInterceptor.process( invocation );
+ *     nextInterceptor.delete( name );
  *     System.out.println( "Invocation ended." );
  * }
  * </pre>
  * <p/>
  * <h3>Around-invocation Filtering</h3>
  * <pre>
- * public void process( NextInterceptor nextInterceptor, Invocation invocation )
+ * public void delete( NextInterceptor nextInterceptor, Name name )
  * {
  *     long startTime = System.currentTimeMillis();
  *     try
  *     {
- *         nextInterceptor.process( invocation );
+ *         nextInterceptor.delete( name );
  *     }
  *     finally
  *     {
@@ -81,21 +83,15 @@ import org.apache.ldap.server.partition.ContextPartition;
  * }
  * </pre>
  * <p/>
- * <h2>Interceptor Naming Convention</h2>
- * <p/>
- * When you create an implementation of Interceptor, you have to follow the
- * basic class naming convention to avoid others' confusion:
- * <ul>
- *  <li>Class name must be an agent noun or end with <code>Interceptor</code> or
- * <code>Service</code>.</li>
- * </ul>
- * Plus, placing your interceptor implementations into relavent packages like
- * <code>interceptor</code> or ones that reflect its purpose would be a good
- * practice.
- * <p/>
- * <h2>Overriding Default Interceptor Settings</h2>
- * <p/>
- * See {@link StartupConfiguration}.
+ * <h3>Transforming invocations</h3>
+ * <pre>
+ * public void delete( NextInterceptor nextInterceptor, Name name )
+ * {
+ *     // transform deletion into modification.
+ *     Attribute mark = new BasicAttribute( "entryDeleted", "true" );
+ *     nextInterceptor.modify( name, DirContext.REPLACE_ATTRIBUTE, mark );
+ * }
+ * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -104,38 +100,86 @@ import org.apache.ldap.server.partition.ContextPartition;
 public interface Interceptor
 {
     /**
-     * Intializes this interceptor.  This is invoked by directory
-     * service provider when this intercepter is loaded into interceptor chain.
-     *
-     * @param context the configuration properties for this interceptor
-     * @throws NamingException if failed to initialize this interceptor
+     * Intializes this interceptor.  This is invoked by context factory
+     * when this intercepter is loaded into interceptor chain.
      */
     void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException;
 
 
     /**
-     * Deinitializes this interceptor.  This is invoked by directory
-     * service provider when this intercepter is unloaded from interceptor chain.
+     * Deinitializes this interceptor.  This is invoked by context factory
+     * when this intercepter is unloaded from interceptor chain.
      */
     void destroy();
 
+    /**
+     * Filters {@link ContextPartitionNexus#getRootDSE()} call.
+     */
     Attributes getRootDSE( NextInterceptor next ) throws NamingException; 
+    /**
+     * Filters {@link ContextPartitionNexus#getMatchedDn(Name, boolean)} call.
+     */
     Name getMatchedDn( NextInterceptor next, Name dn, boolean normalized ) throws NamingException;
+    /**
+     * Filters {@link ContextPartitionNexus#getSuffix(Name, boolean)} call.
+     */
     Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException;
+    /**
+     * Filters {@link ContextPartitionNexus#listSuffixes(boolean)} call.
+     */
     Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#delete(Name)} call.
+     */
     void delete( NextInterceptor next, Name name ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#add(String, Name, Attributes)} call.
+     */
     void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#modify(Name, int, Attributes)} call.
+     */
     void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#modify(Name, ModificationItem[])} call.
+     */
     void modify( NextInterceptor next, Name name, ModificationItem [] mods ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#list(Name)} call.
+     */
     NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#search(Name, Map, ExprNode, SearchControls)} call.
+     */
     NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
                               SearchControls searchCtls ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#lookup(Name)} call.
+     */
     Attributes lookup( NextInterceptor next, Name name ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#lookup(Name, String[])} call.
+     */
     Attributes lookup( NextInterceptor next, Name dn, String [] attrIds ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#lookup(Name, String[])} call.
+     */
     boolean hasEntry( NextInterceptor next, Name name ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#isSuffix(Name)} call.
+     */
     boolean isSuffix( NextInterceptor next, Name name ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#modifyRn(Name, String, boolean)} call.
+     */
     void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#move(Name, Name)} call.
+     */
     void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException;
+    /**
+     * Filters {@link ContextPartition#move(Name, Name, String, boolean)} call.
+     */
     void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
 }
