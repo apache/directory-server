@@ -222,15 +222,17 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
     /**
-     * This method calls {@link ContextPartition#modifyRn(Name, String, boolean)}
-     * and {@link ContextPartition#move(Name, Name)} subsequently by default.
-     * Please override this method if there is more effactive way for your
-     * implementation.
+     * This method calls {@link ContextPartition#move(Name, Name)} and
+     * {@link ContextPartition#modifyRn(Name, String, boolean)} subsequently
+     * by default.  Please override this method if there is more effactive
+     * way for your implementation.
      */
     public void move( Name oldName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        modifyRn( oldName, newRn, deleteOldRn );
+        Name newName = ( Name ) newParentName.clone();
+        newName.add( newRn );
         move( oldName, newParentName );
+        modifyRn( newName, newRn, deleteOldRn );
     }
 
     /**
