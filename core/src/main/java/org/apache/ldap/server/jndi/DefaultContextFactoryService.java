@@ -125,6 +125,10 @@ class DefaultContextFactoryService implements ContextFactoryService
         }
         
         Hashtable environment = getEnvironment();
+        environment.remove( Context.SECURITY_PRINCIPAL );
+        environment.remove( Context.SECURITY_CREDENTIALS );
+        environment.remove( Context.SECURITY_AUTHENTICATION );
+        
         if( principal != null )
         {
             environment.put( Context.SECURITY_PRINCIPAL, principal );

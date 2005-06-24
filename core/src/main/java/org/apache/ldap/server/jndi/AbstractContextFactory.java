@@ -80,10 +80,10 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         Configuration cfg = Configuration.toConfiguration( env );
         env = ( Hashtable ) env.clone();
         
-        String principal = extractPrincipal( env );
-        byte[] credential = extractCredential( env );
-        String authentication = extractAuthentication( env );
-        String providerUrl = extractProviderUrl( env );
+        String principal = getPrincipal( env );
+        byte[] credential = getCredential( env );
+        String authentication = getAuthentication( env );
+        String providerUrl = getProviderUrl( env );
 
         // Execute configuration
         if( cfg instanceof ShutdownConfiguration )
@@ -106,11 +106,11 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         return service.getConfiguration().getJndiContext( principal, credential, authentication, providerUrl );
     }
 
-    private String extractProviderUrl( Hashtable env )
+    private String getProviderUrl( Hashtable env )
     {
         String providerUrl;
         Object value;
-        value = env.remove( Context.PROVIDER_URL );
+        value = env.get( Context.PROVIDER_URL );
         if( value == null )
         {
             value = "";
@@ -119,10 +119,10 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         return providerUrl;
     }
 
-    private String extractAuthentication( Hashtable env )
+    private String getAuthentication( Hashtable env )
     {
         String authentication;
-        Object value = env.remove( Context.SECURITY_AUTHENTICATION );
+        Object value = env.get( Context.SECURITY_AUTHENTICATION );
         if( value == null )
         {
             authentication = "none";
@@ -134,10 +134,10 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         return authentication;
     }
 
-    private byte[] extractCredential( Hashtable env ) throws ConfigurationException
+    private byte[] getCredential( Hashtable env ) throws ConfigurationException
     {
         byte[] credential;
-        Object value = env.remove( Context.SECURITY_CREDENTIALS );
+        Object value = env.get( Context.SECURITY_CREDENTIALS );
         if( value == null )
         {
             credential = null;
@@ -157,10 +157,10 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         return credential;
     }
 
-    private String extractPrincipal( Hashtable env )
+    private String getPrincipal( Hashtable env )
     {
         String principal;
-        Object value = env.remove( Context.SECURITY_PRINCIPAL );
+        Object value = env.get( Context.SECURITY_PRINCIPAL );
         if( value == null )
         {
             principal = null;
