@@ -182,7 +182,6 @@ public interface Table
      *
      * @param key the key to use for the values
      * @param values the values supplied as an enumeration
-     * @return TODO
      * @throws NamingException if something goes wrong
      */
     Object put( Object key, NamingEnumeration values ) throws NamingException;
@@ -191,7 +190,6 @@ public interface Table
      * Removes all records with key from this Table.
      *
      * @param key the key of the records to remove
-     * @return TODO
      * @throws NamingException if there is a failure to read or write to
      * the underlying Db
      */
@@ -202,7 +200,6 @@ public interface Table
      *
      * @param key the key of the record to remove
      * @param value the value of the record to remove
-     * @return TODO
      * @throws NamingException if there is a failure to read or write to
      * the underlying Db
      */
@@ -219,8 +216,6 @@ public interface Table
      * duplicates.
      *
      * @param key the key of the records to remove
-     * @param values TODO
-     * @return TODO
      * @throws NamingException if there is a failure to read or write to
      * the underlying Db
      */
@@ -237,7 +232,6 @@ public interface Table
      * of the key.
      * 
      * @param key the key to iterate over
-     * @return TODO
      * @throws NamingException if the underlying browser could not be set
      */
     NamingEnumeration listValues( Object key ) throws NamingException;
@@ -252,7 +246,6 @@ public interface Table
      * Sets a cursor to the first record in the Table and enables single
      * next steps across all records.
      *
-     * @return TODO
      * @throws NamingException if the underlying cursor could not be set.
      */
     NamingEnumeration listTuples() throws NamingException;
@@ -263,7 +256,6 @@ public interface Table
      * this key.  This cursor will only iterate over duplicates of the key.
      *
      * @param key the key to iterate over
-     * @return TODO
      * @throws NamingException if the underlying cursor could not be set
      */
     NamingEnumeration listTuples( Object key ) throws NamingException;
@@ -278,7 +270,6 @@ public interface Table
      * @param isGreaterThan if true the cursor iterates up over ascending keys
      * greater than or equal to the key argument, but if false this cursor
      * iterates down over descending keys less than or equal to key argument
-     * @return TODO
      * @throws NamingException if the underlying cursor could not be set
      */
     NamingEnumeration listTuples( Object key, boolean isGreaterThan )
@@ -299,7 +290,6 @@ public interface Table
      * values greater than or equal to the val argument, but if false this 
      * cursor iterates down over descending values less than or equal to val 
      * argument starting from the largest value going down
-     * @return TODO
      * @throws NamingException if the underlying cursor could not be set or
      * this method is called over a cursor on a table that does not have sorted
      * duplicates enabled.

@@ -177,8 +177,6 @@ public class DupsEnumeration implements NamingEnumeration
      * the values held in the TreeSet returned by the underlying enumeration.  
      * The values pulled off of this iterator are put into prefetched. 
      * </p>
-     *
-     * @throws NamingException TODO
      */
     private void prefetch() throws NamingException
     {

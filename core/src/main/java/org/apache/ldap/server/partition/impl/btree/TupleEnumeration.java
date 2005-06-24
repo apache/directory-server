@@ -37,11 +37,8 @@ import javax.naming.NamingEnumeration;
 public class TupleEnumeration
     implements NamingEnumeration
 {
-    /** TODO */
     private final Object key;
-    /** TODO */
     private final Iterator iterator;
-    /** TODO */
     private final Tuple tuple = new Tuple();
 
 

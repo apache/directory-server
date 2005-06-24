@@ -57,10 +57,6 @@ public class NoDupsEnumeration
 
     /**
      * Creates a cursor over a TupleBrowser where duplicates are not expected.
-     *
-     * @param browser TODO
-     * @param doAscendingScan TODO
-     * @throws NamingException TODO
      */
     public NoDupsEnumeration( TupleBrowser browser, boolean doAscendingScan )
         throws NamingException

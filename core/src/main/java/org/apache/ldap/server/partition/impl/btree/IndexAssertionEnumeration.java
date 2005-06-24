@@ -56,13 +56,6 @@ public class IndexAssertionEnumeration
     // ------------------------------------------------------------------------
 
 
-    /**
-     * TODO Domument me!
-     *
-     * @param underlying TODO
-     * @param assertion TODO
-     * @throws NamingException TODO
-     */
     public IndexAssertionEnumeration( NamingEnumeration underlying, 
         IndexAssertion assertion ) throws NamingException
     {
@@ -74,14 +67,6 @@ public class IndexAssertionEnumeration
     }
 
 
-    /**
-     * TODO Domument me!
-     *
-     * @param underlying TODO
-     * @param assertion TODO
-     * @param enableDupCheck TODO
-     * @throws NamingException TODO
-     */
     public IndexAssertionEnumeration( NamingEnumeration underlying,
         IndexAssertion assertion, boolean enableDupCheck )
         throws NamingException
@@ -164,11 +149,6 @@ public class IndexAssertionEnumeration
     // ------------------------------------------------------------------------
 
 
-    /**
-     * TODO Document me!
-     *
-     * @throws NamingException TODO
-     */
     private void prefetch() throws NamingException
     {
         IndexRecord rec = null;

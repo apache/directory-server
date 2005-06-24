@@ -33,15 +33,9 @@ public class KeyOnlyComparator
 {
     private static final long serialVersionUID = 3544956549803161397L;
 
-    /** TODO */
     private SerializableComparator keyComparator = null;
 
 
-    /**
-     * TODO Document me! 
-     *
-     * @param comparator  TODO
-     */
     public KeyOnlyComparator( SerializableComparator comparator )
     {
         keyComparator = comparator;
@@ -62,9 +56,6 @@ public class KeyOnlyComparator
 
     /**
      * Will throw an UnsupportedOperationException every time.
-     *
-     * @return TODO
-     * @throws UnsupportedOperationException every time.
      */
     public SerializableComparator getValueComparator()
     {

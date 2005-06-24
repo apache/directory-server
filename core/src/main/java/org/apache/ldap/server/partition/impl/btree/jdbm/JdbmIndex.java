@@ -92,13 +92,6 @@ public class JdbmIndex implements Index
     }
     
 
-    /**
-     * TODO Document me!
-     *
-     * @param attribute TODO
-     * @param wkDirPath TODO
-     * @throws NamingException TODO
-     */
     public JdbmIndex( AttributeType attribute, File wkDirPath )
         throws NamingException
     {
@@ -507,14 +500,8 @@ public class JdbmIndex implements Index
 
 
     /**
-     * TODO Document me!
-     * 
-     * @todo I don't think the keyCache is required anymore since the normalizer
+     * TODO I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
-     *
-     * @param attrVal TODO
-     * @return TODO
-     * @throws NamingException TODO
      */
     public Object getNormalized( Object attrVal )
         throws NamingException

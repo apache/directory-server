@@ -56,25 +56,12 @@ public class IndexEnumeration
     // ------------------------------------------------------------------------
 
 
-    /**
-     * TODO Domument me!
-     *
-     * @param list TODO
-     * @throws NamingException TODO
-     */
     public IndexEnumeration( NamingEnumeration list ) throws NamingException
     {
         this( list, false, null );
     }
 
 
-    /**
-     * TODO Domument me!
-     *
-     * @param list TODO
-     * @param swapKeyVal TODO
-     * @throws NamingException TODO
-     */
     public IndexEnumeration( NamingEnumeration list, boolean swapKeyVal )
         throws NamingException
     {
@@ -82,14 +69,6 @@ public class IndexEnumeration
     }
 
 
-    /**
-     * TODO Domument me!
-     *
-     * @param list TODO
-     * @param swapKeyVal TODO
-     * @param regex TODO
-     * @throws NamingException TODO
-     */
     public IndexEnumeration( NamingEnumeration list, boolean swapKeyVal,
                              RE regex )
         throws NamingException
@@ -174,11 +153,6 @@ public class IndexEnumeration
     // ------------------------------------------------------------------------
 
 
-    /**
-     * TODO Document me!
-     *
-     * @throws NamingException TODO
-     */
     private void prefetch() throws NamingException
     {
         while ( underlying.hasMore() ) 
