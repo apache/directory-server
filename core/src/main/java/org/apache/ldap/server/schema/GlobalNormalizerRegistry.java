@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.BootstrapNormalizerRegistry;
-
-import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.naming.NamingException;
+
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.server.schema.bootstrap.BootstrapNormalizerRegistry;
 
 
 /**
@@ -42,8 +42,6 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
     private NormalizerRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapNormalizerRegistry bootstrap;
-    /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -55,8 +53,7 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
      * Creates a default NormalizerRegistry by initializing the map and the
      * montior.
      */
-    public GlobalNormalizerRegistry( SystemPartition systemPartition,
-            BootstrapNormalizerRegistry bootstrap )
+    public GlobalNormalizerRegistry( BootstrapNormalizerRegistry bootstrap )
     {
         this.oidToSchema = new HashMap();
         this.normalizers = new HashMap();
@@ -66,12 +63,6 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 

@@ -17,15 +17,15 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.common.schema.DITStructureRule;
-import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.BootstrapDitStructureRuleRegistry;
-
-import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.naming.NamingException;
+
+import org.apache.ldap.common.schema.DITStructureRule;
+import org.apache.ldap.common.util.JoinIterator;
+import org.apache.ldap.server.schema.bootstrap.BootstrapDitStructureRuleRegistry;
 
 
 /**
@@ -46,8 +46,6 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
     private DITStructureRuleRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapDitStructureRuleRegistry bootstrap;
-    /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -58,8 +56,7 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
     /**
      * Creates an empty BootstrapDitStructureRuleRegistry.
      */
-    public GlobalDitStructureRuleRegistry( SystemPartition systemPartition,
-            BootstrapDitStructureRuleRegistry bootstrap, OidRegistry oidRegistry )
+    public GlobalDitStructureRuleRegistry( BootstrapDitStructureRuleRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -70,12 +67,6 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 

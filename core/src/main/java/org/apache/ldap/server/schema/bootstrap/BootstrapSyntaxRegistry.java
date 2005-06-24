@@ -17,16 +17,17 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.naming.NamingException;
+
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.SyntaxRegistry;
 import org.apache.ldap.server.schema.SyntaxRegistryMonitor;
 import org.apache.ldap.server.schema.SyntaxRegistryMonitorAdapter;
-
-import javax.naming.NamingException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 
 /**

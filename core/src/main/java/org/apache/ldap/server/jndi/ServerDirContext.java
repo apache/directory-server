@@ -17,21 +17,36 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.common.filter.*;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.authn.LdapPrincipal;
-
-import javax.naming.*;
-import javax.naming.directory.*;
-import javax.naming.ldap.Control;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Hashtable;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidSearchFilterException;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.Control;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+
+import org.apache.ldap.common.filter.BranchNode;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.FilterParser;
+import org.apache.ldap.common.filter.FilterParserImpl;
+import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.filter.SimpleNode;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -52,13 +67,13 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * Creates a new ServerDirContext by reading the PROVIDER_URL to resolve the
      * distinguished name for this context.
      *
-     * @param nexusProxy the proxy to the backend nexus
+     * @param service the parent service that manages this context
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerDirContext( ContextFactoryService service, Hashtable env ) throws NamingException
     {
-        super( nexusProxy, env );
+        super( service, env );
     }
 
 
@@ -71,7 +86,7 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerDirContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    protected ServerDirContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }

@@ -17,10 +17,10 @@
 package org.apache.ldap.server.prefs;
 
 
-import org.apache.ldap.common.name.LdapName;
-
 import javax.naming.Name;
 import javax.naming.NamingException;
+
+import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -29,7 +29,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PreferencesUtils
+class PreferencesUtils
 {
     /** the dn base of the system preference hierarchy */
     static final String SYSPREF_BASE = "prefNodeName=sysPrefRoot,ou=system";

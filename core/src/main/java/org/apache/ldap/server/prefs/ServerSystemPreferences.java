@@ -24,6 +24,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
@@ -47,7 +48,7 @@ import org.apache.ldap.server.jndi.CoreContextFactory;
 
 
 /**
- * A server side system Perferences implementation.  This implementation
+ * A server side system {@link Preferences} implementation.  This implementation
  * presumes the creation of a root system preferences node in advance.  This
  * should be included with the system.ldif that is packaged with the server.
  *

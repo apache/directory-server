@@ -17,16 +17,31 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.NamingException;
+
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.schema.Syntax;
-import org.apache.ldap.server.schema.*;
-
-import javax.naming.NamingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.ComparatorRegistry;
+import org.apache.ldap.server.schema.DITContentRuleRegistry;
+import org.apache.ldap.server.schema.DITStructureRuleRegistry;
+import org.apache.ldap.server.schema.MatchingRuleRegistry;
+import org.apache.ldap.server.schema.MatchingRuleUseRegistry;
+import org.apache.ldap.server.schema.NameFormRegistry;
+import org.apache.ldap.server.schema.NormalizerRegistry;
+import org.apache.ldap.server.schema.ObjectClassRegistry;
+import org.apache.ldap.server.schema.ObjectFactoryRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
+import org.apache.ldap.server.schema.Registries;
+import org.apache.ldap.server.schema.StateFactoryRegistry;
+import org.apache.ldap.server.schema.SyntaxCheckerRegistry;
+import org.apache.ldap.server.schema.SyntaxRegistry;
 
 
 /**

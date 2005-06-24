@@ -18,16 +18,16 @@
  */
 package org.apache.ldap.server.configuration;
 
+import org.apache.ldap.server.jndi.ContextFactoryService;
+
 /**
- * A {@link Configuration} that syncs ApacheDS backend storage with disk.
+ * A {@link Configuration} that makes a call to {@link ContextFactoryService#sync()}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class SyncConfiguration extends Configuration
 {
-    private static SyncConfiguration instance = new SyncConfiguration();
-
     private static final long serialVersionUID = -3260859085299322327L;
 
     /**
@@ -35,26 +35,5 @@ public class SyncConfiguration extends Configuration
      */
     public SyncConfiguration()
     {
-        if ( instance == null )
-        {
-            instance = this;
-        }
-    }
-
-
-    /**
-     * Returns existing static instance or creates a new one if
-     * it does not exist.
-     *
-     * @return a reusable static instance
-     */
-    public static SyncConfiguration getInstance()
-    {
-        if ( instance == null )
-        {
-            instance = new SyncConfiguration();
-        }
-
-        return instance;
     }
 }

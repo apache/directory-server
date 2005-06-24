@@ -17,15 +17,15 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.common.schema.Syntax;
-import org.apache.ldap.common.util.JoinIterator;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxRegistry;
-
-import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.naming.NamingException;
+
+import org.apache.ldap.common.schema.Syntax;
+import org.apache.ldap.common.util.JoinIterator;
+import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxRegistry;
 
 
 /**
@@ -46,8 +46,6 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
     private SyntaxRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapSyntaxRegistry bootstrap;
-    /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -58,8 +56,7 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
     /**
      * Creates an empty BootstrapSyntaxRegistry.
      */
-    public GlobalSyntaxRegistry( SystemPartition systemPartition,
-            BootstrapSyntaxRegistry bootstrap, OidRegistry oidRegistry )
+    public GlobalSyntaxRegistry( BootstrapSyntaxRegistry bootstrap, OidRegistry oidRegistry )
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
@@ -70,12 +67,6 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 

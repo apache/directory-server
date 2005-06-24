@@ -23,10 +23,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 
-import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
+import org.apache.ldap.server.schema.MatchingRuleRegistry;
 
 
 /**
@@ -37,11 +43,14 @@ import org.apache.ldap.server.ContextPartition;
  */
 public class ContextPartitionConfiguration
 {
+    /** The name of reserved system partition */
+    public static final String SYSTEM_PARTITION_NAME = "system";
+
     private String name;
     private String suffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
     private Attributes contextEntry = new BasicAttributes();
-    private ContextPartition contextPartition;
+    private ContextPartition contextPartition = new JdbmContextPartition();
     
     /**
      * Creates a new instance.
@@ -50,22 +59,37 @@ public class ContextPartitionConfiguration
     {
     }
     
+    /**
+     * Returns user-defined name of the {@link ContextPartition} that
+     * this configuration configures.
+     */
     public String getName()
     {
         return name;
     }
     
-    public void setName( String name )
+    /**
+     * Sets user-defined name of the {@link ContextPartition} that
+     * this configuration configures.
+     */
+    protected void setName( String name )
     {
         // TODO name can be a directory name.
-        this.name = name.trim();
+        name = name.trim();
+        this.name = name;
     }
 
+    /**
+     * Returns the set of attribute type strings to create an index on.
+     */
     public Set getIndexedAttributes()
     {
         return ConfigurationUtil.getClonedSet( indexedAttributes );
     }
     
+    /**
+     * Sets the set of attribute type strings to create an index on.
+     */
     protected void setIndexedAttributes( Set indexedAttributes )
     {
         Set newIndexedAttributes = ConfigurationUtil.getTypeSafeSet(
@@ -81,38 +105,83 @@ public class ContextPartitionConfiguration
         this.indexedAttributes = newIndexedAttributes;
     }
     
+    /**
+     * Returns the {@link ContextPartition} that this configuration configures.
+     */
     public ContextPartition getContextPartition()
     {
         return contextPartition;
     }
     
     /**
-     * Set this to null if you want to use {@link org.apache.ldap.server.ApplicationPartition}.
+     * Sets the {@link ContextPartition} that this configuration configures.
      */
     protected void setContextPartition( ContextPartition partition )
     {
+        if( partition == null )
+        {
+            throw new NullPointerException( "partition" );
+        }
         this.contextPartition = partition;
     }
     
+    /**
+     * Returns root entry that will be added to the {@link ContextPartition}
+     * after it is initialized.
+     */
     public Attributes getContextEntry()
     {
         return ( Attributes ) contextEntry.clone();
     }
     
+    /**
+     * Sets root entry that will be added to the {@link ContextPartition}
+     * after it is initialized.
+     */
     protected void setContextEntry( Attributes rootEntry )
     {
         this.contextEntry = ( Attributes ) rootEntry.clone();
     }
     
+    /**
+     * Returns the suffix of the {@link ContextPartition}.
+     */
     public String getSuffix()
     {
         return suffix;
     }
     
+    /**
+     * Returns the normalized suffix of the {@link ContextPartition}.
+     */
+    public Name getNormalizedSuffix( MatchingRuleRegistry matchingRuleRegistry ) throws NamingException
+    {
+        return getNormalizedSuffix( matchingRuleRegistry.lookup( "distinguishedNameMatch" ).getNormalizer() );
+    }
+    
+    /**
+     * Returns the normalized suffix of the {@link ContextPartition}.
+     */
+    public Name getNormalizedSuffix( Normalizer normalizer ) throws NamingException
+    {
+        return new LdapName( normalizer.normalize( suffix ).toString() );
+    }
+    
+    /**
+     * Sets the suffix of the {@link ContextPartition}.
+     */
     protected void setSuffix( String suffix )
     {
-        // TODO Suffix should be normalized before being set
-        this.suffix = suffix.trim();
+        suffix = suffix.trim();
+        try
+        {
+            new LdapName( suffix );
+        }
+        catch( NamingException e )
+        {
+            throw new ConfigurationException( "Failed to normalize the suffix: " + suffix );
+        }
+        this.suffix = suffix;
     }
     
     

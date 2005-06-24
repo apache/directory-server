@@ -17,17 +17,29 @@
 package org.apache.ldap.server.schema;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.NamingException;
+
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.schema.Syntax;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.*;
-
-import javax.naming.NamingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.ldap.server.schema.bootstrap.BootstrapAttributeTypeRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapDitContentRuleRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapDitStructureRuleRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapMatchingRuleUseRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapNameFormRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapNormalizerRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapObjectClassRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
+import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
+import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxRegistry;
 
 
 /**
@@ -52,39 +64,38 @@ public class GlobalRegistries implements Registries
     private GlobalSyntaxRegistry syntaxRegistry;
 
 
-    public GlobalRegistries( SystemPartition systemPartition,
-                             BootstrapRegistries bootstrapRegistries )
+    public GlobalRegistries( BootstrapRegistries bootstrapRegistries )
     {
-        oidRegistry = new GlobalOidRegistry( systemPartition,
+        oidRegistry = new GlobalOidRegistry(
                 ( BootstrapOidRegistry ) bootstrapRegistries.getOidRegistry() );
-        normalizerRegistry = new GlobalNormalizerRegistry( systemPartition,
+        normalizerRegistry = new GlobalNormalizerRegistry(
                 ( BootstrapNormalizerRegistry ) bootstrapRegistries.getNormalizerRegistry());
-        comparatorRegistry = new GlobalComparatorRegistry( systemPartition,
+        comparatorRegistry = new GlobalComparatorRegistry(
                 ( BootstrapComparatorRegistry ) bootstrapRegistries.getComparatorRegistry());
-        syntaxCheckerRegistry = new GlobalSyntaxCheckerRegistry( systemPartition,
+        syntaxCheckerRegistry = new GlobalSyntaxCheckerRegistry(
                 ( BootstrapSyntaxCheckerRegistry ) bootstrapRegistries.getSyntaxCheckerRegistry());
-        syntaxRegistry = new GlobalSyntaxRegistry( systemPartition,
+        syntaxRegistry = new GlobalSyntaxRegistry(
                 ( BootstrapSyntaxRegistry ) bootstrapRegistries.getSyntaxRegistry(),
                 oidRegistry );
-        matchingRuleRegistry = new GlobalMatchingRuleRegistry( systemPartition,
+        matchingRuleRegistry = new GlobalMatchingRuleRegistry(
                 ( BootstrapMatchingRuleRegistry ) bootstrapRegistries.getMatchingRuleRegistry(),
                 oidRegistry );
-        attributeTypeRegistry = new GlobalAttributeTypeRegistry( systemPartition,
+        attributeTypeRegistry = new GlobalAttributeTypeRegistry(
                 ( BootstrapAttributeTypeRegistry ) bootstrapRegistries.getAttributeTypeRegistry(),
                 oidRegistry );
-        objectClassRegistry = new GlobalObjectClassRegistry( systemPartition,
+        objectClassRegistry = new GlobalObjectClassRegistry(
                 ( BootstrapObjectClassRegistry ) bootstrapRegistries.getObjectClassRegistry(),
                 oidRegistry );
-        ditContentRuleRegistry = new GlobalDitContentRuleRegistry( systemPartition,
+        ditContentRuleRegistry = new GlobalDitContentRuleRegistry(
                 ( BootstrapDitContentRuleRegistry ) bootstrapRegistries.getDitContentRuleRegistry(),
                 oidRegistry );
-        ditStructureRuleRegistry = new GlobalDitStructureRuleRegistry( systemPartition,
+        ditStructureRuleRegistry = new GlobalDitStructureRuleRegistry(
                 ( BootstrapDitStructureRuleRegistry ) bootstrapRegistries.getDitStructureRuleRegistry(),
                 oidRegistry );
-        matchingRuleUseRegistry = new GlobalMatchingRuleUseRegistry( systemPartition,
+        matchingRuleUseRegistry = new GlobalMatchingRuleUseRegistry(
                 ( BootstrapMatchingRuleUseRegistry ) bootstrapRegistries.getMatchingRuleUseRegistry(),
                 oidRegistry );
-        nameFormRegistry = new GlobalNameFormRegistry( systemPartition,
+        nameFormRegistry = new GlobalNameFormRegistry(
                 ( BootstrapNameFormRegistry ) bootstrapRegistries.getNameFormRegistry(),
                 oidRegistry );
     }

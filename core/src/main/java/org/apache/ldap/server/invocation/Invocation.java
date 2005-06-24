@@ -17,99 +17,94 @@
 package org.apache.ldap.server.invocation;
 
 
-import java.io.Serializable;
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import javax.naming.NamingException;
+import javax.naming.Context;
 
-import org.apache.ldap.server.BackingStore;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * Represents a method invocation on {@link BackingStore}s.
- * <p/>
- * This class is abstract, and developers should extend this class to
- * represent the actual method invocations.
+ * Represents a call from JNDI {@link Context} to {@link ContextPartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class Invocation implements Serializable
+public class Invocation
 {
-
-    protected transient Object returnValue;
-
-    protected transient Stack contextStack;
-
+    private final Context caller;
+    private final String name;
+    private final List parameters;
     
     /**
-     * Creates a new instance.  This constructor does nothing.
+     * Creates a new instance that represents an invocation without parameters.
+     * 
+     * @parem caller the JNDI {@link Context} that made this invocation
+     * @param name the name of the called method
      */
-    protected Invocation()
+    public Invocation( Context caller, String name )
     {
+        this( caller, name, null );
     }
 
-
     /**
-     * Returns the returnValue object for this invocation.
+     * Creates a new instance.
+     * 
+     * @parem caller the JNDI {@link Context} that made this invocation
+     * @param name the name of the called method
+     * @param parameters the array of parameters passed to the called method
      */
-    public Object getReturnValue()
+    public Invocation( Context caller, String name, Object[] parameters )
     {
-        return returnValue;
+        if( caller == null )
+        {
+            throw new NullPointerException( "caller" );
+        }
+        if( name == null )
+        {
+            throw new NullPointerException( "name" );
+        }
+        
+        if( parameters == null )
+        {
+            parameters = new Object[ 0 ];
+        }
+        
+        this.caller = caller;
+        this.name = name;
+        
+        List paramList = new ArrayList();
+        for( int i = 0; i < parameters.length; i++ )
+        {
+            paramList.add( parameters[ i ] );
+        }
+        
+        this.parameters = Collections.unmodifiableList( paramList );
     }
-
-
+    
     /**
-     * Sets the returnValue object for this invocation.
+     * Returns the JNDI {@link Context} which made this invocation.
      */
-    public void setReturnValue( Object returnValue )
+    public Context getCaller()
     {
-        this.returnValue = returnValue;
+        return caller;
     }
-
-
+    
     /**
-     * Gets the context stack in which this invocation occurs.  The
-     * context stack is a stack of LdapContexts.
-     *
-     * @return a stack of LdapContexts in which the invocation occurs
+     * Returns the name of the called method.
      */
-    public Stack getContextStack()
+    public String getName()
     {
-        return contextStack;
+        return name;
     }
-
-
+    
     /**
-     * Sets the context stack in which this invocation occurs.  The context stack
-     * is a stack of LdapContexts.
-     *
-     * @param contextStack a stack of LdapContexts in which the invocation occurs
+     * Returns the list of parameters parameters passed to the called method.
      */
-    public void setContextStack( Stack contextStack )
+    public List getParameters()
     {
-        this.contextStack = contextStack;
+        return parameters;
     }
-
-
-    /**
-     * Executes this invocation on the specified <code>store</code>. The default
-     * implementation calls an abstract method {@link #doExecute(BackingStore)}
-     * and sets the <code>returnValue</code> property of this invocation to its return value.
-     *
-     * @throws NamingException if the operation failed
-     */
-    public void execute( BackingStore store ) throws NamingException
-    {
-        setReturnValue( doExecute( store ) );
-    }
-
-
-    /**
-     * Implement this method to invoke the appropriate operation on the specified
-     * <code>store</code>.  Returned value will be set as the <code>returnValue</code> proeprty of this invocation.
-     *
-     * @throws NamingException if the operation failed
-     */
-    protected abstract Object doExecute( BackingStore store ) throws NamingException;
 }

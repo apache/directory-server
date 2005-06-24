@@ -17,9 +17,7 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.authn.LdapPrincipal;
+import java.util.Hashtable;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -27,11 +25,14 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
+
+import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * An Eve implementation of a JNDI LdapContext.
+ * An implementation of a JNDI LdapContext.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -47,13 +48,13 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     /**
      * Creates an instance of an ServerLdapContext.
      *
-     * @param nexusProxy the proxy to a partition nexus
+     * @param service the parent service that manages this context
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    public ServerLdapContext( ContextFactoryService service, Hashtable env ) throws NamingException
     {
-        super( nexusProxy, env );
+        super( service, env );
     }
 
 
@@ -66,7 +67,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    ServerLdapContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    ServerLdapContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }

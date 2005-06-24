@@ -98,20 +98,23 @@ class ConfigurationUtil
     }
     
     /**
-     * Returns the deep clone of the specified {@link Attributes} set.
+     * Returns the deep clone of the specified {@link Attributes} list.
      */
     static List getClonedAttributesList( List list )
     {
-        ArrayList newList = new ArrayList();
-
-        for( int ii = 0; ii < list.size(); ii++ )
+        List newList = new ArrayList();
+        Iterator i = list.iterator();
+        while( i.hasNext() )
         {
-            newList.add( ( Attributes ) list.get( ii ) );
+            newList.add( ( ( Attributes ) i.next() ).clone() );
         }
-
         return newList;
     }
 
+    /**
+     * Throws a {@link ConfigurationException} if the specified port number
+     * is out of range.
+     */
     static void validatePortNumber( int port )
     {
         if( port < 0 || port > 65535 )

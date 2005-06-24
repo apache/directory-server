@@ -17,10 +17,15 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
-import org.apache.ldap.common.schema.*;
+import java.util.Comparator;
 
 import javax.naming.NamingException;
-import java.util.Comparator;
+
+import org.apache.ldap.common.schema.CachingNormalizer;
+import org.apache.ldap.common.schema.ComparableComparator;
+import org.apache.ldap.common.schema.DeepTrimNormalizer;
+import org.apache.ldap.common.schema.DeepTrimToLowerNormalizer;
+import org.apache.ldap.common.schema.NormalizingComparator;
 
 
 

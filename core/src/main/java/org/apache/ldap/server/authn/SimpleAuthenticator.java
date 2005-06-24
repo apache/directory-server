@@ -17,44 +17,39 @@
 package org.apache.ldap.server.authn;
 
 
-import org.apache.ldap.common.exception.LdapAuthenticationException;
-import org.apache.ldap.common.exception.LdapNameNotFoundException;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.jndi.ServerContext;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.ldap.common.exception.LdapAuthenticationException;
+import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+
 
 /**
- * A simple AuthenticationService that just authenticates clear text passwords
- * contained within the <code>userPassword</code> attribute.
+ * A simple {@link Authenticator} that authenticates clear text passwords
+ * contained within the <code>userPassword</code> attribute in DIT.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
     /**
-     * Creates a simple authenticator for clear text passwords in
-     * userPassword attributes.
+     * Creates a new instance.
      */
     public SimpleAuthenticator( )
     {
         super( "simple" );
     }
 
-    protected void doInit()
-    {
-    }
-    
     /**
-     * Uses the userPassword field of the user to authenticate.
-     *
-     * @see org.apache.ldap.server.authn.Authenticator#authenticate(org.apache.ldap.server.jndi.ServerContext)
+     * Looks up <tt>userPassword</tt> attribute of the entry whose name is
+     * the value of {@link Context#SECURITY_PRINCIPAL} environment variable,
+     * and authenticates a user with the plain-text password.
      */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
     {
@@ -93,9 +88,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         LdapName principalDn = new LdapName( principal );
 
-        PartitionNexus rootNexus = getContext().getPartitionNexus();
-
-        Attributes userEntry = rootNexus.lookup( principalDn );
+        ContextPartitionNexus nexus = getFactoryConfiguration().getPartitionNexus();
+        Attributes userEntry = nexus.lookup( principalDn );
 
         if ( userEntry == null )
         {

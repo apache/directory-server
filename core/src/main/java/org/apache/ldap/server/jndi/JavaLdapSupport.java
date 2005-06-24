@@ -17,9 +17,14 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import java.io.*;
 
 
 /**
@@ -31,7 +36,7 @@ import java.io.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JavaLdapSupport
+class JavaLdapSupport
 {
     // ------------------------------------------------------------------------
     // Attribute Id Constants Used By The Java LDAP BootstrapSchema

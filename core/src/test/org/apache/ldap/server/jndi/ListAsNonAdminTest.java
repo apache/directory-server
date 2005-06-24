@@ -17,13 +17,13 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.util.HashSet;
+
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.AbstractNonAdminTestCase;
-
-import java.util.HashSet;
 
 
 /**

@@ -18,8 +18,11 @@ package org.apache.ldap.server.authn;
 
 
 import javax.naming.NamingException;
+import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 
 
@@ -27,21 +30,21 @@ import org.apache.ldap.server.jndi.ServerContext;
  * Base class for all Authenticators.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public abstract class AbstractAuthenticator implements Authenticator
 {
-
-    /** authenticator config */
-    private AuthenticatorContext ctx;
+    private ContextFactoryConfiguration factoryCfg;
+    private AuthenticatorConfiguration cfg;
 
     /** authenticator type */
     private String authenticatorType;
 
 
     /**
-     * Create a new AuthenticationService.
+     * Creates a new instance.
      *
-     * @param type authenticator's type
+     * @param type the type of this authenticator (e.g. <tt>'simple'</tt>, <tt>'none'</tt>...)
      */
     protected AbstractAuthenticator( String type )
     {
@@ -50,17 +53,22 @@ public abstract class AbstractAuthenticator implements Authenticator
 
 
     /**
-     * Returns a reference to the AuthenticatorContext in which this authenticator is running.
+     * Returns {@link ContextFactoryConfiguration} of {@link InitialContextFactory}
+     * which initialized this authenticator.
      */
-    public AuthenticatorContext getContext()
+    public ContextFactoryConfiguration getFactoryConfiguration()
     {
-        return ctx;
+        return factoryCfg;
+    }
+    
+    /**
+     * Returns the configuration of this authenticator.
+     */
+    public AuthenticatorConfiguration getConfiguration()
+    {
+        return cfg;
     }
 
-
-    /**
-     * Returns this authenticator's type.
-     */
     public String getAuthenticatorType()
     {
         return authenticatorType;
@@ -68,40 +76,64 @@ public abstract class AbstractAuthenticator implements Authenticator
 
 
     /**
-     * Called by the server to indicate to an authenticator that the authenticator
-     * is being placed into service.
+     * Initializes default properties (<tt>factoryConfiguration</tt> and
+     * <tt>configuration</tt>, and calls {@link #doInit()} method.
+     * Please put your initialization code into {@link #doInit()}.
      */
-    public final void init( AuthenticatorContext ctx ) throws NamingException
+    public final void init( ContextFactoryConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException
     {
-        this.ctx = ctx;
+        this.factoryCfg = factoryCfg;
+        this.cfg = cfg;
         doInit();
     }
 
 
     /**
-     * A convenience method which can be overridden so that there's no need to
-     * call super.init( authenticatorConfig ).
+     * Implement your initialization code here.
      */
-    protected abstract void doInit();
-
+    protected void doInit() throws NamingException
+    {
+    }
 
     /**
-     * Perform the authentication operation and return the authorization id if successfull.
+     * Calls {@link #doDestroy()} method, and clears default properties
+     * (<tt>factoryConfiguration</tt> and <tt>configuration</tt>).
+     * Please put your deinitialization code into {@link #doDestroy()}. 
      */
+    public final void destroy()
+    {
+        try
+        {
+            doDestroy();
+        }
+        finally
+        {
+            this.factoryCfg = null;
+            this.cfg = null;
+        }
+    }
+    
+    /**
+     * Implement your deinitialization code here.
+     */
+    protected void doDestroy()
+    {
+    }
+
     public abstract LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
 
 
     /**
-     * Allows a means to create an LDAP principal without exposing LdapPrincipal creation
-     * to the rest of the world.
+     * Returns a new {@link LdapPrincipal} instance whose value is the specified
+     * <tt>name</tt>.
      *
-     * @param dn the distinguished name of the X.500 principal
-     * @return the principal for the dn
-     * @throws NamingException if there is a problem parsing the dn
+     * @param name the distinguished name of the X.500 principal
+     * @return the principal for the <tt>name</tt>
+     * @throws NamingException if there is a problem parsing <tt>name</tt>
      */
-    protected LdapPrincipal createLdapPrincipal( String dn ) throws NamingException
+    protected static LdapPrincipal createLdapPrincipal( String name ) throws NamingException
     {
-        LdapName principalDn = new LdapName( dn );
+        LdapName principalDn = new LdapName( name );
         return new LdapPrincipal( principalDn );
     }
 }

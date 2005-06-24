@@ -17,22 +17,31 @@
 package org.apache.ldap.server.normalization;
 
 
-import org.apache.ldap.server.interceptor.BaseInterceptor;
-import org.apache.ldap.server.interceptor.InterceptorContext;
-import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.invocation.*;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.common.name.NameComponentNormalizer;
-import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.common.schema.AttributeType;
+import java.util.Map;
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.name.NameComponentNormalizer;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
+import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**
  * A name normalization service.  This service makes sure all relative and distinuished
  * names are normalized before calls are made against the respective interface methods
- * on the root nexus.
+ * on {@link ContextPartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -42,10 +51,9 @@ public class NormalizationService extends BaseInterceptor
     private DnParser parser;
 
 
-    public void init( InterceptorContext context ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        AttributeTypeRegistry attributeRegistry = context.getGlobalRegistries().getAttributeTypeRegistry();
-
+        AttributeTypeRegistry attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         parser = new DnParser( new PerComponentNormalizer( attributeRegistry ) );
     }
 
@@ -56,154 +64,155 @@ public class NormalizationService extends BaseInterceptor
 
 
     // ------------------------------------------------------------------------
-    // Normalize all Name based arguments for BackingStore interface operations
+    // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
 
 
-    protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes attrs ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            normName = parser.parse( normName.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        nextInterceptor.add( upName, normName, attrs );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Delete call ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        nextInterceptor.delete( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        nextInterceptor.modify( name, modOp, attrs );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        nextInterceptor.modify( name, items );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
+    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
-
-            call.setNewParentName( parser.parse( call.getNewParentName().toString() ) );
+            name = parser.parse( name.toString() );
+            newParentName = parser.parse( newParentName.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        nextInterceptor.move( name, newParentName );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
 
-            call.setNewParentName( parser.parse( call.getNewParentName().toString() ) );
+            newParentName = parser.parse( newParentName.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor,
+            Name base, Map env, ExprNode filter,
+            SearchControls searchCtls ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setBaseName( parser.parse( call.getBaseName().toString() ) );
+            base = parser.parse( base.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.search( base, env, filter, searchCtls );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, HasEntry call ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.hasEntry( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, IsSuffix call ) throws NamingException
+    public boolean isSuffix( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.isSuffix( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setBaseName( parser.parse( call.getBaseName().toString() ) );
+            base = parser.parse( base.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.list( base );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.lookup( name );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.lookup( name, attrIds );
     }
 
 
@@ -212,25 +221,25 @@ public class NormalizationService extends BaseInterceptor
     // ------------------------------------------------------------------------
 
 
-    protected void process( NextInterceptor nextInterceptor, GetMatchedDN call ) throws NamingException
+    public Name getMatchedName( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.getMatchedName( name, normalized );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, GetSuffix call ) throws NamingException
+    public Name getSuffix( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
     {
         synchronized( parser )
         {
-            call.setName( parser.parse( call.getName().toString() ) );
+            name = parser.parse( name.toString() );
         }
 
-        super.process( nextInterceptor, call );
+        return nextInterceptor.getSuffix( name, normalized );
     }
 
 
@@ -239,7 +248,7 @@ public class NormalizationService extends BaseInterceptor
      * A normalizer that normalizes each name component specifically according to
      * the attribute type of the name component.
      */
-    class PerComponentNormalizer implements NameComponentNormalizer
+    private class PerComponentNormalizer implements NameComponentNormalizer
     {
         /** the attribute type registry we use to lookup component normalizers */
         private final AttributeTypeRegistry registry;

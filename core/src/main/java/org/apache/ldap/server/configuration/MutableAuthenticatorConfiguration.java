@@ -30,6 +30,9 @@ public class MutableAuthenticatorConfiguration extends
         AuthenticatorConfiguration
 {
 
+    /**
+     * Creates a new instance.
+     */
     public MutableAuthenticatorConfiguration()
     {
     }

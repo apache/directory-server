@@ -17,36 +17,53 @@
 package org.apache.ldap.server.authn;
 
 
-import org.apache.ldap.server.jndi.ServerContext;
-
+import javax.naming.Context;
 import javax.naming.NamingException;
+
+import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
- * Defines methods that all Authenticators must implement.
+ * Authenticates users who access {@link ContextPartitionNexus}.
+ * <p>
+ * {@link Authenticator}s are registered to and configured by
+ * {@link AuthenticationService} interceptor.
+ * <p>
+ * {@link AuthenticationService} authenticates users by calling
+ * {@link #authenticate(ServerContext)}, and then {@link Authenticator}
+ * checks JNDI {@link Context} environment properties
+ * ({@link Context#SECURITY_PRINCIPAL} and {@link Context#SECURITY_CREDENTIALS})
+ * of current {@link Context}.
  *
- * <p>An AuthenticationService is a program that performs client authentication based on the authentication
- * method/type that the client specifies in the JNDI properties.
- *
- * <p>To implement this interface, you can write an authenticator that extends org.apache.ldap.server.authn.AbstractAuthenticator.
- *
- * @see org.apache.ldap.server.authn.AbstractAuthenticator
+ * @see AbstractAuthenticator
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Authenticator
 {
+    /**
+     * Returns the type of this authenticator (e.g. <tt>'simple'</tt>,
+     * <tt>'none'</tt>,...).
+     */
     public String getAuthenticatorType();
     
-    public AuthenticatorContext getContext();
-
     /**
-     * Called by the authenticator container to indicate that the authenticator is being placed into service.
+     * Called by {@link AuthenticationService} to indicate that this
+     * authenticator is being placed into service.
      */
-    public void init( AuthenticatorContext ctx ) throws NamingException;
+    public void init( ContextFactoryConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException;
+    
+    /**
+     * Called by {@link AuthenticationService} to indicate that this
+     * authenticator is being removed from service.
+     */
+    public void destroy();
 
     /**
-     * Perform the authentication operation and return the authorization id if successfull.
+     * Performs authentication and returns the principal if succeeded.
      */
     public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException;
 }

@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.common.schema.SyntaxChecker;
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
-
-import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.naming.NamingException;
+
+import org.apache.ldap.common.schema.SyntaxChecker;
+import org.apache.ldap.server.schema.bootstrap.BootstrapSyntaxCheckerRegistry;
 
 
 /**
@@ -42,8 +42,6 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     private SyntaxCheckerRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapSyntaxCheckerRegistry bootstrap;
-    /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -55,8 +53,7 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
      * Creates a default SyntaxCheckerRegistry by initializing the map and the
      * montior.
      */
-    public GlobalSyntaxCheckerRegistry( SystemPartition systemPartition,
-            BootstrapSyntaxCheckerRegistry bootstrap )
+    public GlobalSyntaxCheckerRegistry( BootstrapSyntaxCheckerRegistry bootstrap )
     {
         this.oidToSchema = new HashMap();
         this.syntaxCheckers = new HashMap();
@@ -66,12 +63,6 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 

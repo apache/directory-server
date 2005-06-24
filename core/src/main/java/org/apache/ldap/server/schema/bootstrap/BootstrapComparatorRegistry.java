@@ -17,15 +17,16 @@
 package org.apache.ldap.server.schema.bootstrap;
 
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.naming.NamingException;
+
 import org.apache.ldap.server.schema.ComparatorRegistry;
 import org.apache.ldap.server.schema.ComparatorRegistryMonitor;
 import org.apache.ldap.server.schema.ComparatorRegistryMonitorAdapter;
 import org.apache.ldap.server.schema.SerializableComparator;
-
-import javax.naming.NamingException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**

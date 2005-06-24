@@ -22,7 +22,7 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.ContextPartition;
+import org.apache.ldap.server.partition.ContextPartition;
 
 /**
  * A mutable version of {@link ContextPartitionConfiguration}.
@@ -38,6 +38,11 @@ public class MutableContextPartitionConfiguration extends
      */
     public MutableContextPartitionConfiguration()
     {
+    }
+    
+    public void setName( String name )
+    {
+        super.setName( name );
     }
 
     public void setIndexedAttributes( Set indexedAttributes )

@@ -19,21 +19,22 @@ package org.apache.ldap.server.jndi;
 
 import java.util.Hashtable;
 
+import javax.naming.ConfigurationException;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.configuration.SyncConfiguration;
 
 
 /**
- * A server-side provider implementation of a InitialContextFactory.  Can be
- * utilized via JNDI API in the standard fashion:
- *
+ * A server-side JNDI provider implementation of {@link InitialContextFactory}.
+ * This class can be utilized via JNDI API in the standard fashion:
+ * <p>
  * <code>
  * Hashtable env = new Hashtable();
  * env.put( Context.PROVIDER_URL, "ou=system" );
@@ -41,25 +42,36 @@ import org.apache.ldap.server.configuration.SyncConfiguration;
  * Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
  * InitialContext initialContext = new InitialContext( env );
  * </code>
- *
+ * <p>
+ * Unfortunately, {@link InitialContext} creates a new instance of
+ * {@link InitialContextFactory} implementation everytime it is instantiated,
+ * so this factory maintains only a static, singleton instance of
+ * {@link ContextFactoryService}, which provides actual implementation.
+ * Please note that you'll also have to maintain any stateful information
+ * as using singleton pattern if you're going to extend this factory.
+ * <p>
+ * This class implements {@link ContextFactoryServiceListener}.  This means that
+ * you can listen to the changes occurs to {@link ContextFactoryService}, and
+ * react to it (e.g. executing additional business logic).
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  * 
  * @see javax.naming.spi.InitialContextFactory
  */
-public abstract class AbstractContextFactory implements InitialContextFactory
+public abstract class AbstractContextFactory implements InitialContextFactory, ContextFactoryServiceListener
 {
     // ------------------------------------------------------------------------
     // Members
     // ------------------------------------------------------------------------
 
-    /** The singleton JndiProvider instance */
-    private static final ContextFactoryConfiguration provider = new DefaultContextFactoryConfiguration();
+    /** The singleton service instance */
+    private static final ContextFactoryService service = new DefaultContextFactoryService();
 
     /**
-     * Default constructor that sets the provider of this ServerContextFactory.
+     * Creates a new instance.
      */
-    public AbstractContextFactory()
+    protected AbstractContextFactory()
     {
     }
     
@@ -76,22 +88,22 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         // Execute configuration
         if( cfg instanceof ShutdownConfiguration )
         {
-            provider.shutdown();
+            ( ( DefaultContextFactoryService ) service ).shutdown();
         }
         else if( cfg instanceof SyncConfiguration )
         {
-            provider.sync();
+            service.sync();
         }
         else if( cfg instanceof StartupConfiguration )
         {
-            ( ( DefaultContextFactoryConfiguration ) provider ).startup( this, env );
+            service.startup( this, env );
         }
-        else if( provider == null )
+        else if( service == null )
         {
             throw new NamingException( "Unknown configuration: " + cfg );
         }
         
-        return provider.getJndiContext( principal, credential, authentication, providerUrl );
+        return service.getConfiguration().getJndiContext( principal, credential, authentication, providerUrl );
     }
 
     private String extractProviderUrl( Hashtable env )
@@ -122,7 +134,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         return authentication;
     }
 
-    private byte[] extractCredential( Hashtable env )
+    private byte[] extractCredential( Hashtable env ) throws ConfigurationException
     {
         byte[] credential;
         Object value = env.remove( Context.SECURITY_CREDENTIALS );
@@ -159,11 +171,4 @@ public abstract class AbstractContextFactory implements InitialContextFactory
         }
         return principal;
     }
-    
-    protected abstract void beforeStartup( ContextFactoryConfiguration ctx ) throws NamingException;
-    protected abstract void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException;
-    protected abstract void beforeShutdown( ContextFactoryConfiguration ctx ) throws NamingException;
-    protected abstract void afterShutdown( ContextFactoryConfiguration ctx ) throws NamingException;
-    protected abstract void beforeSync( ContextFactoryConfiguration ctx ) throws NamingException;
-    protected abstract void afterSync( ContextFactoryConfiguration ctx ) throws NamingException;
 }

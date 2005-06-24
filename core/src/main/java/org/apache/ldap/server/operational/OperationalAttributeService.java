@@ -17,31 +17,42 @@
 package org.apache.ldap.server.operational;
 
 
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.schema.UsageEnum;
-import org.apache.ldap.common.util.DateUtils;
-import org.apache.ldap.server.RootNexus;
-import org.apache.ldap.server.interceptor.BaseInterceptor;
-import org.apache.ldap.server.interceptor.InterceptorContext;
-import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.db.ResultFilteringEnumeration;
-import org.apache.ldap.server.db.SearchResultFilter;
-import org.apache.ldap.server.invocation.*;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import java.util.HashSet;
+import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
+
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.UsageEnum;
+import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
+import org.apache.ldap.server.enumeration.SearchResultFilter;
+import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
+import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.Interceptor;
+import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**
- * An {@link org.apache.ldap.server.interceptor.Interceptor} that adds or modifies the default attributes
- * of entries. There are four default attributes for now;<code>'creatorsName'
- * </code>, <code>'createTimestamp'</code>, <code>'modifiersName'</code>, and
- * <code>'modifyTimestamp'</code>.
+ * An {@link Interceptor} that adds or modifies the default attributes
+ * of entries. There are four default attributes for now;
+ * <tt>'creatorsName'</tt>, <tt>'createTimestamp'</tt>, <tt>'modifiersName'</tt>,
+ * and <tt>'modifyTimestamp'</tt>.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -68,7 +79,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * the root nexus of the system
      */
-    private RootNexus nexus;
+    private ContextPartitionNexus nexus;
 
     private AttributeTypeRegistry registry;
 
@@ -81,10 +92,10 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void init( InterceptorContext ctx ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        nexus = ctx.getRootNexus();
-        registry = ctx.getGlobalRegistries().getAttributeTypeRegistry();
+        nexus = factoryCfg.getPartitionNexus();
+        registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
     }
 
 
@@ -96,10 +107,9 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    protected void process( NextInterceptor nextInterceptor, Add call ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes entry ) throws NamingException
     {
-        String principal = getPrincipal( call ).getName();
-        Attributes entry = call.getAttributes();
+        String principal = getPrincipal().getName();
 
         BasicAttribute attribute = new BasicAttribute( "creatorsName" );
         attribute.add( principal );
@@ -109,157 +119,148 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
 
-        nextInterceptor.process( call );
+        nextInterceptor.add( upName, normName, entry );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Modify call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs) throws NamingException
     {
-        nextInterceptor.process( call );
+        nextInterceptor.modify( name, modOp, attrs );
         
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( call ).getName() );
+        attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( call.getName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( name, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyMany call ) throws NamingException
+    public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
     {
-        nextInterceptor.process( call );
+        nextInterceptor.modify( name, items );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( call ).getName() );
+        attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( call.getName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( name, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, ModifyRN call ) throws NamingException
+    public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        nextInterceptor.process( call );
+        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
         
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( call ).getName() );
+        attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        Name newDn = call.getName().getSuffix( 1 ).add( call.getNewRelativeName() );
+        Name newDn = name.getSuffix( 1 ).add( newRn );
         nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Move call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName ) throws NamingException
     {
-        nextInterceptor.process( call );
+        nextInterceptor.move( name, newParentName );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( call ).getName() );
+        attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( call.getNewParentName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, MoveAndModifyRN call ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        nextInterceptor.process( call );
+        nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new BasicAttributes();
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
-        attribute.add( getPrincipal( call ).getName() );
+        attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
         attribute = new BasicAttribute( "modifyTimestamp" );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( call.getNewParentName(), DirContext.REPLACE_ATTRIBUTE, attributes );
+        nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Lookup call ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        nextInterceptor.process( call );
-
-        Attributes attributes = ( Attributes ) call.getReturnValue();
-        Attributes retval = ( Attributes ) attributes.clone();
-        filter( retval );
-        call.setReturnValue( retval );
-    }
-
-
-    protected void process( NextInterceptor nextInterceptor, LookupWithAttrIds call ) throws NamingException
-    {
-        nextInterceptor.process( call );
-
-        Attributes attributes = ( Attributes ) call.getReturnValue();
-        if ( attributes == null )
+        Attributes result = nextInterceptor.lookup( name );
+        if ( result == null )
         {
-            return;
+            return null;
+        }
+        filter( result );
+        return result;
+    }
+
+
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
+    {
+        Attributes result = nextInterceptor.lookup( name, attrIds );
+        if ( result == null )
+        {
+            return null;
         }
 
-        Attributes retval = ( Attributes ) attributes.clone();
-        filter( call.getName(), retval, call.getAttributeIds() );
-        call.setReturnValue( retval );
+        filter( name, result, attrIds );
+        return result;
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, List call ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
-        nextInterceptor.process( call );
-
-        NamingEnumeration e;
-        ResultFilteringEnumeration retval;
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getReturnValue();
-        retval = new ResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
-        call.setReturnValue( retval );
+        NamingEnumeration e = nextInterceptor.list( base );
+        LdapContext ctx =
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
     }
 
 
-    protected void process( NextInterceptor nextInterceptor, Search call ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor, 
+            Name base, Map env, ExprNode filter,
+            SearchControls searchCtls ) throws NamingException
     {
-        nextInterceptor.process( call );
-
-        SearchControls searchControls = call.getControls();
-        if ( searchControls.getReturningAttributes() != null )
+        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        if ( searchCtls.getReturningAttributes() != null )
         {
-            return;
+            return e;
         }
 
-        NamingEnumeration e;
-        ResultFilteringEnumeration retval;
-        LdapContext ctx = ( LdapContext ) call.getContextStack().peek();
-        e = ( NamingEnumeration ) call.getReturnValue();
-        retval = new ResultFilteringEnumeration( e, searchControls, ctx, SEARCH_FILTER );
-        call.setReturnValue( retval );
+        LdapContext ctx =
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );
     }
 
 

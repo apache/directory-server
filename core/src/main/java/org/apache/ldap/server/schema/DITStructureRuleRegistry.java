@@ -17,10 +17,11 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.common.schema.DITStructureRule;
+import java.util.Iterator;
 
 import javax.naming.NamingException;
-import java.util.Iterator;
+
+import org.apache.ldap.common.schema.DITStructureRule;
 
 
 /**

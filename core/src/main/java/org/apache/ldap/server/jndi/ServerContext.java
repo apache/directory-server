@@ -17,16 +17,19 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.common.exception.LdapNoPermissionException;
-import org.apache.ldap.common.filter.PresenceNode;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.PartitionNexus;
-import org.apache.ldap.server.authn.AuthenticationService;
-import org.apache.ldap.server.authn.LdapPrincipal;
+import java.io.Serializable;
+import java.util.Hashtable;
 
-import javax.naming.*;
+import javax.naming.ConfigurationException;
+import javax.naming.Context;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -34,8 +37,15 @@ import javax.naming.directory.SearchControls;
 import javax.naming.ldap.Control;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
-import java.io.Serializable;
-import java.util.Hashtable;
+
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.server.authn.AuthenticationService;
+import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -50,7 +60,7 @@ public abstract class ServerContext implements Context
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN";
 
     /** The interceptor proxy to the backend nexus */
-    private final PartitionNexus nexusProxy;
+    private final ContextPartitionNexus nexusProxy;
 
     /** The cloned environment used by this Context */
     private final Hashtable env;
@@ -75,19 +85,20 @@ public abstract class ServerContext implements Context
      * referenced name actually exists within the system.  This constructor
      * is used for all InitialContext requests.
      * 
-     * @param nexusProxy the intercepting proxy to the nexus.
+     * @param service the parent service that manages this context
      * @param env the environment properties used by this context.
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext( PartitionNexus nexusProxy, Hashtable env ) throws NamingException
+    protected ServerContext( ContextFactoryService service, Hashtable env ) throws NamingException
     {
-        String url;
-
         // set references to cloned env and the proxy
-        this.nexusProxy = nexusProxy;
-
-        this.env = ( Hashtable ) env.clone();
+        this.nexusProxy = new ContextPartitionNexusProxy( this, service );
+        
+        ContextFactoryConfiguration cfg = service.getConfiguration();
+        
+        this.env = ( Hashtable ) cfg.getEnvironment().clone();
+        this.env.putAll( env );
 
         /* --------------------------------------------------------------------
          * check for the provider URL property and make sure it exists
@@ -96,18 +107,16 @@ public abstract class ServerContext implements Context
         if ( ! env.containsKey( Context.PROVIDER_URL ) )
         {
             String msg = "Expected property " + Context.PROVIDER_URL;
-
             msg += " but could not find it in env!";
 
             throw new ConfigurationException( msg );
         }
 
-        url = ( String ) env.get( Context.PROVIDER_URL );
+        String url = ( String ) env.get( Context.PROVIDER_URL );
 
         if ( url == null )
         {
             String msg = "Expected value for property " + Context.PROVIDER_URL;
-
             msg += " but it was set to null in env!";
 
             throw new ConfigurationException( msg );
@@ -132,7 +141,7 @@ public abstract class ServerContext implements Context
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerContext( LdapPrincipal principal, PartitionNexus nexusProxy, Hashtable env, Name dn )
+    protected ServerContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         this.dn = ( LdapName ) dn.clone();
 
@@ -183,7 +192,7 @@ public abstract class ServerContext implements Context
      * 
      * @return the proxy to the backend nexus.
      */
-    protected PartitionNexus getNexusProxy()
+    protected ContextPartitionNexus getNexusProxy()
     {
        return nexusProxy ;
     }

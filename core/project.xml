@@ -76,15 +76,6 @@
       <version>0.9.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>1.2</version>
-      <properties>
-        <gump.project>aspectj</gump.project>
-        <gump.id>aspectjrt</gump.id>
-      </properties>
-    </dependency>
-    <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-shared</artifactId>
       <version>${pom.currentVersion}</version>
@@ -125,7 +116,6 @@
   </dependencies>
 
   <build>
-    <aspectSourceDirectory>${basedir}/src/main/aspects</aspectSourceDirectory>
   </build>
 
   <reports>

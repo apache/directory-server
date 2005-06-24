@@ -17,13 +17,13 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
-
-import javax.naming.NamingException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.naming.NamingException;
+
+import org.apache.ldap.server.schema.bootstrap.BootstrapComparatorRegistry;
 
 
 /**
@@ -42,8 +42,6 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
     private ComparatorRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapComparatorRegistry bootstrap;
-    /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
 
 
     // ------------------------------------------------------------------------
@@ -55,8 +53,7 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
      * Creates a default ComparatorRegistry by initializing the map and the
      * montior.
      */
-    public GlobalComparatorRegistry( SystemPartition systemPartition,
-            BootstrapComparatorRegistry bootstrap )
+    public GlobalComparatorRegistry( BootstrapComparatorRegistry bootstrap )
     {
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
@@ -69,12 +66,6 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 

@@ -24,11 +24,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractAdminTestCase;
-import org.apache.ldap.server.db.DbSearchResult;
 
 
 /**
@@ -110,7 +110,7 @@ public class AuthorizationServiceAsAdminTest extends AbstractAdminTestCase
 
         while ( list.hasMore() )
         {
-            DbSearchResult result = ( DbSearchResult ) list.next();
+            SearchResult result = ( SearchResult ) list.next();
 
             set.add( result.getName() );
         }

@@ -21,20 +21,12 @@ import javax.naming.spi.InitialContextFactory;
 
 
 /**
- * A server-side provider implementation of a InitialContextFactory.  Can be
- * utilized via JNDI API in the standard fashion:
- *
- * <code>
- * Hashtable env = new Hashtable();
- * env.put( Context.PROVIDER_URL, "ou=system" );
- * env.put(
- * Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
- * InitialContext initialContext = new InitialContext( env );
- * </code>
+ * A simplistic implementation of {@link AbstractContextFactory}.
+ * This class simply extends {@link AbstractContextFactory} and leaves all
+ * abstract event listener methods as empty.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
- * @see javax.naming.spi.InitialContextFactory
  */
 public class CoreContextFactory extends AbstractContextFactory implements InitialContextFactory
 {
@@ -45,27 +37,45 @@ public class CoreContextFactory extends AbstractContextFactory implements Initia
     {
     }
 
-    protected void beforeStartup( ContextFactoryConfiguration ctx ) throws NamingException
+    /**
+     * Does nothing by default.
+     */
+    public void beforeStartup( ContextFactoryService service ) throws NamingException
     {
     }
 
-    protected void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException
+    /**
+     * Does nothing by default.
+     */
+    public void afterStartup( ContextFactoryService service ) throws NamingException
     {
     }
     
-    protected void beforeShutdown( ContextFactoryConfiguration ctx ) throws NamingException
+    /**
+     * Does nothing by default.
+     */
+    public void beforeShutdown( ContextFactoryService service ) throws NamingException
     {
     }
     
-    protected void afterShutdown( ContextFactoryConfiguration ctx ) throws NamingException
+    /**
+     * Does nothing by default.
+     */
+    public void afterShutdown( ContextFactoryService service ) throws NamingException
     {
     }
     
-    protected void beforeSync( ContextFactoryConfiguration ctx ) throws NamingException
+    /**
+     * Does nothing by default.
+     */
+    public void beforeSync( ContextFactoryService service ) throws NamingException
     {
     }
 
-    protected void afterSync( ContextFactoryConfiguration ctx ) throws NamingException
+    /**
+     * Does nothing by default.
+     */
+    public void afterSync( ContextFactoryService service ) throws NamingException
     {
     }
 }

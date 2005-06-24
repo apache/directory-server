@@ -17,10 +17,14 @@
 package org.apache.ldap.server.jndi;
 
 
-import org.apache.ldap.common.exception.LdapServiceUnavailableException;
-import org.apache.ldap.common.message.ResultCodeEnum;
+import java.util.Hashtable;
 
-import javax.naming.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
@@ -29,19 +33,22 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
+
+import org.apache.ldap.common.exception.LdapServiceUnavailableException;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.server.configuration.SyncConfiguration;
 
 
 /**
  * A do nothing placeholder context whose methods throw ConfigurationExceptions.
- * The provider returns these context when the shutdown environment property key
- * is set.  By returning a non-null Context we prevent an unnecessary exception
- * being thrown by InitialConext and any one of its subclasses.
+ * JNDI provider returns this context when your specify {@link SyncConfiguration}
+ * in JNDI environment.  By returning a non-null Context we prevent an unnecessary
+ * exception being thrown by {@link InitialContext} and any one of its subclasses.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev$, $Date$
  */
-public class DeadContext implements LdapContext
+class DeadContext implements LdapContext
 {
     private final String EXCEPTION_MSG = "Context operation unavailable when " +
             "invoked after Eve provider has been shutdown";

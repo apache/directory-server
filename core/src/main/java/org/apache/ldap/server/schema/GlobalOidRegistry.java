@@ -17,11 +17,15 @@
 package org.apache.ldap.server.schema;
 
 
-import org.apache.ldap.server.SystemPartition;
-import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingException;
-import java.util.*;
+
+import org.apache.ldap.server.schema.bootstrap.BootstrapOidRegistry;
 
 
 /**
@@ -45,9 +49,6 @@ public class GlobalOidRegistry implements OidRegistry
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapOidRegistry bootstrap;
 
-    /** the system partition where we keep attributeType updates */
-    private SystemPartition systemPartition;
-
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -57,21 +58,13 @@ public class GlobalOidRegistry implements OidRegistry
     /**
      * Creates a default OidRegistry by initializing the map and the montior.
      */
-    public GlobalOidRegistry( SystemPartition systemPartition,
-            BootstrapOidRegistry bootstrap )
+    public GlobalOidRegistry( BootstrapOidRegistry bootstrap )
     {
         this.bootstrap = bootstrap;
 
         if ( this.bootstrap == null )
         {
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
-        }
-
-        this.systemPartition = systemPartition;
-
-        if ( this.systemPartition == null )
-        {
-            throw new NullPointerException( "the system partition cannot be null" ) ;
         }
     }
 
