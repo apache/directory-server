@@ -103,7 +103,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
         // Add partition 'MixedCase'
         pcfg = new MutableContextPartitionConfiguration();
-        pcfg.setName( "example" );
+        pcfg.setName( "mixedcase" );
         pcfg.setSuffix( "dc=MixedCase" );
         
         indexedAttrs = new HashSet();
