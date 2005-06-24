@@ -62,7 +62,7 @@ public class ServerContextFactory extends CoreContextFactory
     // Members
     // ------------------------------------------------------------------------
 
-    protected void afterShutdown( ContextFactoryConfiguration ctx )
+    public void afterShutdown( ContextFactoryService service )
     {
         if ( minaRegistry != null )
         {
@@ -80,11 +80,11 @@ public class ServerContextFactory extends CoreContextFactory
         }
     }
     
-    protected void afterStartup( ContextFactoryConfiguration ctx ) throws NamingException
+    public void afterStartup( ContextFactoryService service ) throws NamingException
     {
         ServerStartupConfiguration cfg =
-            ( ServerStartupConfiguration ) ctx.getConfiguration();
-        Hashtable env = ctx.getEnvironment();
+            ( ServerStartupConfiguration ) service.getConfiguration().getStartupConfiguration();
+        Hashtable env = service.getConfiguration().getEnvironment();
 
         if ( cfg.isEnableNetworking() )
         {
