@@ -60,7 +60,7 @@ public class StartupConfiguration extends Configuration
     
     private Set bootstrapSchemas; // Set<BootstrapSchema>
     private Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
-    private Set testEntries = new HashSet(); // Set<Attributes>
+    private List testEntries = new ArrayList(); // Set<Attributes>
     
     protected StartupConfiguration()
     {
@@ -287,19 +287,19 @@ public class StartupConfiguration extends Configuration
      * Returns test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      */
-    public Set getTestEntries()
+    public List getTestEntries()
     {
-        return ConfigurationUtil.getClonedAttributesSet( testEntries );
+        return ConfigurationUtil.getClonedAttributesList( testEntries );
     }
 
     /**
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      */
-    protected void setTestEntries( Set testEntries )
+    protected void setTestEntries( List testEntries )
     {
-         testEntries = ConfigurationUtil.getClonedAttributesSet(
-                ConfigurationUtil.getTypeSafeSet( testEntries, Attributes.class ) );
+         testEntries = ConfigurationUtil.getClonedAttributesList(
+                ConfigurationUtil.getTypeSafeList( testEntries, Attributes.class ) );
          
          Iterator i = testEntries.iterator();
          while( i.hasNext() )

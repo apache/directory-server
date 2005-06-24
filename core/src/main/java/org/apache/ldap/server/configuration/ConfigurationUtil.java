@@ -98,17 +98,17 @@ class ConfigurationUtil
     }
     
     /**
-     * Returns the deep clone of the specified {@link Attributes} set.
+     * Returns the deep clone of the specified {@link Attributes} list.
      */
-    static Set getClonedAttributesSet( Set set )
+    static List getClonedAttributesList( List list )
     {
-        Set newSet = new HashSet();
-        Iterator i = set.iterator();
+        List newList = new ArrayList();
+        Iterator i = list.iterator();
         while( i.hasNext() )
         {
-            newSet.add( ( ( Attributes ) i.next() ).clone() );
+            newList.add( ( ( Attributes ) i.next() ).clone() );
         }
-        return newSet;
+        return newList;
     }
 
     /**
