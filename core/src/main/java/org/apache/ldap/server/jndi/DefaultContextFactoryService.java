@@ -155,14 +155,15 @@ class DefaultContextFactoryService implements ContextFactoryService
 
     public synchronized void startup( ContextFactoryServiceListener listener, Hashtable env ) throws NamingException
     {
+        Hashtable envCopy = ( Hashtable ) env.clone();
+
         if( started )
         {
             return;
         }
 
         StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
-
-        env.put( Context.PROVIDER_URL, "" );
+        envCopy.put( Context.PROVIDER_URL, "" );
         
         try
         {
@@ -175,7 +176,7 @@ class DefaultContextFactoryService implements ContextFactoryService
             throw ne;
         }
 
-        this.environment = env;
+        this.environment = envCopy;
         this.startupConfiguration = cfg;
         
         listener.beforeStartup( this );

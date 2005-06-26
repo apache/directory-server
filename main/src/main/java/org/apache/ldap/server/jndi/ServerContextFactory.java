@@ -24,8 +24,10 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import javax.naming.NamingException;
+import javax.naming.Context;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.kerberos.protocol.KerberosProtocolProvider;
 import org.apache.kerberos.service.KdcConfiguration;
@@ -34,6 +36,7 @@ import org.apache.kerberos.store.PrincipalStore;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.PropertiesUtils;
+import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
@@ -132,25 +135,38 @@ public class ServerContextFactory extends CoreContextFactory
         }
 
         KdcConfiguration config = new KdcConfiguration( props );
-
         int port = PropertiesUtils.get( env, KdcConfiguration.KERBEROS_PORT_KEY, KdcConfiguration.DEFAULT_KERBEROS_PORT );
-
         Service service= new Service( "kerberos", TransportType.DATAGRAM, new InetSocketAddress( port ) );
-
-        InitialLdapContext ctx = new InitialLdapContext( env, new Control[]{} );
-
+        LdapContext ctx = getBaseRealmContext( config, env );
         PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=Users" ) );
 
         try
         {
             minaRegistry.bind( service, new KerberosProtocolProvider( config, store ) );
-
             kerberosService = service;
         }
         catch ( IOException e )
         {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * Maps a Kerberos Realm name to a position within the DIT.  The primary realm of
+     * the KDC will use this area for configuration and for storing user entries.
+     *
+     * @param config the KDC's configuration
+     * @param env the JNDI environment properties
+     * @return the base context for the primary realm of the KDC
+     * @throws NamingException
+     */
+    private LdapContext getBaseRealmContext( KdcConfiguration config, Hashtable env ) throws NamingException
+    {
+        Hashtable cloned = ( Hashtable ) env.clone();
+        String dn = NamespaceTools.inferLdapName( config.getPrimaryRealm() );
+        cloned.put( Context.PROVIDER_URL, dn );
+        return new InitialLdapContext( cloned, new Control[]{} );
     }
 
 

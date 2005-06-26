@@ -78,8 +78,6 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
     public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         Configuration cfg = Configuration.toConfiguration( env );
-        env = ( Hashtable ) env.clone();
-        
         String principal = getPrincipal( env );
         byte[] credential = getCredential( env );
         String authentication = getAuthentication( env );
