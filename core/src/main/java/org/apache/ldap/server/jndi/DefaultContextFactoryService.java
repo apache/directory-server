@@ -53,7 +53,7 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class DefaultContextFactoryService implements ContextFactoryService
+class DefaultContextFactoryService extends ContextFactoryService
 {
     private final ContextFactoryConfiguration configuration = new DefaultContextFactoryConfiguration( this );
 

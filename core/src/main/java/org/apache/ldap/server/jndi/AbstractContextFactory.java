@@ -65,9 +65,6 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
     // Members
     // ------------------------------------------------------------------------
 
-    /** The singleton service instance */
-    private static final ContextFactoryService service = new DefaultContextFactoryService();
-
     /**
      * Creates a new instance.
      */
@@ -83,10 +80,12 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         String authentication = getAuthentication( env );
         String providerUrl = getProviderUrl( env );
 
+        ContextFactoryService service = ContextFactoryService.getInstance();
+
         // Execute configuration
         if( cfg instanceof ShutdownConfiguration )
         {
-            ( ( DefaultContextFactoryService ) service ).shutdown();
+            service.shutdown();
         }
         else if( cfg instanceof SyncConfiguration )
         {

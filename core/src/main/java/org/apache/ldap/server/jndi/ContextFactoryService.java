@@ -29,8 +29,15 @@ import org.apache.ldap.server.partition.ContextPartition;
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-public interface ContextFactoryService
+public abstract class ContextFactoryService
 {
+    private static final ContextFactoryService instance = new DefaultContextFactoryService();
+
+    public static ContextFactoryService getInstance()
+    {
+        return instance;
+    }
+
     /**
      * Starts up this service.
      * 
@@ -39,28 +46,28 @@ public interface ContextFactoryService
      * 
      * @throws NamingException if failed to start up
      */
-    void startup( ContextFactoryServiceListener listener, Hashtable environment ) throws NamingException;
+    public abstract void startup( ContextFactoryServiceListener listener, Hashtable environment ) throws NamingException;
     
     /**
      * Shuts down this service.
      * 
      * @throws NamingException if failed to shut down
      */
-    void shutdown() throws NamingException;
+    public abstract void shutdown() throws NamingException;
     
     /**
      * Calls {@link ContextPartition#sync()} for all registered {@link ContextPartition}s.
      * @throws NamingException if synchronization failed
      */
-    void sync() throws NamingException;
+    public abstract void sync() throws NamingException;
     
     /**
      * Returns <tt>true</tt> if this service is started.
      */
-    boolean isStarted();
+    public abstract boolean isStarted();
     
     /**
      * Returns the configuration of this service.
      */
-    ContextFactoryConfiguration getConfiguration();
+    public abstract ContextFactoryConfiguration getConfiguration();
 }
