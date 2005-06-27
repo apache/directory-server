@@ -9,6 +9,10 @@
     <attainGoal name="plugin:repository-deploy"/>
   </goal>
 
+  <goal name="multiproject:deploy-snapshot-callback">
+    <attainGoal name="plugin:repository-deploy-snapshot"/>
+  </goal>
+
   <preGoal name="eclipse">
     <attainGoal name="antlr:generate" />
   </preGoal>
