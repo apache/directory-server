@@ -273,7 +273,15 @@ public abstract class AbstractTestCase extends TestCase
         
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.CoreContextFactory" );
         envFinal.putAll( overrides );
+        
+        // We have to initiate the first run as an admin at least.
+        Hashtable adminEnv = new Hashtable( envFinal );
+        adminEnv.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        adminEnv.put( Context.SECURITY_CREDENTIALS, "secret" );
+        adminEnv.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        new InitialLdapContext( adminEnv, null );
 
+        // OK, now let's get an appropriate context.
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
 

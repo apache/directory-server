@@ -22,6 +22,7 @@ import java.util.Iterator;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
@@ -368,6 +369,7 @@ class DefaultContextFactoryService extends ContextFactoryService
          */
         if ( !partitionNexus.hasEntry( ContextPartitionNexus.getAdminName() ) )
         {
+            checkPermissionToCreateBootstrapEntries();
             firstStart = true;
 
             Attributes attributes = new LockableAttributesImpl();
@@ -376,7 +378,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( "objectClass", "organizationalPerson" );
             attributes.put( "objectClass", "inetOrgPerson" );
             attributes.put( "uid", ContextPartitionNexus.ADMIN_UID );
-            attributes.put( "userPassword", ContextPartitionNexus.ADMIN_PW );
+            attributes.put( "userPassword", environment.get( Context.SECURITY_CREDENTIALS ) );
             attributes.put( "displayName", "Directory Superuser" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -392,7 +394,8 @@ class DefaultContextFactoryService extends ContextFactoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=users,ou=system" ) ) )
         {
             firstStart = true;
-            
+            checkPermissionToCreateBootstrapEntries();
+
             Attributes attributes = new LockableAttributesImpl();
             attributes.put( "objectClass", "top" );
             attributes.put( "objectClass", "organizationalUnit" );
@@ -410,6 +413,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=groups,ou=system" ) ) )
         {
             firstStart = true;
+            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             attributes.put( "objectClass", "top" );
@@ -428,6 +432,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         if ( !partitionNexus.hasEntry( new LdapName( "prefNodeName=sysPrefRoot,ou=system" ) ) )
         {
             firstStart = true;
+            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             attributes.put( "objectClass", "top" );
@@ -444,6 +449,17 @@ class DefaultContextFactoryService extends ContextFactoryService
 
         return firstStart;
     }
+    
+    private void checkPermissionToCreateBootstrapEntries() throws NamingException
+    {
+        if( !ContextPartitionNexus.ADMIN_PRINCIPAL.equals(
+                environment.get( Context.SECURITY_PRINCIPAL ).toString() ) )
+        {
+            throw new NoPermissionException(
+                    "Only '" + ContextPartitionNexus.ADMIN_PRINCIPAL + "' can initiate the first run." );
+        }
+    }
+
 
 
     private void createTestEntries() throws NamingException

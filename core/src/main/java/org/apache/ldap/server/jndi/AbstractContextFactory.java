@@ -75,6 +75,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
     public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         Configuration cfg = Configuration.toConfiguration( env );
+        env = ( Hashtable ) env.clone();
         String principal = getPrincipal( env );
         byte[] credential = getCredential( env );
         String authentication = getAuthentication( env );
@@ -113,6 +114,9 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
             value = "";
         }
         providerUrl = value.toString();
+        
+        env.put( Context.PROVIDER_URL, providerUrl );
+        
         return providerUrl;
     }
 
@@ -128,6 +132,9 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         {
             authentication = value.toString();
         }
+        
+        env.put( Context.SECURITY_AUTHENTICATION, authentication );
+        
         return authentication;
     }
 
@@ -151,6 +158,12 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         {
             throw new ConfigurationException( "Can't convert '" + Context.SECURITY_CREDENTIALS + "' to byte[]." );
         }
+        
+        if( credential != null )
+        {
+            env.put( Context.SECURITY_CREDENTIALS, credential );
+        }
+
         return credential;
     }
 
@@ -165,7 +178,9 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         else
         {
             principal = value.toString();
+            env.put( Context.SECURITY_PRINCIPAL, principal );
         }
+        
         return principal;
     }
 }
