@@ -41,6 +41,11 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
     {
         this.parent = parent;
     }
+    
+    public String getInstanceId()
+    {
+        return parent.getInstanceId();
+    }
 
     public ContextFactoryServiceListener getServiceListener()
     {

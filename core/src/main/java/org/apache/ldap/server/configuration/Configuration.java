@@ -36,6 +36,12 @@ public abstract class Configuration implements Cloneable, Serializable
      * A JNDI environment key that configuration instance is put on. 
      */
     public static final String JNDI_KEY = Configuration.class.getName();
+    
+    /**
+     * The default ID of {@link ContextFactoryService} that is used
+     * when no instance ID is specified. 
+     */
+    public static final String DEFAULT_INSTANCE_ID = "default";
 
     /**
      * Gets {@link Configuration} instance from the specified JNDI environment
@@ -53,6 +59,32 @@ public abstract class Configuration implements Cloneable, Serializable
         }
         
         return ( Configuration ) value;
+    }
+    
+    private String instanceId = DEFAULT_INSTANCE_ID;
+    
+    /**
+     * Creates a new instance.
+     */
+    protected Configuration()
+    {
+    }
+    
+    /**
+     * Returns the ID of {@link ContextFactoryService} instance to configure.
+     */
+    public String getInstanceId()
+    {
+        return instanceId;
+    }
+    
+    /**
+     * Sets the ID of {@link ContextFactoryService} instance to configure.
+     */
+    protected void setInstanceId( String instanceId )
+    {
+        instanceId = instanceId.trim();
+        this.instanceId = instanceId;
     }
 
     /**

@@ -16,11 +16,16 @@
  */
 package org.apache.ldap.server.jndi;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.partition.ContextPartition;
 
 /**
@@ -31,11 +36,39 @@ import org.apache.ldap.server.partition.ContextPartition;
  */
 public abstract class ContextFactoryService
 {
-    private static final ContextFactoryService instance = new DefaultContextFactoryService();
+    private static final Map instances = new HashMap();
 
+    /**
+     * Returns the default instance.  This method is identical with calling
+     * <tt>getInstance( Configuration.DEFAULT_INSTANCE_ID )</tt>.
+     */
     public static ContextFactoryService getInstance()
     {
-        return instance;
+        return getInstance( Configuration.DEFAULT_INSTANCE_ID );
+    }
+    
+    /**
+     * Returns {@link ContextFactoryService} with the specified instance ID.
+     */
+    public synchronized static ContextFactoryService getInstance( String instanceId )
+    {
+        instanceId = instanceId.trim();
+        ContextFactoryService service = ( ContextFactoryService ) instances.get( instanceId );
+        if( service == null )
+        {
+            service = new DefaultContextFactoryService( instanceId );
+            instances.put( instanceId, service );
+        }
+        
+        return service;
+    }
+    
+    /**
+     * Returns all instances of instantiated {@link ContextFactoryService}.
+     */
+    public synchronized static Set getAllInstances()
+    {
+        return new HashSet( instances.values() );
     }
 
     /**

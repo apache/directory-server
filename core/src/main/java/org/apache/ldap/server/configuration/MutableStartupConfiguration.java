@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ldap.server.jndi.ContextFactoryService;
+
 /**
  * A mutable version of {@link StartupConfiguration}.
  *
@@ -37,6 +39,20 @@ public class MutableStartupConfiguration extends StartupConfiguration
      */
     public MutableStartupConfiguration()
     {
+    }
+    
+    /**
+     * Creates a new instance that operates on the {@link ContextFactoryService}
+     * with the specified ID.
+     */
+    public MutableStartupConfiguration( String instanceId )
+    {
+        super( instanceId );
+    }
+
+    public void setInstanceId( String instanceId )
+    {
+        super.setInstanceId( instanceId );
     }
 
     public void setAuthenticatorConfigurations( Set authenticators )

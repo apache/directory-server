@@ -36,4 +36,13 @@ public class SyncConfiguration extends Configuration
     public SyncConfiguration()
     {
     }
+    
+    /**
+     * Creates a new instance that operates on the {@link ContextFactoryService}
+     * with the specified ID.
+     */
+    public SyncConfiguration( String instanceId )
+    {
+        setInstanceId( instanceId );
+    }
 }

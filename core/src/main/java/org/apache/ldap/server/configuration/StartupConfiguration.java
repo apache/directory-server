@@ -32,6 +32,7 @@ import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.SimpleAuthenticator;
 import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.exception.ExceptionService;
+import org.apache.ldap.server.jndi.ContextFactoryService;
 import org.apache.ldap.server.normalization.NormalizationService;
 import org.apache.ldap.server.operational.OperationalAttributeService;
 import org.apache.ldap.server.schema.SchemaService;
@@ -62,11 +63,26 @@ public class StartupConfiguration extends Configuration
     private Set contextPartitionConfigurations = new HashSet(); // Set<ContextPartitionConfiguration>
     private List testEntries = new ArrayList(); // List<Attributes>
     
-    protected StartupConfiguration()
+    /**
+     * Creates a new instance with default settings.
+     */
+    public StartupConfiguration()
     {
         setDefaultAuthenticatorConfigurations();
         setDefaultBootstrapSchemas();
         setDefaultInterceptorConfigurations();
+    }
+
+    /**
+     * Creates a new instance with default settings that operates on the
+     * {@link ContextFactoryService} with the specified ID.
+     */
+    public StartupConfiguration( String instanceId )
+    {
+        setDefaultAuthenticatorConfigurations();
+        setDefaultBootstrapSchemas();
+        setDefaultInterceptorConfigurations();
+        setInstanceId( instanceId );
     }
 
     private void setDefaultAuthenticatorConfigurations()

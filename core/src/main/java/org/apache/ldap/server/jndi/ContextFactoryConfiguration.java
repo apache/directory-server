@@ -34,6 +34,10 @@ import org.apache.ldap.server.schema.GlobalRegistries;
  */
 public interface ContextFactoryConfiguration
 {
+    /**
+     * Returns the instance ID of the {@link ContextFactoryService}.
+     */
+    String getInstanceId();
     
     /**
      * Returns the listener that listens to service events.

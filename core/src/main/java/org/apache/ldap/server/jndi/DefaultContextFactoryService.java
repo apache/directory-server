@@ -56,6 +56,8 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
  */
 class DefaultContextFactoryService extends ContextFactoryService
 {
+    private final String instanceId;
+
     private final ContextFactoryConfiguration configuration = new DefaultContextFactoryConfiguration( this );
 
     private ContextFactoryServiceListener serviceListener;
@@ -89,8 +91,15 @@ class DefaultContextFactoryService extends ContextFactoryService
     /**
      * Creates a new instance.
      */
-    public DefaultContextFactoryService()
+    public DefaultContextFactoryService( String instanceId )
     {
+        if( instanceId == null )
+        {
+            throw new NullPointerException( "instanceId" );
+        }
+        
+        this.instanceId = instanceId;
+        
         // Register shutdown hook.
         Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
             public void run()
@@ -236,6 +245,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             startupConfiguration = null;
             serviceListener.afterShutdown( this );
         }
+    }
+    
+    public String getInstanceId()
+    {
+        return instanceId;
     }
     
     public ContextFactoryConfiguration getConfiguration()

@@ -18,6 +18,8 @@
  */
 package org.apache.ldap.server.configuration;
 
+import org.apache.ldap.server.jndi.ContextFactoryService;
+
 /**
  * A {@link Configuration} that shuts down ApacheDS.
  *
@@ -33,5 +35,14 @@ public class ShutdownConfiguration extends Configuration
      */
     public ShutdownConfiguration()
     {
+    }
+
+    /**
+     * Creates a new instance that operates on the {@link ContextFactoryService}
+     * with the specified ID.
+     */
+    public ShutdownConfiguration( String instanceId )
+    {
+        setInstanceId( instanceId );
     }
 }
