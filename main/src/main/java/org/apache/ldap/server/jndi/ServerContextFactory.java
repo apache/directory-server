@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
@@ -33,6 +34,7 @@ import org.apache.kerberos.protocol.KerberosProtocolProvider;
 import org.apache.kerberos.service.KdcConfiguration;
 import org.apache.kerberos.store.JndiPrincipalStoreImpl;
 import org.apache.kerberos.store.PrincipalStore;
+import org.apache.kerberos.sam.SamSubsystem;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.PropertiesUtils;
@@ -139,6 +141,7 @@ public class ServerContextFactory extends CoreContextFactory
         Service service= new Service( "kerberos", TransportType.DATAGRAM, new InetSocketAddress( port ) );
         LdapContext ctx = getBaseRealmContext( config, env );
         PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=Users" ) );
+        SamSubsystem.getInstance().setUserContext( ( DirContext ) ctx, "ou=Users" );
 
         try
         {
