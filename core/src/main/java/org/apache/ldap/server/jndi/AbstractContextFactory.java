@@ -101,7 +101,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
             throw new NamingException( "Unknown configuration: " + cfg );
         }
         
-        return service.getConfiguration().getJndiContext( principal, credential, authentication, providerUrl );
+        return service.getJndiContext( principal, credential, authentication, providerUrl );
     }
 
     private String getProviderUrl( Hashtable env )

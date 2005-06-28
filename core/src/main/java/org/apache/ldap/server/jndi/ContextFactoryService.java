@@ -22,6 +22,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -103,4 +104,22 @@ public abstract class ContextFactoryService
      * Returns the configuration of this service.
      */
     public abstract ContextFactoryConfiguration getConfiguration();
+
+    /**
+     * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>
+     * @throws NamingException if failed to create a context
+     */
+    public abstract Context getJndiContext( String baseName ) throws NamingException;
+    
+    /**
+     * Returns a JNDI {@link Context} with the specified authentication information
+     * (<tt>principal</tt>, <tt>credential</tt>, and <tt>authentication</tt>) and
+     * <tt>baseName</tt>.
+     * 
+     * @param principal {@link Context#SECURITY_PRINCIPAL} value
+     * @param credential {@link Context#SECURITY_CREDENTIALS} value
+     * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
+     * @throws NamingException if failed to create a context
+     */
+    public abstract Context getJndiContext( String principal, byte[] credential, String authentication, String baseName ) throws NamingException;
 }

@@ -19,7 +19,6 @@ package org.apache.ldap.server.jndi;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
@@ -34,6 +33,12 @@ import org.apache.ldap.server.schema.GlobalRegistries;
  */
 public interface ContextFactoryConfiguration
 {
+    
+    /**
+     * Returns the {@link ContextFactoryService} for this configuration.
+     */
+    ContextFactoryService getService();
+    
     /**
      * Returns the instance ID of the {@link ContextFactoryService}.
      */
@@ -74,22 +79,4 @@ public interface ContextFactoryConfiguration
      * and bootstrap entries have been created for the first time.
      */
     boolean isFirstStart();
-    
-    /**
-     * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>
-     * @throws NamingException if failed to create a context
-     */
-    Context getJndiContext( String baseName ) throws NamingException;
-    
-    /**
-     * Returns a JNDI {@link Context} with the specified authentication information
-     * (<tt>principal</tt>, <tt>credential</tt>, and <tt>authentication</tt>) and
-     * <tt>baseName</tt>.
-     * 
-     * @param principal {@link Context#SECURITY_PRINCIPAL} value
-     * @param credential {@link Context#SECURITY_CREDENTIALS} value
-     * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
-     * @throws NamingException if failed to create a context
-     */
-    Context getJndiContext( String principal, byte[] credential, String authentication, String baseName ) throws NamingException;
 }
