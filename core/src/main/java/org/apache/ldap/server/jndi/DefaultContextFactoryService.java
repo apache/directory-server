@@ -466,8 +466,8 @@ class DefaultContextFactoryService extends ContextFactoryService
     
     private void checkPermissionToCreateBootstrapEntries() throws NamingException
     {
-        if( !ContextPartitionNexus.ADMIN_PRINCIPAL.equals(
-                environment.get( Context.SECURITY_PRINCIPAL ).toString() ) )
+        String principal = ( String ) environment.get( Context.SECURITY_PRINCIPAL );
+        if( principal == null || !ContextPartitionNexus.ADMIN_PRINCIPAL.equals( principal ) )
         {
             throw new NoPermissionException(
                     "Only '" + ContextPartitionNexus.ADMIN_PRINCIPAL + "' can initiate the first run." );
