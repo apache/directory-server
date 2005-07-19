@@ -63,9 +63,10 @@ public class ServerContextFactory extends CoreContextFactory
     private static ServiceRegistry minaRegistry;
 
 
-    // ------------------------------------------------------------------------
-    // Members
-    // ------------------------------------------------------------------------
+    protected ServiceRegistry getMinaRegistry()
+    {
+        return minaRegistry;
+    }
 
     public void afterShutdown( ContextFactoryService service )
     {
