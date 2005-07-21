@@ -44,6 +44,8 @@ import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -56,10 +58,9 @@ import org.apache.mina.registry.ServiceRegistry;
  */
 public class ServerContextFactory extends CoreContextFactory
 {
+    private static Log log = LogFactory.getLog( ServerContextFactory.class.getName() );
     private static Service ldapService;
-
     private static Service kerberosService;
-
     private static ServiceRegistry minaRegistry;
 
 
@@ -75,12 +76,20 @@ public class ServerContextFactory extends CoreContextFactory
             if ( ldapService != null )
             {
                 minaRegistry.unbind( ldapService );
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Unbind of LDAP Service complete: " + ldapService );
+                }
                 ldapService = null;
             }
 
             if ( kerberosService != null )
             {
                 minaRegistry.unbind( kerberosService );
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Unbind of KRB5 Service complete: " + kerberosService );
+                }
                 kerberosService = null;
             }
         }
@@ -124,7 +133,6 @@ public class ServerContextFactory extends CoreContextFactory
          * Looks like KdcConfiguration takes properties and we use Hashtable for JNDI
          * so I'm copying over the String based properties into a new Properties obj.
          */
-
         Properties props = new Properties();
         Iterator list = env.keySet().iterator();
         while ( list.hasNext() )
@@ -137,6 +145,7 @@ public class ServerContextFactory extends CoreContextFactory
             }
         }
 
+        // construct the configuration, get the port, create the service, and prepare kdc objects
         KdcConfiguration config = new KdcConfiguration( props );
         int port = PropertiesUtils.get( env, KdcConfiguration.KERBEROS_PORT_KEY, KdcConfiguration.DEFAULT_KERBEROS_PORT );
         Service service= new Service( "kerberos", TransportType.DATAGRAM, new InetSocketAddress( port ) );
@@ -148,10 +157,15 @@ public class ServerContextFactory extends CoreContextFactory
         {
             minaRegistry.bind( service, new KerberosProtocolProvider( config, store ) );
             kerberosService = service;
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Successful bind of KRB5 Service completed: " + kerberosService );
+            }
         }
         catch ( IOException e )
         {
-            e.printStackTrace();
+            log.error( "Could not start the kerberos service on port " +
+                    KdcConfiguration.DEFAULT_KERBEROS_PORT, e );
         }
     }
 
@@ -170,6 +184,12 @@ public class ServerContextFactory extends CoreContextFactory
         Hashtable cloned = ( Hashtable ) env.clone();
         String dn = NamespaceTools.inferLdapName( config.getPrimaryRealm() );
         cloned.put( Context.PROVIDER_URL, dn );
+
+        if ( log.isInfoEnabled() )
+        {
+            log.info( "Getting initial context for realm base at " + dn + " for " + config.getPrimaryRealm() );
+        }
+
         return new InitialLdapContext( cloned, new Control[]{} );
     }
 
@@ -182,23 +202,23 @@ public class ServerContextFactory extends CoreContextFactory
     private void startLdapProtocol( ServerStartupConfiguration cfg, Hashtable env ) throws NamingException
     {
         int port = cfg.getLdapPort();
-
         Service service = new Service( "ldap", TransportType.SOCKET, new InetSocketAddress( port ) );
 
         try
         {
             minaRegistry.bind( service, new LdapProtocolProvider( ( Hashtable ) env.clone() ) );
-
             ldapService = service;
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Successful bind of LDAP Service completed: " + ldapService );
+            }
         }
         catch ( IOException e )
         {
             String msg = "Failed to bind the LDAP protocol service to the service registry: " + service;
-
             LdapConfigurationException lce = new LdapConfigurationException( msg );
-
             lce.setRootCause( e );
-
+            log.error( msg, e );
             throw lce;
         }
     }
