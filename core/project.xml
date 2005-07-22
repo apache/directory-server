@@ -83,7 +83,7 @@
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ldap-protocol</artifactId>
-      <version>0.9.1</version>
+      <version>0.9.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
