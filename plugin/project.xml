@@ -46,7 +46,7 @@
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>0.9.1-SNAPSHOT</version>
+      <version>0.9.1</version>
     </dependency>
     <dependency>
       <groupId>directory</groupId>

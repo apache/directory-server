@@ -73,7 +73,7 @@
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>ldap-common</artifactId>
-      <version>0.9.1-SNAPSHOT</version>
+      <version>0.9.1</version>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
@@ -83,22 +83,22 @@
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ldap-protocol</artifactId>
-      <version>0.9</version>
+      <version>0.9.1</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-codec</artifactId>
-      <version>0.3.1-SNAPSHOT</version>
+      <version>0.3.1</version>
     </dependency>
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>apache-ldapber-provider</artifactId>
-      <version>0.9</version>
+      <version>0.9.1</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-ber</artifactId>
-      <version>0.3</version>
+      <version>0.3.1</version>
     </dependency>
     <dependency>
       <groupId>directory-network</groupId>
