@@ -256,6 +256,39 @@ public class InterceptorChain
             }
         }
     }
+    
+    
+    /**
+     * Returns the registered interceptor with the specified name.
+     * @return <tt>null</tt> if the specified name doesn't exist.
+     */
+    public Interceptor get( String interceptorName )
+    {
+        Entry e = (Entry) name2entry.get( interceptorName );
+        if( e == null )
+        {
+            return null;
+        }
+        
+        return e.configuration.getInterceptor();
+    }
+    
+    /**
+     * Returns the list of all registered interceptors.
+     */
+    public List getAll()
+    {
+        List result = new ArrayList();
+        Entry e = head;
+        do
+        {
+            result.add( e.configuration.getInterceptor() );
+            e = e.nextEntry;
+        }
+        while ( e != tail );
+        
+        return result;
+    }
 
 
     /**
