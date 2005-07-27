@@ -152,6 +152,13 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "2.5.13.17", normalizer );
 
         /*
+        ( 2.5.13.18 NAME 'octetStringOrderingMatch'
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+          */
+         normalizer = new NoOpNormalizer();
+         cb.schemaObjectProduced( this, "2.5.13.18", normalizer );
+
+        /*
         ( 2.5.13.20 NAME 'telephoneNumberMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
           */
