@@ -265,6 +265,9 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
 
          ( 2.5.13.13 NAME 'booleanMatch'
            SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+           
+         ( 2.5.13.18 NAME 'octetStringOrderingMatch'
+           SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
 
          */
 
@@ -272,6 +275,10 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         mrule.setNames( new String[] { "booleanMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.7" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
+        
+        mrule = new BootstrapMatchingRule( "2.5.13.18", registries  );
+        mrule.setNames( new String[] { "octetStringOrderingMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }
 }

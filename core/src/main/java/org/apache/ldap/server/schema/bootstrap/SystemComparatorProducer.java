@@ -151,6 +151,13 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, "2.5.13.17", comparator );
 
+        /*
+        ( 2.5.13.18 NAME 'octetStringOrderingMatch'
+          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+          */
+         comparator = new ComparableComparator();
+         cb.schemaObjectProduced( this, "2.5.13.18", comparator );
+
          /*
         ( 2.5.13.20 NAME 'telephoneNumberMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
