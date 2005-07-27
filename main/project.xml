@@ -11,6 +11,16 @@
     be used as the JNDI provider or to fire up the standalone directory server.
   </description>
 
+  <build>
+      <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>log4j.properties</includes>
+            </resource>
+        </resources>
+  </build>
+
   <!-- Need to have all dependencies here so appjar bundles them -->
 
   <dependencies>

@@ -38,6 +38,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,6 +50,8 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
  */
 public class AddEntryDialog extends JDialog implements ActionListener
 {
+    private static final Logger log = LoggerFactory.getLogger(AddEntryDialog.class);
+
     private static final long serialVersionUID = 3544671793504663604L;
 
     private JPanel m_namePnl = new JPanel();
@@ -283,8 +287,8 @@ public class AddEntryDialog extends JDialog implements ActionListener
             //to return an Integer, not a String:
             public Object getCellEditorValue() 
             {
-                System.out.println( "Editor returning '" + l_textField.getText()
-                    + "'" );
+                if (log.isDebugEnabled())
+                    log.debug( "Editor returning '" + l_textField.getText() + "'" );
                 return l_textField.getText();
             }
         };
@@ -324,7 +328,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
         AttributesTableModel l_model = ( AttributesTableModel ) 
             m_attrTbl.getModel();
         int l_row = m_attrTbl.getSelectedRow();
-        System.out.println( l_cmd );
+        log.debug( l_cmd );
         
         if ( l_row >= l_model.getRowCount() || l_row < 0 )
         {

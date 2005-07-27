@@ -24,6 +24,8 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.server.partition.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.impl.btree.SearchEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,6 +36,8 @@ import org.apache.ldap.server.partition.impl.btree.SearchEngine;
  */
 public class PartitionViewer
 {
+    private static final Logger log = LoggerFactory.getLogger(PartitionViewer.class);
+
     /** A handle on the atomic partition */
     private BTreeContextPartition partition;
     private SearchEngine eng;
@@ -93,6 +97,6 @@ public class PartitionViewer
             ( screenSize.height - frameSize.height ) / 2) ;
 
         frame.setVisible( true );
-        System.out.println( frameSize ) ;
+        log.debug( frameSize + "") ;
     }
 }

@@ -74,6 +74,8 @@ import org.apache.ldap.server.partition.impl.btree.BTreeContextPartition;
 import org.apache.ldap.server.partition.impl.btree.Index;
 import org.apache.ldap.server.partition.impl.btree.IndexRecord;
 import org.apache.ldap.server.partition.impl.btree.SearchEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -84,6 +86,8 @@ import org.apache.ldap.server.partition.impl.btree.SearchEngine;
  */
 public class MainFrame extends JFrame
 {
+    private static final Logger log = LoggerFactory.getLogger(MainFrame.class);
+
     private static final long serialVersionUID = 4049353102291513657L;
 
     // Swing Stuff
@@ -301,8 +305,9 @@ public class MainFrame extends JFrame
         {
             public void actionPerformed( ActionEvent an_event ) 
             {
-                System.out.println( "action command = " 
-                    + an_event.getActionCommand() );
+                if (log.isDebugEnabled())
+                    log.debug( "action command = " + an_event.getActionCommand() );
+
                 try
                 {
                     doFilterDialog( an_event.getActionCommand() );
@@ -606,9 +611,13 @@ public class MainFrame extends JFrame
         String limit )
         throws Exception
     {
-        System.out.println( "Search attempt using filter '" + filter + "' "
+        if (log.isDebugEnabled())
+        {
+            log.debug( "Search attempt using filter '" + filter + "' "
             + "with scope '" + scope + "' and a return limit of '" + limit
             + "'" );
+        }
+
         FilterParser parser = new FilterParserImpl();
         ExprNode root = null;
 
@@ -712,9 +721,12 @@ public class MainFrame extends JFrame
     public void doDebug( String filter, String scope, String base,
         String limit )
     {
-        System.out.println( "Search attempt using filter '" + filter + "' "
+        if (log.isDebugEnabled())
+        {
+            log.debug( "Search attempt using filter '" + filter + "' "
             + "with scope '" + scope + "' and a return limit of '" + limit
             + "'" );
+        }
     }
 
 

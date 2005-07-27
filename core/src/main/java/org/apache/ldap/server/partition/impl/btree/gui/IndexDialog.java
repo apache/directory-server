@@ -42,6 +42,8 @@ import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.partition.impl.btree.Index;
 import org.apache.ldap.server.partition.impl.btree.IndexRecord;
 import org.apache.regexp.RE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -52,6 +54,8 @@ import org.apache.regexp.RE;
  */
 public class IndexDialog extends JDialog
 {
+    private static final Logger log = LoggerFactory.getLogger(IndexDialog.class);
+
     private static final long serialVersionUID = 3689917253680445238L;
 
     public static final String DEFAULT_CURSOR = "Default" ;
@@ -322,7 +326,10 @@ public class IndexDialog extends JDialog
                 if ( l_starIndex > 0 ) 
                 {
                     String l_prefix = a_key.substring( 0, l_starIndex ) ;
-                    System.out.println( "Regex prefix = " + l_prefix ) ;
+
+                    if (log.isDebugEnabled())
+                        log.debug( "Regex prefix = " + l_prefix ) ;
+
                     l_list = m_index.listIndices( l_regex, l_prefix ) ;
                 } 
                 else 

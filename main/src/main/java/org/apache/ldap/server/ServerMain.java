@@ -28,6 +28,8 @@ import org.apache.ldap.server.configuration.SyncConfiguration;
 import org.apache.ldap.server.jndi.ServerContextFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 
 /**
@@ -39,6 +41,8 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 public class ServerMain
 {
+    private static final Logger log = LoggerFactory.getLogger(ServerMain.class);
+    
     /**
      * Takes a single argument, an optional properties file to load with server
      * startup settings.
@@ -53,14 +57,14 @@ public class ServerMain
 
         if ( args.length > 0 )
         {
-            System.out.println( "server: loading settings from " + args[0] );
+            log.info( "server: loading settings from " + args[0] );
             ApplicationContext factory = new FileSystemXmlApplicationContext( args[0] );
             cfg = ( ServerStartupConfiguration ) factory.getBean( "configuration" );
             env = ( Properties ) factory.getBean( "environment" );
         }
         else
         {
-            System.out.println( "server: using default settings ..." );
+            log.info( "server: using default settings ..." );
             env = new Properties();
             cfg = new MutableServerStartupConfiguration();
         }
@@ -71,9 +75,11 @@ public class ServerMain
 
         new InitialDirContext( env );
 
-        System.out.println( "server: started in "
-                + ( System.currentTimeMillis() - startTime )
-                + " milliseconds");
+        if (log.isInfoEnabled())
+        {
+            log.info( "server: started in " + ( System.currentTimeMillis() - startTime )
+                    + " milliseconds");
+        }
 
         while ( true )
         {
