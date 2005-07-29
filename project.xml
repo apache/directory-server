@@ -3,7 +3,7 @@
 <project>
     <groupId>directory</groupId>
     <artifactId>apacheds</artifactId>
-    <currentVersion>0.9.1-SNAPSHOT</currentVersion>
+    <currentVersion>0.9.1</currentVersion>
     <name>Apache Directory Project</name>
     <url>http://directory.apache.org</url>
     <logo>http://directory.apache.org/images/apache-directory-logo.png</logo>
