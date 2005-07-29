@@ -16,8 +16,8 @@ Changes in 0.9.1 (since 0.9)
  o Started using SLF4J and NLog4J eventually to replace commons logging
  o Enabled multiple instances to exist for a single JVM
  o Added support for multiple calls to InitialContext with different principals
- o Added ContextFactoryService interface that gives user more control to available
-   ContextFactories in a JVM.
+ o Added ContextFactoryService interface that gives user more control to 
+   available ContextFactories in a JVM.
  o Refactoring ...
    o Created new partition package placing all store related classes there
      (see org.apache.ldap.server.partition)
