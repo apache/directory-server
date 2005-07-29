@@ -11,17 +11,24 @@ NOTE:  Regarding ApacheDS Releases
 
 Changes in 0.9.1 (since 0.9)
 ============================
- o Using new XML file format for main configuration
+ o Used SpringFramework to demonstrate runtime configuration
  o Removed dependency on AspectJ within the core
  o Started using SLF4J and NLog4J eventually to replace commons logging
  o Enabled multiple instances to exist for a single JVM
  o Added support for multiple calls to InitialContext with different principals
+ o Added ContextFactoryService interface that gives user more control to available
+   ContextFactories in a JVM.
  o Refactoring ...
    o Created new partition package placing all store related classes there
+     (see org.apache.ldap.server.partition)
+   o JdbmDatabase is replaced with JdbmContextPartition to simplify its design.
    o Made CoreContextFactory more extensible using pre post stage hooks
    o Simplified property based configuration using POJOs
+     (see org.apache.ldap.server.configuration)
    o Extracted JNDI configuration management into JNDI Utils
    o Using separate configuration beans for shutdown, sync and startup
+   o Redesigned Interceptor interface to be more user-friendly so that
+     Intereceptor implementations look cleaner.
  o Fixed bugs
    o DIREVE-155
    o DIREVE-175
