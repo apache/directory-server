@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+  
+<project default="test" 
+  xmlns:j="jelly:core" 
+  xmlns:u="jelly:util" 
+  xmlns:ant="jelly:ant" 
+  xmlns:maven="jelly:maven" 
+  >
+
+  <preGoal name="eclipse">
+    <attainGoal name="directory:schema"/>
+  </preGoal> 
+ 
+  <preGoal name="idea:module">
+    <attainGoal name="directory:schema"/>
+  </preGoal> 
+ 
+  <preGoal name="java:compile">
+    <attainGoal name="directory:schema"/>
+  </preGoal> 
+</project>
