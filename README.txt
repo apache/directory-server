@@ -20,12 +20,14 @@ Running
 
 To run with defaults,
 
-java -jar apacheds-main-0.9.jar 
+java -jar apacheds-main-<version>.jar 
 
 or with custom settings,
 
-java -jar apacheds-main-0.9.jar your.properties
+java -jar apacheds-main-<version>.jar your.properties
 
+where <version> is the current version of ApacheDS 
+(for instance, apache-main-0.9.1.jar)
 
 Connecting
 ----------
