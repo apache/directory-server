@@ -1,0 +1,100 @@
+#
+# ApacheDS schema for storing DNS zones in LDAP
+#
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.10 NAME 'apacheDNSTTL'
+	DESC 'An integer denoting time to live'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.11 NAME 'apacheDNSClass'
+	DESC 'The class of a resource record'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.12 NAME 'apacheZoneName'
+	DESC 'The name of a zone, i.e. the name of the highest node in the zone'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.13 NAME 'apacheName'
+        DESC 'Sequence of labels usually comprising a domain name or host name'
+	EQUALITY caseIgnoreIA5Match
+	SUBSTR caseIgnoreIA5SubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.14 NAME 'apacheIpAddress'
+        DESC 'A 4 octet IP address'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128} SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.14 NAME 'apacheDomainName'
+        DESC 'A domain name or sequence dotted labels'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.15 NAME 'apacheSOAMName'
+        DESC 'A domain name of the name server that was the primary source of data for this zone'
+        SUP apacheDomainName SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.16 NAME 'apacheSOARName'
+        DESC 'The domain name which specifies the mailbox of the person responsible for this zone'
+        SUP apacheDomainName SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.17 NAME 'apacheSOASerial'
+	DESC 'The unsigned 32 bit ver num of the original copy of the zone'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.18 NAME 'apacheSOARefresh'
+	DESC 'A 32 bit time interval before the zone should be refreshed'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.19 NAME 'apacheSOARetry'
+	DESC 'A 32 bit time interval that should elapse before a failed refresh should be retired'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.20 NAME 'apacheSOAExpire'
+	DESC 'A 32 bit time value that specifies the upper limit on the time interval that can elapse before the zone is no longer authoritative'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21 NAME 'apacheSOAMinimum'
+	DESC 'The unsigned 32 bit minimum TTL field that should be exported with any RR from this zone.'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.1
+        NAME 'apacheAbstractRecord'
+        DESC 'An abstract DNS record objectClass used to build other specific structural objectclasses for different record types'
+        SUP top
+        ABSTRACT 
+        MUST ( apacheDNSTTL $ apacheDNSClass $ apacheZoneName $ apacheName ) )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.2 
+        NAME 'apacheAddressRecord'
+        DESC 'An address record a.k.a. A record'
+        SUP apacheAbstractRecord 
+        MUST apacheIpAddress )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.3 
+        NAME 'apachePointerRecord'
+        DESC 'A DNS Pointer record'
+        SUP apacheAbstractRecord 
+        MUST apacheDomainName )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.4
+        NAME 'apacheNameServerRecord'
+        DESC 'A DNS Name Server record'
+        SUP apacheAbstractRecord 
+        MUST apacheName )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.5
+        NAME 'apacheStartOfAuthorityRecord'
+        DESC 'A DNS Start of Authority record'
+        SUP apacheAbstractRecord
+        MUST ( apacheSOAMName $ apacheSOARName $ apacheSOASerial $ apacheSOARefresh $ apacheSOARetry $ apacheSOAExpire $apacheSOAMinimum ) )
+
