@@ -57,7 +57,7 @@ public class ServerMain
 
         if ( args.length > 0 )
         {
-            log.info( "server: loading settings from " + args[0] );
+            log.info( "server: loading settings from {}", args[0] );
             ApplicationContext factory = new FileSystemXmlApplicationContext( args[0] );
             cfg = ( ServerStartupConfiguration ) factory.getBean( "configuration" );
             env = ( Properties ) factory.getBean( "environment" );
@@ -77,8 +77,8 @@ public class ServerMain
 
         if (log.isInfoEnabled())
         {
-            log.info( "server: started in " + ( System.currentTimeMillis() - startTime )
-                    + " milliseconds");
+            log.info( "server: started in {} milliseconds",
+                    ( System.currentTimeMillis() - startTime ) + "");
         }
 
         while ( true )
