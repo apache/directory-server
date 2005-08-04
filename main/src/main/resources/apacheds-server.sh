@@ -15,6 +15,7 @@ export CLASSPATH=$CLASSPATH:.
 
 if [[ $# -eq 0 ]]
         then echo "Loading default configuration ..."
+        ARGS="$ARGS apacheds-server.xml"
 else
     if [[ -e $1 ]]
             if [[ ! -f $1 ]]
