@@ -73,6 +73,9 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     /** the vendorName DSE operational attribute */
     private static final String VENDORNAME_ATTR = "vendorName";
 
+    /** the vendorVersion DSE operational attribute */
+    private static final String VENDORVERSION_ATTR = "vendorVersion";
+
     /** the namingContexts DSE operational attribute */
     private static final String NAMINGCTXS_ATTR = "namingContexts";
 
@@ -119,6 +122,10 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
         attr = new LockableAttributeImpl( VENDORNAME_ATTR );
         attr.add( ASF );
+        rootDSE.put( attr );
+
+        attr = new LockableAttributeImpl( VENDORVERSION_ATTR );
+        attr.add( "$Rev$" );
         rootDSE.put( attr );
     }
 
