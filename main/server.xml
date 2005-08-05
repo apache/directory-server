@@ -11,9 +11,7 @@
     		<prop key="java.naming.security.authentication">simple</prop>
     		<prop key="java.naming.security.principal">uid=admin,ou=system</prop>
     		<prop key="java.naming.security.credentials">secret</prop>
-    		<!--
-    		<prop key="java.naming.ldap.attributes.binary"></prop>
-    		-->
+    		<prop key="java.naming.ldap.attributes.binary">photo personalSignature audio jpegPhoto javaSerializedData userPassword userCertificate cACertificate authorityRevocationList certificateRevocationList crossCertificatePair x500UniqueIdentifier krb5Key</prop>
     	</props>
     </property>
   </bean>
