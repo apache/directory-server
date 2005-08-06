@@ -510,7 +510,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             Attributes attributes = new LockableAttributesImpl();
             attributes.put( "objectClass", "top" );
             attributes.put( "objectClass", "organizationalUnit" );
-            attributes.put( "ou", "configuration" );
+            attributes.put( "ou", "interceptors" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
