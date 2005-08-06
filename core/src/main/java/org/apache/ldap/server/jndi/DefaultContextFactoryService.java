@@ -440,6 +440,85 @@ class DefaultContextFactoryService extends ContextFactoryService
         }
 
         // -------------------------------------------------------------------
+        // create system configuration area
+        // -------------------------------------------------------------------
+
+        if ( !partitionNexus.hasEntry( new LdapName( "ou=configuration,ou=system" ) ) )
+        {
+            firstStart = true;
+            checkPermissionToCreateBootstrapEntries();
+
+            Attributes attributes = new LockableAttributesImpl();
+            attributes.put( "objectClass", "top" );
+            attributes.put( "objectClass", "organizationalUnit" );
+            attributes.put( "ou", "configuration" );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            partitionNexus.add( "ou=configuration,ou=system", new LdapName( "ou=configuration,ou=system" ), attributes );
+        }
+
+        // -------------------------------------------------------------------
+        // create system configuration area for partition information
+        // -------------------------------------------------------------------
+
+        if ( !partitionNexus.hasEntry( new LdapName( "ou=partitions,ou=configuration,ou=system" ) ) )
+        {
+            firstStart = true;
+            checkPermissionToCreateBootstrapEntries();
+
+            Attributes attributes = new LockableAttributesImpl();
+            attributes.put( "objectClass", "top" );
+            attributes.put( "objectClass", "organizationalUnit" );
+            attributes.put( "ou", "partitions" );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            partitionNexus.add( "ou=partitions,ou=configuration,ou=system",
+                    new LdapName( "ou=partitions,ou=configuration,ou=system" ), attributes );
+        }
+
+        // -------------------------------------------------------------------
+        // create system configuration area for services
+        // -------------------------------------------------------------------
+
+        if ( !partitionNexus.hasEntry( new LdapName( "ou=services,ou=configuration,ou=system" ) ) )
+        {
+            firstStart = true;
+            checkPermissionToCreateBootstrapEntries();
+
+            Attributes attributes = new LockableAttributesImpl();
+            attributes.put( "objectClass", "top" );
+            attributes.put( "objectClass", "organizationalUnit" );
+            attributes.put( "ou", "services" );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            partitionNexus.add( "ou=services,ou=configuration,ou=system",
+                    new LdapName( "ou=services,ou=configuration,ou=system" ), attributes );
+        }
+
+        // -------------------------------------------------------------------
+        // create system configuration area for interceptors
+        // -------------------------------------------------------------------
+
+        if ( !partitionNexus.hasEntry( new LdapName( "ou=interceptors,ou=configuration,ou=system" ) ) )
+        {
+            firstStart = true;
+            checkPermissionToCreateBootstrapEntries();
+
+            Attributes attributes = new LockableAttributesImpl();
+            attributes.put( "objectClass", "top" );
+            attributes.put( "objectClass", "organizationalUnit" );
+            attributes.put( "ou", "configuration" );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            partitionNexus.add( "ou=interceptors,ou=configuration,ou=system",
+                    new LdapName( "ou=interceptors,ou=configuration,ou=system" ), attributes );
+        }
+
+        // -------------------------------------------------------------------
         // create system preferences area
         // -------------------------------------------------------------------
 
