@@ -218,7 +218,7 @@ public class SearchContextTest extends AbstractAdminTestCase
             map.put( result.getName(), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect!", 5, map.size() );
+        assertEquals( "Expected number of results returned was incorrect!", 6, map.size() );
 
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
 
@@ -249,7 +249,7 @@ public class SearchContextTest extends AbstractAdminTestCase
             map.put( result.getName(), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect", 8, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 12, map.size() );
 
         assertTrue( map.containsKey( "ou=system" ) );
 
