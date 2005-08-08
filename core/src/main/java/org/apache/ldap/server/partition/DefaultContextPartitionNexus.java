@@ -245,18 +245,16 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
         MultiException error = null;
 
-        Iterator list = this.partitions.values().iterator();
+        Iterator suffixes = new HashSet( this.partitions.keySet() ).iterator();
 
         // make sure this loop is not fail fast so all backing stores can
         // have an attempt at closing down and synching their cached entries
-        while ( list.hasNext() )
+        while ( suffixes.hasNext() )
         {
-            ContextPartition partition = ( ContextPartition ) list.next();
-
+            String suffix = (String) suffixes.next();
             try
             {
-                partition.sync();
-                partition.destroy();
+                removeContextPartition( new LdapName( suffix ) );
             }
             catch ( NamingException e )
             {
@@ -379,11 +377,12 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             throw new NameNotFoundException( "No partition with suffix: " + key );
         }
         
-        partition.destroy();
-        partitions.remove( key );
-        
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.remove( partition.getSuffix( false ).toString() );
+        partitions.remove( key );
+
+        partition.sync();
+        partition.destroy();
     }
     
     public ContextPartition getSystemPartition()
