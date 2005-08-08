@@ -356,14 +356,14 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         indexedAttrs.add( Oid.UPDN );
         mcfg.setIndexedAttributes( indexedAttrs );
         
-        String key = partition.getSuffix( true ).toString();
+        String key = config.getSuffix();
         if( partitions.containsKey( key ) )
         {
             throw new ConfigurationException( "Duplicate partition suffix: " + key );
         }
 
         partition.init( factoryCfg, mcfg );
-        partitions.put( key, partition );
+        partitions.put( partition.getSuffix( true ).toString(), partition );
         
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.add( partition.getSuffix( false ).toString() );
