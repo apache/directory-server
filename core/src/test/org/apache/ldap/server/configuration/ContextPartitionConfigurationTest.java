@@ -34,8 +34,8 @@ import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
 
 
 /**
- * Confirms the removal of the comparator serialization bug filed here in JIRA:
- * <a href="http://nagoya.apache.org/jira/browse/DIREVE-54">DIREVE-54</a>.
+ * Tests {@link AddContextPartitionConfiguration} and
+ * {@link RemoveContextPartitionConfiguration} works correctly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
