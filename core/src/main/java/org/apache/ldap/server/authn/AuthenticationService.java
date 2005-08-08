@@ -38,6 +38,7 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
+import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
@@ -53,7 +54,7 @@ import org.apache.ldap.server.jndi.ServerContext;
  * @author Trustin Lee (trustin@apache.org)
  * @version $Rev$, $Date$
  */
-public class AuthenticationService implements Interceptor
+public class AuthenticationService extends BaseInterceptor
 {
     /** authenticators **/
     public Map authenticators = new HashMap();

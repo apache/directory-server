@@ -65,7 +65,8 @@ public interface ContextFactoryConfiguration
     GlobalRegistries getGlobalRegistries();
 
     /**
-     * Returns the {@link ContextPartitionNexus} of the {@link ContextFactoryService}.
+     * Returns the {@link ContextPartitionNexus} of the {@link ContextFactoryService}
+     * which bypasses the interceptor chain.
      */
     ContextPartitionNexus getPartitionNexus();
     

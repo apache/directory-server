@@ -192,7 +192,7 @@ public class ContextPartitionConfiguration
      */
     public void validate()
     {
-        if( getName() == null )
+        if( getName() == null || getName().length() == 0 )
         {
             throw new ConfigurationException( "Name is not specified." );
         }

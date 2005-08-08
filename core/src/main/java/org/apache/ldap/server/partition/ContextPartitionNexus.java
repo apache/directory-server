@@ -25,6 +25,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 
 
 /**
@@ -132,7 +133,11 @@ public abstract class ContextPartitionNexus implements ContextPartition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract Attributes getRootDSE() throws NamingException; 
+    public abstract Attributes getRootDSE() throws NamingException;
+    
+    public abstract void addContextPartition( ContextPartitionConfiguration config ) throws NamingException;
+    
+    public abstract void removeContextPartition( Name suffix ) throws NamingException;
 
     public abstract ContextPartition getSystemPartition();
 
@@ -167,7 +172,7 @@ public abstract class ContextPartitionNexus implements ContextPartition
 
     /**
      * Gets an iteration over the Name suffixes of the Backends managed by this
-     * BackendNexus.
+     * {@link ContextPartitionNexus}.
      *
      * @param normalized if true the returned Iterator contains normalized Dn
      * but, if false, it returns the original user provided distinguished names

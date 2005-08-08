@@ -353,4 +353,36 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
             stack.pop();
         }
     }
+
+    public void addContextPartition( ContextPartitionConfiguration config ) throws NamingException
+    {
+        InvocationStack stack = InvocationStack.getInstance();
+        stack.push( new Invocation(
+                caller, "addContextPartition",
+                new Object[] { config } ) );
+        try
+        {
+            this.configuration.getInterceptorChain().addContextPartition( config );
+        }
+        finally
+        {
+            stack.pop();
+        }
+    }
+
+    public void removeContextPartition( Name suffix ) throws NamingException
+    {
+        InvocationStack stack = InvocationStack.getInstance();
+        stack.push( new Invocation(
+                caller, "removeContextPartition",
+                new Object[] { suffix } ) );
+        try
+        {
+            this.configuration.getInterceptorChain().removeContextPartition( suffix );
+        }
+        finally
+        {
+            stack.pop();
+        }
+   }
 }

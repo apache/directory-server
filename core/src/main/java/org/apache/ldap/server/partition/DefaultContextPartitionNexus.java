@@ -82,6 +82,8 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     /** the closed state of this partition */
     private boolean initialized;
 
+    private ContextFactoryConfiguration factoryCfg;
+
     /** the system backend */
     private ContextPartition system;
 
@@ -138,8 +140,10 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             return;
         }
         
+        this.factoryCfg = factoryCfg;
+        
         List initializedPartitions = new ArrayList();
-        initializeSystemPartition( factoryCfg );
+        initializeSystemPartition();
         initializedPartitions.add( system );
         
         Iterator i = factoryCfg.getStartupConfiguration().getContextPartitionConfigurations().iterator();
@@ -147,30 +151,9 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         {
             while( i.hasNext() )
             {
-                cfg = ( ContextPartitionConfiguration ) i.next();
-                ContextPartition partition = cfg.getContextPartition();
-                
-                // Turn on default indices
-                MutableContextPartitionConfiguration mcfg =
-                    new MutableContextPartitionConfiguration();
-                mcfg.setName( cfg.getName() );
-                mcfg.setSuffix( cfg.getSuffix() );
-                mcfg.setContextEntry( cfg.getContextEntry() );
-                mcfg.setContextPartition( partition );
-                
-                Set indexedAttrs = cfg.getIndexedAttributes();
-                indexedAttrs.add( Oid.ALIAS );
-                indexedAttrs.add( Oid.EXISTANCE );
-                indexedAttrs.add( Oid.HIERARCHY );
-                indexedAttrs.add( Oid.NDN );
-                indexedAttrs.add( Oid.ONEALIAS );
-                indexedAttrs.add( Oid.SUBALIAS );
-                indexedAttrs.add( Oid.UPDN );
-                mcfg.setIndexedAttributes( indexedAttrs );
-                
-                partition.init( factoryCfg, mcfg );
-                initializedPartitions.add( 0, partition );
-                register( partition );
+                ContextPartitionConfiguration c = ( ContextPartitionConfiguration ) i.next();
+                addContextPartition( c );
+                initializedPartitions.add( 0, c.getContextPartition() );
             }
             initialized = true;
         }
@@ -201,7 +184,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     }
 
 
-    private void initializeSystemPartition( ContextFactoryConfiguration factoryCfg ) throws NamingException
+    private void initializeSystemPartition() throws NamingException
     {
         // initialize system partition first
         MutableContextPartitionConfiguration systemCfg = new MutableContextPartitionConfiguration();
@@ -235,7 +218,15 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         systemCfg.setContextEntry( systemEntry );
 
         system.init( factoryCfg, systemCfg );
-        register( system );
+        String key = system.getSuffix( true ).toString();
+        if( partitions.containsKey( key ) )
+        {
+            throw new ConfigurationException( "Duplicate partition suffix: " + key );
+        }
+        partitions.put( key, system );
+        
+        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+        namingContexts.add( system.getSuffix( false ).toString() );
     }
 
 
@@ -338,9 +329,62 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
 
     // ------------------------------------------------------------------------
-    // BackendNexus Interface Method Implementations
+    // ContextPartitionNexus Interface Method Implementations
     // ------------------------------------------------------------------------
     
+
+
+    public synchronized void addContextPartition( ContextPartitionConfiguration config ) throws NamingException
+    {
+        ContextPartition partition = config.getContextPartition();
+
+        // Turn on default indices
+        MutableContextPartitionConfiguration mcfg =
+            new MutableContextPartitionConfiguration();
+        mcfg.setName( config.getName() );
+        mcfg.setSuffix( config.getSuffix() );
+        mcfg.setContextEntry( config.getContextEntry() );
+        mcfg.setContextPartition( partition );
+        
+        Set indexedAttrs = config.getIndexedAttributes();
+        indexedAttrs.add( Oid.ALIAS );
+        indexedAttrs.add( Oid.EXISTANCE );
+        indexedAttrs.add( Oid.HIERARCHY );
+        indexedAttrs.add( Oid.NDN );
+        indexedAttrs.add( Oid.ONEALIAS );
+        indexedAttrs.add( Oid.SUBALIAS );
+        indexedAttrs.add( Oid.UPDN );
+        mcfg.setIndexedAttributes( indexedAttrs );
+        
+        String key = partition.getSuffix( true ).toString();
+        if( partitions.containsKey( key ) )
+        {
+            throw new ConfigurationException( "Duplicate partition suffix: " + key );
+        }
+
+        partition.init( factoryCfg, mcfg );
+        partitions.put( key, partition );
+        
+        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+        namingContexts.add( partition.getSuffix( false ).toString() );
+    }
+
+
+    public synchronized void removeContextPartition( Name suffix ) throws NamingException
+    {
+        String key = suffix.toString();
+        ContextPartition partition = (ContextPartition) partitions.get( key );
+        if( partition == null )
+        {
+            throw new NameNotFoundException( "No partition with suffix: " + key );
+        }
+        
+        partition.destroy();
+        partitions.remove( key );
+        
+        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+        namingContexts.remove( partition.getSuffix( false ).toString() );
+    }
     
     public ContextPartition getSystemPartition()
     {
@@ -406,33 +450,6 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     public Attributes getRootDSE() 
     {
         return rootDSE;
-    }
-
-
-    /**
-     * Registers an ContextPartition with this BackendManager.  Called by each
-     * ContextPartition implementation after it has started to register for
-     * backend operation calls.  This method effectively puts the 
-     * ContextPartition's naming context online.
-     *
-     * Operations against the naming context should result in an LDAP BUSY
-     * result code in the returnValue if the naming context is not online.
-     *
-     * @param partition ContextPartition component to register with this
-     * BackendNexus.
-     * @throws ConfigurationException 
-     */
-    private void register( ContextPartition partition ) throws NamingException
-    {
-        String key = partition.getSuffix( true ).toString();
-        if( partitions.containsKey( key ) )
-        {
-            throw new ConfigurationException( "Duplicate partition suffix: " + key );
-        }
-        partitions.put( key, partition );
-
-        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.add( partition.getSuffix( false ).toString() );
     }
 
 

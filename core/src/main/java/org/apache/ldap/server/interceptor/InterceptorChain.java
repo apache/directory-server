@@ -33,6 +33,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
@@ -162,6 +163,18 @@ public class InterceptorChain
         public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
         {
             nexus.move( oriChildName, newParentName, newRn, deleteOldRn );
+        }
+
+
+        public void addContextPartition( NextInterceptor next, ContextPartitionConfiguration cfg ) throws NamingException
+        {
+            nexus.addContextPartition( cfg );
+        }
+
+
+        public void removeContextPartition( NextInterceptor next, Name suffix ) throws NamingException
+        {
+            nexus.removeContextPartition( suffix );
         }
     };
 
@@ -472,6 +485,43 @@ public class InterceptorChain
         }
     }
 
+    public void addContextPartition( ContextPartitionConfiguration cfg ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.addContextPartition( next, cfg );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+    public void removeContextPartition( Name suffix ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            head.removeContextPartition( next, suffix );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
 
     public void delete( Name name ) throws NamingException
     {
@@ -1069,6 +1119,44 @@ public class InterceptorChain
                     catch ( Throwable e )
                     {
                         throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public void addContextPartition( ContextPartitionConfiguration cfg ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.addContextPartition( Entry.this.nextEntry.nextInterceptor, cfg );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+                public void removeContextPartition( Name suffix ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.removeContextPartition( Entry.this.nextEntry.nextInterceptor, suffix );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
                     }
                 }
             };
