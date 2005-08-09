@@ -31,6 +31,7 @@ import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
@@ -387,10 +388,13 @@ class DefaultContextFactoryService extends ContextFactoryService
             firstStart = true;
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "person" );
-            attributes.put( "objectClass", "organizationalPerson" );
-            attributes.put( "objectClass", "inetOrgPerson" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "person" );
+            objectClass.add( "organizationalPerson" );
+            objectClass.add( "inetOrgPerson" );
+            attributes.put( objectClass );
+
             attributes.put( "uid", ContextPartitionNexus.ADMIN_UID );
             attributes.put( "userPassword", environment.get( Context.SECURITY_CREDENTIALS ) );
             attributes.put( "displayName", "Directory Superuser" );
@@ -411,8 +415,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "organizationalUnit" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "organizationalUnit" );
+            attributes.put( objectClass );
+
             attributes.put( "ou", "users" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -430,8 +437,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "organizationalUnit" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "organizationalUnit" );
+            attributes.put( objectClass );
+
             attributes.put( "ou", "groups" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -449,8 +459,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "organizationalUnit" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "organizationalUnit" );
+            attributes.put( objectClass );
+
             attributes.put( "ou", "configuration" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -468,8 +481,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "organizationalUnit" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "organizationalUnit" );
+            attributes.put( objectClass );
+
             attributes.put( "ou", "partitions" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -488,8 +504,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "organizationalUnit" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "organizationalUnit" );
+            attributes.put( objectClass );
+
             attributes.put( "ou", "services" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -508,8 +527,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "organizationalUnit" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "organizationalUnit" );
+            attributes.put( objectClass );
+
             attributes.put( "ou", "interceptors" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
@@ -528,8 +550,11 @@ class DefaultContextFactoryService extends ContextFactoryService
             checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
-            attributes.put( "objectClass", "top" );
-            attributes.put( "objectClass", "prefNode" );
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "organizationalUnit" );
+            attributes.put( objectClass );
+
             attributes.put( "objectClass", "extensibleObject" );
             attributes.put( "prefNodeName", "sysPrefRoot" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );

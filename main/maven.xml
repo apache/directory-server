@@ -3,6 +3,11 @@
 <project default="javaapp"
   xmlns:ant="jelly:ant" xmlns:j="jelly:core">
 
+  <preGoal name="test:test">
+    <ant:mkdir dir="logs"/>
+    <ant:touch file="logs/apacheds.log"/>
+  </preGoal>
+
   <preGoal name="javaapp">
     <attainGoal name="java:compile"/>
   </preGoal>
@@ -13,6 +18,8 @@
 
   <goal name="clean">
     <ant:delete dir="eve"/>
+    <ant:delete dir="logs"/>
+    <ant:delete dir="server-work"/>
     <ant:delete>
       <fileset dir="." includes="*.db"/>
       <fileset dir="." includes="*.lg"/>

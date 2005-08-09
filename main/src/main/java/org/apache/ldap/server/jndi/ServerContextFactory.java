@@ -44,8 +44,9 @@ import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,7 +59,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ServerContextFactory extends CoreContextFactory
 {
-    private static Log log = LogFactory.getLog( ServerContextFactory.class.getName() );
+    private static Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static Service ldapService;
     private static Service kerberosService;
     private static ServiceRegistry minaRegistry;
