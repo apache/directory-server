@@ -43,6 +43,7 @@ import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
@@ -1026,8 +1027,20 @@ public class JdbmContextPartition extends BTreeContextPartition
                 idx.add( mods.getID(), id );
             }
         }
-        
-        entry.put( mods );
+
+        // add all the values in mods to the same attribute in the entry
+        Attribute entryAttrToAddTo = entry.get( mods.getID() );
+
+        if ( entryAttrToAddTo == null )
+        {
+            entryAttrToAddTo = new LockableAttributeImpl( mods.getID() );
+            entry.put( entryAttrToAddTo );
+        }
+
+        for ( int ii = 0; ii < mods.size(); ii++ )
+        {
+            entryAttrToAddTo.add( mods.get( ii ) );
+        }
 
         if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
         {
