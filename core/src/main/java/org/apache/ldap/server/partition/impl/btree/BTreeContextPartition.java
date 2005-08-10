@@ -96,7 +96,7 @@ public abstract class BTreeContextPartition implements ContextPartition
      * the search engine used to search the database
      */
     private SearchEngine searchEngine = null;
-
+    private AttributeTypeRegistry attributeTypeRegistry = null;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -112,7 +112,7 @@ public abstract class BTreeContextPartition implements ContextPartition
 
     public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
     {
-        AttributeTypeRegistry attributeTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        attributeTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();
         ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
         ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
@@ -236,7 +236,7 @@ public abstract class BTreeContextPartition implements ContextPartition
     {
         SearchResultEnumeration list;
         list = new BTreeSearchResultEnumeration( ArrayUtils.EMPTY_STRING_ARRAY,
-                list( getEntryId( base.toString() ) ), this );
+                list( getEntryId( base.toString() ) ), this, attributeTypeRegistry );
         return list;
     }
     
@@ -250,7 +250,7 @@ public abstract class BTreeContextPartition implements ContextPartition
         
         underlying = searchEngine.search( base, env, filter, searchCtls );
         
-        return new BTreeSearchResultEnumeration( attrIds, underlying, this );
+        return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }
 
 

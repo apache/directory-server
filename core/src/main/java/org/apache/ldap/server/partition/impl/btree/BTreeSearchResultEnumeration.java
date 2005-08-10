@@ -23,7 +23,10 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.server.enumeration.SearchResultEnumeration;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
 /**
@@ -41,12 +44,14 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
 {
     /** Database used to lookup entries from */
     private BTreeContextPartition partition = null;
-    /** base of search for relative names */
     /** the attributes to return */
     private final String [] attrIds;
     /** underlying enumeration over IndexRecords */
     private final NamingEnumeration underlying;
 
+    private boolean attrIdsHasStar = false;
+    private boolean attrIdsHasPlus = false;
+    private AttributeTypeRegistry registry = null;
 
     /**
      * Creates an enumeration that returns entries packaged within SearchResults
@@ -57,11 +62,15 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
      */
     public BTreeSearchResultEnumeration( String [] attrIds, 
                                     NamingEnumeration underlying,
-                                    BTreeContextPartition db )
+                                    BTreeContextPartition db,
+                                    AttributeTypeRegistry registry )
     {
         this.partition = db;
         this.attrIds = attrIds;
         this.underlying = underlying;
+        this.attrIdsHasStar = containsStar( attrIds );
+        this.attrIdsHasPlus = containsPlus( attrIds );
+        this.registry = registry;
     }
     
     
@@ -91,7 +100,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         IndexRecord rec = ( IndexRecord ) underlying.next();
         Attributes entry;
         String name = partition.getEntryUpdn( rec.getEntryId() );
-        
+
         if ( null == rec.getAttributes() )
         {
             rec.setAttributes( partition.lookup( rec.getEntryId() ) );
@@ -100,6 +109,82 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         if ( attrIds == null )
         {
             entry = ( Attributes ) rec.getAttributes().clone();
+        }
+        else if ( attrIdsHasPlus && attrIdsHasStar )
+        {
+            entry = ( Attributes ) rec.getAttributes().clone();
+        }
+        else if ( attrIdsHasPlus )
+        {
+            entry = new LockableAttributesImpl();
+
+            // add all listed attributes
+            for ( int ii = 0; ii < attrIds.length; ii++ )
+            {
+                if ( attrIds[ii].equals( "+") )
+                {
+                    continue;
+                }
+                // there is no attribute by that name in the entry so we continue
+                if ( null == rec.getAttributes().get( attrIds[ii] ) )
+                {
+                    continue;
+                }
+
+                // clone attribute to stuff into the new resultant entry
+                Attribute attr = ( Attribute ) rec.getAttributes().get( attrIds[ii] ).clone();
+                entry.put( attr );
+            }
+
+            // add all operational attributes
+            NamingEnumeration list = rec.getAttributes().getIDs();
+            while ( list.hasMore() )
+            {
+                String attrId = ( String ) list.next();
+                AttributeType attrType = registry.lookup( attrId );
+                if ( attrType.getUsage() == UsageEnum.USERAPPLICATIONS )
+                {
+                    continue;
+                }
+
+                Attribute attr = ( Attribute ) rec.getAttributes().get( attrId ).clone();
+                entry.put( attr );
+            }
+        }
+        else if ( attrIdsHasStar )
+        {
+            entry = new LockableAttributesImpl();
+
+            // add all listed operational attributes
+            for ( int ii = 0; ii < attrIds.length; ii++ )
+            {
+                if ( attrIds[ii].equals( "*") )
+                {
+                    continue;
+                }
+                // there is no attribute by that name in the entry so we continue
+                if ( null == rec.getAttributes().get( attrIds[ii] ) )
+                {
+                    continue;
+                }
+
+                // clone attribute to stuff into the new resultant entry
+                Attribute attr = ( Attribute ) rec.getAttributes().get( attrIds[ii] ).clone();
+                entry.put( attr );
+            }
+
+            // add all user attributes
+            NamingEnumeration list = rec.getAttributes().getIDs();
+            while ( list.hasMore() )
+            {
+                String attrId = ( String ) list.next();
+                AttributeType attrType = registry.lookup( attrId );
+                if ( attrType.getUsage() == UsageEnum.USERAPPLICATIONS )
+                {
+                    Attribute attr = ( Attribute ) rec.getAttributes().get( attrId ).clone();
+                    entry.put( attr );
+                }
+            }
         }
         else
         {
@@ -122,7 +207,45 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
         return new BTreeSearchResult( rec.getEntryId(), name, null, entry );
     }
 
-    
+
+    private boolean containsStar( String[] ids )
+    {
+        if ( ids == null )
+        {
+            return false;
+        }
+
+        for ( int ii = ids.length - 1; ii >= 0; ii-- )
+        {
+            if ( ids[ii].trim().equals( "*" ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    private boolean containsPlus( String[] ids )
+    {
+        if ( ids == null )
+        {
+            return false;
+        }
+
+        for ( int ii = ids.length - 1; ii >= 0; ii-- )
+        {
+            if ( ids[ii].trim().equals( "+" ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
     /**
      * @see java.util.Enumeration#hasMoreElements()
      */
