@@ -260,7 +260,7 @@ public class InterceptorChain
             {
                 try
                 {
-                    deregister( e.configuration );
+                    deregister( e.configuration.getName() );
                 }
                 catch ( Throwable t )
                 {
@@ -323,6 +323,11 @@ public class InterceptorChain
         register0( cfg, e );
     }
     
+    public synchronized InterceptorConfiguration remove( String interceptorName ) throws NamingException
+    {
+        return deregister( interceptorName );
+    }
+    
     public synchronized void addAfter( String prevInterceptorName, InterceptorConfiguration cfg ) throws NamingException
     {
         Entry e = (Entry) name2entry.get( prevInterceptorName );
@@ -345,11 +350,10 @@ public class InterceptorChain
 
 
     /**
-     * Removes and deinitializes the interceptor with the specified configuration.
+     * Removes and deinitializes the interceptor with the specified name.
      */
-    private void deregister( InterceptorConfiguration cfg ) throws ConfigurationException
+    private InterceptorConfiguration deregister( String name ) throws ConfigurationException
     {
-        String name = cfg.getName();
         Entry entry = checkOldName( name );
         Entry prevEntry = entry.prevEntry;
         Entry nextEntry = entry.nextEntry;
@@ -357,13 +361,13 @@ public class InterceptorChain
         if( nextEntry == null )
         {
             // Don't deregister tail
-            return;
+            return null;
         }
 
         if ( prevEntry == null )
         {
             nextEntry.prevEntry = null;
-            head = entry;
+            head = nextEntry;
         }
         else
         {
@@ -373,6 +377,8 @@ public class InterceptorChain
 
         name2entry.remove( name );
         entry.configuration.getInterceptor().destroy();
+
+        return entry.configuration;
     }
 
 
@@ -823,17 +829,14 @@ public class InterceptorChain
         private Entry( Entry prevEntry, Entry nextEntry,
                        InterceptorConfiguration configuration )
         {
-            if ( configuration == null )
+            if( configuration == null )
             {
                 throw new NullPointerException( "configuration" );
             }
 
             this.prevEntry = prevEntry;
-
             this.nextEntry = nextEntry;
-
             this.configuration = configuration;
-
             this.nextInterceptor = new NextInterceptor()
             {
                 public Attributes getRootDSE() throws NamingException
