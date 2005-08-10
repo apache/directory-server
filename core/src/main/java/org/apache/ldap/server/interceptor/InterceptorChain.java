@@ -289,7 +289,7 @@ public class InterceptorChain
     /**
      * Returns the list of all registered interceptors.
      */
-    public List getAll()
+    public synchronized List getAll()
     {
         List result = new ArrayList();
         Entry e = head;
@@ -301,6 +301,36 @@ public class InterceptorChain
         while ( e != tail );
         
         return result;
+    }
+    
+    public synchronized void addFirst( InterceptorConfiguration cfg ) throws NamingException
+    {
+        register0( cfg, head );
+    }
+    
+    public synchronized void addLast( InterceptorConfiguration cfg ) throws NamingException
+    {
+        register0( cfg, tail );
+    }
+    
+    public synchronized void addBefore( String nextInterceptorName, InterceptorConfiguration cfg ) throws NamingException
+    {
+        Entry e = (Entry) name2entry.get( nextInterceptorName );
+        if( e == null )
+        {
+            throw new ConfigurationException( "Interceptor not found: " + nextInterceptorName );
+        }
+        register0( cfg, e );
+    }
+    
+    public synchronized void addAfter( String prevInterceptorName, InterceptorConfiguration cfg ) throws NamingException
+    {
+        Entry e = (Entry) name2entry.get( prevInterceptorName );
+        if( e == null )
+        {
+            throw new ConfigurationException( "Interceptor not found: " + prevInterceptorName );
+        }
+        register0( cfg, e.nextEntry );
     }
 
 
