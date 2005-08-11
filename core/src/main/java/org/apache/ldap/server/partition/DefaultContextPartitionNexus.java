@@ -114,6 +114,10 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         rootDSE.put( attr );
         attr.add( "3" );
 
+        attr = new LockableAttributeImpl( "supportedFeatures" );
+        rootDSE.put( attr );
+        attr.add( "1.3.6.1.4.1.4203.1.5.1" );
+
         attr = new LockableAttributeImpl( "objectClass" );
         rootDSE.put( attr );
         attr.add( "top" );
