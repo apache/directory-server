@@ -155,7 +155,7 @@ public class RootDSETest extends TestCase
 
         // Added some objectClass attributes to the rootDSE
 
-        assertEquals( 1, attributes.size() );
+        assertEquals( 2, attributes.size() );
     }
 
 
