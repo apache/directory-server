@@ -398,6 +398,8 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( "uid", ContextPartitionNexus.ADMIN_UID );
             attributes.put( "userPassword", environment.get( Context.SECURITY_CREDENTIALS ) );
             attributes.put( "displayName", "Directory Superuser" );
+            attributes.put( "cn", "system administrator" );
+            attributes.put( "sn", "administrator" );
             attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             attributes.put( "displayName", "Directory Superuser" );
