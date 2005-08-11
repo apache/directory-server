@@ -39,7 +39,6 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -54,12 +53,6 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
 public class ExceptionService extends BaseInterceptor
 {
     /**
-     * the root nexus of the system
-     */
-    private ContextPartitionNexus nexus;
-
-
-    /**
      * Creates an interceptor that is also the exception handling service.
      */
     public ExceptionService()
@@ -69,7 +62,6 @@ public class ExceptionService extends BaseInterceptor
 
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg )
     {
-        this.nexus = factoryCfg.getPartitionNexus();
     }
 
 
@@ -85,7 +77,7 @@ public class ExceptionService extends BaseInterceptor
     public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes entry ) throws NamingException
     {
         // check if the entry already exists
-        if ( nexus.hasEntry( normName ) )
+        if ( nextInterceptor.hasEntry( normName ) )
         {
             NamingException ne = new LdapNameAlreadyBoundException();
             ne.setResolvedName( new LdapName( upName ) );
@@ -96,10 +88,10 @@ public class ExceptionService extends BaseInterceptor
         parentDn = parentDn.getSuffix( 1 );
 
         // check if we don't have the parent to add to
-        assertHasEntry( "Attempt to add under non-existant parent: ", parentDn );
+        assertHasEntry( nextInterceptor, "Attempt to add under non-existant parent: ", parentDn );
 
         // check if we're trying to add to a parent that is an alias
-        Attributes attrs = nexus.lookup( normName.getSuffix( 1 ) );
+        Attributes attrs = nextInterceptor.lookup( normName.getSuffix( 1 ) );
         Attribute objectClass = attrs.get( "objectClass" );
         if ( objectClass.contains( "alias" ) )
         {
@@ -123,11 +115,11 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if entry to delete exists
         String msg = "Attempt to delete non-existant entry: ";
-        assertHasEntry( msg, name );
+        assertHasEntry( nextInterceptor, msg, name );
 
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
-        NamingEnumeration list = nexus.list( name );
+        NamingEnumeration list = nextInterceptor.list( name );
         if ( list.hasMore() )
         {
             hasChildren = true;
@@ -152,7 +144,7 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if entry to search exists
         String msg = "Attempt to search under non-existant entry: ";
-        assertHasEntry( msg, baseName );
+        assertHasEntry( nextInterceptor, msg, baseName );
 
         return nextInterceptor.list( baseName );
     }
@@ -164,7 +156,7 @@ public class ExceptionService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         String msg = "Attempt to lookup non-existant entry: ";
-        assertHasEntry( msg, name );
+        assertHasEntry( nextInterceptor, msg, name );
 
         return nextInterceptor.lookup( name );
     }
@@ -177,7 +169,7 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if entry to lookup exists
         String msg = "Attempt to lookup non-existant entry: ";
-        assertHasEntry( msg, name );
+        assertHasEntry( nextInterceptor, msg, name );
 
         return nextInterceptor.lookup( name, attrIds );
     }
@@ -190,7 +182,7 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
-        assertHasEntry( msg, name );
+        assertHasEntry( nextInterceptor, msg, name );
 
         nextInterceptor.modify( name, modOp, attrs );
     }
@@ -203,7 +195,7 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
-        assertHasEntry( msg, name );
+        assertHasEntry( nextInterceptor, msg, name );
 
         nextInterceptor.modify( name, items );
     }
@@ -216,11 +208,11 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if entry to rename exists
         String msg = "Attempt to rename non-existant entry: ";
-        assertHasEntry( msg, dn );
+        assertHasEntry( nextInterceptor, msg, dn );
 
         // check to see if target entry exists
         Name target = dn.getSuffix( 1 ).add( newRn );
-        if ( nexus.hasEntry( target ) )
+        if ( nextInterceptor.hasEntry( target ) )
         {
             LdapNameAlreadyBoundException e = null;
             e = new LdapNameAlreadyBoundException( "target entry " + target
@@ -241,17 +233,17 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, oriChildName );
+        assertHasEntry( nextInterceptor, msg, oriChildName );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, newParentName );
+        assertHasEntry( nextInterceptor, msg, newParentName );
 
         // check to see if target entry exists
         String rdn = oriChildName.get( oriChildName.size() - 1 );
         Name target = ( Name ) newParentName.clone();
         target.add( rdn );
-        if ( nexus.hasEntry( target ) )
+        if ( nextInterceptor.hasEntry( target ) )
         {
             LdapNameAlreadyBoundException e = null;
             e = new LdapNameAlreadyBoundException( "target entry " + target
@@ -274,16 +266,16 @@ public class ExceptionService extends BaseInterceptor
     {
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, oriChildName );
+        assertHasEntry( nextInterceptor, msg, oriChildName );
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( msg, newParentName );
+        assertHasEntry( nextInterceptor, msg, newParentName );
 
         // check to see if target entry exists
         Name target = ( Name ) newParentName.clone();
         target.add( newRn );
-        if ( nexus.hasEntry( target ) )
+        if ( nextInterceptor.hasEntry( target ) )
         {
             LdapNameAlreadyBoundException e = null;
             e = new LdapNameAlreadyBoundException( "target entry " + target
@@ -310,13 +302,13 @@ public class ExceptionService extends BaseInterceptor
             return nextInterceptor.search( base, env, filter, searchCtls );
         }
 
-        Attribute attr = nexus.getRootDSE().get( "subschemaSubentry" );
+        Attribute attr = nextInterceptor.getRootDSE().get( "subschemaSubentry" );
         if ( ( ( String ) attr.get() ).equalsIgnoreCase( base.toString() ) )
         {
             return nextInterceptor.search( base, env, filter, searchCtls );
         }
 
-        assertHasEntry( msg, base );
+        assertHasEntry( nextInterceptor, msg, base );
 
         return nextInterceptor.search( base, env, filter, searchCtls );
     }
@@ -330,9 +322,9 @@ public class ExceptionService extends BaseInterceptor
      * @param dn         the distinguished name of the entry that is asserted
      * @throws NamingException if the entry does not exist
      */
-    private void assertHasEntry( String msg, Name dn ) throws NamingException
+    private void assertHasEntry( NextInterceptor nextInterceptor, String msg, Name dn ) throws NamingException
     {
-        if ( !nexus.hasEntry( dn ) )
+        if ( !nextInterceptor.hasEntry( dn ) )
         {
             LdapNameNotFoundException e = null;
 
@@ -345,7 +337,7 @@ public class ExceptionService extends BaseInterceptor
                 e = new LdapNameNotFoundException( dn.toString() );
             }
 
-            e.setResolvedName( nexus.getMatchedName( dn, false ) );
+            e.setResolvedName( nextInterceptor.getMatchedName( dn, false ) );
             throw e;
         }
     }
