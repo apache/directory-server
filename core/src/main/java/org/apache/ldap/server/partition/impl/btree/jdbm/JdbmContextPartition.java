@@ -954,7 +954,7 @@ public class JdbmContextPartition extends BTreeContextPartition
 
     public Attributes getIndices( BigInteger id ) throws  NamingException
     {
-        Attributes attributes = new LockableAttributesImpl();
+        LockableAttributesImpl attributes = new LockableAttributesImpl();
 
         // Get the distinguishedName to id mapping
         attributes.put( "_nDn", getEntryDn( id ) );
@@ -971,7 +971,14 @@ public class JdbmContextPartition extends BTreeContextPartition
             {
                 IndexRecord rec = ( IndexRecord ) list.next();
                 Object val = rec.getIndexKey();
-                attributes.put( index.getAttribute().getName(), val );
+                String attrId = index.getAttribute().getName();
+                Attribute attr = attributes.get( attrId );
+                if ( attr == null)
+                {
+                    attr = new LockableAttributeImpl( attributes, attrId );
+                }
+                attr.add( val );
+                attributes.put( attr );
             }
         }
 
@@ -985,17 +992,27 @@ public class JdbmContextPartition extends BTreeContextPartition
             val.append( "_existance[" ); 
             val.append( rec.getIndexKey() );
             val.append( "]" );
-            attributes.put( val.toString(), rec.getEntryId() );
+
+            String valStr = val.toString();
+            Attribute attr = attributes.get( valStr );
+            if ( attr == null )
+            {
+                attr = new LockableAttributeImpl( attributes, valStr );
+            }
+            attr.add( rec.getEntryId() );
+            attributes.put( attr );
             val.setLength( 0 );
         }
 
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
         list = hierarchyIdx.listIndices( id );
-        while ( list.hasMore() ) 
+        Attribute childAttr = new LockableAttributeImpl( attributes, "_child" );
+        attributes.put( childAttr );
+        while ( list.hasMore() )
         {
             IndexRecord rec = ( IndexRecord ) list.next();
-            attributes.put( "_child", rec.getEntryId() );
+            childAttr.add( rec.getEntryId() );
         }
 
         return attributes;
@@ -1275,8 +1292,14 @@ public class JdbmContextPartition extends BTreeContextPartition
          * Also we make sure that the existance index shows the existance of the
          * new Rdn attribute within this entry.
          */
-        
-        entry.put( newRdnAttr, newRdnValue );
+
+        Attribute rdnAttr = entry.get( newRdnAttr );
+        if ( rdnAttr == null )
+        {
+            rdnAttr = new LockableAttributeImpl( newRdnAttr );
+        }
+        rdnAttr.add( newRdnValue );
+        entry.put( rdnAttr );
         
         if ( hasUserIndexOn( newRdnAttr ) )
         {
