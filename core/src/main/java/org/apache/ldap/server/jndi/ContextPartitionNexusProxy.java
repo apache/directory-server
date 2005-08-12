@@ -23,6 +23,7 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -100,6 +101,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public Name getMatchedName(Name dn, boolean normalized) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "getMatchedDn",
@@ -115,6 +117,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public Name getSuffix(Name dn, boolean normalized) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "getSuffix",
@@ -130,6 +133,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public Iterator listSuffixes(boolean normalized) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "listSuffixes",
@@ -145,6 +149,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public void delete(Name name) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "delete",
@@ -160,6 +165,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public void add(String upName, Name normName, Attributes entry) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "add",
@@ -175,6 +181,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public void modify(Name name, int modOp, Attributes mods) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         // TODO Use predefined modOp Interger constants.
         stack.push( new Invocation(
@@ -191,6 +198,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public void modify(Name name, ModificationItem[] mods) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "modify",
@@ -206,6 +214,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public NamingEnumeration list(Name base) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "list",
@@ -221,6 +230,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public NamingEnumeration search(Name base, Map env, ExprNode filter, SearchControls searchCtls) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "search",
@@ -236,6 +246,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public Attributes lookup(Name name) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "lookup",
@@ -251,6 +262,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public Attributes lookup(Name dn, String[] attrIds) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "lookup",
@@ -266,6 +278,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public boolean hasEntry(Name name) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "hasEntry",
@@ -281,6 +294,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public boolean isSuffix(Name name) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "isSuffix",
@@ -296,6 +310,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public void modifyRn(Name name, String newRn, boolean deleteOldRn) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "modifyRn",
@@ -311,6 +326,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public void move(Name oriChildName, Name newParentName) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "move",
@@ -326,6 +342,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
     public void move(Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn) throws NamingException {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "move",
@@ -342,6 +359,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
 
     public Attributes getRootDSE() throws NamingException
     {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( caller, "getRootDSE" ) );
         try
@@ -356,6 +374,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
 
     public void addContextPartition( ContextPartitionConfiguration config ) throws NamingException
     {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "addContextPartition",
@@ -372,6 +391,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
 
     public void removeContextPartition( Name suffix ) throws NamingException
     {
+        ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation(
                 caller, "removeContextPartition",
@@ -384,5 +404,12 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         {
             stack.pop();
         }
-   }
+    }
+
+    private void ensureStarted() throws ServiceUnavailableException {
+        if( !service.isStarted() )
+        {
+            throw new ServiceUnavailableException( "ContextFactoryService is not started." );
+        }
+    }
 }
