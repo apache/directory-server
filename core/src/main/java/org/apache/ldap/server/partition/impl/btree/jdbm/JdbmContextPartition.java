@@ -1039,9 +1039,9 @@ public class JdbmContextPartition extends BTreeContextPartition
             idx.add( mods, id );
 
             // If the attr didn't exist for this id add it to existance index
-            if ( ! existanceIdx.hasValue( mods.getID(), id ) )
+            if ( ! existanceIdx.hasValue( mods.getID().toLowerCase(), id ) )
             {
-                idx.add( mods.getID(), id );
+                existanceIdx.add( mods.getID().toLowerCase(), id );
             }
         }
 
@@ -1307,9 +1307,9 @@ public class JdbmContextPartition extends BTreeContextPartition
             idx.add( newRdnValue, id );
             
             // Make sure the altered entry shows the existance of the new attrib
-            if ( ! existanceIdx.hasValue( newRdnAttr, id ) )
+            if ( ! existanceIdx.hasValue( newRdnAttr.toLowerCase(), id ) )
             {
-                existanceIdx.add( newRdnAttr, id );
+                existanceIdx.add( newRdnAttr.toLowerCase(), id );
             }
         }
 
