@@ -44,6 +44,8 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -56,6 +58,8 @@ import org.apache.ldap.server.jndi.ServerContext;
  */
 public class AuthenticationService extends BaseInterceptor
 {
+    private static final Logger log = LoggerFactory.getLogger( AuthenticationService.class );
+    
     /** authenticators **/
     public Map authenticators = new HashMap();
 
@@ -356,26 +360,28 @@ public class AuthenticationService extends BaseInterceptor
         // try each authenticators
         for ( Iterator i = authenticators.iterator(); i.hasNext(); )
         {
+            Authenticator authenticator = ( Authenticator ) i.next();
+
             try
             {
-                Authenticator authenticator = ( Authenticator ) i.next();
-
                 // perform the authentication
-
                 LdapPrincipal authorizationId = authenticator.authenticate( ctx );
 
                 // authentication was successful
-
                 ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
 
                 // remove creds so there is no security risk
-
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
                 return;
             }
-            catch ( LdapAuthenticationException e )
+            catch( LdapAuthenticationException e )
             {
                 // authentication failed, try the next authenticator
+            }
+            catch( Exception e )
+            {
+                // Log other exceptions than LdapAuthenticationException
+                log.warn( "Unexpected exception from " + authenticator.getClass(), e );
             }
         }
 

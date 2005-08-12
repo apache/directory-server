@@ -23,7 +23,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.exception.LdapAuthenticationException;
-import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.jndi.ServerContext;
@@ -89,12 +88,21 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         LdapName principalDn = new LdapName( principal );
 
         ContextPartitionNexus nexus = getFactoryConfiguration().getPartitionNexus();
-        Attributes userEntry = nexus.lookup( principalDn );
-
-        if ( userEntry == null )
+        Attributes userEntry;
+        
+        try
         {
-            throw new LdapNameNotFoundException();
+            userEntry = nexus.lookup( principalDn );
+            if ( userEntry == null )
+            {
+                throw new LdapAuthenticationException();
+            }
         }
+        catch( Exception e )
+        {
+            throw new LdapAuthenticationException();
+        }
+
 
         Object userPassword;
 
