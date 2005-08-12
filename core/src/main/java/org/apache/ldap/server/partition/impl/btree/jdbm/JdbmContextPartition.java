@@ -954,7 +954,7 @@ public class JdbmContextPartition extends BTreeContextPartition
 
     public Attributes getIndices( BigInteger id ) throws  NamingException
     {
-        LockableAttributesImpl attributes = new LockableAttributesImpl();
+        Attributes attributes = new LockableAttributesImpl();
 
         // Get the distinguishedName to id mapping
         attributes.put( "_nDn", getEntryDn( id ) );
@@ -975,7 +975,7 @@ public class JdbmContextPartition extends BTreeContextPartition
                 Attribute attr = attributes.get( attrId );
                 if ( attr == null)
                 {
-                    attr = new LockableAttributeImpl( attributes, attrId );
+                    attr = new LockableAttributeImpl( attrId );
                 }
                 attr.add( val );
                 attributes.put( attr );
@@ -997,7 +997,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             Attribute attr = attributes.get( valStr );
             if ( attr == null )
             {
-                attr = new LockableAttributeImpl( attributes, valStr );
+                attr = new LockableAttributeImpl( valStr );
             }
             attr.add( rec.getEntryId() );
             attributes.put( attr );
@@ -1007,7 +1007,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
         list = hierarchyIdx.listIndices( id );
-        Attribute childAttr = new LockableAttributeImpl( attributes, "_child" );
+        Attribute childAttr = new LockableAttributeImpl( "_child" );
         attributes.put( childAttr );
         while ( list.hasMore() )
         {
