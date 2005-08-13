@@ -252,7 +252,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
      */
     public void testFailModifyNoSuchObject() throws NamingException
     {
-        Attributes attrs = new BasicAttributes();
+        Attributes attrs = new BasicAttributes( true );
         Attribute ou = new BasicAttribute( "ou" );
         ou.add( "users" );
         ou.add( "dummyValue" );
@@ -293,7 +293,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
      */
     public void testModifyControl() throws NamingException
     {
-        Attributes attrs = new BasicAttributes();
+        Attributes attrs = new BasicAttributes( true );
         Attribute attr = new BasicAttribute( "ou" );
         attr.add( "users" );
         attr.add( "dummyValue" );
@@ -402,7 +402,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
      */
     public void testFailAddOnAlias() throws NamingException
     {
-        Attributes attrs = new BasicAttributes();
+        Attributes attrs = new BasicAttributes( true );
         Attribute attr = new BasicAttribute( "objectClass" );
         attr.add( "top" );
         attr.add( "alias" );

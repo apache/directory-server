@@ -41,7 +41,7 @@ public class BinaryAttributeFilterTest extends AbstractAdminTestCase
 
     public void testBinaryExtension() throws NamingException
     {
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         attributes.put( "objectClass", "top" );
         attributes.put( "objectClass", "organizationalUnit" );
         attributes.put( "objectClass", "extensibleObject" );

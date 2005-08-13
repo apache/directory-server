@@ -29,7 +29,7 @@ public class ExtensibleObjectTest extends AbstractAdminTestCase
 {
     public void testExtensibleObjectModify() throws Exception
     {
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
@@ -49,7 +49,7 @@ public class ExtensibleObjectTest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
         
-        Attributes newattribs = new BasicAttributes();
+        Attributes newattribs = new BasicAttributes( true );
         Attribute freeform = new BasicAttribute( "freeform" );
         freeform.add( "testing" );
         newattribs.put( freeform );
@@ -74,7 +74,7 @@ public class ExtensibleObjectTest extends AbstractAdminTestCase
 
     public void testExtensibleObjectAdd() throws Exception
     {
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "extensibleObject" );

@@ -53,7 +53,7 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
         ctx = new InitialDirContext( env );
 
         // Create a person
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
@@ -114,7 +114,7 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
     {
 
         // modify object classes, add two more
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute ocls = new BasicAttribute("objectClass");
         ocls.add("organizationalPerson");
         ocls.add("inetOrgPerson");
@@ -148,7 +148,7 @@ public class AddObjectClassesToEntryTest extends AbstractServerTest
         String newDescription = "More info on the user ...";
 
         // modify object classes, add two more
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute desc = new BasicAttribute("description", newDescription);
         attributes.put(desc);
 

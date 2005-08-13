@@ -209,7 +209,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         systemCfg.setIndexedAttributes( indexedSystemAttrs );
         
         // Add context entry for system partition
-        Attributes systemEntry = new BasicAttributes();
+        Attributes systemEntry = new BasicAttributes( true );
         Attribute objectClassAttr = new BasicAttribute( "objectClass" );
         objectClassAttr.add( "top" );
         objectClassAttr.add( "organizationalUnit" );

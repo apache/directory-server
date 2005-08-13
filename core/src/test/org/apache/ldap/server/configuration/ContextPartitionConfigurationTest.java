@@ -51,7 +51,7 @@ public class ContextPartitionConfigurationTest extends AbstractAdminTestCase
             new MutableContextPartitionConfiguration();
         partitionCfg.setName( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
-        Attributes ctxEntry = new BasicAttributes();
+        Attributes ctxEntry = new BasicAttributes( true );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.put( "ou", "removable" );
         partitionCfg.setContextEntry( ctxEntry );

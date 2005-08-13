@@ -49,7 +49,7 @@ public class OperationalAttributeServiceTest extends AbstractAdminTestCase
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );

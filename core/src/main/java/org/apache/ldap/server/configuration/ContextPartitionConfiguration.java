@@ -49,7 +49,7 @@ public class ContextPartitionConfiguration
     private String name;
     private String suffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
-    private Attributes contextEntry = new BasicAttributes();
+    private Attributes contextEntry = new BasicAttributes( true );
     private ContextPartition contextPartition = new JdbmContextPartition();
     
     /**

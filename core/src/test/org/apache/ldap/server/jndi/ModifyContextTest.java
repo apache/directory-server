@@ -45,7 +45,7 @@ public class ModifyContextTest extends AbstractAdminTestCase
             /*
              * create ou=testing00,ou=system
              */
-            Attributes attributes = new BasicAttributes();
+            Attributes attributes = new BasicAttributes( true );
             Attribute attribute = new BasicAttribute( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
@@ -68,7 +68,7 @@ public class ModifyContextTest extends AbstractAdminTestCase
             /*
              * create ou=testing01,ou=system
              */
-            attributes = new BasicAttributes();
+            attributes = new BasicAttributes( true );
             attribute = new BasicAttribute( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
@@ -91,7 +91,7 @@ public class ModifyContextTest extends AbstractAdminTestCase
             /*
              * create ou=testing02,ou=system
              */
-            attributes = new BasicAttributes();
+            attributes = new BasicAttributes( true );
             attribute = new BasicAttribute( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
@@ -116,7 +116,7 @@ public class ModifyContextTest extends AbstractAdminTestCase
              */
             ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-            attributes = new BasicAttributes();
+            attributes = new BasicAttributes( true );
             attribute = new BasicAttribute( "objectClass" );
             attribute.add( "top" );
             attribute.add( "organizationalUnit" );
@@ -144,7 +144,7 @@ public class ModifyContextTest extends AbstractAdminTestCase
 
     public void testModifyOperation() throws NamingException
     {
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.ADD_ATTRIBUTE, attributes );
         attributes = null;

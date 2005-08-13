@@ -128,7 +128,7 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.modify( name, modOp, attrs );
         
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
@@ -146,7 +146,7 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.modify( name, items );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
@@ -164,7 +164,7 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.modifyRn( name, newRn, deleteOldRn );
         
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
@@ -183,7 +183,7 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.move( name, newParentName );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
@@ -201,7 +201,7 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         BasicAttribute attribute = new BasicAttribute( "modifiersName" );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
