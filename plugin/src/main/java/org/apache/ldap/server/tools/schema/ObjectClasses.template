@@ -64,15 +64,17 @@ public class $classname extends AbstractBootstrapProducer
 
         objectClass = newObjectClass( "$objectClass.getOid()", registries );
         objectClass.setObsolete( $objectClass.isObsolete() );
+
         #if ( $objectClass.getDescription() )
-        objectClass.setDescription( "$objectClass.getDescription()" );
+objectClass.setDescription( "$objectClass.getDescription()" );
         #end
-        #if ( $objectClass.getObjectClassType().getName() == "ABSTRACT" )
-        objectClass.setType( ObjectClassTypeEnum.ABSTRACT );
-        #elseif ( $objectClass.getObjectClassType().getName() == "AUXILIARY" )
-        objectClass.setType( ObjectClassTypeEnum.AUXILIARY );
-        #elseif ( $objectClass.getObjectClassType().getName() == "STRUCTURAL" )
-        objectClass.setType( ObjectClassTypeEnum.STRUCTURAL );
+// set the objectclass type
+        #if ( $objectClass.getClassType().getName() == "ABSTRACT" )
+objectClass.setType( ObjectClassTypeEnum.ABSTRACT );
+        #elseif ( $objectClass.getClassType().getName() == "AUXILIARY" )
+objectClass.setType( ObjectClassTypeEnum.AUXILIARY );
+        #elseif ( $objectClass.getClassType().getName() == "STRUCTURAL" )
+objectClass.setType( ObjectClassTypeEnum.STRUCTURAL );
         #end
 
         // set superior objectClasses
