@@ -26,10 +26,7 @@ import java.util.Set;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
@@ -56,6 +53,8 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -68,6 +67,9 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
 public class SchemaService extends BaseInterceptor
 {
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
+
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger log = LoggerFactory.getLogger( SchemaService.class );
 
     /**
      * the root nexus to all database partitions
@@ -127,8 +129,8 @@ public class SchemaService extends BaseInterceptor
 
 
     public NamingEnumeration search( NextInterceptor nextInterceptor,
-            Name base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+                                     Name base, Map env, ExprNode filter,
+                                     SearchControls searchCtls ) throws NamingException
     {
         // check to make sure the DN searched for is a subentry
         if ( !subentryDn.equals( base.toString() ) )
@@ -328,12 +330,60 @@ public class SchemaService extends BaseInterceptor
     }
 
 
+    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    {
+        ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
+
+        if ( modOp == DirContext.REMOVE_ATTRIBUTE )
+        {
+            SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods );
+            Attribute ocAttr = this.nexus.lookup( name ).get( "objectClass" );
+            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, mods, ocAttr );
+        }
+
+        if ( modOp == DirContext.REPLACE_ATTRIBUTE )
+        {
+            SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, mods );
+            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, mods );
+        }
+
+        next.modify( name, modOp, mods );
+    }
+
+
+    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    {
+        ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
+
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            int modOp = mods[ii].getModificationOp();
+            Attribute change = mods[ii].getAttribute();
+
+            if ( modOp == DirContext.REMOVE_ATTRIBUTE )
+            {
+                SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change );
+                Attribute ocAttr = this.nexus.lookup( name ).get( "objectClass" );
+                SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, ocAttr );
+            }
+
+            if ( modOp == DirContext.REPLACE_ATTRIBUTE )
+            {
+                SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change );
+                SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
+            }
+        }
+
+        next.modify( name, mods );
+    }
+
+
     private void doFilter( LdapContext ctx, Attributes entry )
             throws NamingException
     {
         // set of AttributeType objects that are to behave as binaries
         Set binaries;
-        
+
         // construct the set for fast lookups while filtering
         String binaryIds = ( String ) ctx.getEnvironment().get( BINARY_KEY );
 
@@ -354,11 +404,11 @@ public class SchemaService extends BaseInterceptor
                 binaries.add( type );
             }
         }
-        
+
         /*
-         * start converting values of attributes to byte[]s which are not
-         * human readable and those that are in the binaries set
-         */
+        * start converting values of attributes to byte[]s which are not
+        * human readable and those that are in the binaries set
+        */
         NamingEnumeration list = entry.getIDs();
 
         while ( list.hasMore() )
