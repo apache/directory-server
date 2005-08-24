@@ -45,6 +45,7 @@ import org.apache.ldap.common.schema.ObjectClass;
 import org.apache.ldap.common.schema.SchemaUtils;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
@@ -66,6 +67,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SchemaService extends BaseInterceptor
 {
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 
     /** The LoggerFactory used by this Interceptor */
@@ -92,13 +94,14 @@ public class SchemaService extends BaseInterceptor
      * subschemaSubentry attribute's value from Root DSE
      */
     private String subentryDn;
-
+    private String startUpTimeStamp;
 
     /**
      * Creates a schema service interceptor.
      */
     public SchemaService()
     {
+        startUpTimeStamp = DateUtils.getGeneralizedTime();
     }
 
 
@@ -184,10 +187,10 @@ public class SchemaService extends BaseInterceptor
     {
         if ( ids == null )
         {
-            return new LockableAttributesImpl();
+            ids = EMPTY_STRING_ARRAY;
         }
 
-        HashSet set = new HashSet( ids.length );
+        Set set = new HashSet();
         LockableAttributesImpl attrs = new LockableAttributesImpl();
         LockableAttributeImpl attr = null;
 
@@ -196,8 +199,11 @@ public class SchemaService extends BaseInterceptor
             set.add( ids[ii].toLowerCase() );
         }
 
+        // Check whether the set contains a plus, and use it below to include all
+        // operational attributes.  Due to RFC 3673, and issue DIREVE-228 in JIRA
+        boolean returnAllOperationalAttributes = set.contains( "+" );
 
-        if ( set.contains( "objectclasses" ) )
+        if ( returnAllOperationalAttributes || set.contains( "objectclasses" ) )
         {
             attr = new LockableAttributeImpl( attrs, "objectClasses" );
             Iterator list = globalRegistries.getObjectClassRegistry().list();
@@ -209,7 +215,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( set.contains( "attributetypes" ) )
+        if ( returnAllOperationalAttributes || set.contains( "attributetypes" ) )
         {
             attr = new LockableAttributeImpl( attrs, "attributeTypes" );
             Iterator list = globalRegistries.getAttributeTypeRegistry().list();
@@ -221,7 +227,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( set.contains( "matchingrules" ) )
+        if ( returnAllOperationalAttributes || set.contains( "matchingrules" ) )
         {
             attr = new LockableAttributeImpl( attrs, "matchingRules" );
             Iterator list = globalRegistries.getMatchingRuleRegistry().list();
@@ -233,7 +239,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( set.contains( "matchingruleuse" ) )
+        if ( returnAllOperationalAttributes || set.contains( "matchingruleuse" ) )
         {
             attr = new LockableAttributeImpl( attrs, "matchingRuleUse" );
             Iterator list = globalRegistries.getMatchingRuleUseRegistry().list();
@@ -245,7 +251,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( set.contains( "ldapsyntaxes" ) )
+        if ( returnAllOperationalAttributes || set.contains( "ldapsyntaxes" ) )
         {
             attr = new LockableAttributeImpl( attrs, "ldapSyntaxes" );
             Iterator list = globalRegistries.getSyntaxRegistry().list();
@@ -257,7 +263,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( set.contains( "ditcontentrules" ) )
+        if ( returnAllOperationalAttributes || set.contains( "ditcontentrules" ) )
         {
             attr = new LockableAttributeImpl( attrs, "dITContentRules" );
             Iterator list = globalRegistries.getDitContentRuleRegistry().list();
@@ -269,7 +275,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( set.contains( "ditstructurerules" ) )
+        if ( returnAllOperationalAttributes || set.contains( "ditstructurerules" ) )
         {
             attr = new LockableAttributeImpl( attrs, "dITStructureRules" );
             Iterator list = globalRegistries.getDitStructureRuleRegistry().list();
@@ -281,7 +287,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( set.contains( "nameforms" ) )
+        if ( returnAllOperationalAttributes || set.contains( "nameforms" ) )
         {
             attr = new LockableAttributeImpl( attrs, "nameForms" );
             Iterator list = globalRegistries.getNameFormRegistry().list();
@@ -293,14 +299,66 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
+        // timeestamps are hacks for now until the schema is actually updateable these
+        // use the servers startup time stamp for both modify and create timestamps
+
+
+        if ( returnAllOperationalAttributes || set.contains( "createtimestamp" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "createTimestamp" );
+            attr.add( startUpTimeStamp );
+            attrs.put( attr );
+        }
+
+        if ( returnAllOperationalAttributes || set.contains( "modifytimestamp" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "modifyTimestamp" );
+            attr.add( startUpTimeStamp );
+            attrs.put( attr );
+        }
+
+        if ( returnAllOperationalAttributes || set.contains( "creatorsname" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "creatorsName" );
+            attr.add( ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attrs.put( attr );
+        }
+
+        if ( returnAllOperationalAttributes || set.contains( "modifiersname" ) )
+        {
+            attr = new LockableAttributeImpl( attrs, "modifiersName" );
+            attr.add( ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attrs.put( attr );
+        }
+
+        int minSetSize = 0;
+        if ( set.contains( "+" ) )
+        {
+            minSetSize++;
+        }
+        if ( set.contains( "*" ) )
+        {
+            minSetSize++;
+        }
+        if ( set.contains( "ref" ) )
+        {
+            minSetSize++;
+        }
+
         // add the objectClass attribute
-        attr = new LockableAttributeImpl( attrs, "objectClass" );
-        attr.add( "top" );
-        attr.add( "subschema" );
-        attrs.put( attr );
+        if ( set.contains( "*" ) || set.contains( "objectclass" ) || set.size() == minSetSize )
+        {
+            attr = new LockableAttributeImpl( attrs, "objectClass" );
+            attr.add( "top" );
+            attr.add( "subschema" );
+            attrs.put( attr );
+        }
 
         // add the cn attribute as required for the RDN
-        attrs.put( "cn", "schema" );
+        if ( set.contains( "*" ) || set.contains( "cn" ) || set.contains( "commonname" ) || set.size() == minSetSize )
+        {
+            attrs.put( "cn", "schema" );
+        }
 
         return attrs;
     }
