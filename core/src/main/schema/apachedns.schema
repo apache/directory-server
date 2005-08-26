@@ -29,11 +29,6 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.14 NAME 'apacheIpAddress'
         EQUALITY caseIgnoreIA5Match
         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128} SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.14 NAME 'apacheDomainName'
-        DESC 'A domain name or sequence dotted labels'
-        EQUALITY caseIgnoreIA5Match
-        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
-
 attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.15 NAME 'apacheSOAMName'
         DESC 'A domain name of the name server that was the primary source of data for this zone'
         SUP apacheDomainName SINGLE-VALUE )
@@ -67,7 +62,12 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21 NAME 'apacheSOAMinimum'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.1
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.22 NAME 'apacheDomainName'
+        DESC 'A domain name or sequence dotted labels'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.6
         NAME 'apacheAbstractRecord'
         DESC 'An abstract DNS record objectClass used to build other specific structural objectclasses for different record types'
         SUP top
