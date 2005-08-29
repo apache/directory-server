@@ -1298,7 +1298,13 @@ public class JdbmContextPartition extends BTreeContextPartition
         {
             rdnAttr = new LockableAttributeImpl( newRdnAttr );
         }
-        rdnAttr.add( newRdnValue );
+
+        // add the new Rdn value only if it is not already present in the entry
+        if ( ! rdnAttr.contains( newRdnValue ) )
+        {
+            rdnAttr.add( newRdnValue );
+        }
+
         entry.put( rdnAttr );
         
         if ( hasUserIndexOn( newRdnAttr ) )

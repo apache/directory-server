@@ -28,10 +28,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import junit.framework.TestCase;
+
 /**
- * Testcase for DIREVE-173. Different modify DN operations on a person entry.
+ * Testcase with different modify DN operations on a person entry.
+ * Originally created to demonstrate DIREVE-173.
  * 
- * @author szoerner
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -40,6 +42,9 @@ public class ModifyRdnTest extends AbstractServerTest
 
     private LdapContext ctx = null;
 
+    /**
+     * Create attributes for a person entry.
+     */
     protected Attributes getPersonAttributes(String sn, String cn)
     {
         Attributes attributes = new BasicAttributes();
@@ -55,7 +60,7 @@ public class ModifyRdnTest extends AbstractServerTest
     }
 
     /**
-     * Create an entry for a person.
+     * Create context
      */
     public void setUp() throws Exception
     {
@@ -85,7 +90,7 @@ public class ModifyRdnTest extends AbstractServerTest
     }
 
     /**
-     * Just a little test to check wether opening the connection succeds.
+     * Just a little test to check wether opening the connection succeeds.
      */
     public void testSetUpTearDown() throws NamingException
     {
@@ -127,7 +132,7 @@ public class ModifyRdnTest extends AbstractServerTest
         // Check values of cn
         Attribute cn = tori.getAttributes("").get("cn");
         assertTrue(cn.contains(newCn));
-        assertTrue(!cn.contains(oldCn)); // old vaue is gone
+        assertTrue(!cn.contains(oldCn)); // old value is gone
         assertEquals(1, cn.size());
 
         // Remove entry (use new rdn)
@@ -169,7 +174,7 @@ public class ModifyRdnTest extends AbstractServerTest
         // Check values of cn
         Attribute cn = tori.getAttributes("").get("cn");
         assertTrue(cn.contains(newCn));
-        assertTrue(cn.contains(oldCn)); // old vaue is still there
+        assertTrue(cn.contains(oldCn)); // old value is still there
         assertEquals(2, cn.size());
 
         // Remove entry (use new rdn)
@@ -223,6 +228,50 @@ public class ModifyRdnTest extends AbstractServerTest
         assertTrue(cn.contains(alternateCn)); // alternate value is still available
         assertEquals(2, cn.size());
 
+        // Remove entry (use new rdn)
+        ctx.unbind(newRdn);
+    }
+    
+    /**
+     * Modify DN of an entry, changing RDN from cn to sn.
+     * 
+     * @throws NamingException
+     */
+    public void testModifyRdnDifferentAttribute() throws NamingException {
+
+        // Create a person, cn value is rdn
+        String cnVal = "Tori Amos";
+        String snVal = "Amos";
+        String oldRdn = "cn=" + cnVal;
+        Attributes attributes = this.getPersonAttributes(snVal, cnVal);
+        ctx.createSubcontext(oldRdn, attributes);
+
+        // modify Rdn from cn=... to sn=...
+        String newRdn = "sn=" + snVal;
+        ctx.addToEnvironment("java.naming.ldap.deleteRDN", "false");
+        ctx.rename(oldRdn, newRdn);
+
+        // Check, whether old Entry does not exists
+        try {
+            ctx.lookup(oldRdn);
+            fail("Entry must not exist");
+        } catch (NameNotFoundException ignored) {
+            // expected behaviour
+        }
+
+        // Check, whether new Entry exists
+        DirContext tori = (DirContext) ctx.lookup(newRdn);
+        assertNotNull(tori);
+
+        // Check values of cn and sn
+        // especially the number of cn and sn occurences
+        Attribute cn = tori.getAttributes("").get("cn");
+        assertTrue(cn.contains(cnVal));
+        assertEquals("Number of cn occurences", 1, cn.size());
+        Attribute sn = tori.getAttributes("").get("sn");
+        assertTrue(sn.contains(snVal));
+        assertEquals("Number of sn occurences", 1, sn.size());
+        
         // Remove entry (use new rdn)
         ctx.unbind(newRdn);
     }
