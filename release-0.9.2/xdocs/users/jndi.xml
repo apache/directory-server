@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Server-Side JNDI Provider</title>
+  </properties>
+  
+  <body>
+    <section name="Server-Side JNDI Provider">
+      <p>
+        The Apache Directory Server contains a JNDI provider for the LDAP
+        namespace.  Unlike the SUN JNDI LDAP Provider which is an LDAP
+        client, the Server-Side JNDI Provider is not.  JNDI operations on
+        Contexts directly tap into the server's database partitions to add,
+        lookup, alter, and search for entries.  There is nothing done over the
+        wire.
+      </p>
+
+      <p>
+        The server leverages its server side JNDI LDAP provider in several ways.
+        First stored procedures written in Java will naturally use JNDI to
+        alter entries using this provider.  Thanks to JNDI the same procedure
+        outside of the server can be tested using the SUN JNDI LDAP provider.
+        This transparency is wicked cool since it makes testing easy.  The
+        server side JNDI provider is also used as the API of choice for
+        integrating the server into other Java applications and servers.  The
+        first InitialContext request to the server side provider fires up the
+        entire server.  So you need not learn anything new to start using and
+        embedding the Apache Directory Server!
+      </p>
+
+      <p>
+        This document describes the server side JNDI Provider in terms of the
+        custom properties used to control its behavoir in the solid state and
+        for configuring the server on start up.
+      </p>
+    </section>
+
+    <section name="Server Specific JNDI Properties">
+      <table>
+        <tr><th>key</th><th>optional</th><th>description</th></tr>
+        <tr>
+          <td>server.wkdir</td>
+          <td>true</td>
+          <td>
+            The file system folder the server will use to store database files
+            and other things.  You can set server.wkdir to an absolute path
+            or to a relative path like so:
+<source>
+server.wkdir=/opt/apacheds/work
+server.wkdir=tmp/work
+</source>
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.schemas</td>
+          <td>true</td>
+          <td>
+            The schema configuration settings. A space separated list of fully
+            qualified class names.  These classes must extend AbstractBootstrapSchema
+            in the <code>org.apache.ldap.server.schema.bootstrap</code> package.
+            Here's an example:
+<source>
+server.schemas = org.apache.ldap.server.schema.bootstrap.SystemSchema
+ org.apache.ldap.server.schema.bootstrap.ApacheSchema
+ org.apache.ldap.server.schema.bootstrap.CoreSchema
+ org.apache.ldap.server.schema.bootstrap.CosineSchema
+ org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema
+ org.apache.ldap.server.schema.bootstrap.Krb5kdcSchema
+</source>
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.disable.anonymous</td>
+          <td>true</td>
+          <td>
+            If present at all this key disables anonymous binds.  The value of
+            the property is disregarded.  By default anonymous binds are allowed.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.operation.sync</td>
+          <td>true</td>
+          <td>
+            If present when requesting an InitialContext this property forces
+            all partitions to sync their buffers to disk if their implementation
+            contains a cache.  The value of the property is disregarded.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.operation.shutdown</td>
+          <td>true</td>
+          <td>
+            If present when requesting an InitialContext this property gracefully
+            shuts down the server.  The returned context is a useless DeadContext
+            which throws exceptions when used.  The value of the property is
+            disregarded.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.net.disable.protocol</td>
+          <td>true</td>
+          <td>
+            Used when starting up the server to disable the networking frontend that
+            handles LDAP protocol requests.  The value of the property is disregarded.
+            By default the LDAP protocol is enabled.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.net.passthru</td>
+          <td>true</td>
+          <td>
+            Used to pass an existing network frontend to the server rather
+            than having the server create its own instance.  The value of
+            this property is a MINA ServiceRegistry instance.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.net.ldap.port</td>
+          <td>true</td>
+          <td>
+            The LDAP port to use for servicing LDAP protocol requests if not
+            on the standard port: 389.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.net.ldaps.port</td>
+          <td>true</td>
+          <td>
+            <b>WARNING</b>: ONLY FOR JDK 1.5 AND HIGHER.  Optionally specifies the
+            LDAP port to use for servicing secure LDAP protocol requests.  Secure
+            LDAP port 636 is usually used.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.db.partitions</td>
+          <td>true</td>
+          <td>
+            The list of database partition identifiers.  If this is not specified
+            the only partition in the server is the system partition hanging off
+            of the ou=system context.  The value is a space separated list of
+            partition names like 'apache example xyz123'.
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.db.partition.suffix.</td>
+          <td>maybe</td>
+          <td>
+            A key base for listing the suffixes of database partitions.  The
+            identifier for the partition in the property above is appended to
+            this base to form the key for the suffix of that partition.  Here
+            are some examples:
+<source>
+server.db.partition.suffix.apache=dc=apache,dc=org
+server.db.partition.suffix.example=dc=example,dc=com
+server.db.partition.suffix.xyz123=ou=xyz123
+</source>
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.db.partition.indices.</td>
+          <td>maybe</td>
+          <td>
+            A key base for listing the indices for database partitions.  The
+            identifier for the partition is appended to this base to form the
+            key for the suffix of that partition.  The value is a space
+            separated list of attributeType names.
+<source>
+server.db.partition.indicies.apache=dc ou locale cn
+server.db.partition.indicies.example=dc ou locale cn uid
+server.db.partition.indicies.xyz123=ou cn
+</source>
+          </td>
+        </tr>
+
+        <tr>
+          <td>server.db.partition.attributes.</td>
+          <td>maybe</td>
+          <td>
+            A key base for listing the attributes and values for the suffix
+            entries of partitions.  The identifier for the partition is
+            appended to this base, then the name of attribute is appended to
+            form the key for the attribuet in the suffix of that partition.
+            More information on setting up partitions with this and other
+            properties is <a href="./partitions.html">here</a>...
+<source>
+server.db.partition.attributes.apache.dc=apache
+server.db.partition.attributes.apache.objectClass=domain top
+</source>
+          </td>
+        </tr>
+
+      </table>
+
+      <p>
+        Note that the optional columns of some rows were labeled as 'maybe'.  If a
+        partition is created then the respective property with the base would be
+        required.  It is only required when the respective partition is being defined.
+      </p>
+    </section>
+
+    <section name="Embedding the Apache Directory Server">
+      <p>
+        Embedding the server is really easy.  Just set the JNDI initial context
+        factory and other security settings along with specific properties
+        to fire her up.  Here's a simple example of code that embeds the server
+        using the minimum configuration information:
+      </p>
+
+<source>
+Hashtable env = new Hashtable();
+env.put( Context.PROVIDER_URL, "ou=system" );
+env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+InitialDirContext ctx = new InitialDirContext( env );
+</source>
+
+      <p>
+        This code snippet starts up the server on port 389 or the next
+        available port if access to 389 is denied or another server is already
+        bound to that port.  There is only one partition in the system hanging
+        off of the "ou=system" naming context.  The server allows for anonymous
+        binds and has two users preconfigured: a regular test user,
+        <b>uid=akarasulu,ou=users,ou=system</b> with password <i>test</i>, and
+        the super user <b>uid=admin,ou=system</b>, with password <i>secret</i>.
+      </p>
+
+      <p>
+        <b>WARNING:</b> REMOVE THE TEST USER AND RESET THE PASSWORD ON THE ADMIN
+        USER ACCOUNT AFTER STARTING EVE.
+      </p>
+
+      <p>
+        Here's another more invovled configuration:
+      </p>
+
+<source>
+Hashtable env = new Hashtable();
+
+// Standard JNDI properties
+env.put( Context.PROVIDER_URL, "ou=system" );
+env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
+env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+// Eve specifice JNDI properties
+env.put( EnvKeys.WKDIR, "/var/ldap" );
+env.put( EnvKeys.DISABLE_ANONYMOUS, "true" );
+env.put( EnvKeys.LDAP_PORT, "10389" );
+env.put( EnvKeys.PARTITIONS, "apache" );
+
+// Setup new partition for Apache
+BasicAttributes attrs = new BasicAttributes( true );
+BasicAttribute attr = new BasicAttribute( "objectClass" );
+attr.add( "top" );
+attr.add( "domain" );
+attr.add( "extensibleObject" );
+attrs.put( attr );
+attr = new BasicAttribute( "dc" );
+attr.add( "apache" );
+attrs.put( attr );
+env.put( EnvKeys.SUFFIX + "apache", "dc=apache,dc=org" );     // suffix
+env.put( EnvKeys.INDICES + "apache", "ou uid objectClass" );  // user indices
+env.put( EnvKeys.ATTRIBUTES + "apache", attrs );              // suffix entry
+
+// Fire it up!
+InitialDirContext ctx = new InitialDirContext( env );
+</source>
+
+      <p>
+        This configuration starts up the server on port 10389 with anonymous
+        binds disabled.  The server stores its database files under /var/ldap
+        and creates a new application partition for Apache entries off of the
+        <b>dc=apache,dc=org</b> naming context in addition to the system
+        partition.  If you look closely at /var/ldap you'll see a directory
+        named apache where you'll find even more database files.  These files
+        are the database files for the separate partition for apache.org entries.
+      </p>
+    </section>
+  </body>
+</document>

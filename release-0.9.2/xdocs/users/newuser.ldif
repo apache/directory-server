@@ -1,0 +1,18 @@
+dn: uid=jdoe,ou=users,ou=system
+cn: John Doe
+sn: Doe
+givenname: John
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Human Resources
+ou: People
+l: Las Vegas
+uid: jdoe
+mail: jdoe@apachecon.comm
+telephonenumber: +1 408 555 5555
+facsimiletelephonenumber: +1 408 555 5556
+roomnumber: 4613
+userpassword: test
+
