@@ -16,7 +16,9 @@
     <resources>
       <resource>
         <directory>src/main/resources</directory>
-        <includes>log4j.properties</includes>
+        <includes>
+          <include>log4j.properties</include>
+        </includes>
       </resource>
     </resources>
   </build>
