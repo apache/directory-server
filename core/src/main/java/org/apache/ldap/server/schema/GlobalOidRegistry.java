@@ -241,8 +241,13 @@ public class GlobalOidRegistry implements OidRegistry
      */
     public List getNameSet( String oid ) throws NamingException
     {
-        Object value = byOid.get( oid );
+        Object value = this.byOid.get( oid );
         
+        if ( null == value )
+        {
+            value = this.bootstrap.getNameSet( oid );
+        }
+
         if ( null == value )
         {
             String msg = "OID '" + oid + "' was not found within the OID registry";
