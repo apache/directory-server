@@ -31,7 +31,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.kerberos.protocol.KerberosProtocolProvider;
-import org.apache.kerberos.service.KdcConfiguration;
+import org.apache.kerberos.kdc.KdcConfiguration;
 import org.apache.kerberos.store.JndiPrincipalStoreImpl;
 import org.apache.kerberos.store.PrincipalStore;
 import org.apache.kerberos.sam.SamSubsystem;
@@ -148,7 +148,7 @@ public class ServerContextFactory extends CoreContextFactory
 
         // construct the configuration, get the port, create the service, and prepare kdc objects
         KdcConfiguration config = new KdcConfiguration( props );
-        int port = PropertiesUtils.get( env, KdcConfiguration.KERBEROS_PORT_KEY, KdcConfiguration.DEFAULT_KERBEROS_PORT );
+        int port = PropertiesUtils.get( env, KdcConfiguration.KDC_PORT_KEY, KdcConfiguration.KDC_DEFAULT_PORT );
         Service service= new Service( "kerberos", TransportType.DATAGRAM, new InetSocketAddress( port ) );
         LdapContext ctx = getBaseRealmContext( config, env );
         PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=Users" ) );
@@ -166,7 +166,7 @@ public class ServerContextFactory extends CoreContextFactory
         catch ( IOException e )
         {
             log.error( "Could not start the kerberos service on port " +
-                    KdcConfiguration.DEFAULT_KERBEROS_PORT, e );
+                        KdcConfiguration.KDC_DEFAULT_PORT, e );
         }
     }
 

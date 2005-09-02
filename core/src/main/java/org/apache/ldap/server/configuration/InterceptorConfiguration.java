@@ -86,7 +86,7 @@ public class InterceptorConfiguration
         
         if( interceptor == null )
         {
-            throw new ConfigurationException( "Authenticator is not specified." );
+            throw new ConfigurationException( "Interceptor is not specified." );
         }
     }
 }

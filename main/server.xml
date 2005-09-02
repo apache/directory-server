@@ -74,6 +74,12 @@
           </property>
         </bean>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>subentryService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.subtree.SubentryService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>operationalAttributeService</value></property>
           <property name="interceptor">
             <bean class="org.apache.ldap.server.operational.OperationalAttributeService" />
