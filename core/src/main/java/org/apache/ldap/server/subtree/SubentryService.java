@@ -100,6 +100,11 @@ public class SubentryService extends BaseInterceptor
         {
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
 
+            if ( objectClasses == null )
+            {
+                return true;
+            }
+
             if ( objectClasses.contains( SUBENTRY_OBJECTCLASS ) || objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
             {
                 return false;
@@ -406,6 +411,10 @@ public class SubentryService extends BaseInterceptor
                 }
             }
         }
+        else
+        {
+            next.add( upName, normName, entry );
+        }
     }
 
 
@@ -502,6 +511,10 @@ public class SubentryService extends BaseInterceptor
                     nexus.modify( dn, getOperationalModsForDelete( name, candidate ) );
                 }
             }
+        }
+        else
+        {
+            next.delete( name );
         }
     }
 
