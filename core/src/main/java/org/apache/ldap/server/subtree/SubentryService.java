@@ -278,87 +278,7 @@ public class SubentryService extends BaseInterceptor
              * this new subentry.
              * ----------------------------------------------------------------
              */
-            Attributes operational = new LockableAttributesImpl();
-            NamingEnumeration roles = administrativeRole.getAll();
-            while ( roles.hasMore() )
-            {
-                String role = ( String ) roles.next();
-
-                if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )
-                {
-                    if ( operational.get( AUTONOUMOUS_AREA_SUBENTRY ) == null )
-                    {
-                        operational.put( AUTONOUMOUS_AREA_SUBENTRY, normName.toString() );
-                    }
-                    else
-                    {
-                        operational.get( AUTONOUMOUS_AREA_SUBENTRY ).add( normName.toString() );
-                    }
-                }
-                else if ( role.equalsIgnoreCase( AC_AREA ) )
-                {
-                    if ( operational.get( AC_AREA_SUBENTRY ) == null )
-                    {
-                        operational.put( AC_AREA_SUBENTRY, normName.toString() );
-                    }
-                    else
-                    {
-                        operational.get( AC_AREA_SUBENTRY ).add( normName.toString() );
-                    }
-                }
-                else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
-                {
-                    if ( operational.get( AC_INNERAREA_SUBENTRY ) == null )
-                    {
-                        operational.put( AC_INNERAREA_SUBENTRY, normName.toString() );
-                    }
-                    else
-                    {
-                        operational.get( AC_INNERAREA_SUBENTRY ).add( normName.toString() );
-                    }
-                }
-                else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
-                {
-                    if ( operational.get( SCHEMA_AREA_SUBENTRY ) == null )
-                    {
-                        operational.put( SCHEMA_AREA_SUBENTRY, normName.toString() );
-                    }
-                    else
-                    {
-                        operational.get( SCHEMA_AREA_SUBENTRY ).add( normName.toString() );
-                    }
-                }
-                else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
-                {
-                    if ( operational.get( COLLECTIVE_AREA_SUBENTRY ) == null )
-                    {
-                        operational.put( COLLECTIVE_AREA_SUBENTRY, normName.toString() );
-                    }
-                    else
-                    {
-                        operational.get( COLLECTIVE_AREA_SUBENTRY ).add( normName.toString() );
-                    }
-                }
-                else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
-                {
-                    if ( operational.get( COLLECTIVE_INNERAREA_SUBENTRY ) == null )
-                    {
-                        operational.put( COLLECTIVE_INNERAREA_SUBENTRY, normName.toString() );
-                    }
-                    else
-                    {
-                        operational.get( COLLECTIVE_INNERAREA_SUBENTRY ).add( normName.toString() );
-                    }
-                }
-                else
-                {
-                    throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
-                            + role + "' in administrative point " + apName + ". The values of this attribute are"
-                            + " constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
-                            + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
-                            + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
-                }
-            }
+            Attributes operational = getSubentryOperatationalAttributes( normName, administrativeRole );
 
             /* ----------------------------------------------------------------
              * Parse the subtreeSpecification of the subentry and add it to the
@@ -407,7 +327,7 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
                 {
-                    nexus.modify( dn, getOperationalMods( candidate, operational ) );
+                    nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
                 }
             }
         }
@@ -426,7 +346,7 @@ public class SubentryService extends BaseInterceptor
      * @param operational
      * @return
      */
-    public ModificationItem[] getOperationalMods( Attributes entry, Attributes operational ) throws NamingException
+    public ModificationItem[] getOperationalModsForAdd( Attributes entry, Attributes operational ) throws NamingException
     {
         List modList = new ArrayList();
 
@@ -539,5 +459,268 @@ public class SubentryService extends BaseInterceptor
 
         ModificationItem[] mods = new ModificationItem[modList.size()];
         return ( ModificationItem[] ) modList.toArray( mods );
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Methods dealing subentry modification
+    // -----------------------------------------------------------------------
+
+
+    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( name );
+        Attribute objectClasses = entry.get( "objectClass" );
+
+        if ( objectClasses.contains( "subentry" ) && mods.get( "subtreeSpecification" ) != null )
+        {
+            SubtreeSpecification ssOld = ( SubtreeSpecification ) subtrees.remove( name.toString() );
+            SubtreeSpecification ssNew = null;
+
+            try
+            {
+                ssNew = ssParser.parse( ( String ) mods.get( "subtreeSpecification" ).get() );
+            }
+            catch ( Exception e )
+            {
+                String msg = "failed to parse the new subtreeSpecification";
+                log.error( msg, e );
+                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+            }
+
+            subtrees.put( name.toString(), ssNew );
+            next.modify( name, modOp, mods );
+
+            // search for all entries selected by the old SS and remove references to subentry
+            Name apName = ( Name ) name.clone();
+            apName.remove( apName.size() - 1 );
+            Name oldBaseDn = ( Name ) apName.clone();
+            oldBaseDn.addAll( ssOld.getBase() );
+            ExprNode filter = new PresenceNode( "objectClass" );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[] { "+", "*" } );
+            NamingEnumeration subentries = nexus.search( oldBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            while ( subentries.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) subentries.next();
+                Attributes candidate = result.getAttributes();
+                Name dn = dnParser.parse( result.getName() );
+
+                if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
+                {
+                    nexus.modify( dn, getOperationalModsForDelete( name, candidate ) );
+                }
+            }
+
+            // search for all selected entries by the new SS and add references to subentry
+            Attributes apAttrs = nexus.lookup( apName );
+            Attribute administrativeRole = apAttrs.get( "administrativeRole" );
+            Attributes operational = getSubentryOperatationalAttributes( name, administrativeRole );
+            Name newBaseDn = ( Name ) apName.clone();
+            newBaseDn.addAll( ssNew.getBase() );
+            subentries = nexus.search( newBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            while ( subentries.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) subentries.next();
+                Attributes candidate = result.getAttributes();
+                Name dn = dnParser.parse( result.getName() );
+
+                if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
+                {
+                    nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
+                }
+            }
+        }
+        else
+        {
+            next.modify( name, modOp, mods );
+        }
+    }
+
+
+    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( name );
+        Attribute objectClasses = entry.get( "objectClass" );
+        boolean isSubtreeSpecificationModification = false;
+        ModificationItem subtreeMod = null;
+
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            if ( ( ( String ) mods[ii].getAttribute().getID() ).equalsIgnoreCase( "subtreeSpecification" ) )
+            {
+                isSubtreeSpecificationModification = true;
+                subtreeMod = mods[ii];
+            }
+        }
+
+        if ( objectClasses.contains( "subentry" ) && isSubtreeSpecificationModification )
+        {
+            SubtreeSpecification ssOld = ( SubtreeSpecification ) subtrees.remove( name.toString() );
+            SubtreeSpecification ssNew = null;
+
+            try
+            {
+                ssNew = ssParser.parse( ( String ) subtreeMod.getAttribute().get() );
+            }
+            catch ( Exception e )
+            {
+                String msg = "failed to parse the new subtreeSpecification";
+                log.error( msg, e );
+                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+            }
+
+            subtrees.put( name.toString(), ssNew );
+            next.modify( name, mods );
+
+            // search for all entries selected by the old SS and remove references to subentry
+            Name apName = ( Name ) name.clone();
+            apName.remove( apName.size() - 1 );
+            Name oldBaseDn = ( Name ) apName.clone();
+            oldBaseDn.addAll( ssOld.getBase() );
+            ExprNode filter = new PresenceNode( "objectClass" );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[] { "+", "*" } );
+            NamingEnumeration subentries = nexus.search( oldBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            while ( subentries.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) subentries.next();
+                Attributes candidate = result.getAttributes();
+                Name dn = dnParser.parse( result.getName() );
+
+                if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
+                {
+                    nexus.modify( dn, getOperationalModsForDelete( name, candidate ) );
+                }
+            }
+
+            // search for all selected entries by the new SS and add references to subentry
+            Attributes apAttrs = nexus.lookup( apName );
+            Attribute administrativeRole = apAttrs.get( "administrativeRole" );
+            Attributes operational = getSubentryOperatationalAttributes( name, administrativeRole );
+            Name newBaseDn = ( Name ) apName.clone();
+            newBaseDn.addAll( ssNew.getBase() );
+            subentries = nexus.search( newBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            while ( subentries.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) subentries.next();
+                Attributes candidate = result.getAttributes();
+                Name dn = dnParser.parse( result.getName() );
+
+                if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
+                {
+                    nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
+                }
+            }
+        }
+        else
+        {
+            next.modify( name, mods );
+        }
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Utility Methods
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Gets the subschema operational attributes to be added to or removed from
+     * an entry selected by a subentry's subtreeSpecification.
+     *
+     * @param name the normalized distinguished name of the subentry (the value of op attrs)
+     * @param administrativeRole the roles the administrative point participates in
+     * @return the set of attributes to be added or removed from entries
+     * @throws NamingException if there are problems accessing attributes
+     */
+    private Attributes getSubentryOperatationalAttributes( Name name, Attribute administrativeRole )
+            throws NamingException
+    {
+        Attributes operational = new LockableAttributesImpl();
+        NamingEnumeration roles = administrativeRole.getAll();
+        while ( roles.hasMore() )
+        {
+            String role = ( String ) roles.next();
+
+            if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )
+            {
+                if ( operational.get( AUTONOUMOUS_AREA_SUBENTRY ) == null )
+                {
+                    operational.put( AUTONOUMOUS_AREA_SUBENTRY, name.toString() );
+                }
+                else
+                {
+                    operational.get( AUTONOUMOUS_AREA_SUBENTRY ).add( name.toString() );
+                }
+            }
+            else if ( role.equalsIgnoreCase( AC_AREA ) )
+            {
+                if ( operational.get( AC_AREA_SUBENTRY ) == null )
+                {
+                    operational.put( AC_AREA_SUBENTRY, name.toString() );
+                }
+                else
+                {
+                    operational.get( AC_AREA_SUBENTRY ).add( name.toString() );
+                }
+            }
+            else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
+            {
+                if ( operational.get( AC_INNERAREA_SUBENTRY ) == null )
+                {
+                    operational.put( AC_INNERAREA_SUBENTRY, name.toString() );
+                }
+                else
+                {
+                    operational.get( AC_INNERAREA_SUBENTRY ).add( name.toString() );
+                }
+            }
+            else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
+            {
+                if ( operational.get( SCHEMA_AREA_SUBENTRY ) == null )
+                {
+                    operational.put( SCHEMA_AREA_SUBENTRY, name.toString() );
+                }
+                else
+                {
+                    operational.get( SCHEMA_AREA_SUBENTRY ).add( name.toString() );
+                }
+            }
+            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
+            {
+                if ( operational.get( COLLECTIVE_AREA_SUBENTRY ) == null )
+                {
+                    operational.put( COLLECTIVE_AREA_SUBENTRY, name.toString() );
+                }
+                else
+                {
+                    operational.get( COLLECTIVE_AREA_SUBENTRY ).add( name.toString() );
+                }
+            }
+            else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+            {
+                if ( operational.get( COLLECTIVE_INNERAREA_SUBENTRY ) == null )
+                {
+                    operational.put( COLLECTIVE_INNERAREA_SUBENTRY, name.toString() );
+                }
+                else
+                {
+                    operational.get( COLLECTIVE_INNERAREA_SUBENTRY ).add( name.toString() );
+                }
+            }
+            else
+            {
+                throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
+                        + role + "' in administrative point of subentry " + name + ". The values of this attribute are"
+                        + " constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                        + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
+                        + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+            }
+        }
+
+        return operational;
     }
 }
