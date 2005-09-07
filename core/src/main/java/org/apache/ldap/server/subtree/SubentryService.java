@@ -34,6 +34,7 @@ import org.apache.ldap.common.filter.*;
 import org.apache.ldap.common.subtree.SubtreeSpecificationParser;
 import org.apache.ldap.common.subtree.SubtreeSpecification;
 import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
 import org.slf4j.Logger;
@@ -333,6 +334,92 @@ public class SubentryService extends BaseInterceptor
         }
         else
         {
+            Iterator list = subtrees.keySet().iterator();
+            while ( list.hasNext() )
+            {
+                String subentryDnStr = ( String ) list.next();
+                Name subentryDn = new LdapName( subentryDnStr );
+                Name apDn = ( Name ) subentryDn.clone();
+                apDn.remove( apDn.size() - 1 );
+                SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( subentryDn );
+
+                if ( evaluator.evaluate( ss, apDn, subentryDn, objectClasses ) )
+                {
+                    Attribute administrativeRole = nexus.lookup( apDn ).get( "administrativeRole" );
+                    NamingEnumeration roles = administrativeRole.getAll();
+                    while ( roles.hasMore() )
+                    {
+                        Attribute operational = null;
+                        String role = ( String ) roles.next();
+
+                        if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )
+                        {
+                            operational = entry.get( AUTONOUMOUS_AREA_SUBENTRY );
+                            if ( operational == null )
+                            {
+                                operational = new LockableAttributeImpl( AUTONOUMOUS_AREA_SUBENTRY );
+                                entry.put( operational );
+                            }
+                        }
+                        else if ( role.equalsIgnoreCase( AC_AREA ) )
+                        {
+                            operational = ( Attribute ) entry.get( AC_AREA_SUBENTRY ).clone();
+                            if ( operational == null )
+                            {
+                                operational = new LockableAttributeImpl( AC_AREA_SUBENTRY );
+                                entry.put( operational );
+                            }
+                        }
+                        else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
+                        {
+                            operational = ( Attribute ) entry.get( AC_INNERAREA_SUBENTRY ).clone();
+                            if ( operational == null )
+                            {
+                                operational = new LockableAttributeImpl( AC_INNERAREA_SUBENTRY );
+                                entry.put( operational );
+                            }
+                        }
+                        else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
+                        {
+                            operational = ( Attribute ) entry.get( SCHEMA_AREA_SUBENTRY ).clone();
+                            if ( operational == null )
+                            {
+                                operational = new LockableAttributeImpl( SCHEMA_AREA_SUBENTRY );
+                                entry.put( operational );
+                            }
+                        }
+                        else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
+                        {
+                            operational = ( Attribute ) entry.get( COLLECTIVE_AREA_SUBENTRY ).clone();
+                            if ( operational == null )
+                            {
+                                operational = new LockableAttributeImpl( COLLECTIVE_AREA_SUBENTRY );
+                                entry.put( operational );
+                            }
+                        }
+                        else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+                        {
+                            operational = ( Attribute ) entry.get( COLLECTIVE_INNERAREA_SUBENTRY ).clone();
+                            if ( operational == null )
+                            {
+                                operational = new LockableAttributeImpl( COLLECTIVE_INNERAREA_SUBENTRY );
+                                entry.put( operational );
+                            }
+                        }
+                        else
+                        {
+                            throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
+                                    + role + "' in administrative point of subentry " + subentryDnStr + ". The values of this attribute"
+                                    + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                                    + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
+                                    + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                        }
+
+                        operational.add( subentryDn.toString() );
+                    }
+                }
+            }
+
             next.add( upName, normName, entry );
         }
     }
@@ -715,26 +802,86 @@ public class SubentryService extends BaseInterceptor
             if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )
             {
                 operational = ( Attribute ) entry.get( AUTONOUMOUS_AREA_SUBENTRY ).clone();
+                if ( operational == null )
+                {
+                    operational = new LockableAttributeImpl( AUTONOUMOUS_AREA_SUBENTRY );
+                    operational.add( newName.toString() );
+                }
+                else
+                {
+                    operational.remove( oldName.toString() );
+                    operational.add( newName.toString() );
+                }
             }
             else if ( role.equalsIgnoreCase( AC_AREA ) )
             {
                 operational = ( Attribute ) entry.get( AC_AREA_SUBENTRY ).clone();
+                if ( operational == null )
+                {
+                    operational = new LockableAttributeImpl( AC_AREA_SUBENTRY );
+                    operational.add( newName.toString() );
+                }
+                else
+                {
+                    operational.remove( oldName.toString() );
+                    operational.add( newName.toString() );
+                }
             }
             else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
             {
                 operational = ( Attribute ) entry.get( AC_INNERAREA_SUBENTRY ).clone();
+                if ( operational == null )
+                {
+                    operational = new LockableAttributeImpl( AC_INNERAREA_SUBENTRY );
+                    operational.add( newName.toString() );
+                }
+                else
+                {
+                    operational.remove( oldName.toString() );
+                    operational.add( newName.toString() );
+                }
             }
             else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
             {
                 operational = ( Attribute ) entry.get( SCHEMA_AREA_SUBENTRY ).clone();
+                if ( operational == null )
+                {
+                    operational = new LockableAttributeImpl( SCHEMA_AREA_SUBENTRY );
+                    operational.add( newName.toString() );
+                }
+                else
+                {
+                    operational.remove( oldName.toString() );
+                    operational.add( newName.toString() );
+                }
             }
             else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
             {
                 operational = ( Attribute ) entry.get( COLLECTIVE_AREA_SUBENTRY ).clone();
+                if ( operational == null )
+                {
+                    operational = new LockableAttributeImpl( COLLECTIVE_AREA_SUBENTRY );
+                    operational.add( newName.toString() );
+                }
+                else
+                {
+                    operational.remove( oldName.toString() );
+                    operational.add( newName.toString() );
+                }
             }
             else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
             {
-                operational = ( Attribute ) entry.get( COLLECTIVE_AREA_SUBENTRY ).clone();
+                operational = ( Attribute ) entry.get( COLLECTIVE_INNERAREA_SUBENTRY ).clone();
+                if ( operational == null )
+                {
+                    operational = new LockableAttributeImpl( COLLECTIVE_INNERAREA_SUBENTRY );
+                    operational.add( newName.toString() );
+                }
+                else
+                {
+                    operational.remove( oldName.toString() );
+                    operational.add( newName.toString() );
+                }
             }
             else
             {
@@ -743,16 +890,6 @@ public class SubentryService extends BaseInterceptor
                         + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
                         + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
                         + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
-            }
-
-            if ( operational == null )
-            {
-                operational.add( newName.toString() );
-            }
-            else
-            {
-                operational.remove( oldName.toString() );
-                operational.add( newName.toString() );
             }
 
             modList.add( new ModificationItem( DirContext.REPLACE_ATTRIBUTE, operational ) );
