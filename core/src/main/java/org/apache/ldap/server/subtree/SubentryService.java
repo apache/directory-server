@@ -338,53 +338,6 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    /**
-     * Calculates the entry modifications needed for updating a selected entry
-     * with its subentry operational attributes.
-     *
-     * @param entry
-     * @param operational
-     * @return
-     */
-    public ModificationItem[] getOperationalModsForAdd( Attributes entry, Attributes operational ) throws NamingException
-    {
-        List modList = new ArrayList();
-
-        NamingEnumeration opAttrIds = operational.getIDs();
-        while ( opAttrIds.hasMore() )
-        {
-            int op = DirContext.REPLACE_ATTRIBUTE;
-            String opAttrId = ( String ) opAttrIds.next();
-            Attribute result = new LockableAttributeImpl( opAttrId );
-            Attribute opAttrAdditions = operational.get( opAttrId );
-            Attribute opAttrInEntry = entry.get( opAttrId );
-
-            for ( int ii = 0; ii < opAttrAdditions.size(); ii++ )
-            {
-                result.add( opAttrAdditions.get( ii ) );
-            }
-
-            if ( opAttrInEntry != null && opAttrInEntry.size() > 0 )
-            {
-                for ( int ii = 0; ii < opAttrInEntry.size(); ii++ )
-                {
-                    result.add( opAttrInEntry.get( ii ) );
-                }
-            }
-            else
-            {
-                op = DirContext.ADD_ATTRIBUTE;
-            }
-
-            modList.add( new ModificationItem( op, result ) );
-        }
-
-        ModificationItem[] mods = new ModificationItem[modList.size()];
-        mods = ( ModificationItem[] ) modList.toArray( mods );
-        return mods;
-    }
-
-
     // -----------------------------------------------------------------------
     // Methods dealing subentry deletion
     // -----------------------------------------------------------------------
@@ -428,7 +381,7 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
                 {
-                    nexus.modify( dn, getOperationalModsForDelete( name, candidate ) );
+                    nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
                 }
             }
         }
@@ -439,26 +392,148 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    private ModificationItem[] getOperationalModsForDelete( Name subentryDn, Attributes candidate )
+    // -----------------------------------------------------------------------
+    // Methods dealing subentry name changes
+    // -----------------------------------------------------------------------
+
+
+    public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        List modList = new ArrayList();
-        String dn = subentryDn.toString();
+        Attributes entry = nexus.lookup( name );
+        Attribute objectClasses = entry.get( "objectClass" );
 
-        for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
+        if ( objectClasses.contains( "subentry" ) )
         {
-            String opAttrId = SUBENTRY_OPATTRS[ii];
-            Attribute opAttr = candidate.get( opAttrId );
+            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( name.toString() );
+            Name apName = ( Name ) name.clone();
+            apName.remove( apName.size() - 1 );
+            Name baseDn = ( Name ) apName.clone();
+            baseDn.addAll( ss.getBase() );
+            Name newName = ( Name ) name.clone();
+            newName.remove( newName.size() - 1 );
+            Name rdn = dnParser.parse( newRn );
+            newName.addAll( rdn );
 
-            if ( opAttr != null && opAttr.contains( dn ) )
+            subtrees.put( newName.toString(), ss );
+            next.modifyRn( name, newRn, deleteOldRn );
+
+            Attributes apAttrs = nexus.lookup( apName );
+            Attribute administrativeRole = apAttrs.get( "administrativeRole" );
+            ExprNode filter = new PresenceNode( "objectclass" );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[] { "+", "*" } );
+            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            while ( subentries.hasMore() )
             {
-                Attribute attr = new LockableAttributeImpl( SUBENTRY_OPATTRS[ii] );
-                attr.add( dn );
-                modList.add( new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr ) );
+                SearchResult result = ( SearchResult ) subentries.next();
+                Attributes candidate = result.getAttributes();
+                Name dn = dnParser.parse( result.getName() );
+
+                if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
+                {
+                    nexus.modify( dn, getOperationalModsForReplace( name, newName, administrativeRole, candidate ) );
+                }
             }
         }
+        else
+        {
+            next.modifyRn( name, newRn, deleteOldRn );
+        }
+    }
 
-        ModificationItem[] mods = new ModificationItem[modList.size()];
-        return ( ModificationItem[] ) modList.toArray( mods );
+
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
+            throws NamingException
+    {
+        Attributes entry = nexus.lookup( oriChildName );
+        Attribute objectClasses = entry.get( "objectClass" );
+
+        if ( objectClasses.contains( "subentry" ) )
+        {
+            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( oriChildName.toString() );
+            Name apName = ( Name ) oriChildName.clone();
+            apName.remove( apName.size() - 1 );
+            Name baseDn = ( Name ) apName.clone();
+            baseDn.addAll( ss.getBase() );
+            Name newName = ( Name ) newParentName.clone();
+            newName.remove( newName.size() - 1 );
+            Name rdn = dnParser.parse( newRn );
+            newName.addAll( rdn );
+
+            subtrees.put( newName.toString(), ss );
+            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+
+            Attributes apAttrs = nexus.lookup( apName );
+            Attribute administrativeRole = apAttrs.get( "administrativeRole" );
+
+            ExprNode filter = new PresenceNode( "objectclass" );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[] { "+", "*" } );
+            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            while ( subentries.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) subentries.next();
+                Attributes candidate = result.getAttributes();
+                Name dn = dnParser.parse( result.getName() );
+
+                if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
+                {
+                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, administrativeRole, candidate ) );
+                }
+            }
+        }
+        else
+        {
+            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        }
+    }
+
+
+    public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( oriChildName );
+        Attribute objectClasses = entry.get( "objectClass" );
+
+        if ( objectClasses.contains( "subentry" ) )
+        {
+            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( oriChildName.toString() );
+            Name apName = ( Name ) oriChildName.clone();
+            apName.remove( apName.size() - 1 );
+            Name baseDn = ( Name ) apName.clone();
+            baseDn.addAll( ss.getBase() );
+            Name newName = ( Name ) newParentName.clone();
+            newName.remove( newName.size() - 1 );
+            newName.add( newParentName.get( newParentName.size() - 1 ) );
+
+            subtrees.put( newName.toString(), ss );
+            next.move( oriChildName, newParentName );
+
+            Attributes apAttrs = nexus.lookup( apName );
+            Attribute administrativeRole = apAttrs.get( "administrativeRole" );
+
+            ExprNode filter = new PresenceNode( "objectclass" );
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            controls.setReturningAttributes( new String[] { "+", "*" } );
+            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            while ( subentries.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) subentries.next();
+                Attributes candidate = result.getAttributes();
+                Name dn = dnParser.parse( result.getName() );
+
+                if ( evaluator.evaluate( ss, apName, dn, candidate.get( "objectClass" ) ) )
+                {
+                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, administrativeRole, candidate ) );
+                }
+            }
+        }
+        else
+        {
+            next.move( oriChildName, newParentName );
+        }
     }
 
 
@@ -509,7 +584,7 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
                 {
-                    nexus.modify( dn, getOperationalModsForDelete( name, candidate ) );
+                    nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
                 }
             }
 
@@ -592,7 +667,7 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
                 {
-                    nexus.modify( dn, getOperationalModsForDelete( name, candidate ) );
+                    nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
                 }
             }
 
@@ -625,6 +700,67 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Utility Methods
     // -----------------------------------------------------------------------
+
+
+    private ModificationItem[] getOperationalModsForReplace( Name oldName, Name newName, Attribute administrativeRole,
+                                                             Attributes entry ) throws NamingException
+    {
+        List modList = new ArrayList();
+        NamingEnumeration roles = administrativeRole.getAll();
+        while ( roles.hasMore() )
+        {
+            Attribute operational = null;
+            String role = ( String ) roles.next();
+
+            if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )
+            {
+                operational = ( Attribute ) entry.get( AUTONOUMOUS_AREA_SUBENTRY ).clone();
+            }
+            else if ( role.equalsIgnoreCase( AC_AREA ) )
+            {
+                operational = ( Attribute ) entry.get( AC_AREA_SUBENTRY ).clone();
+            }
+            else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
+            {
+                operational = ( Attribute ) entry.get( AC_INNERAREA_SUBENTRY ).clone();
+            }
+            else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
+            {
+                operational = ( Attribute ) entry.get( SCHEMA_AREA_SUBENTRY ).clone();
+            }
+            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
+            {
+                operational = ( Attribute ) entry.get( COLLECTIVE_AREA_SUBENTRY ).clone();
+            }
+            else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+            {
+                operational = ( Attribute ) entry.get( COLLECTIVE_AREA_SUBENTRY ).clone();
+            }
+            else
+            {
+                throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
+                        + role + "' in administrative point of subentry " + oldName + ". The values of this attribute"
+                        + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                        + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
+                        + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+            }
+
+            if ( operational == null )
+            {
+                operational.add( newName.toString() );
+            }
+            else
+            {
+                operational.remove( oldName.toString() );
+                operational.add( newName.toString() );
+            }
+
+            modList.add( new ModificationItem( DirContext.REPLACE_ATTRIBUTE, operational ) );
+        }
+
+        ModificationItem[] mods = new ModificationItem[modList.size()];
+        return ( ModificationItem[] ) modList.toArray( mods );
+    }
 
 
     /**
@@ -722,5 +858,94 @@ public class SubentryService extends BaseInterceptor
         }
 
         return operational;
+    }
+
+
+    /**
+     * Calculates the subentry operational attributes to remove from a candidate
+     * entry selected by a subtreeSpecification.  When we remove a subentry we
+     * must remove the operational attributes in the entries that were once selected
+     * by the subtree specification of that subentry.  To do so we must perform
+     * a modify operation with the set of modifications to perform.  This method
+     * calculates those modifications.
+     *
+     * @param subentryDn the distinguished name of the subentry
+     * @param candidate the candidate entry to removed from the
+     * @return the set of modifications required to remove an entry's reference to
+     * a subentry
+     */
+    private ModificationItem[] getOperationalModsForRemove( Name subentryDn, Attributes candidate )
+    {
+        List modList = new ArrayList();
+        String dn = subentryDn.toString();
+
+        for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
+        {
+            String opAttrId = SUBENTRY_OPATTRS[ii];
+            Attribute opAttr = candidate.get( opAttrId );
+
+            if ( opAttr != null && opAttr.contains( dn ) )
+            {
+                Attribute attr = new LockableAttributeImpl( SUBENTRY_OPATTRS[ii] );
+                attr.add( dn );
+                modList.add( new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr ) );
+            }
+        }
+
+        ModificationItem[] mods = new ModificationItem[modList.size()];
+        return ( ModificationItem[] ) modList.toArray( mods );
+    }
+
+
+    /**
+     * Calculates the subentry operational attributes to add or replace from
+     * a candidate entry selected by a subtree specification.  When a subentry
+     * is added or it's specification is modified some entries must have new
+     * operational attributes added to it to point back to the associated
+     * subentry.  To do so a modify operation must be performed on entries
+     * selected by the subtree specification.  This method calculates the
+     * modify operation to be performed on the entry.
+     *
+     * @param entry the entry being modified
+     * @param operational the set of operational attributes supported by the AP
+     * of the subentry
+     * @return the set of modifications needed to update the entry
+     */
+    public ModificationItem[] getOperationalModsForAdd( Attributes entry, Attributes operational ) throws NamingException
+    {
+        List modList = new ArrayList();
+
+        NamingEnumeration opAttrIds = operational.getIDs();
+        while ( opAttrIds.hasMore() )
+        {
+            int op = DirContext.REPLACE_ATTRIBUTE;
+            String opAttrId = ( String ) opAttrIds.next();
+            Attribute result = new LockableAttributeImpl( opAttrId );
+            Attribute opAttrAdditions = operational.get( opAttrId );
+            Attribute opAttrInEntry = entry.get( opAttrId );
+
+            for ( int ii = 0; ii < opAttrAdditions.size(); ii++ )
+            {
+                result.add( opAttrAdditions.get( ii ) );
+            }
+
+            if ( opAttrInEntry != null && opAttrInEntry.size() > 0 )
+            {
+                for ( int ii = 0; ii < opAttrInEntry.size(); ii++ )
+                {
+                    result.add( opAttrInEntry.get( ii ) );
+                }
+            }
+            else
+            {
+                op = DirContext.ADD_ATTRIBUTE;
+            }
+
+            modList.add( new ModificationItem( op, result ) );
+        }
+
+        ModificationItem[] mods = new ModificationItem[modList.size()];
+        mods = ( ModificationItem[] ) modList.toArray( mods );
+        return mods;
     }
 }
