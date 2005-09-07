@@ -27,6 +27,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
+import javax.naming.event.EventDirContext;
+import javax.naming.event.NamingListener;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -55,7 +57,7 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class ServerDirContext extends ServerContext implements DirContext
+public abstract class ServerDirContext extends ServerContext implements EventDirContext
 {
     
     
@@ -658,5 +660,38 @@ public abstract class ServerDirContext extends ServerContext implements DirConte
         }
         
         return search( name, buf.toString(), cons );
+    }
+
+
+    // ------------------------------------------------------------------------
+    // EventDirContext implementations
+    // ------------------------------------------------------------------------
+
+
+    public void addNamingListener( Name name, String s, SearchControls searchControls, NamingListener namingListener ) 
+            throws NamingException
+    {
+        // stub: does not do anything just yet
+    }
+
+
+    public void addNamingListener( String s, String s1, SearchControls searchControls, NamingListener namingListener )
+            throws NamingException
+    {
+        // stub: does not do anything just yet
+    }
+
+
+    public void addNamingListener( Name name, String s, Object[] objects, SearchControls searchControls,
+                                   NamingListener namingListener ) throws NamingException
+    {
+        // stub: does not do anything just yet
+    }
+
+
+    public void addNamingListener( String s, String s1, Object[] objects, SearchControls searchControls,
+                                   NamingListener namingListener ) throws NamingException
+    {
+        // stub: does not do anything just yet
     }
 }

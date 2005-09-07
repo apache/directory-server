@@ -25,6 +25,8 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.event.EventDirContext;
+import javax.naming.event.NamingListener;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
@@ -48,7 +50,7 @@ import org.apache.ldap.server.configuration.SyncConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-class DeadContext implements LdapContext
+class DeadContext implements LdapContext, EventDirContext
 {
     private final String EXCEPTION_MSG = "Context operation unavailable when " +
             "invoked after Eve provider has been shutdown";
@@ -421,6 +423,55 @@ class DeadContext implements LdapContext
 
 
     public Name composeName( Name name, Name prefix ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public void addNamingListener( Name name, String s, SearchControls searchControls, NamingListener namingListener )
+            throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public void addNamingListener( String s, String s1, SearchControls searchControls, NamingListener namingListener ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public void addNamingListener( Name name, String s, Object[] objects, SearchControls searchControls, NamingListener namingListener ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public void addNamingListener( String s, String s1, Object[] objects, SearchControls searchControls, NamingListener namingListener ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public void addNamingListener( Name name, int i, NamingListener namingListener ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public void addNamingListener( String s, int i, NamingListener namingListener ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public void removeNamingListener( NamingListener namingListener ) throws NamingException
+    {
+        throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
+    }
+
+
+    public boolean targetMustExist() throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }

@@ -30,6 +30,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamingListener;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -54,7 +56,7 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class ServerContext implements Context
+public abstract class ServerContext implements EventContext
 {
     /** property key used for deleting the old RDN on a rename */
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN";
@@ -739,7 +741,7 @@ public abstract class ServerContext implements Context
         while ( fqn.size() > 0 )
         {
             // match found end loop
-            if ( fqn.get( 0 ).equalsIgnoreCase( head ) )
+            if ( ( ( String ) fqn.get( 0 ) ).equalsIgnoreCase( head ) )
             {
                 return fqn;
             }
@@ -755,8 +757,37 @@ public abstract class ServerContext implements Context
 
         throw new NamingException( msg );
     }
-    
-    
+
+
+    // ------------------------------------------------------------------------
+    // EventContext implementations
+    // ------------------------------------------------------------------------
+
+
+    public void addNamingListener( Name name, int i, NamingListener namingListener ) throws NamingException
+    {
+        // stub: does not do anything just yet
+    }
+
+
+    public void addNamingListener( String s, int i, NamingListener namingListener ) throws NamingException
+    {
+        // stub: does not do anything just yet
+    }
+
+
+    public void removeNamingListener( NamingListener namingListener ) throws NamingException
+    {
+        // stub: does not do anything just yet
+    }
+
+
+    public boolean targetMustExist() throws NamingException
+    {
+        return false;
+    }
+
+
     // ------------------------------------------------------------------------
     // Utility Methods to Reduce Code
     // ------------------------------------------------------------------------
