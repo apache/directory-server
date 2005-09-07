@@ -16,6 +16,7 @@
  */
 package org.apache.ldap.server.jndi;
 
+
 import java.util.Iterator;
 import java.util.Map;
 
@@ -24,6 +25,8 @@ import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
+import javax.naming.event.NamingListener;
+import javax.naming.event.EventContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -36,6 +39,8 @@ import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.partition.ContextPartition;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.event.EventService;
+
 
 /**
  * A decorator that wraps other {@link ContextPartitionNexus} to enable
@@ -411,5 +416,33 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         {
             throw new ServiceUnavailableException( "ContextFactoryService is not started." );
         }
+    }
+
+
+    // -----------------------------------------------------------------------
+    // EventContext and EventDirContext notification methods
+    // -----------------------------------------------------------------------
+
+    /*
+     * All listener registration/deregistration methods can be reduced down to
+     * the following methods.  Rather then make these actual intercepted methods
+     * we use them as out of band methods to interface with the notification
+     * interceptor.
+     */
+
+    public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
+                                   NamingListener namingListener ) throws NamingException
+    {
+        InterceptorChain chain = this.configuration.getInterceptorChain();
+        EventService interceptor = ( EventService ) chain.get( "eventService" );
+        interceptor.addNamingListener( ctx, name, filter, searchControls, namingListener );
+    }
+
+
+    public void removeNamingListener( NamingListener namingListener ) throws NamingException
+    {
+        InterceptorChain chain = this.configuration.getInterceptorChain();
+        EventService interceptor = ( EventService ) chain.get( "eventService" );
+        interceptor.removeNamingListener( namingListener );
     }
 }

@@ -85,6 +85,12 @@
             <bean class="org.apache.ldap.server.operational.OperationalAttributeService" />
           </property>
         </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>eventService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.event.EventService" />
+          </property>
+        </bean>
       </list>
     </property>
   </bean>

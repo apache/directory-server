@@ -668,30 +668,75 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // ------------------------------------------------------------------------
 
 
-    public void addNamingListener( Name name, String s, SearchControls searchControls, NamingListener namingListener ) 
+    FilterParserImpl filterParser = new FilterParserImpl();
+
+    public void addNamingListener( Name name, String filterStr, SearchControls searchControls, NamingListener namingListener )
             throws NamingException
     {
-        // stub: does not do anything just yet
+        ExprNode filter = null;
+
+        try
+        {
+            filter = filterParser.parse( filterStr );
+        }
+        catch ( Exception e )
+        {
+            NamingException e2 = new NamingException( "could not parse filter: " + filterStr );
+            e2.setRootCause( e );
+            throw e2;
+        }
+
+        ( ( ContextPartitionNexusProxy ) getNexusProxy() )
+                .addNamingListener( this, buildTarget( name ), filter, searchControls, namingListener );
     }
 
 
-    public void addNamingListener( String s, String s1, SearchControls searchControls, NamingListener namingListener )
+    public void addNamingListener( String name, String filter, SearchControls searchControls, NamingListener namingListener )
             throws NamingException
     {
-        // stub: does not do anything just yet
+        addNamingListener( new LdapName( name ), filter, searchControls, namingListener );
     }
 
 
-    public void addNamingListener( Name name, String s, Object[] objects, SearchControls searchControls,
+    public void addNamingListener( Name name, String filterExpr, Object[] filterArgs, SearchControls searchControls,
                                    NamingListener namingListener ) throws NamingException
     {
-        // stub: does not do anything just yet
+        int start;
+
+        StringBuffer buf = new StringBuffer( filterExpr );
+
+        // Scan until we hit the end of the string buffer
+        for ( int ii = 0; ii < buf.length(); ii++ )
+        {
+            // Advance until we hit the start of a variable
+            while ( '{' != buf.charAt( ii ) )
+            {
+                ii++;
+            }
+
+            // Record start of variable at '{'
+            start = ii;
+
+            // Advance to the end of a variable at '}'
+            while ( '}' != buf.charAt( ii ) )
+            {
+                ii++;
+            }
+            
+            /*
+             * Replace the '{ i }' with the string representation of the value
+             * held in the filterArgs array at index index.
+             */
+            buf.replace( start, ii + 1, filterArgs[ii].toString() );
+        }
+
+        addNamingListener( name, buf.toString(), searchControls, namingListener );
     }
 
 
-    public void addNamingListener( String s, String s1, Object[] objects, SearchControls searchControls,
+    public void addNamingListener( String name, String filter, Object[] objects, SearchControls searchControls,
                                    NamingListener namingListener ) throws NamingException
     {
-        // stub: does not do anything just yet
+        addNamingListener( new LdapName( name ), filter, objects, searchControls, namingListener );
     }
 }

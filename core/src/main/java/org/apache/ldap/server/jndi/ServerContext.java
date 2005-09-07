@@ -42,6 +42,7 @@ import javax.naming.spi.DirectoryManager;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.filter.PresenceNode;
+import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
@@ -764,21 +765,25 @@ public abstract class ServerContext implements EventContext
     // ------------------------------------------------------------------------
 
 
-    public void addNamingListener( Name name, int i, NamingListener namingListener ) throws NamingException
+    public void addNamingListener( Name name, int scope, NamingListener namingListener ) throws NamingException
     {
-        // stub: does not do anything just yet
+        ExprNode filter = new PresenceNode( "objectClass" );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( scope );
+        ( ( ContextPartitionNexusProxy ) this.nexusProxy )
+                .addNamingListener( this, buildTarget( name ), filter, controls, namingListener );
     }
 
 
-    public void addNamingListener( String s, int i, NamingListener namingListener ) throws NamingException
+    public void addNamingListener( String name, int scope, NamingListener namingListener ) throws NamingException
     {
-        // stub: does not do anything just yet
+        addNamingListener( new LdapName( name ), scope, namingListener );
     }
 
 
     public void removeNamingListener( NamingListener namingListener ) throws NamingException
     {
-        // stub: does not do anything just yet
+        ( ( ContextPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( namingListener );
     }
 
 

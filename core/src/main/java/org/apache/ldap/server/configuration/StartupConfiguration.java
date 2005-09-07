@@ -44,6 +44,7 @@ import org.apache.ldap.server.schema.bootstrap.InetorgpersonSchema;
 import org.apache.ldap.server.schema.bootstrap.JavaSchema;
 import org.apache.ldap.server.schema.bootstrap.SystemSchema;
 import org.apache.ldap.server.subtree.SubentryService;
+import org.apache.ldap.server.event.EventService;
 
 /**
  * A {@link Configuration} that starts up ApacheDS.
@@ -166,7 +167,12 @@ public class StartupConfiguration extends Configuration
         interceptorCfg.setName( "operationalAttributeService" );
         interceptorCfg.setInterceptor( new OperationalAttributeService() );
         list.add( interceptorCfg );
-        
+
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "eventService" );
+        interceptorCfg.setInterceptor( new EventService() );
+        list.add( interceptorCfg );
+
         setInterceptorConfigurations( list );
     }
 
