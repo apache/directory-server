@@ -37,6 +37,7 @@ import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
+import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,19 +70,19 @@ public class SubentryService extends BaseInterceptor
     public static final String AUTONOUMOUS_AREA_SUBENTRY = "autonomousAreaSubentry";
 
     public static final String AC_AREA = "accessControlSpecificArea";
-    public static final String AC_AREA_SUBENTRY = "accessControlAreaSubentry";
+    public static final String AC_AREA_SUBENTRY = "accessControlAreaSubentries";
 
     public static final String AC_INNERAREA = "accessControlInnerArea";
-    public static final String AC_INNERAREA_SUBENTRY = "accessControlInnerAreaSubentry";
+    public static final String AC_INNERAREA_SUBENTRY = "accessControlInnerAreaSubentries";
 
     public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
     public static final String SCHEMA_AREA_SUBENTRY = "subschemaSubentry";
 
     public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
-    public static final String COLLECTIVE_AREA_SUBENTRY = "collectiveAttributeAreaSubentry";
+    public static final String COLLECTIVE_AREA_SUBENTRY = "collectiveAttributeSubentries";
 
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
-    public static final String COLLECTIVE_INNERAREA_SUBENTRY = "collectiveAttributeInnerAreaSubentry";
+    public static final String COLLECTIVE_INNERAREA_SUBENTRY = "collectiveAttributeSubentries";
 
     public static final String[] SUBENTRY_OPATTRS = {
         AUTONOUMOUS_AREA_SUBENTRY,
@@ -484,6 +485,115 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
 
 
+    /**
+     * Checks to see if an entry being renamed has a descendant that is an
+     * administrative point.
+     *
+     * @param name the name of the entry which is used as the search base
+     * @return true if name is an administrative point or one of its descendants
+     * are, false otherwise
+     * @throws NamingException if there are errors while searching the directory
+     */
+    private boolean hasAdministrativeDescendant( Name name ) throws NamingException
+    {
+        ExprNode filter = new PresenceNode( "administrativeRole" );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration aps = nexus.search( name, factoryCfg.getEnvironment(), filter, controls );
+        if ( aps.hasMore() )
+        {
+            aps.close();
+            return true;
+        }
+
+        return false;
+    }
+
+
+    private ModificationItem[] getModsOnEntryRdnChange( Name oldName, Name newName, Attributes entry )
+        throws NamingException
+    {
+        Attribute objectClasses = entry.get( "objectClass" );
+        List modList = new ArrayList();
+
+        /*
+         * There are two different situations warranting action.  Firt if
+         * an ss evalutating to true with the old name no longer evalutates
+         * to true with the new name.  This would be caused by specific chop
+         * exclusions that effect the new name but did not effect the old
+         * name. In this case we must remove subentry operational attribute
+         * values associated with the dn of that subentry.
+         *
+         * In the second case an ss selects the entry with the new name when
+         * it did not previously with the old name.  Again this situation
+         * would be caused by chop exclusions. In this case we must add subentry
+         * operational attribute values with the dn of this subentry.
+         */
+        Iterator subentries = subtrees.keySet().iterator();
+        while ( subentries.hasNext() )
+        {
+            String subentryDn = ( String ) subentries.next();
+            Name apDn = new LdapName( subentryDn );
+            apDn.remove( apDn.size() - 1 );
+            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( subentryDn );
+            boolean isOldNameSelected = evaluator.evaluate( ss, apDn, oldName, objectClasses );
+            boolean isNewNameSelected = evaluator.evaluate( ss, apDn, newName, objectClasses );
+
+            if ( isOldNameSelected == isNewNameSelected )
+            {
+                continue;
+            }
+
+            // need to remove references to the subentry
+            if ( isOldNameSelected && ! isNewNameSelected )
+            {
+                for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
+                {
+                    int op = DirContext.REPLACE_ATTRIBUTE;
+                    Attribute opAttr = entry.get( SUBENTRY_OPATTRS[ii] );
+                    if ( opAttr != null )
+                    {
+                        opAttr = ( Attribute ) opAttr.clone();
+                        opAttr.remove( subentryDn );
+
+                        if ( opAttr.size() < 1 )
+                        {
+                            op = DirContext.REMOVE_ATTRIBUTE;
+                        }
+
+                        modList.add( new ModificationItem( op, opAttr ) );
+                    }
+                }
+            }
+            // need to add references to the subentry
+            else if ( isNewNameSelected && ! isOldNameSelected )
+            {
+                for ( int ii = 0; ii < SUBENTRY_OPATTRS.length; ii++ )
+                {
+                    int op = DirContext.REPLACE_ATTRIBUTE;
+                    Attribute opAttr = entry.get( SUBENTRY_OPATTRS[ii] );
+                    if ( opAttr != null )
+                    {
+                        opAttr = ( Attribute ) opAttr.clone();
+                    }
+                    else
+                    {
+                        op = DirContext.ADD_ATTRIBUTE;
+                        opAttr = new LockableAttributeImpl( SUBENTRY_OPATTRS[ii] );
+                    }
+
+                    opAttr.add( subentryDn );
+                    modList.add( new ModificationItem( op, opAttr ) );
+                }
+            }
+        }
+
+        ModificationItem[] mods = new ModificationItem[modList.size()];
+        mods = ( ModificationItem[] ) modList.toArray( mods );
+        return mods;
+    }
+
+
     public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
@@ -525,7 +635,25 @@ public class SubentryService extends BaseInterceptor
         }
         else
         {
+            if ( hasAdministrativeDescendant( name ) )
+            {
+                String msg = "Will not allow rename operation on entries with administrative descendants.";
+                log.warn( msg );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+            }
             next.modifyRn( name, newRn, deleteOldRn );
+
+            // calculate the new DN now for use below to modify subentry operational
+            // attributes contained within this regular entry with name changes
+            Name newName = ( Name ) name.clone();
+            newName.remove( newName.size() - 1 );
+            newName.add( newRn );
+            ModificationItem[] mods = getModsOnEntryRdnChange( name, newName, entry );
+
+            if ( mods.length > 0 )
+            {
+                nexus.modify( newName, mods );
+            }
         }
     }
 
@@ -573,7 +701,24 @@ public class SubentryService extends BaseInterceptor
         }
         else
         {
+            if ( hasAdministrativeDescendant( oriChildName ) )
+            {
+                String msg = "Will not allow rename operation on entries with administrative descendants.";
+                log.warn( msg );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+            }
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
+
+            // calculate the new DN now for use below to modify subentry operational
+            // attributes contained within this regular entry with name changes
+            Name newName = ( Name ) newParentName.clone();
+            newName.add( newRn );
+            ModificationItem[] mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
+
+            if ( mods.length > 0 )
+            {
+                nexus.modify( newName, mods );
+            }
         }
     }
 
@@ -619,7 +764,24 @@ public class SubentryService extends BaseInterceptor
         }
         else
         {
+            if ( hasAdministrativeDescendant( oriChildName ) )
+            {
+                String msg = "Will not allow rename operation on entries with administrative descendants.";
+                log.warn( msg );
+                throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOTALLOWEDONRDN );
+            }
             next.move( oriChildName, newParentName );
+
+            // calculate the new DN now for use below to modify subentry operational
+            // attributes contained within this regular entry with name changes
+            Name newName = ( Name ) newParentName.clone();
+            newName.add( oriChildName.get( oriChildName.size() - 1 ) );
+            ModificationItem[] mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
+
+            if ( mods.length > 0 )
+            {
+                nexus.modify( newName, mods );
+            }
         }
     }
 
