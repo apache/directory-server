@@ -79,18 +79,16 @@ public class SubentryService extends BaseInterceptor
     public static final String SCHEMA_AREA_SUBENTRY = "subschemaSubentry";
 
     public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
-    public static final String COLLECTIVE_AREA_SUBENTRY = "collectiveAttributeSubentries";
+    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
 
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
-    public static final String COLLECTIVE_INNERAREA_SUBENTRY = "collectiveAttributeSubentries";
 
     public static final String[] SUBENTRY_OPATTRS = {
         AUTONOUMOUS_AREA_SUBENTRY,
         AC_AREA_SUBENTRY,
         AC_INNERAREA_SUBENTRY,
         SCHEMA_AREA_SUBENTRY,
-        COLLECTIVE_AREA_SUBENTRY,
-        COLLECTIVE_INNERAREA_SUBENTRY
+        COLLECTIVE_ATTRIBUTE_SUBENTRIES
     };
 
     /**
@@ -389,21 +387,13 @@ public class SubentryService extends BaseInterceptor
                                 entry.put( operational );
                             }
                         }
-                        else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
+                        else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
+                                  role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
                         {
-                            operational = ( Attribute ) entry.get( COLLECTIVE_AREA_SUBENTRY ).clone();
+                            operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).clone();
                             if ( operational == null )
                             {
-                                operational = new LockableAttributeImpl( COLLECTIVE_AREA_SUBENTRY );
-                                entry.put( operational );
-                            }
-                        }
-                        else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
-                        {
-                            operational = ( Attribute ) entry.get( COLLECTIVE_INNERAREA_SUBENTRY ).clone();
-                            if ( operational == null )
-                            {
-                                operational = new LockableAttributeImpl( COLLECTIVE_INNERAREA_SUBENTRY );
+                                operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                                 entry.put( operational );
                             }
                         }
@@ -1017,26 +1007,13 @@ public class SubentryService extends BaseInterceptor
                     operational.add( newName.toString() );
                 }
             }
-            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
+            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
+                      role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
             {
-                operational = ( Attribute ) entry.get( COLLECTIVE_AREA_SUBENTRY ).clone();
+                operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).clone();
                 if ( operational == null )
                 {
-                    operational = new LockableAttributeImpl( COLLECTIVE_AREA_SUBENTRY );
-                    operational.add( newName.toString() );
-                }
-                else
-                {
-                    operational.remove( oldName.toString() );
-                    operational.add( newName.toString() );
-                }
-            }
-            else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
-            {
-                operational = ( Attribute ) entry.get( COLLECTIVE_INNERAREA_SUBENTRY ).clone();
-                if ( operational == null )
-                {
-                    operational = new LockableAttributeImpl( COLLECTIVE_INNERAREA_SUBENTRY );
+                    operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                     operational.add( newName.toString() );
                 }
                 else
@@ -1124,26 +1101,16 @@ public class SubentryService extends BaseInterceptor
                     operational.get( SCHEMA_AREA_SUBENTRY ).add( name.toString() );
                 }
             }
-            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) )
+            else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
+                      role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
             {
-                if ( operational.get( COLLECTIVE_AREA_SUBENTRY ) == null )
+                if ( operational.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ) == null )
                 {
-                    operational.put( COLLECTIVE_AREA_SUBENTRY, name.toString() );
+                    operational.put( COLLECTIVE_ATTRIBUTE_SUBENTRIES, name.toString() );
                 }
                 else
                 {
-                    operational.get( COLLECTIVE_AREA_SUBENTRY ).add( name.toString() );
-                }
-            }
-            else if ( role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
-            {
-                if ( operational.get( COLLECTIVE_INNERAREA_SUBENTRY ) == null )
-                {
-                    operational.put( COLLECTIVE_INNERAREA_SUBENTRY, name.toString() );
-                }
-                else
-                {
-                    operational.get( COLLECTIVE_INNERAREA_SUBENTRY ).add( name.toString() );
+                    operational.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).add( name.toString() );
                 }
             }
             else
