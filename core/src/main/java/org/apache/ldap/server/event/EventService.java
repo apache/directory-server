@@ -130,17 +130,6 @@ public class EventService extends BaseInterceptor
                 nclistener.objectAdded( new NamingEvent( rec.getEventContext(),
                         NamingEvent.OBJECT_ADDED, null, binding, entry ) );
             }
-            else if ( listener instanceof ObjectChangeListener )
-            {
-                ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
-                Binding binding = new Binding( upName, entry, false );
-                oclistener.objectChanged( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_ADDED, null, binding, entry ) );
-            }
-            else
-            {
-                throw new IllegalStateException( "unrecognized event listener type: " + listener.getClass() );
-            }
         }
     }
 
@@ -165,19 +154,8 @@ public class EventService extends BaseInterceptor
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
                 Binding binding = new Binding( name.toString(), entry, false );
-                nclistener.objectAdded( new NamingEvent( rec.getEventContext(),
+                nclistener.objectRemoved( new NamingEvent( rec.getEventContext(),
                         NamingEvent.OBJECT_REMOVED, binding, null, entry ) );
-            }
-            else if ( listener instanceof ObjectChangeListener )
-            {
-                ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
-                Binding binding = new Binding( name.toString(), entry, false );
-                oclistener.objectChanged( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_REMOVED, binding, null, entry ) );
-            }
-            else
-            {
-                throw new IllegalStateException( "unrecognized event listener type: " + listener.getClass() );
             }
         }
     }
@@ -198,23 +176,12 @@ public class EventService extends BaseInterceptor
             EventSourceRecord rec = ( EventSourceRecord ) list.next();
             NamingListener listener = rec.getNamingListener();
 
-            if ( listener instanceof NamespaceChangeListener )
-            {
-                NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( name.toString(), entry, false );
-                nclistener.objectAdded( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_CHANGED, binding, binding, entry ) );
-            }
-            else if ( listener instanceof ObjectChangeListener )
+            if ( listener instanceof ObjectChangeListener )
             {
                 ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
                 Binding binding = new Binding( name.toString(), entry, false );
                 oclistener.objectChanged( new NamingEvent( rec.getEventContext(),
                         NamingEvent.OBJECT_CHANGED, binding, binding, entry ) );
-            }
-            else
-            {
-                throw new IllegalStateException( "unrecognized event listener type: " + listener.getClass() );
             }
         }
     }
@@ -253,20 +220,8 @@ public class EventService extends BaseInterceptor
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
                 Binding oldBinding = new Binding( oldName.toString(), entry, false );
                 Binding newBinding = new Binding( oldName.toString(), entry, false );
-                nclistener.objectAdded( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_CHANGED, oldBinding, newBinding, entry ) );
-            }
-            else if ( listener instanceof ObjectChangeListener )
-            {
-                ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
-                Binding oldBinding = new Binding( oldName.toString(), entry, false );
-                Binding newBinding = new Binding( oldName.toString(), entry, false );
-                oclistener.objectChanged( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_CHANGED, oldBinding, newBinding, entry ) );
-            }
-            else
-            {
-                throw new IllegalStateException( "unrecognized event listener type: " + listener.getClass() );
+                nclistener.objectRenamed( new NamingEvent( rec.getEventContext(),
+                        NamingEvent.OBJECT_RENAMED, oldBinding, newBinding, entry ) );
             }
         }
     }
