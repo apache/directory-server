@@ -104,7 +104,7 @@ public class EventService extends BaseInterceptor
 
     public void removeNamingListener( NamingListener namingListener )
     {
-        sources.remove( namingListener );
+        sources.remove( sources.get( namingListener ) );
     }
 
 
