@@ -342,7 +342,7 @@ public class SubentryService extends BaseInterceptor
                 apDn.remove( apDn.size() - 1 );
                 SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( subentryDn );
 
-                if ( evaluator.evaluate( ss, apDn, subentryDn, objectClasses ) )
+                if ( evaluator.evaluate( ss, apDn, normName, objectClasses ) )
                 {
                     Attribute administrativeRole = nexus.lookup( apDn ).get( "administrativeRole" );
                     NamingEnumeration roles = administrativeRole.getAll();
