@@ -21,14 +21,28 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.subtree.SubentryService;
+import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
+import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.message.LockableAttributeImpl;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.Name;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.SearchResult;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 
 /**
@@ -43,33 +57,232 @@ import java.util.Map;
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
+    /**
+     * the search result filter to use for collective attribute injection
+     */
+    private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
+    {
+        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
+                throws NamingException
+        {
+            if ( controls.getReturningAttributes() == null )
+            {
+                return filter( result.getAttributes() );
+            }
+
+            return true;
+        }
+    };
+
+    private AttributeTypeRegistry registry = null;
+    private ContextPartitionNexus nexus = null;
+
+
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         super.init( factoryCfg, cfg );
+        nexus = factoryCfg.getPartitionNexus();
+        registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
+    /**
+     * Adds the set of collective attributes contained in subentries referenced
+     * by the entry.  All collective attributes that are not exclused are added
+     * to the entry from all subentries.
+     *
+     * @param entry the entry to have the collective attributes injected
+     * @throws NamingException if there are problems accessing subentries
+     */
+    private void addCollectiveAttributes( Attributes entry ) throws NamingException
     {
-        return super.list( next, base );
+        Attribute subentries = entry.get( SubentryService.COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+
+        if ( subentries == null )
+        {
+            return;
+        }
+
+        /*
+         * Before we proceed we need to lookup the exclusions within the
+         * entry and build a set of exclusions for rapid lookup.  We use
+         * OID values in the exclusions set instead of regular names that
+         * may have case variance.
+         */
+        Attribute collectiveExclusions = entry.get( "collectiveExclusions" );
+        Set exclusions = null;
+        if ( collectiveExclusions != null )
+        {
+            if ( collectiveExclusions.contains( "2.5.18.0" ) ||
+                 collectiveExclusions.contains( "excludeAllCollectiveAttributes" ) )
+            {
+                return;
+            }
+
+            exclusions = new HashSet();
+            for ( int ii = 0; ii < collectiveExclusions.size(); ii++ )
+            {
+                AttributeType attrType = registry.lookup( ( String ) collectiveExclusions.get( ii ) );
+                exclusions.add( attrType.getOid() );
+            }
+        }
+
+        /*
+         * For each collective subentry referenced by the entry we lookup the
+         * attributes of the subentry and copy collective attributes from the
+         * subentry into the entry.
+         */
+        for ( int ii = 0; ii < subentries.size(); ii++ )
+        {
+            String subentryDnStr = ( String ) subentries.get( ii );
+            Name subentryDn = new LdapName( subentryDnStr );
+            Attributes subentry = nexus.lookup( subentryDn );
+            NamingEnumeration attrIds = subentry.getIDs();
+            while ( attrIds.hasMore() )
+            {
+                String attrId = ( String ) attrIds.next();
+                AttributeType attrType = registry.lookup( attrId );
+
+                // skip the addition of this collective attribute if it is excluded
+                if ( exclusions.contains( attrType.getOid() ) )
+                {
+                    continue;
+                }
+
+                /*
+                 * If the attribute type of the subentry attribute is collective
+                 * then we need to add all the values of the collective attribute
+                 * to the entry making sure we do not overwrite values already
+                 * existing for the collective attribute in case multiple
+                 * subentries add the same collective attributes to this entry.
+                 */
+
+                if ( attrType.isCollective() )
+                {
+                    Attribute subentryColAttr = subentry.get( attrId );
+                    Attribute entryColAttr = entry.get( attrId );
+
+                    // if entry does not have attribute for colattr then create it
+                    if ( entryColAttr == null )
+                    {
+                        entryColAttr = new LockableAttributeImpl( attrId );
+                        entry.put( entryColAttr );
+                    }
+
+                    // add all the collective attribute values in the subentry to entry
+                    for ( int jj = 0; jj < subentryColAttr.size(); jj++ )
+                    {
+                        entryColAttr.add( subentryColAttr.get( ii ) );
+                    }
+                }
+            }
+        }
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
+    /**
+     * Filter that injects collective attributes into the entry.
+     *
+     * @param attributes the resultant attributes with added collective attributes
+     * @return true always
+     */
+    private boolean filter( Attributes attributes ) throws NamingException
     {
-        return super.lookup( next, dn, attrIds );
+        addCollectiveAttributes( attributes );
+        return true;
     }
 
 
-    public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
+    private void filter( Name dn, Attributes entry, String[] ids ) throws NamingException
     {
-        return super.lookup( next, name );
+        filter( entry );
+
+        // still need to return collective attrs when ids is null
+        if ( ids == null )
+        {
+            return;
+        }
+
+        // now we can filter out even collective attributes from the requested return ids
+        if ( dn.size() == 0 )
+        {
+            HashSet idsSet = new HashSet( ids.length );
+
+            for ( int ii = 0; ii < ids.length; ii++ )
+            {
+                idsSet.add( ids[ii].toLowerCase() );
+            }
+
+            NamingEnumeration list = entry.getIDs();
+
+            while ( list.hasMore() )
+            {
+                String attrId = ( ( String ) list.nextElement() ).toLowerCase();
+
+                if ( !idsSet.contains( attrId ) )
+                {
+                    entry.remove( attrId );
+                }
+            }
+        }
+
+        // do nothing past here since this explicity specifies which
+        // attributes to include - backends will automatically populate
+        // with right set of attributes using ids array
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+    // ------------------------------------------------------------------------
+    // Interceptor Method Overrides
+    // ------------------------------------------------------------------------
+
+
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        return super.search( next, base, env, filter, searchCtls );
+        Attributes result = nextInterceptor.lookup( name );
+        if ( result == null )
+        {
+            return null;
+        }
+        filter( result );
+        return result;
+    }
+
+
+    public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
+    {
+        Attributes result = nextInterceptor.lookup( name, attrIds );
+        if ( result == null )
+        {
+            return null;
+        }
+
+        filter( name, result, attrIds );
+        return result;
+    }
+
+
+    public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
+    {
+        NamingEnumeration e = nextInterceptor.list( base );
+        LdapContext ctx =
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
+    }
+
+
+    public NamingEnumeration search( NextInterceptor nextInterceptor,
+            Name base, Map env, ExprNode filter,
+            SearchControls searchCtls ) throws NamingException
+    {
+        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        if ( searchCtls.getReturningAttributes() != null )
+        {
+            return e;
+        }
+
+        LdapContext ctx =
+            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );
     }
 }
