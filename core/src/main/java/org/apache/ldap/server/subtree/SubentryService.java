@@ -840,7 +840,7 @@ public class SubentryService extends BaseInterceptor
                 Attributes candidate = result.getAttributes();
                 Name dn = dnParser.parse( result.getName() );
 
-                if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
+                if ( evaluator.evaluate( ssNew, apName, dn, candidate.get( "objectClass" ) ) )
                 {
                     nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
                 }
@@ -923,7 +923,7 @@ public class SubentryService extends BaseInterceptor
                 Attributes candidate = result.getAttributes();
                 Name dn = dnParser.parse( result.getName() );
 
-                if ( evaluator.evaluate( ssOld, apName, dn, candidate.get( "objectClass" ) ) )
+                if ( evaluator.evaluate( ssNew, apName, dn, candidate.get( "objectClass" ) ) )
                 {
                     nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
                 }
