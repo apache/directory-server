@@ -671,7 +671,7 @@ public class SubentryServiceTest extends AbstractAdminTestCase
     }
 
 
-    public void testEntryMove() throws NamingException
+    public void testEntryMoveWithRdnChange() throws NamingException
     {
         addAdministrativeRole( "autonomousArea" );
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
@@ -765,6 +765,97 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         assertNotNull( marked );
         autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
+        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
+        assertEquals( 1, autonomousSubentry.size() );
+    }
+
+
+    public void testEntryMove() throws NamingException
+    {
+        addAdministrativeRole( "autonomousArea" );
+        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        super.sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
+        super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
+        Map results = getAllEntries();
+
+        // --------------------------------------------------------------------
+        // Make sure entries selected by the subentry do have the mark
+        // --------------------------------------------------------------------
+
+        Attributes configuration = ( Attributes ) results.get( "ou=configuration,ou=system" );
+        Attribute autonomousSubentry = configuration.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
+        assertNotNull( "ou=configuration,ou=system should be marked", autonomousSubentry );
+        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
+        assertEquals( 1, autonomousSubentry.size() );
+
+        Attributes interceptors = ( Attributes ) results.get( "ou=interceptors,ou=configuration,ou=system" );
+        autonomousSubentry = interceptors.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
+        assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", autonomousSubentry );
+        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
+        assertEquals( 1, autonomousSubentry.size() );
+
+        Attributes partitions = ( Attributes ) results.get( "ou=partitions,ou=configuration,ou=system" );
+        autonomousSubentry = partitions.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
+        assertNotNull( "ou=partitions,ou=configuration,ou=system should be marked", autonomousSubentry );
+        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
+        assertEquals( 1, autonomousSubentry.size() );
+
+        Attributes services = ( Attributes ) results.get( "ou=services,ou=configuration,ou=system" );
+        autonomousSubentry = services.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
+        assertNotNull( "ou=services,ou=configuration,ou=system should be marked", autonomousSubentry );
+        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
+        assertEquals( 1, autonomousSubentry.size() );
+
+        Attributes marked = ( Attributes ) results.get( "cn=marked,ou=configuration,ou=system" );
+        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
+        assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", autonomousSubentry );
+        assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
+        assertEquals( 1, autonomousSubentry.size() );
+
+        // --------------------------------------------------------------------
+        // Make sure entries not selected by subentry do not have the mark
+        // --------------------------------------------------------------------
+
+        Attributes system = ( Attributes ) results.get( "ou=system" );
+        assertNull( "ou=system should not be marked",
+                system.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+
+        Attributes users = ( Attributes ) results.get( "ou=users,ou=system" );
+        assertNull( "ou=users,ou=system should not be marked",
+                users.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+
+        Attributes groups = ( Attributes ) results.get( "ou=groups,ou=system" );
+        assertNull( "ou=groups,ou=system should not be marked",
+                groups.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+
+        Attributes admin = ( Attributes ) results.get( "uid=admin,ou=system" );
+        assertNull( "uid=admin,ou=system should not be marked",
+                admin.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+
+        Attributes sysPrefRoot = ( Attributes ) results.get( "prefNodeName=sysPrefRoot,ou=system" );
+        assertNull( "prefNode=sysPrefRoot,ou=system should not be marked",
+                sysPrefRoot.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+
+        Attributes unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
+        assertNull( "cn=unmarked,ou=system should not be marked",
+                unmarked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY ) );
+
+        // --------------------------------------------------------------------
+        // Now destry one of the marked/unmarked and rename to deleted entry
+        // --------------------------------------------------------------------
+
+        super.sysRoot.destroySubcontext( "cn=unmarked" );
+        super.sysRoot.rename( "cn=marked,ou=configuration", "cn=marked,ou=services,ou=configuration" );
+        results = getAllEntries();
+
+        unmarked = ( Attributes ) results.get( "cn=unmarked,ou=system" );
+        assertNull( "cn=unmarked,ou=system should not be marked", unmarked );
+        assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
+
+        marked = ( Attributes ) results.get( "cn=marked,ou=services,ou=configuration,ou=system" );
+        assertNotNull( marked );
+        autonomousSubentry = marked.get( SubentryService.AUTONOUMOUS_AREA_SUBENTRY );
+        assertNotNull( "cn=marked,ou=services,ou=configuration should be marked", autonomousSubentry );
         assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
         assertEquals( 1, autonomousSubentry.size() );
     }
