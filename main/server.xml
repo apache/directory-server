@@ -86,6 +86,12 @@
           </property>
         </bean>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>collectiveAttributeService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.collective.CollectiveAttributeService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>eventService</value></property>
           <property name="interceptor">
             <bean class="org.apache.ldap.server.event.EventService" />
