@@ -1450,8 +1450,16 @@ public class JdbmContextPartition extends BTreeContextPartition
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
         boolean deleteOldRdn ) throws NamingException
     {
+        BigInteger childId = getEntryId( oldChildDn.toString() );
         modifyRn( oldChildDn, newRdn, deleteOldRdn );
-        move( oldChildDn, newParentDn );
+        move( oldChildDn, childId, newParentDn );
+    }
+
+
+    public void move( Name oldChildDn, Name newParentDn ) throws NamingException
+    {
+        BigInteger childId = getEntryId( oldChildDn.toString() );
+        move( oldChildDn, childId, newParentDn );
     }
 
 
@@ -1468,10 +1476,9 @@ public class JdbmContextPartition extends BTreeContextPartition
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws NamingException if something goes wrong
      */
-    public void move( Name oldChildDn, Name newParentDn ) throws NamingException
+    private void move( Name oldChildDn, BigInteger childId, Name newParentDn ) throws NamingException
     {
         // Get the child and the new parent to be entries and Ids
-        BigInteger childId = getEntryId( oldChildDn.toString() );
         BigInteger newParentId = getEntryId( newParentDn.toString() );
         BigInteger oldParentId = getParentId( childId );
         
