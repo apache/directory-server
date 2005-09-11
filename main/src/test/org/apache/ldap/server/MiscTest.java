@@ -22,21 +22,22 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NoPermissionException;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.*;
 
 
 /**
- * A set of simple tests to make sure simple authentication is working as it
- * should.
+ * A set of miscellanous tests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DisableAnonBindTest extends AbstractServerTest
+public class MiscTest extends AbstractServerTest
 {
     /**
      * Cleans up old database files on creation.
      */
-    public DisableAnonBindTest()
+    public MiscTest()
     {
     }
 
@@ -48,7 +49,10 @@ public class DisableAnonBindTest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
+        if ( this.getName().equals( "testDisableAnonymousBinds" ) )
+        {
+            configuration.setAllowAnonymousAccess( false );
+        }
         super.setUp();
     }
 
@@ -77,5 +81,40 @@ public class DisableAnonBindTest extends AbstractServerTest
         catch ( NoPermissionException e )
         {
         }
+    }
+
+
+    /**
+     * Reproduces the problem with
+     * <a href="http://issues.apache.org/jira/browse/DIREVE-239">DIREVE-239</a>.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    public void testAdminAccessBug() throws Exception
+    {
+        // Use the SUN JNDI provider to hit server port and bind as anonymous
+
+        final Hashtable env = new Hashtable();
+
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put("java.naming.ldap.version", "3");
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+
+        Attributes attributes = new BasicAttributes();
+        Attribute objectClass = new BasicAttribute( "objectClass" );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+        attributes.put( objectClass );
+        attributes.put( "ou", "blah" );
+        InitialDirContext ctx = new InitialDirContext( env );
+        ctx.createSubcontext( "ou=blah,ou=system", attributes );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[] { "+" } );
+        NamingEnumeration list = ctx.search( "ou=blah,ou=system", "(objectClass=*)", controls );
+        SearchResult result = ( SearchResult ) list.next();
+        list.close();
+        Attribute creatorsName = result.getAttributes().get( "creatorsName" );
+        assertEquals( "", creatorsName.get() );
     }
 }
