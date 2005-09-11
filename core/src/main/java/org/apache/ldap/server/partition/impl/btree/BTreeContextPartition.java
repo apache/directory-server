@@ -133,7 +133,7 @@ public abstract class BTreeContextPartition implements ContextPartition
             String name = ( String ) i.next();
             String oid = oidRegistry.getOid( name );
             AttributeType type = attributeTypeRegistry.lookup( oid );
-            
+
             // check if attribute is a system attribute
             if ( sysOidSet.contains( oid ) )
             {
@@ -176,10 +176,15 @@ public abstract class BTreeContextPartition implements ContextPartition
                 addIndexOn( type );
             }
         }
-        
-        add( cfg.getSuffix(),
-                cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ),
-                cfg.getContextEntry() );
+
+        // add entry for context, if it does not exist
+        Attributes suffixOnDisk = getSuffixEntry();
+        if ( suffixOnDisk == null )
+        {
+            add( cfg.getSuffix(),
+                 cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() ),
+                 cfg.getContextEntry() );
+        }
     }
 
     
