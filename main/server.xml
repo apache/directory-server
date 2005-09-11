@@ -8,6 +8,7 @@
     <property name="properties">
     	<props>
     		<prop key="asn.1.berlib.provider">org.apache.ldap.common.berlib.asn1.SnickersProvider</prop>
+    		<!--prop key="asn.1.berlib.provider">org.apache.asn1new.ldap.TwixProvider</prop-->
     		<prop key="java.naming.security.authentication">simple</prop>
     		<prop key="java.naming.security.principal">uid=admin,ou=system</prop>
     		<prop key="java.naming.security.credentials">secret</prop>
