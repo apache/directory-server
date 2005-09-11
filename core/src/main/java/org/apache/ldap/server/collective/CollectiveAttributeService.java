@@ -43,6 +43,7 @@ import javax.naming.directory.SearchResult;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Collections;
 
 
 /**
@@ -65,12 +66,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
                 throws NamingException
         {
-            if ( controls.getReturningAttributes() == null )
-            {
                 return filter( result.getAttributes() );
-            }
-
-            return true;
         }
     };
 
@@ -126,6 +122,10 @@ public class CollectiveAttributeService extends BaseInterceptor
                 exclusions.add( attrType.getOid() );
             }
         }
+        else
+        {
+            exclusions = Collections.EMPTY_SET;
+        }
 
         /*
          * For each collective subentry referenced by the entry we lookup the
@@ -172,7 +172,7 @@ public class CollectiveAttributeService extends BaseInterceptor
                     // add all the collective attribute values in the subentry to entry
                     for ( int jj = 0; jj < subentryColAttr.size(); jj++ )
                     {
-                        entryColAttr.add( subentryColAttr.get( ii ) );
+                        entryColAttr.add( subentryColAttr.get( jj ) );
                     }
                 }
             }
@@ -276,11 +276,6 @@ public class CollectiveAttributeService extends BaseInterceptor
             SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
-        if ( searchCtls.getReturningAttributes() != null )
-        {
-            return e;
-        }
-
         LdapContext ctx =
             ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );

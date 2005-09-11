@@ -39,6 +39,7 @@ import org.apache.ldap.server.schema.SchemaService;
 import org.apache.ldap.server.schema.bootstrap.*;
 import org.apache.ldap.server.subtree.SubentryService;
 import org.apache.ldap.server.event.EventService;
+import org.apache.ldap.server.collective.CollectiveAttributeService;
 
 /**
  * A {@link Configuration} that starts up ApacheDS.
@@ -165,7 +166,7 @@ public class StartupConfiguration extends Configuration
 
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "collectiveAttributeService" );
-        interceptorCfg.setInterceptor( new OperationalAttributeService() );
+        interceptorCfg.setInterceptor( new CollectiveAttributeService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
