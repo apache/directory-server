@@ -84,8 +84,7 @@ public class ExceptionService extends BaseInterceptor
             throw ne;
         }
 
-        Name parentDn = new LdapName( upName );
-        parentDn = parentDn.getSuffix( 1 );
+        Name parentDn = normName.getSuffix( 1 );
 
         // check if we don't have the parent to add to
         assertHasEntry( nextInterceptor, "Attempt to add under non-existant parent: ", parentDn );
