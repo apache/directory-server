@@ -22,15 +22,9 @@ import java.util.Map;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.*;
 
-import org.apache.ldap.common.exception.LdapContextNotEmptyException;
-import org.apache.ldap.common.exception.LdapNameAlreadyBoundException;
-import org.apache.ldap.common.exception.LdapNameNotFoundException;
-import org.apache.ldap.common.exception.LdapNamingException;
+import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
@@ -39,6 +33,7 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
 
 
 /**
@@ -52,6 +47,8 @@ import org.apache.ldap.server.partition.ContextPartition;
  */
 public class ExceptionService extends BaseInterceptor
 {
+    private ContextPartitionNexus nexus;
+
     /**
      * Creates an interceptor that is also the exception handling service.
      */
@@ -62,6 +59,7 @@ public class ExceptionService extends BaseInterceptor
 
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg )
     {
+        nexus = factoryCfg.getPartitionNexus();
     }
 
 
@@ -183,6 +181,29 @@ public class ExceptionService extends BaseInterceptor
         String msg = "Attempt to modify non-existant entry: ";
         assertHasEntry( nextInterceptor, msg, name );
 
+        Attributes entry = nexus.lookup( name );
+        NamingEnumeration attrIds = attrs.getIDs();
+        while ( attrIds.hasMore() )
+        {
+            String attrId = ( String ) attrIds.next();
+            Attribute modAttr = attrs.get( attrId );
+            Attribute entryAttr = entry.get( attrId );
+
+            if ( modOp == DirContext.ADD_ATTRIBUTE )
+            {
+                if ( entryAttr != null )
+                {
+                    for ( int ii = 0; ii < modAttr.size(); ii++ )
+                    {
+                        if ( entryAttr.contains( modAttr.get( ii ) ) )
+                        {
+                            throw new LdapAttributeInUseException( "Trying to add existing value '"
+                                    + modAttr.get( ii ) + "' to attribute " + attrId );
+                        }
+                    }
+                }
+            }
+        }
         nextInterceptor.modify( name, modOp, attrs );
     }
 
@@ -196,6 +217,27 @@ public class ExceptionService extends BaseInterceptor
         String msg = "Attempt to modify non-existant entry: ";
         assertHasEntry( nextInterceptor, msg, name );
 
+        Attributes entry = nexus.lookup( name );
+        for ( int ii = 0; ii < items.length; ii++ )
+        {
+            if ( items[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
+            {
+                Attribute modAttr = items[ii].getAttribute();
+                Attribute entryAttr = entry.get( modAttr.getID() );
+
+                if ( entryAttr != null )
+                {
+                    for ( int jj = 0; jj < modAttr.size(); jj++ )
+                    {
+                        if ( entryAttr.contains( modAttr.get( jj ) ) )
+                        {
+                            throw new LdapAttributeInUseException( "Trying to add existing value '"
+                                    + modAttr.get( ii ) + "' to attribute " + modAttr.getID() );
+                        }
+                    }
+                }
+            }
+        }
         nextInterceptor.modify( name, items );
     }
 
