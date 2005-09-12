@@ -609,7 +609,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         String targetDn = ( String ) aliasIdx.reverseLookup( aliasId );
         BigInteger targetId = getEntryId( targetDn );
         String aliasDn = getEntryDn( aliasId );
-        Name ancestorDn = new LdapName( aliasDn ).getSuffix( 1 );
+        Name ancestorDn = new LdapName( aliasDn ).getPrefix( 1 );
         BigInteger ancestorId = getEntryId( ancestorDn.toString() );
         
         /*
@@ -628,7 +628,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         
         while ( ! ancestorDn.equals( upSuffix ) )
         {
-            ancestorDn = ancestorDn.getSuffix( 1 );
+            ancestorDn = ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
             
             subAliasIdx.drop( ancestorId, targetId );
@@ -749,7 +749,7 @@ public class JdbmContextPartition extends BTreeContextPartition
          * index.  If the target is not a sibling of the alias then we add the
          * index entry maping the parent's id to the aliased target id.
          */
-        ancestorDn = aliasDn.getSuffix( 1 );
+        ancestorDn = aliasDn.getPrefix( 1 );
         ancestorId = getEntryId( ancestorDn.toString() );
         
         if ( ! NamespaceTools.isSibling( targetDn, aliasDn ) )
@@ -774,7 +774,7 @@ public class JdbmContextPartition extends BTreeContextPartition
                 subAliasIdx.add( ancestorId, targetId );
             }
             
-            ancestorDn = ancestorDn.getSuffix( 1 );
+            ancestorDn = ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
         }        
     }
@@ -799,13 +799,13 @@ public class JdbmContextPartition extends BTreeContextPartition
         }
         else 
         {
-            parentId = getEntryId( dn.getSuffix( 1 ).toString() );
+            parentId = getEntryId( dn.getPrefix( 1 ).toString() );
         }
 
         // don't keep going if we cannot find the parent Id
         if ( parentId == null )
         {
-            throw new LdapNameNotFoundException( "Id for parent '" + dn.getSuffix( 1 ).toString() + "' not found!" );
+            throw new LdapNameNotFoundException( "Id for parent '" + dn.getPrefix( 1 ).toString() + "' not found!" );
         }
 
         Attribute objectClass = entry.get( "objectClass" );
@@ -1576,7 +1576,7 @@ public class JdbmContextPartition extends BTreeContextPartition
          * Start droping index tuples with the first ancestor right above the 
          * moved base.  This is the first ancestor effected by the move.
          */
-        Name ancestorDn = movedBase.getSuffix( 1 );
+        Name ancestorDn = movedBase.getPrefix( 1 );
         BigInteger ancestorId = getEntryId( ancestorDn.toString() );
         
         /*
@@ -1600,7 +1600,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         
         while ( ! ancestorDn.equals( upSuffix ) )
         {
-            ancestorDn = ancestorDn.getSuffix( 1 );
+            ancestorDn = ancestorDn.getPrefix( 1 );
             ancestorId = getEntryId( ancestorDn.toString() );
             
             subAliasIdx.drop( ancestorId, targetId );

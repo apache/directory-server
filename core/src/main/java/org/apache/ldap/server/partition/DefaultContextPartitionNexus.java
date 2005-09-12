@@ -417,7 +417,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
                 return dn;
             }
 
-            dn = dn.getSuffix( 1 );
+            dn = dn.getPrefix( 1 );
         }
 
         return dn;

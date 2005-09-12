@@ -295,7 +295,6 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
     {
         Attributes attrs = new BasicAttributes( true );
         Attribute attr = new BasicAttribute( "ou" );
-        attr.add( "users" );
         attr.add( "dummyValue" );
         attrs.put( attr );
         sysRoot.modifyAttributes( "ou=users", DirContext.ADD_ATTRIBUTE, attrs );
@@ -303,6 +302,7 @@ public class ExceptionServiceTest extends AbstractAdminTestCase
         assertTrue( ou.contains( "users" ) );
         assertTrue( ou.contains( "dummyValue" ) );
 
+        attr = new BasicAttribute( "ou" );
         attr.add( "another" );
         ModificationItem[] mods = new ModificationItem[] {
             new ModificationItem( DirContext.ADD_ATTRIBUTE, attr )

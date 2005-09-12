@@ -82,13 +82,13 @@ public class ExceptionService extends BaseInterceptor
             throw ne;
         }
 
-        Name parentDn = normName.getSuffix( 1 );
+        Name parentDn = normName.getPrefix( 1 );
 
         // check if we don't have the parent to add to
         assertHasEntry( nextInterceptor, "Attempt to add under non-existant parent: ", parentDn );
 
         // check if we're trying to add to a parent that is an alias
-        Attributes attrs = nextInterceptor.lookup( normName.getSuffix( 1 ) );
+        Attributes attrs = nextInterceptor.lookup( normName.getPrefix( 1 ) );
         Attribute objectClass = attrs.get( "objectClass" );
         if ( objectClass.contains( "alias" ) )
         {
@@ -252,7 +252,7 @@ public class ExceptionService extends BaseInterceptor
         assertHasEntry( nextInterceptor, msg, dn );
 
         // check to see if target entry exists
-        Name target = dn.getSuffix( 1 ).add( newRn );
+        Name target = dn.getPrefix( 1 ).add( newRn );
         if ( nextInterceptor.hasEntry( target ) )
         {
             LdapNameAlreadyBoundException e = null;

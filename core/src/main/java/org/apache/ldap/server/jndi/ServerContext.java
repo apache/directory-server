@@ -454,9 +454,9 @@ public abstract class ServerContext implements EventContext
             throw new LdapNoPermissionException( "can't rename the rootDSE" );
         }
 
-        Name oldBase = oldName.getSuffix( 1 );
+        Name oldBase = oldName.getPrefix( 1 );
 
-        Name newBase = newName.getSuffix( 1 );
+        Name newBase = newName.getPrefix( 1 );
 
         String newRdn = newName.get( newName.size() - 1 );
 
@@ -493,7 +493,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            Name parent = newDn.getSuffix( 1 );
+            Name parent = newDn.getPrefix( 1 );
             
             if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {

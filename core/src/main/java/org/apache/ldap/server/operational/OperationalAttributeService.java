@@ -173,7 +173,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        Name newDn = name.getSuffix( 1 ).add( newRn );
+        Name newDn = name.getPrefix( 1 ).add( newRn );
         nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
     }
 
