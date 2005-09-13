@@ -670,7 +670,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
     FilterParserImpl filterParser = new FilterParserImpl();
 
-    public void addNamingListener( Name name, String filterStr, SearchControls searchControls, NamingListener namingListener )
+    public void addNamingListener( Name name, String filterStr, SearchControls searchControls,
+                                   NamingListener namingListener )
             throws NamingException
     {
         ExprNode filter = null;
@@ -688,6 +689,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         ( ( ContextPartitionNexusProxy ) getNexusProxy() )
                 .addNamingListener( this, buildTarget( name ), filter, searchControls, namingListener );
+        getListeners().add( namingListener );
     }
 
 

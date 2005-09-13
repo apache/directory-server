@@ -102,9 +102,38 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void removeNamingListener( NamingListener namingListener )
+    public void removeNamingListener( EventContext ctx, NamingListener namingListener )
     {
-        sources.remove( sources.get( namingListener ) );
+        Object obj = sources.get( namingListener );
+
+        if ( obj == null )
+        {
+            return;
+        }
+
+        if ( obj instanceof EventSourceRecord )
+        {
+            sources.remove( namingListener );
+        }
+        else if ( obj instanceof List )
+        {
+            List list = ( List ) obj;
+
+            for ( int ii = 0; ii < list.size(); ii++ )
+            {
+                EventSourceRecord rec = ( EventSourceRecord ) list.get( ii );
+                if ( rec.getEventContext() == ctx )
+                {
+                    list.remove( ii );
+                }
+            }
+
+            if ( list.isEmpty() )
+            {
+                sources.remove( namingListener );
+            }
+        }
+
     }
 
 

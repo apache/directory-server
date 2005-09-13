@@ -19,6 +19,9 @@ package org.apache.ldap.server.jndi;
 
 import java.io.Serializable;
 import java.util.Hashtable;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
@@ -70,6 +73,9 @@ public abstract class ServerContext implements EventContext
 
     /** The distinguished name of this Context */
     private final LdapName dn;
+
+    /** The set of registered NamingListeners */
+    private final Set listeners = new HashSet();
 
     /** The Principal associated with this context */
     private LdapPrincipal principal;
@@ -222,7 +228,12 @@ public abstract class ServerContext implements EventContext
      */
     public void close() throws NamingException
     {
-        // Does nothing yet?
+        Iterator list = listeners.iterator();
+        while ( list.hasNext() )
+        {
+            ( ( ContextPartitionNexusProxy ) this.nexusProxy )
+                    .removeNamingListener( this, ( NamingListener ) list.next() );
+        }
     }
 
 
@@ -772,6 +783,7 @@ public abstract class ServerContext implements EventContext
         controls.setSearchScope( scope );
         ( ( ContextPartitionNexusProxy ) this.nexusProxy )
                 .addNamingListener( this, buildTarget( name ), filter, controls, namingListener );
+        listeners.add( namingListener );
     }
 
 
@@ -783,13 +795,25 @@ public abstract class ServerContext implements EventContext
 
     public void removeNamingListener( NamingListener namingListener ) throws NamingException
     {
-        ( ( ContextPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( namingListener );
+        ( ( ContextPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
+        listeners.remove( namingListener );
     }
 
 
     public boolean targetMustExist() throws NamingException
     {
         return false;
+    }
+
+
+    /**
+     * Allows subclasses to register and unregister listeners.
+     *
+     * @return the set of listeners used for tracking registered name listeners.
+     */
+    protected Set getListeners()
+    {
+        return listeners;
     }
 
 

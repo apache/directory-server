@@ -439,10 +439,10 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     }
 
 
-    public void removeNamingListener( NamingListener namingListener ) throws NamingException
+    public void removeNamingListener( EventContext ctx, NamingListener namingListener ) throws NamingException
     {
         InterceptorChain chain = this.configuration.getInterceptorChain();
         EventService interceptor = ( EventService ) chain.get( "eventService" );
-        interceptor.removeNamingListener( namingListener );
+        interceptor.removeNamingListener( ctx, namingListener );
     }
 }
