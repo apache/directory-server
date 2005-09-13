@@ -21,12 +21,7 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.common.schema.CachingNormalizer;
-import org.apache.ldap.common.schema.ComparableComparator;
-import org.apache.ldap.common.schema.DeepTrimNormalizer;
-import org.apache.ldap.common.schema.DeepTrimToLowerNormalizer;
-import org.apache.ldap.common.schema.DnComparator;
-import org.apache.ldap.common.schema.NormalizingComparator;
+import org.apache.ldap.common.schema.*;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 
 
@@ -55,7 +50,7 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         ( 2.5.13.0 NAME 'objectIdentifierMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
          */
-         comparator = new ComparableComparator();
+         comparator = new ObjectIdentifierComparator();
          cb.schemaObjectProduced( this, "2.5.13.0", comparator );
 
         /*

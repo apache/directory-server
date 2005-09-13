@@ -49,12 +49,15 @@ import org.apache.ldap.server.schema.AttributeTypeRegistry;
 public class NormalizationService extends BaseInterceptor
 {
     private DnParser parser;
+    private ValueNormalizingVisitor visitor;
 
 
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         AttributeTypeRegistry attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        parser = new DnParser( new PerComponentNormalizer( attributeRegistry ) );
+        NameComponentNormalizer ncn = new PerComponentNormalizer( attributeRegistry );
+        parser = new DnParser( ncn );
+        visitor = new ValueNormalizingVisitor( ncn );
     }
 
 
@@ -157,6 +160,7 @@ public class NormalizationService extends BaseInterceptor
             base = parser.parse( base.toString() );
         }
 
+        filter.accept( visitor );
         return nextInterceptor.search( base, env, filter, searchCtls );
     }
 

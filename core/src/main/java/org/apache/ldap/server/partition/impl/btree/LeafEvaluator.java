@@ -182,7 +182,7 @@ public class LeafEvaluator implements Evaluator
          */
         Normalizer normalizer = getNormalizer( attrId );
         Comparator comparator = getComparator( attrId );
-        Object filterValue = normalizer.normalize( node.getValue() );
+        Object filterValue = node.getValue();
         NamingEnumeration list = attr.getAll();
         
         /*
@@ -308,7 +308,7 @@ public class LeafEvaluator implements Evaluator
         }
 
         // get the normalized AVA filter value
-        Object filterValue = normalizer.normalize( node.getValue() );
+        Object filterValue = node.getValue();
 
         // check if the normalized value is present
         if ( attr.contains( filterValue ) )

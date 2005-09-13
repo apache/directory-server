@@ -19,12 +19,7 @@ package org.apache.ldap.server.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.common.schema.CachingNormalizer;
-import org.apache.ldap.common.schema.DeepTrimNormalizer;
-import org.apache.ldap.common.schema.DeepTrimToLowerNormalizer;
-import org.apache.ldap.common.schema.DnNormalizer;
-import org.apache.ldap.common.schema.NoOpNormalizer;
-import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.schema.*;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 
 
@@ -106,7 +101,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         ( 2.5.13.0 NAME 'objectIdentifierMatch'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
           */
-        normalizer = new NoOpNormalizer();
+        normalizer = new ObjectIdentifierNormalizer();
         cb.schemaObjectProduced( this, "2.5.13.0", normalizer );
 
         /*
