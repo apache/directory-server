@@ -20,6 +20,8 @@ package org.apache.ldap.server.schema;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.SyntaxChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +33,8 @@ import org.apache.ldap.common.schema.SyntaxChecker;
 public class SyntaxCheckerRegistryMonitorAdapter 
     implements SyntaxCheckerRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( SyntaxCheckerRegistryMonitorAdapter.class );
+
     /* (non-Javadoc)
      * @see org.apache.ldap.server.schema.SyntaxCheckerRegistryMonitor#registered(
      * org.apache.eve.schema.SyntaxChecker)
@@ -57,7 +61,7 @@ public class SyntaxCheckerRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the syntax checker: " + oid, fault );
         }
     }
 
@@ -71,7 +75,7 @@ public class SyntaxCheckerRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a syntax checker: " + oid, fault );
         }
     }
 }

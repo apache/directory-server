@@ -21,6 +21,9 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * An adapter for the ComparatorRegistry's monitor.
@@ -31,6 +34,8 @@ import javax.naming.NamingException;
 public class ComparatorRegistryMonitorAdapter 
     implements ComparatorRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( ComparatorRegistryMonitorAdapter.class );
+
     /* (non-Javadoc)
      * @see org.apache.ldap.server.schema.ComparatorRegistryMonitor#registered(
      * org.apache.eve.schema.Comparator)
@@ -57,7 +62,7 @@ public class ComparatorRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the comparator registry: " + oid, fault );
         }
     }
 
@@ -70,7 +75,7 @@ public class ComparatorRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a comparator for oid '" + oid + "'.", fault );
         }
     }
 }

@@ -20,6 +20,9 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * An adapter for an OidRegistryMonitor.
@@ -29,6 +32,7 @@ import javax.naming.NamingException;
  */
 public class OidRegistryMonitorAdapter implements OidRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( OidRegistryMonitorAdapter.class );
 
     /* (non-Javadoc)
      * @see org.apache.ldap.server.schema.OidRegistryMonitor#getOidWithOid(
@@ -65,7 +69,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to resolve OID: " + name, fault );
         }
     }
 
@@ -78,7 +82,7 @@ public class OidRegistryMonitorAdapter implements OidRegistryMonitor
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "OID doesn't exist: " + oid, fault );
         }
     }
 

@@ -27,6 +27,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * A enumeration decorator which filters database search results as they are
@@ -38,6 +41,8 @@ import javax.naming.ldap.LdapContext;
  */
 public class SearchResultFilteringEnumeration implements NamingEnumeration
 {
+    private static final Logger log = LoggerFactory.getLogger( SearchResultFilteringEnumeration.class );
+
     /** the list of filters to be applied */
     private final List filters;
     /** the underlying decorated enumeration */
@@ -212,7 +217,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
+            throw new RuntimeException( "Failed to prefetch.", e );
         }
 
         return retVal;

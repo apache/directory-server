@@ -38,12 +38,11 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
-import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
+import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
@@ -57,6 +56,8 @@ import org.apache.ldap.server.partition.impl.btree.IndexAssertion;
 import org.apache.ldap.server.partition.impl.btree.IndexAssertionEnumeration;
 import org.apache.ldap.server.partition.impl.btree.IndexNotFoundException;
 import org.apache.ldap.server.partition.impl.btree.IndexRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -68,6 +69,8 @@ import org.apache.ldap.server.partition.impl.btree.IndexRecord;
  */
 public class JdbmContextPartition extends BTreeContextPartition
 {
+    private static final Logger log = LoggerFactory.getLogger( JdbmContextPartition.class );
+
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
     /** the user provided suffix of this backend database */
@@ -197,7 +200,6 @@ public class JdbmContextPartition extends BTreeContextPartition
         }
         
         Iterator list = array.iterator();
-        MultiException rootCause = null;
         
         while ( list.hasNext() ) 
         {
@@ -209,12 +211,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             } 
             catch ( Throwable t ) 
             {
-                if ( null == rootCause ) 
-                {
-                    rootCause = new MultiException();
-                }
-                
-                rootCause.addThrowable( t );
+                log.error( "Failed to close an index.", t );
             }
         }
 
@@ -224,12 +221,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         } 
         catch ( Throwable t ) 
         {
-            if ( null == rootCause ) 
-            {
-                rootCause = new MultiException();
-            }
-                
-            rootCause.addThrowable( t );
+            log.error( "Failed to close the master.", t );
         }
 
         try 
@@ -238,22 +230,10 @@ public class JdbmContextPartition extends BTreeContextPartition
         } 
         catch ( Throwable t ) 
         {
-            if ( null == rootCause ) 
-            {
-                rootCause = new MultiException();
-            }
-                
-            rootCause.addThrowable( t );
+            log.error( "Failed to close the record manager", t );
         }
 
         initialized = false;
-
-        if ( null != rootCause )
-        {
-            NamingException ne = new NamingException( "Failed to close all" );
-            ne.setRootCause( rootCause );
-            ne.printStackTrace();
-        }
     }
 
 
@@ -281,50 +261,25 @@ public class JdbmContextPartition extends BTreeContextPartition
         array.add( existanceIdx );
         
         Iterator list = array.iterator();
-        MultiException rootCause = null;
 
         // Sync all user defined indices
         while ( list.hasNext() ) 
         {
             Index idx = ( Index ) list.next();
 
-            try 
-            {
-                idx.sync();
-            } 
-            catch ( Throwable t ) 
-            {
-                t.printStackTrace();
-                if ( null == rootCause ) 
-                {
-                    rootCause = new MultiException();
-                }
-                
-                rootCause.addThrowable( t );
-            }
+            idx.sync();
         }
         
+        master.sync();
+
         try 
         {
-            master.sync();
             recMan.commit();
         }
         catch ( Throwable t ) 
         {
-            t.printStackTrace();
-            if ( null == rootCause ) 
-            {
-                rootCause = new MultiException();
-            }
-                
-            rootCause.addThrowable( t );
-        }
-
-        if ( null != rootCause )
-        {
-            NamingException ne = new NamingException( "Failed to sync all" );
-            ne.setRootCause( rootCause );
-            throw ne;
+            throw ( NamingException ) new NamingException(
+                    "Failed to commit changes to the record manager." ).initCause( t );
         }        
     }
 

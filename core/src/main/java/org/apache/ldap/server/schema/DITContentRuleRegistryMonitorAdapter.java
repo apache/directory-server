@@ -18,6 +18,8 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.DITContentRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,6 +32,8 @@ import org.apache.ldap.common.schema.DITContentRule;
 public class DITContentRuleRegistryMonitorAdapter
     implements DITContentRuleRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( DITContentRuleRegistryMonitorAdapter.class );
+
     public void registered( DITContentRule dITContentRule )
     {
     }
@@ -44,16 +48,16 @@ public class DITContentRuleRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the DIT content rule: " + oid, fault );
         }
     }
 
 
-    public void registerFailed( DITContentRule dITContentRule, Throwable fault )
+    public void registerFailed( DITContentRule ditContentRule, Throwable fault )
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a DIT content rule: " + ditContentRule, fault );
         }
     }
 }

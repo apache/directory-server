@@ -18,6 +18,8 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.MatchingRuleUse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,6 +32,8 @@ import org.apache.ldap.common.schema.MatchingRuleUse;
 public class MatchingRuleUseRegistryMonitorAdapter
     implements MatchingRuleUseRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( MatchingRuleUseRegistryMonitorAdapter.class );
+    
     public void registered( MatchingRuleUse matchingRuleUse )
     {
     }
@@ -44,7 +48,7 @@ public class MatchingRuleUseRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the matching rule use: " + oid, fault );
         }
     }
 
@@ -53,7 +57,7 @@ public class MatchingRuleUseRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a matching rule use: " + matchingRuleUse, fault );
         }
     }
 }

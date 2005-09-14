@@ -38,6 +38,8 @@ import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,6 +50,8 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
  */
 public class InterceptorChain
 {
+    private static final Logger log = LoggerFactory.getLogger( InterceptorChain.class );
+    
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
         private ContextPartitionNexus nexus;
@@ -264,7 +268,8 @@ public class InterceptorChain
                 }
                 catch ( Throwable t )
                 {
-                    t.printStackTrace();
+                    log.warn( "Failed to deregister an interceptor: " + 
+                            e.configuration.getName(), t );
                 }
             }
         }

@@ -88,7 +88,7 @@ public class SerializableComparator implements Comparator, Serializable
             }
             catch ( NamingException e )
             {
-                e.printStackTrace();
+                throw new RuntimeException( "Matching rule not found: " + matchingRuleOid );
             }
         }
 

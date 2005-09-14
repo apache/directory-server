@@ -20,6 +20,8 @@ package org.apache.ldap.server.schema;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.MatchingRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +33,8 @@ import org.apache.ldap.common.schema.MatchingRule;
 public class MatchingRuleRegistryMonitorAdapter
     implements MatchingRuleRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( MatchingRuleRegistryMonitorAdapter.class );
+    
     /**
      * @see org.apache.ldap.server.schema.MatchingRuleRegistryMonitor#registered(
      * org.apache.ldap.common.schema.MatchingRule)
@@ -57,7 +61,7 @@ public class MatchingRuleRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the matching rule: " + oid, fault );
         }
     }
 
@@ -70,7 +74,7 @@ public class MatchingRuleRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a matching rule: " + rule, fault );
         }
     }
 }

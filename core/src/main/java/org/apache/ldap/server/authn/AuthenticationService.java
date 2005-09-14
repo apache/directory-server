@@ -153,7 +153,7 @@ public class AuthenticationService extends BaseInterceptor
         }
         catch( Throwable t )
         {
-            t.printStackTrace();
+            log.warn( "Failed to destroy an authenticator.", t );
         }
     }
 

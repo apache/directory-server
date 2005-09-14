@@ -20,6 +20,8 @@ package org.apache.ldap.server.schema;
 import javax.naming.NamingException;
 
 import org.apache.ldap.common.schema.Normalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +33,8 @@ import org.apache.ldap.common.schema.Normalizer;
 public class NormalizerRegistryMonitorAdapter 
     implements NormalizerRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( NormalizerRegistryMonitorAdapter.class );
+
     /* (non-Javadoc)
      * @see org.apache.ldap.server.schema.NormalizerRegistryMonitor#registered(
      * org.apache.eve.schema.Normalizer)
@@ -57,7 +61,7 @@ public class NormalizerRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the normalizer: " + oid , fault );
         }
     }
 
@@ -70,7 +74,7 @@ public class NormalizerRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a normalizer: " + oid, fault );
         }
     }
 }

@@ -18,6 +18,8 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.NameForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,6 +31,8 @@ import org.apache.ldap.common.schema.NameForm;
  */
 public class NameFormRegistryMonitorAdapter implements NameFormRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( NameFormRegistryMonitorAdapter.class );
+    
     public void registered( NameForm nameForm )
     {
     }
@@ -43,7 +47,7 @@ public class NameFormRegistryMonitorAdapter implements NameFormRegistryMonitor
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to lokk up the name form: " + oid, fault );
         }
     }
 
@@ -52,7 +56,7 @@ public class NameFormRegistryMonitorAdapter implements NameFormRegistryMonitor
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a name form: " + nameForm, fault );
         }
     }
 }

@@ -29,9 +29,9 @@ import javax.naming.directory.Attributes;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
@@ -47,6 +47,8 @@ import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -57,6 +59,8 @@ import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
  */
 class DefaultContextFactoryService extends ContextFactoryService
 {
+    private static final Logger log = LoggerFactory.getLogger( DefaultContextFactoryService.class );
+
     private final String instanceId;
 
     private final ContextFactoryConfiguration configuration = new DefaultContextFactoryConfiguration( this );
@@ -111,10 +115,12 @@ class DefaultContextFactoryService extends ContextFactoryService
                 }
                 catch( NamingException e )
                 {
-                    e.printStackTrace();
+                    log.warn(
+                            "Failed to shut down ContextFactoryService: " +
+                            DefaultContextFactoryService.this.instanceId, e );
                 }
             }
-        }, "ApacheDS Shutdown Hook" ) );
+        }, "ApacheDS Shutdown Hook (" + instanceId + ')' ) );
     }
 
     // ------------------------------------------------------------------------

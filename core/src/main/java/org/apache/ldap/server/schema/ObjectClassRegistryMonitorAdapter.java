@@ -18,6 +18,8 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.ObjectClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,6 +31,8 @@ import org.apache.ldap.common.schema.ObjectClass;
  */
 public class ObjectClassRegistryMonitorAdapter implements ObjectClassRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( ObjectClassRegistryMonitorAdapter.class );
+    
     public void registered( ObjectClass objectClass )
     {
     }
@@ -43,7 +47,7 @@ public class ObjectClassRegistryMonitorAdapter implements ObjectClassRegistryMon
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the object class: " + oid, fault );
         }
     }
 
@@ -52,7 +56,7 @@ public class ObjectClassRegistryMonitorAdapter implements ObjectClassRegistryMon
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register an object class: " + objectClass, fault );
         }
     }
 }

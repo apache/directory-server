@@ -18,6 +18,8 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,6 +32,8 @@ import org.apache.ldap.common.schema.AttributeType;
 public class AttributeTypeRegistryMonitorAdapter
     implements AttributeTypeRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger(AttributeTypeRegistryMonitorAdapter.class );
+    
     public void registered( AttributeType attributeType )
     {
     }
@@ -44,7 +48,7 @@ public class AttributeTypeRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the attribute type registry:" + oid, fault );
         }
     }
 
@@ -53,7 +57,7 @@ public class AttributeTypeRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register an attribute type to the attribute type registry: " + attributeType, fault );
         }
     }
 }

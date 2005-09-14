@@ -156,8 +156,6 @@ public abstract class AbstractTestCase extends TestCase
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
-
             throw new NestableRuntimeException( e );
         }
 

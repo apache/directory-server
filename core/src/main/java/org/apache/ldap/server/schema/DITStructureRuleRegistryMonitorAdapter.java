@@ -18,6 +18,8 @@ package org.apache.ldap.server.schema;
 
 
 import org.apache.ldap.common.schema.DITStructureRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,6 +32,8 @@ import org.apache.ldap.common.schema.DITStructureRule;
 public class DITStructureRuleRegistryMonitorAdapter
     implements DITStructureRuleRegistryMonitor
 {
+    private static final Logger log = LoggerFactory.getLogger( DITStructureRuleRegistryMonitorAdapter.class );
+
     public void registered( DITStructureRule dITStructureRule )
     {
     }
@@ -44,16 +48,16 @@ public class DITStructureRuleRegistryMonitorAdapter
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to look up the DIT structure rule: " + oid, fault );
         }
     }
 
 
-    public void registerFailed( DITStructureRule dITStructureRule, Throwable fault )
+    public void registerFailed( DITStructureRule ditStructureRule, Throwable fault )
     {
         if ( fault != null )
         {
-            fault.printStackTrace();
+            log.warn( "Failed to register a DIT structure rule: " + ditStructureRule, fault );
         }
     }
 }

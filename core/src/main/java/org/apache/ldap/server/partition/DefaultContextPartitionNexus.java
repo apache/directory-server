@@ -56,6 +56,8 @@ import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
                                 
 /**
@@ -67,6 +69,8 @@ import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
  */
 public class DefaultContextPartitionNexus extends ContextPartitionNexus
 {
+    private static final Logger log = LoggerFactory.getLogger( DefaultContextPartitionNexus.class );
+
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
 
@@ -146,9 +150,8 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         
         this.factoryCfg = factoryCfg;
         
-        List initializedPartitions = new ArrayList();
-        initializeSystemPartition();
-        initializedPartitions.add( system );
+        List initializedPartitionCfgs = new ArrayList();
+        initializedPartitionCfgs.add( initializeSystemPartition() );
         
         Iterator i = factoryCfg.getStartupConfiguration().getContextPartitionConfigurations().iterator();
         try
@@ -157,7 +160,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             {
                 ContextPartitionConfiguration c = ( ContextPartitionConfiguration ) i.next();
                 addContextPartition( c );
-                initializedPartitions.add( 0, c.getContextPartition() );
+                initializedPartitionCfgs.add( 0, c );
             }
             initialized = true;
         }
@@ -165,10 +168,12 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         {
             if( !initialized )
             {
-                i = initializedPartitions.iterator();
+                i = initializedPartitionCfgs.iterator();
                 while( i.hasNext() )
                 {
-                    ContextPartition partition = ( ContextPartition ) i.next();
+                    ContextPartitionConfiguration partitionCfg = 
+                        ( ContextPartitionConfiguration ) i.next();
+                    ContextPartition partition = partitionCfg.getContextPartition();
                     i.remove();
                     try
                     {
@@ -176,7 +181,9 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
                     }
                     catch( Exception e )
                     {
-                        e.printStackTrace();
+                        log.warn(
+                                "Failed to destroy a partition: " +
+                                partitionCfg.getSuffix(), e );
                     }
                     finally
                     {
@@ -188,7 +195,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     }
 
 
-    private void initializeSystemPartition() throws NamingException
+    private ContextPartitionConfiguration initializeSystemPartition() throws NamingException
     {
         // initialize system partition first
         MutableContextPartitionConfiguration systemCfg = new MutableContextPartitionConfiguration();
@@ -231,6 +238,8 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.add( system.getSuffix( false ).toString() );
+        
+        return systemCfg;
     }
 
 
@@ -247,8 +256,6 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             return;
         }
 
-        MultiException error = null;
-
         Iterator suffixes = new HashSet( this.partitions.keySet() ).iterator();
 
         // make sure this loop is not fail fast so all backing stores can
@@ -262,29 +269,11 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             }
             catch ( NamingException e )
             {
-                e.printStackTrace();
-
-                if ( error == null )
-                {
-                    error = new MultiException( "Grouping many exceptions on root nexus close()" );
-                }
-
-                // @todo really need to send this info to a monitor
-                error.addThrowable( e );
+                log.warn( "Failed to destroy a partition: " + suffix, e );
             }
         }
 
         initialized = false;
-
-        if ( error != null )
-        {
-            String msg = "Encountered failures while performing a close() operation on backing stores";
-
-            NamingException total = new NamingException( msg );
-
-            total.setRootCause( error );
-            total.printStackTrace();
-        }
     }
 
 
@@ -299,15 +288,15 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
         while ( list.hasNext() )
         {
-            ContextPartition store = ( ContextPartition ) list.next();
+            ContextPartition partition = ( ContextPartition ) list.next();
 
             try
             {
-                store.sync();
+                partition.sync();
             }
             catch ( NamingException e )
             {
-                e.printStackTrace();
+                log.warn( "Failed to flush partition data out.", e );
 
                 if ( error == null )
                 {

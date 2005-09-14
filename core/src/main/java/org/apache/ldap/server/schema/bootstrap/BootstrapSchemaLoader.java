@@ -51,6 +51,8 @@ import org.apache.ldap.server.schema.ObjectFactoryRegistry;
 import org.apache.ldap.server.schema.StateFactoryRegistry;
 import org.apache.ldap.server.schema.SyntaxCheckerRegistry;
 import org.apache.ldap.server.schema.SyntaxRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -61,6 +63,8 @@ import org.apache.ldap.server.schema.SyntaxRegistry;
  */
 public class BootstrapSchemaLoader
 {
+    private static final Logger log = LoggerFactory.getLogger( BootstrapSchemaLoader.class );
+
     /** stores schemas of producers for callback access */
     private ThreadLocal schemas;
     /** stores registries associated with producers for callback access */
@@ -341,8 +345,7 @@ public class BootstrapSchemaLoader
         catch ( ClassNotFoundException e )
         {
             failedTargetLoad = true;
-            // @todo instead of trace report target class load failure to monitor
-            e.printStackTrace();
+            log.debug( "Failed to load '" + targetClassName + "'.  Trying the alternative.", e );
         }
 
         if ( failedTargetLoad )

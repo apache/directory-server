@@ -25,6 +25,8 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.ldap.common.filter.BranchNode;
 import org.apache.ldap.common.filter.ExprNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,6 +37,8 @@ import org.apache.ldap.common.filter.ExprNode;
  */
 public class ASTNode implements TreeNode
 {
+    private static final Logger log = LoggerFactory.getLogger( ASTNode.class );
+
     private final ASTNode parent;
 	private final ExprNode exprNode;
     private final ArrayList children;
@@ -71,7 +75,8 @@ public class ASTNode implements TreeNode
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            // FIXME What exception could be thrown here?
+            log.warn( "Unexpected exception: parent=" + parent + ", exprNode=" + exprNode, e );
         }
     }
 
