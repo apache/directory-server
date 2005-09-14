@@ -92,7 +92,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         
         try
         {
-            userEntry = nexus.lookup( principalDn );
+            userEntry = nexus.lookup( principalDn, new String[] {"userPassword"} );
             if ( userEntry == null )
             {
                 throw new LdapAuthenticationException();
