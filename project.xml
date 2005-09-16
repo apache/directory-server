@@ -129,7 +129,6 @@
         </includes>
       </resource>
     </resources>
-    <jars></jars>
   </build>
 
   <developers>
