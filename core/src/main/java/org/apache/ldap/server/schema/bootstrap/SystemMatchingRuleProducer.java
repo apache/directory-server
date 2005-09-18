@@ -249,6 +249,19 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.38" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
+        /*
+         * Straight out of RFC 3698: Section 2.6
+         * http://www.faqs.org/rfcs/rfc3698.html
+         * =======================================
+         * ( 2.5.13.31 NAME 'directoryStringFirstComponentMatch'
+         *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+
+        mrule = new BootstrapMatchingRule( "2.5.13.31", registries  );
+        mrule.setNames( new String[] { "directoryStringFirstComponentMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.1466.109.114.1", registries  );
         mrule.setNames( new String[] { "caseExactIA5Match" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
@@ -265,7 +278,7 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
 
          ( 2.5.13.13 NAME 'booleanMatch'
            SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
-           
+
          ( 2.5.13.18 NAME 'octetStringOrderingMatch'
            SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
 

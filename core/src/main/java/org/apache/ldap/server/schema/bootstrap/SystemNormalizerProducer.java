@@ -217,6 +217,16 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "2.5.13.30", normalizer );
 
         /*
+         * Straight out of RFC 3698: Section 2.6
+         * http://www.faqs.org/rfcs/rfc3698.html
+         * =======================================
+         * ( 2.5.13.31 NAME 'directoryStringFirstComponentMatch'
+         *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "2.5.13.31", normalizer );
+                
+        /*
         ( 1.3.6.1.4.1.1466.109.114.1 NAME 'caseExactIA5Match'
           SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
           */

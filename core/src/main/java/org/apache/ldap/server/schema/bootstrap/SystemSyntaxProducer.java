@@ -133,7 +133,8 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          */
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.1", syntaxCheckerRegistry );
         syntax.setNames( new String[] { "ACI Item" } );
-        syntax.setHumanReadible( false );
+        // This is in direct conflict with RFC 2252 but for us ACI Item is human readable
+        syntax.setHumanReadible( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.2", syntaxCheckerRegistry );
