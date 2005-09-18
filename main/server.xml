@@ -6,14 +6,14 @@
 <beans>
   <bean id="environment" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="properties">
-    	<props>
-    		<prop key="asn.1.berlib.provider">org.apache.ldap.common.berlib.asn1.SnickersProvider</prop>
-    		<!--prop key="asn.1.berlib.provider">org.apache.asn1new.ldap.TwixProvider</prop-->
-    		<prop key="java.naming.security.authentication">simple</prop>
-    		<prop key="java.naming.security.principal">uid=admin,ou=system</prop>
-    		<prop key="java.naming.security.credentials">secret</prop>
-    		<prop key="java.naming.ldap.attributes.binary">photo personalSignature audio jpegPhoto javaSerializedData userPassword userCertificate cACertificate authorityRevocationList certificateRevocationList crossCertificatePair x500UniqueIdentifier krb5Key</prop>
-    	</props>
+      <props>
+    	  <prop key="asn.1.berlib.provider">org.apache.ldap.common.berlib.asn1.SnickersProvider</prop>
+    	  <!--prop key="asn.1.berlib.provider">org.apache.asn1new.ldap.TwixProvider</prop-->
+    	  <prop key="java.naming.security.authentication">simple</prop>
+    	  <prop key="java.naming.security.principal">uid=admin,ou=system</prop>
+          <prop key="java.naming.security.credentials">secret</prop>
+          <prop key="java.naming.ldap.attributes.binary">photo personalSignature audio jpegPhoto javaSerializedData userPassword userCertificate cACertificate authorityRevocationList certificateRevocationList crossCertificatePair x500UniqueIdentifier krb5Key</prop>
+      </props>
     </property>
   </bean>
   
@@ -58,9 +58,15 @@
           </property>
         </bean>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>oldAuthenticationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.authn.OldAuthenticationService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>authorizationService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.ldap.server.authz.AuthorizationService" />
+            <bean class="org.apache.ldap.server.authz.OldAuthorizationService" />
           </property>
         </bean>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">

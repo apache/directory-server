@@ -30,6 +30,7 @@ import javax.naming.directory.Attributes;
 import org.apache.ldap.server.authn.AnonymousAuthenticator;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.SimpleAuthenticator;
+import org.apache.ldap.server.authz.OldAuthorizationService;
 import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.exception.ExceptionService;
 import org.apache.ldap.server.jndi.ContextFactoryService;
@@ -143,7 +144,12 @@ public class StartupConfiguration extends Configuration
         interceptorCfg.setName( "authorizationService" );
         interceptorCfg.setInterceptor( new AuthorizationService() );
         list.add( interceptorCfg );
-        
+
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "oldAuthorizationService" );
+        interceptorCfg.setInterceptor( new OldAuthorizationService() );
+        list.add( interceptorCfg );
+
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "exceptionService" );
         interceptorCfg.setInterceptor( new ExceptionService() );
