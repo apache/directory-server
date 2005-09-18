@@ -70,10 +70,8 @@ public class SubentryService extends BaseInterceptor
     public static final String AUTONOUMOUS_AREA_SUBENTRY = "autonomousAreaSubentry";
 
     public static final String AC_AREA = "accessControlSpecificArea";
-    public static final String AC_AREA_SUBENTRY = "accessControlAreaSubentries";
-
     public static final String AC_INNERAREA = "accessControlInnerArea";
-    public static final String AC_INNERAREA_SUBENTRY = "accessControlInnerAreaSubentries";
+    public static final String AC_SUBENTRY = "accessControlSubentries";
 
     public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
     public static final String SCHEMA_AREA_SUBENTRY = "subschemaSubentry";
@@ -85,8 +83,7 @@ public class SubentryService extends BaseInterceptor
 
     public static final String[] SUBENTRY_OPATTRS = {
         AUTONOUMOUS_AREA_SUBENTRY,
-        AC_AREA_SUBENTRY,
-        AC_INNERAREA_SUBENTRY,
+        AC_SUBENTRY,
         SCHEMA_AREA_SUBENTRY,
         COLLECTIVE_ATTRIBUTE_SUBENTRIES
     };
@@ -360,21 +357,12 @@ public class SubentryService extends BaseInterceptor
                                 entry.put( operational );
                             }
                         }
-                        else if ( role.equalsIgnoreCase( AC_AREA ) )
+                        else if ( role.equalsIgnoreCase( AC_AREA ) || role.equalsIgnoreCase( AC_INNERAREA ) )
                         {
-                            operational = ( Attribute ) entry.get( AC_AREA_SUBENTRY ).clone();
+                            operational = ( Attribute ) entry.get( AC_SUBENTRY ).clone();
                             if ( operational == null )
                             {
-                                operational = new LockableAttributeImpl( AC_AREA_SUBENTRY );
-                                entry.put( operational );
-                            }
-                        }
-                        else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
-                        {
-                            operational = ( Attribute ) entry.get( AC_INNERAREA_SUBENTRY ).clone();
-                            if ( operational == null )
-                            {
-                                operational = new LockableAttributeImpl( AC_INNERAREA_SUBENTRY );
+                                operational = new LockableAttributeImpl( AC_SUBENTRY );
                                 entry.put( operational );
                             }
                         }
@@ -965,26 +953,12 @@ public class SubentryService extends BaseInterceptor
                     operational.add( newName.toString() );
                 }
             }
-            else if ( role.equalsIgnoreCase( AC_AREA ) )
+            else if ( role.equalsIgnoreCase( AC_AREA ) || role.equalsIgnoreCase( AC_INNERAREA ) )
             {
-                operational = ( Attribute ) entry.get( AC_AREA_SUBENTRY ).clone();
+                operational = ( Attribute ) entry.get( AC_SUBENTRY ).clone();
                 if ( operational == null )
                 {
-                    operational = new LockableAttributeImpl( AC_AREA_SUBENTRY );
-                    operational.add( newName.toString() );
-                }
-                else
-                {
-                    operational.remove( oldName.toString() );
-                    operational.add( newName.toString() );
-                }
-            }
-            else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
-            {
-                operational = ( Attribute ) entry.get( AC_INNERAREA_SUBENTRY ).clone();
-                if ( operational == null )
-                {
-                    operational = new LockableAttributeImpl( AC_INNERAREA_SUBENTRY );
+                    operational = new LockableAttributeImpl( AC_SUBENTRY );
                     operational.add( newName.toString() );
                 }
                 else
@@ -1068,26 +1042,15 @@ public class SubentryService extends BaseInterceptor
                     operational.get( AUTONOUMOUS_AREA_SUBENTRY ).add( name.toString() );
                 }
             }
-            else if ( role.equalsIgnoreCase( AC_AREA ) )
+            else if ( role.equalsIgnoreCase( AC_AREA ) || role.equalsIgnoreCase( AC_INNERAREA ) )
             {
-                if ( operational.get( AC_AREA_SUBENTRY ) == null )
+                if ( operational.get( AC_SUBENTRY ) == null )
                 {
-                    operational.put( AC_AREA_SUBENTRY, name.toString() );
+                    operational.put( AC_SUBENTRY, name.toString() );
                 }
                 else
                 {
-                    operational.get( AC_AREA_SUBENTRY ).add( name.toString() );
-                }
-            }
-            else if ( role.equalsIgnoreCase( AC_INNERAREA ) )
-            {
-                if ( operational.get( AC_INNERAREA_SUBENTRY ) == null )
-                {
-                    operational.put( AC_INNERAREA_SUBENTRY, name.toString() );
-                }
-                else
-                {
-                    operational.get( AC_INNERAREA_SUBENTRY ).add( name.toString() );
+                    operational.get( AC_SUBENTRY ).add( name.toString() );
                 }
             }
             else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
