@@ -1,0 +1,213 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.ldap.server.authz;
+
+
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.common.exception.LdapSchemaViolationException;
+import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.acl.ACIItemParser;
+import org.apache.ldap.common.acl.ACIItem;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.SimpleNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.directory.*;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
+import java.util.*;
+import java.text.ParseException;
+
+
+/**
+ * A cache for tuple sets which responds to specific events to perform
+ * cache house keeping as access control subentries are added, deleted
+ * and modified.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
+ */
+public class TupleCache
+{
+    /** the attribute id for prescriptive aci: prescriptiveACI */
+    private static final String ACI_ATTR = "prescriptiveACI";
+    /** the attribute id for an object class: objectClass */
+    private static final String OC_ATTR = "objectClass";
+    /** the object class for access control subentries: accessControlSubentry */
+    private static final String ACSUBENTRY_OC = "accessControlSubentry";
+
+    /** the logger for this class */
+    private static final Logger log = LoggerFactory.getLogger( TupleCache.class );
+
+    /** cloned startup environment properties we use for subentry searching */
+    private final Hashtable env;
+    /** a map of strings to ACITuple collections */
+    private final Map tuples = new HashMap();
+    /** a handle on the partition nexus */
+    private final ContextPartitionNexus nexus;
+    /** a normalizing ACIItem parser */
+    private final ACIItemParser aciParser;
+
+
+    /**
+     * Creates a ACITuple cache.
+     *
+     * @param factoryCfg the context factory configuration for the server
+     */
+    public TupleCache( ContextFactoryConfiguration factoryCfg ) throws NamingException
+    {
+        this.nexus = factoryCfg.getPartitionNexus();
+        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer(
+                factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() ) );
+        env = ( Hashtable ) factoryCfg.getEnvironment().clone();
+        initialize();
+    }
+
+
+    private void initialize() throws NamingException
+    {
+        // search all naming contexts for access control subentenries
+        // generate ACITuple Arrays for each subentry
+        // add that subentry to the hash
+        Iterator suffixes = nexus.listSuffixes( true );
+        while ( suffixes.hasNext() )
+        {
+            String suffix = ( String ) suffixes.next();
+            Name baseDn = new LdapName( suffix );
+            ExprNode filter = new SimpleNode( OC_ATTR, ACSUBENTRY_OC, SimpleNode.EQUALITY );
+            SearchControls ctls = new SearchControls();
+            ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
+            while ( results.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) results.next();
+                String subentryDn = result.getName();
+                Attribute aci = result.getAttributes().get( ACI_ATTR );
+                if ( aci == null )
+                {
+                    log.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + ACI_ATTR );
+                    continue;
+                }
+
+                subentryAdded( subentryDn, new LdapName( subentryDn ), result.getAttributes() );
+            }
+            results.close();
+        }
+    }
+
+
+    private boolean hasPrescriptiveACI( Attributes entry ) throws NamingException
+    {
+        // only do something if the entry contains prescriptiveACI
+        Attribute aci = entry.get( ACI_ATTR );
+        if ( aci == null && entry.get( OC_ATTR ).contains( ACSUBENTRY_OC ) )
+        {
+            // should not be necessary because of schema interceptor but schema checking
+            // can be turned off and in this case we must protect against being able to
+            // add access control information to anything other than an AC subentry
+            throw new LdapSchemaViolationException( "", ResultCodeEnum.OBJECTCLASSVIOLATION );
+        }
+        else if ( aci == null )
+        {
+            return false;
+        }
+        return true;
+    }
+
+
+    public void subentryAdded( String upName, Name normName, Attributes entry ) throws NamingException
+    {
+        // only do something if the entry contains prescriptiveACI
+        Attribute aci = entry.get( ACI_ATTR );
+        if ( ! hasPrescriptiveACI( entry ) )
+        {
+            return;
+        }
+
+        List entryTuples = new ArrayList();
+        for ( int ii = 0; ii < aci.size(); ii++ )
+        {
+            ACIItem item = null;
+
+            try
+            {
+                aciParser.parse( ( String ) aci.get( ii ) );
+            }
+            catch ( ParseException e )
+            {
+                String msg = "ACIItem parser failure on '"+item+"': " + e.getMessage();
+                log.error( msg, e );
+                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+            }
+
+            entryTuples.addAll( item.toTuples() );
+        }
+        tuples.put( normName.toString(), entryTuples );
+    }
+
+
+    public void subentryDeleted( Name normName, Attributes entry ) throws NamingException
+    {
+        if ( ! hasPrescriptiveACI( entry ) )
+        {
+            return;
+        }
+
+        tuples.remove( normName.toString() );
+    }
+
+
+    public void subentryModified( Name normName, ModificationItem[] mods, Attributes entry ) throws NamingException
+    {
+        if ( ! hasPrescriptiveACI( entry ) )
+        {
+            return;
+        }
+
+        boolean isAciModified = false;
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            isAciModified |= mods[ii].getAttribute().contains( ACI_ATTR );
+        }
+        if ( isAciModified )
+        {
+            subentryDeleted( normName, entry );
+            subentryAdded( normName.toString(), normName, entry );
+        }
+    }
+
+
+    public void subentryModified( Name normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    {
+        if ( ! hasPrescriptiveACI( entry ) )
+        {
+            return;
+        }
+
+        if ( mods.get( ACI_ATTR ) != null )
+        {
+            subentryDeleted( normName, entry );
+            subentryAdded( normName.toString(), normName, entry );
+        }
+    }
+}

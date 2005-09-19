@@ -18,6 +18,15 @@ package org.apache.ldap.server.authz;
 
 
 import org.apache.ldap.server.interceptor.BaseInterceptor;
+import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.configuration.InterceptorConfiguration;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 
 
 /**
@@ -28,4 +37,46 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
  */
 public class AuthorizationService extends BaseInterceptor
 {
+    private ContextPartitionNexus nexus;
+    private TupleCache cache;
+
+
+    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    {
+        super.init( factoryCfg, cfg );
+
+        nexus = factoryCfg.getPartitionNexus();
+        cache = new TupleCache( factoryCfg );
+    }
+
+
+    public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
+    {
+        next.add( upName, normName, entry );
+        cache.subentryAdded( upName, normName, entry );
+    }
+
+
+    public void delete( NextInterceptor next, Name name ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( name );
+        next.delete( name );
+        cache.subentryDeleted( name, entry );
+    }
+
+
+    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( name );
+        next.modify( name, modOp, mods );
+        cache.subentryModified( name, modOp, mods, entry );
+    }
+
+
+    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    {
+        Attributes entry = nexus.lookup( name );
+        next.modify( name, mods );
+        cache.subentryModified( name, mods, entry );
+    }
 }
