@@ -75,11 +75,14 @@ public class ValueNormalizingVisitor implements FilterVisitor
             return;
         }
 
-        BranchNode bnode = ( BranchNode ) node;
-        final int size = bnode.getChildren().size();
-        for ( int ii = 0; ii < size ; ii++ )
+        if (node instanceof BranchNode)
         {
-            visit( ( ExprNode ) bnode.getChildren().get( ii ) );
+            BranchNode bnode = ( BranchNode ) node;
+            final int size = bnode.getChildren().size();
+            for ( int ii = 0; ii < size ; ii++ )
+            {
+                visit( ( ExprNode ) bnode.getChildren().get( ii ) );
+            }
         }
     }
 
