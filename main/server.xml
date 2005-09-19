@@ -58,13 +58,13 @@
           </property>
         </bean>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>oldAuthenticationService</value></property>
+          <property name="name"><value>authorizationService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.ldap.server.authn.OldAuthenticationService" />
+            <bean class="org.apache.ldap.server.authz.AuthorizationService" />
           </property>
         </bean>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
-          <property name="name"><value>authorizationService</value></property>
+          <property name="name"><value>oldAuthorizationService</value></property>
           <property name="interceptor">
             <bean class="org.apache.ldap.server.authz.OldAuthorizationService" />
           </property>
