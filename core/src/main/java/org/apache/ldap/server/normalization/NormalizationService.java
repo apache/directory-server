@@ -247,6 +247,18 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
+    public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
+    {
+        Name normalized;
+
+        synchronized( parser )
+        {
+            normalized = parser.parse( name.toString() );
+        }
+
+        return next.compare( normalized, oid, value );
+    }
+
 
     /**
      * A normalizer that normalizes each name component specifically according to

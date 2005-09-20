@@ -43,6 +43,11 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
 public interface NextInterceptor
 {
     /**
+     * Calls the next interceptor's {@link Interceptor#compare(NextInterceptor,Name,String,Object)}.
+     */
+    boolean compare(Name name, String oid, Object value ) throws NamingException;
+    
+    /**
      * Calls the next interceptor's {@link Interceptor#getRootDSE(NextInterceptor)}.
      */
     Attributes getRootDSE() throws NamingException; 

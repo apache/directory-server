@@ -142,4 +142,28 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         return responseControls;
     }
+
+
+    // ------------------------------------------------------------------------
+    // Additional ApacheDS Specific JNDI Functionality
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Explicitly exposes an LDAP compare operation which JNDI does not
+     * directly provide.  All normalization and schema checking etcetera
+     * is handled by this call.
+     *
+     * @param name the name of the entri
+     * @param oid the name or object identifier for the attribute to compare
+     * @param value the value to compare the attribute to
+     * @return true if the entry has the value for the attribute, false otherwise
+     * @throws NamingException if the backing store cannot be accessed, or
+     * permission is not allowed for this operation or the oid is not recognized,
+     * or the attribute is not present in the entry ... you get the picture.
+     */
+    public boolean compare( Name name, String oid, Object value ) throws NamingException
+    {
+       return super.getNexusProxy().compare( name, oid, value );
+    }
 }

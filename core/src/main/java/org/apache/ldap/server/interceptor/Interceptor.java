@@ -106,7 +106,6 @@ public interface Interceptor
      */
     void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException;
 
-
     /**
      * Deinitializes this interceptor.  This is invoked by {@link InterceptorChain}
      * when this intercepter is unloaded from interceptor chain.
@@ -117,46 +116,62 @@ public interface Interceptor
      * Filters {@link ContextPartitionNexus#getRootDSE()} call.
      */
     Attributes getRootDSE( NextInterceptor next ) throws NamingException; 
+
     /**
      * Filters {@link ContextPartitionNexus#getMatchedName(Name, boolean)} call.
      */
     Name getMatchedName( NextInterceptor next, Name name, boolean normalized ) throws NamingException;
+
     /**
      * Filters {@link ContextPartitionNexus#getSuffix(Name, boolean)} call.
      */
     Name getSuffix( NextInterceptor next, Name name, boolean normalized ) throws NamingException;
+
     /**
      * Filters {@link ContextPartitionNexus#listSuffixes(boolean)} call.
      */
     Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException;
+
     /**
      * Filters {@link ContextPartitionNexus#addContextPartition(ContextPartitionConfiguration)} call.
      */
     void addContextPartition( NextInterceptor next, ContextPartitionConfiguration cfg ) throws NamingException;
+
     /**
      * Filters {@link ContextPartitionNexus#removeContextPartition(Name)} call.
      */
     void removeContextPartition( NextInterceptor next, Name suffix ) throws NamingException;
+
+    /**
+     * Filters {@link ContextPartitionNexus#compare(Name,String,Object)} call.
+     */
+    boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#delete(Name)} call.
      */
     void delete( NextInterceptor next, Name name ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#add(String, Name, Attributes)} call.
      */
     void add( NextInterceptor next, String userProvidedName, Name normalizedName, Attributes entry ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#modify(Name, int, Attributes)} call.
      */
     void modify( NextInterceptor next, Name name, int modOp, Attributes attributes ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#modify(Name, ModificationItem[])} call.
      */
     void modify( NextInterceptor next, Name name, ModificationItem [] items ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#list(Name)} call.
      */
     NamingEnumeration list( NextInterceptor next, Name baseName ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#search(Name, Map, ExprNode, SearchControls)} call.
      */
@@ -166,26 +181,32 @@ public interface Interceptor
      * Filters {@link ContextPartition#lookup(Name)} call.
      */
     Attributes lookup( NextInterceptor next, Name name ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#lookup(Name, String[])} call.
      */
     Attributes lookup( NextInterceptor next, Name dn, String [] attrIds ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#lookup(Name, String[])} call.
      */
     boolean hasEntry( NextInterceptor next, Name name ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#isSuffix(Name)} call.
      */
     boolean isSuffix( NextInterceptor next, Name name ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#modifyRn(Name, String, boolean)} call.
      */
     void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#move(Name, Name)} call.
      */
     void move( NextInterceptor next, Name oldName, Name newParentName ) throws NamingException;
+
     /**
      * Filters {@link ContextPartition#move(Name, Name, String, boolean)} call.
      */

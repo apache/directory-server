@@ -68,6 +68,12 @@ public class InterceptorChain
         }
 
 
+        public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
+        {
+            return nexus.compare( name, oid, value );
+        }
+
+
         public Attributes getRootDSE( NextInterceptor next ) throws NamingException
         {
             return nexus.getRootDSE();
@@ -507,6 +513,26 @@ public class InterceptorChain
     }
 
 
+    public boolean compare( Name name, String oid, Object value ) throws NamingException
+    {
+        Interceptor head = this.head.configuration.getInterceptor();
+        NextInterceptor next = this.head.nextInterceptor;
+        try
+        {
+            return head.compare( next, name, oid, value );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+            throw new InternalError(); // Should be unreachable
+        }
+    }
+
+
     public Iterator listSuffixes( boolean normalized ) throws NamingException
     {
         Interceptor head = this.head.configuration.getInterceptor();
@@ -844,6 +870,26 @@ public class InterceptorChain
             this.configuration = configuration;
             this.nextInterceptor = new NextInterceptor()
             {
+                public boolean compare( Name name, String oid, Object value ) throws NamingException
+                {
+                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+
+                    try
+                    {
+                        return interceptor.compare( Entry.this.nextEntry.nextInterceptor, name, oid, value );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                        throw new InternalError(); // Should be unreachable
+                    }
+                }
+
+
                 public Attributes getRootDSE() throws NamingException
                 {
                     Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();

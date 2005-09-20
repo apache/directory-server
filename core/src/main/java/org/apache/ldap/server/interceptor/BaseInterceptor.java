@@ -204,4 +204,9 @@ public abstract class BaseInterceptor implements Interceptor
     {
         next.removeContextPartition( suffix );
     }
+
+    public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
+    {
+        return next.compare( name, oid, value );
+    }
 }

@@ -42,12 +42,18 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
+import org.apache.ldap.common.exception.LdapSchemaViolationException;
+import org.apache.ldap.common.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
@@ -56,6 +62,7 @@ import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -320,9 +327,56 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
 
     // ------------------------------------------------------------------------
-    // ContextPartitionNexus Interface Method Implementations
+    // ContextPartitionNexus Method Implementations
     // ------------------------------------------------------------------------
-    
+
+
+    public boolean compare( Name name, String oid, Object value ) throws NamingException
+    {
+        ContextPartition partition = getBackend( name );
+        AttributeTypeRegistry registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+
+        // complain if we do not recognize the attribute being compared
+        if ( ! registry.hasAttributeType( oid ) )
+        {
+            throw new LdapInvalidAttributeIdentifierException( oid + " not found within the attributeType registry" );
+        }
+
+        AttributeType attrType = registry.lookup( oid );
+        Attribute attr = partition.lookup( name ).get( attrType.getName() );
+
+        // complain if the attribute being compared does not exist in the entry
+        if ( attr == null )
+        {
+            throw new LdapNoSuchAttributeException();
+        }
+
+        // see first if simple match without normalization succeeds
+        if ( attr.contains( value ) )
+        {
+            return true;
+        }
+
+        // now must apply normalization to all values (attr and in request) to compare
+
+        /*
+         * Get ahold of the normalizer for the attribute and normalize the request
+         * assertion value for comparisons with normalized attribute values.  Loop
+         * through all values looking for a match.
+         */
+        Normalizer normalizer = attrType.getEquality().getNormalizer();
+        String reqVal = ( String ) normalizer.normalize( value );
+        for ( int ii = 0; ii < attr.size(); ii++ )
+        {
+            String attrVal = ( String ) normalizer.normalize( attr.get( ii ) );
+            if ( attrVal.equals( reqVal ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 
     public synchronized void addContextPartition( ContextPartitionConfiguration config ) throws NamingException

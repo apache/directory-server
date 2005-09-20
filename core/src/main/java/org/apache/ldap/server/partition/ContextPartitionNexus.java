@@ -134,7 +134,19 @@ public abstract class ContextPartitionNexus implements ContextPartition
      * @return the attributes of the RootDSE
      */
     public abstract Attributes getRootDSE() throws NamingException;
-    
+
+    /**
+     * Performs a comparison check to see if an attribute of an entry has
+     * a specified value.
+     *
+     * @param name the normalized name of the entry
+     * @param oid the attribute being compared
+     * @param value the value the attribute is compared to
+     * @return true if the entry contains an attribute with the value, false otherwise
+     * @throws NamingException if there is a problem accessing the entry and its values
+     */
+    public abstract boolean compare( Name name, String oid, Object value ) throws NamingException;
+
     public abstract void addContextPartition( ContextPartitionConfiguration config ) throws NamingException;
     
     public abstract void removeContextPartition( Name suffix ) throws NamingException;

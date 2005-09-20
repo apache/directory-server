@@ -153,6 +153,22 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         }
     }
 
+    public boolean compare( Name name, String oid, Object value ) throws NamingException
+    {
+        ensureStarted();
+        InvocationStack stack = InvocationStack.getInstance();
+        stack.push( new Invocation( caller, "compare", new Object[] { name, oid, value } ) );
+        try
+        {
+            return this.configuration.getInterceptorChain().compare( name, oid, value );
+        }
+        finally
+        {
+            stack.pop();
+        }
+    }
+
+
     public void delete(Name name) throws NamingException {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
