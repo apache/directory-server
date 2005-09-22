@@ -197,18 +197,13 @@ class DefaultContextFactoryService extends ContextFactoryService
         this.startupConfiguration = cfg;
         
         listener.beforeStartup( this );
-        try
-        {
-            initialize();
-            firstStart = createBootstrapEntries();
-            createTestEntries();
-            this.serviceListener = listener;
-            started = true;
-        }
-        finally
-        {
-            listener.afterStartup( this );
-        }
+
+        initialize();
+        firstStart = createBootstrapEntries();
+        createTestEntries();
+        this.serviceListener = listener;
+        started = true;
+        listener.afterStartup( this );
     }
 
     public synchronized void sync() throws NamingException
