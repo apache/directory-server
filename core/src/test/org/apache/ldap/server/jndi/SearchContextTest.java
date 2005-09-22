@@ -261,4 +261,33 @@ public class SearchContextTest extends AbstractAdminTestCase
 
         assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
+    
+    public void testSearchFilterArgs() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+
+        controls.setDerefLinkFlag( false );
+
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+
+        HashMap map = new HashMap();
+
+        NamingEnumeration list = sysRoot.search( "", "(| (ou={0}) (ou={1}))", new Object[] {"testing00", "testing01"}, controls );
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
+
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+    }
+
 }

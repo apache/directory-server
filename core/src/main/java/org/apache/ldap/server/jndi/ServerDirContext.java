@@ -631,32 +631,44 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons ) throws NamingException
     {
         int start;
+        int index;
 
         StringBuffer buf = new StringBuffer( filterExpr );
         
         // Scan until we hit the end of the string buffer 
         for ( int ii = 0; ii < buf.length(); ii++ )
         {
-            // Advance until we hit the start of a variable
-            while ( '{' != buf.charAt( ii ) )
+            try
             {
-                ii++;
+                // Advance until we hit the start of a variable
+                while ( ii < buf.length() && '{' != buf.charAt( ii ) )
+                {
+                    ii++;
+                }
+                           
+                // Record start of variable at '{'
+                start = ii;
+                
+                // Advance to the end of a variable at '}'
+                while ( '}' != buf.charAt( ii ) )
+                {
+                    ii++;
+                }
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                // End of filter so done.
+                break;
             }
             
-            // Record start of variable at '{'
-            start = ii;
-            
-            // Advance to the end of a variable at '}'
-            while ( '}' != buf.charAt( ii ) )
-            {
-                ii++;
-            }
+            // Parse index
+            index = Integer.parseInt(buf.substring(start + 1, ii));
             
             /*
              * Replace the '{ i }' with the string representation of the value
              * held in the filterArgs array at index index.
              */           
-            buf.replace( start, ii + 1, filterArgs[ii].toString() );
+            buf.replace( start, ii + 1, filterArgs[index].toString() );
         }
         
         return search( name, buf.toString(), cons );
