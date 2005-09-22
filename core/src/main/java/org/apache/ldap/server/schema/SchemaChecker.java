@@ -48,7 +48,6 @@ public class SchemaChecker
     /** the SLF4J logger for this class */
     private static Logger log = LoggerFactory.getLogger( SchemaChecker.class );
 
-
     /**
      * Makes sure modify operations do not leave the entry without a STRUCTURAL
      * objectClass.  At least one STRUCTURAL objectClass must be specified for

@@ -34,6 +34,7 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.DITContentRule;
@@ -46,6 +47,10 @@ import org.apache.ldap.common.schema.SchemaUtils;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.util.AttributeUtils;
+import org.apache.ldap.common.exception.LdapSchemaViolationException;
+import org.apache.ldap.common.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
@@ -88,12 +93,14 @@ public class SchemaService extends BaseInterceptor
      */
     private GlobalRegistries globalRegistries;
 
-    private AttributeTypeRegistry attributeRegistry;
-
     /**
      * subschemaSubentry attribute's value from Root DSE
      */
     private String subentryDn;
+
+    /**
+     * The time when the server started up.
+     */
     private String startUpTimeStamp;
 
     /**
@@ -109,7 +116,6 @@ public class SchemaService extends BaseInterceptor
     {
         this.nexus = factoryCfg.getPartitionNexus();
         this.globalRegistries = factoryCfg.getGlobalRegistries();
-        attributeRegistry = globalRegistries.getAttributeTypeRegistry();
         binaryAttributeFilter = new BinaryAttributeFilter();
 
         // stuff for dealing with subentries (garbage for now)
@@ -388,15 +394,151 @@ public class SchemaService extends BaseInterceptor
     }
 
 
+    /**
+     * Checks to see if an attribute is required by as determined from an entry's
+     * set of objectClass attribute values.
+     *
+     * @param attrId the attribute to test if required by a set of objectClass values
+     * @param objectClass the objectClass values
+     * @return true if the objectClass values require the attribute, false otherwise
+     * @throws NamingException if the attribute is not recognized
+     */
+    private boolean isRequired( String attrId, Attribute objectClass ) throws NamingException
+    {
+        OidRegistry oidRegistry = globalRegistries.getOidRegistry();
+        ObjectClassRegistry registry = globalRegistries.getObjectClassRegistry();
+
+        if ( ! oidRegistry.hasOid( attrId ) )
+        {
+            return false;
+        }
+
+        String attrOid = oidRegistry.getOid( attrId );
+        for ( int ii = 0; ii < objectClass.size(); ii++ )
+        {
+            ObjectClass ocSpec = registry.lookup( ( String ) objectClass.get( ii ) );
+            AttributeType[] mustList = ocSpec.getMustList();
+            for ( int jj = 0; jj < mustList.length; jj++ )
+            {
+                if ( mustList[jj].getOid().equals( attrOid ) )
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Checks to see if removing a set of attributes from an entry completely removes
+     * that attribute's values.  If change has zero size then all attributes are
+     * presumed to be removed.
+     *
+     * @param change
+     * @param entry
+     * @return
+     * @throws NamingException
+     */
+    private boolean isCompleteRemoval( Attribute change, Attributes entry ) throws NamingException
+    {
+        // if change size is 0 then all values are deleted then we're screwed
+        if ( change.size() == 0 )
+        {
+            return true;
+        }
+
+        // can't do math to figure our if all values are removed since some
+        // values in the modify request may not be in the entry.  we need to
+        // remove the values from a cloned version of the attribute and see
+        // if nothing is left.
+        Attribute changedEntryAttr = entry.get( change.getID() );
+        for ( int jj = 0; jj < change.size(); jj++ )
+        {
+            changedEntryAttr.remove( change.get( jj ) );
+        }
+        if ( changedEntryAttr.size() == 0 )
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    Attribute getResultantObjectClasses( int modOp, Attribute changes, Attribute existing ) throws NamingException
+    {
+        if ( changes == null && existing == null )
+        {
+            return new LockableAttributeImpl( "objectClass" );
+        }
+
+        if ( changes == null )
+        {
+            return existing;
+        }
+
+        if ( existing == null && modOp == DirContext.ADD_ATTRIBUTE )
+        {
+            return changes;
+        }
+        else if ( existing == null )
+        {
+            return new LockableAttributeImpl( "objectClasses" );
+        }
+
+        switch( modOp )
+        {
+            case( DirContext.ADD_ATTRIBUTE ):
+                return AttributeUtils.getUnion( existing, changes );
+            case( DirContext.REPLACE_ATTRIBUTE ):
+                return ( Attribute ) changes.clone();
+            case( DirContext.REMOVE_ATTRIBUTE ):
+                return AttributeUtils.getDifference( existing, changes );
+            default:
+                throw new InternalError( "" );
+        }
+    }
+
+
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
+        Attributes entry = nexus.lookup( name );
+        Attribute objectClass = getResultantObjectClasses( modOp, mods.get( "objectClass"), entry.get( "objectClass" ) );
         ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
+        AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
+
+        NamingEnumeration changes = mods.getIDs();
+        while ( changes.hasMore() )
+        {
+            String id = ( String ) changes.next();
+            Attribute change = mods.get( id );
+
+            if ( ! atRegistry.hasAttributeType( change.getID() ) && ! objectClass.contains( "extensibleObject" ) )
+            {
+                throw new LdapInvalidAttributeIdentifierException();
+            }
+
+            if ( modOp == DirContext.REMOVE_ATTRIBUTE && entry.get( change.getID() ) == null )
+            {
+                throw new LdapNoSuchAttributeException();
+            }
+
+            // for required attributes we need to check if all values are removed
+            // if so then we have a schema violation that must be thrown
+            if ( modOp == DirContext.REMOVE_ATTRIBUTE &&
+                 isRequired( change.getID(), objectClass ) &&
+                 isCompleteRemoval( change, entry ) )
+            {
+                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+            }
+        }
 
         if ( modOp == DirContext.REMOVE_ATTRIBUTE )
         {
             SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods );
-            Attribute ocAttr = this.nexus.lookup( name ).get( "objectClass" );
-            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, mods, ocAttr );
+            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, mods, objectClass );
         }
 
         if ( modOp == DirContext.REPLACE_ATTRIBUTE )
@@ -411,18 +553,56 @@ public class SchemaService extends BaseInterceptor
 
     public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
     {
+        Attributes entry = nexus.lookup( name );
+
+        ModificationItem objectClassMod = null;
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            if ( ( ( String ) mods[ii].getAttribute().getID() ).equalsIgnoreCase( "objectclass" ) )
+            {
+                objectClassMod = mods[ii];
+            }
+        }
+        Attribute objectClass = null;
+
+        if ( objectClassMod == null )
+        {
+            objectClass = entry.get( "objectClass" );
+        }
+        else
+        {
+            objectClass = getResultantObjectClasses( objectClassMod.getModificationOp(),
+                    objectClassMod.getAttribute(), entry.get( "objectClass" ) );
+        }
+
         ObjectClassRegistry ocRegistry = this.globalRegistries.getObjectClassRegistry();
+        AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
 
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             int modOp = mods[ii].getModificationOp();
             Attribute change = mods[ii].getAttribute();
 
+            if ( ! atRegistry.hasAttributeType( change.getID() ) && ! objectClass.contains( "extensibleObject" ) )
+            {
+                throw new LdapInvalidAttributeIdentifierException();
+            }
+
+            if ( modOp == DirContext.REMOVE_ATTRIBUTE && entry.get( change.getID() ) == null )
+            {
+                throw new LdapNoSuchAttributeException();
+            }
+
             if ( modOp == DirContext.REMOVE_ATTRIBUTE )
             {
+                // for required attributes we need to check if all values are removed
+                // if so then we have a schema violation that must be thrown
+                if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
+                {
+                    throw new LdapSchemaViolationException( ResultCodeEnum.OBJECTCLASSVIOLATION );
+                }
                 SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change );
-                Attribute ocAttr = this.nexus.lookup( name ).get( "objectClass" );
-                SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, ocAttr );
+                SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
             }
 
             if ( modOp == DirContext.REPLACE_ATTRIBUTE )
@@ -457,7 +637,7 @@ public class SchemaService extends BaseInterceptor
 
             for ( int ii = 0; ii < binaryArray.length; ii++ )
             {
-                AttributeType type = attributeRegistry.lookup( binaryArray[ii] );
+                AttributeType type = globalRegistries.getAttributeTypeRegistry().lookup( binaryArray[ii] );
 
                 binaries.add( type );
             }
@@ -477,9 +657,9 @@ public class SchemaService extends BaseInterceptor
 
             boolean asBinary = false;
 
-            if ( attributeRegistry.hasAttributeType( id ) )
+            if ( globalRegistries.getAttributeTypeRegistry().hasAttributeType( id ) )
             {
-                type = attributeRegistry.lookup( id );
+                type = globalRegistries.getAttributeTypeRegistry().lookup( id );
             }
 
             if ( type != null )
