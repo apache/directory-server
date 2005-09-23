@@ -21,7 +21,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.partition.impl.btree.IndexRecord;
 
 
 /**

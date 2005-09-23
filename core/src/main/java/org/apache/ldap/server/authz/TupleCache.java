@@ -17,26 +17,36 @@
 package org.apache.ldap.server.authz;
 
 
-import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.common.exception.LdapSchemaViolationException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
+import org.apache.ldap.common.aci.ACIItem;
+import org.apache.ldap.common.aci.ACIItemParser;
 import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
-import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.acl.ACIItemParser;
-import org.apache.ldap.common.acl.ACIItem;
-import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.SimpleNode;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.directory.*;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import java.util.*;
-import java.text.ParseException;
 
 
 /**

@@ -20,22 +20,38 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.common.acl.ACITuple;
-import org.apache.ldap.common.acl.AuthenticationLevel;
-import org.apache.ldap.common.acl.MicroOperation;
-import org.apache.ldap.common.acl.ProtectedItem;
-import org.apache.ldap.common.acl.UserClass;
-import org.apache.ldap.common.acl.ProtectedItem.MaxValueCountItem;
-import org.apache.ldap.common.acl.ProtectedItem.RestrictedByItem;
+import org.apache.ldap.common.aci.ACITuple;
+import org.apache.ldap.common.aci.AuthenticationLevel;
+import org.apache.ldap.common.aci.MicroOperation;
+import org.apache.ldap.common.aci.ProtectedItem;
+import org.apache.ldap.common.aci.UserClass;
+import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
+import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.server.event.Evaluator;
+import org.apache.ldap.server.event.ExpressionEvaluator;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.apache.ldap.server.schema.OidRegistry;
+import org.apache.ldap.server.subtree.RefinementEvaluator;
+import org.apache.ldap.server.subtree.RefinementLeafEvaluator;
+import org.apache.ldap.server.subtree.SubtreeEvaluator;
 
 public class ACDFEngine
 {
-    public ACDFEngine()
+    private final Evaluator entryEvaluator;
+    private final SubtreeEvaluator subtreeEvaluator;
+    private final RefinementEvaluator refinementEvaluator;
+    
+    public ACDFEngine( OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry ) throws NamingException
     {
+        entryEvaluator = new ExpressionEvaluator( oidRegistry, attrTypeRegistry );
+        subtreeEvaluator = new SubtreeEvaluator( oidRegistry );
+        refinementEvaluator = new RefinementEvaluator(
+                new RefinementLeafEvaluator( oidRegistry ) );
     }
     
     /**
@@ -53,12 +69,12 @@ public class ACDFEngine
      * @param entry the attributes of the entry
      * @param microOperations the {@link MicroOperation}s to perform
      * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
-     * @throws LdapNoPermissionException if user don't have enough permission to perform the operation
+     * @throws NamingException if failed to evaluate ACI items
      */
     public void checkPermission(
             Name userGroupName, Name username, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue, Attributes entry,
-            Collection microOperations, Collection aciTuples ) throws LdapNoPermissionException 
+            Collection microOperations, Collection aciTuples ) throws NamingException 
     {
         if( !hasPermission(
                 userGroupName, username, authenticationLevel,
@@ -88,7 +104,7 @@ public class ACDFEngine
     public boolean hasPermission(
             Name userGroupName, Name userName, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue, Attributes entry,
-            Collection microOperations, Collection aciTuples ) 
+            Collection microOperations, Collection aciTuples ) throws NamingException
     {
         aciTuples = removeTuplesWithoutRelatedUserClasses(
                 userGroupName, userName, authenticationLevel, entryName, aciTuples );
@@ -102,7 +118,7 @@ public class ACDFEngine
         aciTuples = getTuplesWithHighestPrecedence( aciTuples );
         
         aciTuples = getTuplesWithMostSpecificUserClasses( aciTuples );
-        aciTuples = getTuplesWithMostSpecificProtectedItems( attrId, attrValue, aciTuples );
+        aciTuples = getTuplesWithMostSpecificProtectedItems( entryName, attrId, attrValue, entry, aciTuples );
         
         // Grant access if and only if one or more tuples remain and
         // all grant access. Otherwise deny access.
@@ -113,7 +129,6 @@ public class ACDFEngine
             {
                 return false;
             }
-            
         }
         return true;
     }
@@ -150,13 +165,14 @@ public class ACDFEngine
     private Collection removeTuplesWithoutRelatedProtectedItems(
             Name userName,
             Name entryName, String attrId, Object attrValue, Attributes entry,
-            Collection aciTuples )
+            Collection aciTuples ) throws NamingException
     {
         Collection filteredTuples = new ArrayList();
         for( Iterator i = aciTuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            if( matchProtectedItem( userName, entryName, attrId, attrValue, entry, tuple.getProtectedItems() ) )
+            if( matchProtectedItem(
+                    userName, entryName, attrId, attrValue, entry, tuple.getProtectedItems() ) )
             {
                 filteredTuples.add( tuple );
             }
@@ -276,13 +292,23 @@ public class ACDFEngine
         for( Iterator i = aciTuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            for( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            userClassLoop: for( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
             {
                 UserClass userClass = ( UserClass ) j.next();
                 if( userClass instanceof UserClass.Subtree )
                 {
-                    // FIXME I don't know what to do with this.
-                    break;
+//                  FIXME Find out how to evaluate this
+//                    UserClass.Subtree subtree = ( UserClass.Subtree ) userClass;
+//                    for( Iterator k = subtree.getSubtreeSpecifications().iterator();
+//                         k.hasNext(); )
+//                    {
+//                        SubtreeSpecification subtreeSpec = ( SubtreeSpecification ) k.next();
+//                        if( subtreeEvaluator.evaluate( subtreeSpec, ...) ) )
+//                        {
+//                            filteredTuples.add( tuple );
+//                            break userClassLoop;
+//                        }
+//                    }
                 }
             }
         }
@@ -295,7 +321,7 @@ public class ACDFEngine
         return aciTuples;
     }
     
-    private Collection getTuplesWithMostSpecificProtectedItems( String attrId, Object attrValue, Collection aciTuples )
+    private Collection getTuplesWithMostSpecificProtectedItems( Name entryName, String attrId, Object attrValue, Attributes entry, Collection aciTuples ) throws NamingException
     {
         if( aciTuples.size() <= 1 )
         {
@@ -336,21 +362,19 @@ public class ACDFEngine
                         break;
                     }
                 }
-                else if( item instanceof ProtectedItem.SelfValue )
-                {
-                    if( contains( attrId, ( ( ProtectedItem.SelfValue ) item ).iterator() ) )
-                    {
-                        filteredTuples.add( tuple );
-                        break;
-                    }
-                }
                 else if( item instanceof ProtectedItem.AttributeValue )
                 {
+                    if( attrId == null || attrValue == null )
+                    {
+                        continue;
+                    }
+
                     ProtectedItem.AttributeValue av = ( ProtectedItem.AttributeValue ) item;
                     for( Iterator k = av.iterator(); k.hasNext(); )
                     {
                         Attribute attr = ( Attribute ) k.next();
-                        if( attr.getID().equalsIgnoreCase( attrId ) )
+                        if( attr.getID().equalsIgnoreCase( attrId ) &&
+                                attr.contains( attrValue ) )
                         {
                             filteredTuples.add( tuple );
                             break itemLoop;
@@ -372,14 +396,17 @@ public class ACDFEngine
         for( Iterator i = aciTuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            itemLoop: for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = ( ProtectedItem ) j.next();
                 if( item instanceof ProtectedItem.RangeOfValues )
                 {
                     ProtectedItem.RangeOfValues rov = ( ProtectedItem.RangeOfValues ) item;
-                    // FIXME I don't know what to do with this ExprNode.
-                    break;
+                    if( entryEvaluator.evaluate( rov.getFilter(), entryName.toString(), entry ) )
+                    {
+                        filteredTuples.add( tuple );
+                        break;
+                    }
                 }
             }
         }
@@ -441,7 +468,7 @@ public class ACDFEngine
     private boolean matchProtectedItem(
             Name userName,
             Name entryName, String attrId, Object attrValue, Attributes entry,
-            Collection protectedItems )
+            Collection protectedItems ) throws NamingException
     {
         for( Iterator i = protectedItems.iterator(); i.hasNext(); )
         {
@@ -520,7 +547,11 @@ public class ACDFEngine
             else if( item instanceof ProtectedItem.Classes )
             {
                 ProtectedItem.Classes c = ( ProtectedItem.Classes ) item;
-                // FIXME I don't know what to do yet
+                if( refinementEvaluator.evaluate(
+                        c.getClasses(), entry.get( "objectClass" ) ) )
+                {
+                    return true;
+                }
             }
             else if( item instanceof ProtectedItem.MaxImmSub )
             {
