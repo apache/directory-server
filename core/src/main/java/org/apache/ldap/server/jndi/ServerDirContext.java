@@ -59,8 +59,7 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
  */
 public abstract class ServerDirContext extends ServerContext implements EventDirContext
 {
-    
-    
+
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
@@ -564,6 +563,24 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
 
     /**
+     * A search overload that is used for optimizing search handling in the
+     * LDAP protocol provider which deals with an ExprNode instance rather than
+     * a String for the filter.
+     *
+     * @param name the relative name of the object serving as the search base
+     * @param filter the search filter as an expression tree
+     * @param cons the search controls to use
+     * @return an enumeration over the SearchResults
+     * @throws NamingException if there are problems performing the search
+     */
+    public NamingEnumeration search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
+    {
+        LdapName target = buildTarget( name );
+        return getNexusProxy().search( target, getEnvironment(), filter, cons );
+    }
+
+
+    /**
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      java.lang.String, javax.naming.directory.SearchControls)
      */
@@ -574,37 +591,28 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         LdapName target = buildTarget( name );
 
-        if ( filter == null && getEnvironment().containsKey( "__filter__" ) )
+        try
         {
-            filterNode = ( ExprNode ) getEnvironment().get( "__filter__" );
+            filterNode = filterParser.parse( filter );
         }
-        else
+        catch ( ParseException pe )
         {
-            try
-            {
-                FilterParser parser = new FilterParserImpl();
+            InvalidSearchFilterException isfe =
+                new InvalidSearchFilterException (
+                "Encountered parse exception while parsing the filter: '"
+                + filter + "'" );
 
-                filterNode = parser.parse( filter );
-            }
-            catch ( ParseException pe )
-            {
-                InvalidSearchFilterException isfe =
-                    new InvalidSearchFilterException (
-                    "Encountered parse exception while parsing the filter: '"
-                    + filter + "'" );
+            isfe.setRootCause( pe );
 
-                isfe.setRootCause( pe );
-
-                throw isfe;
-            }
-            catch ( IOException ioe )
-            {
-                NamingException ne = new NamingException(
-                    "Parser failed with IO exception on filter: '"
-                    + filter + "'" );
-                ne.setRootCause( ioe );
-                throw ne;
-            }
+            throw isfe;
+        }
+        catch ( IOException ioe )
+        {
+            NamingException ne = new NamingException(
+                "Parser failed with IO exception on filter: '"
+                + filter + "'" );
+            ne.setRootCause( ioe );
+            throw ne;
         }
 
         return getNexusProxy().search( target , getEnvironment(), filterNode, cons );
