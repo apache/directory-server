@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.ldap.common.aci.ACIItem;
 import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.MicroOperation;
@@ -32,8 +33,11 @@ import org.apache.ldap.common.aci.UserClass;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.subtree.SubtreeSpecification;
 import org.apache.ldap.server.event.Evaluator;
 import org.apache.ldap.server.event.ExpressionEvaluator;
+import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.subtree.RefinementEvaluator;
@@ -42,6 +46,8 @@ import org.apache.ldap.server.subtree.SubtreeEvaluator;
 
 public class ACDFEngine
 {
+    private static final LdapName ROOTDSE_NAME = new LdapName();
+
     private final Evaluator entryEvaluator;
     private final SubtreeEvaluator subtreeEvaluator;
     private final RefinementEvaluator refinementEvaluator;
@@ -58,7 +64,8 @@ public class ACDFEngine
      * Checks the user with the specified name can access the specified resource
      * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
-     *  
+     * 
+     * @param next the next interceptor to the current interceptor
      * @param userGroupName the DN of the group of the user who is trying to access the resource
      * @param username the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
@@ -66,19 +73,20 @@ public class ACDFEngine
      *               <tt>null</tt> if the user is not accessing a specific attribute type.
      * @param attrValue the attribute value of the attribute the user is trying to access.
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
-     * @param entry the attributes of the entry
      * @param microOperations the {@link MicroOperation}s to perform
      * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
      * @throws NamingException if failed to evaluate ACI items
      */
     public void checkPermission(
+            NextInterceptor next,
             Name userGroupName, Name username, AuthenticationLevel authenticationLevel,
-            Name entryName, String attrId, Object attrValue, Attributes entry,
+            Name entryName, String attrId, Object attrValue,
             Collection microOperations, Collection aciTuples ) throws NamingException 
     {
         if( !hasPermission(
+                next,
                 userGroupName, username, authenticationLevel,
-                entryName, attrId, attrValue, entry,
+                entryName, attrId, attrValue,
                 microOperations, aciTuples ) )
         {
             throw new LdapNoPermissionException();
@@ -89,7 +97,8 @@ public class ACDFEngine
      * Returns <tt>true</tt> if the user with the specified name can access the specified resource
      * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
-     *  
+     * 
+     * @param next the next interceptor to the current interceptor 
      * @param userGroupName the DN of the group of the user who is trying to access the resource
      * @param userName the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
@@ -97,17 +106,20 @@ public class ACDFEngine
      *               <tt>null</tt> if the user is not accessing a specific attribute type.
      * @param attrValue the attribute value of the attribute the user is trying to access.
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
-     * @param entry the attributes of the entry
      * @param microOperations the {@link MicroOperation}s to perform
      * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
      */
     public boolean hasPermission(
+            NextInterceptor next, 
             Name userGroupName, Name userName, AuthenticationLevel authenticationLevel,
-            Name entryName, String attrId, Object attrValue, Attributes entry,
+            Name entryName, String attrId, Object attrValue,
             Collection microOperations, Collection aciTuples ) throws NamingException
     {
+        Attributes userEntry = next.lookup( userName );
+        Attributes entry = next.lookup( entryName );
+
         aciTuples = removeTuplesWithoutRelatedUserClasses(
-                userGroupName, userName, authenticationLevel, entryName, aciTuples );
+                userGroupName, userName, userEntry, authenticationLevel, entryName, aciTuples );
         aciTuples = removeTuplesWithoutRelatedProtectedItems( userName, entryName, attrId, attrValue, entry, aciTuples );
         
         // TODO Discard all tuples that include the maxValueCount, maxImmSub, restrictedBy which
@@ -117,7 +129,7 @@ public class ACDFEngine
         aciTuples = removeTuplesWithoutRelatedMicroOperation( microOperations, aciTuples );
         aciTuples = getTuplesWithHighestPrecedence( aciTuples );
         
-        aciTuples = getTuplesWithMostSpecificUserClasses( aciTuples );
+        aciTuples = getTuplesWithMostSpecificUserClasses( userName, userEntry, aciTuples );
         aciTuples = getTuplesWithMostSpecificProtectedItems( entryName, attrId, attrValue, entry, aciTuples );
         
         // Grant access if and only if one or more tuples remain and
@@ -134,8 +146,9 @@ public class ACDFEngine
     }
     
     private Collection removeTuplesWithoutRelatedUserClasses(
-            Name userGroupName, Name userName, AuthenticationLevel authenticationLevel,
-            Name entryName, Collection aciTuples )
+            Name userGroupName, Name userName, Attributes userEntry,
+            AuthenticationLevel authenticationLevel,
+            Name entryName, Collection aciTuples ) throws NamingException
     {
         Collection filteredTuples = new ArrayList( aciTuples );
         for( Iterator i = aciTuples.iterator(); i.hasNext(); )
@@ -143,7 +156,7 @@ public class ACDFEngine
             ACITuple tuple = ( ACITuple ) i.next();
             if( tuple.isGrant() )
             {
-                if( !matchUserClass( userGroupName, userName, entryName, tuple.getUserClasses() ) ||
+                if( !matchUserClass( userGroupName, userName, userEntry, entryName, tuple.getUserClasses() ) ||
                         authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) < 0 )
                 {
                     i.remove();
@@ -151,7 +164,7 @@ public class ACDFEngine
             }
             else // Denials
             {
-                if( !matchUserClass( userGroupName, userName, entryName, tuple.getUserClasses() ) &&
+                if( !matchUserClass( userGroupName, userName, userEntry, entryName, tuple.getUserClasses() ) &&
                         authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) >= 0 )
                 {
                     i.remove();
@@ -235,7 +248,7 @@ public class ACDFEngine
         return filteredTuples;
     }
     
-    private Collection getTuplesWithMostSpecificUserClasses( Collection aciTuples )
+    private Collection getTuplesWithMostSpecificUserClasses( Name userName, Attributes userEntry, Collection aciTuples ) throws NamingException
     {
         if( aciTuples.size() <= 1 )
         {
@@ -292,23 +305,17 @@ public class ACDFEngine
         for( Iterator i = aciTuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            userClassLoop: for( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            for( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
             {
                 UserClass userClass = ( UserClass ) j.next();
                 if( userClass instanceof UserClass.Subtree )
                 {
-//                  FIXME Find out how to evaluate this
-//                    UserClass.Subtree subtree = ( UserClass.Subtree ) userClass;
-//                    for( Iterator k = subtree.getSubtreeSpecifications().iterator();
-//                         k.hasNext(); )
-//                    {
-//                        SubtreeSpecification subtreeSpec = ( SubtreeSpecification ) k.next();
-//                        if( subtreeEvaluator.evaluate( subtreeSpec, ...) ) )
-//                        {
-//                            filteredTuples.add( tuple );
-//                            break userClassLoop;
-//                        }
-//                    }
+                    UserClass.Subtree subtree = ( UserClass.Subtree ) userClass;
+                    if( matchUserClassSubtree( userName, userEntry, subtree ) )
+                    {
+                        filteredTuples.add( tuple );
+                        break;
+                    }
                 }
             }
         }
@@ -319,6 +326,22 @@ public class ACDFEngine
         }
         
         return aciTuples;
+    }
+
+    private boolean matchUserClassSubtree( Name userName, Attributes userEntry, UserClass.Subtree subtree ) throws NamingException
+    {
+        for( Iterator k = subtree.getSubtreeSpecifications().iterator();
+             k.hasNext(); )
+        {
+            SubtreeSpecification subtreeSpec = ( SubtreeSpecification ) k.next();
+            if( subtreeEvaluator.evaluate(
+                    subtreeSpec, ROOTDSE_NAME, userName, userEntry.get( "userClass" ) ) )
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     private Collection getTuplesWithMostSpecificProtectedItems( Name entryName, String attrId, Object attrValue, Attributes entry, Collection aciTuples ) throws NamingException
@@ -420,7 +443,7 @@ public class ACDFEngine
     }
     
 
-    private boolean matchUserClass( Name userGroupName, Name username, Name entryName, Collection userClasses )
+    private boolean matchUserClass( Name userGroupName, Name userName, Attributes userEntry, Name entryName, Collection userClasses ) throws NamingException
     {
         for( Iterator i = userClasses.iterator(); i.hasNext(); )
         {
@@ -431,7 +454,7 @@ public class ACDFEngine
             }
             else if( userClass == UserClass.THIS_ENTRY )
             {
-                if( username.equals( entryName ) )
+                if( userName.equals( entryName ) )
                 {
                     return true;
                 }
@@ -439,7 +462,7 @@ public class ACDFEngine
             else if( userClass instanceof UserClass.Name )
             {
                 UserClass.Name nameUserClass = ( UserClass.Name ) userClass;
-                if( nameUserClass.getNames().contains( username ) )
+                if( nameUserClass.getNames().contains( userName ) )
                 {
                     return true;
                 }
@@ -454,7 +477,11 @@ public class ACDFEngine
             }
             else if( userClass instanceof UserClass.Subtree )
             {
-                // FIXME I don't know what to do in case of subtree userClass.
+                UserClass.Subtree subtree = ( UserClass.Subtree ) userClass;
+                if( matchUserClassSubtree( userName, userEntry, subtree ) )
+                {
+                    return true;
+                }
             }
             else
             {
@@ -581,7 +608,10 @@ public class ACDFEngine
             else if( item instanceof ProtectedItem.RangeOfValues )
             {
                 ProtectedItem.RangeOfValues rov = ( ProtectedItem.RangeOfValues ) item;
-                // FIXME I don't know what to do yet.
+                if( entryEvaluator.evaluate( rov.getFilter(), entryName.toString(), entry ) )
+                {
+                    return true;
+                }
             }
             else if( item instanceof ProtectedItem.RestrictedBy )
             {
