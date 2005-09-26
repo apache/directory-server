@@ -38,7 +38,7 @@ import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.filter.FilterParserImpl;
+import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.subtree.SubtreeSpecification;
 import org.apache.ldap.server.event.Evaluator;
@@ -67,16 +67,8 @@ public class ACDFEngine
         refinementEvaluator = new RefinementEvaluator(
                 new RefinementLeafEvaluator( oidRegistry ) );
 
-        try
-        {
-            childrenFilter = new FilterParserImpl().parse( "(objectClass=*)" );
-        }
-        catch( Exception e )
-        {
-            throw ( NamingException ) new NamingException(
-                    "Failed to initialize a children filter." ).initCause( e );
-        }
         
+        childrenFilter = new PresenceNode( "objectClass" );
         childrenSearchControls = new SearchControls();
         childrenSearchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
     }
