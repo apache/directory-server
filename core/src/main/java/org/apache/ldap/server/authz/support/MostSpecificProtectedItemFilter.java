@@ -52,35 +52,21 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
                 ProtectedItem item = ( ProtectedItem ) j.next();
                 if( item instanceof ProtectedItem.AttributeType )
                 {
-                    if( contains( attrId, ( ( ProtectedItem.AttributeType ) item ).iterator() ) )
-                    {
-                        filteredTuples.add( tuple );
-                        break;
-                    }
+                    filteredTuples.add( tuple );
+                    break;
                 }
                 else if( item instanceof ProtectedItem.AllAttributeValues )
                 {
-                    if( contains( attrId, ( ( ProtectedItem.AllAttributeValues ) item ).iterator() ) )
-                    {
-                        filteredTuples.add( tuple );
-                        break;
-                    }
+                    filteredTuples.add( tuple );
+                    break;
                 }
                 else if( item instanceof ProtectedItem.SelfValue )
                 {
-                    if( contains( attrId, ( ( ProtectedItem.SelfValue ) item ).iterator() ) )
-                    {
-                        filteredTuples.add( tuple );
-                        break;
-                    }
+                    filteredTuples.add( tuple );
+                    break;
                 }
                 else if( item instanceof ProtectedItem.AttributeValue )
                 {
-                    if( attrId == null || attrValue == null )
-                    {
-                        continue;
-                    }
-
                     filteredTuples.add( tuple );
                     break;
                 }
@@ -115,23 +101,5 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         }
         
         return tuples;
-    }
-    
-    private static boolean contains( Object needle, Iterator haystack )
-    {
-        if( needle == null )
-        {
-            return false;
-        }
-
-        while( haystack.hasNext() )
-        {
-            if( haystack.next().equals( needle ) )
-            {
-                return true;
-            }
-        }
-        
-        return false;
     }
 }
