@@ -61,7 +61,7 @@
     <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
-      <version>0.20-dev</version>
+      <version>1.0</version>
       <url>http://jdbm.sourceforge.net</url>
     </dependency>
     <dependency>
