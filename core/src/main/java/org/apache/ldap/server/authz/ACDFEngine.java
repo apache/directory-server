@@ -18,12 +18,15 @@ package org.apache.ldap.server.authz;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.naming.Name;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.aci.ACIItem;
 import org.apache.ldap.common.aci.ACITuple;
@@ -34,6 +37,8 @@ import org.apache.ldap.common.aci.UserClass;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.FilterParserImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.subtree.SubtreeSpecification;
 import org.apache.ldap.server.event.Evaluator;
@@ -52,6 +57,8 @@ public class ACDFEngine
     private final Evaluator entryEvaluator;
     private final SubtreeEvaluator subtreeEvaluator;
     private final RefinementEvaluator refinementEvaluator;
+    private final ExprNode childrenFilter;
+    private final SearchControls childrenSearchControls;
     
     public ACDFEngine( OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry ) throws NamingException
     {
@@ -59,6 +66,19 @@ public class ACDFEngine
         subtreeEvaluator = new SubtreeEvaluator( oidRegistry );
         refinementEvaluator = new RefinementEvaluator(
                 new RefinementLeafEvaluator( oidRegistry ) );
+
+        try
+        {
+            childrenFilter = new FilterParserImpl().parse( "(objectClass=*)" );
+        }
+        catch( Exception e )
+        {
+            throw ( NamingException ) new NamingException(
+                    "Failed to initialize a children filter." ).initCause( e );
+        }
+        
+        childrenSearchControls = new SearchControls();
+        childrenSearchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
     }
     
     /**
@@ -123,16 +143,24 @@ public class ACDFEngine
                 userGroupName, userName, userEntry, authenticationLevel, entryName, aciTuples );
         aciTuples = removeTuplesWithoutRelatedProtectedItems( userName, entryName, attrId, attrValue, entry, aciTuples );
         
-        // TODO Discard all tuples that include the maxValueCount, maxImmSub, restrictedBy which
-        // grant access and which don't satisfy any of these constraints
-        // We have to access the DIT here, but no way so far.  We need discussion here.
+        // Discard all tuples that include the maxValueCount, maxImmSub,
+        // restrictedBy which grant access and which don't satisfy any of these
+        // constraints.
+        aciTuples = removeTuplesWithMaxValueCount( attrId, attrValue, entry, aciTuples );
+        aciTuples = removeTuplesWithMaxImmSub( next, entryName, aciTuples );
+        aciTuples = removeTuplesWithRestrictedBy( attrId, attrValue, entry, aciTuples );
         
         aciTuples = removeTuplesWithoutRelatedMicroOperation( microOperations, aciTuples );
         aciTuples = getTuplesWithHighestPrecedence( aciTuples );
         
         aciTuples = getTuplesWithMostSpecificUserClasses( userName, userEntry, aciTuples );
         aciTuples = getTuplesWithMostSpecificProtectedItems( entryName, attrId, attrValue, entry, aciTuples );
-        
+
+        if( aciTuples.size() == 0 )
+        {
+            return false;
+        }
+
         // Grant access if and only if one or more tuples remain and
         // all grant access. Otherwise deny access.
         for( Iterator i = aciTuples.iterator(); i.hasNext(); )
@@ -194,6 +222,151 @@ public class ACDFEngine
         
         return filteredTuples;
     }
+    
+    protected Collection removeTuplesWithMaxValueCount(
+            String attrId, Object attrValue, Attributes entry, Collection aciTuples )
+    {
+        if( attrId == null || attrValue == null )
+        {
+            return aciTuples;
+        }
+        
+        Collection filteredTuples = new ArrayList( aciTuples );
+        
+        for( Iterator i = filteredTuples.iterator(); i.hasNext(); )
+        {
+            ACITuple tuple = ( ACITuple ) i.next();
+            
+            itemLoop: for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            {
+                ProtectedItem item = ( ProtectedItem ) j.next();
+                if( item instanceof ProtectedItem.MaxValueCount )
+                {
+                    ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
+                    for( Iterator k = mvc.iterator(); k.hasNext(); )
+                    {
+                        MaxValueCountItem mvcItem = ( MaxValueCountItem ) k.next();
+                        if( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
+                        {
+                            Attribute attr = entry.get( attrId );
+                            if( attr != null && attr.size() >= mvcItem.getMaxCount() )
+                            {
+                                i.remove();
+                                break itemLoop;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return filteredTuples;
+    }
+    
+    protected Collection removeTuplesWithMaxImmSub(
+            NextInterceptor next, Name entryName, Collection aciTuples ) throws NamingException
+    {
+        if( entryName.size() == 0 )
+        {
+            return aciTuples;
+        }
+        
+        int immSubCount = -1;
+        
+        Collection filteredTuples = new ArrayList( aciTuples );
+        
+        for( Iterator i = filteredTuples.iterator(); i.hasNext(); )
+        {
+            ACITuple tuple = ( ACITuple ) i.next();
+            
+            for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            {
+                ProtectedItem item = ( ProtectedItem ) j.next();
+                if( item instanceof ProtectedItem.MaxImmSub )
+                {
+                    if( immSubCount < 0 )
+                    {
+                        immSubCount = getImmSubCount( next, entryName );
+                    }
+
+                    ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
+                    if( mis.getValue() >= immSubCount )
+                    {
+                        i.remove();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return filteredTuples;
+    }
+
+    private int getImmSubCount( NextInterceptor next, Name entryName ) throws NamingException
+    {
+        int cnt = 0;
+        NamingEnumeration e = null;
+        try
+        {
+            e = next.search(
+                entryName.getPrefix( 1 ), new HashMap(),
+                childrenFilter, childrenSearchControls );
+            
+            while( e.hasMore() )
+            {
+                e.next();
+                cnt ++;
+            }
+            
+        }
+        finally
+        {
+            if( e != null )
+            {
+                e.close();
+            }
+        }
+        
+        return cnt;
+    }
+    
+    protected Collection removeTuplesWithRestrictedBy(
+            String attrId, Object attrValue, Attributes entry, Collection aciTuples )
+    {
+        if( attrId == null || attrValue == null )
+        {
+            return aciTuples;
+        }
+        
+        Collection filteredTuples = new ArrayList( aciTuples );
+        
+        for( Iterator i = filteredTuples.iterator(); i.hasNext(); )
+        {
+            ACITuple tuple = ( ACITuple ) i.next();
+            
+            itemLoop: for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            {
+                ProtectedItem item = ( ProtectedItem ) j.next();
+                if( item instanceof ProtectedItem.RestrictedBy )
+                {
+                    ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
+                    for( Iterator k = rb.iterator(); k.hasNext(); )
+                    {
+                        RestrictedByItem rbItem = ( RestrictedByItem ) k.next();
+                        Attribute attr = entry.get( rbItem.getValuesIn() );
+                        if( attr == null || !attr.contains( attrValue ) )
+                        {
+                            i.remove();
+                            break itemLoop;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return filteredTuples;
+    }
+
     
     protected Collection removeTuplesWithoutRelatedMicroOperation(
             Collection microOperations, Collection aciTuples )
