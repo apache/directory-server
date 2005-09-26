@@ -51,7 +51,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             {
                 UserClass userClass = ( UserClass ) j.next();
                 if( userClass instanceof UserClass.Name ||
-                        userClass instanceof UserClass.ThisEntry )
+                    userClass instanceof UserClass.ThisEntry )
                 {
                     filteredTuples.add( tuple );
                     break;

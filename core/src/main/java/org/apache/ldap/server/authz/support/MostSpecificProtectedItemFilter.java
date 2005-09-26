@@ -50,22 +50,10 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = ( ProtectedItem ) j.next();
-                if( item instanceof ProtectedItem.AttributeType )
-                {
-                    filteredTuples.add( tuple );
-                    break;
-                }
-                else if( item instanceof ProtectedItem.AllAttributeValues )
-                {
-                    filteredTuples.add( tuple );
-                    break;
-                }
-                else if( item instanceof ProtectedItem.SelfValue )
-                {
-                    filteredTuples.add( tuple );
-                    break;
-                }
-                else if( item instanceof ProtectedItem.AttributeValue )
+                if( item instanceof ProtectedItem.AttributeType ||
+                    item instanceof ProtectedItem.AllAttributeValues ||
+                    item instanceof ProtectedItem.SelfValue ||
+                    item instanceof ProtectedItem.AttributeValue )
                 {
                     filteredTuples.add( tuple );
                     break;
