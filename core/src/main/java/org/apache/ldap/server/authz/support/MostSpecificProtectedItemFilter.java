@@ -47,7 +47,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         for( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            itemLoop: for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = ( ProtectedItem ) j.next();
                 if( item instanceof ProtectedItem.AttributeType )
