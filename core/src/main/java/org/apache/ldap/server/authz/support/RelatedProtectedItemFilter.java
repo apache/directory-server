@@ -80,7 +80,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             }
             else if( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE )
+                if( scope != OperationScope.ATTRIBUTE_TYPE &&
+                    scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {
                     continue;
                 }
