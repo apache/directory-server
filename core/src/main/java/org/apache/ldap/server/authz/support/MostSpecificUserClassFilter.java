@@ -103,8 +103,6 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
         
         if( filteredTuples.size() > 0 )
         {
-            tuples.clear();
-            tuples.addAll( filteredTuples );
             return filteredTuples;
         }
         
