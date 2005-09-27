@@ -40,6 +40,11 @@ public class MaxValueCountFilter implements ACITupleFilter
         {
             return tuples;
         }
+        
+        if( tuples.size() == 0 )
+        {
+            return tuples;
+        }
 
         for( Iterator i = tuples.iterator(); i.hasNext(); )
         {

@@ -34,6 +34,11 @@ public class MicroOperationFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Name userGroupName, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
+        if( tuples.size() == 0 )
+        {
+            return tuples;
+        }
+
         for( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();

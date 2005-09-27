@@ -33,6 +33,11 @@ public class HighestPrecedenceFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Name userGroupName, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
+        if( tuples.size() <= 1 )
+        {
+            return tuples;
+        }
+
         int maxPrecedence = -1;
         
         // Find the maximum precedence for all tuples.

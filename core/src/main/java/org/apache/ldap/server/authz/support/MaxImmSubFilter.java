@@ -54,6 +54,11 @@ public class MaxImmSubFilter implements ACITupleFilter
             return tuples;
         }
         
+        if( tuples.size() == 0 )
+        {
+            return tuples;
+        }
+        
         if( scope != OperationScope.ENTRY )
         {
             return tuples;
