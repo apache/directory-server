@@ -85,7 +85,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                     }
     
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
-                    if( mis.getValue() >= immSubCount )
+                    if( immSubCount >= mis.getValue() )
                     {
                         i.remove();
                         break;
