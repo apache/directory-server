@@ -70,7 +70,7 @@ public class ACDFEngine
      * if the user doesn't have any permission to perform the specified grants.
      * 
      * @param next the next interceptor to the current interceptor
-     * @param userGroupName the DN of the group of the user who is trying to access the resource
+     * @param userGroupNames the DN of the group of the user who is trying to access the resource
      * @param username the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
      * @param attrId the attribute type of the attribute the user is trying to access.
@@ -83,13 +83,13 @@ public class ACDFEngine
      */
     public void checkPermission(
             NextInterceptor next,
-            Name userGroupName, Name username, AuthenticationLevel authenticationLevel,
+            Collection userGroupNames, Name username, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue,
             Collection microOperations, Collection aciTuples ) throws NamingException 
     {
         if( !hasPermission(
                 next,
-                userGroupName, username, authenticationLevel,
+                userGroupNames, username, authenticationLevel,
                 entryName, attrId, attrValue,
                 microOperations, aciTuples ) )
         {
@@ -103,7 +103,7 @@ public class ACDFEngine
      * if the user doesn't have any permission to perform the specified grants.
      * 
      * @param next the next interceptor to the current interceptor 
-     * @param userGroupName the DN of the group of the user who is trying to access the resource
+     * @param userGroupNames the DN of the group of the user who is trying to access the resource
      * @param userName the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
      * @param attrId the attribute type of the attribute the user is trying to access.
@@ -115,7 +115,7 @@ public class ACDFEngine
      */
     public boolean hasPermission(
             NextInterceptor next, 
-            Name userGroupName, Name userName, AuthenticationLevel authenticationLevel,
+            Collection userGroupNames, Name userName, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue,
             Collection microOperations, Collection aciTuples ) throws NamingException
     {
@@ -151,7 +151,7 @@ public class ACDFEngine
             ACITupleFilter filter = filters[ i ];
             aciTuples = filter.filter(
                     aciTuples, scope, next,
-                    userGroupName, userName, userEntry, authenticationLevel,
+                    userGroupNames, userName, userEntry, authenticationLevel,
                     entryName, attrId, attrValue, entry, microOperations );
         }
         

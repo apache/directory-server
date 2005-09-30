@@ -44,7 +44,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
         this.subtreeEvaluator = subtreeEvaluator;
     }
     
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Name userGroupName, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
         if( tuples.size() == 0 )
         {
@@ -56,7 +56,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             ACITuple tuple = ( ACITuple ) i.next();
             if( tuple.isGrant() )
             {
-                if( !isRelated( userGroupName, userName, userEntry, entryName, tuple.getUserClasses() ) ||
+                if( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() ) ||
                         authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) < 0 )
                 {
                     i.remove();
@@ -64,7 +64,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             }
             else // Denials
             {
-                if( !isRelated( userGroupName, userName, userEntry, entryName, tuple.getUserClasses() ) &&
+                if( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() ) &&
                         authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) >= 0 )
                 {
                     i.remove();
@@ -75,7 +75,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
         return tuples;
     }
     
-    private boolean isRelated( Name userGroupName, Name userName, Attributes userEntry, Name entryName, Collection userClasses ) throws NamingException
+    private boolean isRelated( Collection userGroupNames, Name userName, Attributes userEntry, Name entryName, Collection userClasses ) throws NamingException
     {
         for( Iterator i = userClasses.iterator(); i.hasNext(); )
         {
@@ -102,9 +102,13 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else if( userClass instanceof UserClass.UserGroup )
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
-                if( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
+                for( Iterator j = userGroupNames.iterator(); j.hasNext(); )
                 {
-                    return true;
+                    Name userGroupName = ( Name ) j.next();
+                    if( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
+                    {
+                        return true;
+                    }
                 }
             }
             else if( userClass instanceof UserClass.Subtree )

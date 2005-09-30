@@ -31,7 +31,7 @@ public interface ACITupleFilter
 {
     Collection filter(
             Collection tuples, OperationScope scope, NextInterceptor next,
-            Name userGroupName, Name userName, Attributes userEntry,
+            Collection userGroupNames, Name userName, Attributes userEntry,
             AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue, Attributes entry,
             Collection microOperations ) throws NamingException;
