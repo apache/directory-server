@@ -218,7 +218,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             }
             else if( item instanceof ProtectedItem.SelfValue )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE ||
+                if( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE &&
                     scope != OperationScope.ATTRIBUTE_TYPE )
                 {
                     continue;
@@ -227,10 +227,14 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 ProtectedItem.SelfValue sv = ( ProtectedItem.SelfValue ) item;
                 for( Iterator j = sv.iterator(); j.hasNext(); )
                 {
-                    Attribute attr = entry.get( String.valueOf( j.next() ) );
-                    if( attr.contains( userName ) || attr.contains( userName.toString() ) )
+                    String svItem = String.valueOf( j.next() );
+                    if( svItem.equalsIgnoreCase( attrId ) )
                     {
-                        return true;
+                        Attribute attr = entry.get( attrId );
+                        if( attr != null && ( attr.contains( userName ) || attr.contains( userName.toString() ) ) )
+                        {
+                            return true;
+                        }
                     }
                 }
             }
