@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -36,7 +34,6 @@ import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.UserClass;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.subtree.SubtreeEvaluator;
 
 /**
@@ -187,43 +184,6 @@ public class RelatedUserClassFilterTest extends TestCase
                         null, AuthenticationLevel.SIMPLE, null, null, null, null, null ).size() );
     }
 
-    private static class DummyOidRegistry implements OidRegistry
-    {
-        public String getOid( String name ) throws NamingException
-        {
-            return String.valueOf( name.hashCode() );
-        }
-
-        public boolean hasOid( String id )
-        {
-            return true;
-        }
-
-        public String getPrimaryName( String oid ) throws NamingException
-        {
-            return oid;
-        }
-
-        public List getNameSet( String oid ) throws NamingException
-        {
-            List list = new ArrayList();
-            list.add( oid );
-            return list;
-        }
-
-        public Iterator list()
-        {
-            // Not used
-            return new ArrayList().iterator();
-        }
-
-        public void register( String name, String oid )
-        {
-            // Not used
-        }
-        
-    }
-    
     private static Collection getTuples( UserClass userClass )
     {
         Collection classes = new ArrayList();
