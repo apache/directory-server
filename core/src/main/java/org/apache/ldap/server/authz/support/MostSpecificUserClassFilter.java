@@ -31,6 +31,19 @@ import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.UserClass;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
+/**
+ * An {@link ACITupleFilter} that chooses the tuples with the most specific user
+ * class. (18.8.4.2)
+ * <p>
+ * If more than one tuple remains, choose the tuples with the most specific user
+ * class. If there are any tuples matching the requestor with UserClasses element
+ * name or thisEntry, discard all other tuples. Otherwise if there are any tuples
+ * matching UserGroup, discard all other tuples. Otherwise if there are any tuples
+ * matching subtree, discard all other tuples.
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class MostSpecificUserClassFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException

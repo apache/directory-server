@@ -18,10 +18,27 @@
  */
 package org.apache.ldap.server.authz.support;
 
+/**
+ * An enumeration that represents the scope of user operation.
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class OperationScope
 {
+    /**
+     * An operation that affects the whole entry.
+     */
     public static final OperationScope ENTRY = new OperationScope( "Entry" );
+    
+    /**
+     * An operation that affects all values in an attribute type.
+     */
     public static final OperationScope ATTRIBUTE_TYPE = new OperationScope( "Attribute Type" );
+    
+    /**
+     * An operation that affects the specific value in an attribute type.
+     */
     public static final OperationScope ATTRIBUTE_TYPE_AND_VALUE = new OperationScope( "Attribute Type & Value" );
     
     private final String name;
@@ -31,11 +48,17 @@ public class OperationScope
         this.name = name;
     }
     
+    /**
+     * Return the name of this scope.
+     */
     public String getName()
     {
         return name;
     }
-    
+
+    /**
+     * Returns the name of this scope.
+     */
     public String toString()
     {
         return name;

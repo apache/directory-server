@@ -37,6 +37,13 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.subtree.RefinementEvaluator;
 
+/**
+ * An {@link ACITupleFilter} that discards all tuples whose {@link ProtectedItem}s
+ * are not related with the operation. (18.8.3.2, X.501)
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class RelatedProtectedItemFilter implements ACITupleFilter
 {
     private final AttributeTypeRegistry attrTypeRegistry;

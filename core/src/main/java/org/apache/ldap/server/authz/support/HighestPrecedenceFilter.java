@@ -29,6 +29,13 @@ import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
+/**
+ * An {@link ACITupleFilter} that discards all tuples having a precedence less
+ * than the highest remaining precedence. (18.8.4.1, X.501)
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class HighestPrecedenceFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException

@@ -40,10 +40,41 @@ import org.apache.ldap.server.subtree.RefinementEvaluator;
 import org.apache.ldap.server.subtree.RefinementLeafEvaluator;
 import org.apache.ldap.server.subtree.SubtreeEvaluator;
 
+/**
+ * An implementation of Access Control Decision Function (18.8, X.501).
+ * <p>
+ * This engine simply filters the collection of tuples using the following
+ * {@link ACITupleFilter}s sequentially:
+ * <ol>
+ * <li>{@link RelatedUserClassFilter}</li>
+ * <li>{@link RelatedProtectedItemFilter}</li>
+ * <li>{@link MaxValueCountFilter}</li>
+ * <li>{@link MaxImmSubFilter}</li>
+ * <li>{@link RestrictedByFilter}</li>
+ * <li>{@link MicroOperationFilter}</li>
+ * <li>{@link HighestPrecedenceFilter}</li>
+ * <li>{@link MostSpecificUserClassFilter}</li>
+ * <li>{@link MostSpecificProtectedItemFilter}</li>
+ * </ol>
+ * <p>
+ * Operation is determined to be permitted if and only if there is at least one
+ * tuple left and all of them grants the access. (18.8.4. X.501)
+ * 
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class ACDFEngine
 {
     private final ACITupleFilter[] filters;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param oidRegistry an OID registry to be used by internal components
+     * @param attrTypeRegistry an attribute type registry to be used by internal components 
+     * 
+     * @throws NamingException if failed to initialize internal components
+     */
     public ACDFEngine( OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry ) throws NamingException
     {
         Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, attrTypeRegistry );
@@ -70,7 +101,7 @@ public class ACDFEngine
      * if the user doesn't have any permission to perform the specified grants.
      * 
      * @param next the next interceptor to the current interceptor
-     * @param userGroupNames the DN of the group of the user who is trying to access the resource
+     * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
      * @param username the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
      * @param attrId the attribute type of the attribute the user is trying to access.
@@ -103,7 +134,7 @@ public class ACDFEngine
      * if the user doesn't have any permission to perform the specified grants.
      * 
      * @param next the next interceptor to the current interceptor 
-     * @param userGroupNames the DN of the group of the user who is trying to access the resource
+     * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
      * @param userName the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
      * @param attrId the attribute type of the attribute the user is trying to access.

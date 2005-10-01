@@ -30,6 +30,14 @@ import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.MicroOperation;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
+/**
+ * An {@link ACITupleFilter} that discard tuples which doesn't contain any
+ * related {@link MicroOperation}s. (18.8.3.4, X.501) 
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ *
+ */
 public class MicroOperationFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException

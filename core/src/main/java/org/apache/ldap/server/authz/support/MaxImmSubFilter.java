@@ -35,6 +35,13 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
+/**
+ * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
+ * {@link ProtectedItem.MaxImmSub} constraint if available. (18.8.3.3, X.501)
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class MaxImmSubFilter implements ACITupleFilter
 {
     private final ExprNode childrenFilter;

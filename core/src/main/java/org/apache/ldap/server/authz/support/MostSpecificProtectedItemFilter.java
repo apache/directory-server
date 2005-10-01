@@ -31,6 +31,21 @@ import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
+/**
+ * An {@link ACITupleFilter} that chooses the tuples with the most specific
+ * protected item. (18.8.4.3, X.501)
+ * <p>
+ * If more than one tuple remains, choose the tuples with the most specific
+ * protected item. If the protected item is an attribute and there are tuples 
+ * that specify the attribute type explicitly, discard all other tuples. If
+ * the protected item is an attribute value, and there are tuples that specify
+ * the attribute value explicitly, discard all other tuples. A protected item
+ * which is a rangeOfValues is to be treated as specifying an attribute value
+ * explicitly.
+ * 
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException

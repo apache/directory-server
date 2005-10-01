@@ -32,6 +32,13 @@ import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
+/**
+ * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
+ * {@link ProtectedItem.MaxValueCount} constraint if available. (18.8.3.3, X.501)
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class MaxValueCountFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException

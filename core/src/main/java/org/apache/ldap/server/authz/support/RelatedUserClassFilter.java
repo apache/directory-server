@@ -33,6 +33,13 @@ import org.apache.ldap.common.subtree.SubtreeSpecification;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.subtree.SubtreeEvaluator;
 
+/**
+ * An {@link ACITupleFilter} that discards all tuples whose {@link UserClass}es
+ * are not related with the current user. (18.8.3.1, X.501)
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ */
 public class RelatedUserClassFilter implements ACITupleFilter
 {
     private static final LdapName ROOTDSE_NAME = new LdapName();

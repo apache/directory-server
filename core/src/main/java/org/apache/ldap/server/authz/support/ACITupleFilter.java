@@ -25,10 +25,39 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.aci.AuthenticationLevel;
+import org.apache.ldap.common.aci.MicroOperation;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
+/**
+ * An interface that filters the specified collection of tuples using the
+ * specified extra information.
+ *
+ * @author The Apache Directory Project
+ * @version $Rev$, $Date$
+ *
+ */
 public interface ACITupleFilter
 {
+    /**
+     * Returns the collection of the filtered tuples using the specified
+     * extra information.
+     * 
+     * @param tuples the collection of tuples to filter
+     * @param scope the scope of the operation to be performed
+     * @param next the next interceptor for this filter to access the DIT
+     * @param userGroupNames the collection of group ({@link Name})s which the current user belongs to
+     * @param userName the {@link Name} of the current user
+     * @param userEntry the {@link Attributes} of the current user entry in the DIT
+     * @param authenticationLevel the level of authentication of the current user
+     * @param entryName the {@link Name} of the entry the current user accesses
+     * @param attrId the attribute ID the current user accesses
+     * @param attrValue the value of the attribute the current user accesses
+     * @param entry the {@link Attributes} of the entry the current user accesses
+     * @param microOperations the set of {@link MicroOperation}s the current user will perform
+     * 
+     * @return the collection of filtered tuples
+     * @throws NamingException if failed to filter the specifiec tuples
+     */
     Collection filter(
             Collection tuples, OperationScope scope, NextInterceptor next,
             Collection userGroupNames, Name userName, Attributes userEntry,
