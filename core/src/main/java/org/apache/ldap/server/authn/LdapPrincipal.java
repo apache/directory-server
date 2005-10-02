@@ -19,10 +19,13 @@ package org.apache.ldap.server.authn;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Set;
+import java.util.Collections;
 
 import javax.naming.Name;
 
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.aci.AuthenticationLevel;
 
 
 /**
@@ -42,16 +45,42 @@ public final class LdapPrincipal implements Principal, Serializable
     /** the no name anonymous user whose DN is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
 
+    /** the authentication level for this principal */
+    private final AuthenticationLevel authenticationLevel;
+
+    /** the set of groups this user is a member of */
+    private final Set userGroupNames;
+
 
     /**
-     * Creates a new LDAP/X500 principal.  Keep this package friendly so only code
-     * in the package can create a trusted principal.
+     * Creates a new LDAP/X500 principal without any group associations.  Keep
+     * this package friendly so only code in the package can create a
+     * trusted principal.
      *
      * @param name the normalized distinguished name of the principal
+     * @param authenticationLevel
      */
-    LdapPrincipal( Name name )
+    LdapPrincipal( Name name, AuthenticationLevel authenticationLevel, Set userGroupNames )
     {
         this.name = name;
+        this.authenticationLevel = authenticationLevel;
+        this.userGroupNames = userGroupNames;
+    }
+
+
+    /**
+     * Creates a new LDAP/X500 principal without any group associations.  Keep
+     * this package friendly so only code in the package can create a
+     * trusted principal.
+     *
+     * @param name the normalized distinguished name of the principal
+     * @param authenticationLevel
+     */
+    LdapPrincipal( Name name, AuthenticationLevel authenticationLevel )
+    {
+        this.name = name;
+        this.authenticationLevel = authenticationLevel;
+        this.userGroupNames = Collections.EMPTY_SET;
     }
 
 
@@ -62,6 +91,8 @@ public final class LdapPrincipal implements Principal, Serializable
     private LdapPrincipal()
     {
         this.name = new LdapName();
+        this.authenticationLevel = AuthenticationLevel.NONE;
+        this.userGroupNames = Collections.EMPTY_SET;
     }
 
 
@@ -84,7 +115,31 @@ public final class LdapPrincipal implements Principal, Serializable
     {
         return name.toString();
     }
-    
+
+
+    /**
+     * Gets the authentication level associated with this LDAP principle.
+     *
+     * @return the authentication level
+     */
+    public AuthenticationLevel getAuthenticationLevel()
+    {
+        return authenticationLevel;
+    }
+
+
+    /**
+     * Gets a set containing LDAP distinguished names, {@link LdapName}s,
+     * representing the groups this user is a member of.
+     *
+     * @return the Set of LdapName objects with the DN of the group entry
+     */
+    public Set getUserGroupNames()
+    {
+        return Collections.unmodifiableSet( this.userGroupNames );
+    }
+
+
     /**
      * Returns string representation of the normalized distinguished name
      * of this principal.

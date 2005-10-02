@@ -25,6 +25,7 @@ import javax.naming.directory.Attributes;
 import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
+import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
 
@@ -129,6 +130,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             throw new LdapAuthenticationException();
         }
 
-        return new LdapPrincipal( principalDn );
+        return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
     }
 }

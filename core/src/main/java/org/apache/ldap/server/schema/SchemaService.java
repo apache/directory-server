@@ -517,7 +517,7 @@ public class SchemaService extends BaseInterceptor
 
             if ( ! atRegistry.hasAttributeType( change.getID() ) && ! objectClass.contains( "extensibleObject" ) )
             {
-                throw new LdapInvalidAttributeIdentifierException();
+                throw new LdapInvalidAttributeIdentifierException( "unrecognized attributeID " + change.getID() );
             }
 
             if ( modOp == DirContext.REMOVE_ATTRIBUTE && entry.get( change.getID() ) == null )

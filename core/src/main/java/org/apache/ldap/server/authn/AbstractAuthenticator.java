@@ -20,7 +20,6 @@ package org.apache.ldap.server.authn;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
@@ -128,12 +127,14 @@ public abstract class AbstractAuthenticator implements Authenticator
      * <tt>name</tt>.
      *
      * @param name the distinguished name of the X.500 principal
+     * @param authenticationLeve
      * @return the principal for the <tt>name</tt>
      * @throws NamingException if there is a problem parsing <tt>name</tt>
      */
-    protected static LdapPrincipal createLdapPrincipal( String name ) throws NamingException
-    {
-        LdapName principalDn = new LdapName( name );
-        return new LdapPrincipal( principalDn );
-    }
+    // does not seem to be used
+//    protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve ) throws NamingException
+//    {
+//        LdapName principalDn = new LdapName( name );
+//        return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
+//    }
 }

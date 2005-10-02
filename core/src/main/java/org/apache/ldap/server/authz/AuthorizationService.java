@@ -20,13 +20,19 @@ package org.apache.ldap.server.authz;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.authz.support.ACDFEngine;
+import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.aci.AuthenticationLevel;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.Context;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -46,6 +52,8 @@ public class AuthorizationService extends BaseInterceptor
     private ContextPartitionNexus nexus;
     /** a cache that responds to add, delete, and modify attempts */
     private TupleCache cache;
+    /** use and instance of the ACDF engine */
+    private ACDFEngine engine;
 
 
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
@@ -54,13 +62,37 @@ public class AuthorizationService extends BaseInterceptor
 
         nexus = factoryCfg.getPartitionNexus();
         cache = new TupleCache( factoryCfg );
+        engine = new ACDFEngine( factoryCfg.getGlobalRegistries().getOidRegistry(),
+                factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() );
     }
 
+
+    /*
+     * Within every access controled interceptor method we must retrieve the ACITuple
+     * set for all the perscriptiveACIs that apply to the candidate, the target entry
+     * operated upon.  This ACITuple set is gotten from the TupleCache by looking up
+     * the subentries referenced by the accessControlSubentries operational attribute
+     * within the target entry.
+     *
+     * Then the entry is inspected for an entryACI.  If present a set of ACITuples
+     * are generated for all the entryACIs within the entry.  This set is combined
+     * with the ACITuples cached for the perscriptiveACI affecting the target entry.
+     *
+     * The union of ACITuples are fed into the engine along with other parameters
+     * to decide where permission is granted or rejected for the specific operation.
+     */
 
     public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
     {
         next.add( upName, normName, entry );
         cache.subentryAdded( upName, normName, entry );
+
+        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
+        LdapPrincipal user = ctx.getPrincipal();
+        Name userGroupName = null;
+
+//        engine.checkPermission( next, userGroupName, user.getName(), user.getAuthenticationLevel(), normName, null,
+//                null, ADD_OPS, aciTuples );
     }
 
 
