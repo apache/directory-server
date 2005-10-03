@@ -48,25 +48,6 @@ public final class LdapPrincipal implements Principal, Serializable
     /** the authentication level for this principal */
     private final AuthenticationLevel authenticationLevel;
 
-    /** the set of groups this user is a member of */
-    private final Set userGroupNames;
-
-
-    /**
-     * Creates a new LDAP/X500 principal without any group associations.  Keep
-     * this package friendly so only code in the package can create a
-     * trusted principal.
-     *
-     * @param name the normalized distinguished name of the principal
-     * @param authenticationLevel
-     */
-    LdapPrincipal( Name name, AuthenticationLevel authenticationLevel, Set userGroupNames )
-    {
-        this.name = name;
-        this.authenticationLevel = authenticationLevel;
-        this.userGroupNames = userGroupNames;
-    }
-
 
     /**
      * Creates a new LDAP/X500 principal without any group associations.  Keep
@@ -80,7 +61,6 @@ public final class LdapPrincipal implements Principal, Serializable
     {
         this.name = name;
         this.authenticationLevel = authenticationLevel;
-        this.userGroupNames = Collections.EMPTY_SET;
     }
 
 
@@ -92,7 +72,6 @@ public final class LdapPrincipal implements Principal, Serializable
     {
         this.name = new LdapName();
         this.authenticationLevel = AuthenticationLevel.NONE;
-        this.userGroupNames = Collections.EMPTY_SET;
     }
 
 
@@ -125,18 +104,6 @@ public final class LdapPrincipal implements Principal, Serializable
     public AuthenticationLevel getAuthenticationLevel()
     {
         return authenticationLevel;
-    }
-
-
-    /**
-     * Gets a set containing LDAP distinguished names, {@link LdapName}s,
-     * representing the groups this user is a member of.
-     *
-     * @return the Set of LdapName objects with the DN of the group entry
-     */
-    public Set getUserGroupNames()
-    {
-        return Collections.unmodifiableSet( this.userGroupNames );
     }
 
 
