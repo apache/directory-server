@@ -76,17 +76,17 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.24 NAME 'apacheDnsCharacterString'
 	EQUALITY caseIgnoreIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.25 NAME 'apacheDnsServicePriority'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.27 NAME 'apacheDnsServicePriority'
 	DESC 'The unsigned 16 bit priority of this target host'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.26 NAME 'apacheDnsServiceWeight'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.28 NAME 'apacheDnsServiceWeight'
 	DESC 'The unsigned 16 bit weight specifying a relative weight for entries with the same priority'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.27 NAME 'apacheDnsServicePort'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.29 NAME 'apacheDnsServicePort'
 	DESC 'The unsigned 16 bit port on this target host of this service'
 	EQUALITY integerMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
