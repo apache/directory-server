@@ -83,7 +83,7 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.8 NAME 'prefNodeName'
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
     SINGLE-VALUE )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.29 NAME 'autonomousAreaSubentry'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.10 NAME 'autonomousAreaSubentry'
     DESC 'Used to track a subentry associated with an autonomousArea'
     SUP distinguishedName
     EQUALITY distinguishedNameMatch
@@ -92,7 +92,7 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.29 NAME 'autonomousAreaSubentry'
     NO-USER-MODIFICATION
     USAGE directoryOperation )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.28 NAME 'accessControlSubentries'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.11 NAME 'accessControlSubentries'
     DESC 'Used to track a subentry associated with access control areas'
     SUP distinguishedName
     EQUALITY distinguishedNameMatch
@@ -106,13 +106,13 @@ objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.1 NAME 'prefNode'
     STRUCTURAL
     MUST prefNodeName )
 
-attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.100 NAME 'prescriptiveACI'
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.12 NAME 'prescriptiveACI'
   DESC 'Access control information that applies to a set of entries'
   EQUALITY directoryStringFirstComponentMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
   USAGE directoryOperation )
 
-objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.100 
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.2
     NAME 'accessControlSubentry'
     AUXILIARY 
     MUST prescriptiveACI )
