@@ -18,12 +18,7 @@ package org.apache.ldap.server.authz;
 
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -161,7 +156,7 @@ public class TupleCache
 
             try
             {
-                aciParser.parse( ( String ) aci.get( ii ) );
+                item = aciParser.parse( ( String ) aci.get( ii ) );
             }
             catch ( ParseException e )
             {
@@ -219,5 +214,16 @@ public class TupleCache
             subentryDeleted( normName, entry );
             subentryAdded( normName.toString(), normName, entry );
         }
+    }                                                     
+
+
+    public List getACITuples( String subentryDn )
+    {
+        List aciTuples = ( List ) tuples.get( subentryDn );
+        if ( aciTuples == null )
+        {
+            return Collections.EMPTY_LIST;
+        }
+        return Collections.unmodifiableList( aciTuples );
     }
 }

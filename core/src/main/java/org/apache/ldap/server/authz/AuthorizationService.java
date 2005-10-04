@@ -27,12 +27,10 @@ import org.apache.ldap.server.authz.support.ACDFEngine;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.aci.AuthenticationLevel;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.Context;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -50,8 +48,10 @@ public class AuthorizationService extends BaseInterceptor
 {
     /** the partition nexus */
     private ContextPartitionNexus nexus;
-    /** a cache that responds to add, delete, and modify attempts */
-    private TupleCache cache;
+    /** a tupleCache that responds to add, delete, and modify attempts */
+    private TupleCache tupleCache;
+    /** a groupCache that responds to add, delete, and modify attempts */
+    private GroupCache groupCache;
     /** use and instance of the ACDF engine */
     private ACDFEngine engine;
 
@@ -61,7 +61,8 @@ public class AuthorizationService extends BaseInterceptor
         super.init( factoryCfg, cfg );
 
         nexus = factoryCfg.getPartitionNexus();
-        cache = new TupleCache( factoryCfg );
+        tupleCache = new TupleCache( factoryCfg );
+        groupCache = new GroupCache( factoryCfg );
         engine = new ACDFEngine( factoryCfg.getGlobalRegistries().getOidRegistry(),
                 factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() );
     }
@@ -85,7 +86,8 @@ public class AuthorizationService extends BaseInterceptor
     public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
     {
         next.add( upName, normName, entry );
-        cache.subentryAdded( upName, normName, entry );
+        tupleCache.subentryAdded( upName, normName, entry );
+        groupCache.groupAdded( upName, normName, entry );
 
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
         LdapPrincipal user = ctx.getPrincipal();
@@ -100,7 +102,8 @@ public class AuthorizationService extends BaseInterceptor
     {
         Attributes entry = nexus.lookup( name );
         next.delete( name );
-        cache.subentryDeleted( name, entry );
+        tupleCache.subentryDeleted( name, entry );
+        groupCache.groupDeleted( name, entry );
     }
 
 
@@ -108,7 +111,8 @@ public class AuthorizationService extends BaseInterceptor
     {
         Attributes entry = nexus.lookup( name );
         next.modify( name, modOp, mods );
-        cache.subentryModified( name, modOp, mods, entry );
+        tupleCache.subentryModified( name, modOp, mods, entry );
+        groupCache.groupModified( name, modOp, mods, entry );
     }
 
 
@@ -116,7 +120,8 @@ public class AuthorizationService extends BaseInterceptor
     {
         Attributes entry = nexus.lookup( name );
         next.modify( name, mods );
-        cache.subentryModified( name, mods, entry );
+        tupleCache.subentryModified( name, mods, entry );
+        groupCache.groupModified( name, mods, entry );
     }
 
 
