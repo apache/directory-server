@@ -27,7 +27,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
@@ -88,7 +88,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         LdapName principalDn = new LdapName( principal );
 
-        ContextPartitionNexus nexus = getFactoryConfiguration().getPartitionNexus();
+        DirectoryPartitionNexus nexus = getFactoryConfiguration().getPartitionNexus();
         Attributes userEntry;
         
         try

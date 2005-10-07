@@ -29,27 +29,27 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 
 /**
- * A {@link ContextPartition} that helps users to implement their own partition.
+ * A {@link DirectoryPartition} that helps users to implement their own partition.
  * Most methods are implemented by default.  Please look at the description of
  * each methods for the detail of implementations.
  *
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-public abstract class AbstractContextPartition implements ContextPartition
+public abstract class AbstractDirectoryPartition implements DirectoryPartition
 {
-    /** {@link ContextFactoryConfiguration} specified at {@link #init(ContextFactoryConfiguration, ContextPartitionConfiguration)}. */
+    /** {@link ContextFactoryConfiguration} specified at {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}. */
     private ContextFactoryConfiguration factoryCfg;
-    /** {@link ContextPartitionConfiguration} specified at {@link #init(ContextFactoryConfiguration, ContextPartitionConfiguration)}. */
-    private ContextPartitionConfiguration cfg;
+    /** {@link DirectoryPartitionConfiguration} specified at {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}. */
+    private DirectoryPartitionConfiguration cfg;
     /** <tt>true</tt> if and only if this partition is initialized. */
     private boolean initialized;
     
-    protected AbstractContextPartition()
+    protected AbstractDirectoryPartition()
     {
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractContextPartition implements ContextPartition
      * without any errors.  {@link #destroy()} is called automatically as a clean-up process
      * if {@link #doInit()} throws an exception.
      */
-    public final void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    public final void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         if( initialized )
         {
@@ -132,7 +132,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
     /**
      * Returns {@link ContextFactoryConfiguration} that is provided from
-     * {@link #init(ContextFactoryConfiguration, ContextPartitionConfiguration)}.
+     * {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}.
      */
     public final ContextFactoryConfiguration getFactoryConfiguration()
     {
@@ -140,10 +140,10 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
     
     /**
-     * Returns {@link ContextPartitionConfiguration} that is provided from
-     * {@link #init(ContextFactoryConfiguration, ContextPartitionConfiguration)}.
+     * Returns {@link DirectoryPartitionConfiguration} that is provided from
+     * {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}.
      */
-    public final ContextPartitionConfiguration getConfiguration()
+    public final DirectoryPartitionConfiguration getConfiguration()
     {
         return cfg;
     }
@@ -191,7 +191,7 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
     /**
-     * This method calls {@link ContextPartition#lookup(Name, String[])}
+     * This method calls {@link DirectoryPartition#lookup(Name, String[])}
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
@@ -202,7 +202,7 @@ public abstract class AbstractContextPartition implements ContextPartition
 
     /**
      * This method forwards the request to
-     * {@link ContextPartition#modify(Name, ModificationItem[])} after
+     * {@link DirectoryPartition#modify(Name, ModificationItem[])} after
      * translating parameters to {@link ModificationItem}<tt>[]</tt> by default.
      * Please override this method if there is more effactive way for your
      * implementation.
@@ -222,8 +222,8 @@ public abstract class AbstractContextPartition implements ContextPartition
     }
 
     /**
-     * This method calls {@link ContextPartition#move(Name, Name)} and
-     * {@link ContextPartition#modifyRn(Name, String, boolean)} subsequently
+     * This method calls {@link DirectoryPartition#move(Name, Name)} and
+     * {@link DirectoryPartition#modifyRn(Name, String, boolean)} subsequently
      * by default.  Please override this method if there is more effactive
      * way for your implementation.
      */

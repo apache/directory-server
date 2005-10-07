@@ -21,7 +21,7 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.subtree.SubentryService;
 import org.apache.ldap.server.invocation.InvocationStack;
@@ -71,7 +71,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     };
 
     private AttributeTypeRegistry registry = null;
-    private ContextPartitionNexus nexus = null;
+    private DirectoryPartitionNexus nexus = null;
 
 
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException

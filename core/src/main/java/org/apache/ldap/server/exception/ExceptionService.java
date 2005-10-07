@@ -32,13 +32,13 @@ import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartition;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
  * An {@link org.apache.ldap.server.interceptor.Interceptor} that detects any operations that breaks integrity
- * of {@link ContextPartition} and terminates the current invocation chain by
+ * of {@link DirectoryPartition} and terminates the current invocation chain by
  * throwing a {@link NamingException}. Those operations include when an entry
  * already exists at a DN and is added once again to the same DN.
  *
@@ -47,7 +47,7 @@ import org.apache.ldap.server.partition.ContextPartitionNexus;
  */
 public class ExceptionService extends BaseInterceptor
 {
-    private ContextPartitionNexus nexus;
+    private DirectoryPartitionNexus nexus;
 
     /**
      * Creates an interceptor that is also the exception handling service.

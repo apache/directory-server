@@ -51,7 +51,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
@@ -66,7 +66,7 @@ public abstract class ServerContext implements EventContext
     public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN";
 
     /** The interceptor proxy to the backend nexus */
-    private final ContextPartitionNexus nexusProxy;
+    private final DirectoryPartitionNexus nexusProxy;
 
     /** The cloned environment used by this Context */
     private final Hashtable env;
@@ -102,7 +102,7 @@ public abstract class ServerContext implements EventContext
     protected ServerContext( ContextFactoryService service, Hashtable env ) throws NamingException
     {
         // set references to cloned env and the proxy
-        this.nexusProxy = new ContextPartitionNexusProxy( this, service );
+        this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );
         
         ContextFactoryConfiguration cfg = service.getConfiguration();
         
@@ -150,7 +150,7 @@ public abstract class ServerContext implements EventContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
+    protected ServerContext( LdapPrincipal principal, DirectoryPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         this.dn = ( LdapName ) dn.clone();
 
@@ -201,7 +201,7 @@ public abstract class ServerContext implements EventContext
      * 
      * @return the proxy to the backend nexus.
      */
-    protected ContextPartitionNexus getNexusProxy()
+    protected DirectoryPartitionNexus getNexusProxy()
     {
        return nexusProxy ;
     }
@@ -231,7 +231,7 @@ public abstract class ServerContext implements EventContext
         Iterator list = listeners.iterator();
         while ( list.hasNext() )
         {
-            ( ( ContextPartitionNexusProxy ) this.nexusProxy )
+            ( ( DirectoryPartitionNexusProxy ) this.nexusProxy )
                     .removeNamingListener( this, ( NamingListener ) list.next() );
         }
     }
@@ -781,7 +781,7 @@ public abstract class ServerContext implements EventContext
         ExprNode filter = new PresenceNode( "objectClass" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope );
-        ( ( ContextPartitionNexusProxy ) this.nexusProxy )
+        ( ( DirectoryPartitionNexusProxy ) this.nexusProxy )
                 .addNamingListener( this, buildTarget( name ), filter, controls, namingListener );
         listeners.add( namingListener );
     }
@@ -795,7 +795,7 @@ public abstract class ServerContext implements EventContext
 
     public void removeNamingListener( NamingListener namingListener ) throws NamingException
     {
-        ( ( ContextPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
+        ( ( DirectoryPartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
         listeners.remove( namingListener );
     }
 

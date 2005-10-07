@@ -23,11 +23,11 @@ import javax.naming.NamingException;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
- * Authenticates users who access {@link ContextPartitionNexus}.
+ * Authenticates users who access {@link DirectoryPartitionNexus}.
  * <p>
  * {@link Authenticator}s are registered to and configured by
  * {@link AuthenticationService} interceptor.

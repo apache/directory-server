@@ -27,7 +27,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.DirectoryPartition;
 
 /**
  * Provides JNDI service to {@link AbstractContextFactory}.
@@ -90,7 +90,7 @@ public abstract class ContextFactoryService
     public abstract void shutdown() throws NamingException;
     
     /**
-     * Calls {@link ContextPartition#sync()} for all registered {@link ContextPartition}s.
+     * Calls {@link DirectoryPartition#sync()} for all registered {@link DirectoryPartition}s.
      * @throws NamingException if synchronization failed
      */
     public abstract void sync() throws NamingException;

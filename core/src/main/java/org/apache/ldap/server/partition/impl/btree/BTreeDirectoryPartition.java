@@ -36,10 +36,10 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.enumeration.SearchResultEnumeration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.DirectoryPartition;
 import org.apache.ldap.server.partition.Oid;
 import org.apache.ldap.server.partition.impl.btree.gui.PartitionViewer;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
@@ -47,12 +47,12 @@ import org.apache.ldap.server.schema.OidRegistry;
 
 
 /**
- * An abstract {@link ContextPartition} that uses general BTree operations.
+ * An abstract {@link DirectoryPartition} that uses general BTree operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class BTreeContextPartition implements ContextPartition
+public abstract class BTreeDirectoryPartition implements DirectoryPartition
 {
     /** ===================================================================
 
@@ -105,12 +105,12 @@ public abstract class BTreeContextPartition implements ContextPartition
     /**
      * Creates a B-tree based context partition.
      */
-    protected BTreeContextPartition()
+    protected BTreeDirectoryPartition()
     {
     }
     
 
-    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         attributeTypeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         OidRegistry oidRegistry = factoryCfg.getGlobalRegistries().getOidRegistry();

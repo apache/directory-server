@@ -31,7 +31,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.partition.impl.btree.BTreeContextPartition;
+import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
 import org.apache.ldap.server.partition.impl.btree.IndexRecord;
 import org.apache.ldap.server.partition.impl.btree.SearchEngine;
 
@@ -45,21 +45,21 @@ import org.apache.ldap.server.partition.impl.btree.SearchEngine;
 public class EntryNode
 	implements TreeNode
 {
-    private final BTreeContextPartition partition;
+    private final BTreeDirectoryPartition partition;
     private final EntryNode parent;
 	private final Attributes entry;
     private final ArrayList children;
     private final BigInteger id;
 
 
-    public EntryNode( BigInteger id, EntryNode parent, BTreeContextPartition partition,
+    public EntryNode( BigInteger id, EntryNode parent, BTreeDirectoryPartition partition,
         Attributes entry, HashMap map )
     {
         this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode( BigInteger id, EntryNode parent, BTreeContextPartition db,
+    public EntryNode( BigInteger id, EntryNode parent, BTreeDirectoryPartition db,
         Attributes entry, HashMap map, ExprNode exprNode,
         SearchEngine engine )
     {

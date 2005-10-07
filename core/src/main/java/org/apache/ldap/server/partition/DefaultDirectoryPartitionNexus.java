@@ -58,10 +58,10 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.util.SingletonEnumeration;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
-import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
+import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
+import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmDirectoryPartition;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +74,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultContextPartitionNexus extends ContextPartitionNexus
+public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 {
-    private static final Logger log = LoggerFactory.getLogger( DefaultContextPartitionNexus.class );
+    private static final Logger log = LoggerFactory.getLogger( DefaultDirectoryPartitionNexus.class );
 
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
@@ -96,7 +96,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     private ContextFactoryConfiguration factoryCfg;
 
     /** the system backend */
-    private ContextPartition system;
+    private DirectoryPartition system;
 
     /** the backends keyed by normalized suffix strings */
     private HashMap partitions = new HashMap();
@@ -113,7 +113,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
      *
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
      */
-    public DefaultContextPartitionNexus( Attributes rootDSE )
+    public DefaultDirectoryPartitionNexus( Attributes rootDSE )
     {
         // setup that root DSE
         this.rootDSE = rootDSE;
@@ -147,7 +147,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     }
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    public void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if( initialized )
@@ -165,7 +165,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         {
             while( i.hasNext() )
             {
-                ContextPartitionConfiguration c = ( ContextPartitionConfiguration ) i.next();
+                DirectoryPartitionConfiguration c = ( DirectoryPartitionConfiguration ) i.next();
                 addContextPartition( c );
                 initializedPartitionCfgs.add( 0, c );
             }
@@ -178,9 +178,9 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
                 i = initializedPartitionCfgs.iterator();
                 while( i.hasNext() )
                 {
-                    ContextPartitionConfiguration partitionCfg = 
-                        ( ContextPartitionConfiguration ) i.next();
-                    ContextPartition partition = partitionCfg.getContextPartition();
+                    DirectoryPartitionConfiguration partitionCfg = 
+                        ( DirectoryPartitionConfiguration ) i.next();
+                    DirectoryPartition partition = partitionCfg.getContextPartition();
                     i.remove();
                     try
                     {
@@ -202,13 +202,13 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     }
 
 
-    private ContextPartitionConfiguration initializeSystemPartition() throws NamingException
+    private DirectoryPartitionConfiguration initializeSystemPartition() throws NamingException
     {
         // initialize system partition first
-        MutableContextPartitionConfiguration systemCfg = new MutableContextPartitionConfiguration();
-        system = new JdbmContextPartition(); // using default implementation.
+        MutableDirectoryPartitionConfiguration systemCfg = new MutableDirectoryPartitionConfiguration();
+        system = new JdbmDirectoryPartition(); // using default implementation.
         systemCfg.setName( "system" );
-        systemCfg.setSuffix( ContextPartitionNexus.SYSTEM_PARTITION_SUFFIX );
+        systemCfg.setSuffix( DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX );
         systemCfg.setContextPartition( system );
         
         // Add indexed attributes for system partition
@@ -228,11 +228,11 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         objectClassAttr.add( "top" );
         objectClassAttr.add( "organizationalUnit" );
         systemEntry.put( objectClassAttr );
-        systemEntry.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL ) ;
+        systemEntry.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL ) ;
         systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() ) ;
         systemEntry.put(
-                NamespaceTools.getRdnAttribute( ContextPartitionNexus.SYSTEM_PARTITION_SUFFIX ),
-                NamespaceTools.getRdnValue( ContextPartitionNexus.SYSTEM_PARTITION_SUFFIX ) ) ;
+                NamespaceTools.getRdnAttribute( DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX ),
+                NamespaceTools.getRdnValue( DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX ) ) ;
         systemCfg.setContextEntry( systemEntry );
 
         system.init( factoryCfg, systemCfg );
@@ -285,7 +285,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
 
     /**
-     * @see ContextPartition#sync()
+     * @see DirectoryPartition#sync()
      */
     public void sync() throws NamingException
     {
@@ -295,7 +295,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
         while ( list.hasNext() )
         {
-            ContextPartition partition = ( ContextPartition ) list.next();
+            DirectoryPartition partition = ( DirectoryPartition ) list.next();
 
             try
             {
@@ -333,7 +333,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
     public boolean compare( Name name, String oid, Object value ) throws NamingException
     {
-        ContextPartition partition = getBackend( name );
+        DirectoryPartition partition = getBackend( name );
         AttributeTypeRegistry registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
 
         // complain if we do not recognize the attribute being compared
@@ -379,13 +379,13 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     }
 
 
-    public synchronized void addContextPartition( ContextPartitionConfiguration config ) throws NamingException
+    public synchronized void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException
     {
-        ContextPartition partition = config.getContextPartition();
+        DirectoryPartition partition = config.getContextPartition();
 
         // Turn on default indices
-        MutableContextPartitionConfiguration mcfg =
-            new MutableContextPartitionConfiguration();
+        MutableDirectoryPartitionConfiguration mcfg =
+            new MutableDirectoryPartitionConfiguration();
         mcfg.setName( config.getName() );
         mcfg.setSuffix( config.getSuffix() );
         mcfg.setContextEntry( config.getContextEntry() );
@@ -418,7 +418,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     public synchronized void removeContextPartition( Name suffix ) throws NamingException
     {
         String key = suffix.toString();
-        ContextPartition partition = (ContextPartition) partitions.get( key );
+        DirectoryPartition partition = (DirectoryPartition) partitions.get( key );
         if( partition == null )
         {
             throw new NameNotFoundException( "No partition with suffix: " + key );
@@ -432,13 +432,13 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         partition.destroy();
     }
     
-    public ContextPartition getSystemPartition()
+    public DirectoryPartition getSystemPartition()
     {
         return system;
     }
 
     /**
-     * @see ContextPartitionNexus#getLdapContext()
+     * @see DirectoryPartitionNexus#getLdapContext()
      */
     public LdapContext getLdapContext() 
     {
@@ -447,7 +447,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
 
     /**
-     * @see ContextPartitionNexus#getMatchedName(javax.naming.Name, boolean)
+     * @see DirectoryPartitionNexus#getMatchedName(javax.naming.Name, boolean)
      */
     public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
     {
@@ -474,18 +474,18 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
 
     /**
-     * @see org.apache.ldap.server.partition.ContextPartitionNexus#getSuffix(javax.naming.Name, boolean)
+     * @see org.apache.ldap.server.partition.DirectoryPartitionNexus#getSuffix(javax.naming.Name, boolean)
      */
     public Name getSuffix( Name dn, boolean normalized ) throws NamingException
     {
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         return backend.getSuffix( normalized );
     }
 
 
     /**
-     * @see org.apache.ldap.server.partition.ContextPartitionNexus#listSuffixes(boolean)
+     * @see org.apache.ldap.server.partition.DirectoryPartitionNexus#listSuffixes(boolean)
      */
     public Iterator listSuffixes( boolean normalized ) throws NamingException
     {
@@ -511,7 +511,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
      * @param partition ContextPartition component to unregister with this
      * BackendNexus.
      */
-    private void unregister( ContextPartition partition ) throws NamingException
+    private void unregister( DirectoryPartition partition ) throws NamingException
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.remove( partition.getSuffix( false ).toString() );
@@ -525,11 +525,11 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
     
     
     /**
-     * @see ContextPartition#delete(javax.naming.Name)
+     * @see DirectoryPartition#delete(javax.naming.Name)
      */
     public void delete( Name dn ) throws NamingException
     {
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         backend.delete( dn );
     }
@@ -542,52 +542,52 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
      * here so backend implementors do not have to worry about performing these
      * kinds of checks.
      *
-     * @see org.apache.ldap.server.partition.ContextPartition#add(String, Name, Attributes)
+     * @see org.apache.ldap.server.partition.DirectoryPartition#add(String, Name, Attributes)
      */
     public void add( String updn, Name dn, Attributes an_entry ) throws NamingException
     {
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         backend.add( updn, dn, an_entry );
     }
 
 
     /**
-     * @see ContextPartition#modify(Name, int,Attributes)
+     * @see DirectoryPartition#modify(Name, int,Attributes)
      */
     public void modify( Name dn, int modOp, Attributes mods ) throws NamingException
     {
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         backend.modify( dn, modOp, mods );
     }
 
 
     /**
-     * @see ContextPartition#modify(javax.naming.Name,
+     * @see DirectoryPartition#modify(javax.naming.Name,
      * javax.naming.directory.ModificationItem[])
      */
     public void modify( Name dn, ModificationItem[] mods ) throws NamingException
     {
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         backend.modify( dn, mods );
     }
 
     
     /**
-     * @see ContextPartition#list(javax.naming.Name)
+     * @see DirectoryPartition#list(javax.naming.Name)
      */
     public NamingEnumeration list( Name base ) throws NamingException
     {
-        ContextPartition backend = getBackend( base );
+        DirectoryPartition backend = getBackend( base );
 
         return backend.list( base );
     }
     
 
     /**
-     * @see ContextPartition#search(Name, Map, ExprNode, SearchControls)
+     * @see DirectoryPartition#search(Name, Map, ExprNode, SearchControls)
      */
     public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
             throws NamingException
@@ -644,14 +644,14 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             throw new LdapNameNotFoundException();
         }
 
-        ContextPartition backend = getBackend( base );
+        DirectoryPartition backend = getBackend( base );
 
         return backend.search( base, env, filter, searchCtls );
     }
 
 
     /**
-     * @see ContextPartition#lookup(javax.naming.Name)
+     * @see DirectoryPartition#lookup(javax.naming.Name)
      */
     public Attributes lookup( Name dn )  throws NamingException
     {
@@ -664,14 +664,14 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             return retval;
         }
 
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         return backend.lookup( dn );
     }
 
 
     /**
-     * @see org.apache.ldap.server.partition.ContextPartition#lookup(javax.naming.Name, String[])
+     * @see org.apache.ldap.server.partition.DirectoryPartition#lookup(javax.naming.Name, String[])
      */
     public Attributes lookup( Name dn, String[] attrIds )  throws NamingException
     {
@@ -695,14 +695,14 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             return retval;
         }
 
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         return backend.lookup( dn, attrIds );
     }
 
 
     /**
-     * @see ContextPartition#hasEntry(javax.naming.Name)
+     * @see DirectoryPartition#hasEntry(javax.naming.Name)
      */
     public boolean hasEntry( Name dn ) throws NamingException
     {
@@ -711,14 +711,14 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
             return true;
         }
 
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         return backend.hasEntry( dn );
     }
 
     
     /**
-     * @see ContextPartition#isSuffix(javax.naming.Name)
+     * @see DirectoryPartition#isSuffix(javax.naming.Name)
      */
     public boolean isSuffix( Name dn )
     {
@@ -727,35 +727,35 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
 
     
     /**
-     * @see ContextPartition#modifyRn(Name, String, boolean)
+     * @see DirectoryPartition#modifyRn(Name, String, boolean)
      */
     public void modifyRn( Name dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
-        ContextPartition backend = getBackend( dn );
+        DirectoryPartition backend = getBackend( dn );
 
         backend.modifyRn( dn, newRdn, deleteOldRdn );
     }
     
     
     /**
-     * @see ContextPartition#move(Name, Name)
+     * @see DirectoryPartition#move(Name, Name)
      */
     public void move( Name oriChildName, Name newParentName ) throws NamingException
     {
-        ContextPartition backend = getBackend( oriChildName );
+        DirectoryPartition backend = getBackend( oriChildName );
 
         backend.move( oriChildName, newParentName );
     }
     
     
     /**
-     * @see ContextPartition#move(javax.naming.Name,
+     * @see DirectoryPartition#move(javax.naming.Name,
      * javax.naming.Name, java.lang.String, boolean)
      */
     public void move( Name oldChildDn, Name newParentDn, String newRdn,
         boolean deleteOldRdn ) throws NamingException
     {
-        ContextPartition backend = getBackend( oldChildDn );
+        DirectoryPartition backend = getBackend( oldChildDn );
 
         backend.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
     }
@@ -773,7 +773,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
      * @return the backend partition associated with the normalized dn
      * @throws NamingException if the name cannot be resolved to a backend
      */
-    private ContextPartition getBackend( Name dn ) throws NamingException
+    private DirectoryPartition getBackend( Name dn ) throws NamingException
     {
         Name clonedDn = ( Name ) dn.clone();
 
@@ -781,7 +781,7 @@ public class DefaultContextPartitionNexus extends ContextPartitionNexus
         {
             if ( partitions.containsKey( clonedDn.toString() ) )
             {
-                return ( ContextPartition ) partitions.get( clonedDn.toString() );
+                return ( DirectoryPartition ) partitions.get( clonedDn.toString() );
             }
             
             clonedDn.remove( clonedDn.size() - 1 );

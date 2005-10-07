@@ -23,7 +23,7 @@ import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.filter.BranchNode;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ public class GroupCache
     /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
     private final Map groups = new HashMap();
     /** a handle on the partition nexus */
-    private final ContextPartitionNexus nexus;
+    private final DirectoryPartitionNexus nexus;
     /** the env to use for searching */
     private final Hashtable env;
     /** the normalizing Dn parser for member names */

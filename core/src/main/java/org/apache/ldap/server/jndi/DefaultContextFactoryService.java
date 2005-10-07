@@ -40,8 +40,8 @@ import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
-import org.apache.ldap.server.partition.DefaultContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.partition.DefaultDirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
@@ -78,7 +78,7 @@ class DefaultContextFactoryService extends ContextFactoryService
     private GlobalRegistries globalRegistries;
 
     /** the root nexus */
-    private DefaultContextPartitionNexus partitionNexus;
+    private DefaultDirectoryPartitionNexus partitionNexus;
 
     /** whether or not server is started for the first time */
     private boolean firstStart;
@@ -281,7 +281,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         return globalRegistries;
     }
 
-    public ContextPartitionNexus getPartitionNexus()
+    public DirectoryPartitionNexus getPartitionNexus()
     {
         return partitionNexus;
     }
@@ -384,7 +384,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( ContextPartitionNexus.getAdminName() ) )
+        if ( !partitionNexus.hasEntry( DirectoryPartitionNexus.getAdminName() ) )
         {
             checkPermissionToCreateBootstrapEntries();
             firstStart = true;
@@ -397,16 +397,16 @@ class DefaultContextFactoryService extends ContextFactoryService
             objectClass.add( "inetOrgPerson" );
             attributes.put( objectClass );
 
-            attributes.put( "uid", ContextPartitionNexus.ADMIN_UID );
+            attributes.put( "uid", DirectoryPartitionNexus.ADMIN_UID );
             attributes.put( "userPassword", environment.get( Context.SECURITY_CREDENTIALS ) );
             attributes.put( "displayName", "Directory Superuser" );
             attributes.put( "cn", "system administrator" );
             attributes.put( "sn", "administrator" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             attributes.put( "displayName", "Directory Superuser" );
             
-            partitionNexus.add( ContextPartitionNexus.ADMIN_PRINCIPAL, ContextPartitionNexus.getAdminName(), attributes );
+            partitionNexus.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL, DirectoryPartitionNexus.getAdminName(), attributes );
         }
 
         // -------------------------------------------------------------------
@@ -425,7 +425,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( objectClass );
 
             attributes.put( "ou", "users" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( "ou=users,ou=system", new LdapName( "ou=users,ou=system" ), attributes );
@@ -447,7 +447,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( objectClass );
 
             attributes.put( "ou", "groups" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( "ou=groups,ou=system", new LdapName( "ou=groups,ou=system" ), attributes );
@@ -470,8 +470,8 @@ class DefaultContextFactoryService extends ContextFactoryService
             objectClass.add( "groupOfUniqueNames" );
             attributes.put( objectClass );
             attributes.put( "cn", "Administrators" );
-            attributes.put( "uniqueMember", ContextPartitionNexus.ADMIN_PRINCIPAL );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "uniqueMember", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( upName, normName, attributes );
@@ -495,7 +495,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( objectClass );
 
             attributes.put( "ou", "configuration" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( "ou=configuration,ou=system", new LdapName( "ou=configuration,ou=system" ), attributes );
@@ -517,7 +517,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( objectClass );
 
             attributes.put( "ou", "partitions" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( "ou=partitions,ou=configuration,ou=system",
@@ -540,7 +540,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( objectClass );
 
             attributes.put( "ou", "services" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( "ou=services,ou=configuration,ou=system",
@@ -563,7 +563,7 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( objectClass );
 
             attributes.put( "ou", "interceptors" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( "ou=interceptors,ou=configuration,ou=system",
@@ -587,7 +587,7 @@ class DefaultContextFactoryService extends ContextFactoryService
 
             attributes.put( "objectClass", "extensibleObject" );
             attributes.put( "prefNodeName", "sysPrefRoot" );
-            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             LdapName dn = new LdapName( "prefNodeName=sysPrefRoot,ou=system" );
@@ -601,10 +601,10 @@ class DefaultContextFactoryService extends ContextFactoryService
     private void checkPermissionToCreateBootstrapEntries() throws NamingException
     {
         String principal = ( String ) environment.get( Context.SECURITY_PRINCIPAL );
-        if( principal == null || !ContextPartitionNexus.ADMIN_PRINCIPAL.equals( principal ) )
+        if( principal == null || !DirectoryPartitionNexus.ADMIN_PRINCIPAL.equals( principal ) )
         {
             throw new NoPermissionException(
-                    "Only '" + ContextPartitionNexus.ADMIN_PRINCIPAL + "' can initiate the first run." );
+                    "Only '" + DirectoryPartitionNexus.ADMIN_PRINCIPAL + "' can initiate the first run." );
         }
     }
 
@@ -622,7 +622,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         while( i.hasNext() )
         {
             Attributes entry = ( Attributes ) i.next();
-            entry.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            entry.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             entry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
             
             Attribute dn = ( Attribute ) entry.get( "dn" ).clone();
@@ -663,7 +663,7 @@ class DefaultContextFactoryService extends ContextFactoryService
 
         globalRegistries = new GlobalRegistries( bootstrapRegistries );
         
-        partitionNexus = new DefaultContextPartitionNexus( new LockableAttributesImpl() );
+        partitionNexus = new DefaultDirectoryPartitionNexus( new LockableAttributesImpl() );
         partitionNexus.init( configuration, null );
         
         interceptorChain = new InterceptorChain();

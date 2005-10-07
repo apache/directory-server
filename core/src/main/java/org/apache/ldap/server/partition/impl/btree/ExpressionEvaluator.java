@@ -64,7 +64,7 @@ public class ExpressionEvaluator implements Evaluator
      * @param oidRegistry the oid reg used for attrID to oid resolution
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluator( BTreeContextPartition db,
+    public ExpressionEvaluator( BTreeDirectoryPartition db,
                                 OidRegistry oidRegistry,
                                 AttributeTypeRegistry attributeTypeRegistry )
     {

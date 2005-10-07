@@ -28,8 +28,8 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
@@ -64,11 +64,11 @@ public interface NextInterceptor
      */
     Iterator listSuffixes( boolean normalized ) throws NamingException;
     /**
-     * Calls the next interceptor's {@link ContextPartitionNexus#addContextPartition(ContextPartitionConfiguration)}.
+     * Calls the next interceptor's {@link DirectoryPartitionNexus#addContextPartition(DirectoryPartitionConfiguration)}.
      */
-    void addContextPartition( ContextPartitionConfiguration cfg ) throws NamingException;
+    void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException;
     /**
-     * Calls the next interceptor's {@link ContextPartitionNexus#removeContextPartition(Name)}.
+     * Calls the next interceptor's {@link DirectoryPartitionNexus#removeContextPartition(Name)}.
      */
     void removeContextPartition( Name suffix ) throws NamingException;
     /**

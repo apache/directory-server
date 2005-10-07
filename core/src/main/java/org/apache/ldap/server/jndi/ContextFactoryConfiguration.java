@@ -22,7 +22,7 @@ import javax.naming.Context;
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
 /**
@@ -65,10 +65,10 @@ public interface ContextFactoryConfiguration
     GlobalRegistries getGlobalRegistries();
 
     /**
-     * Returns the {@link ContextPartitionNexus} of the {@link ContextFactoryService}
+     * Returns the {@link DirectoryPartitionNexus} of the {@link ContextFactoryService}
      * which bypasses the interceptor chain.
      */
-    ContextPartitionNexus getPartitionNexus();
+    DirectoryPartitionNexus getPartitionNexus();
     
     /**
      * Returns the interceptor chain of the {@link ContextFactoryService}.

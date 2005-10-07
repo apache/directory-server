@@ -43,7 +43,7 @@ import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 
 /**
@@ -203,7 +203,7 @@ public class MaxImmSubFilterTest extends TestCase
             return null;
         }
 
-        public void addContextPartition( ContextPartitionConfiguration cfg ) throws NamingException
+        public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
         {
         }
 

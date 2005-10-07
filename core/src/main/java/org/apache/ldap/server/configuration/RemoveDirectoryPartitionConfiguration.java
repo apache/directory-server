@@ -18,39 +18,43 @@
  */
 package org.apache.ldap.server.configuration;
 
-import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import javax.naming.Name;
+import javax.naming.NamingException;
+
+import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.partition.DirectoryPartition;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 /**
- * A {@link Configuration} that adds a new {@link ContextPartition} to
- * the current {@link ContextPartitionNexus}.
+ * A {@link Configuration} that removed the attached {@link DirectoryPartition} in
+ * the current {@link DirectoryPartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddContextPartitionConfiguration extends Configuration
+public class RemoveDirectoryPartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
     
-    private final ContextPartitionConfiguration contextPartitionConfiguration;
+    private final Name suffix;
 
-    public AddContextPartitionConfiguration( ContextPartitionConfiguration contextPartitionConfiguration )
+    public RemoveDirectoryPartitionConfiguration( String suffix ) throws NamingException
     {
-        if( contextPartitionConfiguration == null )
+        this( new LdapName( suffix.trim() ) );
+    }
+    
+    public RemoveDirectoryPartitionConfiguration( Name suffix )
+    {
+        if( suffix == null )
         {
-            throw new NullPointerException( "contextPartitionConfiguration" );
+            throw new NullPointerException( "suffix" );
         }
         
-        this.contextPartitionConfiguration = contextPartitionConfiguration;
+        this.suffix = suffix;
     }
     
-    public ContextPartitionConfiguration getContextPartitionConfiguration()
+    public Name getSuffix()
     {
-        return contextPartitionConfiguration;
-    }
-    
-    public void validate()
-    {
-        contextPartitionConfiguration.validate();
+        return suffix;
     }
 }

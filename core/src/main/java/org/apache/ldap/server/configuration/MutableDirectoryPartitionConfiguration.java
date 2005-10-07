@@ -22,21 +22,21 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.partition.ContextPartition;
+import org.apache.ldap.server.partition.DirectoryPartition;
 
 /**
- * A mutable version of {@link ContextPartitionConfiguration}.
+ * A mutable version of {@link DirectoryPartitionConfiguration}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MutableContextPartitionConfiguration extends
-        ContextPartitionConfiguration
+public class MutableDirectoryPartitionConfiguration extends
+        DirectoryPartitionConfiguration
 {
     /**
      * Creates a new instance.
      */
-    public MutableContextPartitionConfiguration()
+    public MutableDirectoryPartitionConfiguration()
     {
     }
     
@@ -50,7 +50,7 @@ public class MutableContextPartitionConfiguration extends
         super.setIndexedAttributes( indexedAttributes );
     }
 
-    public void setContextPartition( ContextPartition partition )
+    public void setContextPartition( DirectoryPartition partition )
     {
         super.setContextPartition( partition );
     }

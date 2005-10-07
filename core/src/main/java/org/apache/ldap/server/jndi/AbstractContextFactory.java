@@ -25,9 +25,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.server.configuration.AddContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.AddDirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.configuration.RemoveContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.RemoveDirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.configuration.SyncConfiguration;
@@ -98,17 +98,17 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         {
             service.startup( this, env );
         }
-        else if( cfg instanceof AddContextPartitionConfiguration )
+        else if( cfg instanceof AddDirectoryPartitionConfiguration )
         {
-            new ContextPartitionNexusProxy(
+            new DirectoryPartitionNexusProxy(
                     service.getJndiContext( principal, credential, authentication, providerUrl ),
-                    service).addContextPartition( ( ( AddContextPartitionConfiguration ) cfg ).getContextPartitionConfiguration() );
+                    service).addContextPartition( ( ( AddDirectoryPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
         }
-        else if( cfg instanceof RemoveContextPartitionConfiguration )
+        else if( cfg instanceof RemoveDirectoryPartitionConfiguration )
         {
-            new ContextPartitionNexusProxy(
+            new DirectoryPartitionNexusProxy(
                     service.getJndiContext( principal, credential, authentication, providerUrl ),
-                    service).removeContextPartition( ( ( RemoveContextPartitionConfiguration ) cfg ).getSuffix() );
+                    service).removeContextPartition( ( ( RemoveDirectoryPartitionConfiguration ) cfg ).getSuffix() );
         }
         else if( service == null )
         {

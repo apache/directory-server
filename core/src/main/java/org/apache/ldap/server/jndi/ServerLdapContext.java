@@ -28,7 +28,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
@@ -67,7 +67,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    ServerLdapContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
+    ServerLdapContext( LdapPrincipal principal, DirectoryPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }

@@ -18,43 +18,39 @@
  */
 package org.apache.ldap.server.configuration;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartition;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 /**
- * A {@link Configuration} that removed the attached {@link ContextPartition} in
- * the current {@link ContextPartitionNexus}.
+ * A {@link Configuration} that adds a new {@link DirectoryPartition} to
+ * the current {@link DirectoryPartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RemoveContextPartitionConfiguration extends Configuration
+public class AddDirectoryPartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
     
-    private final Name suffix;
+    private final DirectoryPartitionConfiguration directoryPartitionConfiguration;
 
-    public RemoveContextPartitionConfiguration( String suffix ) throws NamingException
+    public AddDirectoryPartitionConfiguration( DirectoryPartitionConfiguration directoryPartitionConfiguration )
     {
-        this( new LdapName( suffix.trim() ) );
-    }
-    
-    public RemoveContextPartitionConfiguration( Name suffix )
-    {
-        if( suffix == null )
+        if( directoryPartitionConfiguration == null )
         {
-            throw new NullPointerException( "suffix" );
+            throw new NullPointerException( "directoryPartitionConfiguration" );
         }
         
-        this.suffix = suffix;
+        this.directoryPartitionConfiguration = directoryPartitionConfiguration;
     }
     
-    public Name getSuffix()
+    public DirectoryPartitionConfiguration getDirectoryPartitionConfiguration()
     {
-        return suffix;
+        return directoryPartitionConfiguration;
+    }
+    
+    public void validate()
+    {
+        directoryPartitionConfiguration.validate();
     }
 }

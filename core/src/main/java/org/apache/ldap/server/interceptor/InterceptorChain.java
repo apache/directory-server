@@ -33,11 +33,11 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class InterceptorChain
     
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
-        private ContextPartitionNexus nexus;
+        private DirectoryPartitionNexus nexus;
 
         public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg )
         {
@@ -176,7 +176,7 @@ public class InterceptorChain
         }
 
 
-        public void addContextPartition( NextInterceptor next, ContextPartitionConfiguration cfg ) throws NamingException
+        public void addContextPartition( NextInterceptor next, DirectoryPartitionConfiguration cfg ) throws NamingException
         {
             nexus.addContextPartition( cfg );
         }
@@ -552,7 +552,7 @@ public class InterceptorChain
         }
     }
 
-    public void addContextPartition( ContextPartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         Interceptor head = this.head.configuration.getInterceptor();
         NextInterceptor next = this.head.nextInterceptor;
@@ -1206,7 +1206,7 @@ public class InterceptorChain
                     }
                 }
 
-                public void addContextPartition( ContextPartitionConfiguration cfg ) throws NamingException
+                public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
                 {
                     Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
 

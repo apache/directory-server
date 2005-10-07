@@ -24,7 +24,7 @@ import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.common.message.SubentryRequestControl;
 import org.apache.ldap.common.message.ResultCodeEnum;
@@ -114,7 +114,7 @@ public class SubentryService extends BaseInterceptor
     private DnParser dnParser;
     private SubtreeSpecificationParser ssParser;
     private SubtreeEvaluator evaluator;
-    private ContextPartitionNexus nexus;
+    private DirectoryPartitionNexus nexus;
 
 
     public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException

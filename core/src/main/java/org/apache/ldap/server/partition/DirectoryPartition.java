@@ -29,14 +29,14 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 
 
 /**
  * An interfaces that bridges between underlying JNDI entries and JNDI
  * {@link Context} API.  DIT (Directory Information Tree) consists one or
- * above {@link ContextPartition}s whose parent is {@link ContextPartitionNexus},
+ * above {@link DirectoryPartition}s whose parent is {@link DirectoryPartitionNexus},
  * and all of them are mapped to different
  * base suffix.  Each partition contains entries whose name ends with that
  * base suffix.
@@ -44,7 +44,7 @@ import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ContextPartition
+public interface DirectoryPartition
 {
     /** The objectClass name for aliases: 'alias' */
     String ALIAS_OBJECT = "alias";
@@ -58,7 +58,7 @@ public interface ContextPartition
     /**
      * Initializes this partition.
      */
-    void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException;
+    void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException;
     
     
     /**

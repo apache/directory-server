@@ -23,7 +23,7 @@ import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.authz.support.ACDFEngine;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.authn.LdapPrincipal;
@@ -114,7 +114,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
     /** the partition nexus */
-    private ContextPartitionNexus nexus;
+    private DirectoryPartitionNexus nexus;
     /** a tupleCache that responds to add, delete, and modify attempts */
     private TupleCache tupleCache;
     /** a groupCache that responds to add, delete, and modify attempts */
@@ -294,7 +294,7 @@ public class AuthorizationService extends BaseInterceptor
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
-        if ( user.getName().equalsIgnoreCase( ContextPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
             next.add( upName, normName, entry );
             tupleCache.subentryAdded( upName, normName, entry );

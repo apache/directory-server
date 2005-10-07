@@ -29,37 +29,37 @@ import junit.framework.Assert;
 
 import org.apache.ldap.server.AbstractAdminTestCase;
 import org.apache.ldap.server.jndi.CoreContextFactory;
-import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
+import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmDirectoryPartition;
 
 
 /**
- * Tests {@link AddContextPartitionConfiguration} and
- * {@link RemoveContextPartitionConfiguration} works correctly.
+ * Tests {@link AddDirectoryPartitionConfiguration} and
+ * {@link RemoveDirectoryPartitionConfiguration} works correctly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ContextPartitionConfigurationTest extends AbstractAdminTestCase
+public class DirectoryPartitionConfigurationTest extends AbstractAdminTestCase
 {
-    public ContextPartitionConfigurationTest()
+    public DirectoryPartitionConfigurationTest()
     {
     }
 
     public void testAddAndRemove() throws Exception
     {
-        MutableContextPartitionConfiguration partitionCfg =
-            new MutableContextPartitionConfiguration();
+        MutableDirectoryPartitionConfiguration partitionCfg =
+            new MutableDirectoryPartitionConfiguration();
         partitionCfg.setName( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
         Attributes ctxEntry = new BasicAttributes( true );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.put( "ou", "removable" );
         partitionCfg.setContextEntry( ctxEntry );
-        partitionCfg.setContextPartition( new JdbmContextPartition() );
+        partitionCfg.setContextPartition( new JdbmDirectoryPartition() );
         
         // Test AddContextPartition
-        AddContextPartitionConfiguration addCfg =
-            new AddContextPartitionConfiguration( partitionCfg );
+        AddDirectoryPartitionConfiguration addCfg =
+            new AddDirectoryPartitionConfiguration( partitionCfg );
         
         Hashtable env = new Hashtable();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -69,8 +69,8 @@ public class ContextPartitionConfigurationTest extends AbstractAdminTestCase
         Assert.assertNotNull( ctx.lookup( "ou=removable" ) );
         
         // Test removeContextPartition
-        RemoveContextPartitionConfiguration removeCfg =
-            new RemoveContextPartitionConfiguration( "ou=removable" );
+        RemoveDirectoryPartitionConfiguration removeCfg =
+            new RemoveDirectoryPartitionConfiguration( "ou=removable" );
         env.putAll( removeCfg.toJndiEnvironment() );
         
         ctx = new InitialContext( env );

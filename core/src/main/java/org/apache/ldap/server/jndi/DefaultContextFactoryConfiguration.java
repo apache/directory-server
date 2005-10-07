@@ -23,7 +23,7 @@ import javax.naming.NamingException;
 
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.GlobalRegistries;
 
 
@@ -72,7 +72,7 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return parent.getGlobalRegistries();
     }
 
-    public ContextPartitionNexus getPartitionNexus()
+    public DirectoryPartitionNexus getPartitionNexus()
     {
         return parent.getPartitionNexus();
     }

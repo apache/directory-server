@@ -23,7 +23,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
 
 import org.apache.ldap.server.AbstractAdminTestCase;
-import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class MixedCaseTest extends AbstractAdminTestCase
     public void setUp() throws Exception
     {
 
-        MutableContextPartitionConfiguration partition = new MutableContextPartitionConfiguration();
+        MutableDirectoryPartitionConfiguration partition = new MutableDirectoryPartitionConfiguration();
         partition.setName( "apache" );
         partition.setSuffix( suffix );
 

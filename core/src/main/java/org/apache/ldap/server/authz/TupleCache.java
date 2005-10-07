@@ -38,7 +38,7 @@ import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class TupleCache
     /** a map of strings to ACITuple collections */
     private final Map tuples = new HashMap();
     /** a handle on the partition nexus */
-    private final ContextPartitionNexus nexus;
+    private final DirectoryPartitionNexus nexus;
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
 

@@ -23,7 +23,7 @@ import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.ScopeNode;
 import org.apache.ldap.common.filter.BranchNode;
@@ -48,7 +48,7 @@ import java.util.*;
  */
 public class EventService extends BaseInterceptor
 {
-    private ContextPartitionNexus nexus;
+    private DirectoryPartitionNexus nexus;
     private Map sources = new HashMap();
     private Evaluator evaluator = null;
 

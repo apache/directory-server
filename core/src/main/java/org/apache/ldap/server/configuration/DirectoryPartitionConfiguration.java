@@ -30,18 +30,18 @@ import javax.naming.directory.BasicAttributes;
 
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.Normalizer;
-import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmContextPartition;
+import org.apache.ldap.server.partition.DirectoryPartition;
+import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmDirectoryPartition;
 import org.apache.ldap.server.schema.MatchingRuleRegistry;
 
 
 /**
- * A configuration for {@link ContextPartition}.
+ * A configuration for {@link DirectoryPartition}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ContextPartitionConfiguration
+public class DirectoryPartitionConfiguration
 {
     /** The name of reserved system partition */
     public static final String SYSTEM_PARTITION_NAME = "system";
@@ -50,17 +50,17 @@ public class ContextPartitionConfiguration
     private String suffix;
     private Set indexedAttributes = new HashSet(); // Set<String>
     private Attributes contextEntry = new BasicAttributes( true );
-    private ContextPartition contextPartition = new JdbmContextPartition();
+    private DirectoryPartition contextPartition = new JdbmDirectoryPartition();
     
     /**
      * Creates a new instance.
      */
-    protected ContextPartitionConfiguration()
+    protected DirectoryPartitionConfiguration()
     {
     }
     
     /**
-     * Returns user-defined name of the {@link ContextPartition} that
+     * Returns user-defined name of the {@link DirectoryPartition} that
      * this configuration configures.
      */
     public String getName()
@@ -69,7 +69,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Sets user-defined name of the {@link ContextPartition} that
+     * Sets user-defined name of the {@link DirectoryPartition} that
      * this configuration configures.
      */
     protected void setName( String name )
@@ -106,17 +106,17 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Returns the {@link ContextPartition} that this configuration configures.
+     * Returns the {@link DirectoryPartition} that this configuration configures.
      */
-    public ContextPartition getContextPartition()
+    public DirectoryPartition getContextPartition()
     {
         return contextPartition;
     }
     
     /**
-     * Sets the {@link ContextPartition} that this configuration configures.
+     * Sets the {@link DirectoryPartition} that this configuration configures.
      */
-    protected void setContextPartition( ContextPartition partition )
+    protected void setContextPartition( DirectoryPartition partition )
     {
         if( partition == null )
         {
@@ -126,7 +126,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Returns root entry that will be added to the {@link ContextPartition}
+     * Returns root entry that will be added to the {@link DirectoryPartition}
      * after it is initialized.
      */
     public Attributes getContextEntry()
@@ -135,7 +135,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Sets root entry that will be added to the {@link ContextPartition}
+     * Sets root entry that will be added to the {@link DirectoryPartition}
      * after it is initialized.
      */
     protected void setContextEntry( Attributes rootEntry )
@@ -144,7 +144,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Returns the suffix of the {@link ContextPartition}.
+     * Returns the suffix of the {@link DirectoryPartition}.
      */
     public String getSuffix()
     {
@@ -152,7 +152,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Returns the normalized suffix of the {@link ContextPartition}.
+     * Returns the normalized suffix of the {@link DirectoryPartition}.
      */
     public Name getNormalizedSuffix( MatchingRuleRegistry matchingRuleRegistry ) throws NamingException
     {
@@ -160,7 +160,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Returns the normalized suffix of the {@link ContextPartition}.
+     * Returns the normalized suffix of the {@link DirectoryPartition}.
      */
     public Name getNormalizedSuffix( Normalizer normalizer ) throws NamingException
     {
@@ -168,7 +168,7 @@ public class ContextPartitionConfiguration
     }
     
     /**
-     * Sets the suffix of the {@link ContextPartition}.
+     * Sets the suffix of the {@link DirectoryPartition}.
      */
     protected void setSuffix( String suffix )
     {

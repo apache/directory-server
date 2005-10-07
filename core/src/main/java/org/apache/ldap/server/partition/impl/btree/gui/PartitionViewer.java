@@ -22,7 +22,7 @@ import java.awt.Toolkit;
 
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.partition.impl.btree.BTreeContextPartition;
+import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
 import org.apache.ldap.server.partition.impl.btree.SearchEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +39,11 @@ public class PartitionViewer
     private static final Logger log = LoggerFactory.getLogger(PartitionViewer.class);
 
     /** A handle on the atomic partition */
-    private BTreeContextPartition partition;
+    private BTreeDirectoryPartition partition;
     private SearchEngine eng;
 
 
-    public PartitionViewer( BTreeContextPartition db, SearchEngine eng )
+    public PartitionViewer( BTreeDirectoryPartition db, SearchEngine eng )
     {
         this.partition = db;
         this.eng = eng;

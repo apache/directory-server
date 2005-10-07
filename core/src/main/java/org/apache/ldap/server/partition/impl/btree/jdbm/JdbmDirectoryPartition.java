@@ -47,10 +47,10 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.impl.btree.BTreeContextPartition;
+import org.apache.ldap.server.partition.DirectoryPartition;
+import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
 import org.apache.ldap.server.partition.impl.btree.Index;
 import org.apache.ldap.server.partition.impl.btree.IndexAssertion;
 import org.apache.ldap.server.partition.impl.btree.IndexAssertionEnumeration;
@@ -61,15 +61,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A {@link ContextPartition} that stores entries in
+ * A {@link DirectoryPartition} that stores entries in
  * <a href="http://jdbm.sourceforge.net/">JDBM</a> database.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmContextPartition extends BTreeContextPartition
+public class JdbmDirectoryPartition extends BTreeDirectoryPartition
 {
-    private static final Logger log = LoggerFactory.getLogger( JdbmContextPartition.class );
+    private static final Logger log = LoggerFactory.getLogger( JdbmDirectoryPartition.class );
 
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
@@ -113,11 +113,11 @@ public class JdbmContextPartition extends BTreeContextPartition
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmContextPartition()
+    public JdbmDirectoryPartition()
     {
     }
 
-    public synchronized void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg ) throws NamingException
+    public synchronized void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         this.upSuffix = new LdapName( cfg.getSuffix() );
         this.normSuffix = cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() );
@@ -459,7 +459,7 @@ public class JdbmContextPartition extends BTreeContextPartition
      * @todo replace lookups to use the OID instead of the name.  Also note
      * that the OID registry can be used to go between names and oids.
      * 
-     * @see org.apache.ldap.server.partition.impl.btree.BTreeContextPartition#getUserIndex(String)
+     * @see org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition#getUserIndex(String)
      */
     public Index getUserIndex( String attribute ) throws IndexNotFoundException
     {
@@ -485,7 +485,7 @@ public class JdbmContextPartition extends BTreeContextPartition
      * @todo replace lookups to use the OID instead of the name.  Also note
      * that the OID registry can be used to go between names and oids.
      * 
-     * @see BTreeContextPartition#getEntryId(String)
+     * @see BTreeDirectoryPartition#getEntryId(String)
      */
     public Index getSystemIndex( String indexName ) throws IndexNotFoundException
     {
@@ -775,9 +775,9 @@ public class JdbmContextPartition extends BTreeContextPartition
         // Start adding the system indices
         // Why bother doing a lookup if this is not an alias.
 
-        if ( entry.get( "objectClass" ).contains( ContextPartition.ALIAS_OBJECT ) )
+        if ( entry.get( "objectClass" ).contains( DirectoryPartition.ALIAS_OBJECT ) )
         {
-            addAliasIndices( id, dn, ( String ) entry.get( ContextPartition.ALIAS_ATTRIBUTE ).get() );
+            addAliasIndices( id, dn, ( String ) entry.get( DirectoryPartition.ALIAS_ATTRIBUTE ).get() );
         }
         
         ndnIdx.add( dn.toString(), id );
@@ -821,7 +821,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         BigInteger parentId = getParentId( id );
         NamingEnumeration attrs = entry.getIDs();
         
-        if ( entry.get( "objectClass" ).contains( ContextPartition.ALIAS_OBJECT ) )
+        if ( entry.get( "objectClass" ).contains( DirectoryPartition.ALIAS_OBJECT ) )
         {
             dropAliasIndices( id );
         }
@@ -1014,7 +1014,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             entryAttrToAddTo.add( mods.get( ii ) );
         }
 
-        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( DirectoryPartition.ALIAS_ATTRIBUTE ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapName( ndnStr ), 
@@ -1076,7 +1076,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( DirectoryPartition.ALIAS_ATTRIBUTE ) )
         {
             dropAliasIndices( id );
         }
@@ -1116,7 +1116,7 @@ public class JdbmContextPartition extends BTreeContextPartition
             }
         }
 
-        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( DirectoryPartition.ALIAS_ATTRIBUTE ) )
         {
             dropAliasIndices( id );
         }
@@ -1124,7 +1124,7 @@ public class JdbmContextPartition extends BTreeContextPartition
         // Automatically replaces old attributes with new modified ones
         entry.put( mods );
         
-        if ( mods.getID().equals( ContextPartition.ALIAS_ATTRIBUTE ) )
+        if ( mods.getID().equals( DirectoryPartition.ALIAS_ATTRIBUTE ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapName( ndnStr ), 

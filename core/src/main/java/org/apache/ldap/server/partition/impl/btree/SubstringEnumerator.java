@@ -49,7 +49,7 @@ import org.apache.regexp.RESyntaxException;
 public class SubstringEnumerator implements Enumerator
 {
     /** Database used */
-    private final BTreeContextPartition db;
+    private final BTreeDirectoryPartition db;
     /** Evaluator used is an Avalon dependent object */
     private final SubstringEvaluator evaluator;
     /** the attribute type registry */
@@ -62,7 +62,7 @@ public class SubstringEnumerator implements Enumerator
      * @param db the database
      * @param evaluator a substring evaluator
      */
-    public SubstringEnumerator( BTreeContextPartition db,
+    public SubstringEnumerator( BTreeDirectoryPartition db,
                                 AttributeTypeRegistry attributeTypeRegistry,
                                 SubstringEvaluator evaluator )
     {

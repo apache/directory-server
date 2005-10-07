@@ -58,7 +58,7 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerLdapContext;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,7 @@ public class SchemaService extends BaseInterceptor
     /**
      * the root nexus to all database partitions
      */
-    private ContextPartitionNexus nexus;
+    private DirectoryPartitionNexus nexus;
 
     /**
      * a binary attribute tranforming filter: String -> byte[]
@@ -326,14 +326,14 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || set.contains( "creatorsname" ) )
         {
             attr = new LockableAttributeImpl( attrs, "creatorsName" );
-            attr.add( ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attr.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attrs.put( attr );
         }
 
         if ( returnAllOperationalAttributes || set.contains( "modifiersname" ) )
         {
             attr = new LockableAttributeImpl( attrs, "modifiersName" );
-            attr.add( ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attr.add( DirectoryPartitionNexus.ADMIN_PRINCIPAL );
             attrs.put( attr );
         }
 

@@ -33,17 +33,17 @@ import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.invocation.InvocationStack;
-import org.apache.ldap.server.partition.ContextPartition;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartition;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.event.EventService;
 
 
 /**
- * A decorator that wraps other {@link ContextPartitionNexus} to enable
+ * A decorator that wraps other {@link DirectoryPartitionNexus} to enable
  * {@link InterceptorChain} and {@link InvocationStack} support.
  * All {@link Invocation}s made to this nexus is automatically pushed to
  * {@link InvocationStack} of the current thread, and popped when
@@ -52,7 +52,7 @@ import org.apache.ldap.server.event.EventService;
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-class ContextPartitionNexusProxy extends ContextPartitionNexus
+class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
 {
     private final Context caller;
     private final ContextFactoryService service;
@@ -64,7 +64,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
      * @param caller a JNDI {@link Context} object that will call this proxy
      * @param service a JNDI service
      */
-    ContextPartitionNexusProxy( Context caller, ContextFactoryService service )
+    DirectoryPartitionNexusProxy( Context caller, ContextFactoryService service )
     {
         this.caller = caller;
         this.service = service;
@@ -75,7 +75,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         return this.configuration.getPartitionNexus().getLdapContext();
     }
 
-    public void init( ContextFactoryConfiguration factoryCfg, ContextPartitionConfiguration cfg )
+    public void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
     {
     }
 
@@ -83,7 +83,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
     {
     }
 
-    public ContextPartition getSystemPartition()
+    public DirectoryPartition getSystemPartition()
     {
         return this.configuration.getPartitionNexus().getSystemPartition();
     }
@@ -393,7 +393,7 @@ class ContextPartitionNexusProxy extends ContextPartitionNexus
         }
     }
 
-    public void addContextPartition( ContextPartitionConfiguration config ) throws NamingException
+    public void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();

@@ -41,13 +41,13 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 
 
 /**
- * An {@link Interceptor} that controls access to {@link ContextPartitionNexus}.
+ * An {@link Interceptor} that controls access to {@link DirectoryPartitionNexus}.
  * If a user tries to perform any operations that requires
  * permission he or she doesn't have, {@link NoPermissionException} will be
  * thrown and therefore the current invocation chain will terminate.
@@ -60,17 +60,17 @@ public class OldAuthorizationService extends BaseInterceptor
     /**
      * the administrator's distinguished {@link Name}
      */
-    private static final Name ADMIN_DN = ContextPartitionNexus.getAdminName();
+    private static final Name ADMIN_DN = DirectoryPartitionNexus.getAdminName();
 
     /**
      * the base distinguished {@link Name} for all users
      */
-    private static final Name USER_BASE_DN = ContextPartitionNexus.getUsersBaseName();
+    private static final Name USER_BASE_DN = DirectoryPartitionNexus.getUsersBaseName();
 
     /**
      * the base distinguished {@link Name} for all groups
      */
-    private static final Name GROUP_BASE_DN = ContextPartitionNexus.getGroupsBaseName();
+    private static final Name GROUP_BASE_DN = DirectoryPartitionNexus.getGroupsBaseName();
 
     /**
      * the name parser used by this service

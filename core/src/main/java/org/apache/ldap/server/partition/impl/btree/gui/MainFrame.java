@@ -70,7 +70,7 @@ import org.apache.ldap.common.message.DerefAliasesEnum;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.partition.impl.btree.BTreeContextPartition;
+import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
 import org.apache.ldap.server.partition.impl.btree.Index;
 import org.apache.ldap.server.partition.impl.btree.IndexRecord;
 import org.apache.ldap.server.partition.impl.btree.SearchEngine;
@@ -110,7 +110,7 @@ public class MainFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private BTreeContextPartition partition = null;
+    private BTreeDirectoryPartition partition = null;
     private boolean doCleanUp = false;
     private HashMap nodes = new HashMap();
     private EntryNode root = null;
@@ -120,7 +120,7 @@ public class MainFrame extends JFrame
     /**
      * Creates new form JFrame
      */
-    public MainFrame( BTreeContextPartition db, SearchEngine eng )
+    public MainFrame( BTreeDirectoryPartition db, SearchEngine eng )
         throws NamingException
     {
         partition = db;
@@ -835,7 +835,7 @@ public class MainFrame extends JFrame
     }
 
 
-    public void buildIndicesMenu( BTreeContextPartition partition )
+    public void buildIndicesMenu( BTreeDirectoryPartition partition )
     {
         JMenuItem item = null;
         

@@ -44,7 +44,7 @@ import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
 
@@ -79,7 +79,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * the root nexus of the system
      */
-    private ContextPartitionNexus nexus;
+    private DirectoryPartitionNexus nexus;
 
     private AttributeTypeRegistry registry;
 

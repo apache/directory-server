@@ -25,11 +25,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 
 
 /**
- * A root {@link ContextPartition} that contains all other partitions, and
+ * A root {@link DirectoryPartition} that contains all other partitions, and
  * routes all operations to the child partition that matches to its base suffixes.
  * It also provides some extended operations such as accessing rootDSE and
  * listing base suffixes.
@@ -37,7 +37,7 @@ import org.apache.ldap.server.configuration.ContextPartitionConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class ContextPartitionNexus implements ContextPartition
+public abstract class DirectoryPartitionNexus implements DirectoryPartition
 {
     /** the default user principal or DN */
     public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
@@ -147,11 +147,11 @@ public abstract class ContextPartitionNexus implements ContextPartition
      */
     public abstract boolean compare( Name name, String oid, Object value ) throws NamingException;
 
-    public abstract void addContextPartition( ContextPartitionConfiguration config ) throws NamingException;
+    public abstract void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException;
     
     public abstract void removeContextPartition( Name suffix ) throws NamingException;
 
-    public abstract ContextPartition getSystemPartition();
+    public abstract DirectoryPartition getSystemPartition();
 
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
@@ -184,7 +184,7 @@ public abstract class ContextPartitionNexus implements ContextPartition
 
     /**
      * Gets an iteration over the Name suffixes of the Backends managed by this
-     * {@link ContextPartitionNexus}.
+     * {@link DirectoryPartitionNexus}.
      *
      * @param normalized if true the returned Iterator contains normalized Dn
      * but, if false, it returns the original user provided distinguished names

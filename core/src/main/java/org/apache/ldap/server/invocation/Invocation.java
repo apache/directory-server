@@ -23,11 +23,11 @@ import java.util.List;
 
 import javax.naming.Context;
 
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
- * Represents a call from JNDI {@link Context} to {@link ContextPartitionNexus}.
+ * Represents a call from JNDI {@link Context} to {@link DirectoryPartitionNexus}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

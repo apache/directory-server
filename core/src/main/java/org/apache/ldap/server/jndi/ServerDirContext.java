@@ -48,7 +48,7 @@ import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.server.authn.LdapPrincipal;
-import org.apache.ldap.server.partition.ContextPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
 
 /**
@@ -87,7 +87,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerDirContext( LdapPrincipal principal, ContextPartitionNexus nexusProxy, Hashtable env, Name dn )
+    protected ServerDirContext( LdapPrincipal principal, DirectoryPartitionNexus nexusProxy, Hashtable env, Name dn )
     {
         super( principal, nexusProxy, env, dn );
     }
@@ -707,7 +707,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw e2;
         }
 
-        ( ( ContextPartitionNexusProxy ) getNexusProxy() )
+        ( ( DirectoryPartitionNexusProxy ) getNexusProxy() )
                 .addNamingListener( this, buildTarget( name ), filter, searchControls, namingListener );
         getListeners().add( namingListener );
     }

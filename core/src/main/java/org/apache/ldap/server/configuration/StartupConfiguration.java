@@ -236,7 +236,7 @@ public class StartupConfiguration extends Configuration
     }
 
     /**
-     * Returns {@link ContextPartitionConfiguration}s to configure context partitions.
+     * Returns {@link DirectoryPartitionConfiguration}s to configure context partitions.
      */
     public Set getContextPartitionConfigurations()
     {
@@ -244,18 +244,18 @@ public class StartupConfiguration extends Configuration
     }
 
     /**
-     * Sets {@link ContextPartitionConfiguration}s to configure context partitions.
+     * Sets {@link DirectoryPartitionConfiguration}s to configure context partitions.
      */
     protected void setContextPartitionConfigurations( Set contextParitionConfigurations )
     {
         Set newSet = ConfigurationUtil.getTypeSafeSet(
-                contextParitionConfigurations, ContextPartitionConfiguration.class );
+                contextParitionConfigurations, DirectoryPartitionConfiguration.class );
         
         Set names = new HashSet();
         Iterator i = newSet.iterator();
         while( i.hasNext() )
         {
-            ContextPartitionConfiguration cfg = ( ContextPartitionConfiguration ) i.next();
+            DirectoryPartitionConfiguration cfg = ( DirectoryPartitionConfiguration ) i.next();
             cfg.validate();
 
             String name = cfg.getName();
