@@ -452,8 +452,6 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         super.sysRoot.destroySubcontext( "cn=testsubentry" );
 
-        // for the hell of it destroy regular entry
-        super.sysRoot.destroySubcontext( "ou=groups" );
         Map results = getAllEntries();
 
         // --------------------------------------------------------------------

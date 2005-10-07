@@ -550,4 +550,10 @@ public class AuthorizationService extends BaseInterceptor
 
         return super.compare(next, name, oid, value);
     }
+
+
+    public void cacheNewGroup( String upName, Name normName, Attributes entry ) throws NamingException
+    {
+        this.groupCache.groupAdded( upName, normName, entry );
+    }
 }

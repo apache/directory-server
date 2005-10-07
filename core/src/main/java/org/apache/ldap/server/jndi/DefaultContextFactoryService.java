@@ -47,6 +47,7 @@ import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.ldap.server.authz.AuthorizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -450,6 +451,32 @@ class DefaultContextFactoryService extends ContextFactoryService
             attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( "ou=groups,ou=system", new LdapName( "ou=groups,ou=system" ), attributes );
+        }
+
+        // -------------------------------------------------------------------
+        // create administrator group
+        // -------------------------------------------------------------------
+
+        String upName = "cn=Administrators,ou=groups,ou=system";
+        Name normName = new LdapName( upName );
+        if ( !partitionNexus.hasEntry( normName ) )
+        {
+            firstStart = true;
+            checkPermissionToCreateBootstrapEntries();
+
+            Attributes attributes = new LockableAttributesImpl();
+            Attribute objectClass = new LockableAttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "groupOfUniqueNames" );
+            attributes.put( objectClass );
+            attributes.put( "cn", "Administrators" );
+            attributes.put( "uniqueMember", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "creatorsName", ContextPartitionNexus.ADMIN_PRINCIPAL );
+            attributes.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+
+            partitionNexus.add( upName, normName, attributes );
+            AuthorizationService authzSrvc = ( AuthorizationService ) interceptorChain.get( "authorizationService" );
+            authzSrvc.cacheNewGroup( upName, normName, attributes );
         }
 
         // -------------------------------------------------------------------
