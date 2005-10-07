@@ -112,6 +112,18 @@ attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.12 NAME 'prescriptiveACI'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
   USAGE directoryOperation )
 
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.13 NAME 'entryACI'
+  DESC 'Access control information that applies to a single entry'
+  EQUALITY directoryStringFirstComponentMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
+  USAGE directoryOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.13 NAME 'subentryACI'
+  DESC 'Access control information that applies to a single subentry'
+  EQUALITY directoryStringFirstComponentMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
+  USAGE directoryOperation )
+
 objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.2
     NAME 'accessControlSubentry'
     AUXILIARY 

@@ -54,6 +54,7 @@ public class StartupConfiguration extends Configuration
 
     private File workingDirectory = new File( "server-work" );
     private boolean allowAnonymousAccess = true; // allow by default
+    private boolean accessControlEnabled = false; // turn off by default
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     private List interceptorConfigurations; // Set<InterceptorConfiguration>
     
@@ -266,6 +267,22 @@ public class StartupConfiguration extends Configuration
         }
         
         this.contextPartitionConfigurations = newSet;
+    }
+
+    /**
+     * Returns <tt>true</tt> if access control checks are enbaled.
+     */
+    public boolean isAccessControlEnabled()
+    {
+        return accessControlEnabled;
+    }
+
+    /**
+     * Sets whether to enable basic access control checks or not
+     */
+    protected void setAccessControlEnabled( boolean isAccessControlEnabled )
+    {
+        this.accessControlEnabled = isAccessControlEnabled;
     }
 
     /**

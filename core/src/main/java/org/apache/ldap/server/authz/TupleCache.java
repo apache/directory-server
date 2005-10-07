@@ -172,7 +172,7 @@ public class TupleCache
 
 
     public void subentryDeleted( Name normName, Attributes entry ) throws NamingException
-    {
+    {                                                                                      
         if ( ! hasPrescriptiveACI( entry ) )
         {
             return;

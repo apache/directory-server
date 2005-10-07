@@ -102,11 +102,7 @@ public class SubentryService extends BaseInterceptor
                 return true;
             }
 
-            if ( objectClasses.contains( SUBENTRY_OBJECTCLASS ) || objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
-            {
-                return false;
-            }
-            return true;
+            return !( objectClasses.contains(SUBENTRY_OBJECTCLASS) || objectClasses.contains(SUBENTRY_OBJECTCLASS_OID) );
         }
     };
 
@@ -150,7 +146,7 @@ public class SubentryService extends BaseInterceptor
                 Attributes subentry = result.getAttributes();
                 String dn = result.getName();
                 String subtree = ( String ) subentry.get( "subtreeSpecification" ).get();
-                SubtreeSpecification ss = null;
+                SubtreeSpecification ss;
 
                 try
                 {
@@ -219,7 +215,7 @@ public class SubentryService extends BaseInterceptor
      */
     private boolean isSubentryVisible( LdapContext ctx ) throws NamingException
     {
-        Control[] reqControls = ( Control[] ) ctx.getRequestControls();
+        Control[] reqControls = ctx.getRequestControls();
 
         if ( reqControls == null || reqControls.length <= 0 )
         {
@@ -244,6 +240,93 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Methods dealing with entry and subentry addition
     // -----------------------------------------------------------------------
+
+
+    /**
+     * Evaluates the set of subentry subtrees upon an entry and returns the
+     * operational subentry attributes that will be added to the entry if
+     * added at the dn specified.
+     *
+     * @param dn the normalized distinguished name of the entry
+     * @param entryAttrs the entry attributes are generated for
+     * @return the set of subentry op attrs for an entry
+     * @throws NamingException if there are problems accessing entry information
+     */
+    public Attributes getSubentryAttributes( Name dn, Attributes entryAttrs ) throws NamingException
+    {
+        Attributes subentryAttrs = new LockableAttributesImpl();
+        Attribute objectClasses = entryAttrs.get( "objectClass" );
+        Iterator list = subtrees.keySet().iterator();
+        while ( list.hasNext() )
+        {
+            String subentryDnStr = ( String ) list.next();
+            Name subentryDn = new LdapName( subentryDnStr );
+            Name apDn = ( Name ) subentryDn.clone();
+            apDn.remove( apDn.size() - 1 );
+            SubtreeSpecification ss = ( SubtreeSpecification ) subtrees.get( subentryDn );
+
+            if ( evaluator.evaluate( ss, apDn, dn, objectClasses ) )
+            {
+                Attribute administrativeRole = nexus.lookup( apDn ).get( "administrativeRole" );
+                NamingEnumeration roles = administrativeRole.getAll();
+                while ( roles.hasMore() )
+                {
+                    Attribute operational;
+                    String role = ( String ) roles.next();
+
+                    if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )
+                    {
+                        operational = subentryAttrs.get( AUTONOUMOUS_AREA_SUBENTRY );
+                        if ( operational == null )
+                        {
+                            operational = new LockableAttributeImpl( AUTONOUMOUS_AREA_SUBENTRY );
+                            subentryAttrs.put( operational );
+                        }
+                    }
+                    else if ( role.equalsIgnoreCase( AC_AREA ) || role.equalsIgnoreCase( AC_INNERAREA ) )
+                    {
+                        operational = subentryAttrs.get( AC_SUBENTRY );
+                        if ( operational == null )
+                        {
+                            operational = new LockableAttributeImpl( AC_SUBENTRY );
+                            subentryAttrs.put( operational );
+                        }
+                    }
+                    else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
+                    {
+                        operational = subentryAttrs.get( SCHEMA_AREA_SUBENTRY );
+                        if ( operational == null )
+                        {
+                            operational = new LockableAttributeImpl( SCHEMA_AREA_SUBENTRY );
+                            subentryAttrs.put( operational );
+                        }
+                    }
+                    else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
+                              role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
+                    {
+                        operational = subentryAttrs.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                        if ( operational == null )
+                        {
+                            operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                            subentryAttrs.put( operational );
+                        }
+                    }
+                    else
+                    {
+                        throw new LdapInvalidAttributeValueException( "Encountered invalid administrativeRole '"
+                                + role + "' in administrative point of subentry " + subentryDnStr + ". The values of this attribute"
+                                + " are constrained to autonomousArea, accessControlSpecificArea, accessControlInnerArea,"
+                                + " subschemaAdminSpecificArea, collectiveAttributeSpecificArea, and"
+                                + " collectiveAttributeInnerArea.", ResultCodeEnum.CONSTRAINTVIOLATION );
+                    }
+
+                    operational.add( subentryDn.toString() );
+                }
+            }
+        }
+
+        return subentryAttrs;
+    }
 
 
     public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
@@ -285,7 +368,7 @@ public class SubentryService extends BaseInterceptor
              * ----------------------------------------------------------------
              */
             String subtree = ( String ) entry.get( "subtreeSpecification" ).get();
-            SubtreeSpecification ss = null;
+            SubtreeSpecification ss;
             try
             {
                 ss = ssParser.parse( subtree );
@@ -345,7 +428,7 @@ public class SubentryService extends BaseInterceptor
                     NamingEnumeration roles = administrativeRole.getAll();
                     while ( roles.hasMore() )
                     {
-                        Attribute operational = null;
+                        Attribute operational;
                         String role = ( String ) roles.next();
 
                         if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )
@@ -359,7 +442,7 @@ public class SubentryService extends BaseInterceptor
                         }
                         else if ( role.equalsIgnoreCase( AC_AREA ) || role.equalsIgnoreCase( AC_INNERAREA ) )
                         {
-                            operational = ( Attribute ) entry.get( AC_SUBENTRY ).clone();
+                            operational = ( Attribute ) entry.get( AC_SUBENTRY );
                             if ( operational == null )
                             {
                                 operational = new LockableAttributeImpl( AC_SUBENTRY );
@@ -368,7 +451,7 @@ public class SubentryService extends BaseInterceptor
                         }
                         else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
                         {
-                            operational = ( Attribute ) entry.get( SCHEMA_AREA_SUBENTRY ).clone();
+                            operational = ( Attribute ) entry.get( SCHEMA_AREA_SUBENTRY );
                             if ( operational == null )
                             {
                                 operational = new LockableAttributeImpl( SCHEMA_AREA_SUBENTRY );
@@ -378,7 +461,7 @@ public class SubentryService extends BaseInterceptor
                         else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
                                   role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
                         {
-                            operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).clone();
+                            operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                             if ( operational == null )
                             {
                                 operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
@@ -777,7 +860,7 @@ public class SubentryService extends BaseInterceptor
         if ( objectClasses.contains( "subentry" ) && mods.get( "subtreeSpecification" ) != null )
         {
             SubtreeSpecification ssOld = ( SubtreeSpecification ) subtrees.remove( name.toString() );
-            SubtreeSpecification ssNew = null;
+            SubtreeSpecification ssNew;
 
             try
             {
@@ -850,7 +933,7 @@ public class SubentryService extends BaseInterceptor
 
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            if ( ( ( String ) mods[ii].getAttribute().getID() ).equalsIgnoreCase( "subtreeSpecification" ) )
+            if ( "subtreeSpecification".equalsIgnoreCase( mods[ii].getAttribute().getID() ) )
             {
                 isSubtreeSpecificationModification = true;
                 subtreeMod = mods[ii];
@@ -860,7 +943,7 @@ public class SubentryService extends BaseInterceptor
         if ( objectClasses.contains( "subentry" ) && isSubtreeSpecificationModification )
         {
             SubtreeSpecification ssOld = ( SubtreeSpecification ) subtrees.remove( name.toString() );
-            SubtreeSpecification ssNew = null;
+            SubtreeSpecification ssNew;
 
             try
             {
@@ -936,7 +1019,7 @@ public class SubentryService extends BaseInterceptor
         NamingEnumeration roles = administrativeRole.getAll();
         while ( roles.hasMore() )
         {
-            Attribute operational = null;
+            Attribute operational;
             String role = ( String ) roles.next();
 
             if ( role.equalsIgnoreCase( AUTONOUMOUS_AREA ) )

@@ -18,17 +18,16 @@ package org.apache.ldap.server.authz;
 
 
 import java.util.HashSet;
+import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractNonAdminTestCase;
+import org.apache.ldap.server.subtree.SubentryService;
 
 
 /**
@@ -40,6 +39,13 @@ import org.apache.ldap.server.AbstractNonAdminTestCase;
  */
 public class AuthorizationServiceAsNonAdminTest extends AbstractNonAdminTestCase
 {
+    public AuthorizationServiceAsNonAdminTest()
+    {
+        super();
+        super.configuration.setAccessControlEnabled( true );
+    }
+
+
     /**
      * Makes sure a non-admin user cannot delete the admin account.
      *
@@ -106,8 +112,7 @@ public class AuthorizationServiceAsNonAdminTest extends AbstractNonAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
         HashSet set = new HashSet();
-        NamingEnumeration list = sysRoot.search( "",
-                "(objectClass=*)", controls );
+        NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", controls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -120,5 +125,67 @@ public class AuthorizationServiceAsNonAdminTest extends AbstractNonAdminTestCase
         assertTrue( set.contains( "ou=users,ou=system" ) );
         assertFalse( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
         assertFalse( set.contains( "uid=admin,ou=system" ) );
+    }
+
+
+    private DirContext getAdminContext() throws NamingException
+    {
+        Hashtable env = ( Hashtable ) ( ( Hashtable ) sysRoot.getEnvironment() ).clone();
+        env.put( DirContext.PROVIDER_URL, "ou=system" );
+        env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
+        env.put( DirContext.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( DirContext.SECURITY_CREDENTIALS, "secret" );
+        return new InitialDirContext( env );
+    }
+
+
+    public void testGrantAddAllUsers() throws NamingException
+    {
+        DirContext adminCtx = getAdminContext();
+
+        // modify ou=system to be an AP for an A/C AA
+        Attributes changes = new BasicAttributes( "administrativeRole", SubentryService.AC_AREA, true );
+        adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
+
+        // try an add operation which should fail without any ACI
+        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
+        testEntry.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+
+        try
+        {
+            sysRoot.createSubcontext( "ou=testou", testEntry );
+            fail( "should never get here due to a permission exception" );
+        }
+        catch ( LdapNoPermissionException e ) {}
+
+        // now add a subentry that enables anyone to add an entry below ou=system
+        Attributes subentry = new BasicAttributes( "cn", "anybodyAdd", true );
+        objectClass = new BasicAttribute( "objectClass" );
+        subentry.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "subentry" );
+        objectClass.add( "accessControlSubentry" );
+        subentry.put( "subtreeSpecification", "{}" );
+        subentry.put( "prescriptiveACI", "{ " +
+                "identificationTag \"addAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry}, " +
+                "grantsAndDenials { grantAdd } } } } }" );
+        adminCtx.createSubcontext( "cn=anybodyAdd", subentry );
+
+        // see if we can now add that test entry which we could not before
+        testEntry = new BasicAttributes( "ou", "testou", true );
+        objectClass = new BasicAttribute( "objectClass" );
+        testEntry.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+        sysRoot.createSubcontext( "ou=testou", testEntry );
     }
 }

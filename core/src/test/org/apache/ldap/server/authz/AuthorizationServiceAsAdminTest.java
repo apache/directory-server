@@ -21,14 +21,12 @@ import java.util.HashSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.subtree.SubentryService;
 
 
 /**
@@ -101,28 +99,20 @@ public class AuthorizationServiceAsAdminTest extends AbstractAdminTestCase
     public void testSearchSubtreeByAdmin() throws NamingException
     {
         SearchControls controls = new SearchControls();
-
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
         HashSet set = new HashSet();
-
         NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", controls );
 
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
-
             set.add( result.getName() );
         }
 
         assertTrue( set.contains( "ou=system" ) );
-
         assertTrue( set.contains( "ou=groups,ou=system" ) );
-
         assertTrue( set.contains( "ou=users,ou=system" ) );
-
         assertTrue( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
-
         assertTrue( set.contains( "uid=admin,ou=system" ) );
     }
 }

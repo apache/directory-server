@@ -20,6 +20,7 @@
   <bean id="configuration" class="org.apache.ldap.server.configuration.MutableServerStartupConfiguration">
     <property name="workingDirectory"><value>apache.org</value></property>
     <property name="allowAnonymousAccess"><value>false</value></property>
+    <property name="accessControlEnabled"><value>false</value></property>
     <property name="ldapPort"><value>10389</value></property>
     <property name="contextPartitionConfigurations">
       <set>

@@ -116,13 +116,13 @@ public class ACDFEngine
             NextInterceptor next,
             Collection userGroupNames, Name username, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue,
-            Collection microOperations, Collection aciTuples ) throws NamingException 
+            Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
         if( !hasPermission(
                 next,
                 userGroupNames, username, authenticationLevel,
                 entryName, attrId, attrValue,
-                microOperations, aciTuples ) )
+                microOperations, aciTuples, entry ) )
         {
             throw new LdapNoPermissionException();
         }
@@ -148,7 +148,7 @@ public class ACDFEngine
             NextInterceptor next, 
             Collection userGroupNames, Name userName, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue,
-            Collection microOperations, Collection aciTuples ) throws NamingException
+            Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
         if( entryName == null )
         {
@@ -156,8 +156,7 @@ public class ACDFEngine
         }
         
         Attributes userEntry = next.lookup( userName );
-        Attributes entry = next.lookup( entryName );
-        
+
         // Determine the scope of the requested operation.
         OperationScope scope;
         if( attrId == null )
