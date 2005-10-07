@@ -31,7 +31,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.ldap.server.AbstractAdminTestCase;
-import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
+import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 
 
 /**
@@ -52,10 +52,10 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         Set indexedAttrs;
         Set pcfgs = new HashSet();
 
-        MutableContextPartitionConfiguration pcfg;
+        MutableDirectoryPartitionConfiguration pcfg;
         
         // Add partition 'testing'
-        pcfg = new MutableContextPartitionConfiguration();
+        pcfg = new MutableDirectoryPartitionConfiguration();
         pcfg.setName( "testing" );
         pcfg.setSuffix( "ou=testing" );
         
@@ -78,7 +78,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         pcfgs.add( pcfg );
         
         // Add partition 'example'
-        pcfg = new MutableContextPartitionConfiguration();
+        pcfg = new MutableDirectoryPartitionConfiguration();
         pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example" );
         
@@ -102,7 +102,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         pcfgs.add( pcfg );
 
         // Add partition 'MixedCase'
-        pcfg = new MutableContextPartitionConfiguration();
+        pcfg = new MutableDirectoryPartitionConfiguration();
         pcfg.setName( "mixedcase" );
         pcfg.setSuffix( "dc=MixedCase" );
         
