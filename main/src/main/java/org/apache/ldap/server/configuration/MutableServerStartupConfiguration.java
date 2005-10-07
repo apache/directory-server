@@ -40,6 +40,11 @@ public class MutableServerStartupConfiguration extends
         super();
     }
 
+    public void setAccessControlEnabled( boolean accessControlEnabled )
+    {
+        super.setAccessControlEnabled( accessControlEnabled );
+    }
+
     public void setAllowAnonymousAccess( boolean arg0 )
     {
         super.setAllowAnonymousAccess( arg0 );

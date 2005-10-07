@@ -70,9 +70,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
         super.setContextPartitionConfigurations( contextParitionConfigurations );
     }
 
-    public void setAccessControlEnabled( boolean isAccessControlEnabled )
+    public void setAccessControlEnabled( boolean accessControlEnabled )
     {
-        super.setAccessControlEnabled( isAccessControlEnabled );
+        super.setAccessControlEnabled( accessControlEnabled );
     }
 
     public void setAllowAnonymousAccess( boolean enableAnonymousAccess )

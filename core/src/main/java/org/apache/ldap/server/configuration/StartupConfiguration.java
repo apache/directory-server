@@ -44,7 +44,7 @@ import org.apache.ldap.server.collective.CollectiveAttributeService;
 
 /**
  * A {@link Configuration} that starts up ApacheDS.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -280,9 +280,9 @@ public class StartupConfiguration extends Configuration
     /**
      * Sets whether to enable basic access control checks or not
      */
-    protected void setAccessControlEnabled( boolean isAccessControlEnabled )
+    protected void setAccessControlEnabled( boolean accessControlEnabled )
     {
-        this.accessControlEnabled = isAccessControlEnabled;
+        this.accessControlEnabled = accessControlEnabled;
     }
 
     /**
