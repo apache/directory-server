@@ -21,11 +21,11 @@ package org.apache.ldap.server.configuration;
 import java.io.Serializable;
 import java.util.Hashtable;
 
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 
 /**
  * A configuration that provides required, optional, or default properties
- * to configure {@link ContextFactoryService}.
+ * to configure {@link DirectoryService}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -38,7 +38,7 @@ public abstract class Configuration implements Cloneable, Serializable
     public static final String JNDI_KEY = Configuration.class.getName();
     
     /**
-     * The default ID of {@link ContextFactoryService} that is used
+     * The default ID of {@link DirectoryService} that is used
      * when no instance ID is specified. 
      */
     public static final String DEFAULT_INSTANCE_ID = "default";
@@ -71,7 +71,7 @@ public abstract class Configuration implements Cloneable, Serializable
     }
     
     /**
-     * Returns the ID of {@link ContextFactoryService} instance to configure.
+     * Returns the ID of {@link DirectoryService} instance to configure.
      */
     public String getInstanceId()
     {
@@ -79,7 +79,7 @@ public abstract class Configuration implements Cloneable, Serializable
     }
     
     /**
-     * Sets the ID of {@link ContextFactoryService} instance to configure.
+     * Sets the ID of {@link DirectoryService} instance to configure.
      */
     protected void setInstanceId( String instanceId )
     {

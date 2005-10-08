@@ -55,20 +55,20 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Default implementation of {@link ContextFactoryService}.
+ * Default implementation of {@link DirectoryService}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class DefaultContextFactoryService extends ContextFactoryService
+class DefaultDirectoryService extends DirectoryService
 {
-    private static final Logger log = LoggerFactory.getLogger( DefaultContextFactoryService.class );
+    private static final Logger log = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
     private final String instanceId;
 
-    private final ContextFactoryConfiguration configuration = new DefaultContextFactoryConfiguration( this );
+    private final DirectoryServiceConfiguration configuration = new DefaultDirectoryServiceConfiguration( this );
 
-    private ContextFactoryServiceListener serviceListener;
+    private DirectoryServiceListener serviceListener;
     
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable environment;
@@ -99,7 +99,7 @@ class DefaultContextFactoryService extends ContextFactoryService
     /**
      * Creates a new instance.
      */
-    public DefaultContextFactoryService( String instanceId )
+    public DefaultDirectoryService( String instanceId )
     {
         if( instanceId == null )
         {
@@ -120,7 +120,7 @@ class DefaultContextFactoryService extends ContextFactoryService
                 {
                     log.warn(
                             "Failed to shut down ContextFactoryService: " +
-                            DefaultContextFactoryService.this.instanceId, e );
+                            DefaultDirectoryService.this.instanceId, e );
                 }
             }
         }, "ApacheDS Shutdown Hook (" + instanceId + ')' ) );
@@ -173,7 +173,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         return new ServerLdapContext( this, environment );
     }
 
-    public synchronized void startup( ContextFactoryServiceListener listener, Hashtable env ) throws NamingException
+    public synchronized void startup( DirectoryServiceListener listener, Hashtable env ) throws NamingException
     {
         Hashtable envCopy = ( Hashtable ) env.clone();
 
@@ -257,7 +257,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         return instanceId;
     }
     
-    public ContextFactoryConfiguration getConfiguration()
+    public DirectoryServiceConfiguration getConfiguration()
     {
         return configuration;
     }
@@ -268,7 +268,7 @@ class DefaultContextFactoryService extends ContextFactoryService
         return ( Hashtable ) environment.clone();
     }
     
-    public ContextFactoryServiceListener getServiceListener()
+    public DirectoryServiceListener getServiceListener()
     {
         return serviceListener;
     }

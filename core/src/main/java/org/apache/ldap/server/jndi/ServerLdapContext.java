@@ -27,7 +27,7 @@ import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.NotImplementedException;
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 
@@ -53,7 +53,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( ContextFactoryService service, Hashtable env ) throws NamingException
+    public ServerLdapContext( DirectoryService service, Hashtable env ) throws NamingException
     {
         super( service, env );
     }

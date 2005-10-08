@@ -17,7 +17,7 @@
 package org.apache.ldap.server.subtree;
 
 
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
@@ -110,14 +110,14 @@ public class SubentryService extends BaseInterceptor
 
     /** the hash mapping the DN of a subentry to its SubtreeSpecification */
     private final Map subtrees = new HashMap();
-    private ContextFactoryConfiguration factoryCfg;
+    private DirectoryServiceConfiguration factoryCfg;
     private DnParser dnParser;
     private SubtreeSpecificationParser ssParser;
     private SubtreeEvaluator evaluator;
     private DirectoryPartitionNexus nexus;
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         super.init( factoryCfg, cfg );
         this.nexus = factoryCfg.getPartitionNexus();

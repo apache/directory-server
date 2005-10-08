@@ -46,7 +46,7 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
@@ -73,7 +73,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext( ContextFactoryService service, Hashtable env ) throws NamingException
+    public ServerDirContext( DirectoryService service, Hashtable env ) throws NamingException
     {
         super( service, env );
     }

@@ -51,7 +51,7 @@ import org.apache.ldap.common.util.AttributeUtils;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
@@ -112,7 +112,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
         this.globalRegistries = factoryCfg.getGlobalRegistries();

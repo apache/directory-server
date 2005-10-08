@@ -25,8 +25,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.server.ContextFactoryService;
-import org.apache.ldap.server.ContextFactoryServiceListener;
+import org.apache.ldap.server.DirectoryService;
+import org.apache.ldap.server.DirectoryServiceListener;
 import org.apache.ldap.server.configuration.AddDirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.RemoveDirectoryPartitionConfiguration;
@@ -51,12 +51,12 @@ import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
  * Unfortunately, {@link InitialContext} creates a new instance of
  * {@link InitialContextFactory} implementation everytime it is instantiated,
  * so this factory maintains only a static, singleton instance of
- * {@link ContextFactoryService}, which provides actual implementation.
+ * {@link DirectoryService}, which provides actual implementation.
  * Please note that you'll also have to maintain any stateful information
  * as using singleton pattern if you're going to extend this factory.
  * <p>
- * This class implements {@link ContextFactoryServiceListener}.  This means that
- * you can listen to the changes occurs to {@link ContextFactoryService}, and
+ * This class implements {@link DirectoryServiceListener}.  This means that
+ * you can listen to the changes occurs to {@link DirectoryService}, and
  * react to it (e.g. executing additional business logic).
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -64,7 +64,7 @@ import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
  * 
  * @see javax.naming.spi.InitialContextFactory
  */
-public abstract class AbstractContextFactory implements InitialContextFactory, ContextFactoryServiceListener
+public abstract class AbstractContextFactory implements InitialContextFactory, DirectoryServiceListener
 {
     // ------------------------------------------------------------------------
     // Members
@@ -86,7 +86,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, C
         String authentication = getAuthentication( env );
         String providerUrl = getProviderUrl( env );
 
-        ContextFactoryService service = ContextFactoryService.getInstance( cfg.getInstanceId() );
+        DirectoryService service = DirectoryService.getInstance( cfg.getInstanceId() );
 
         // Execute configuration
         if( cfg instanceof ShutdownConfiguration )

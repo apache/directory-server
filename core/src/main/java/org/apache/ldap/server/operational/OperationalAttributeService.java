@@ -36,7 +36,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.UsageEnum;
 import org.apache.ldap.common.util.DateUtils;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
@@ -92,7 +92,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         nexus = factoryCfg.getPartitionNexus();
         registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();

@@ -36,7 +36,7 @@ import org.apache.ldap.server.partition.DirectoryPartition;
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-public abstract class ContextFactoryService
+public abstract class DirectoryService
 {
     private static final Map instances = new HashMap();
 
@@ -44,21 +44,21 @@ public abstract class ContextFactoryService
      * Returns the default instance.  This method is identical with calling
      * <tt>getInstance( Configuration.DEFAULT_INSTANCE_ID )</tt>.
      */
-    public static ContextFactoryService getInstance()
+    public static DirectoryService getInstance()
     {
         return getInstance( Configuration.DEFAULT_INSTANCE_ID );
     }
     
     /**
-     * Returns {@link ContextFactoryService} with the specified instance ID.
+     * Returns {@link DirectoryService} with the specified instance ID.
      */
-    public synchronized static ContextFactoryService getInstance( String instanceId )
+    public synchronized static DirectoryService getInstance( String instanceId )
     {
         instanceId = instanceId.trim();
-        ContextFactoryService service = ( ContextFactoryService ) instances.get( instanceId );
+        DirectoryService service = ( DirectoryService ) instances.get( instanceId );
         if( service == null )
         {
-            service = new DefaultContextFactoryService( instanceId );
+            service = new DefaultDirectoryService( instanceId );
             instances.put( instanceId, service );
         }
         
@@ -66,7 +66,7 @@ public abstract class ContextFactoryService
     }
     
     /**
-     * Returns all instances of instantiated {@link ContextFactoryService}.
+     * Returns all instances of instantiated {@link DirectoryService}.
      */
     public synchronized static Set getAllInstances()
     {
@@ -81,7 +81,7 @@ public abstract class ContextFactoryService
      * 
      * @throws NamingException if failed to start up
      */
-    public abstract void startup( ContextFactoryServiceListener listener, Hashtable environment ) throws NamingException;
+    public abstract void startup( DirectoryServiceListener listener, Hashtable environment ) throws NamingException;
     
     /**
      * Shuts down this service.
@@ -104,7 +104,7 @@ public abstract class ContextFactoryService
     /**
      * Returns the configuration of this service.
      */
-    public abstract ContextFactoryConfiguration getConfiguration();
+    public abstract DirectoryServiceConfiguration getConfiguration();
 
     /**
      * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>

@@ -33,7 +33,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
@@ -56,7 +56,7 @@ public class InterceptorChain
     {
         private DirectoryPartitionNexus nexus;
 
-        public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg )
+        public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
         {
             this.nexus = factoryCfg.getPartitionNexus();
         }
@@ -194,7 +194,7 @@ public class InterceptorChain
 
     private Entry head;
 
-    private ContextFactoryConfiguration factoryCfg;
+    private DirectoryServiceConfiguration factoryCfg;
 
     /**
      * Create a new interceptor chain.
@@ -211,9 +211,9 @@ public class InterceptorChain
 
     /**
      * Initializes and registers all interceptors according to the specified
-     * {@link ContextFactoryConfiguration}.
+     * {@link DirectoryServiceConfiguration}.
      */
-    public synchronized void init( ContextFactoryConfiguration factoryCfg ) throws NamingException
+    public synchronized void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
         this.factoryCfg = factoryCfg;
 

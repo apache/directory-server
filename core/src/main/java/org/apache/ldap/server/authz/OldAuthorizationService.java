@@ -32,7 +32,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
@@ -86,7 +86,7 @@ public class OldAuthorizationService extends BaseInterceptor
     }
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         AttributeTypeRegistry atr = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );

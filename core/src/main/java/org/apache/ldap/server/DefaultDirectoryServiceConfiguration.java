@@ -28,16 +28,16 @@ import org.apache.ldap.server.schema.GlobalRegistries;
 
 
 /**
- * Default implementation of {@link ContextFactoryConfiguration}.
+ * Default implementation of {@link DirectoryServiceConfiguration}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
+class DefaultDirectoryServiceConfiguration implements DirectoryServiceConfiguration
 {
-    private DefaultContextFactoryService parent;
+    private DefaultDirectoryService parent;
     
-    DefaultContextFactoryConfiguration( DefaultContextFactoryService parent )
+    DefaultDirectoryServiceConfiguration( DefaultDirectoryService parent )
     {
         this.parent = parent;
     }
@@ -47,12 +47,12 @@ class DefaultContextFactoryConfiguration implements ContextFactoryConfiguration
         return parent.getInstanceId();
     }
     
-    public ContextFactoryService getService()
+    public DirectoryService getService()
     {
         return parent;
     }
 
-    public ContextFactoryServiceListener getServiceListener()
+    public DirectoryServiceListener getServiceListener()
     {
         return parent.getServiceListener();
     }

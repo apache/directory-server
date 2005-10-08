@@ -22,7 +22,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 
 /**
  * A mutable version of {@link StartupConfiguration}.
@@ -42,7 +42,7 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
     
     /**
-     * Creates a new instance that operates on the {@link ContextFactoryService}
+     * Creates a new instance that operates on the {@link DirectoryService}
      * with the specified ID.
      */
     public MutableStartupConfiguration( String instanceId )

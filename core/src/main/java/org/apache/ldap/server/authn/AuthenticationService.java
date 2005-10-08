@@ -36,7 +36,7 @@ import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.StringTools;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
@@ -63,7 +63,7 @@ public class AuthenticationService extends BaseInterceptor
     /** authenticators **/
     public Map authenticators = new HashMap();
 
-    private ContextFactoryConfiguration factoryCfg;
+    private DirectoryServiceConfiguration factoryCfg;
 
     /**
      * Creates an authentication service interceptor.
@@ -75,7 +75,7 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         this.factoryCfg = factoryCfg;
 

@@ -28,7 +28,7 @@ import org.apache.ldap.common.exception.*;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
@@ -57,7 +57,7 @@ public class ExceptionService extends BaseInterceptor
     }
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg )
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
     {
         nexus = factoryCfg.getPartitionNexus();
     }

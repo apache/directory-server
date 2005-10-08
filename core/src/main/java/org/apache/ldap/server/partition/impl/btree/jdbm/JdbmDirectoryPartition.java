@@ -47,7 +47,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartition;
 import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
@@ -117,7 +117,7 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
     {
     }
 
-    public synchronized void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
+    public synchronized void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         this.upSuffix = new LdapName( cfg.getSuffix() );
         this.normSuffix = cfg.getNormalizedSuffix( factoryCfg.getGlobalRegistries().getMatchingRuleRegistry() );

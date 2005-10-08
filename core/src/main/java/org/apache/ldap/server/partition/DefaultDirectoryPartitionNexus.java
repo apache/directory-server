@@ -58,7 +58,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.util.SingletonEnumeration;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmDirectoryPartition;
@@ -93,7 +93,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
     /** the closed state of this partition */
     private boolean initialized;
 
-    private ContextFactoryConfiguration factoryCfg;
+    private DirectoryServiceConfiguration factoryCfg;
 
     /** the system backend */
     private DirectoryPartition system;
@@ -147,7 +147,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
     }
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if( initialized )

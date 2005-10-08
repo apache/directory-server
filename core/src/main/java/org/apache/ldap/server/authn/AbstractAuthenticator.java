@@ -20,7 +20,7 @@ package org.apache.ldap.server.authn;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 
@@ -33,7 +33,7 @@ import org.apache.ldap.server.jndi.ServerContext;
  */
 public abstract class AbstractAuthenticator implements Authenticator
 {
-    private ContextFactoryConfiguration factoryCfg;
+    private DirectoryServiceConfiguration factoryCfg;
     private AuthenticatorConfiguration cfg;
 
     /** authenticator type */
@@ -52,10 +52,10 @@ public abstract class AbstractAuthenticator implements Authenticator
 
 
     /**
-     * Returns {@link ContextFactoryConfiguration} of {@link InitialContextFactory}
+     * Returns {@link DirectoryServiceConfiguration} of {@link InitialContextFactory}
      * which initialized this authenticator.
      */
-    public ContextFactoryConfiguration getFactoryConfiguration()
+    public DirectoryServiceConfiguration getFactoryConfiguration()
     {
         return factoryCfg;
     }
@@ -79,7 +79,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      * <tt>configuration</tt>, and calls {@link #doInit()} method.
      * Please put your initialization code into {@link #doInit()}.
      */
-    public final void init( ContextFactoryConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException
+    public final void init( DirectoryServiceConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException
     {
         this.factoryCfg = factoryCfg;
         this.cfg = cfg;

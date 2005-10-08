@@ -29,7 +29,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 
 /**
@@ -42,9 +42,9 @@ import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
  */
 public abstract class AbstractDirectoryPartition implements DirectoryPartition
 {
-    /** {@link ContextFactoryConfiguration} specified at {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}. */
-    private ContextFactoryConfiguration factoryCfg;
-    /** {@link DirectoryPartitionConfiguration} specified at {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}. */
+    /** {@link DirectoryServiceConfiguration} specified at {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}. */
+    private DirectoryServiceConfiguration factoryCfg;
+    /** {@link DirectoryPartitionConfiguration} specified at {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}. */
     private DirectoryPartitionConfiguration cfg;
     /** <tt>true</tt> if and only if this partition is initialized. */
     private boolean initialized;
@@ -60,7 +60,7 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
      * without any errors.  {@link #destroy()} is called automatically as a clean-up process
      * if {@link #doInit()} throws an exception.
      */
-    public final void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
+    public final void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg ) throws NamingException
     {
         if( initialized )
         {
@@ -131,17 +131,17 @@ public abstract class AbstractDirectoryPartition implements DirectoryPartition
     }
 
     /**
-     * Returns {@link ContextFactoryConfiguration} that is provided from
-     * {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}.
+     * Returns {@link DirectoryServiceConfiguration} that is provided from
+     * {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}.
      */
-    public final ContextFactoryConfiguration getFactoryConfiguration()
+    public final DirectoryServiceConfiguration getFactoryConfiguration()
     {
         return factoryCfg;
     }
     
     /**
      * Returns {@link DirectoryPartitionConfiguration} that is provided from
-     * {@link #init(ContextFactoryConfiguration, DirectoryPartitionConfiguration)}.
+     * {@link #init(DirectoryServiceConfiguration, DirectoryPartitionConfiguration)}.
      */
     public final DirectoryPartitionConfiguration getConfiguration()
     {

@@ -49,8 +49,8 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.server.ContextFactoryConfiguration;
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
+import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
@@ -102,12 +102,12 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext( ContextFactoryService service, Hashtable env ) throws NamingException
+    protected ServerContext( DirectoryService service, Hashtable env ) throws NamingException
     {
         // set references to cloned env and the proxy
         this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );
         
-        ContextFactoryConfiguration cfg = service.getConfiguration();
+        DirectoryServiceConfiguration cfg = service.getConfiguration();
         
         this.env = ( Hashtable ) cfg.getEnvironment().clone();
         this.env.putAll( env );

@@ -27,51 +27,51 @@ import org.apache.ldap.server.schema.GlobalRegistries;
 
 /**
  * Represents the global configuration of currently running
- * {@link ContextFactoryService}.  You can access all properties of
- * {@link ContextFactoryService} and get JNDI {@link Context}s it provides
+ * {@link DirectoryService}.  You can access all properties of
+ * {@link DirectoryService} and get JNDI {@link Context}s it provides
  * via this interface.
  */
-public interface ContextFactoryConfiguration
+public interface DirectoryServiceConfiguration
 {
     
     /**
-     * Returns the {@link ContextFactoryService} for this configuration.
+     * Returns the {@link DirectoryService} for this configuration.
      */
-    ContextFactoryService getService();
+    DirectoryService getService();
     
     /**
-     * Returns the instance ID of the {@link ContextFactoryService}.
+     * Returns the instance ID of the {@link DirectoryService}.
      */
     String getInstanceId();
     
     /**
      * Returns the listener that listens to service events.
      */
-    ContextFactoryServiceListener getServiceListener();
+    DirectoryServiceListener getServiceListener();
     
     /**
-     * Returns the initial context environment of the {@link ContextFactoryService}.
+     * Returns the initial context environment of the {@link DirectoryService}.
      */
     Hashtable getEnvironment();
     
     /**
-     * Returns the startup configuration of the {@link ContextFactoryService}.
+     * Returns the startup configuration of the {@link DirectoryService}.
      */
     StartupConfiguration getStartupConfiguration();
     
     /**
-     * Returns the registries for system schema objects of the {@link ContextFactoryService}.
+     * Returns the registries for system schema objects of the {@link DirectoryService}.
      */
     GlobalRegistries getGlobalRegistries();
 
     /**
-     * Returns the {@link DirectoryPartitionNexus} of the {@link ContextFactoryService}
+     * Returns the {@link DirectoryPartitionNexus} of the {@link DirectoryService}
      * which bypasses the interceptor chain.
      */
     DirectoryPartitionNexus getPartitionNexus();
     
     /**
-     * Returns the interceptor chain of the {@link ContextFactoryService}.
+     * Returns the interceptor chain of the {@link DirectoryService}.
      */
     InterceptorChain getInterceptorChain();
     

@@ -20,35 +20,35 @@ import javax.naming.NamingException;
 
 /**
  * An event handler that listens to the changes occurs to
- * {@link ContextFactoryService}.
+ * {@link DirectoryService}.
  * 
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-public interface ContextFactoryServiceListener
+public interface DirectoryServiceListener
 {
     /**
-     * Invoked before starting up {@link ContextFactoryService}.
+     * Invoked before starting up {@link DirectoryService}.
      */
-    void beforeStartup( ContextFactoryService service ) throws NamingException;
+    void beforeStartup( DirectoryService service ) throws NamingException;
     /**
-     * Invoked after starting up {@link ContextFactoryService}.
+     * Invoked after starting up {@link DirectoryService}.
      */
-    void afterStartup( ContextFactoryService service ) throws NamingException;
+    void afterStartup( DirectoryService service ) throws NamingException;
     /**
-     * Invoked before shutting down {@link ContextFactoryService}.
+     * Invoked before shutting down {@link DirectoryService}.
      */
-    void beforeShutdown( ContextFactoryService service ) throws NamingException;
+    void beforeShutdown( DirectoryService service ) throws NamingException;
     /**
-     * Invoked after shutting down {@link ContextFactoryService}.
+     * Invoked after shutting down {@link DirectoryService}.
      */
-    void afterShutdown( ContextFactoryService service ) throws NamingException;
+    void afterShutdown( DirectoryService service ) throws NamingException;
     /**
-     * Invoked before calling {@link ContextFactoryService#sync()}.
+     * Invoked before calling {@link DirectoryService#sync()}.
      */
-    void beforeSync( ContextFactoryService service ) throws NamingException;
+    void beforeSync( DirectoryService service ) throws NamingException;
     /**
-     * Invoked after calling {@link ContextFactoryService#sync()}.
+     * Invoked after calling {@link DirectoryService#sync()}.
      */
-    void afterSync( ContextFactoryService service ) throws NamingException;
+    void afterSync( DirectoryService service ) throws NamingException;
 }

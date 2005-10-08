@@ -19,7 +19,7 @@ package org.apache.ldap.server.jndi;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 
 
 /**
@@ -42,42 +42,42 @@ public class CoreContextFactory extends AbstractContextFactory implements Initia
     /**
      * Does nothing by default.
      */
-    public void beforeStartup( ContextFactoryService service ) throws NamingException
+    public void beforeStartup( DirectoryService service ) throws NamingException
     {
     }
 
     /**
      * Does nothing by default.
      */
-    public void afterStartup( ContextFactoryService service ) throws NamingException
+    public void afterStartup( DirectoryService service ) throws NamingException
     {
     }
     
     /**
      * Does nothing by default.
      */
-    public void beforeShutdown( ContextFactoryService service ) throws NamingException
+    public void beforeShutdown( DirectoryService service ) throws NamingException
     {
     }
     
     /**
      * Does nothing by default.
      */
-    public void afterShutdown( ContextFactoryService service ) throws NamingException
+    public void afterShutdown( DirectoryService service ) throws NamingException
     {
     }
     
     /**
      * Does nothing by default.
      */
-    public void beforeSync( ContextFactoryService service ) throws NamingException
+    public void beforeSync( DirectoryService service ) throws NamingException
     {
     }
 
     /**
      * Does nothing by default.
      */
-    public void afterSync( ContextFactoryService service ) throws NamingException
+    public void afterSync( DirectoryService service ) throws NamingException
     {
     }
 }

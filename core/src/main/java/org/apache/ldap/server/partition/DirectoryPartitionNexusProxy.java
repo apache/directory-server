@@ -33,8 +33,8 @@ import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.server.ContextFactoryConfiguration;
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
+import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.event.EventService;
 import org.apache.ldap.server.interceptor.InterceptorChain;
@@ -55,8 +55,8 @@ import org.apache.ldap.server.invocation.InvocationStack;
 public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
 {
     private final Context caller;
-    private final ContextFactoryService service;
-    private final ContextFactoryConfiguration configuration;
+    private final DirectoryService service;
+    private final DirectoryServiceConfiguration configuration;
 
     /**
      * Creates a new instance.
@@ -64,7 +64,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
      * @param caller a JNDI {@link Context} object that will call this proxy
      * @param service a JNDI service
      */
-    public DirectoryPartitionNexusProxy( Context caller, ContextFactoryService service )
+    public DirectoryPartitionNexusProxy( Context caller, DirectoryService service )
     {
         this.caller = caller;
         this.service = service;
@@ -75,7 +75,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         return this.configuration.getPartitionNexus().getLdapContext();
     }
 
-    public void init( ContextFactoryConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
+    public void init( DirectoryServiceConfiguration factoryCfg, DirectoryPartitionConfiguration cfg )
     {
     }
 

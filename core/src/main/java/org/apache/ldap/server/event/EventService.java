@@ -17,7 +17,7 @@
 package org.apache.ldap.server.event;
 
 
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
@@ -53,7 +53,7 @@ public class EventService extends BaseInterceptor
     private Evaluator evaluator = null;
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         super.init( factoryCfg, cfg );
 

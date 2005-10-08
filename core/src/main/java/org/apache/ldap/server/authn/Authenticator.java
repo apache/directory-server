@@ -20,7 +20,7 @@ package org.apache.ldap.server.authn;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
@@ -54,7 +54,7 @@ public interface Authenticator
      * Called by {@link AuthenticationService} to indicate that this
      * authenticator is being placed into service.
      */
-    public void init( ContextFactoryConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException;
+    public void init( DirectoryServiceConfiguration factoryCfg, AuthenticatorConfiguration cfg ) throws NamingException;
     
     /**
      * Called by {@link AuthenticationService} to indicate that this

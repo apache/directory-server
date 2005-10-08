@@ -17,7 +17,7 @@
 package org.apache.ldap.server.authz;
 
 
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorChain;
@@ -137,7 +137,7 @@ public class AuthorizationService extends BaseInterceptor
      * @param cfg the interceptor configuration
      * @throws NamingException if there are problems during initialization
      */
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         super.init( factoryCfg, cfg );
 

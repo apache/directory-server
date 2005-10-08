@@ -27,7 +27,7 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.authn.AnonymousAuthenticator;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.SimpleAuthenticator;
@@ -74,7 +74,7 @@ public class StartupConfiguration extends Configuration
 
     /**
      * Creates a new instance with default settings that operates on the
-     * {@link ContextFactoryService} with the specified ID.
+     * {@link DirectoryService} with the specified ID.
      */
     public StartupConfiguration( String instanceId )
     {

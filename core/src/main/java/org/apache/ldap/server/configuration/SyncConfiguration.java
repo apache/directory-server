@@ -18,10 +18,10 @@
  */
 package org.apache.ldap.server.configuration;
 
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 
 /**
- * A {@link Configuration} that makes a call to {@link ContextFactoryService#sync()}.
+ * A {@link Configuration} that makes a call to {@link DirectoryService#sync()}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -38,7 +38,7 @@ public class SyncConfiguration extends Configuration
     }
     
     /**
-     * Creates a new instance that operates on the {@link ContextFactoryService}
+     * Creates a new instance that operates on the {@link DirectoryService}
      * with the specified ID.
      */
     public SyncConfiguration( String instanceId )

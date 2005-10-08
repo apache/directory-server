@@ -37,7 +37,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.slf4j.Logger;
@@ -79,7 +79,7 @@ public class TupleCache
      *
      * @param factoryCfg the context factory configuration for the server
      */
-    public TupleCache( ContextFactoryConfiguration factoryCfg ) throws NamingException
+    public TupleCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer(

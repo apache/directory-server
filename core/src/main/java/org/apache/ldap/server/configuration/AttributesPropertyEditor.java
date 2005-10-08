@@ -36,12 +36,12 @@ import org.apache.ldap.common.ldif.LdifComposerImpl;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.util.MultiMap;
-import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.DirectoryService;
 
 /**
  * A JavaBeans {@link PropertyEditor} that can convert {@link Attributes}
  * to LDIF string and vice versa.  This class is useful when you're going
- * to configure a {@link ContextFactoryService} with 3rd party containers
+ * to configure a {@link DirectoryService} with 3rd party containers
  * such as <a href="http://www.springframework.org/">Spring Framework</a>.
  *
  * @author The Apache Directory Project

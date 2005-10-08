@@ -30,7 +30,7 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
@@ -52,7 +52,7 @@ public class NormalizationService extends BaseInterceptor
     private ValueNormalizingVisitor visitor;
 
 
-    public void init( ContextFactoryConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         AttributeTypeRegistry attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new PerComponentNormalizer( attributeRegistry );
