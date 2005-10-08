@@ -430,7 +430,7 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     private void ensureStarted() throws ServiceUnavailableException {
         if( !service.isStarted() )
         {
-            throw new ServiceUnavailableException( "ContextFactoryService is not started." );
+            throw new ServiceUnavailableException( "Directory service is not started." );
         }
     }
 

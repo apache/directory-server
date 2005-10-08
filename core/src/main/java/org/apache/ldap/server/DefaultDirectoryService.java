@@ -119,7 +119,7 @@ class DefaultDirectoryService extends DirectoryService
                 catch( NamingException e )
                 {
                     log.warn(
-                            "Failed to shut down ContextFactoryService: " +
+                            "Failed to shut down the directory service: " +
                             DefaultDirectoryService.this.instanceId, e );
                 }
             }
