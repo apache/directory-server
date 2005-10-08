@@ -36,7 +36,7 @@ import org.apache.ldap.common.ldif.LdifComposerImpl;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.util.MultiMap;
-import org.apache.ldap.server.jndi.ContextFactoryService;
+import org.apache.ldap.server.ContextFactoryService;
 
 /**
  * A JavaBeans {@link PropertyEditor} that can convert {@link Attributes}

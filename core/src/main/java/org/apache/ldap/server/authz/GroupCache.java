@@ -21,7 +21,7 @@ import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.filter.BranchNode;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
+import org.apache.ldap.server.ContextFactoryConfiguration;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.slf4j.Logger;

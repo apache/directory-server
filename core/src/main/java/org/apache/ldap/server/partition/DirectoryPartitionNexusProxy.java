@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server.partition;
 
 
 import java.util.Iterator;
@@ -25,21 +25,21 @@ import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
-import javax.naming.event.NamingListener;
-import javax.naming.event.EventContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.ContextFactoryConfiguration;
+import org.apache.ldap.server.ContextFactoryService;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
+import org.apache.ldap.server.event.EventService;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.invocation.InvocationStack;
-import org.apache.ldap.server.partition.DirectoryPartition;
-import org.apache.ldap.server.partition.DirectoryPartitionNexus;
-import org.apache.ldap.server.event.EventService;
 
 
 /**
@@ -52,7 +52,7 @@ import org.apache.ldap.server.event.EventService;
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
-class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
+public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
 {
     private final Context caller;
     private final ContextFactoryService service;
@@ -64,7 +64,7 @@ class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
      * @param caller a JNDI {@link Context} object that will call this proxy
      * @param service a JNDI service
      */
-    DirectoryPartitionNexusProxy( Context caller, ContextFactoryService service )
+    public DirectoryPartitionNexusProxy( Context caller, ContextFactoryService service )
     {
         this.caller = caller;
         this.service = service;

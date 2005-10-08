@@ -27,6 +27,7 @@ import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.NotImplementedException;
+import org.apache.ldap.server.ContextFactoryService;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 

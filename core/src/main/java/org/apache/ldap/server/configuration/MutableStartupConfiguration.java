@@ -22,7 +22,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.ldap.server.jndi.ContextFactoryService;
+import org.apache.ldap.server.ContextFactoryService;
 
 /**
  * A mutable version of {@link StartupConfiguration}.

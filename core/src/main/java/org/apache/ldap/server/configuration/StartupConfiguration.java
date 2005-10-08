@@ -27,13 +27,13 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.ldap.server.ContextFactoryService;
 import org.apache.ldap.server.authn.AnonymousAuthenticator;
 import org.apache.ldap.server.authn.AuthenticationService;
 import org.apache.ldap.server.authn.SimpleAuthenticator;
 import org.apache.ldap.server.authz.OldAuthorizationService;
 import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.exception.ExceptionService;
-import org.apache.ldap.server.jndi.ContextFactoryService;
 import org.apache.ldap.server.normalization.NormalizationService;
 import org.apache.ldap.server.operational.OperationalAttributeService;
 import org.apache.ldap.server.schema.SchemaService;

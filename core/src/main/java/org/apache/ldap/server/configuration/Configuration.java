@@ -21,7 +21,7 @@ package org.apache.ldap.server.configuration;
 import java.io.Serializable;
 import java.util.Hashtable;
 
-import org.apache.ldap.server.jndi.ContextFactoryService;
+import org.apache.ldap.server.ContextFactoryService;
 
 /**
  * A configuration that provides required, optional, or default properties

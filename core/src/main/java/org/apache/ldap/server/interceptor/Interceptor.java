@@ -28,9 +28,9 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartition;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 

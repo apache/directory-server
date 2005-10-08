@@ -30,10 +30,10 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.server.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 

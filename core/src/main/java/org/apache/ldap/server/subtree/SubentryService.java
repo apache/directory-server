@@ -17,12 +17,12 @@
 package org.apache.ldap.server.subtree;
 
 
+import org.apache.ldap.server.ContextFactoryConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.invocation.InvocationStack;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;

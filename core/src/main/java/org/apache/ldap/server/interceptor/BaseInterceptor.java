@@ -30,11 +30,11 @@ import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.server.ContextFactoryConfiguration;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.invocation.InvocationStack;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 
 

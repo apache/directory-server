@@ -18,7 +18,7 @@
  */
 package org.apache.ldap.server.configuration;
 
-import org.apache.ldap.server.jndi.ContextFactoryService;
+import org.apache.ldap.server.ContextFactoryService;
 
 /**
  * A {@link Configuration} that makes a call to {@link ContextFactoryService#sync()}.

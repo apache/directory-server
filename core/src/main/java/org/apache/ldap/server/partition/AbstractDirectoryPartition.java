@@ -29,8 +29,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.server.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 
 /**
  * A {@link DirectoryPartition} that helps users to implement their own partition.

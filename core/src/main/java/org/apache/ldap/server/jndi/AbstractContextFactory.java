@@ -25,12 +25,15 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
+import org.apache.ldap.server.ContextFactoryService;
+import org.apache.ldap.server.ContextFactoryServiceListener;
 import org.apache.ldap.server.configuration.AddDirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.RemoveDirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.configuration.SyncConfiguration;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 
 
 /**

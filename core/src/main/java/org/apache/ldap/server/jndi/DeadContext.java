@@ -50,7 +50,7 @@ import org.apache.ldap.server.configuration.SyncConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-class DeadContext implements LdapContext, EventDirContext
+public class DeadContext implements LdapContext, EventDirContext
 {
     private final String EXCEPTION_MSG = "Context operation unavailable when " +
             "invoked after Eve provider has been shutdown";

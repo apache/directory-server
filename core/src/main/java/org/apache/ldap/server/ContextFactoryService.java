@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +27,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.ldap.server.configuration.Configuration;
+import org.apache.ldap.server.jndi.AbstractContextFactory;
 import org.apache.ldap.server.partition.DirectoryPartition;
 
 /**

@@ -20,8 +20,8 @@ package org.apache.ldap.server.authn;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import org.apache.ldap.server.ContextFactoryConfiguration;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
-import org.apache.ldap.server.jndi.ContextFactoryConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 

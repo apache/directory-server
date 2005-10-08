@@ -19,6 +19,8 @@ package org.apache.ldap.server.jndi;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
+import org.apache.ldap.server.ContextFactoryService;
+
 
 /**
  * A simplistic implementation of {@link AbstractContextFactory}.

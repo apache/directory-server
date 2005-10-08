@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.jndi;
+package org.apache.ldap.server;
 
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -36,18 +36,20 @@ import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
-import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.jndi.DeadContext;
+import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.DefaultDirectoryPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.ldap.server.authz.AuthorizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
