@@ -23,28 +23,27 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.naming.NamingException;
 import javax.naming.Context;
-import javax.naming.directory.DirContext;
+import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.kerberos.protocol.KerberosProtocolProvider;
 import org.apache.kerberos.kdc.KdcConfiguration;
+import org.apache.kerberos.protocol.KerberosProtocolProvider;
+import org.apache.kerberos.sam.SamSubsystem;
 import org.apache.kerberos.store.JndiPrincipalStoreImpl;
 import org.apache.kerberos.store.PrincipalStore;
-import org.apache.kerberos.sam.SamSubsystem;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.common.util.PropertiesUtils;
+import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ public class ServerContextFactory extends CoreContextFactory
         return minaRegistry;
     }
 
-    public void afterShutdown( ContextFactoryService service )
+    public void afterShutdown( DirectoryService service )
     {
         if ( minaRegistry != null )
         {
@@ -96,7 +95,7 @@ public class ServerContextFactory extends CoreContextFactory
         }
     }
     
-    public void afterStartup( ContextFactoryService service ) throws NamingException
+    public void afterStartup( DirectoryService service ) throws NamingException
     {
         ServerStartupConfiguration cfg =
             ( ServerStartupConfiguration ) service.getConfiguration().getStartupConfiguration();
@@ -152,7 +151,7 @@ public class ServerContextFactory extends CoreContextFactory
         Service service= new Service( "kerberos", TransportType.DATAGRAM, new InetSocketAddress( port ) );
         LdapContext ctx = getBaseRealmContext( config, env );
         PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=Users" ) );
-        SamSubsystem.getInstance().setUserContext( ( DirContext ) ctx, "ou=Users" );
+        SamSubsystem.getInstance().setUserContext( ctx, "ou=Users" );
 
         try
         {
