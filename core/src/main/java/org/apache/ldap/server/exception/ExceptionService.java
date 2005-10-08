@@ -77,7 +77,7 @@ public class ExceptionService extends BaseInterceptor
         // check if the entry already exists
         if ( nextInterceptor.hasEntry( normName ) )
         {
-            NamingException ne = new LdapNameAlreadyBoundException();
+            NamingException ne = new LdapNameAlreadyBoundException( normName.toString() + " already exists!" );
             ne.setResolvedName( new LdapName( upName ) );
             throw ne;
         }

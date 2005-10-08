@@ -460,7 +460,7 @@ class DefaultDirectoryService extends DirectoryService
         // -------------------------------------------------------------------
 
         String upName = "cn=Administrators,ou=groups,ou=system";
-        Name normName = new LdapName( upName );
+        Name normName = new LdapName( "cn=administrators,ou=groups,ou=system" );
         if ( !partitionNexus.hasEntry( normName ) )
         {
             firstStart = true;

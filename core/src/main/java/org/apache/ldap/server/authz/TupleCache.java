@@ -226,4 +226,10 @@ public class TupleCache
         }
         return Collections.unmodifiableList( aciTuples );
     }
+
+
+    public void subentryRenamed( Name oldName, Name newName )
+    {
+        tuples.put( newName.toString(), tuples.remove( oldName.toString() ) );
+    }
 }

@@ -35,6 +35,7 @@ import org.apache.ldap.common.aci.ACIItemParser;
 import org.apache.ldap.common.aci.ACIItem;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.util.NamespaceTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +43,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attribute;
+import javax.naming.directory.*;
 import java.util.*;
 import java.text.ParseException;
 
@@ -64,54 +62,6 @@ public class AuthorizationService extends BaseInterceptor
     private static final String ENTRYACI_ATTR = "entryACI";
     private static final String SUBENTRYACI_ATTR = "subentryACI";
     private static final String AC_SUBENTRY_ATTR = "accessControlSubentries";
-
-    /** collection of MicroOperations for the add operation */
-    private static final Collection ADD_OPS;
-    /** collection of MicroOperations for the delete operation */
-    private static final Collection DELETE_OPS;
-    /** collection of MicroOperations for the compare operation */
-    private static final Collection COMPARE_OPS;
-    /** collection of MicroOperations for the search operation */
-    private static final Collection SEARCH_OPS;
-    /** collection of MicroOperations for the modify operation */
-    private static final Collection MODIFY_OPS;
-    /** collection of MicroOperations for the modifyRdn operation */
-    private static final Collection MODIFYRDN_OPS;
-    /** collection of MicroOperations for the browsing */
-    private static final Collection BROWSE_OPS;
-
-    static
-    {
-        Set ops = new HashSet();
-        ops.add( MicroOperation.ADD );
-        ADD_OPS = Collections.unmodifiableCollection( ops );
-
-        ops = new HashSet();
-        ops.add( MicroOperation.REMOVE );
-        DELETE_OPS = Collections.unmodifiableCollection( ops );
-
-        ops = new HashSet();
-        ops.add( MicroOperation.COMPARE );
-        COMPARE_OPS = Collections.unmodifiableCollection( ops );
-
-        ops = new HashSet();
-        ops.add( MicroOperation.RETURN_DN );
-        ops.add( MicroOperation.FILTER_MATCH );
-        ops.add( MicroOperation.READ );
-        SEARCH_OPS = Collections.unmodifiableCollection( ops );
-
-        ops = new HashSet();
-        ops.add( MicroOperation.MODIFY );
-        MODIFY_OPS = Collections.unmodifiableCollection( ops );
-
-        ops = new HashSet();
-        ops.add( MicroOperation.RENAME );
-        MODIFYRDN_OPS = Collections.unmodifiableCollection( ops );
-
-        ops = new HashSet();
-        ops.add( MicroOperation.BROWSE );
-        BROWSE_OPS = Collections.unmodifiableCollection( ops );
-    }
 
     /** the partition nexus */
     private DirectoryPartitionNexus nexus;
@@ -318,8 +268,19 @@ public class AuthorizationService extends BaseInterceptor
         // note that entryACI should not be considered in adds (it's a security breach)
         addPerscriptiveAciTuples( tuples, normName, subentryAttrs );
         addSubentryAciTuples( tuples, normName, subentryAttrs );
+        Collection perms = Collections.singleton( MicroOperation.ADD );
         engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), normName, null,
-            null, ADD_OPS, tuples, subentryAttrs );
+            null, perms, tuples, subentryAttrs );
+        NamingEnumeration attributeList = entry.getAll();
+        while ( attributeList.hasMore() )
+        {
+            Attribute attr = ( Attribute ) attributeList.next();
+            for ( int ii = 0; ii < attr.size(); ii++ )
+            {
+                engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), normName,
+                        attr.getID(), attr.get( ii ), perms, tuples, entry );
+            }
+        }
 
         // if we've gotten this far then access is granted
         next.add( upName, normName, entry );
@@ -330,17 +291,25 @@ public class AuthorizationService extends BaseInterceptor
 
     public void delete( NextInterceptor next, Name name ) throws NamingException
     {
+        // Access the principal requesting the operation, and bypass checks if it is the admin
         Attributes entry = nexus.lookup( name );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-//                null, DELETE_OPS, tuples );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            next.delete( name );
+            tupleCache.subentryDeleted( name, entry );
+            groupCache.groupDeleted( name, entry );
+            return;
+        }
+
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, name, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, name, entry );
+
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
+                null, Collections.singleton( MicroOperation.REMOVE ), tuples, entry );
 
         next.delete( name );
         tupleCache.subentryDeleted( name, entry );
@@ -350,17 +319,52 @@ public class AuthorizationService extends BaseInterceptor
 
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
+        // Access the principal requesting the operation, and bypass checks if it is the admin
         Attributes entry = nexus.lookup( name );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-//                null, MODIFY_OPS, tuples );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            next.modify( name, modOp, mods );
+            tupleCache.subentryModified( name, modOp, mods, entry );
+            groupCache.groupModified( name, modOp, mods, entry );
+            return;
+        }
+
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, name, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, name, entry );
+
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
+                null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
+
+        NamingEnumeration attrList = mods.getAll();
+        Collection perms = null;
+        switch( modOp )
+        {
+            case( DirContext.ADD_ATTRIBUTE ):
+                perms = Collections.singleton( MicroOperation.ADD );
+                break;
+            case( DirContext.REMOVE_ATTRIBUTE ):
+                perms = Collections.singleton( MicroOperation.REMOVE );
+                break;
+            case( DirContext.REPLACE_ATTRIBUTE ):
+                perms = new HashSet();
+                perms.add( MicroOperation.ADD );
+                perms.add( MicroOperation.REMOVE );
+                break;
+        }
+
+        while( attrList.hasMore() )
+        {
+            Attribute attr = ( Attribute ) attrList.next();
+            for ( int ii = 0; ii < attr.size(); ii++ )
+            {
+                engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
+                        name, attr.getID(), attr.get( ii ), perms, tuples, entry );
+            }
+        }
 
         next.modify( name, modOp, mods );
         tupleCache.subentryModified( name, modOp, mods, entry );
@@ -370,39 +374,59 @@ public class AuthorizationService extends BaseInterceptor
 
     public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
     {
+        // Access the principal requesting the operation, and bypass checks if it is the admin
         Attributes entry = nexus.lookup( name );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-//                null, MODIFY_OPS, tuples );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            next.modify( name, mods );
+            tupleCache.subentryModified( name, mods, entry );
+            groupCache.groupModified( name, mods, entry );
+            return;
+        }
+
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, name, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, name, entry );
+
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
+                null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
+
+        Collection perms = null;
+        Collection remove = Collections.singleton( MicroOperation.REMOVE );
+        Collection add = Collections.singleton( MicroOperation.ADD );
+        Collection replace = new HashSet();
+        replace.add( MicroOperation.ADD );
+        replace.add( MicroOperation.REMOVE );
+
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            switch( mods[ii].getModificationOp() )
+            {
+                case( DirContext.ADD_ATTRIBUTE ):
+                    perms = add;
+                    break;
+                case( DirContext.REMOVE_ATTRIBUTE ):
+                    perms = remove;
+                    break;
+                case( DirContext.REPLACE_ATTRIBUTE ):
+                    perms = replace;
+                    break;
+            }
+
+            Attribute attr = mods[ii].getAttribute();
+            for ( int jj = 0; jj < attr.size(); jj++ )
+            {
+                engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
+                        name, attr.getID(), attr.get( jj ), perms, tuples, entry );
+            }
+        }
 
         next.modify( name, mods );
         tupleCache.subentryModified( name, mods, entry );
         groupCache.groupModified( name, mods, entry );
-    }
-
-
-    public Attributes getRootDSE( NextInterceptor next ) throws NamingException
-    {
-        Attributes entry = super.getRootDSE( next );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
-//                new LdapName(), null, null, SEARCH_OPS, tuples );
-
-        return entry;
     }
 
 
@@ -462,56 +486,164 @@ public class AuthorizationService extends BaseInterceptor
 
     public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-//        Attributes entry = nexus.lookup( name );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-//                null, MODIFYRDN_OPS, tuples );
+        // Access the principal requesting the operation, and bypass checks if it is the admin
+        Attributes entry = nexus.lookup( name );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+        Name newName = ( Name ) name.clone();
+        newName.remove( name.size() - 1 );
+        newName.add( newRn );
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            next.modifyRn( name, newRn, deleteOldRn );
+            tupleCache.subentryRenamed( name, newName );
+            groupCache.groupRenamed( name, newName );
+            return;
+        }
 
-        super.modifyRn( next, name, newRn, deleteOldRn );
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, name, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, name, entry );
+
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
+                null, Collections.singleton( MicroOperation.RENAME ), tuples, entry );
+
+        if ( deleteOldRn )
+        {
+            String oldRn = name.get( name.size() - 1 );
+            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
+            {
+                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
+                for ( int ii = 0; ii < comps.length; ii++ )
+                {
+                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
+                    String value = NamespaceTools.getRdnValue( comps[ii] );
+                    engine.checkPermission( next, userGroups, user.getJndiName(),
+                            user.getAuthenticationLevel(), name, id,
+                            value, Collections.singleton( MicroOperation.REMOVE ),
+                            tuples, entry );
+                }
+            }
+            else
+            {
+                String id = NamespaceTools.getRdnAttribute( oldRn );
+                String value = NamespaceTools.getRdnValue( oldRn );
+                engine.checkPermission( next, userGroups, user.getJndiName(),
+                        user.getAuthenticationLevel(), name, id,
+                        value, Collections.singleton( MicroOperation.REMOVE ),
+                        tuples, entry );
+            }
+        }
+
+        next.modifyRn( name, newRn, deleteOldRn );
+        tupleCache.subentryRenamed( name, newName );
+        groupCache.groupRenamed( name, newName );
     }
 
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn )
             throws NamingException
     {
-//        Attributes entry = nexus.lookup( oriChildName );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), oriChildName, null,
-//                null, MODIFYRDN_OPS, tuples );
+        // Access the principal requesting the operation, and bypass checks if it is the admin
+        Attributes entry = nexus.lookup( oriChildName );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+        Name newName = ( Name ) newParentName.clone();
+        newName.add( newRn );
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+            tupleCache.subentryRenamed( oriChildName, newName );
+            groupCache.groupRenamed( oriChildName, newName );
+            return;
+        }
 
-        super.move( next, oriChildName, newParentName, newRn, deleteOldRn );
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, oriChildName, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, oriChildName, entry );
+
+        Collection perms = new HashSet();
+        perms.add( MicroOperation.RENAME );
+        perms.add( MicroOperation.EXPORT );
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
+                oriChildName, null, null, perms, tuples, entry );
+
+        Collection destTuples = new HashSet();
+        addPerscriptiveAciTuples( destTuples, oriChildName, entry );
+        addEntryAciTuples( destTuples, entry );
+        addSubentryAciTuples( destTuples, oriChildName, entry );
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
+                oriChildName, null, null, Collections.singleton( MicroOperation.IMPORT ), tuples, entry );
+
+        if ( deleteOldRn )
+        {
+            String oldRn = oriChildName.get( oriChildName.size() - 1 );
+            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
+            {
+                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
+                for ( int ii = 0; ii < comps.length; ii++ )
+                {
+                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
+                    String value = NamespaceTools.getRdnValue( comps[ii] );
+                    engine.checkPermission( next, userGroups, user.getJndiName(),
+                            user.getAuthenticationLevel(), oriChildName, id,
+                            value, Collections.singleton( MicroOperation.REMOVE ),
+                            tuples, entry );
+                }
+            }
+            else
+            {
+                String id = NamespaceTools.getRdnAttribute( oldRn );
+                String value = NamespaceTools.getRdnValue( oldRn );
+                engine.checkPermission( next, userGroups, user.getJndiName(),
+                        user.getAuthenticationLevel(), oriChildName, id,
+                        value, Collections.singleton( MicroOperation.REMOVE ),
+                        tuples, entry );
+            }
+        }
+
+        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        tupleCache.subentryRenamed( oriChildName, newName );
+        groupCache.groupRenamed( oriChildName, newName );
     }
 
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
     {
-//        Attributes entry = nexus.lookup( oriChildName );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), oriChildName, null,
-//                null, MODIFYRDN_OPS, tuples );
-//
-        super.move( next, oriChildName, newParentName );
+        // Access the principal requesting the operation, and bypass checks if it is the admin
+        Attributes entry = nexus.lookup( oriChildName );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+        Name newName = ( Name ) newParentName.clone();
+        newName.add( oriChildName.get( oriChildName.size() - 1 ) );
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            next.move( oriChildName, newParentName );
+            tupleCache.subentryRenamed( oriChildName, newName );
+            groupCache.groupRenamed( oriChildName, newName );
+            return;
+        }
+
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, oriChildName, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, oriChildName, entry );
+
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
+                oriChildName, null, null, Collections.singleton( MicroOperation.EXPORT ), tuples, entry );
+
+        Collection destTuples = new HashSet();
+        addPerscriptiveAciTuples( destTuples, oriChildName, entry );
+        addEntryAciTuples( destTuples, entry );
+        addSubentryAciTuples( destTuples, oriChildName, entry );
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
+                oriChildName, null, null, Collections.singleton( MicroOperation.IMPORT ), tuples, entry );
+
+        next.move( oriChildName, newParentName );
+        tupleCache.subentryRenamed( oriChildName, newName );
+        groupCache.groupRenamed( oriChildName, newName );
     }
 
 
@@ -536,19 +668,27 @@ public class AuthorizationService extends BaseInterceptor
 
     public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
     {
-//        Attributes entry = nexus.lookup( name );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-//                null, COMPARE_OPS, tuples );
 
-        return super.compare(next, name, oid, value);
+        // Access the principal requesting the operation, and bypass checks if it is the admin
+        Attributes entry = nexus.lookup( name );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            return next.compare( name, oid, value );
+        }
+
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, name, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, name, entry );
+
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
+                null, Collections.singleton( MicroOperation.READ ), tuples, entry );
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, oid,
+                value, Collections.singleton( MicroOperation.COMPARE ), tuples, entry );
+
+        return next.compare( name, oid, value );
     }
 
 

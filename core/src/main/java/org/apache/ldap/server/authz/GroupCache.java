@@ -371,4 +371,10 @@ public class GroupCache
 
         return memberGroups;
     }
+
+
+    public void groupRenamed( Name oldName, Name newName )
+    {
+        groups.put( newName.toString(), groups.remove( oldName.toString() ) );
+    }
 }
