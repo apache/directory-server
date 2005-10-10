@@ -110,7 +110,7 @@
     </property>
   </bean>
   
-  <bean id="apachePartitionConfiguration" class="org.apache.ldap.server.configuration.MutableContextPartitionConfiguration">
+  <bean id="apachePartitionConfiguration" class="org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration">
     <property name="name"><value>apache</value></property>
     <property name="suffix"><value>dc=apache,dc=org</value></property>
     <property name="indexedAttributes">
