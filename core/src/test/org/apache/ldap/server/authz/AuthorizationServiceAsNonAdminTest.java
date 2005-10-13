@@ -18,18 +18,14 @@ package org.apache.ldap.server.authz;
 
 
 import java.util.HashSet;
-import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.Name;
 import javax.naming.directory.*;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.AbstractNonAdminTestCase;
-import org.apache.ldap.server.subtree.SubentryService;
 
 
 /**
