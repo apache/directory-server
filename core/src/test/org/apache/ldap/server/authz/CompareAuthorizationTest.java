@@ -19,7 +19,6 @@ package org.apache.ldap.server.authz;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.jndi.ServerDirContext;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 
 import javax.naming.NamingException;
