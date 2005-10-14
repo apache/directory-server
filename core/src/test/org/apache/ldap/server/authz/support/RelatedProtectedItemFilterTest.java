@@ -137,11 +137,13 @@ public class RelatedProtectedItemFilterTest extends TestCase
                         null, null, null,
                         "userAttr", null, null, null ).size() );
         
+        /* Not used anymore
         Assert.assertEquals(
                 0, filterB.filter(
                         tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME,
                         null, null, null,
-                        "opAttr", null, null, null ).size() );  
+                        "opAttr", null, null, null ).size() );
+        */  
     }
     
     public void testAllUserAttributeTypesAndValues() throws Exception
@@ -163,11 +165,13 @@ public class RelatedProtectedItemFilterTest extends TestCase
                         null, null, null,
                         "userAttr", null, null, null ).size() );
         
+        /* Not used anymore
         Assert.assertEquals(
                 0, filterB.filter(
                         tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME,
                         null, null, null,
-                        "opAttr", null, null, null ).size() );  
+                        "opAttr", null, null, null ).size() );
+        */  
     }
     
     public void testAllAttributeValues() throws Exception

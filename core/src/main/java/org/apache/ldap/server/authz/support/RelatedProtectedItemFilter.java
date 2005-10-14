@@ -31,7 +31,6 @@ import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
-import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.server.event.Evaluator;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
@@ -256,6 +255,10 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     
     private final boolean isUserAttribute( String attrId )
     {
+        /* Not used anymore.  Just retaining in case of resurrection. */
+        return true;
+        
+        /*
         try
         {
             AttributeType type = attrTypeRegistry.lookup( attrId );
@@ -270,5 +273,6 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         }
         
         return false;
+        */
     }
 }
