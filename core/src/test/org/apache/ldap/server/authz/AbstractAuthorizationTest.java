@@ -17,7 +17,8 @@
 package org.apache.ldap.server.authz;
 
 
-import org.apache.ldap.server.AbstractNonAdminTestCase;
+import org.apache.ldap.server.AbstractTestCase;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.subtree.SubentryService;
 import org.apache.ldap.common.name.LdapName;
 
@@ -29,12 +30,16 @@ import java.util.Hashtable;
 
 /**
  * A base class used for authorization tests.  It has some extra utility methods
- * added to it which are required by all authorization tests.
+ * added to it which are required by all authorization tests.  Note that we use
+ * the admin test case otherwise failures will result without browse permission
+ * when setting up the test case for non-admin users.  Anyway we do not use the
+ * context created for the non-admin user since it is anonymous, we get our own
+ * contexts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
+public abstract class AbstractAuthorizationTest extends AbstractTestCase
 {
     /**
      * Creates an abstract authorization test case which enables the
@@ -42,7 +47,7 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
      */
     public AbstractAuthorizationTest()
     {
-        super();
+        super( DirectoryPartitionNexus.ADMIN_PRINCIPAL, "secret" );
         super.configuration.setAccessControlEnabled( true );
     }
 
@@ -60,7 +65,7 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
      */
     public DirContext getContextAsAdmin() throws NamingException
     {
-        return getContextAsAdmin( "ou=system" );
+        return getContextAsAdmin( DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX );
     }
 
 
@@ -78,7 +83,7 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
         Hashtable env = ( Hashtable ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
-        env.put( DirContext.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( DirContext.SECURITY_PRINCIPAL, DirectoryPartitionNexus.ADMIN_PRINCIPAL );
         env.put( DirContext.SECURITY_CREDENTIALS, "secret" );
         return new InitialDirContext( env );
     }
@@ -164,7 +169,7 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
      */
     public DirContext getContextAs( Name user, String password ) throws NamingException
     {
-        return getContextAs( user, password, "ou=system" );
+        return getContextAs( user, password, DirectoryPartitionNexus.SYSTEM_PARTITION_SUFFIX );
     }
 
 

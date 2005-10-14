@@ -432,17 +432,23 @@ public class AuthorizationService extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
     {
-//        Attributes entry = nexus.lookup( name );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-//                null, BROWSE_OPS, tuples );
+        Attributes entry = nexus.lookup( name );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            return next.hasEntry( name );
+        }
+
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, name, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, name, entry );
+
+        // check that we have browse access to the entry
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
+                null, Collections.singleton( MicroOperation.BROWSE ), tuples, entry );
 
         return next.hasEntry( name );
     }
@@ -472,15 +478,79 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
+    /**
+     * Checks if the READ permissions exist to the entry and to each attribute type and
+     * value.
+     *
+     * @todo not sure if we should hide attribute types/values or throw an exception
+     * instead.  I think we're going to have to use a filter to restrict the return
+     * of attribute types and values instead of throwing an exception.  Lack of read
+     * perms to attributes and their values results in their removal when returning
+     * the entry.
+     *
+     * @param next the next interceptor to call in the chain
+     * @param user the user associated with the call
+     * @param dn the name of the entry being looked up
+     * @param entry the raw entry pulled from the nexus
+     * @throws NamingException
+     */
+    private void checkLookupAccess( NextInterceptor next, LdapPrincipal user, Name dn, Attributes entry )
+            throws NamingException
+    {
+        Set userGroups = groupCache.getGroups( user.getName() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, dn, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, dn, entry );
+
+        // check that we have read access to the entry
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), dn, null,
+                null, Collections.singleton( MicroOperation.READ ), tuples, entry );
+
+        // check that we have read access to every attribute type and value
+        Collection perms = Collections.singleton( MicroOperation.READ );
+        NamingEnumeration attributeList = entry.getAll();
+        while ( attributeList.hasMore() )
+        {
+            Attribute attr = ( Attribute ) attributeList.next();
+            for ( int ii = 0; ii < attr.size(); ii++ )
+            {
+                engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), dn,
+                        attr.getID(), attr.get( ii ), perms, tuples, entry );
+            }
+        }
+    }
+
+
     public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
     {
-        return super.lookup( next, dn, attrIds );
+        Attributes entry = nexus.lookup( dn, attrIds );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            return next.lookup( dn, attrIds );
+        }
+
+        checkLookupAccess( next, user, dn, entry );
+
+        return next.lookup( dn, attrIds );
     }
 
 
     public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
     {
-        return super.lookup( next, name );
+        Attributes entry = nexus.lookup( name );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
+
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            return next.lookup( name );
+        }
+
+        checkLookupAccess( next, user, name, entry );
+
+        return next.lookup( name );
     }
 
 

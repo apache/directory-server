@@ -103,7 +103,7 @@ public class DeleteAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
                 "userPermissions { { " +
                 "protectedItems {entry}, " +
-                "grantsAndDenials { grantRemove } } } } }" );
+                "grantsAndDenials { grantRemove, grantBrowse } } } } }" );
 
         // see if we can now delete that test entry which we could not before
         // delete op should still fail since billd is not in the admin group
@@ -139,7 +139,7 @@ public class DeleteAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
                 "userPermissions { { " +
                 "protectedItems {entry}, " +
-                "grantsAndDenials { grantRemove } } } } }" );
+                "grantsAndDenials { grantRemove, grantBrowse } } } } }" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanDeleteEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -168,7 +168,7 @@ public class DeleteAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
                 "userPermissions { { " +
                 "protectedItems {entry}, " +
-                "grantsAndDenials { grantRemove } } } } }" );
+                "grantsAndDenials { grantRemove, grantBrowse } } } } }" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanDeleteEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -197,7 +197,7 @@ public class DeleteAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { allUsers }, " +
                 "userPermissions { { " +
                 "protectedItems {entry}, " +
-                "grantsAndDenials { grantRemove } } } } }" );
+                "grantsAndDenials { grantRemove, grantBrowse } } } } }" );
 
         // see if we can now delete that test entry which we could not before
         // should work now with billyd now that all users are authorized

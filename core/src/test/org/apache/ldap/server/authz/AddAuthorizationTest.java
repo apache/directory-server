@@ -96,7 +96,7 @@ public class AddAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
                 "userPermissions { { " +
                 "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantAdd } } } } }" );
+                "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -132,7 +132,7 @@ public class AddAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
                 "userPermissions { { " +
                 "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantAdd } } } } }" );
+                "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -161,7 +161,7 @@ public class AddAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
                 "userPermissions { { " +
                 "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantAdd } } } } }" );
+                "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
 
         // should work now that billyd is authorized by the subtree userClass
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );
@@ -190,7 +190,7 @@ public class AddAuthorizationTest extends AbstractAuthorizationTest
                 "userClasses { allUsers }, " +
                 "userPermissions { { " +
                 "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-                "grantsAndDenials { grantAdd } } } } }" );
+                "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
 
         // see if we can now add that test entry which we could not before
         // should work now with billyd now that all users are authorized
