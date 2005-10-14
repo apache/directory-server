@@ -36,6 +36,10 @@ import java.util.Hashtable;
  */
 public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
 {
+    /**
+     * Creates an abstract authorization test case which enables the
+     * authorization subsystem of the server.
+     */
     public AbstractAuthorizationTest()
     {
         super();
@@ -48,13 +52,28 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
     // -----------------------------------------------------------------------
 
 
-    public DirContext getAdminContext() throws NamingException
+    /**
+     * Gets a context at ou=system as the admin user.
+     *
+     * @return the admin context at ou=system
+     * @throws NamingException if there are problems creating the context
+     */
+    public DirContext getContextAsAdmin() throws NamingException
     {
-        return getAdminContext( "ou=system" );
+        return getContextAsAdmin( "ou=system" );
     }
 
 
-    public DirContext getAdminContext( String dn ) throws NamingException
+    /**
+     * Gets a context at some dn within the directory as the admin user.
+     * Should be a dn of an entry under ou=system since no other partitions
+     * are enabled.
+     *
+     * @param dn the DN of the context to get
+     * @return the context for the DN as the admin user
+     * @throws NamingException if is a problem initializing or getting the context
+     */
+    public DirContext getContextAsAdmin( String dn ) throws NamingException
     {
         Hashtable env = ( Hashtable ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
@@ -65,9 +84,19 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
     }
 
 
+    /**
+     * Creates a group using the groupOfUniqueNames objectClass under the
+     * ou=groups,ou=sytem container with an initial member.
+     *
+     * @param cn the common name of the group used as the RDN attribute
+     * @param firstMemberDn the DN of the first member of this group
+     * @return the distinguished name of the group entry
+     * @throws NamingException if there are problems creating the new group like
+     * it exists already
+     */
     public Name createGroup( String cn, String firstMemberDn ) throws NamingException
     {
-        DirContext adminCtx = getAdminContext();
+        DirContext adminCtx = getContextAsAdmin();
         Attributes group = new BasicAttributes( "cn", cn, true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
         group.put( objectClass );
@@ -79,9 +108,19 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
     }
 
 
+    /**
+     * Creates a simple user as an inetOrgPerson under the ou=users,ou=system
+     * container.  The user's RDN attribute is the uid argument.  This argument
+     * is also used as the value of the two MUST attributes: sn and cn.
+     *
+     * @param uid the value of the RDN attriubte (uid), the sn and cn attributes
+     * @param password the password to use to create the user
+     * @return the dn of the newly created user entry
+     * @throws NamingException if there are problems creating the user entry
+     */
     public Name createUser( String uid, String password ) throws NamingException
     {
-        DirContext adminCtx = getAdminContext();
+        DirContext adminCtx = getContextAsAdmin();
         Attributes user = new BasicAttributes( "uid", uid, true );
         user.put( "userPassword", password );
         Attribute objectClass = new BasicAttribute( "objectClass" );
@@ -97,9 +136,17 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
     }
 
 
+    /**
+     * Adds an existing user under ou=users,ou=system to an existing group under the
+     * ou=groups,ou=system container.
+     *
+     * @param userUid the uid of the user to add to the group
+     * @param groupCn the cn of the group to add the user to
+     * @throws NamingException if the group does not exist
+     */
     public void addUserToGroup( String userUid, String groupCn ) throws NamingException
     {
-        DirContext adminCtx = getAdminContext();
+        DirContext adminCtx = getContextAsAdmin();
         Attributes changes = new BasicAttributes( "uniqueMember",
                 "uid="+userUid+",ou=users,ou=system", true );
         adminCtx.modifyAttributes( "cn="+groupCn+",ou=groups",
@@ -107,13 +154,30 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
     }
 
 
-    public DirContext getUserContext( Name user, String password ) throws NamingException
+    /**
+     * Gets the context at ou=system as a specific user.
+     *
+     * @param user the DN of the user to get the context as
+     * @param password the password of the user
+     * @return the context as the user
+     * @throws NamingException if the user does not exist or authx fails
+     */
+    public DirContext getContextAs( Name user, String password ) throws NamingException
     {
-        return getUserContext( user, password, "ou=system" );
+        return getContextAs( user, password, "ou=system" );
     }
 
 
-    public DirContext getUserContext( Name user, String password, String dn ) throws NamingException
+    /**
+     * Gets the context at any DN under ou=system as a specific user.
+     *
+     * @param user the DN of the user to get the context as
+     * @param password the password of the user
+     * @param dn the distinguished name of the entry to get the context for
+     * @return the context representing the entry at the dn as a specific user
+     * @throws NamingException if the does not exist or authx fails
+     */
+    public DirContext getContextAs( Name user, String password, String dn ) throws NamingException
     {
         Hashtable env = ( Hashtable ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
@@ -134,7 +198,7 @@ public abstract class AbstractAuthorizationTest extends AbstractNonAdminTestCase
      */
     public void createAccessControlSubentry( String cn, String aciItem ) throws NamingException
     {
-        DirContext adminCtx = getAdminContext();
+        DirContext adminCtx = getContextAsAdmin();
 
         // modify ou=system to be an AP for an A/C AA if it is not already
         Attributes ap = adminCtx.getAttributes( "" );

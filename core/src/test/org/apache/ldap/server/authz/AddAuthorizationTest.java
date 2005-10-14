@@ -48,7 +48,6 @@ public class AddAuthorizationTest extends AbstractAuthorizationTest
      */
     public boolean checkCanAddEntryAs( String uid, String password, String entryRdn ) throws NamingException
     {
-        // try an add operation which should fail without any ACI
         Attributes testEntry = new BasicAttributes( "ou", "testou", true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
         testEntry.put( objectClass );
@@ -58,11 +57,11 @@ public class AddAuthorizationTest extends AbstractAuthorizationTest
         try
         {
             LdapName userName = new LdapName( "uid="+uid+",ou=users,ou=system" );
-            DirContext userContext = getUserContext( userName, "billyd" );
+            DirContext userContext = getContextAs( userName, password );
             userContext.createSubcontext( entryRdn, testEntry );
 
             // delete the newly created context as the admin user
-            DirContext adminContext = getAdminContext();
+            DirContext adminContext = getContextAsAdmin();
             adminContext.destroySubcontext( entryRdn );
 
             return true;
