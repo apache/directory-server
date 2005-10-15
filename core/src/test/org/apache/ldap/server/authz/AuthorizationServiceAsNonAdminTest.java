@@ -87,7 +87,7 @@ public class AuthorizationServiceAsNonAdminTest extends AbstractNonAdminTestCase
         {
             sysRoot.modifyAttributes( "uid=admin",
                     DirContext.REPLACE_ATTRIBUTE, attributes );
-            fail( "User 'uid=admin' should not be able to modify attributes on admin" );
+            fail( "User 'uid=admin,ou=system' should not be able to modify attributes on admin" );
         } catch( Exception e ) { }
     }
 

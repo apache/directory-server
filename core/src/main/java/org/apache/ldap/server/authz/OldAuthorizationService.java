@@ -210,6 +210,14 @@ public class OldAuthorizationService extends BaseInterceptor
 
         if ( !principalDn.equals( ADMIN_DN ) )
         {
+            if ( dn.equals( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
+            {
+                String msg = "User " + principalDn;
+                msg += " does not have permission to modify the account of the";
+                msg += " admin user.";
+                throw new LdapNoPermissionException( msg );
+            }
+            
             if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
             {
                 String msg = "User " + principalDn;
