@@ -54,6 +54,7 @@ public class MicroOperationFilterTest extends TestCase
         USER_OPERATIONS_A.add( MicroOperation.BROWSE );
         USER_OPERATIONS_B.add( MicroOperation.COMPARE );
         USER_OPERATIONS_B.add( MicroOperation.DISCLOSE_ON_ERROR );
+        TUPLE_OPERATIONS.add( MicroOperation.ADD );
         TUPLE_OPERATIONS.add( MicroOperation.BROWSE );
         TUPLE_OPERATIONS.add( MicroOperation.EXPORT );
     }

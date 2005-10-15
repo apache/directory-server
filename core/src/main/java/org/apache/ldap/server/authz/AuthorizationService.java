@@ -35,7 +35,6 @@ import org.apache.ldap.common.aci.ACIItemParser;
 import org.apache.ldap.common.aci.ACIItem;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.util.NamespaceTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -524,7 +523,7 @@ public class AuthorizationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
     {
-        Attributes entry = nexus.lookup( dn, attrIds );
+        Attributes entry = nexus.lookup( dn );
         LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
 
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -579,32 +578,32 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
                 null, Collections.singleton( MicroOperation.RENAME ), tuples, entry );
 
-        if ( deleteOldRn )
-        {
-            String oldRn = name.get( name.size() - 1 );
-            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
-            {
-                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
-                for ( int ii = 0; ii < comps.length; ii++ )
-                {
-                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
-                    String value = NamespaceTools.getRdnValue( comps[ii] );
-                    engine.checkPermission( next, userGroups, user.getJndiName(),
-                            user.getAuthenticationLevel(), name, id,
-                            value, Collections.singleton( MicroOperation.REMOVE ),
-                            tuples, entry );
-                }
-            }
-            else
-            {
-                String id = NamespaceTools.getRdnAttribute( oldRn );
-                String value = NamespaceTools.getRdnValue( oldRn );
-                engine.checkPermission( next, userGroups, user.getJndiName(),
-                        user.getAuthenticationLevel(), name, id,
-                        value, Collections.singleton( MicroOperation.REMOVE ),
-                        tuples, entry );
-            }
-        }
+//        if ( deleteOldRn )
+//        {
+//            String oldRn = name.get( name.size() - 1 );
+//            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
+//            {
+//                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
+//                for ( int ii = 0; ii < comps.length; ii++ )
+//                {
+//                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
+//                    String value = NamespaceTools.getRdnValue( comps[ii] );
+//                    engine.checkPermission( next, userGroups, user.getJndiName(),
+//                            user.getAuthenticationLevel(), name, id,
+//                            value, Collections.singleton( MicroOperation.REMOVE ),
+//                            tuples, entry );
+//                }
+//            }
+//            else
+//            {
+//                String id = NamespaceTools.getRdnAttribute( oldRn );
+//                String value = NamespaceTools.getRdnValue( oldRn );
+//                engine.checkPermission( next, userGroups, user.getJndiName(),
+//                        user.getAuthenticationLevel(), name, id,
+//                        value, Collections.singleton( MicroOperation.REMOVE ),
+//                        tuples, entry );
+//            }
+//        }
 
         next.modifyRn( name, newRn, deleteOldRn );
         tupleCache.subentryRenamed( name, newName );
@@ -635,8 +634,9 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( tuples, oriChildName, entry );
 
         Collection perms = new HashSet();
-        perms.add( MicroOperation.RENAME );
+        perms.add( MicroOperation.IMPORT );
         perms.add( MicroOperation.EXPORT );
+        perms.add( MicroOperation.RENAME );
         engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
                 oriChildName, null, null, perms, tuples, entry );
 
@@ -647,32 +647,32 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
                 oriChildName, null, null, Collections.singleton( MicroOperation.IMPORT ), tuples, entry );
 
-        if ( deleteOldRn )
-        {
-            String oldRn = oriChildName.get( oriChildName.size() - 1 );
-            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
-            {
-                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
-                for ( int ii = 0; ii < comps.length; ii++ )
-                {
-                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
-                    String value = NamespaceTools.getRdnValue( comps[ii] );
-                    engine.checkPermission( next, userGroups, user.getJndiName(),
-                            user.getAuthenticationLevel(), oriChildName, id,
-                            value, Collections.singleton( MicroOperation.REMOVE ),
-                            tuples, entry );
-                }
-            }
-            else
-            {
-                String id = NamespaceTools.getRdnAttribute( oldRn );
-                String value = NamespaceTools.getRdnValue( oldRn );
-                engine.checkPermission( next, userGroups, user.getJndiName(),
-                        user.getAuthenticationLevel(), oriChildName, id,
-                        value, Collections.singleton( MicroOperation.REMOVE ),
-                        tuples, entry );
-            }
-        }
+//        if ( deleteOldRn )
+//        {
+//            String oldRn = oriChildName.get( oriChildName.size() - 1 );
+//            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
+//            {
+//                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
+//                for ( int ii = 0; ii < comps.length; ii++ )
+//                {
+//                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
+//                    String value = NamespaceTools.getRdnValue( comps[ii] );
+//                    engine.checkPermission( next, userGroups, user.getJndiName(),
+//                            user.getAuthenticationLevel(), oriChildName, id,
+//                            value, Collections.singleton( MicroOperation.REMOVE ),
+//                            tuples, entry );
+//                }
+//            }
+//            else
+//            {
+//                String id = NamespaceTools.getRdnAttribute( oldRn );
+//                String value = NamespaceTools.getRdnValue( oldRn );
+//                engine.checkPermission( next, userGroups, user.getJndiName(),
+//                        user.getAuthenticationLevel(), oriChildName, id,
+//                        value, Collections.singleton( MicroOperation.REMOVE ),
+//                        tuples, entry );
+//            }
+//        }
 
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
         tupleCache.subentryRenamed( oriChildName, newName );

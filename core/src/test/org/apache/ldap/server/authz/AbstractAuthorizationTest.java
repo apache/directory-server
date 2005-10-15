@@ -114,6 +114,20 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
 
 
     /**
+     * Deletes a user with a specific UID under ou=users,ou=system.
+     *
+     * @param uid the RDN value for the user to delete
+     * @throws NamingException if there are problems removing the user
+     * i.e. user does not exist
+     */
+    public void deleteUser( String uid ) throws NamingException
+    {
+        DirContext adminCtx = getContextAsAdmin();
+        adminCtx.destroySubcontext( "uid="+uid+",ou=users" );
+    }
+
+
+    /**
      * Creates a simple user as an inetOrgPerson under the ou=users,ou=system
      * container.  The user's RDN attribute is the uid argument.  This argument
      * is also used as the value of the two MUST attributes: sn and cn.
@@ -160,6 +174,23 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
 
 
     /**
+     * Removes a user from a group.
+     *
+     * @param userUid the RDN attribute value of the user to remove from the group
+     * @param groupCn the RDN attribute value of the group to have user removed from
+     * @throws NamingException if there are problems accessing the group
+     */
+    public void removeUserFromGroup( String userUid, String groupCn ) throws NamingException
+    {
+        DirContext adminCtx = getContextAsAdmin();
+        Attributes changes = new BasicAttributes( "uniqueMember",
+                "uid="+userUid+",ou=users,ou=system", true );
+        adminCtx.modifyAttributes( "cn="+groupCn+",ou=groups",
+                DirContext.REMOVE_ATTRIBUTE, changes );
+    }
+
+
+    /**
      * Gets the context at ou=system as a specific user.
      *
      * @param user the DN of the user to get the context as
@@ -193,6 +224,13 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
     }
 
 
+    public void deleteAccessControlSubentry( String cn ) throws NamingException
+    {
+        DirContext adminCtx = getContextAsAdmin();
+        adminCtx.destroySubcontext( "cn=" + cn );
+    }
+
+
     /**
      * Creates an access control subentry under ou=system whose subtree covers
      * the entire naming context.
@@ -206,7 +244,7 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
         DirContext adminCtx = getContextAsAdmin();
 
         // modify ou=system to be an AP for an A/C AA if it is not already
-        Attributes ap = adminCtx.getAttributes( "" );
+        Attributes ap = adminCtx.getAttributes( "", new String[] { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || ! administrativeRole.contains( SubentryService.AC_AREA ) )
         {

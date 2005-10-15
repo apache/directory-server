@@ -76,6 +76,8 @@ public class OldAuthorizationService extends BaseInterceptor
      * the name parser used by this service
      */
     private DnParser dnParser;
+    private boolean enabled = true;
+
 
 
     /**
@@ -90,6 +92,9 @@ public class OldAuthorizationService extends BaseInterceptor
     {
         AttributeTypeRegistry atr = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         dnParser = new DnParser( new ConcreteNameComponentNormalizer( atr ) );
+
+        // disable this static module if basic access control mechanisms are enabled
+        enabled = ! factoryCfg.getStartupConfiguration().isAccessControlEnabled();
     }
 
 
@@ -99,6 +104,12 @@ public class OldAuthorizationService extends BaseInterceptor
 
     public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
+        if ( !enabled )
+        {
+            nextInterceptor.delete( name );
+            return;
+        }
+
         Name principalDn = getPrincipal().getJndiName();
 
         if ( name.toString().equals( "" ) )
@@ -162,7 +173,11 @@ public class OldAuthorizationService extends BaseInterceptor
      */
     public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        protectModifyAlterations( name );
+        if ( enabled )
+        {
+            protectModifyAlterations( name );
+        }
+
         nextInterceptor.modify( name, modOp, attrs );
     }
 
@@ -175,7 +190,10 @@ public class OldAuthorizationService extends BaseInterceptor
      */
     public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
     {
-        protectModifyAlterations( name );
+        if ( enabled )
+        {
+            protectModifyAlterations( name );
+        }
         nextInterceptor.modify( name, items );
     }
 
@@ -192,13 +210,6 @@ public class OldAuthorizationService extends BaseInterceptor
 
         if ( !principalDn.equals( ADMIN_DN ) )
         {
-            if ( dn == ADMIN_DN || dn.equals( ADMIN_DN ) )
-            {
-                String msg = "User " + principalDn;
-                msg += " does not have permission to modify the admin account.";
-                throw new LdapNoPermissionException( msg );
-            }
-
             if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) )
             {
                 String msg = "User " + principalDn;
@@ -232,14 +243,20 @@ public class OldAuthorizationService extends BaseInterceptor
 
     public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        protectDnAlterations( name );
+        if ( enabled )
+        {
+            protectDnAlterations( name );
+        }
         nextInterceptor.modifyRn( name, newRn, deleteOldRn );
     }
 
 
     public void move( NextInterceptor nextInterceptor, Name oriChildName, Name newParentName ) throws NamingException
     {
-        protectDnAlterations( oriChildName );
+        if ( enabled )
+        {
+            protectDnAlterations( oriChildName );
+        }
         nextInterceptor.move( oriChildName, newParentName );
     }
 
@@ -248,7 +265,10 @@ public class OldAuthorizationService extends BaseInterceptor
             Name oriChildName, Name newParentName, String newRn,
             boolean deleteOldRn ) throws NamingException
     {
-        protectDnAlterations( oriChildName );
+        if ( enabled )
+        {
+            protectDnAlterations( oriChildName );
+        }
         nextInterceptor.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
 
@@ -294,9 +314,9 @@ public class OldAuthorizationService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         Attributes attributes = nextInterceptor.lookup( name );
-        if ( attributes == null )
+        if ( ! enabled || attributes == null )
         {
-            return null;
+            return attributes;
         }
 
         protectLookUp( name );
@@ -307,9 +327,9 @@ public class OldAuthorizationService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
     {
         Attributes attributes = nextInterceptor.lookup( name, attrIds );
-        if ( attributes == null )
+        if ( ! enabled || attributes == null )
         {
-            return null;
+            return attributes;
         }
 
         protectLookUp( name );
@@ -375,31 +395,36 @@ public class OldAuthorizationService extends BaseInterceptor
             SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        if ( !enabled )
+        {
+            return e;
+        }
         //if ( searchCtls.getReturningAttributes() != null )
         //{
         //    return null;
         //}
         
-        LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         return new SearchResultFilteringEnumeration( e, searchCtls, ctx,
-                new SearchResultFilter()
+            new SearchResultFilter()
+            {
+                public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
+                        throws NamingException
                 {
-                    public boolean accept( LdapContext ctx, SearchResult result,
-                                           SearchControls controls )
-                            throws NamingException
-                    {
-                        return OldAuthorizationService.this.isSearchable( ctx, result );
-                    }
-                } );
+                    return OldAuthorizationService.this.isSearchable( ctx, result );
+                }
+            });
     }
 
 
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
-        LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        if ( !enabled )
+        {
+            return e;
+        }
+        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         
         return new SearchResultFilteringEnumeration( e, null, ctx,
             new SearchResultFilter()

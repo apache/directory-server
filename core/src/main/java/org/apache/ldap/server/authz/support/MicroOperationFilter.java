@@ -40,7 +40,11 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
  */
 public class MicroOperationFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next,
+                              Collection userGroupNames, Name userName, Attributes userEntry,
+                              AuthenticationLevel authenticationLevel, Name entryName, String attrId,
+                              Object attrValue, Attributes entry, Collection microOperations )
+            throws NamingException
     {
         if( tuples.size() == 0 )
         {
@@ -50,13 +54,20 @@ public class MicroOperationFilter implements ACITupleFilter
         for( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            boolean retain = false;
+
+            /*
+             * The ACITuple must contain all the MicroOperations specified within the
+             * microOperations argument.  Just matching a single microOperation is not
+             * enough.  All must be matched to retain the ACITuple.
+             */
+
+            boolean retain = true;
             for( Iterator j = microOperations.iterator(); j.hasNext(); )
             {
                 MicroOperation microOp = ( MicroOperation ) j.next();
-                if( tuple.getMicroOperations().contains( microOp ) )
+                if( ! tuple.getMicroOperations().contains( microOp ) )
                 {
-                    retain = true;
+                    retain = false;
                     break;
                 }
             }

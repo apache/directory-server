@@ -132,6 +132,21 @@ public class GroupCache
     {
         Attribute oc = entry.get( OC_ATTR );
 
+        if ( oc == null )
+        {
+            if ( entry.get( MEMBER_ATTR ) != null )
+            {
+                return entry.get( MEMBER_ATTR );
+            }
+
+            if ( entry.get( UNIQUEMEMBER_ATTR ) != null )
+            {
+                return entry.get( UNIQUEMEMBER_ATTR );
+            }
+
+            return null;
+        }
+
         if ( oc.contains( GROUPOFNAMES_OC ) )
         {
             return entry.get( MEMBER_ATTR );
@@ -320,7 +335,7 @@ public class GroupCache
      */
     public void groupModified( Name name, int modOp, Attributes mods, Attributes entry ) throws NamingException
     {
-        Attribute members = getMemberAttribute( entry );
+        Attribute members = getMemberAttribute( mods );
 
         if ( members == null )
         {
@@ -353,6 +368,12 @@ public class GroupCache
         {
             String group = ( String ) list.next();
             Set members = ( Set ) groups.get( group );
+
+            if ( members == null )
+            {
+                continue;
+            }
+
             if ( members.contains( member ) )
             {
                 if ( memberGroups == null )
