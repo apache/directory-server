@@ -99,9 +99,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 throw new LdapAuthenticationException();
             }
         }
-        catch( Exception e )
+        catch( Exception cause )
         {
-            throw new LdapAuthenticationException();
+            LdapAuthenticationException e = new LdapAuthenticationException();
+            e.setRootCause( e );
+            throw e;
         }
 
 

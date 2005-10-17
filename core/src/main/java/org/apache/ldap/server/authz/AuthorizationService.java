@@ -18,16 +18,20 @@ package org.apache.ldap.server.authz;
 
 
 import org.apache.ldap.server.DirectoryServiceConfiguration;
+import org.apache.ldap.server.enumeration.SearchResultFilter;
+import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.interceptor.InterceptorChain;
 import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.authz.support.ACDFEngine;
 import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.subtree.SubentryService;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.aci.MicroOperation;
@@ -35,6 +39,7 @@ import org.apache.ldap.common.aci.ACIItemParser;
 import org.apache.ldap.common.aci.ACIItem;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.name.DnParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 import java.util.*;
 import java.text.ParseException;
@@ -57,9 +63,14 @@ public class AuthorizationService extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( AuthorizationService.class );
-
+    /** the entry ACI attribute string: entryACI */
     private static final String ENTRYACI_ATTR = "entryACI";
+    /** the subentry ACI attribute string: subentryACI */
     private static final String SUBENTRYACI_ATTR = "subentryACI";
+    /**
+     * the multivalued op attr used to track the perscriptive access control
+     * subentries that apply to an entry.
+     */
     private static final String AC_SUBENTRY_ATTR = "accessControlSubentries";
 
     /** the partition nexus */
@@ -74,6 +85,8 @@ public class AuthorizationService extends BaseInterceptor
     private ACDFEngine engine;
     /** interceptor chain */
     private InterceptorChain chain;
+    /** attribute type registry */
+    private AttributeTypeRegistry attrRegistry;
     /** whether or not this interceptor is activated */
     private boolean enabled = false;
 
@@ -89,14 +102,12 @@ public class AuthorizationService extends BaseInterceptor
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         super.init( factoryCfg, cfg );
-
         nexus = factoryCfg.getPartitionNexus();
         tupleCache = new TupleCache( factoryCfg );
         groupCache = new GroupCache( factoryCfg );
-        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer(
-                factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() ) );
-        engine = new ACDFEngine( factoryCfg.getGlobalRegistries().getOidRegistry(),
-                factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() );
+        attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
+        engine = new ACDFEngine( factoryCfg.getGlobalRegistries().getOidRegistry(), attrRegistry );
         chain = factoryCfg.getInterceptorChain();
         enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
     }
@@ -134,7 +145,10 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         Attribute subentries = entry.get( AC_SUBENTRY_ATTR );
-        if ( subentries == null ) return;
+        if ( subentries == null )
+        {
+            return;
+        }
         for ( int ii = 0; ii < subentries.size(); ii++ )
         {
             String subentryDn = ( String ) subentries.get( ii );
@@ -154,7 +168,10 @@ public class AuthorizationService extends BaseInterceptor
     private void addEntryAciTuples( Collection tuples, Attributes entry ) throws NamingException
     {
         Attribute entryAci = entry.get( ENTRYACI_ATTR );
-        if ( entryAci == null ) return;
+        if ( entryAci == null )
+        {
+            return;
+        }
 
         for ( int ii = 0; ii < entryAci.size(); ii++ )
         {
@@ -189,7 +206,10 @@ public class AuthorizationService extends BaseInterceptor
     private void addSubentryAciTuples( Collection tuples, Name dn, Attributes entry ) throws NamingException
     {
         // only perform this for subentries
-        if ( ! entry.get( "objectClass" ).contains( "subentry" ) ) return;
+        if ( ! entry.get("objectClass").contains("subentry") )
+        {
+            return;
+        }
 
         // get the parent or administrative entry for this subentry since it
         // will contain the subentryACI attributes that effect subentries
@@ -198,7 +218,10 @@ public class AuthorizationService extends BaseInterceptor
         Attributes administrativeEntry = nexus.lookup( parentDn );
         Attribute subentryAci = administrativeEntry.get( SUBENTRYACI_ATTR );
 
-        if ( subentryAci == null ) return;
+        if ( subentryAci == null )
+        {
+            return;
+        }
 
         for ( int ii = 0; ii < subentryAci.size(); ii++ )
         {
@@ -232,10 +255,13 @@ public class AuthorizationService extends BaseInterceptor
      * since it could introduce a security breech.  So for non-add ops if present a
      * set of ACITuples are generated for all the entryACIs within the entry.  This
      * set is combined with the ACITuples cached for the perscriptiveACI affecting
-     * the target entry.
+     * the target entry.  If the entry is a subentry the ACIs are also processed for
+     * the subentry to generate more ACITuples.  This subentry TupleACI set is joined
+     * with the entry and perscriptive ACI.
      *
      * The union of ACITuples are fed into the engine along with other parameters
-     * to decide where permission is granted or rejected for the specific operation.
+     * to decide whether a permission is granted or rejected for the specific
+     * operation.
      * -------------------------------------------------------------------------------
      */
 
@@ -251,7 +277,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        // perform checks below here
+        // perform checks below here for all non-admin users
         SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( normName, entry );
         NamingEnumeration attrList = entry.getAll();
@@ -264,25 +290,34 @@ public class AuthorizationService extends BaseInterceptor
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
 
-        // note that entryACI should not be considered in adds (it's a security breach)
+        // Build the total collection of tuples to be considered for add rights
+        // NOTE: entryACI are NOT considered in adds (it would be a security breech)
         addPerscriptiveAciTuples( tuples, normName, subentryAttrs );
         addSubentryAciTuples( tuples, normName, subentryAttrs );
         Collection perms = Collections.singleton( MicroOperation.ADD );
-        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), normName, null,
-            null, perms, tuples, subentryAttrs );
+
+        // check if entry scope permission is granted
+        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
+                normName, null, null, perms, tuples, subentryAttrs );
+
+        // now we must check if attribute type and value scope permission is granted
         NamingEnumeration attributeList = entry.getAll();
         while ( attributeList.hasMore() )
         {
             Attribute attr = ( Attribute ) attributeList.next();
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), normName,
-                        attr.getID(), attr.get( ii ), perms, tuples, entry );
+                engine.checkPermission( next, userGroups, user.getJndiName(),
+                        user.getAuthenticationLevel(), normName, attr.getID(),
+                        attr.get( ii ), perms, tuples, entry );
             }
         }
 
-        // if we've gotten this far then access is granted
+        // if we've gotten this far then access has been granted
         next.add( upName, normName, entry );
+
+        // if the entry added is a subentry or a groupOf[Unique]Names we must
+        // update the ACITuple cache and the groups cache to keep them in sync
         tupleCache.subentryAdded( upName, normName, entry );
         groupCache.groupAdded( upName, normName, entry );
     }
@@ -453,30 +488,6 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
-    {
-//        Attributes entry = nexus.lookup( base );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), base, null,
-//                null, SEARCH_OPS, tuples );
-
-        return super.list( next, base );
-    }
-
-
-    public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
-    {
-        return super.listSuffixes( next, normalized );
-    }
-
-
     /**
      * Checks if the READ permissions exist to the entry and to each attribute type and
      * value.
@@ -502,12 +513,16 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( tuples, dn, entry );
 
+        Collection perms = new HashSet();
+        perms.add( MicroOperation.READ );
+        perms.add( MicroOperation.BROWSE );
+
         // check that we have read access to the entry
         engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), dn, null,
-                null, Collections.singleton( MicroOperation.READ ), tuples, entry );
+                null, perms, tuples, entry );
 
         // check that we have read access to every attribute type and value
-        Collection perms = Collections.singleton( MicroOperation.READ );
+        perms = Collections.singleton( MicroOperation.READ );
         NamingEnumeration attributeList = entry.getAll();
         while ( attributeList.hasMore() )
         {
@@ -684,9 +699,9 @@ public class AuthorizationService extends BaseInterceptor
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Attributes entry = nexus.lookup( oriChildName );
-        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
         Name newName = ( Name ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
+        LdapPrincipal user = ( ( ServerContext ) InvocationStack.getInstance().peek().getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
             next.move( oriChildName, newParentName );
@@ -717,22 +732,34 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
+    public static final SearchControls DEFUALT_SEARCH_CONTROLS = new SearchControls();
+
+    public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
+    {
+        ServerLdapContext ctx = ( ServerLdapContext ) InvocationStack.getInstance().peek().getCaller();
+        LdapPrincipal user = ctx.getPrincipal();
+        NamingEnumeration e = next.list( base );
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            return e;
+        }
+        AuthorizationFilter authzFilter = new AuthorizationFilter();
+        return new SearchResultFilteringEnumeration( e, DEFUALT_SEARCH_CONTROLS, ctx, authzFilter );
+    }
+
+
     public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
                                      SearchControls searchCtls ) throws NamingException
     {
-//        Attributes entry = nexus.lookup( base );
-//        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-//        LdapPrincipal user = ctx.getPrincipal();
-//        Set userGroups = groupCache.getGroups( user.getName() );
-//        Collection tuples = new HashSet();
-//        addPerscriptiveAciTuples( tuples, entry );
-//        addEntryAciTuples( tuples, entry );
-//        addSubentryAciTuples( tuples, entry );
-//
-//        engine.checkPermission( next, userGroups, user.getJndiName(), user.getAuthenticationLevel(), base, null,
-//                null, SEARCH_OPS, tuples );
-
-        return super.search( next, base, env, filter, searchCtls );
+        ServerLdapContext ctx = ( ServerLdapContext ) InvocationStack.getInstance().peek().getCaller();
+        LdapPrincipal user = ctx.getPrincipal();
+        NamingEnumeration e = next.search( base, env, filter, searchCtls );
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            return e;
+        }
+        AuthorizationFilter authzFilter = new AuthorizationFilter();
+        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, authzFilter );
     }
 
 
@@ -765,5 +792,118 @@ public class AuthorizationService extends BaseInterceptor
     public void cacheNewGroup( String upName, Name normName, Attributes entry ) throws NamingException
     {
         this.groupCache.groupAdded( upName, normName, entry );
+    }
+
+
+    /** @todo move this up and add more collections that can be made constants */
+    private static final Collection SEARCH_ENTRY_PERMS;
+    private static final Collection SEARCH_ATTRVAL_PERMS;
+    static
+    {
+        HashSet set = new HashSet( 2 );
+        set.add( MicroOperation.BROWSE );
+        set.add( MicroOperation.RETURN_DN );
+        SEARCH_ENTRY_PERMS = Collections.unmodifiableCollection( set );
+        SEARCH_ATTRVAL_PERMS = Collections.singleton( MicroOperation.READ );
+    }
+
+    private boolean filter( ServerLdapContext ctx, Name normName, SearchResult result ) throws NamingException
+    {
+       /*
+        * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
+        * tests.  If we hasPermission() returns false we immediately short the
+        * process and return false.
+        */
+//        NextInterceptor next = chain.getNext( "authorizationService" );
+        NextInterceptor next = null;//chain.getNext( "authorizationService" );
+        Attributes entry = nexus.lookup( normName );
+        Name userDn = ctx.getPrincipal().getJndiName();
+        Set userGroups = groupCache.getGroups( userDn.toString() );
+        Collection tuples = new HashSet();
+        addPerscriptiveAciTuples( tuples, normName, entry );
+        addEntryAciTuples( tuples, entry );
+        addSubentryAciTuples( tuples, normName, entry );
+
+        if ( ! engine.hasPermission( next, userGroups, userDn, ctx.getPrincipal().getAuthenticationLevel(),
+                normName, null, null, SEARCH_ENTRY_PERMS, tuples, entry ) )
+        {
+            return false;
+        }
+
+        /*
+         * For each attribute type we check if access is allowed to the type.  If not
+         * the attribute is yanked out of the entry to be returned.  If permission is
+         * allowed we move on to check if the values are allowed.  Values that are
+         * not allowed are removed from the attribute.  If the attribute has no more
+         * values remaining then the entire attribute is removed.
+         */
+        NamingEnumeration attributeList = result.getAttributes().getAll();
+        while ( attributeList.hasMore() )
+        {
+            // if attribute type scope access is not allowed then remove the attribute and continue
+            Attribute attr = ( Attribute ) attributeList.next();
+            if ( ! engine.hasPermission( next, userGroups, userDn, ctx.getPrincipal().getAuthenticationLevel(),
+                   normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry ) )
+            {
+                result.getAttributes().remove( attr.getID() );
+
+                if ( attr.size() == 0 )
+                {
+                    result.getAttributes().remove( attr.getID() );
+                }
+                continue;
+            }
+
+            // attribute type scope is ok now let's determine value level scope
+            for ( int ii = 0; ii < attr.size(); ii++ )
+            {
+                if ( ! engine.hasPermission( next, userGroups, userDn,
+                        ctx.getPrincipal().getAuthenticationLevel(), normName,
+                        attr.getID(), attr.get( ii ), SEARCH_ATTRVAL_PERMS, tuples, entry ) )
+                {
+                    attr.remove( ii );
+
+                    if ( ii > 0 )
+                    {
+                        ii--;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * WARNING: create one of these filters fresh every time for each new search.
+     */
+    class AuthorizationFilter implements SearchResultFilter
+    {
+        /** dedicated normalizing parser for this search - cheaper than synchronization */
+        final DnParser parser;
+
+        public AuthorizationFilter() throws NamingException
+        {
+            parser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
+        }
+
+
+        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls ) throws NamingException
+        {
+            Name normName = parser.parse( result.getName() );
+            ServerLdapContext srvCtx = ( ServerLdapContext ) ctx;
+
+// looks like isRelative returns true even when the names for results are absolute!!!!
+// @todo this is a big bug in JNDI provider
+
+//            if ( result.isRelative() )
+//            {
+//                Name base = parser.parse( ctx.getNameInNamespace() );
+//                normName = base.addAll( normName );
+//            }
+
+            return filter( srvCtx, normName, result );
+        }
     }
 }
