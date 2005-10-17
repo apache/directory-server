@@ -18,6 +18,11 @@
  */
 package org.apache.ldap.server.configuration;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.mina.registry.ServiceRegistry;
 import org.apache.mina.registry.SimpleServiceRegistry;
 
@@ -36,6 +41,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private int ldapPort = 389;
     private int ldapsPort = 636;
     private boolean enableKerberos;
+    private final Collection extendedOperationHandlers = new ArrayList();
 
     protected ServerStartupConfiguration()
     {
@@ -127,5 +133,25 @@ public class ServerStartupConfiguration extends StartupConfiguration
             throw new ConfigurationException( "MinaServiceRegistry cannot be null" );
         }
         this.minaServiceRegistry = minaServiceRegistry;
+    }
+    
+    public Collection getExtendedOperationHandlers()
+    {
+        return new ArrayList( extendedOperationHandlers );
+    }
+    
+    protected void setExtendedOperationHandlers( Collection handlers )
+    {
+        for( Iterator i = handlers.iterator(); i.hasNext(); )
+        {
+            if( !( i.next() instanceof ExtendedOperationHandler ) )
+            {
+                throw new IllegalArgumentException(
+                        "The specified handler collection contains an element which is not an ExtendedOperationHandler." );
+            }
+        }
+        
+        this.extendedOperationHandlers.clear();
+        this.extendedOperationHandlers.addAll( handlers );
     }
 }

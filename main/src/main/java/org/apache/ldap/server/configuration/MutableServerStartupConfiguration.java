@@ -19,6 +19,7 @@
 package org.apache.ldap.server.configuration;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -98,5 +99,9 @@ public class MutableServerStartupConfiguration extends
     public void setMinaServiceRegistry( ServiceRegistry minaServiceRegistry )
     {
         super.setMinaServiceRegistry( minaServiceRegistry );
+    }
+
+    public void setExtendedOperationHandlers(Collection handlers) {
+        super.setExtendedOperationHandlers(handlers);
     }
 }

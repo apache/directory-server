@@ -40,6 +40,7 @@ import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
+import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
@@ -204,9 +205,17 @@ public class ServerContextFactory extends CoreContextFactory
         int port = cfg.getLdapPort();
         Service service = new Service( "ldap", TransportType.SOCKET, new InetSocketAddress( port ) );
 
+        // Register all extended operation handlers.
+        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( ( Hashtable ) env.clone() );
+        for( Iterator i = cfg.getExtendedOperationHandlers().iterator(); i.hasNext(); )
+        {
+            ExtendedOperationHandler h = ( ExtendedOperationHandler ) i.next();
+            protocolProvider.addExtendedOperationHandler( h );
+        }
+        
         try
         {
-            minaRegistry.bind( service, new LdapProtocolProvider( ( Hashtable ) env.clone() ) );
+            minaRegistry.bind( service, protocolProvider );
             ldapService = service;
             if ( log.isInfoEnabled() )
             {
