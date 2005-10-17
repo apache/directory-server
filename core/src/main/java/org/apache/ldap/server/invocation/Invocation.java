@@ -20,10 +20,12 @@ package org.apache.ldap.server.invocation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Collection;
 
 import javax.naming.Context;
 
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 
 
 /**
@@ -37,27 +39,50 @@ public class Invocation
     private final Context caller;
     private final String name;
     private final List parameters;
-    
+    private final Collection bypassed;
+    private final DirectoryPartitionNexusProxy proxy;
+
+
     /**
      * Creates a new instance that represents an invocation without parameters.
      * 
-     * @parem caller the JNDI {@link Context} that made this invocation
+     * @param caller the JNDI {@link Context} that made this invocation
      * @param name the name of the called method
      */
-    public Invocation( Context caller, String name )
+    public Invocation( DirectoryPartitionNexusProxy proxy, Context caller, String name )
     {
-        this( caller, name, null );
+        this( proxy, caller, name, null, Collections.EMPTY_SET );
     }
+
+
+    /**
+     * Creates a new instance.
+     *
+     * @param caller the JNDI {@link Context} that made this invocation
+     * @param name the name of the called method
+     * @param parameters the array of parameters passed to the called method
+     */
+    public Invocation( DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters )
+    {
+        this( proxy, caller, name, parameters, Collections.EMPTY_SET );
+    }
+
 
     /**
      * Creates a new instance.
      * 
-     * @parem caller the JNDI {@link Context} that made this invocation
+     * @param caller the JNDI {@link Context} that made this invocation
      * @param name the name of the called method
      * @param parameters the array of parameters passed to the called method
+     * @param bypassed the set of bypassed Interceptor names
      */
-    public Invocation( Context caller, String name, Object[] parameters )
+    public Invocation( DirectoryPartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
+                       Collection bypassed )
     {
+        if( proxy == null )
+        {
+            throw new NullPointerException( "proxy" );
+        }
         if( caller == null )
         {
             throw new NullPointerException( "caller" );
@@ -66,24 +91,44 @@ public class Invocation
         {
             throw new NullPointerException( "name" );
         }
-        
+
         if( parameters == null )
         {
             parameters = new Object[ 0 ];
         }
-        
+
+        if ( bypassed == null )
+        {
+            this.bypassed = Collections.EMPTY_SET;
+        }
+        else
+        {
+            this.bypassed = Collections.unmodifiableCollection( bypassed );
+        }
+
+        this.proxy = proxy;
         this.caller = caller;
         this.name = name;
-        
+
         List paramList = new ArrayList();
         for( int i = 0; i < parameters.length; i++ )
         {
             paramList.add( parameters[ i ] );
         }
-        
+
         this.parameters = Collections.unmodifiableList( paramList );
     }
-    
+
+
+    /**
+     * Returns the proxy object to the {@link DirectoryPartitionNexus}.
+     */
+    public DirectoryPartitionNexusProxy getProxy()
+    {
+        return proxy;
+    }
+
+
     /**
      * Returns the JNDI {@link Context} which made this invocation.
      */
@@ -91,7 +136,8 @@ public class Invocation
     {
         return caller;
     }
-    
+
+
     /**
      * Returns the name of the called method.
      */
@@ -99,12 +145,36 @@ public class Invocation
     {
         return name;
     }
-    
+
+
     /**
      * Returns the list of parameters parameters passed to the called method.
      */
     public List getParameters()
     {
         return parameters;
+    }
+
+
+    /**
+     * Checks to see if an interceptor is bypassed.
+     *
+     * @param interceptorName the interceptorName of the interceptor to check for bypass
+     * @return true if the interceptor should be bypassed, false otherwise
+     */
+    public boolean isBypassed( String interceptorName )
+    {
+        return bypassed.contains( interceptorName );
+    }
+
+
+    /**
+     * Checks to see if any interceptors are bypassed by this Invocation.
+     *
+     * @return true if at least one bypass exists
+     */
+    public boolean hasBypass()
+    {
+        return !bypassed.isEmpty();
     }
 }

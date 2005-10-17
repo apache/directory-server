@@ -17,12 +17,7 @@
 package org.apache.ldap.server.interceptor;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 
 import javax.naming.ConfigurationException;
 import javax.naming.Name;
@@ -34,10 +29,13 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
+import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -453,10 +451,51 @@ public class InterceptorChain
     }
 
 
+    /**
+     * Gets the InterceptorEntry to use first with bypass information considered.
+     *
+     * @return the first entry to use.
+     */
+    private Entry getStartingEntry()
+    {
+        if ( InvocationStack.getInstance().isEmpty() )
+        {
+            return head;
+        }
+
+        Invocation invocation = InvocationStack.getInstance().peek();
+        if ( ! invocation.hasBypass() )
+        {
+            return head;
+        }
+
+        if ( ! invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
+        {
+            return tail;
+        }
+
+        Entry next = head;
+        while ( next != tail )
+        {
+            if ( invocation.isBypassed( next.configuration.getName() ) )
+            {
+                next = next.nextEntry;
+            }
+            else
+            {
+                return next;
+            }
+        }
+
+        return tail;
+    }
+
+
     public Attributes getRootDSE() throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.getRootDSE( next );
@@ -475,8 +514,9 @@ public class InterceptorChain
 
     public Name getMatchedName( Name name, boolean normalized ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.getMatchedName( next, name, normalized );
@@ -495,8 +535,9 @@ public class InterceptorChain
 
     public Name getSuffix( Name name, boolean normalized ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.getSuffix( next, name, normalized );
@@ -515,8 +556,9 @@ public class InterceptorChain
 
     public boolean compare( Name name, String oid, Object value ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.compare( next, name, oid, value );
@@ -535,8 +577,9 @@ public class InterceptorChain
 
     public Iterator listSuffixes( boolean normalized ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.listSuffixes( next, normalized );
@@ -554,8 +597,9 @@ public class InterceptorChain
 
     public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.addContextPartition( next, cfg );
@@ -573,8 +617,9 @@ public class InterceptorChain
 
     public void removeContextPartition( Name suffix ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.removeContextPartition( next, suffix );
@@ -592,8 +637,9 @@ public class InterceptorChain
 
     public void delete( Name name ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.delete( next, name );
@@ -611,8 +657,9 @@ public class InterceptorChain
 
     public void add( String upName, Name normName, Attributes entry ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry node = getStartingEntry();
+        Interceptor head = node.configuration.getInterceptor();
+        NextInterceptor next = node.nextInterceptor;
         try
         {
             head.add( next, upName, normName, entry );
@@ -630,8 +677,9 @@ public class InterceptorChain
 
     public void modify( Name name, int modOp, Attributes mods ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.modify( next, name, modOp, mods );
@@ -649,8 +697,9 @@ public class InterceptorChain
 
     public void modify( Name name, ModificationItem[] mods ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.modify( next, name, mods );
@@ -668,8 +717,9 @@ public class InterceptorChain
 
     public NamingEnumeration list( Name base ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.list( next, base );
@@ -688,8 +738,9 @@ public class InterceptorChain
 
     public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.search( next, base, env, filter, searchCtls );
@@ -708,8 +759,9 @@ public class InterceptorChain
 
     public Attributes lookup( Name name ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.lookup( next, name );
@@ -728,8 +780,9 @@ public class InterceptorChain
 
     public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.lookup( next, dn, attrIds );
@@ -748,8 +801,9 @@ public class InterceptorChain
 
     public boolean hasEntry( Name name ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.hasEntry( next, name );
@@ -768,8 +822,9 @@ public class InterceptorChain
 
     public boolean isSuffix( Name name ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             return head.isSuffix( next, name );
@@ -788,8 +843,9 @@ public class InterceptorChain
 
     public void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.modifyRn( next, name, newRn, deleteOldRn );
@@ -807,8 +863,9 @@ public class InterceptorChain
 
     public void move( Name oriChildName, Name newParentName ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.move( next, oriChildName, newParentName );
@@ -826,8 +883,9 @@ public class InterceptorChain
 
     public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        Interceptor head = this.head.configuration.getInterceptor();
-        NextInterceptor next = this.head.nextInterceptor;
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
         try
         {
             head.move( next, oriChildName, newParentName, newRn, deleteOldRn );
@@ -870,13 +928,48 @@ public class InterceptorChain
             this.configuration = configuration;
             this.nextInterceptor = new NextInterceptor()
             {
+                private Entry getNextEntry()
+                {
+                    if ( InvocationStack.getInstance().isEmpty() )
+                    {
+                        return Entry.this.nextEntry;
+                    }
+
+                    Invocation invocation = InvocationStack.getInstance().peek();
+                    if ( ! invocation.hasBypass() )
+                    {
+                        return Entry.this.nextEntry;
+                    }
+
+                    if ( ! invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
+                    {
+                        return tail;
+                    }
+
+                    Entry next = Entry.this.nextEntry;
+                    while ( next != tail )
+                    {
+                        if ( invocation.isBypassed( next.configuration.getName() ) )
+                        {
+                            next = next.nextEntry;
+                        }
+                        else
+                        {
+                            return next;
+                        }
+                    }
+
+                    return next;
+                }
+
                 public boolean compare( Name name, String oid, Object value ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.compare( Entry.this.nextEntry.nextInterceptor, name, oid, value );
+                        return interceptor.compare( next.nextInterceptor, name, oid, value );
                     }
                     catch ( NamingException ne )
                     {
@@ -892,11 +985,12 @@ public class InterceptorChain
 
                 public Attributes getRootDSE() throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getRootDSE( Entry.this.nextEntry.nextInterceptor );
+                        return interceptor.getRootDSE( next.nextInterceptor );
                     }
                     catch ( NamingException ne )
                     {
@@ -911,11 +1005,12 @@ public class InterceptorChain
 
                 public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getMatchedName( Entry.this.nextEntry.nextInterceptor, dn, normalized );
+                        return interceptor.getMatchedName( next.nextInterceptor, dn, normalized );
                     }
                     catch ( NamingException ne )
                     {
@@ -930,11 +1025,12 @@ public class InterceptorChain
 
                 public Name getSuffix( Name dn, boolean normalized ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getSuffix( Entry.this.nextEntry.nextInterceptor, dn, normalized );
+                        return interceptor.getSuffix( next.nextInterceptor, dn, normalized );
                     }
                     catch ( NamingException ne )
                     {
@@ -949,11 +1045,12 @@ public class InterceptorChain
 
                 public Iterator listSuffixes( boolean normalized ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.listSuffixes( Entry.this.nextEntry.nextInterceptor, normalized );
+                        return interceptor.listSuffixes( next.nextInterceptor, normalized );
                     }
                     catch ( NamingException ne )
                     {
@@ -968,11 +1065,12 @@ public class InterceptorChain
 
                 public void delete( Name name ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.delete( Entry.this.nextEntry.nextInterceptor, name );
+                        interceptor.delete( next.nextInterceptor, name );
                     }
                     catch ( NamingException ne )
                     {
@@ -986,11 +1084,12 @@ public class InterceptorChain
 
                 public void add( String upName, Name normName, Attributes entry ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.add( Entry.this.nextEntry.nextInterceptor, upName, normName, entry );
+                        interceptor.add( next.nextInterceptor, upName, normName, entry );
                     }
                     catch ( NamingException ne )
                     {
@@ -1004,11 +1103,12 @@ public class InterceptorChain
 
                 public void modify( Name name, int modOp, Attributes mods ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modify( Entry.this.nextEntry.nextInterceptor, name, modOp, mods );
+                        interceptor.modify( next.nextInterceptor, name, modOp, mods );
                     }
                     catch ( NamingException ne )
                     {
@@ -1022,11 +1122,12 @@ public class InterceptorChain
 
                 public void modify( Name name, ModificationItem[] mods ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modify( Entry.this.nextEntry.nextInterceptor, name, mods );
+                        interceptor.modify( next.nextInterceptor, name, mods );
                     }
                     catch ( NamingException ne )
                     {
@@ -1040,11 +1141,12 @@ public class InterceptorChain
 
                 public NamingEnumeration list( Name base ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.list( Entry.this.nextEntry.nextInterceptor, base );
+                        return interceptor.list( next.nextInterceptor, base );
                     }
                     catch ( NamingException ne )
                     {
@@ -1059,11 +1161,12 @@ public class InterceptorChain
 
                 public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.search( Entry.this.nextEntry.nextInterceptor, base, env, filter, searchCtls );
+                        return interceptor.search( next.nextInterceptor, base, env, filter, searchCtls );
                     }
                     catch ( NamingException ne )
                     {
@@ -1078,11 +1181,12 @@ public class InterceptorChain
 
                 public Attributes lookup( Name name ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.lookup( Entry.this.nextEntry.nextInterceptor, name );
+                        return interceptor.lookup( next.nextInterceptor, name );
                     }
                     catch ( NamingException ne )
                     {
@@ -1097,11 +1201,12 @@ public class InterceptorChain
 
                 public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.lookup( Entry.this.nextEntry.nextInterceptor, dn, attrIds );
+                        return interceptor.lookup( next.nextInterceptor, dn, attrIds );
                     }
                     catch ( NamingException ne )
                     {
@@ -1116,11 +1221,12 @@ public class InterceptorChain
 
                 public boolean hasEntry( Name name ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.hasEntry( Entry.this.nextEntry.nextInterceptor, name );
+                        return interceptor.hasEntry( next.nextInterceptor, name );
                     }
                     catch ( NamingException ne )
                     {
@@ -1135,11 +1241,12 @@ public class InterceptorChain
 
                 public boolean isSuffix( Name name ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.isSuffix( Entry.this.nextEntry.nextInterceptor, name );
+                        return interceptor.isSuffix( next.nextInterceptor, name );
                     }
                     catch ( NamingException ne )
                     {
@@ -1154,11 +1261,12 @@ public class InterceptorChain
 
                 public void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modifyRn( Entry.this.nextEntry.nextInterceptor, name, newRn, deleteOldRn );
+                        interceptor.modifyRn( next.nextInterceptor, name, newRn, deleteOldRn );
                     }
                     catch ( NamingException ne )
                     {
@@ -1172,11 +1280,12 @@ public class InterceptorChain
 
                 public void move( Name oriChildName, Name newParentName ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.move( Entry.this.nextEntry.nextInterceptor, oriChildName, newParentName );
+                        interceptor.move( next.nextInterceptor, oriChildName, newParentName );
                     }
                     catch ( NamingException ne )
                     {
@@ -1190,11 +1299,12 @@ public class InterceptorChain
 
                 public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.move( Entry.this.nextEntry.nextInterceptor, oriChildName, newParentName, newRn, deleteOldRn );
+                        interceptor.move( next.nextInterceptor, oriChildName, newParentName, newRn, deleteOldRn );
                     }
                     catch ( NamingException ne )
                     {
@@ -1208,11 +1318,12 @@ public class InterceptorChain
 
                 public void addContextPartition( DirectoryPartitionConfiguration cfg ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.addContextPartition( Entry.this.nextEntry.nextInterceptor, cfg );
+                        interceptor.addContextPartition( next.nextInterceptor, cfg );
                     }
                     catch ( NamingException ne )
                     {
@@ -1227,11 +1338,12 @@ public class InterceptorChain
 
                 public void removeContextPartition( Name suffix ) throws NamingException
                 {
-                    Interceptor interceptor = Entry.this.nextEntry.configuration.getInterceptor();
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.removeContextPartition( Entry.this.nextEntry.nextInterceptor, suffix );
+                        interceptor.removeContextPartition( next.nextInterceptor, suffix );
                     }
                     catch ( NamingException ne )
                     {

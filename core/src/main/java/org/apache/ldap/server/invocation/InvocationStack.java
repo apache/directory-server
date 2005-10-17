@@ -91,7 +91,15 @@ public final class InvocationStack
     {
         return ( Invocation ) this.stack.get( 0 );
     }
-    
+
+    /**
+     * Returns true if the stack is empty false otherwise.
+     */
+    public boolean isEmpty()
+    {
+        return this.stack.isEmpty();
+    }
+
     /**
      * Pushes the specified invocation to this stack.
      */

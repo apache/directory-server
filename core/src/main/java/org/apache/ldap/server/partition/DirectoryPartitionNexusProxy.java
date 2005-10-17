@@ -19,6 +19,8 @@ package org.apache.ldap.server.partition;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -28,6 +30,7 @@ import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.DirContext;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
@@ -54,6 +57,17 @@ import org.apache.ldap.server.invocation.InvocationStack;
  */
 public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
 {
+    /** Bypass String to use when ALL interceptors should be skipped */
+    public static final String BYPASS_ALL = "*";
+    /** Bypass String to use when ALL interceptors should be skipped */
+    public static final Collection BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
+    /** Integer const for DirContext.ADD_ATTRIBUTE */
+    private static final Integer ADD_MODOP = new Integer( DirContext.ADD_ATTRIBUTE );
+    /** Integer const for DirContext.REMOVE_ATTRIBUTE */
+    private static final Integer REMOVE_MODOP = new Integer( DirContext.REMOVE_ATTRIBUTE );
+    /** Integer const for DirContext.REPLACE_ATTRIBUTE */
+    private static final Integer REPLACE_MODOP = new Integer( DirContext.REPLACE_ATTRIBUTE );
+
     private final Context caller;
     private final DirectoryService service;
     private final DirectoryServiceConfiguration configuration;
@@ -105,12 +119,19 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         return this.service.isStarted();
     }
 
-    public Name getMatchedName(Name dn, boolean normalized) throws NamingException {
+
+    public Name getMatchedName( Name dn, boolean normalized ) throws NamingException
+    {
+        return getMatchedName( dn, normalized, null );
+    }
+
+
+    public Name getMatchedName( Name dn, boolean normalized, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "getMatchedDn",
-                new Object[] { dn, normalized? Boolean.TRUE : Boolean.FALSE } ) );
+        Object[] args = new Object[] { dn, normalized? Boolean.TRUE : Boolean.FALSE };
+        stack.push( new Invocation( this, caller, "getMatchedDn", args, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().getMatchedName( dn, normalized );
@@ -121,12 +142,19 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public Name getSuffix(Name dn, boolean normalized) throws NamingException {
+
+    public Name getSuffix( Name dn, boolean normalized) throws NamingException
+    {
+        return getSuffix( dn, normalized, null );
+    }
+
+
+    public Name getSuffix( Name dn, boolean normalized, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "getSuffix",
-                new Object[] { dn, normalized? Boolean.TRUE : Boolean.FALSE } ) );
+        Object[] args = new Object[] { dn, normalized? Boolean.TRUE : Boolean.FALSE };
+        stack.push( new Invocation( this, caller, "getSuffix", args, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().getSuffix( dn, normalized );
@@ -137,12 +165,19 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public Iterator listSuffixes(boolean normalized) throws NamingException {
+
+    public Iterator listSuffixes( boolean normalized ) throws NamingException
+    {
+        return listSuffixes( normalized, null );
+    }
+
+
+    public Iterator listSuffixes( boolean normalized, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "listSuffixes",
-                new Object[] { normalized? Boolean.TRUE : Boolean.FALSE } ) );
+        Object[] args = new Object[] { normalized? Boolean.TRUE : Boolean.FALSE };
+        stack.push( new Invocation( this, caller, "listSuffixes", args, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().listSuffixes( normalized );
@@ -153,11 +188,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
+
     public boolean compare( Name name, String oid, Object value ) throws NamingException
+    {
+        return compare( name, oid, value, null );
+    }
+
+
+    public boolean compare( Name name, String oid, Object value, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation( caller, "compare", new Object[] { name, oid, value } ) );
+        stack.push( new Invocation( this, caller, "compare", new Object[] { name, oid, value }, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().compare( name, oid, value );
@@ -169,12 +211,17 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
-    public void delete(Name name) throws NamingException {
+    public void delete( Name name ) throws NamingException
+    {
+        delete( name, null );
+    }
+
+
+    public void delete( Name name, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "delete",
-                new Object[] { name } ) );
+        stack.push( new Invocation( this, caller, "delete", new Object[] { name }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().delete( name );
@@ -185,12 +232,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public void add(String upName, Name normName, Attributes entry) throws NamingException {
+
+    public void add( String upName, Name normName, Attributes entry ) throws NamingException
+    {
+        add( upName, normName, entry, null );
+    }
+
+
+    public void add( String upName, Name normName, Attributes entry, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "add",
-                new Object[] { upName, normName, entry } ) );
+        stack.push( new Invocation( this, caller, "add", new Object[] { upName, normName, entry }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().add( upName, normName, entry );
@@ -201,13 +254,35 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public void modify(Name name, int modOp, Attributes mods) throws NamingException {
+
+    public void modify( Name name, int modOp, Attributes mods ) throws NamingException
+    {
+        modify( name, modOp, mods, null );
+    }
+
+
+    public void modify( Name name, int modOp, Attributes mods, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        // TODO Use predefined modOp Interger constants.
-        stack.push( new Invocation(
-                caller, "modify",
-                new Object[] { name, new Integer( modOp ), mods } ) );
+        Integer modOpObj;
+
+        switch( modOp )
+        {
+            case( DirContext.ADD_ATTRIBUTE ):
+                modOpObj = ADD_MODOP;
+                break;
+            case( DirContext.REMOVE_ATTRIBUTE ):
+                modOpObj = REMOVE_MODOP;
+                break;
+            case( DirContext.REPLACE_ATTRIBUTE ):
+                modOpObj = REPLACE_MODOP;
+                break;
+            default:
+                throw new IllegalArgumentException( "bad modification operation value: " + modOp );
+        }
+
+        stack.push( new Invocation( this, caller, "modify", new Object[] { name, modOpObj, mods }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().modify( name, modOp, mods );
@@ -218,12 +293,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public void modify(Name name, ModificationItem[] mods) throws NamingException {
+
+    public void modify( Name name, ModificationItem[] mods ) throws NamingException
+    {
+        modify( name, mods, null );
+    }
+
+
+    public void modify( Name name, ModificationItem[] mods, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "modify",
-                new Object[] { name, mods } ) );
+        stack.push( new Invocation( this, caller, "modify", new Object[] { name, mods }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().modify( name, mods );
@@ -234,12 +315,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public NamingEnumeration list(Name base) throws NamingException {
+
+    public NamingEnumeration list( Name base ) throws NamingException
+    {
+        return list( base, null );
+    }
+
+
+    public NamingEnumeration list( Name base, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "list",
-                new Object[] { base } ) );
+        stack.push( new Invocation( this, caller, "list", new Object[] { base }, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().list( base );
@@ -250,12 +337,20 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public NamingEnumeration search(Name base, Map env, ExprNode filter, SearchControls searchCtls) throws NamingException {
+
+    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+            throws NamingException
+    {
+        return search( base, env, filter, searchCtls, null );
+    }
+
+
+    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls, Collection bypass )
+            throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "search",
-                new Object[] { base, env, filter, searchCtls } ) );
+        stack.push( new Invocation( this, caller, "search", new Object[] { base, env, filter, searchCtls }, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().search( base, env, filter, searchCtls );
@@ -266,12 +361,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public Attributes lookup(Name name) throws NamingException {
+
+    public Attributes lookup( Name name ) throws NamingException
+    {
+        return lookup( name, ( Collection ) null );
+    }
+
+
+    public Attributes lookup( Name name, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "lookup",
-                new Object[] { name } ) );
+        stack.push( new Invocation( this, caller, "lookup", new Object[] { name }, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().lookup( name );
@@ -282,12 +383,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public Attributes lookup(Name dn, String[] attrIds) throws NamingException {
+
+    public Attributes lookup( Name dn, String[] attrIds ) throws NamingException
+    {
+        return lookup( dn, attrIds, null );
+    }
+
+
+    public Attributes lookup( Name dn, String[] attrIds, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "lookup",
-                new Object[] { dn, attrIds } ) );
+        stack.push( new Invocation( this, caller, "lookup", new Object[] { dn, attrIds }, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().lookup( dn, attrIds );
@@ -298,12 +405,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public boolean hasEntry(Name name) throws NamingException {
+
+    public boolean hasEntry( Name name ) throws NamingException
+    {
+        return hasEntry( name, null );
+    }
+
+
+    public boolean hasEntry( Name name, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "hasEntry",
-                new Object[] { name } ) );
+        stack.push( new Invocation( this, caller, "hasEntry", new Object[] { name }, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().hasEntry( name );
@@ -314,12 +427,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public boolean isSuffix(Name name) throws NamingException {
+
+    public boolean isSuffix( Name name ) throws NamingException
+    {
+        return isSuffix( name, null );
+    }
+
+
+    public boolean isSuffix( Name name, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "isSuffix",
-                new Object[] { name } ) );
+        stack.push( new Invocation( this, caller, "isSuffix", new Object[] { name }, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().isSuffix( name );
@@ -330,12 +449,19 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public void modifyRn(Name name, String newRn, boolean deleteOldRn) throws NamingException {
+
+    public void modifyRn( Name name, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        modifyRn( name, newRn, deleteOldRn, null );
+    }
+
+
+    public void modifyRn( Name name, String newRn, boolean deleteOldRn, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "modifyRn",
-                new Object[] { name, newRn, deleteOldRn? Boolean.TRUE : Boolean.FALSE } ) );
+        Object[] args = new Object[] { name, newRn, deleteOldRn? Boolean.TRUE : Boolean.FALSE };
+        stack.push( new Invocation( this, caller, "modifyRn", args, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().modifyRn( name, newRn, deleteOldRn );
@@ -346,12 +472,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public void move(Name oriChildName, Name newParentName) throws NamingException {
+
+    public void move( Name oriChildName, Name newParentName ) throws NamingException
+    {
+        move( oriChildName, newParentName, null );
+    }
+
+
+    public void move( Name oriChildName, Name newParentName, Collection bypass ) throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "move",
-                new Object[] { oriChildName, newParentName } ) );
+        stack.push( new Invocation( this, caller, "move", new Object[] { oriChildName, newParentName }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().move( oriChildName, newParentName );
@@ -362,12 +494,20 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    public void move(Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn) throws NamingException {
+
+    public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    {
+        move( oriChildName, newParentName, newRn, deleteOldRn, null );
+    }
+
+
+    public void move( Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn, Collection bypass )
+            throws NamingException
+    {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "move",
-                new Object[] { oriChildName, newParentName, newRn, deleteOldRn? Boolean.TRUE : Boolean.FALSE } ) );
+        Object[] args = new Object[] { oriChildName, newParentName, newRn, deleteOldRn? Boolean.TRUE : Boolean.FALSE };
+        stack.push( new Invocation( this, caller, "move", args, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().move( oriChildName, newParentName, newRn, deleteOldRn );
@@ -378,11 +518,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
+
     public Attributes getRootDSE() throws NamingException
+    {
+        return getRootDSE( null );
+    }
+
+
+    public Attributes getRootDSE( Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation( caller, "getRootDSE" ) );
+        stack.push( new Invocation( this, caller, "getRootDSE", null, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().getRootDSE();
@@ -393,13 +540,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
+
     public void addContextPartition( DirectoryPartitionConfiguration config ) throws NamingException
+    {
+        addContextPartition( config, null );
+    }
+
+
+    public void addContextPartition( DirectoryPartitionConfiguration config, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "addContextPartition",
-                new Object[] { config } ) );
+        stack.push( new Invocation( this, caller, "addContextPartition", new Object[] { config }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().addContextPartition( config );
@@ -410,13 +562,18 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
+
     public void removeContextPartition( Name suffix ) throws NamingException
+    {
+        removeContextPartition( suffix, null );
+    }
+
+
+    public void removeContextPartition( Name suffix, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation(
-                caller, "removeContextPartition",
-                new Object[] { suffix } ) );
+        stack.push( new Invocation( this, caller, "removeContextPartition", new Object[] { suffix }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().removeContextPartition( suffix );
@@ -427,7 +584,9 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         }
     }
 
-    private void ensureStarted() throws ServiceUnavailableException {
+
+    private void ensureStarted() throws ServiceUnavailableException
+    {
         if( !service.isStarted() )
         {
             throw new ServiceUnavailableException( "Directory service is not started." );
