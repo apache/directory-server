@@ -194,20 +194,20 @@ public abstract class ServerContext implements EventContext
     }
 
 
+    // ------------------------------------------------------------------------
+    // Protected Accessor Methods
+    // ------------------------------------------------------------------------
+
+
     /**
      * Gets the RootNexus proxy.
      *
      * @return the proxy to the backend nexus.
      */
-    public DirectoryPartitionNexusProxy getNexusProxy()
+    protected DirectoryPartitionNexus getNexusProxy()
     {
-       return ( DirectoryPartitionNexusProxy ) nexusProxy ;
+       return nexusProxy ;
     }
-
-
-    // ------------------------------------------------------------------------
-    // Protected Accessor Methods
-    // ------------------------------------------------------------------------
 
 
     /**

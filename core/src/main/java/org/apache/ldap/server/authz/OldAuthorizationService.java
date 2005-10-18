@@ -40,6 +40,7 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
@@ -412,14 +413,14 @@ public class OldAuthorizationService extends BaseInterceptor
         //    return null;
         //}
         
-        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
-        return new SearchResultFilteringEnumeration( e, searchCtls, ctx,
+        Invocation invocation = InvocationStack.getInstance().peek();
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation,
             new SearchResultFilter()
             {
-                public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
+                public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                         throws NamingException
                 {
-                    return OldAuthorizationService.this.isSearchable( ctx, result );
+                    return OldAuthorizationService.this.isSearchable( invocation, result );
                 }
             });
     }
@@ -432,22 +433,21 @@ public class OldAuthorizationService extends BaseInterceptor
         {
             return e;
         }
-        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
-        
-        return new SearchResultFilteringEnumeration( e, null, ctx,
+
+        Invocation invocation = InvocationStack.getInstance().peek();
+        return new SearchResultFilteringEnumeration( e, null, invocation,
             new SearchResultFilter()
             {
-                public boolean accept( LdapContext ctx, SearchResult result,
-                                       SearchControls controls )
+                public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                         throws NamingException
                 {
-                    return OldAuthorizationService.this.isSearchable( ctx, result );
+                    return OldAuthorizationService.this.isSearchable( invocation, result );
                 }
             } );
     }
 
 
-    private boolean isSearchable( LdapContext ctx, SearchResult result )
+    private boolean isSearchable( Invocation invocataion, SearchResult result )
             throws NamingException
     {
         Name dn;
@@ -457,7 +457,7 @@ public class OldAuthorizationService extends BaseInterceptor
             dn = dnParser.parse( result.getName() );
         }
 
-        Name principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
+        Name principalDn = ( ( ServerContext ) invocataion.getCaller() ).getPrincipal().getJndiName();
         if ( !principalDn.equals( ADMIN_DN ) )
         {
             if ( dn.size() > 2 )

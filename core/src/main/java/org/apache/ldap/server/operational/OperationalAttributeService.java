@@ -30,7 +30,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.schema.AttributeType;
@@ -44,6 +43,7 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 
@@ -64,7 +64,7 @@ public class OperationalAttributeService extends BaseInterceptor
      */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
-        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException
         {
             if ( controls.getReturningAttributes() == null )
@@ -242,9 +242,8 @@ public class OperationalAttributeService extends BaseInterceptor
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
-        LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
+        Invocation invocation = InvocationStack.getInstance().peek();
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
     }
 
 
@@ -252,15 +251,14 @@ public class OperationalAttributeService extends BaseInterceptor
             Name base, Map env, ExprNode filter,
             SearchControls searchCtls ) throws NamingException
     {
+        Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
         if ( searchCtls.getReturningAttributes() != null )
         {
             return e;
         }
 
-        LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
-        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
     }
 
 

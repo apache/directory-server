@@ -17,6 +17,8 @@
 package org.apache.ldap.server.enumeration;
 
 
+import org.apache.ldap.server.invocation.Invocation;
+
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -44,6 +46,6 @@ public interface SearchResultFilter
      * @return true if the result is to be returned, false if it is to be
      * discarded from the result set
      */
-    boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
+    boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
         throws NamingException;
 }

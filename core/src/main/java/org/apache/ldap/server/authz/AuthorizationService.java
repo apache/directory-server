@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 import java.util.*;
 import java.text.ParseException;
@@ -756,7 +755,8 @@ public class AuthorizationService extends BaseInterceptor
 
     public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
     {
-        ServerLdapContext ctx = ( ServerLdapContext ) InvocationStack.getInstance().peek().getCaller();
+        Invocation invocation = InvocationStack.getInstance().peek();
+        ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         NamingEnumeration e = next.list( base );
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -764,14 +764,15 @@ public class AuthorizationService extends BaseInterceptor
             return e;
         }
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-        return new SearchResultFilteringEnumeration( e, DEFUALT_SEARCH_CONTROLS, ctx, authzFilter );
+        return new SearchResultFilteringEnumeration( e, DEFUALT_SEARCH_CONTROLS, invocation, authzFilter );
     }
 
 
     public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter,
                                      SearchControls searchCtls ) throws NamingException
     {
-        ServerLdapContext ctx = ( ServerLdapContext ) InvocationStack.getInstance().peek().getCaller();
+        Invocation invocation = InvocationStack.getInstance().peek();
+        ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         NamingEnumeration e = next.search( base, env, filter, searchCtls );
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -779,7 +780,7 @@ public class AuthorizationService extends BaseInterceptor
             return e;
         }
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, authzFilter );
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, authzFilter );
     }
 
 
@@ -829,7 +830,7 @@ public class AuthorizationService extends BaseInterceptor
         SEARCH_ATTRVAL_PERMS = Collections.singleton( MicroOperation.READ );
     }
 
-    private boolean filter( ServerLdapContext ctx, Name normName, SearchResult result ) throws NamingException
+    private boolean filter( Invocation invocation, Name normName, SearchResult result ) throws NamingException
     {
        /*
         * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
@@ -837,6 +838,7 @@ public class AuthorizationService extends BaseInterceptor
         * process and return false.
         */
         Attributes entry = nexus.lookup( normName );
+        ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         Name userDn = ctx.getPrincipal().getJndiName();
         Set userGroups = groupCache.getGroups( userDn.toString() );
         Collection tuples = new HashSet();
@@ -844,7 +846,7 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( tuples, normName, entry );
 
-        if ( ! engine.hasPermission( ctx.getNexusProxy(), userGroups, userDn,
+        if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
                 ctx.getPrincipal().getAuthenticationLevel(),
                 normName, null, null, SEARCH_ENTRY_PERMS, tuples, entry ) )
         {
@@ -863,7 +865,7 @@ public class AuthorizationService extends BaseInterceptor
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
             Attribute attr = ( Attribute ) attributeList.next();
-            if ( ! engine.hasPermission( ctx.getNexusProxy(), userGroups, userDn,
+            if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
                     ctx.getPrincipal().getAuthenticationLevel(),
                     normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry ) )
             {
@@ -879,7 +881,7 @@ public class AuthorizationService extends BaseInterceptor
             // attribute type scope is ok now let's determine value level scope
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
-                if ( ! engine.hasPermission( ctx.getNexusProxy(), userGroups, userDn,
+                if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
                         ctx.getPrincipal().getAuthenticationLevel(), normName,
                         attr.getID(), attr.get( ii ), SEARCH_ATTRVAL_PERMS, tuples, entry ) )
                 {
@@ -911,10 +913,9 @@ public class AuthorizationService extends BaseInterceptor
         }
 
 
-        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls ) throws NamingException
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException
         {
             Name normName = parser.parse( result.getName() );
-            ServerLdapContext srvCtx = ( ServerLdapContext ) ctx;
 
 // looks like isRelative returns true even when the names for results are absolute!!!!
 // @todo this is a big bug in JNDI provider
@@ -925,7 +926,7 @@ public class AuthorizationService extends BaseInterceptor
 //                normName = base.addAll( normName );
 //            }
 
-            return filter( srvCtx, normName, result );
+            return filter( invocation, normName, result );
         }
     }
 }

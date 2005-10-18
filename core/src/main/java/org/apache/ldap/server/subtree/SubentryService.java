@@ -23,6 +23,7 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
@@ -41,8 +42,8 @@ import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
 import javax.naming.directory.*;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
@@ -93,7 +94,7 @@ public class SubentryService extends BaseInterceptor
      */
     private static final SearchResultFilter SUBENTRY_FILTER = new SearchResultFilter()
     {
-        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
         {
             Attribute objectClasses = result.getAttributes().get( "objectClass" );
 
@@ -172,11 +173,11 @@ public class SubentryService extends BaseInterceptor
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
-        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        Invocation invocation = InvocationStack.getInstance().peek();
 
-        if ( ! isSubentryVisible( ctx ) )
+        if ( ! isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, SUBENTRY_FILTER );
+            return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SUBENTRY_FILTER );
         }
 
         return e;
@@ -187,7 +188,7 @@ public class SubentryService extends BaseInterceptor
             SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
-        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        Invocation invocation = InvocationStack.getInstance().peek();
 
         // object scope searches by default return subentries
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
@@ -196,9 +197,9 @@ public class SubentryService extends BaseInterceptor
         }
 
         // for subtree and one level scope we filter
-        if ( ! isSubentryVisible( ctx ) )
+        if ( ! isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SUBENTRY_FILTER );
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SUBENTRY_FILTER );
         }
 
         return e;
@@ -209,13 +210,13 @@ public class SubentryService extends BaseInterceptor
      * Checks to see if subentries for the search and list operations should be
      * made visible based on the availability of the search request control
      *
-     * @param ctx the ldap context the search operation was invoked on
+     * @param invocation
      * @return true if subentries should be visible, false otherwise
      * @throws NamingException if there are problems accessing request controls
      */
-    private boolean isSubentryVisible( LdapContext ctx ) throws NamingException
+    private boolean isSubentryVisible( Invocation invocation ) throws NamingException
     {
-        Control[] reqControls = ctx.getRequestControls();
+        Control[] reqControls = ( ( LdapContext ) invocation.getCaller() ).getRequestControls();
 
         if ( reqControls == null || reqControls.length <= 0 )
         {

@@ -27,7 +27,6 @@ import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
@@ -52,12 +51,13 @@ import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
+import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
-import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,8 +132,8 @@ public class SchemaService extends BaseInterceptor
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
-        LdapContext ctx = getContext();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, binaryAttributeFilter );
+        Invocation invocation = InvocationStack.getInstance().peek();
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, binaryAttributeFilter );
     }
 
 
@@ -184,8 +184,8 @@ public class SchemaService extends BaseInterceptor
             return e;
         }
 
-        LdapContext ctx = getContext();
-        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, binaryAttributeFilter );
+        Invocation invocation = InvocationStack.getInstance().peek();
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, binaryAttributeFilter );
     }
 
 
@@ -198,7 +198,7 @@ public class SchemaService extends BaseInterceptor
 
         Set set = new HashSet();
         LockableAttributesImpl attrs = new LockableAttributesImpl();
-        LockableAttributeImpl attr = null;
+        LockableAttributeImpl attr;
 
         for ( int ii = 0; ii < ids.length; ii++ )
         {
@@ -373,9 +373,8 @@ public class SchemaService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
-
-        ServerLdapContext ctx = ( ServerLdapContext ) getContext();
-        doFilter( ctx, result );
+        Invocation invocation = InvocationStack.getInstance().peek();
+        doFilter( invocation, result );
         return result;
     }
 
@@ -388,8 +387,8 @@ public class SchemaService extends BaseInterceptor
             return null;
         }
 
-        ServerLdapContext ctx = ( ServerLdapContext ) getContext();
-        doFilter( ctx, result );
+        Invocation invocation = InvocationStack.getInstance().peek();
+        doFilter( invocation, result );
         return result;
     }
 
@@ -458,12 +457,8 @@ public class SchemaService extends BaseInterceptor
         {
             changedEntryAttr.remove( change.get( jj ) );
         }
-        if ( changedEntryAttr.size() == 0 )
-        {
-            return true;
-        }
 
-        return false;
+        return changedEntryAttr.size() == 0;
     }
 
 
@@ -558,12 +553,12 @@ public class SchemaService extends BaseInterceptor
         ModificationItem objectClassMod = null;
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            if ( ( ( String ) mods[ii].getAttribute().getID() ).equalsIgnoreCase( "objectclass" ) )
+            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( "objectclass" ) )
             {
                 objectClassMod = mods[ii];
             }
         }
-        Attribute objectClass = null;
+        Attribute objectClass;
 
         if ( objectClassMod == null )
         {
@@ -616,14 +611,14 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    private void doFilter( LdapContext ctx, Attributes entry )
+    private void doFilter( Invocation invocation, Attributes entry )
             throws NamingException
     {
         // set of AttributeType objects that are to behave as binaries
         Set binaries;
 
         // construct the set for fast lookups while filtering
-        String binaryIds = ( String ) ctx.getEnvironment().get( BINARY_KEY );
+        String binaryIds = ( String ) invocation.getCaller().getEnvironment().get( BINARY_KEY );
 
         if ( binaryIds == null )
         {
@@ -712,9 +707,9 @@ public class SchemaService extends BaseInterceptor
         }
 
 
-        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls ) throws NamingException
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException
         {
-            doFilter( ctx, result.getAttributes() );
+            doFilter( invocation, result.getAttributes() );
             return true;
         }
     }

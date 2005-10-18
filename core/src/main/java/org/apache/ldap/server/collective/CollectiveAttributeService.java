@@ -25,6 +25,7 @@ import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.subtree.SubentryService;
 import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.enumeration.SearchResultFilteringEnumeration;
 import org.apache.ldap.server.enumeration.SearchResultFilter;
 import org.apache.ldap.common.filter.ExprNode;
@@ -35,7 +36,6 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.Name;
-import javax.naming.ldap.LdapContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.Attribute;
@@ -63,7 +63,7 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
-        public boolean accept( LdapContext ctx, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException
         {
                 return filter( result.getAttributes() );
@@ -106,7 +106,7 @@ public class CollectiveAttributeService extends BaseInterceptor
          * may have case variance.
          */
         Attribute collectiveExclusions = entry.get( "collectiveExclusions" );
-        Set exclusions = null;
+        Set exclusions;
         if ( collectiveExclusions != null )
         {
             if ( collectiveExclusions.contains( "2.5.18.0" ) ||
@@ -265,9 +265,8 @@ public class CollectiveAttributeService extends BaseInterceptor
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( base );
-        LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), ctx, SEARCH_FILTER );
+        Invocation invocation = InvocationStack.getInstance().peek();
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
     }
 
 
@@ -276,8 +275,7 @@ public class CollectiveAttributeService extends BaseInterceptor
             SearchControls searchCtls ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
-        LdapContext ctx =
-            ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
-        return new SearchResultFilteringEnumeration( e, searchCtls, ctx, SEARCH_FILTER );
+        Invocation invocation = InvocationStack.getInstance().peek();
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
     }
 }

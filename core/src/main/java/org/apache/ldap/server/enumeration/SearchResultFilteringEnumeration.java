@@ -25,10 +25,10 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import org.apache.ldap.server.invocation.Invocation;
 
 
 /**
@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchResultFilteringEnumeration implements NamingEnumeration
 {
-    private static final Logger log = LoggerFactory.getLogger( SearchResultFilteringEnumeration.class );
-
+//    private static final Logger log = LoggerFactory.getLogger( SearchResultFilteringEnumeration.class );
+//
     /** the list of filters to be applied */
     private final List filters;
     /** the underlying decorated enumeration */
@@ -54,8 +54,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
     private boolean isClosed = false;
     /** the controls associated with the search operation */
     private final SearchControls searchControls;
-    /** the LDAP context that made the search creating this enumeration */
-    private final LdapContext ctx;
+    /** the Invocation that representing the search creating this enumeration */
+    private final Invocation invocation;
 
 
     // ------------------------------------------------------------------------
@@ -70,17 +70,16 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
      * @param decorated the underlying decorated enumeration
      * @param searchControls the search controls associated with the search
      * creating this enumeration
-     * @param ctx the LDAP context that made the search creating this
-     * enumeration
+     * @param invocation the invocation representing the seach that created this enumeration
      */
     public SearchResultFilteringEnumeration( NamingEnumeration decorated,
-                                       SearchControls searchControls,
-                                       LdapContext ctx,
-                                       SearchResultFilter filter )
+                                             SearchControls searchControls,
+                                             Invocation invocation,
+                                             SearchResultFilter filter )
             throws NamingException
     {
         this.searchControls = searchControls;
-        this.ctx = ctx;
+        this.invocation = invocation;
         this.filters = new ArrayList();
         this.filters.add( filter );
         this.decorated = decorated;
@@ -102,17 +101,16 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
      * @param decorated the underlying decorated enumeration
      * @param searchControls the search controls associated with the search
      * creating this enumeration
-     * @param ctx the LDAP context that made the search creating this
-     * enumeration
+     * @param invocation the invocation representing the seach that created this enumeration
      */
     public SearchResultFilteringEnumeration( NamingEnumeration decorated,
-                                       SearchControls searchControls,
-                                       LdapContext ctx,
-                                       List filters )
+                                             SearchControls searchControls,
+                                             Invocation invocation,
+                                             List filters )
             throws NamingException
     {
         this.searchControls = searchControls;
-        this.ctx = ctx;
+        this.invocation = invocation;
         this.filters = new ArrayList();
         this.filters.addAll( filters );
         this.decorated = decorated;
@@ -241,8 +239,9 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
      */
     private void prefetch() throws NamingException
     {
-        SearchResult tmp = null;
+        SearchResult tmp;
 
+        outer:
         while( decorated.hasMore() )
         {
             boolean accepted = true;
@@ -257,7 +256,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
             else if ( filters.size() == 1 )
             {
                 accepted = ( ( SearchResultFilter ) filters.get( 0 ) )
-                        .accept( ctx, tmp, searchControls );
+                        .accept( invocation, tmp, searchControls );
                 if ( accepted )
                 {
                     this.prefetched = tmp;
@@ -271,11 +270,11 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
             for ( int ii = 0; ii < filters.size(); ii ++ )
             {
                 SearchResultFilter filter = ( SearchResultFilter ) filters.get( ii );
-                accepted &= filter.accept( ctx, tmp, searchControls );
+                accepted &= filter.accept( invocation, tmp, searchControls );
 
                 if ( ! accepted )
                 {
-                    continue;
+                    continue outer;
                 }
             }
 
