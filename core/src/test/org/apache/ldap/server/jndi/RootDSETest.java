@@ -299,7 +299,7 @@ public class RootDSETest extends TestCase
 
         try
         {
-            ctx.modifyAttributes( "", 0, null );
+            ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, null );
 
             fail( "we should never get here" );
         }
