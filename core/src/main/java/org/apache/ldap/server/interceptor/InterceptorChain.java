@@ -217,7 +217,7 @@ public class InterceptorChain
 
         // Initialize tail first.
         FINAL_INTERCEPTOR.init( factoryCfg, null );
-        
+
         // And register and initialize all interceptors
         ListIterator i = factoryCfg.getStartupConfiguration().getInterceptorConfigurations().listIterator();
         Interceptor interceptor = null;
@@ -272,14 +272,14 @@ public class InterceptorChain
                 }
                 catch ( Throwable t )
                 {
-                    log.warn( "Failed to deregister an interceptor: " + 
+                    log.warn( "Failed to deregister an interceptor: " +
                             e.configuration.getName(), t );
                 }
             }
         }
     }
-    
-    
+
+
     /**
      * Returns the registered interceptor with the specified name.
      * @return <tt>null</tt> if the specified name doesn't exist.
@@ -291,10 +291,10 @@ public class InterceptorChain
         {
             return null;
         }
-        
+
         return e.configuration.getInterceptor();
     }
-    
+
     /**
      * Returns the list of all registered interceptors.
      */
@@ -308,20 +308,20 @@ public class InterceptorChain
             e = e.nextEntry;
         }
         while ( e != tail );
-        
+
         return result;
     }
-    
+
     public synchronized void addFirst( InterceptorConfiguration cfg ) throws NamingException
     {
         register0( cfg, head );
     }
-    
+
     public synchronized void addLast( InterceptorConfiguration cfg ) throws NamingException
     {
         register0( cfg, tail );
     }
-    
+
     public synchronized void addBefore( String nextInterceptorName, InterceptorConfiguration cfg ) throws NamingException
     {
         Entry e = (Entry) name2entry.get( nextInterceptorName );
@@ -331,12 +331,12 @@ public class InterceptorChain
         }
         register0( cfg, e );
     }
-    
+
     public synchronized InterceptorConfiguration remove( String interceptorName ) throws NamingException
     {
         return deregister( interceptorName );
     }
-    
+
     public synchronized void addAfter( String prevInterceptorName, InterceptorConfiguration cfg ) throws NamingException
     {
         Entry e = (Entry) name2entry.get( prevInterceptorName );
@@ -396,7 +396,7 @@ public class InterceptorChain
         String name = cfg.getName();
         Interceptor interceptor = cfg.getInterceptor();
         interceptor.init( factoryCfg, cfg );
-        
+
         Entry newEntry;
         if( nextEntry == head )
         {
@@ -416,7 +416,7 @@ public class InterceptorChain
             nextEntry.prevEntry.nextEntry = newEntry;
             nextEntry.prevEntry = newEntry;
         }
-        
+
         name2entry.put( name, newEntry );
     }
 
@@ -469,7 +469,7 @@ public class InterceptorChain
             return head;
         }
 
-        if ( ! invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
+        if ( invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
         {
             return tail;
         }
@@ -941,10 +941,13 @@ public class InterceptorChain
                         return Entry.this.nextEntry;
                     }
 
-                    if ( ! invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
-                    {
-                        return tail;
-                    }
+//  I don't think we really need this since this check is performed by the chain when
+//  getting the interceptor head to use.
+//
+//                    if ( invocation.isBypassed( DirectoryPartitionNexusProxy.BYPASS_ALL ) )
+//                    {
+//                        return tail;
+//                    }
 
                     Entry next = Entry.this.nextEntry;
                     while ( next != tail )
