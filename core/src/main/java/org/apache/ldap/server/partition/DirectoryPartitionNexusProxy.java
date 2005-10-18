@@ -17,10 +17,7 @@
 package org.apache.ldap.server.partition;
 
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -57,6 +54,8 @@ import org.apache.ldap.server.invocation.InvocationStack;
  */
 public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
 {
+    /** safe to use set of bypass instructions to lookup raw entries */
+    public static final Collection LOOKUP_BYPASS;
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final String BYPASS_ALL = "*";
     /** Bypass String to use when ALL interceptors should be skipped */
@@ -71,6 +70,22 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     private final Context caller;
     private final DirectoryService service;
     private final DirectoryServiceConfiguration configuration;
+
+
+    static
+    {
+        Collection c = new HashSet();
+        c.add( "normalizationService" );
+        c.add( "authenticationService" );
+        c.add( "authorizationService" );
+        c.add( "oldAuthorizationService" );
+        c.add( "schemaService" );
+        c.add( "subentryService" );
+        c.add( "operationalAttributeService" );
+        c.add( "eventService" );
+        LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
+    }
+
 
     /**
      * Creates a new instance.

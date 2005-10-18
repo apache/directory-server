@@ -144,7 +144,7 @@ public class AuthorizationService extends BaseInterceptor
         {
             Name parentDn = ( Name ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = proxy.lookup( parentDn, LOOKUP_BYPASS );
+            entry = proxy.lookup( parentDn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         }
 
         Attribute subentries = entry.get( AC_SUBENTRY_ATTR );
@@ -219,7 +219,7 @@ public class AuthorizationService extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         Name parentDn = ( Name ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        Attributes administrativeEntry = proxy.lookup( parentDn, LOOKUP_BYPASS );
+        Attributes administrativeEntry = proxy.lookup( parentDn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         Attribute subentryAci = administrativeEntry.get( SUBENTRYACI_ATTR );
 
         if ( subentryAci == null )
@@ -334,7 +334,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -359,27 +359,12 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    private static final Collection LOOKUP_BYPASS;
-    static
-    {
-            Collection c = new HashSet();
-            c.add( "normalizationService" );
-            c.add( "authenticationService" );
-            c.add( "authorizationService" );
-            c.add( "oldAuthorizationService" );
-            c.add( "schemaService" );
-            c.add( "subentryService" );
-            c.add( "operationalAttributeService" );
-            c.add( "eventService" );
-            LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
-    }
-
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -436,7 +421,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -495,7 +480,7 @@ public class AuthorizationService extends BaseInterceptor
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -569,7 +554,7 @@ public class AuthorizationService extends BaseInterceptor
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( dn, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( dn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -587,7 +572,7 @@ public class AuthorizationService extends BaseInterceptor
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -606,7 +591,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name newName = ( Name ) name.clone();
         newName.remove( name.size() - 1 );
@@ -667,7 +652,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( oriChildName, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( oriChildName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name newName = ( Name ) newParentName.clone();
         newName.add( newRn );
@@ -737,7 +722,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( oriChildName, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( oriChildName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         Name newName = ( Name ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -810,7 +795,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
+        Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -857,7 +842,7 @@ public class AuthorizationService extends BaseInterceptor
         * tests.  If we hasPermission() returns false we immediately short the
         * process and return false.
         */
-        Attributes entry = invocation.getProxy().lookup( normName, LOOKUP_BYPASS );
+        Attributes entry = invocation.getProxy().lookup( normName, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         Name userDn = ctx.getPrincipal().getJndiName();
         Set userGroups = groupCache.getGroups( userDn.toString() );
@@ -933,7 +918,8 @@ public class AuthorizationService extends BaseInterceptor
         }
 
 
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException
+        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+                throws NamingException
         {
             Name normName = parser.parse( result.getName() );
 

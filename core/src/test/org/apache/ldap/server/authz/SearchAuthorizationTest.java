@@ -233,144 +233,144 @@ public class SearchAuthorizationTest extends AbstractAuthorizationTest
      */
     public void testAddSearchData() throws NamingException
     {
-//        Name base = addSearchData( new LdapName(), 3, 10 );
-//        SearchControls controls = new SearchControls();
-//        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-//        NamingEnumeration results = sysRoot.search( base, "(objectClass=*)", controls );
-//        int counter = 0;
-//        while ( results.hasMore() )
-//        {
-//            results.next();
-//            counter++;
-//        }
-//
-//        assertEquals( 10, counter );
-//        recursivelyDelete( base );
-//        try { sysRoot.lookup( base ); fail(); } catch ( LdapNameNotFoundException e ) {}
+        Name base = addSearchData( new LdapName(), 3, 10 );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration results = sysRoot.search( base, "(objectClass=*)", controls );
+        int counter = 0;
+        while ( results.hasMore() )
+        {
+            results.next();
+            counter++;
+        }
+
+        assertEquals( 10, counter );
+        recursivelyDelete( base );
+        try { sysRoot.lookup( base ); fail(); } catch ( LdapNameNotFoundException e ) {}
     }
 
 
-//    /**
-//     * Checks to make sure group membership based userClass works for add operations.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testGrantAdministrators() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try an add operation which should fail without any ACI
-//        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
-//
-//        // Gives grantAdd perm to all users in the Administrators group for
-//        // entries and all attribute types and values
-//        createAccessControlSubentry( "searchAdmin", "{ " +
-//                "identificationTag \"addAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
-//
-//        // see if we can now add that test entry which we could not before
-//        // add op should still fail since billd is not in the admin group
-//        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
-//
-//        // now add billyd to the Administrator group and try again
-//        addUserToGroup( "billyd", "Administrators" );
-//
-//        // try an add operation which should succeed with ACI and group membership change
-//        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
-//    }
-//
-//
-//    /**
-//     * Checks to make sure name based userClass works for add operations.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testGrantAddByName() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try an add operation which should fail without any ACI
-//        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
-//
-//        // now add a subentry that enables user billyd to add an entry below ou=system
-//        createAccessControlSubentry( "billydAdd", "{ " +
-//                "identificationTag \"addAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
-//
-//        // should work now that billyd is authorized by name
-//        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
-//    }
-//
-//
-//    /**
-//     * Checks to make sure subtree based userClass works for add operations.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testGrantAddBySubtree() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try an add operation which should fail without any ACI
-//        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
-//
-//        // now add a subentry that enables user billyd to add an entry below ou=system
-//        createAccessControlSubentry( "billyAddBySubtree", "{ " +
-//                "identificationTag \"addAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
-//
-//        // should work now that billyd is authorized by the subtree userClass
-//        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
-//    }
-//
-//
-//    /**
-//     * Checks to make sure <b>allUsers</b> userClass works for add operations.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testGrantAddAllUsers() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try an add operation which should fail without any ACI
-//        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
-//
-//        // now add a subentry that enables anyone to add an entry below ou=system
-//        createAccessControlSubentry( "anybodyAdd", "{ " +
-//                "identificationTag \"addAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { allUsers }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantAdd, grantBrowse } } } } }" );
-//
-//        // see if we can now add that test entry which we could not before
-//        // should work now with billyd now that all users are authorized
-//        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
-//    }
+    /**
+     * Checks to make sure group membership based userClass works for add operations.
+     *
+     * @throws javax.naming.NamingException if the test encounters an error
+     */
+    public void testGrantAdministrators() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an add operation which should fail without any ACI
+        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
+
+        // Gives grantAdd perm to all users in the Administrators group for
+        // entries and all attribute types and values
+        createAccessControlSubentry( "searchAdmin", "{ " +
+                "identificationTag \"addAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // see if we can now add that test entry which we could not before
+        // add op should still fail since billd is not in the admin group
+        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
+
+        // now add billyd to the Administrator group and try again
+        addUserToGroup( "billyd", "Administrators" );
+
+        // try an add operation which should succeed with ACI and group membership change
+        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
+    }
+
+
+    /**
+     * Checks to make sure name based userClass works for search operations.
+     *
+     * @throws javax.naming.NamingException if the test encounters an error
+     */
+    public void testGrantSearchByName() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an add operation which should fail without any ACI
+        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
+
+        // now add a subentry that enables user billyd to add an entry below ou=system
+        createAccessControlSubentry( "billydAdd", "{ " +
+                "identificationTag \"addAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // should work now that billyd is authorized by name
+        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
+    }
+
+
+    /**
+     * Checks to make sure subtree based userClass works for search operations.
+     *
+     * @throws javax.naming.NamingException if the test encounters an error
+     */
+    public void testGrantSearchBySubtree() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an add operation which should fail without any ACI
+        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
+
+        // now add a subentry that enables user billyd to add an entry below ou=system
+        createAccessControlSubentry( "billyAddBySubtree", "{ " +
+                "identificationTag \"addAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { subtree { { base \"ou=users,ou=system\" } } }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials {  grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // should work now that billyd is authorized by the subtree userClass
+        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
+    }
+
+
+    /**
+     * Checks to make sure <b>allUsers</b> userClass works for search operations.
+     *
+     * @throws javax.naming.NamingException if the test encounters an error
+     */
+    public void testGrantSearchAllUsers() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an add operation which should fail without any ACI
+        assertFalse( checkCanSearchAs( "billyd", "billyd" ) );
+
+        // now add a subentry that enables anyone to add an entry below ou=system
+        createAccessControlSubentry( "anybodyAdd", "{ " +
+                "identificationTag \"addAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // see if we can now add that test entry which we could not before
+        // should work now with billyd now that all users are authorized
+        assertTrue( checkCanSearchAs( "billyd", "billyd" ) );
+    }
 }
