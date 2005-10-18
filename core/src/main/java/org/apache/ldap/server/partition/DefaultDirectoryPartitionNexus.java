@@ -45,7 +45,6 @@ import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
-import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.common.filter.ExprNode;
@@ -53,7 +52,6 @@ import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributes;
 import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
@@ -706,6 +704,11 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
      */
     public boolean hasEntry( Name dn ) throws NamingException
     {
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Check if DN '" + dn + "' exists." );
+        }
+        
         if ( dn.size() == 0 )
         {
             return true;
