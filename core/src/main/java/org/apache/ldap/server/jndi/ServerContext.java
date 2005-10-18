@@ -194,22 +194,22 @@ public abstract class ServerContext implements EventContext
     }
 
 
+    /**
+     * Gets the RootNexus proxy.
+     *
+     * @return the proxy to the backend nexus.
+     */
+    public DirectoryPartitionNexusProxy getNexusProxy()
+    {
+       return ( DirectoryPartitionNexusProxy ) nexusProxy ;
+    }
+
+
     // ------------------------------------------------------------------------
     // Protected Accessor Methods
     // ------------------------------------------------------------------------
 
 
-    /**
-     * Gets the RootNexus proxy.
-     * 
-     * @return the proxy to the backend nexus.
-     */
-    protected DirectoryPartitionNexus getNexusProxy()
-    {
-       return nexusProxy ;
-    }
-    
-    
     /**
      * Gets the distinguished name of the entry associated with this Context.
      * 
@@ -578,7 +578,7 @@ public abstract class ServerContext implements EventContext
      */
     public Object lookup( Name name ) throws NamingException
     {
-        Object obj = null;
+        Object obj;
 
         LdapName target = buildTarget( name );
 
@@ -756,7 +756,7 @@ public abstract class ServerContext implements EventContext
         while ( fqn.size() > 0 )
         {
             // match found end loop
-            if ( ( ( String ) fqn.get( 0 ) ).equalsIgnoreCase( head ) )
+            if ( fqn.get( 0 ).equalsIgnoreCase( head ) )
             {
                 return fqn;
             }

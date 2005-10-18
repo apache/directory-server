@@ -21,6 +21,7 @@ package org.apache.ldap.server.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Collections;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -33,12 +34,13 @@ import org.apache.ldap.common.aci.MicroOperation;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.server.event.Evaluator;
 import org.apache.ldap.server.event.ExpressionEvaluator;
-import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.subtree.RefinementEvaluator;
 import org.apache.ldap.server.subtree.RefinementLeafEvaluator;
 import org.apache.ldap.server.subtree.SubtreeEvaluator;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An implementation of Access Control Decision Function (18.8, X.501).
@@ -66,7 +68,7 @@ import org.apache.ldap.server.subtree.SubtreeEvaluator;
 public class ACDFEngine
 {
     private final ACITupleFilter[] filters;
-    
+
     /**
      * Creates a new instance.
      * 
@@ -81,7 +83,7 @@ public class ACDFEngine
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry );
         RefinementEvaluator refinementEvaluator = new RefinementEvaluator(
                 new RefinementLeafEvaluator( oidRegistry ) );
-        
+
         filters = new ACITupleFilter[] {
                 new RelatedUserClassFilter( subtreeEvaluator ),
                 new RelatedProtectedItemFilter( attrTypeRegistry, refinementEvaluator, entryEvaluator ),
@@ -94,13 +96,13 @@ public class ACDFEngine
                 new MostSpecificProtectedItemFilter(),
         };
     }
-    
+
     /**
      * Checks the user with the specified name can access the specified resource
      * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
      * 
-     * @param next the next interceptor to the current interceptor
+     * @param proxy the proxy to the partition nexus
      * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
      * @param username the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
@@ -113,13 +115,13 @@ public class ACDFEngine
      * @throws NamingException if failed to evaluate ACI items
      */
     public void checkPermission(
-            NextInterceptor next,
+            DirectoryPartitionNexusProxy proxy,
             Collection userGroupNames, Name username, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue,
             Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
     {
         if( !hasPermission(
-                next,
+                proxy,
                 userGroupNames, username, authenticationLevel,
                 entryName, attrId, attrValue,
                 microOperations, aciTuples, entry ) )
@@ -127,13 +129,13 @@ public class ACDFEngine
             throw new LdapNoPermissionException();
         }
     }
-    
+
     /**
      * Returns <tt>true</tt> if the user with the specified name can access the specified resource
      * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
      * 
-     * @param next the next interceptor to the current interceptor 
+     * @param proxy the proxy to the partition nexus
      * @param userGroupNames the collection of the group DNs the user who is trying to access the resource belongs
      * @param userName the DN of the user who is trying to access the resource
      * @param entryName the DN of the entry the user is trying to access 
@@ -145,7 +147,7 @@ public class ACDFEngine
      * @param aciTuples {@link ACITuple}s translated from {@link ACIItem}s in the subtree entries
      */
     public boolean hasPermission(
-            NextInterceptor next, 
+            DirectoryPartitionNexusProxy proxy,
             Collection userGroupNames, Name userName, AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue,
             Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
@@ -154,8 +156,8 @@ public class ACDFEngine
         {
             throw new NullPointerException( "entryName" );
         }
-        
-        Attributes userEntry = next.lookup( userName );
+
+        Attributes userEntry = proxy.lookup( userName, Collections.singleton( "authorizationService" ) );
 
         // Determine the scope of the requested operation.
         OperationScope scope;
@@ -171,7 +173,7 @@ public class ACDFEngine
         {
             scope = OperationScope.ATTRIBUTE_TYPE_AND_VALUE;
         }
-        
+
         // Clone aciTuples in case it is unmodifiable.
         aciTuples = new ArrayList( aciTuples );
 
@@ -180,11 +182,11 @@ public class ACDFEngine
         {
             ACITupleFilter filter = filters[ i ];
             aciTuples = filter.filter(
-                    aciTuples, scope, next,
+                    aciTuples, scope, proxy,
                     userGroupNames, userName, userEntry, authenticationLevel,
                     entryName, attrId, attrValue, entry, microOperations );
         }
-        
+
         // Deny access if no tuples left.
         if( aciTuples.size() == 0 )
         {

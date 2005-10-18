@@ -27,7 +27,8 @@ import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
-import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An {@link ACITupleFilter} that discards all tuples having a precedence less
@@ -38,7 +39,7 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
  */
 public class HighestPrecedenceFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
         if( tuples.size() <= 1 )
         {
@@ -46,27 +47,27 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         }
 
         int maxPrecedence = -1;
-        
+
         // Find the maximum precedence for all tuples.
         for( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            if( tuple.getPrecedence() > maxPrecedence ) 
+            if( tuple.getPrecedence() > maxPrecedence )
             {
                 maxPrecedence = tuple.getPrecedence();
             }
         }
-        
+
         // Remove all tuples whose precedences are not the maximum one.
         for( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            if( tuple.getPrecedence() != maxPrecedence ) 
+            if( tuple.getPrecedence() != maxPrecedence )
             {
                 i.remove();
-            }            
+            }
         }
-        
+
         return tuples;
     }
 }

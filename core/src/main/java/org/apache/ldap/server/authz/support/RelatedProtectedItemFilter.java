@@ -32,9 +32,10 @@ import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
 import org.apache.ldap.server.event.Evaluator;
-import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.subtree.RefinementEvaluator;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An {@link ACITupleFilter} that discards all tuples whose {@link ProtectedItem}s
@@ -58,7 +59,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         this.entryEvaluator = entryEvaluator;
     }
 
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
         if( tuples.size() == 0 )
         {
@@ -73,7 +74,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 i.remove();
             }
         }
-        
+
         return tuples;
     }
 
@@ -96,7 +97,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     continue;
                 }
-                
+
                 if( isUserAttribute( attrId ) )
                 {
                     return true;
@@ -139,7 +140,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     continue;
                 }
-                
+
                 ProtectedItem.AttributeType at = ( ProtectedItem.AttributeType ) item;
                 for( Iterator j = at.iterator(); j.hasNext(); )
                 {
@@ -155,7 +156,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     continue;
                 }
-                
+
                 ProtectedItem.AttributeValue av = ( ProtectedItem.AttributeValue ) item;
                 for( Iterator j = av.iterator(); j.hasNext(); )
                 {
@@ -229,7 +230,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     continue;
                 }
-                
+
                 ProtectedItem.SelfValue sv = ( ProtectedItem.SelfValue ) item;
                 for( Iterator j = sv.iterator(); j.hasNext(); )
                 {
@@ -249,15 +250,15 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 throw new InternalError( "Unexpected protectedItem: " + item.getClass().getName() );
             }
         }
-        
+
         return false;
     }
-    
+
     private final boolean isUserAttribute( String attrId )
     {
         /* Not used anymore.  Just retaining in case of resurrection. */
         return true;
-        
+
         /*
         try
         {
@@ -271,7 +272,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         {
             // Ignore
         }
-        
+
         return false;
         */
     }

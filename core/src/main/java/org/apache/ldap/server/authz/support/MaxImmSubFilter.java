@@ -21,6 +21,7 @@ package org.apache.ldap.server.authz.support;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Collections;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -33,7 +34,8 @@ import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
-import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
@@ -53,26 +55,26 @@ public class MaxImmSubFilter implements ACITupleFilter
         childrenSearchControls = new SearchControls();
         childrenSearchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
     }
-    
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
         if( entryName.size() == 0 )
         {
             return tuples;
         }
-        
+
         if( tuples.size() == 0 )
         {
             return tuples;
         }
-        
+
         if( scope != OperationScope.ENTRY )
         {
             return tuples;
         }
 
         int immSubCount = -1;
-        
+
         for( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
@@ -80,7 +82,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             {
                 continue;
             }
-        
+
             for( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = ( ProtectedItem ) j.next();
@@ -88,9 +90,9 @@ public class MaxImmSubFilter implements ACITupleFilter
                 {
                     if( immSubCount < 0 )
                     {
-                        immSubCount = getImmSubCount( next, entryName );
+                        immSubCount = getImmSubCount( proxy, entryName );
                     }
-    
+
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
                     if( immSubCount >= mis.getValue() )
                     {
@@ -100,26 +102,26 @@ public class MaxImmSubFilter implements ACITupleFilter
                 }
             }
         }
-        
+
         return tuples;
     }
-    
-    private int getImmSubCount( NextInterceptor next, Name entryName ) throws NamingException
+
+    private int getImmSubCount( DirectoryPartitionNexusProxy proxy, Name entryName ) throws NamingException
     {
         int cnt = 0;
         NamingEnumeration e = null;
         try
         {
-            e = next.search(
+            e = proxy.search(
                 entryName.getPrefix( 1 ), new HashMap(),
-                childrenFilter, childrenSearchControls );
-            
+                childrenFilter, childrenSearchControls, Collections.singleton( "authorizationService" ) );
+
             while( e.hasMore() )
             {
                 e.next();
                 cnt ++;
             }
-            
+
         }
         finally
         {
@@ -128,7 +130,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                 e.close();
             }
         }
-        
+
         return cnt;
     }
 

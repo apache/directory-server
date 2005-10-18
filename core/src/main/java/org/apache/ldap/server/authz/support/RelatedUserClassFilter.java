@@ -30,8 +30,9 @@ import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.UserClass;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.subtree.SubtreeSpecification;
-import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.subtree.SubtreeEvaluator;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An {@link ACITupleFilter} that discards all tuples whose {@link UserClass}es
@@ -50,8 +51,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
     {
         this.subtreeEvaluator = subtreeEvaluator;
     }
-    
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
         if( tuples.size() == 0 )
         {
@@ -78,10 +79,10 @@ public class RelatedUserClassFilter implements ACITupleFilter
                 }
             }
         }
-        
+
         return tuples;
     }
-    
+
     private boolean isRelated( Collection userGroupNames, Name userName, Attributes userEntry, Name entryName, Collection userClasses ) throws NamingException
     {
         for( Iterator i = userClasses.iterator(); i.hasNext(); )
@@ -134,7 +135,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
 
         return false;
     }
-    
+
     private boolean matchUserClassSubtree( Name userName, Attributes userEntry, UserClass.Subtree subtree ) throws NamingException
     {
         for( Iterator i = subtree.getSubtreeSpecifications().iterator();
@@ -147,7 +148,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
                 return true;
             }
         }
-        
+
         return false;
     }
 }

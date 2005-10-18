@@ -29,7 +29,8 @@ import javax.naming.directory.Attributes;
 import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.ProtectedItem;
-import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An {@link ACITupleFilter} that chooses the tuples with the most specific
@@ -48,7 +49,7 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
  */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
         if( tuples.size() <= 1 )
         {
@@ -56,7 +57,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         }
 
         Collection filteredTuples = new ArrayList();
-        
+
         // If the protected item is an attribute and there are tuples that
         // specify the attribute type explicitly, discard all other tuples.
         for( Iterator i = tuples.iterator(); i.hasNext(); )
@@ -75,7 +76,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
                 }
             }
         }
-        
+
         if( filteredTuples.size() > 0 )
         {
             return filteredTuples;
@@ -102,7 +103,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         {
             return filteredTuples;
         }
-        
+
         return tuples;
     }
 }

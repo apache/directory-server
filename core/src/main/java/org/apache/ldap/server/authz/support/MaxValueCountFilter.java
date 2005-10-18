@@ -30,7 +30,8 @@ import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
-import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
@@ -41,13 +42,13 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
  */
 public class MaxValueCountFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy, Collection userGroupNames, Name userName, Attributes userEntry, AuthenticationLevel authenticationLevel, Name entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations ) throws NamingException
     {
         if( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
         {
             return tuples;
         }
-        
+
         if( tuples.size() == 0 )
         {
             return tuples;
@@ -75,7 +76,7 @@ public class MaxValueCountFilter implements ACITupleFilter
                 }
             }
         }
-        
+
         return tuples;
     }
 
@@ -94,7 +95,7 @@ public class MaxValueCountFilter implements ACITupleFilter
                 }
             }
         }
-        
+
         return false;
     }
 

@@ -26,7 +26,8 @@ import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.MicroOperation;
-import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An interface that filters the specified collection of tuples using the
@@ -44,7 +45,7 @@ public interface ACITupleFilter
      * 
      * @param tuples the collection of tuples to filter
      * @param scope the scope of the operation to be performed
-     * @param next the next interceptor for this filter to access the DIT
+     * @param proxy the proxy interceptor for this filter to access the DIT
      * @param userGroupNames the collection of group ({@link Name})s which the current user belongs to
      * @param userName the {@link Name} of the current user
      * @param userEntry the {@link Attributes} of the current user entry in the DIT
@@ -59,7 +60,7 @@ public interface ACITupleFilter
      * @throws NamingException if failed to filter the specifiec tuples
      */
     Collection filter(
-            Collection tuples, OperationScope scope, NextInterceptor next,
+            Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
             Collection userGroupNames, Name userName, Attributes userEntry,
             AuthenticationLevel authenticationLevel,
             Name entryName, String attrId, Object attrValue, Attributes entry,

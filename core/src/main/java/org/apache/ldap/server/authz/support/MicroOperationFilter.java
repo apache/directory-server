@@ -28,7 +28,8 @@ import javax.naming.directory.Attributes;
 import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.MicroOperation;
-import org.apache.ldap.server.interceptor.NextInterceptor;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+
 
 /**
  * An {@link ACITupleFilter} that discard tuples which doesn't contain any
@@ -40,7 +41,7 @@ import org.apache.ldap.server.interceptor.NextInterceptor;
  */
 public class MicroOperationFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, NextInterceptor next,
+    public Collection filter( Collection tuples, OperationScope scope, DirectoryPartitionNexusProxy proxy,
                               Collection userGroupNames, Name userName, Attributes userEntry,
                               AuthenticationLevel authenticationLevel, Name entryName, String attrId,
                               Object attrValue, Attributes entry, Collection microOperations )
@@ -71,13 +72,13 @@ public class MicroOperationFilter implements ACITupleFilter
                     break;
                 }
             }
-            
+
             if( !retain )
             {
                 i.remove();
             }
         }
-        
+
         return tuples;
     }
 
