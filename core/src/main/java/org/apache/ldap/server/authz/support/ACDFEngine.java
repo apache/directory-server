@@ -18,10 +18,7 @@
  */
 package org.apache.ldap.server.authz.support;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Collections;
+import java.util.*;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -130,6 +127,23 @@ public class ACDFEngine
         }
     }
 
+
+    public static final Collection USER_LOOKUP_BYPASS;
+    static
+    {
+        Collection c = new HashSet();
+        c.add( "normalizationService" );
+        c.add( "authenticationService" );
+        c.add( "authorizationService" );
+        c.add( "oldAuthorizationService" );
+        c.add( "schemaService" );
+        c.add( "subentryService" );
+        c.add( "operationalAttributeService" );
+        c.add( "eventService" );
+        USER_LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
+    }
+
+
     /**
      * Returns <tt>true</tt> if the user with the specified name can access the specified resource
      * (entry, attribute type, or attribute value) and throws {@link LdapNoPermissionException}
@@ -157,7 +171,7 @@ public class ACDFEngine
             throw new NullPointerException( "entryName" );
         }
 
-        Attributes userEntry = proxy.lookup( userName, Collections.singleton( "authorizationService" ) );
+        Attributes userEntry = proxy.lookup( userName, USER_LOOKUP_BYPASS );
 
         // Determine the scope of the requested operation.
         OperationScope scope;

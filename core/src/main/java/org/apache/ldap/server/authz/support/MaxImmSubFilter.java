@@ -18,10 +18,7 @@
  */
 package org.apache.ldap.server.authz.support;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Collections;
+import java.util.*;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -106,6 +103,23 @@ public class MaxImmSubFilter implements ACITupleFilter
         return tuples;
     }
 
+
+    public static final Collection SEARCH_BYPASS;
+    static
+    {
+        Collection c = new HashSet();
+        c.add( "normalizationService" );
+        c.add( "authenticationService" );
+        c.add( "authorizationService" );
+        c.add( "oldAuthorizationService" );
+        c.add( "schemaService" );
+        c.add( "subentryService" );
+        c.add( "operationalAttributeService" );
+        c.add( "eventService" );
+        SEARCH_BYPASS = Collections.unmodifiableCollection( c );
+    }
+
+
     private int getImmSubCount( DirectoryPartitionNexusProxy proxy, Name entryName ) throws NamingException
     {
         int cnt = 0;
@@ -114,7 +128,7 @@ public class MaxImmSubFilter implements ACITupleFilter
         {
             e = proxy.search(
                 entryName.getPrefix( 1 ), new HashMap(),
-                childrenFilter, childrenSearchControls, Collections.singleton( "authorizationService" ) );
+                childrenFilter, childrenSearchControls, SEARCH_BYPASS );
 
             while( e.hasMore() )
             {

@@ -127,7 +127,9 @@ public class AuthorizationService extends BaseInterceptor
      * @param entry the target entry that access to is being controled
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addPerscriptiveAciTuples( Collection tuples, Name dn, Attributes entry ) throws NamingException
+    private void addPerscriptiveAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples,
+                                           Name dn, Attributes entry )
+            throws NamingException
     {
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -142,7 +144,7 @@ public class AuthorizationService extends BaseInterceptor
         {
             Name parentDn = ( Name ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = nexus.lookup( parentDn );
+            entry = proxy.lookup( parentDn, LOOKUP_BYPASS );
         }
 
         Attribute subentries = entry.get( AC_SUBENTRY_ATTR );
@@ -204,7 +206,8 @@ public class AuthorizationService extends BaseInterceptor
      * @param entry the target entry that access to is being regulated
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addSubentryAciTuples( Collection tuples, Name dn, Attributes entry ) throws NamingException
+    private void addSubentryAciTuples( DirectoryPartitionNexusProxy proxy, Collection tuples,
+                                       Name dn, Attributes entry ) throws NamingException
     {
         // only perform this for subentries
         if ( ! entry.get("objectClass").contains("subentry") )
@@ -216,7 +219,7 @@ public class AuthorizationService extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         Name parentDn = ( Name ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        Attributes administrativeEntry = nexus.lookup( parentDn );
+        Attributes administrativeEntry = proxy.lookup( parentDn, LOOKUP_BYPASS );
         Attribute subentryAci = administrativeEntry.get( SUBENTRYACI_ATTR );
 
         if ( subentryAci == null )
@@ -294,8 +297,8 @@ public class AuthorizationService extends BaseInterceptor
 
         // Build the total collection of tuples to be considered for add rights
         // NOTE: entryACI are NOT considered in adds (it would be a security breech)
-        addPerscriptiveAciTuples( tuples, normName, subentryAttrs );
-        addSubentryAciTuples( tuples, normName, subentryAttrs );
+        addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, subentryAttrs );
+        addSubentryAciTuples( invocation.getProxy(), tuples, normName, subentryAttrs );
         Collection perms = Collections.singleton( MicroOperation.ADD );
 
         // check if entry scope permission is granted
@@ -329,8 +332,9 @@ public class AuthorizationService extends BaseInterceptor
     public void delete( NextInterceptor next, Name name ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Attributes entry = nexus.lookup( name );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -341,11 +345,10 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         Set userGroups = groupCache.getGroups( user.getName() );
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, name, entry );
+        addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, name, entry );
+        addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
                 null, Collections.singleton( MicroOperation.REMOVE ), tuples, entry );
@@ -356,11 +359,27 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
+    private static final Collection LOOKUP_BYPASS;
+    static
+    {
+            Collection c = new HashSet();
+            c.add( "normalizationService" );
+            c.add( "authenticationService" );
+            c.add( "authorizationService" );
+            c.add( "oldAuthorizationService" );
+            c.add( "schemaService" );
+            c.add( "subentryService" );
+            c.add( "operationalAttributeService" );
+            c.add( "eventService" );
+            LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
+    }
+
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Attributes entry = nexus.lookup( name );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -370,12 +389,11 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, name, entry );
+        addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, name, entry );
+        addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
                 null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
@@ -416,8 +434,9 @@ public class AuthorizationService extends BaseInterceptor
     public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Attributes entry = nexus.lookup( name );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -427,12 +446,11 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, name, entry );
+        addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, name, entry );
+        addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
                 null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
@@ -475,8 +493,9 @@ public class AuthorizationService extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -484,12 +503,11 @@ public class AuthorizationService extends BaseInterceptor
             return next.hasEntry( name );
         }
 
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, name, entry );
+        addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, name, entry );
+        addSubentryAciTuples( proxy, tuples, name, entry );
 
         // check that we have browse access to the entry
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
@@ -520,9 +538,9 @@ public class AuthorizationService extends BaseInterceptor
         DirectoryPartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, dn, entry );
+        addPerscriptiveAciTuples( proxy, tuples, dn, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, dn, entry );
+        addSubentryAciTuples( proxy, tuples, dn, entry );
 
         Collection perms = new HashSet();
         perms.add( MicroOperation.READ );
@@ -549,8 +567,9 @@ public class AuthorizationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
     {
-        Attributes entry = nexus.lookup( dn );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( dn, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -566,8 +585,9 @@ public class AuthorizationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
@@ -584,8 +604,9 @@ public class AuthorizationService extends BaseInterceptor
     public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Attributes entry = nexus.lookup( name );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name newName = ( Name ) name.clone();
         newName.remove( name.size() - 1 );
@@ -598,12 +619,11 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, name, entry );
+        addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, name, entry );
+        addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
                 null, Collections.singleton( MicroOperation.RENAME ), tuples, entry );
@@ -645,8 +665,9 @@ public class AuthorizationService extends BaseInterceptor
             throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Attributes entry = nexus.lookup( oriChildName );
         Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes entry = proxy.lookup( oriChildName, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name newName = ( Name ) newParentName.clone();
         newName.add( newRn );
@@ -658,12 +679,11 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, oriChildName, entry );
+        addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, oriChildName, entry );
+        addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
         Collection perms = new HashSet();
         perms.add( MicroOperation.IMPORT );
@@ -673,9 +693,9 @@ public class AuthorizationService extends BaseInterceptor
                 oriChildName, null, null, perms, tuples, entry );
 
         Collection destTuples = new HashSet();
-        addPerscriptiveAciTuples( destTuples, oriChildName, entry );
+        addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
         addEntryAciTuples( destTuples, entry );
-        addSubentryAciTuples( destTuples, oriChildName, entry );
+        addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
                 oriChildName, null, null, Collections.singleton( MicroOperation.IMPORT ), tuples, entry );
 
@@ -717,7 +737,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = nexus.lookup( oriChildName );
+        Attributes entry = proxy.lookup( oriChildName, LOOKUP_BYPASS );
         Name newName = ( Name ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -731,17 +751,17 @@ public class AuthorizationService extends BaseInterceptor
 
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, oriChildName, entry );
+        addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, oriChildName, entry );
+        addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
                 oriChildName, null, null, Collections.singleton( MicroOperation.EXPORT ), tuples, entry );
 
         Collection destTuples = new HashSet();
-        addPerscriptiveAciTuples( destTuples, oriChildName, entry );
+        addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
         addEntryAciTuples( destTuples, entry );
-        addSubentryAciTuples( destTuples, oriChildName, entry );
+        addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
                 oriChildName, null, null, Collections.singleton( MicroOperation.IMPORT ), tuples, entry );
 
@@ -790,7 +810,7 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = proxy.lookup( name, LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
         {
@@ -799,9 +819,9 @@ public class AuthorizationService extends BaseInterceptor
 
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, name, entry );
+        addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, name, entry );
+        addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
                 null, Collections.singleton( MicroOperation.READ ), tuples, entry );
@@ -837,14 +857,14 @@ public class AuthorizationService extends BaseInterceptor
         * tests.  If we hasPermission() returns false we immediately short the
         * process and return false.
         */
-        Attributes entry = nexus.lookup( normName );
+        Attributes entry = invocation.getProxy().lookup( normName, LOOKUP_BYPASS );
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         Name userDn = ctx.getPrincipal().getJndiName();
         Set userGroups = groupCache.getGroups( userDn.toString() );
         Collection tuples = new HashSet();
-        addPerscriptiveAciTuples( tuples, normName, entry );
+        addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( tuples, normName, entry );
+        addSubentryAciTuples( invocation.getProxy(), tuples, normName, entry );
 
         if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
                 ctx.getPrincipal().getAuthenticationLevel(),
