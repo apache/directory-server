@@ -556,77 +556,77 @@ public class SearchAuthorizationTest extends AbstractAuthorizationTest
     }
 
 
-//    /**
-//     * Checks to make sure specific attribute values are not present when
-//     * read permission is denied.
-//     *
-//     * @throws javax.naming.NamingException if the test encounters an error
-//     */
-//    public void testHidingAttributeValues() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // try an add operation which should fail without any ACI
-//        assertFalse( checkCanSearchAs( "billyd", "billyd", 3 ) );
-//
-//        // now add a subentry that enables anyone to search an entry below ou=system
-//        // down two more rdns for DNs of a max size of 3.  It only grants access to
-//        // the ou and objectClass attributes however.
-//        createAccessControlSubentry( "excluseOUValue",
-//                "{ maximum 2 }",
-//                "{ " +
-//                "identificationTag \"searchAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { allUsers }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, attributeType { ou }, allAttributeValues { objectClass }, attributeValue { ou=0, ou=1, ou=2 } }, " +
-//                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
-//
-//        // see if we can now add that search and find 4 entries
-//        assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
-//
-//        // check to make sure the ou attribute value "testEntry" is not present in results
-//        Iterator list = results.values().iterator();
-//        while ( list.hasNext() )
-//        {
-//            SearchResult result = ( SearchResult ) list.next();
-//            assertFalse( result.getAttributes().get( "ou" ).contains( "testEntry" ) );
-//        }
-//
-//        // delete the subentry to test more general rule's inclusion of all values
-//        deleteAccessControlSubentry( "excluseOUValue" );
-//
-//        // now add a subentry that enables anyone to search an entry below ou=system
-//        // down two more rdns for DNs of a max size of 3.  This time we should be able
-//        // to see the telephoneNumber attribute
-//        createAccessControlSubentry( "includeAllAttributeTypesAndValues",
-//                "{ maximum 2 }",
-//                "{ " +
-//                "identificationTag \"searchAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { allUsers }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues }, " +
-//                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
-//
-//        // again we should find four entries
-//        assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
-//
-//        // check now to make sure the telephoneNumber attribute is present in results
-//        list = results.values().iterator();
-//        while ( list.hasNext() )
-//        {
-//            SearchResult result = ( SearchResult ) list.next();
-//            assertTrue( result.getAttributes().get( "ou" ).contains( "testEntry" ) );
-//        }
-//    }
-//
-//
+    /**
+     * Checks to make sure specific attribute values are not present when
+     * read permission is denied.
+     *
+     * @throws javax.naming.NamingException if the test encounters an error
+     */
+    public void testHidingAttributeValues() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an add operation which should fail without any ACI
+        assertFalse( checkCanSearchAs( "billyd", "billyd", 3 ) );
+
+        // now add a subentry that enables anyone to search an entry below ou=system
+        // down two more rdns for DNs of a max size of 3.  It only grants access to
+        // the ou and objectClass attributes however.
+        createAccessControlSubentry( "excluseOUValue",
+                "{ maximum 2 }",
+                "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, attributeType { ou }, allAttributeValues { objectClass }, attributeValue { ou=0, ou=1, ou=2 } }, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // see if we can now add that search and find 4 entries
+        assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
+
+        // check to make sure the ou attribute value "testEntry" is not present in results
+        Iterator list = results.values().iterator();
+        while ( list.hasNext() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            assertFalse( result.getAttributes().get( "ou" ).contains( "testEntry" ) );
+        }
+
+        // delete the subentry to test more general rule's inclusion of all values
+        deleteAccessControlSubentry( "excluseOUValue" );
+
+        // now add a subentry that enables anyone to search an entry below ou=system
+        // down two more rdns for DNs of a max size of 3.  This time we should be able
+        // to see the telephoneNumber attribute
+        createAccessControlSubentry( "includeAllAttributeTypesAndValues",
+                "{ maximum 2 }",
+                "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues }, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // again we should find four entries
+        assertTrue( checkCanSearchAs( "billyd", "billyd", 3 ) );
+
+        // check now to make sure the telephoneNumber attribute is present in results
+        list = results.values().iterator();
+        while ( list.hasNext() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            assertTrue( result.getAttributes().get( "ou" ).contains( "testEntry" ) );
+        }
+    }
+
+
     /**
      * Adds a perscriptiveACI to allow search, tests for success, then adds entryACI
      * to deny read, browse and returnDN to a specific entry and checks to make sure

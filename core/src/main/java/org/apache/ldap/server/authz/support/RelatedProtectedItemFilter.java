@@ -135,8 +135,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             }
             else if( item instanceof ProtectedItem.AttributeType )
             {
-                if( scope != OperationScope.ATTRIBUTE_TYPE &&
-                    scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
+                if( scope != OperationScope.ATTRIBUTE_TYPE )
                 {
                     continue;
                 }
