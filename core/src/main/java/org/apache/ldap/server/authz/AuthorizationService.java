@@ -192,7 +192,7 @@ public class AuthorizationService extends BaseInterceptor
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
             }
 
-            tuples.add( item.toTuples() );
+            tuples.addAll( item.toTuples() );
         }
     }
 
@@ -243,7 +243,7 @@ public class AuthorizationService extends BaseInterceptor
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONSERROR );
             }
 
-            tuples.add( item.toTuples() );
+            tuples.addAll( item.toTuples() );
         }
     }
 
@@ -865,11 +865,12 @@ public class AuthorizationService extends BaseInterceptor
          * not allowed are removed from the attribute.  If the attribute has no more
          * values remaining then the entire attribute is removed.
          */
-        NamingEnumeration attributeList = result.getAttributes().getAll();
-        while ( attributeList.hasMore() )
+        NamingEnumeration idList = result.getAttributes().getIDs();
+        while ( idList.hasMore() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
-            Attribute attr = ( Attribute ) attributeList.next();
+            String id = ( String ) idList.next();
+            Attribute attr = result.getAttributes().get( id );
             if ( ! engine.hasPermission( invocation.getProxy(), userGroups, userDn,
                     ctx.getPrincipal().getAuthenticationLevel(),
                     normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry ) )

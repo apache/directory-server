@@ -241,6 +241,21 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
      */
     public void createAccessControlSubentry( String cn, String aciItem ) throws NamingException
     {
+        createAccessControlSubentry( cn, "{}", aciItem );
+    }
+
+
+    /**
+     * Creates an access control subentry under ou=system whose subtree covers
+     * the entire naming context.
+     *
+     * @param cn the common name and rdn for the subentry
+     * @param subtree the subtreeSpecification for the subentry
+     * @param aciItem the prescriptive ACI attribute value
+     * @throws NamingException if there is a problem creating the subentry
+     */
+    public void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
+    {
         DirContext adminCtx = getContextAsAdmin();
 
         // modify ou=system to be an AP for an A/C AA if it is not already
@@ -259,8 +274,42 @@ public abstract class AbstractAuthorizationTest extends AbstractTestCase
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "accessControlSubentry" );
-        subentry.put( "subtreeSpecification", "{}" );
+        subentry.put( "subtreeSpecification", subtree );
         subentry.put( "prescriptiveACI", aciItem );
         adminCtx.createSubcontext( "cn=" + cn, subentry );
+    }
+
+
+    /**
+     * Adds and entryACI attribute to an entry specified by a relative name
+     * with respect to ou=system
+     *
+     * @param rdn a name relative to ou=system
+     * @param aciItem the entryACI attribute value
+     * @throws NamingException if there is a problem adding the attribute
+     */
+    public void addEntryACI( Name rdn, String aciItem ) throws NamingException
+    {
+        DirContext adminCtx = getContextAsAdmin();
+
+        // modify the entry relative to ou=system to include the aciItem
+        Attributes changes = new BasicAttributes( "entryACI", aciItem, true );
+        adminCtx.modifyAttributes( rdn, DirContext.ADD_ATTRIBUTE, changes );
+    }
+
+
+    /**
+     * Adds and subentryACI attribute to ou=system
+     *
+     * @param aciItem the subentryACI attribute value
+     * @throws NamingException if there is a problem adding the attribute
+     */
+    public void addSubentryACI( String aciItem ) throws NamingException
+    {
+        DirContext adminCtx = getContextAsAdmin();
+
+        // modify the entry relative to ou=system to include the aciItem
+        Attributes changes = new BasicAttributes( "subentryACI", aciItem, true );
+        adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
     }
 }

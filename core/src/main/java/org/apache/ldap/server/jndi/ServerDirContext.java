@@ -505,12 +505,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
          * Go through the set of attributes using each attribute value pair as 
          * an attribute value assertion within one big AND filter expression.
          */
-        Attribute attr = null;
-
-        SimpleNode node = null;
-
+        Attribute attr;
+        SimpleNode node;
         BranchNode filter = new BranchNode( BranchNode.AND );
-
         NamingEnumeration list = matchingAttributes.getAll();
 
         // Loop through each attribute value pair
@@ -588,7 +585,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration search( Name name, String filter, SearchControls cons )
             throws NamingException
     {
-        ExprNode filterNode = null;
+        ExprNode filterNode;
 
         LdapName target = buildTarget( name );
 
@@ -695,7 +692,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                                    NamingListener namingListener )
             throws NamingException
     {
-        ExprNode filter = null;
+        ExprNode filter;
 
         try
         {
