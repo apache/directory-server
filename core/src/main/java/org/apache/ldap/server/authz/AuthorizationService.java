@@ -219,7 +219,8 @@ public class AuthorizationService extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         Name parentDn = ( Name ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        Attributes administrativeEntry = proxy.lookup( parentDn, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes administrativeEntry = proxy.lookup( parentDn, new String[] { SUBENTRYACI_ATTR },
+                DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         Attribute subentryAci = administrativeEntry.get( SUBENTRYACI_ATTR );
 
         if ( subentryAci == null )

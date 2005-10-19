@@ -669,7 +669,7 @@ public class SearchAuthorizationTest extends AbstractAuthorizationTest
 
         // see if we can now search the tree which we could not before
         // should work with billyd now that all users are authorized
-        // we should also see the entry we are about to deny access to
+        // we should NOT see the entry we are about to deny access to
         assertTrue( checkSearchAsWithEntryACI( "billyd", "billyd", cons, rdn, aci, 9 ) );
         assertNull( results.get( "ou=tests,ou=system" ) );
 
@@ -679,24 +679,147 @@ public class SearchAuthorizationTest extends AbstractAuthorizationTest
     }
 
 
-//    public boolean checkSubentryAccessAs( String username, String password, Name rdn )
-//
-//
-//    public void testSubentryAccess() throws NamingException
-//    {
-//        // create the non-admin user
-//        createUser( "billyd", "billyd" );
-//
-//        // now add a subentry that enables anyone to search below ou=system
-//        createAccessControlSubentry( "anybodySearch", "{ " +
-//                "identificationTag \"searchAci\", " +
-//                "precedence 14, " +
-//                "authenticationLevel none, " +
-//                "itemOrUserFirst userFirst: { " +
-//                "userClasses { allUsers }, " +
-//                "userPermissions { { " +
-//                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
-//                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
-//
-//    }
+    /**
+     * Adds a perscriptiveACI to allow search, tests for success, then adds entryACI
+     * to deny read, browse and returnDN to a specific entry and checks to make sure
+     * that entry cannot be accessed via search as a specific user.  Here the
+     * precidence of the ACI is put to the test.
+     *
+     * @throws NamingException if the test is broken
+     */
+    public void testPerscriptiveGrantWithEntryDenialWithPrecidence() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // now add an entryACI denies browse, read and returnDN to a specific entry
+        String aci = "{ " +
+                "identificationTag \"denyAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { denyRead, denyReturnDN, denyBrowse } } } } }";
+
+        // try a search operation which should fail without any prescriptive ACI
+        SearchControls cons = new SearchControls();
+        cons.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        LdapName rdn = new LdapName( "ou=tests" );
+        assertFalse( checkSearchAsWithEntryACI( "billyd", "billyd", cons, rdn, aci, 9 ) );
+
+        // now add a subentry that enables anyone to search below ou=system
+        createAccessControlSubentry( "anybodySearch", "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 15, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // see if we can now search the tree which we could not before
+        // should work with billyd now that all users are authorized
+        // we should also see the entry we are about to deny access to
+        // we see it because the precidence of the grant is greater
+        // than the precedence of the denial
+        assertTrue( checkSearchAsWithEntryACI( "billyd", "billyd", cons, rdn, aci, 10 ) );
+        assertNotNull( results.get( "ou=tests,ou=system" ) );
+
+        // now add an entryACI denies browse, read and returnDN to a specific entry
+        // but this time the precedence will be higher than that of the grant
+        aci = "{ " +
+                "identificationTag \"denyAci\", " +
+                "precedence 16, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { denyRead, denyReturnDN, denyBrowse } } } } }";
+
+        // see if we can now search the tree which we could not before
+        // should work with billyd now that all users are authorized
+        // we should NOT see the entry we are about to deny access to
+        // we do NOT see it because the precidence of the grant is less
+        // than the precedence of the denial - so the denial wins
+        assertTrue( checkSearchAsWithEntryACI( "billyd", "billyd", cons, rdn, aci, 9 ) );
+        assertNull( results.get( "ou=tests,ou=system" ) );
+    }
+
+
+    /**
+     * Performs an object level search on the specified subentry relative to ou=system as a specific user.
+     *
+     * @param uid the uid RDN attribute value of the user to perform the search as
+     * @param password the password of the user
+     * @param rdn the relative name to the subentry under the ou=system AP
+     * @return the single search result if access is allowed or null
+     * @throws NamingException if the search fails w/ exception other than no permission
+     */
+    private SearchResult checkCanSearhSubentryAs( String uid, String password, Name rdn ) throws NamingException
+    {
+        DirContext userCtx = getContextAs( new LdapName( "uid="+uid+",ou=users,ou=system" ), password );
+        SearchControls cons = new SearchControls();
+        cons.setSearchScope( SearchControls.OBJECT_SCOPE );
+        SearchResult result = null;
+        NamingEnumeration list = null;
+
+        try
+        {
+            list = userCtx.search( rdn, "(objectClass=*)", cons );
+            if ( list.hasMore() )
+            {
+                result = ( SearchResult ) list.next();
+                list.close();
+                return result;
+            }
+        }
+        catch ( LdapNoPermissionException e )
+        {
+        }
+        finally
+        {
+            if ( list != null ) { list.close(); }
+        }
+
+        return result;
+    }
+
+
+    public void testSubentryAccess() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // now add a subentry that enables anyone to search below ou=system
+        createAccessControlSubentry( "anybodySearch", "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // check and see if we can access the subentry now
+        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapName( "cn=anybodySearch" ) ) );
+
+        // now add a denial to prevent all users except the admin from accessing the subentry
+        addSubentryACI( "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { denyRead, denyReturnDN, denyBrowse } } } } }" );
+
+        // now we should not be able to access the subentry with a search
+        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapName( "cn=anybodySearch" ) ) );
+    }
 }
