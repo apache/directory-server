@@ -29,11 +29,14 @@ import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
+import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.partition.DirectoryPartition;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 
 
 /**
@@ -302,8 +305,8 @@ public class ExceptionService extends BaseInterceptor
      * LdapException.
      */
     public void move( NextInterceptor nextInterceptor,
-            Name oriChildName, Name newParentName, String newRn,
-            boolean deleteOldRn ) throws NamingException
+                      Name oriChildName, Name newParentName, String newRn,
+                      boolean deleteOldRn ) throws NamingException
     {
         // check if child to move exists
         String msg = "Attempt to move to non-existant parent: ";
@@ -332,9 +335,9 @@ public class ExceptionService extends BaseInterceptor
     /**
      * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
-    public NamingEnumeration search( NextInterceptor nextInterceptor, 
-            Name base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration search( NextInterceptor nextInterceptor,
+                                     Name base, Map env, ExprNode filter,
+                                     SearchControls searchCtls ) throws NamingException
     {
         String msg = "Attempt to search under non-existant entry: ";
 
@@ -365,6 +368,8 @@ public class ExceptionService extends BaseInterceptor
      */
     private void assertHasEntry( NextInterceptor nextInterceptor, String msg, Name dn ) throws NamingException
     {
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         if ( !nextInterceptor.hasEntry( dn ) )
         {
             LdapNameNotFoundException e = null;
@@ -378,7 +383,7 @@ public class ExceptionService extends BaseInterceptor
                 e = new LdapNameNotFoundException( dn.toString() );
             }
 
-            e.setResolvedName( nextInterceptor.getMatchedName( dn, false ) );
+            e.setResolvedName( proxy.getMatchedName( dn, false ) );
             throw e;
         }
     }

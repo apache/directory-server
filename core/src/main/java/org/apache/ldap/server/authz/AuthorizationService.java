@@ -74,8 +74,57 @@ public class AuthorizationService extends BaseInterceptor
      */
     private static final String AC_SUBENTRY_ATTR = "accessControlSubentries";
 
-    /** the partition nexus */
-    private DirectoryPartitionNexus nexus;
+    private static final Collection ADD_PERMS;
+    private static final Collection READ_PERMS;
+    private static final Collection COMPARE_PERMS;
+    private static final Collection SEARCH_ENTRY_PERMS;
+    private static final Collection SEARCH_ATTRVAL_PERMS;
+    private static final Collection REMOVE_PERMS;
+    private static final Collection MATCHEDNAME_PERMS;
+    private static final Collection BROWSE_PERMS;
+    private static final Collection LOOKUP_PERMS;
+    private static final Collection REPLACE_PERMS;
+    private static final Collection RENAME_PERMS;
+    private static final Collection EXPORT_PERMS;
+    private static final Collection IMPORT_PERMS;
+    private static final Collection MOVERENAME_PERMS;
+
+
+    static
+    {
+        HashSet set = new HashSet( 2 );
+        set.add( MicroOperation.BROWSE );
+        set.add( MicroOperation.RETURN_DN );
+        SEARCH_ENTRY_PERMS = Collections.unmodifiableCollection( set );
+
+        set = new HashSet( 2 );
+        set.add( MicroOperation.READ );
+        set.add( MicroOperation.BROWSE );
+        LOOKUP_PERMS = Collections.unmodifiableCollection( set );
+
+        set = new HashSet( 2 );
+        set.add( MicroOperation.ADD );
+        set.add( MicroOperation.REMOVE );
+        REPLACE_PERMS = Collections.unmodifiableCollection( set );
+
+        set = new HashSet( 3 );
+        set.add( MicroOperation.IMPORT );
+        set.add( MicroOperation.EXPORT );
+        set.add( MicroOperation.RENAME );
+        MOVERENAME_PERMS = Collections.unmodifiableCollection( set );
+
+        SEARCH_ATTRVAL_PERMS = Collections.singleton( MicroOperation.READ );
+        ADD_PERMS = Collections.singleton( MicroOperation.ADD );
+        READ_PERMS = Collections.singleton( MicroOperation.READ );
+        COMPARE_PERMS = Collections.singleton( MicroOperation.COMPARE );
+        REMOVE_PERMS = Collections.singleton( MicroOperation.REMOVE );
+        MATCHEDNAME_PERMS = Collections.singleton( MicroOperation.DISCLOSE_ON_ERROR );
+        BROWSE_PERMS = Collections.singleton( MicroOperation.BROWSE );
+        RENAME_PERMS = Collections.singleton( MicroOperation.RENAME );
+        EXPORT_PERMS = Collections.singleton( MicroOperation.EXPORT );
+        IMPORT_PERMS = Collections.singleton( MicroOperation.IMPORT );
+    }
+
     /** a tupleCache that responds to add, delete, and modify attempts */
     private TupleCache tupleCache;
     /** a groupCache that responds to add, delete, and modify attempts */
@@ -103,7 +152,6 @@ public class AuthorizationService extends BaseInterceptor
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         super.init( factoryCfg, cfg );
-        nexus = factoryCfg.getPartitionNexus();
         tupleCache = new TupleCache( factoryCfg );
         groupCache = new GroupCache( factoryCfg );
         attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
@@ -300,12 +348,11 @@ public class AuthorizationService extends BaseInterceptor
         // NOTE: entryACI are NOT considered in adds (it would be a security breech)
         addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, subentryAttrs );
         addSubentryAciTuples( invocation.getProxy(), tuples, normName, subentryAttrs );
-        Collection perms = Collections.singleton( MicroOperation.ADD );
 
         // check if entry scope permission is granted
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
-                normName, null, null, perms, tuples, subentryAttrs );
+                normName, null, null, ADD_PERMS, tuples, subentryAttrs );
 
         // now we must check if attribute type and value scope permission is granted
         NamingEnumeration attributeList = entry.getAll();
@@ -316,7 +363,7 @@ public class AuthorizationService extends BaseInterceptor
             {
                 engine.checkPermission( proxy, userGroups, user.getJndiName(),
                         user.getAuthenticationLevel(), normName, attr.getID(),
-                        attr.get( ii ), perms, tuples, entry );
+                        attr.get( ii ), ADD_PERMS, tuples, entry );
             }
         }
 
@@ -352,7 +399,7 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-                null, Collections.singleton( MicroOperation.REMOVE ), tuples, entry );
+                null, REMOVE_PERMS, tuples, entry );
 
         next.delete( name );
         tupleCache.subentryDeleted( name, entry );
@@ -389,15 +436,13 @@ public class AuthorizationService extends BaseInterceptor
         switch( modOp )
         {
             case( DirContext.ADD_ATTRIBUTE ):
-                perms = Collections.singleton( MicroOperation.ADD );
+                perms = ADD_PERMS;
                 break;
             case( DirContext.REMOVE_ATTRIBUTE ):
-                perms = Collections.singleton( MicroOperation.REMOVE );
+                perms = REMOVE_PERMS;
                 break;
             case( DirContext.REPLACE_ATTRIBUTE ):
-                perms = new HashSet();
-                perms.add( MicroOperation.ADD );
-                perms.add( MicroOperation.REMOVE );
+                perms = REPLACE_PERMS;
                 break;
         }
 
@@ -442,24 +487,18 @@ public class AuthorizationService extends BaseInterceptor
                 null, Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
         Collection perms = null;
-        Collection remove = Collections.singleton( MicroOperation.REMOVE );
-        Collection add = Collections.singleton( MicroOperation.ADD );
-        Collection replace = new HashSet();
-        replace.add( MicroOperation.ADD );
-        replace.add( MicroOperation.REMOVE );
-
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             switch( mods[ii].getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
-                    perms = add;
+                    perms = ADD_PERMS;
                     break;
                 case( DirContext.REMOVE_ATTRIBUTE ):
-                    perms = remove;
+                    perms = REMOVE_PERMS;
                     break;
                 case( DirContext.REPLACE_ATTRIBUTE ):
-                    perms = replace;
+                    perms = REPLACE_PERMS;
                     break;
             }
 
@@ -497,7 +536,7 @@ public class AuthorizationService extends BaseInterceptor
 
         // check that we have browse access to the entry
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-                null, Collections.singleton( MicroOperation.BROWSE ), tuples, entry );
+                null, BROWSE_PERMS, tuples, entry );
 
         return next.hasEntry( name );
     }
@@ -528,16 +567,11 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, dn, entry );
 
-        Collection perms = new HashSet();
-        perms.add( MicroOperation.READ );
-        perms.add( MicroOperation.BROWSE );
-
         // check that we have read access to the entry
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), dn, null,
-                null, perms, tuples, entry );
+                null, LOOKUP_PERMS, tuples, entry );
 
         // check that we have read access to every attribute type and value
-        perms = Collections.singleton( MicroOperation.READ );
         NamingEnumeration attributeList = entry.getAll();
         while ( attributeList.hasMore() )
         {
@@ -545,7 +579,7 @@ public class AuthorizationService extends BaseInterceptor
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), dn,
-                        attr.getID(), attr.get( ii ), perms, tuples, entry );
+                        attr.getID(), attr.get( ii ), READ_PERMS, tuples, entry );
             }
         }
     }
@@ -612,7 +646,7 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-                null, Collections.singleton( MicroOperation.RENAME ), tuples, entry );
+                null, RENAME_PERMS, tuples, entry );
 
 //        if ( deleteOldRn )
 //        {
@@ -671,19 +705,15 @@ public class AuthorizationService extends BaseInterceptor
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
-        Collection perms = new HashSet();
-        perms.add( MicroOperation.IMPORT );
-        perms.add( MicroOperation.EXPORT );
-        perms.add( MicroOperation.RENAME );
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
-                oriChildName, null, null, perms, tuples, entry );
+                oriChildName, null, null, MOVERENAME_PERMS, tuples, entry );
 
         Collection destTuples = new HashSet();
         addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
         addEntryAciTuples( destTuples, entry );
         addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
-                oriChildName, null, null, Collections.singleton( MicroOperation.IMPORT ), tuples, entry );
+                oriChildName, null, null, IMPORT_PERMS, tuples, entry );
 
 //        if ( deleteOldRn )
 //        {
@@ -742,14 +772,14 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
-                oriChildName, null, null, Collections.singleton( MicroOperation.EXPORT ), tuples, entry );
+                oriChildName, null, null, EXPORT_PERMS, tuples, entry );
 
         Collection destTuples = new HashSet();
         addPerscriptiveAciTuples( proxy, destTuples, oriChildName, entry );
         addEntryAciTuples( destTuples, entry );
         addSubentryAciTuples( proxy, destTuples, oriChildName, entry );
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(),
-                oriChildName, null, null, Collections.singleton( MicroOperation.IMPORT ), tuples, entry );
+                oriChildName, null, null, IMPORT_PERMS, tuples, entry );
 
         next.move( oriChildName, newParentName );
         tupleCache.subentryRenamed( oriChildName, newName );
@@ -792,7 +822,6 @@ public class AuthorizationService extends BaseInterceptor
 
     public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
     {
-
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
@@ -810,11 +839,60 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, null,
-                null, Collections.singleton( MicroOperation.READ ), tuples, entry );
+                null, READ_PERMS, tuples, entry );
         engine.checkPermission( proxy, userGroups, user.getJndiName(), user.getAuthenticationLevel(), name, oid,
-                value, Collections.singleton( MicroOperation.COMPARE ), tuples, entry );
+                value, COMPARE_PERMS, tuples, entry );
 
         return next.compare( name, oid, value );
+    }
+
+
+    public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
+    {
+        // Access the principal requesting the operation, and bypass checks if it is the admin
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        {
+            return next.getMatchedName( dn, normalized );
+        }
+
+        // get the present matched name
+        Attributes entry;
+        Name matched = next.getMatchedName( dn, normalized );
+
+        // check if we have disclose on error permission for the entry at the matched dn
+        // if not remove rdn and check that until nothing is left in the name and return
+        // that but if permission is granted then short the process and return the dn
+        while ( matched.size() > 0 )
+        {
+            if ( normalized )
+            {
+                entry = proxy.lookup( matched, DirectoryPartitionNexusProxy.GETMATCHEDDN_BYPASS );
+            }
+            else
+            {
+                entry = proxy.lookup( matched, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            }
+
+            Set userGroups = groupCache.getGroups( user.getName() );
+            Collection tuples = new HashSet();
+            addPerscriptiveAciTuples( proxy, tuples, matched, entry );
+            addEntryAciTuples( tuples, entry );
+            addSubentryAciTuples( proxy, tuples, matched, entry );
+
+            if ( engine.hasPermission( proxy, userGroups, user.getJndiName(),
+                    user.getAuthenticationLevel(), matched, null, null,
+                    MATCHEDNAME_PERMS, tuples, entry ) )
+            {
+                return matched;
+            }
+
+            matched.remove( matched.size() - 1 );
+        }
+
+        return matched;
     }
 
 
@@ -823,18 +901,6 @@ public class AuthorizationService extends BaseInterceptor
         this.groupCache.groupAdded( upName, normName, entry );
     }
 
-
-    /** @todo move this up and add more collections that can be made constants */
-    private static final Collection SEARCH_ENTRY_PERMS;
-    private static final Collection SEARCH_ATTRVAL_PERMS;
-    static
-    {
-        HashSet set = new HashSet( 2 );
-        set.add( MicroOperation.BROWSE );
-        set.add( MicroOperation.RETURN_DN );
-        SEARCH_ENTRY_PERMS = Collections.unmodifiableCollection( set );
-        SEARCH_ATTRVAL_PERMS = Collections.singleton( MicroOperation.READ );
-    }
 
     private boolean filter( Invocation invocation, Name normName, SearchResult result ) throws NamingException
     {

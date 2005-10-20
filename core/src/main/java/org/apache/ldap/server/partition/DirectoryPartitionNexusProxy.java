@@ -56,6 +56,8 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
 {
     /** safe to use set of bypass instructions to lookup raw entries */
     public static final Collection LOOKUP_BYPASS;
+    /** safe to use set of bypass instructions to getMatchedDn */
+    public static final Collection GETMATCHEDDN_BYPASS;
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final String BYPASS_ALL = "*";
     /** Bypass String to use when ALL interceptors should be skipped */
@@ -84,6 +86,16 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
         c.add( "operationalAttributeService" );
         c.add( "eventService" );
         LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
+
+        c = new HashSet();
+        c.add( "authenticationService" );
+        c.add( "authorizationService" );
+        c.add( "oldAuthorizationService" );
+        c.add( "schemaService" );
+        c.add( "subentryService" );
+        c.add( "operationalAttributeService" );
+        c.add( "eventService" );
+        GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
     }
 
 

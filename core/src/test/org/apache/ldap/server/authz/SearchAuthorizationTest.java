@@ -822,4 +822,65 @@ public class SearchAuthorizationTest extends AbstractAuthorizationTest
         // now we should not be able to access the subentry with a search
         assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapName( "cn=anybodySearch" ) ) );
     }
+
+
+    public void testGetMatchedName() throws  NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // now add a subentry that enables anyone to search/lookup and disclose on error
+        // below ou=system, with the exclusion of ou=groups and everything below it
+        createAccessControlSubentry( "selectiveDiscloseOnError",
+                "{ specificExclusions { chopBefore:\"ou=groups\" } }",
+                "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse, grantDiscloseOnError } } } } }" );
+
+        // get a context as the user and try a lookup of a non-existant entry under ou=groups,ou=system
+        DirContext userCtx = getContextAs( new LdapName( "uid=billyd,ou=users,ou=system" ), "billyd" );
+        try
+        {
+            userCtx.lookup( "cn=blah,ou=groups" );
+        }
+        catch( NamingException e )
+        {
+            Name matched = e.getResolvedName();
+
+            // we should not see ou=groups,ou=system for the remaining name
+            assertEquals( matched.toString(), "ou=system" );
+        }
+
+        // now delete and replace subentry with one that does not excluse ou=groups,ou=system
+        deleteAccessControlSubentry( "selectiveDiscloseOnError" );
+        createAccessControlSubentry( "selectiveDiscloseOnError",
+                "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { allUsers }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse, grantDiscloseOnError } } } } }" );
+
+        // now try a lookup of a non-existant entry under ou=groups,ou=system again
+        try
+        {
+            userCtx.lookup( "cn=blah,ou=groups" );
+        }
+        catch( NamingException e )
+        {
+            Name matched = e.getResolvedName();
+
+            // we should not see ou=groups,ou=system for the remaining name
+            assertEquals( matched.toString(), "ou=groups,ou=system" );
+        }
+    }
 }
