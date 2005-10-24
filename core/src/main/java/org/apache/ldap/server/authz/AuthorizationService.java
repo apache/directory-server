@@ -323,7 +323,16 @@ public class AuthorizationService extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+        // bypass authz code if we are disabled
+        if ( ! enabled )
+        {
+            next.add( upName, normName, entry );
+            return;
+        }
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             next.add( upName, normName, entry );
             tupleCache.subentryAdded( upName, normName, entry );
@@ -384,7 +393,16 @@ public class AuthorizationService extends BaseInterceptor
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+        // bypass authz code if we are disabled
+        if ( ! enabled )
+        {
+            next.delete( name );
+            return;
+        }
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             next.delete( name );
             tupleCache.subentryDeleted( name, entry );
@@ -414,7 +432,16 @@ public class AuthorizationService extends BaseInterceptor
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+        // bypass authz code if we are disabled
+        if ( ! enabled )
+        {
+            next.modify( name, modOp, mods );
+            return;
+        }
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             next.modify( name, modOp, mods );
             tupleCache.subentryModified( name, modOp, mods, entry );
@@ -469,7 +496,16 @@ public class AuthorizationService extends BaseInterceptor
         DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+        // bypass authz code if we are disabled
+        if ( ! enabled )
+        {
+            next.modify( name, mods );
+            return;
+        }
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             next.modify( name, mods );
             tupleCache.subentryModified( name, mods, entry );
@@ -631,7 +667,17 @@ public class AuthorizationService extends BaseInterceptor
         Name newName = ( Name ) name.clone();
         newName.remove( name.size() - 1 );
         newName.add( newRn );
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+
+        // bypass authz code if we are disabled
+        if ( ! enabled )
+        {
+            next.modifyRn( name, newRn, deleteOldRn );
+            return;
+        }
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             next.modifyRn( name, newRn, deleteOldRn );
             tupleCache.subentryRenamed( name, newName );
@@ -691,7 +737,16 @@ public class AuthorizationService extends BaseInterceptor
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name newName = ( Name ) newParentName.clone();
         newName.add( newRn );
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+        // bypass authz code if we are disabled
+        if ( ! enabled )
+        {
+            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+            return;
+        }
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             next.move( oriChildName, newParentName, newRn, deleteOldRn );
             tupleCache.subentryRenamed( oriChildName, newName );
@@ -757,7 +812,16 @@ public class AuthorizationService extends BaseInterceptor
         Name newName = ( Name ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+        // bypass authz code if we are disabled
+        if ( ! enabled )
+        {
+            next.move( oriChildName, newParentName );
+            return;
+        }
+
+        // bypass authz code but manage caches if operation is performed by the admin
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) )
         {
             next.move( oriChildName, newParentName );
             tupleCache.subentryRenamed( oriChildName, newName );

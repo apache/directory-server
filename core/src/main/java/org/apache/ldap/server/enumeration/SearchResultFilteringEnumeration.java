@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.Context;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 

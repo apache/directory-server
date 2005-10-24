@@ -285,7 +285,6 @@ public class NormalizationService extends BaseInterceptor
         public String normalizeByName( String name, String value ) throws NamingException
         {
             AttributeType type = registry.lookup( name );
-
             return ( String ) type.getEquality().getNormalizer().normalize( value );
         }
 
@@ -293,8 +292,13 @@ public class NormalizationService extends BaseInterceptor
         public String normalizeByOid( String oid, String value ) throws NamingException
         {
             AttributeType type = registry.lookup( oid );
-
             return ( String ) type.getEquality().getNormalizer().normalize( value );
+        }
+
+
+        public boolean isDefined( String id )
+        {
+            return this.registry.hasAttributeType( id );
         }
     }
 }

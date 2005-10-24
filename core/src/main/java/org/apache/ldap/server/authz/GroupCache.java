@@ -174,7 +174,16 @@ public class GroupCache
         {
             // get and normalize the DN of the member
             String memberDn = ( String ) members.get( ii );
-            memberDn = parser.parse( memberDn ).toString();
+
+            try
+            {
+                memberDn = parser.parse( memberDn ).toString();
+            }
+            catch ( NamingException e )
+            {
+                log.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
+            }
+
             memberSet.add( memberDn );
         }
     }
@@ -193,7 +202,16 @@ public class GroupCache
         {
             // get and normalize the DN of the member
             String memberDn = ( String ) members.get( ii );
-            memberDn = parser.parse( memberDn ).toString();
+
+            try
+            {
+                memberDn = parser.parse( memberDn ).toString();
+            }
+            catch ( NamingException e )
+            {
+                log.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
+            }
+
             memberSet.remove( memberDn );
         }
     }
@@ -360,7 +378,16 @@ public class GroupCache
      */
     public Set getGroups( String member ) throws NamingException
     {
-        member = parser.parse( member ).toString();
+        try
+        {
+            member = parser.parse( member ).toString();
+        }
+        catch ( NamingException e )
+        {
+            log.warn( "Malformed member DN.  Could not find groups for member in GroupCache. Returning empty set for groups!", e );
+            return Collections.EMPTY_SET;
+        }
+
         Set memberGroups = null;
 
         Iterator list = groups.keySet().iterator();

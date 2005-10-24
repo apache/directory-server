@@ -85,4 +85,13 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
         AttributeType type = registry.lookup( id );
         return type.getEquality().getNormalizer();
     }
+
+
+    /**
+     * @see NameComponentNormalizer#isDefined(String)
+     */
+    public boolean isDefined( String id )
+    {
+        return registry.hasAttributeType( id );
+    }
 }

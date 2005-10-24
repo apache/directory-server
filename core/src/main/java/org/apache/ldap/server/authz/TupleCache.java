@@ -160,9 +160,8 @@ public class TupleCache
             }
             catch ( ParseException e )
             {
-                String msg = "ACIItem parser failure on '"+item+"': " + e.getMessage();
-                log.error( msg, e );
-                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALIDATTRIBUTESYNTAX );
+                String msg = "ACIItem parser failure on '"+item+"'. Cannnot add ACITuples to TupleCache.";
+                log.warn( msg, e );
             }
 
             entryTuples.addAll( item.toTuples() );
