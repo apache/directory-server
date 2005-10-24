@@ -53,6 +53,10 @@ public class MiscTest extends AbstractServerTest
         {
             configuration.setAllowAnonymousAccess( false );
         }
+        else if ( this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
+        {
+            configuration.setAllowAnonymousAccess( false );
+        }
         super.setUp();
     }
 
@@ -73,14 +77,62 @@ public class MiscTest extends AbstractServerTest
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
+        InitialDirContext ic = new InitialDirContext( env );
         try
         {
-            new InitialContext( env );
+            ic.search( "", "(objectClass=*)", new SearchControls() );
             fail( "If anonymous binds are disabled we should never get here!" );
         }
         catch ( NoPermissionException e )
         {
         }
+
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass" );
+        attrs.put( oc );
+        oc.add( "top" );
+        oc.add( "organizationalUnit" );
+
+        try
+        {
+            ic.createSubcontext( "ou=blah", attrs );
+        }
+        catch( NoPermissionException e )
+        {
+        }
+    }
+
+
+    /**
+     * Test to make sure anonymous binds are allowed on the RootDSE even when disabled
+     * in general when going through the wire protocol.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    public void testEnableAnonymousBindsOnRootDSE() throws Exception
+    {
+        // Use the SUN JNDI provider to hit server port and bind as anonymous
+
+        final Hashtable env = new Hashtable();
+
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
+        env.put( Context.SECURITY_AUTHENTICATION, "none" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+
+        InitialDirContext ctx = new InitialDirContext( env );
+        SearchControls cons = new SearchControls();
+        cons.setSearchScope( SearchControls.OBJECT_SCOPE );
+        NamingEnumeration list = ctx.search( "", "(objectClass=*)", cons );
+        SearchResult result = null;
+        if ( list.hasMore() )
+        {
+            result = ( SearchResult ) list.next();
+        }
+        assertFalse( list.hasMore() );
+        list.close();
+
+        assertNotNull( result );
+        assertEquals( "", result.getName().trim() );
     }
 
 
