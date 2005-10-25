@@ -17,6 +17,10 @@ Summary
 
  o Many bug fixes.
  o Many performance enhancements.
+ o Updated documentation.
+ o Integrated NTP (RFC 2030) service provider.
+ o Integrated Changepw (RFC 3244) service provider to complement the existing 
+   integrated Kerberos (RFC 1510) provider.
  o X.501 Basic Access Control model implemented.
  o Subentries implemented as specified by RFC 3672: 
    http://www.faqs.org/rfcs/rfc3672.html.
