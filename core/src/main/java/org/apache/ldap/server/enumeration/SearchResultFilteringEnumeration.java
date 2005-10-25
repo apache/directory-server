@@ -20,16 +20,24 @@ package org.apache.ldap.server.enumeration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.spi.DirectoryManager;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.common.name.LdapName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,8 +50,9 @@ import org.apache.ldap.server.invocation.Invocation;
  */
 public class SearchResultFilteringEnumeration implements NamingEnumeration
 {
-//    private static final Logger log = LoggerFactory.getLogger( SearchResultFilteringEnumeration.class );
-//
+    /** the logger used by this class */
+    private static final Logger log = LoggerFactory.getLogger( SearchResultFilteringEnumeration.class );
+
     /** the list of filters to be applied */
     private final List filters;
     /** the underlying decorated enumeration */
@@ -57,6 +66,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
     private final SearchControls searchControls;
     /** the Invocation that representing the search creating this enumeration */
     private final Invocation invocation;
+    /** whether or not the caller context has object factories which need to be applied to the results */
+    private final boolean applyObjectFactories;
 
 
     // ------------------------------------------------------------------------
@@ -84,6 +95,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
         this.filters = new ArrayList();
         this.filters.add( filter );
         this.decorated = decorated;
+        this.applyObjectFactories = invocation.getCaller().getEnvironment().containsKey( Context.OBJECT_FACTORIES );
 
         if ( ! decorated.hasMore() )
         {
@@ -115,6 +127,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
         this.filters = new ArrayList();
         this.filters.addAll( filters );
         this.decorated = decorated;
+        this.applyObjectFactories = invocation.getCaller().getEnvironment().containsKey( Context.OBJECT_FACTORIES );
 
         if ( ! decorated.hasMore() )
         {
@@ -228,6 +241,34 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
     // ------------------------------------------------------------------------
 
 
+    private void applyObjectFactories( SearchResult result ) throws NamingException
+    {
+        // if already populated or no factories are available just return
+        if ( result.getObject() != null || ! applyObjectFactories )
+        {
+            return;
+        }
+
+        DirContext ctx = ( DirContext ) invocation.getCaller();
+        Hashtable env = ctx.getEnvironment();
+        Attributes attrs = result.getAttributes();
+        Name name = new LdapName( result.getName() );
+        try
+        {
+            Object obj = DirectoryManager.getObjectInstance( null, name, ctx, env, attrs );
+            result.setObject( obj );
+        }
+        catch ( Exception e )
+        {
+            StringBuffer buf = new StringBuffer();
+            buf.append( "ObjectFactories threw exception while attempting to generate an object for " );
+            buf.append( result.getName() );
+            buf.append( ". Call on SearchResult.getObject() will return null." );
+            log.warn( buf.toString(), e );
+        }
+    }
+
+
     /**
      * Keeps getting results from the underlying decorated filter and applying
      * the filters until a result is accepted by all and set as the prefetced
@@ -252,6 +293,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
             if ( filters.isEmpty() )
             {
                 this.prefetched = tmp;
+                applyObjectFactories( this.prefetched );
                 return;
             }
             else if ( filters.size() == 1 )
@@ -261,6 +303,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
                 if ( accepted )
                 {
                     this.prefetched = tmp;
+                    applyObjectFactories( this.prefetched );
                     return;
                 }
 
@@ -285,6 +328,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration
              * on the following call to the next() or nextElement() methods
              */
             this.prefetched = tmp;
+            applyObjectFactories( this.prefetched );
             return;
         }
 
