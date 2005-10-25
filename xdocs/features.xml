@@ -16,10 +16,8 @@
       <ul>
         <li>
           Designed as an LDAP and X.500 experimentation platform.  Plugable
-          components and subsystems make Eve extremely modular and perfect for
-          experiments with various aspects of the LDAP protocol.  The server
-          may be made to can run on any IoC based microkernel using IoC type
-          wrappers for POJO components implementing POJI services.
+          components and subsystems make ApacheDS extremely modular and ideal 
+          for experiments with various aspects of the LDAP protocol. 
         </li>
         
         <li>
@@ -36,7 +34,7 @@
         </li>
         
         <li>
-          The server exposes all aspects of administration via a special system
+          The server exposes aspects of administration via a special system
           backend.  LDAP can be used to manage these concerns through the
           system naming context at <code>ou=system</code>.
         </li>
@@ -64,10 +62,10 @@
         </li>
         
         <li>
-          The server's networking code is based on a simple Staged Event Driven
-          Architecture (SEDA) which gives it the ability to handle large
-          amounts of concurrency.  Multiple swapable network layers will be
-          available for different usage characteristics.
+          The server's networking code, MINA, Multipurpose Infrastructure for
+          Network Applications was designed for pluggable protocol providers,
+          of all sorts and not just LDAP.  MINA gives ApacheDS the ability to 
+          handle large amounts of concurrency.  
         </li>
         
         <li>
@@ -76,7 +74,9 @@
           decoding footprint as well as for use in non-blocking servers.  The
           chunking nature of the BER codec makes the server very efficient while
           handling encoding and decoding making it more resistant to DoS
-          attacks.
+          attacks.  This layer is also pluggable with a new experimental Twix
+          provider which is much more efficient.  Of course there is the
+          unsupported Snacc4J provider which is no longer maintained.
         </li>
       </ul>
       </section>

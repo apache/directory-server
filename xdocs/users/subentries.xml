@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Subentries</title>
+  </properties>
+  
+  <body>
+
+    <section name="What are they?">
+      <subsection name="Status">
+        <p>
+        </p>
+
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="Subentry Handling in ApacheDS">
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="SubtreeSpecification Examples">
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="Subentry Examples">
+        <p>
+        </p>
+      </subsection>
+
+    </section>
+  </body>
+</document>

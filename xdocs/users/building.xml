@@ -30,27 +30,22 @@ maven multiproject:install
       </p>
 
 <source>
-[akarasulu@newton trunk]$ java -jar main/target/apacheds-main-0.8.0-SNAPSHOT.jar
-server: using default properties ...
-server: standard ldap port 389 is not available, using 1024 instead
-server: started in 1368 milliseconds
+java -jar main/target/apacheds-main-${version}.jar server.xml
 </source>
 
       <p>
-        When you start the server without a properties file arguement default
+        When you start the server without a xml conf file arguement default
         settings are used.  It tries to bind to 389 but this non-root user
         does not have the needed privledges so it tries to bind on the next
-        available port which is 1024.  If you would like a properties file can
+        available port which is 1024.  You may like a conf file that can
         be used to override and set server specific properties to control her
-        behavoir.  Below we use the <a href="http://vortuoad.notlong.com/">
-        properties</a> file that comes preconfigured for Apache under the
-        server/trunk/main directory:
+        behavoir.  Below we use the <a href="http://valpithy.notlong.com">
+        xml configuration</a> file that comes preconfigured for Apache under 
+        the server/trunk/main directory:
       </p>
 
 <source>
-[akarasulu@newton trunk]$ java -jar main/target/apacheds-main-0.8.0-SNAPSHOT.jar main/server.properties
-server: loading properties from main/eve.properties
-server: started in 1449 milliseconds
+java -jar main/target/apacheds-main-${version}.jar main/server.xml
 </source>
     </section>
 
@@ -86,15 +81,17 @@ server: started in 1449 milliseconds
           <td>Contains shared classes between modules to prevent cyclic deps.</td>
         </tr>
         <tr>
-          <td>optional</td>
+          <td>main</td>
           <td>
-            We might create this project in the near future to contain bundles
-            of optional schema jars.  The server's maven plugin generates Java
-            class files for OpenLDAP schema files.  These classes create schema
-            objects way faster than parsing a file to dynamically create schema
-            objects.  The optional package will contain all the schema classes
-            for published schemas we can find.  When firing up the server you
-            can request to load only those schemas you actually use.
+            Contains the ApacheDS application <code>main()</code> along with
+            a special InitialContextFactory implemenation that extends the
+            CoreContextFactory ICF.  This ICF is the ServerContextFactory and
+            it initializes MINA adding the LDAP protocol provider as well as 
+            the other providers for protocols like Kerberos, Change Password,
+            NTP, DNS and DHCP.  Of course the configuration determines if
+            these protocols are started or not.  All protocols with the 
+            exception of NTP use the core LDAP store as their backing store
+            with custom schema.
           </td>
         </tr>
       </table>

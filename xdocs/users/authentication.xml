@@ -51,7 +51,10 @@
         <p>
           If you did not disable anonymous binds by setting the respective
           property (described below), then you can bind anonymously to the
-          server without any username or password.
+          server without any username or password. NOTE: Even when anonymous
+          binds are disabled anonymous users can still bind to the RootDSE
+          as required by the protocol to lookup supported SASL mechanisms 
+          before attempting a bind.
         </p>
       </subsection>
 
@@ -62,7 +65,7 @@
           within one of the directory partitions.  So if you add a partition to
           hang off of <code>dc=example,dc=com</code> then you can add user
           entries anywhere under this naming context or just add user entries
-          under the <code>ou=system</code> naming context.  Above is an LDIF of
+          under the <code>ou=system</code> naming context.  Below is an LDIF of
           a user you can add to the directory as a test user.
         </p>
 
@@ -125,21 +128,30 @@ ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s o
         <p>
           At the moment there's a sweet spot for new users.  This sweet
           spot is immediately under the ou=users,ou=system context.  Users
-          created here are hard protected right now.  The server does not have
-          a formal authorization mechanism in place yet to protect entries from
-          other users.  Authorization rules have been hardcoded into the system
-          for now to control access to user entries under <code>ou=users,
-          ou=system</code>.  Only the admin and the user him/her self can
-          access their entries for reads.  Users cannot modify their group
-          membership properties but can change their own passwords.  They do
-          not see each other's accounts at all.  The admin is the only one that
-          can read and write anything.
+          created here are hard protected right now.  As of 0.9.3 an 
+          implementation of X.501 basic access controls are available however
+          the system is not turned on by default.  Turning it on presumes 
+          access is denied to all but the admin.  More information on this is
+          available in the access control page.  When the access control 
+          subsystem is not activated hardcoded minimal access controls are
+          used to protect the admin account, users and groups under respective
+          containers in the ou=system partition. 
+        </p>
+        <p>
+          In the absense of the ACI subsystem, authorization rules have been 
+          hardcoded into the system to control access to user entries under 
+          <code>ou=users,ou=system</code>.  Only the admin and the user 
+          him/her self can access their entries for reads.  Users cannot 
+          modify their group membership properties but can change their own 
+          passwords.  They do not see each other's accounts at all.  The admin 
+          is the only one that can read and write anything.
         </p>
 
         <p>
           So in the interim you're best off adding your users to this area to
-          prevent others from reading clear text password stored in userPassword
-          fields.
+          prevent others from reading clear text passwords stored in 
+          userPassword fields.  If using a release with hashed passwords we 
+          highly discourage the use of clear text passwords.
         </p>
 
         <p>
@@ -156,21 +168,21 @@ ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s o
       <subsection name="Disabling Anonymous Binds">
         <p>
           Anonymous binds come enabled out of the box.  So you might want to
-          turn off this feature especially since you cannot protect much of
-          your data at the present moment from access using authorization rules.
+          turn off this feature especially if you're not using a version of 
+          ApacheDS that is 0.9.3 or higher with ACI support. 
           To do so you're going to have to restart the server while disallowing
-          these binds.  The <b>server.disable.anonymous</b> property when
-          present as a key in the enviroment (regardless of value) will disable
-          access by anonymous users.  This applies to authentication via LDAP
-          clients over the wire and via JNDI caller through the JNDI provider.
+          these binds.  In the server.xml that comes with the distribution 
+          take a look at the <b>allowAnonymousAccess</b> property for the
+          server startup configuration.
         </p>
       </subsection>
 
       <subsection name="Custom Authenticator">
         <p>
-          Authenticator SPI provides a way to implement your own authentication mechanism,
-          for instance simple mechanism using password encryption such as MD5 or SHA1, or
-          SASL mechanism. See the following example:
+          Authenticator SPI provides a way to implement your own 
+          authentication mechanism, for instance simple mechanism using 
+          password encryption such as MD5 or SHA1, or SASL mechanism. See the 
+          following example:
         </p>
 
         <source>
@@ -207,38 +219,45 @@ public class MyAuthenticator extends AbstractAuthenticator {
           </source>
 
           <p>
-            The authenticator class has to extend the org.apache.ldap.server.auth.AbstractAuthenticator.
-            This class needs to have a no-argument constructor that calls the super()
-            constructor with parameter the authentication mechanism it is going to handle.
-            In the above example, MyAuthenticator class is going to handle the simple
-            authentication mechanism. To implement a SASL mechanism you need to call super()
-            with the name of the SASL mechanism, e.g. super( "DIGEST-MD5" ).
+            The authenticator class has to extend the 
+            org.apache.ldap.server.auth.AbstractAuthenticator.  This class 
+            needs to have a no-argument constructor that calls the super()
+            constructor with parameter the authentication mechanism it is 
+            going to handle.  In the above example, MyAuthenticator class is 
+            going to handle the simple authentication mechanism. To implement 
+            a SASL mechanism you need to call super() with the name of the 
+            SASL mechanism, e.g. super( "DIGEST-MD5" ).
           </p>
 
           <p>
-            You can optionally implement the init() method to initialize your authenticator class.
-            This will be called when the authenticator is loaded by ApacheDS during start-up.
+            You can optionally implement the init() method to initialize your 
+            authenticator class.  This will be called when the authenticator 
+            is loaded by ApacheDS during start-up.
           </p>
 
           <p>
-            When a client performs an authentication, ApacheDS will call the authenticate() method.
-            You can get the client authentication info from the server context. After you authenticate
-            the client, you need to return the authorization id. If the authentication fails, you
-            should throw an LdapNoPermissionException.
+            When a client performs an authentication, ApacheDS will call the 
+            authenticate() method.  You can get the client authentication info 
+            from the server context. After you authenticate the client, you 
+            need to return the authorization id. If the authentication fails, 
+            you should throw an LdapNoPermissionException.
           </p>
 
           <p>
-            When there are multiple authenticators registered with the same authentication type,
-            ApacheDS will try to use them in the order it was registered. If one fails it will use
-            the next one, until it finds one that successfully authenticates the client.
+            When there are multiple authenticators registered with the same 
+            authentication type, ApacheDS will try to use them in the order 
+            it was registered. If one fails it will use the next one, until it 
+            finds one that successfully authenticates the client.
           </p>
 
           <p>
-            To tell ApacheDS to load your custom authenticators, you need to specify it in the JNDI
-            Properties. You can also optionally specify the location of a .properties file containing
-            the initialization parameters. See the following example:
+            To tell ApacheDS to load your custom authenticators, you need to 
+            specify it in the server.xml. You can also optionally specify the 
+            location of a .properties file containing the initialization 
+            parameters. See the following example:
           </p>
 
+          <p>EXAMPLE BELOW IS NO LONGER VALID WITH XML CONFIGURATION</p>
           <source>
 server.authenticators=myauthenticator yourauthenticator
 

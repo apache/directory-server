@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Collective Attributes</title>
+  </properties>
+  
+  <body>
+
+    <section name="Collective Attributes">
+      <subsection name="What are collective attributes?">
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="Collective Attribute Administrative Areas">
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="How ApacheDS Handles Collective Attributes">
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="Examples">
+        <p>
+        </p>
+      </subsection>
+
+    </section>
+  </body>
+</document>

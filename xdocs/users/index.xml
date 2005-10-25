@@ -40,11 +40,20 @@
 
         <tr>
           <td>
-            <a href="./jndi.html">JNDI Properties</a>
+            <a href="./authorization.html">Authorization</a>
           </td>
           <td>
-            Describes the JNDI properties used to control the behavoir and
-            configuration of the server.
+            Explains the hardcoded authorization rules and how to replace 
+            them using the basic access control mechanism and ACI.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./configuration.html">Configuration</a>
+          </td>
+          <td>
+            Describes how to configure and control the server.
           </td>
         </tr>
 

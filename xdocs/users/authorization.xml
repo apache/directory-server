@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Access Controls</title>
+  </properties>
+  
+  <body>
+
+    <section name="Access Control">
+      <subsection name="Status">
+        <p>
+        </p>
+
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="Default Settings">
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="X.501 Basic Access Controls">
+        <p>
+        </p>
+      </subsection>
+
+      <subsection name="ACI Examples">
+        <p>
+        </p>
+      </subsection>
+
+    </section>
+  </body>
+</document>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>Server Configuration and its JNDI Provider</title>
+  </properties>
+  
+  <body>
+    <section name="Server-Side JNDI Provider">
+      <p>
+        The Apache Directory Server contains a JNDI provider for the LDAP
+        namespace.  Unlike the SUN JNDI LDAP Provider which is an LDAP
+        client, the Server-Side JNDI Provider is not.  JNDI operations on
+        Contexts directly tap into the server's database partitions to add,
+        lookup, alter, and search for entries.  There is nothing done over the
+        wire.
+      </p>
+
+      <p>
+        The server leverages its server side JNDI LDAP provider in several ways.
+        First stored procedures written in Java will naturally use JNDI to
+        alter entries using this provider.  Thanks to JNDI the same procedure
+        outside of the server can be tested using the SUN JNDI LDAP provider.
+        This transparency is neat since it makes testing easy.  The
+        server side JNDI provider is also used as the API of choice for
+        integrating the server into other Java applications and servers.  The
+        first InitialContext request to the server side provider fires up the
+        entire server.  So you need not learn anything new to start using and
+        embedding the Apache Directory Server!  Well perhaps you need to know
+        about a few configuration interfaces that are added to the JNDI 
+        environment via a provider specific JNDI property.  This however is 
+        very easy to do as you will soon see.
+      </p>
+
+      <p>
+        This document describes the server side JNDI Provider in terms of the
+        custom properties used to control its behavoir in the solid state and
+        for configuring the server on start up.  It also describes the 
+        configuration beans used by the server.
+      </p>
+    </section>
+
+    <section name="Server Specific JNDI Properties">
+    </section>
+
+    <section name="Embedding the Apache Directory Server">
+      <p>
+        Embedding the server is really easy.  Just set the JNDI initial context
+        factory and other security settings along with specific properties
+        to fire her up.  Here's a simple example of code that embeds the server
+        using the minimum configuration information:
+      </p>
+
+<source>
+</source>
+
+      <p>
+        This code snippet starts up the server on port 389 or the next
+        available port if access to 389 is denied or another server is already
+        bound to that port.  There is only one partition in the system hanging
+        off of the "ou=system" naming context.  The server allows for anonymous
+        binds and has two users preconfigured: a regular test user,
+        <b>uid=akarasulu,ou=users,ou=system</b> with password <i>test</i>, and
+        the super user <b>uid=admin,ou=system</b>, with password <i>secret</i>.
+      </p>
+
+      <p>
+        <b>WARNING:</b> REMOVE THE TEST USER AND RESET THE PASSWORD ON THE ADMIN
+        USER ACCOUNT AFTER STARTING APACHEDS.
+      </p>
+
+      <p>
+        Here's another more invovled configuration:
+      </p>
+
+<source>
+</source>
+
+      <p>
+        This configuration starts up the server on port 10389 with anonymous
+        binds disabled.  The server stores its database files under /var/ldap
+        and creates a new application partition for Apache entries off of the
+        <b>dc=apache,dc=org</b> naming context in addition to the system
+        partition.  If you look closely at /var/ldap you'll see a directory
+        named apache where you'll find even more database files.  These files
+        are the database files for the separate partition apache.org entries.
+      </p>
+    </section>
+  </body>
+</document>
