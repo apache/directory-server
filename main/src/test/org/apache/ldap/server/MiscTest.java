@@ -17,7 +17,12 @@
 package org.apache.ldap.server;
 
 
+import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
+
 import java.util.Hashtable;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -57,6 +62,24 @@ public class MiscTest extends AbstractServerTest
         {
             configuration.setAllowAnonymousAccess( false );
         }
+        else if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
+        {
+            Set partitions = new HashSet();
+            partitions.addAll( configuration.getContextPartitionConfigurations() );
+            MutableDirectoryPartitionConfiguration partition = new MutableDirectoryPartitionConfiguration();
+            partition.setSuffix( "dc=aPache,dc=org" );
+            Attributes entry = new BasicAttributes( "dc", "aPache", true );
+            Attribute oc = new BasicAttribute( "objectClass" );
+            entry.put( oc );
+            oc.add( "top" );
+            oc.add( "domain" );
+            partition.setName( "apache" );
+            partition.setContextEntry( entry );
+            partition.setIndexedAttributes( Collections.singleton( "dc" ) );
+            partitions.add( partition );
+            configuration.setContextPartitionConfigurations( partitions );
+        }
+
         super.setUp();
     }
 
@@ -168,5 +191,44 @@ public class MiscTest extends AbstractServerTest
         list.close();
         Attribute creatorsName = result.getAttributes().get( "creatorsName" );
         assertEquals( "", creatorsName.get() );
+    }
+
+
+    /**
+     * Test case for <a href="http://issues.apache.org/jira/browse/DIREVE-284" where users in
+     * mixed case partitions were not able to authenticate properly.  This test case creates
+     * a new partition under dc=aPache,dc=org, it then creates the example user in the JIRA
+     * issue and attempts to authenticate as that user.
+     *
+     * @throws Exception if the user cannot authenticate or test fails
+     */
+    public void testUserAuthOnMixedCaseSuffix() throws Exception
+    {
+        final Hashtable env = new Hashtable();
+
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/dc=aPache,dc=org" );
+        env.put("java.naming.ldap.version", "3");
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        InitialDirContext ctx = new InitialDirContext( env );
+        Attributes attrs = ctx.getAttributes( "" );
+        assertTrue( attrs.get( "dc" ).get().equals( "aPache" ) );
+
+        Attributes user = new BasicAttributes( "cn", "Kate Bush", true );
+        Attribute oc = new BasicAttribute( "objectClass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        oc.add( "organizationalPerson" );
+        oc.add( "inetOrgPerson" );
+        user.put( oc );
+        user.put( "sn", "Bush" );
+        user.put( "userPassword", "Aerial" );
+        ctx.createSubcontext( "cn=Kate Bush", user );
+
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_CREDENTIALS, "Aerial" );
+        env.put( Context.SECURITY_PRINCIPAL, "cn=Kate Bush,dc=aPache,dc=org" );
+
+        InitialDirContext userCtx = new InitialDirContext( env );
+        assertNotNull( userCtx );
     }
 }

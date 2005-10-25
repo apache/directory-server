@@ -23,6 +23,8 @@ import javax.naming.spi.InitialContextFactory;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.common.aci.AuthenticationLevel;
+import org.apache.ldap.common.name.LdapName;
 
 
 /**
@@ -59,7 +61,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     {
         return factoryCfg;
     }
-    
+
     /**
      * Returns the configuration of this authenticator.
      */
@@ -111,7 +113,7 @@ public abstract class AbstractAuthenticator implements Authenticator
             this.cfg = null;
         }
     }
-    
+
     /**
      * Implement your deinitialization code here.
      */
@@ -132,9 +134,9 @@ public abstract class AbstractAuthenticator implements Authenticator
      * @throws NamingException if there is a problem parsing <tt>name</tt>
      */
     // does not seem to be used
-//    protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve ) throws NamingException
-//    {
-//        LdapName principalDn = new LdapName( name );
-//        return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
-//    }
+    protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve ) throws NamingException
+    {
+        LdapName principalDn = new LdapName( name );
+        return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
+    }
 }

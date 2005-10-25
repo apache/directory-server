@@ -28,6 +28,14 @@ import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
+import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.invocation.InvocationStack;
+
+import java.util.HashSet;
+import java.util.Collections;
+import java.util.Set;
+import java.util.Collection;
 
 
 /**
@@ -38,6 +46,22 @@ import org.apache.ldap.server.partition.DirectoryPartitionNexus;
  */
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
+    private static final Collection USERLOOKUP_BYPASS;
+
+    static
+    {
+        Set c = new HashSet();
+        c.add( "authenticationService" );
+        c.add( "authorizationService" );
+        c.add( "oldAuthorizationService" );
+        c.add( "schemaService" );
+        c.add( "subentryService" );
+        c.add( "operationalAttributeService" );
+        c.add( "eventService" );
+        USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
+    }
+
+
     /**
      * Creates a new instance.
      */
@@ -45,6 +69,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     {
         super( "simple" );
     }
+
 
     /**
      * Looks up <tt>userPassword</tt> attribute of the entry whose name is
@@ -87,16 +112,16 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- lookup the principal entry's userPassword attribute
 
         LdapName principalDn = new LdapName( principal );
-
-        DirectoryPartitionNexus nexus = getFactoryConfiguration().getPartitionNexus();
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
         Attributes userEntry;
-        
+
         try
         {
-            userEntry = nexus.lookup( principalDn, new String[] {"userPassword"} );
+            userEntry = proxy.lookup( principalDn, new String[] {"userPassword"}, USERLOOKUP_BYPASS );
             if ( userEntry == null )
             {
-                throw new LdapAuthenticationException();
+                throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + principal );
             }
         }
         catch( Exception cause )
