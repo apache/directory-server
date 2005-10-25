@@ -27,15 +27,20 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.filter.LeafNode;
+import org.apache.ldap.common.filter.BranchNode;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.schema.AttributeType;
+import org.apache.ldap.common.util.EmptyEnumeration;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 
 /**
@@ -48,22 +53,27 @@ import org.apache.ldap.server.schema.AttributeTypeRegistry;
  */
 public class NormalizationService extends BaseInterceptor
 {
+    /** logger used by this class */
+    private static final Logger log = LoggerFactory.getLogger( NormalizationService.class );
+
+    /** the parser used for normalizing distinguished names */
     private DnParser parser;
+    /** a filter node value normalizer and undefined node remover */
     private ValueNormalizingVisitor visitor;
+    /** the attributeType registry used for normalization and determining if some filter nodes are undefined */
+    private AttributeTypeRegistry registry;
 
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
-        AttributeTypeRegistry attributeRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new PerComponentNormalizer( attributeRegistry );
+        registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        NameComponentNormalizer ncn = new PerComponentNormalizer();
         parser = new DnParser( ncn );
         visitor = new ValueNormalizingVisitor( ncn );
     }
 
 
-    public void destroy()
-    {
-    }
+    public void destroy() {}
 
 
     // ------------------------------------------------------------------------
@@ -73,149 +83,130 @@ public class NormalizationService extends BaseInterceptor
 
     public void add( NextInterceptor nextInterceptor, String upName, Name normName, Attributes attrs ) throws NamingException
     {
-        synchronized( parser )
-        {
-            normName = parser.parse( normName.toString() );
-        }
-
+        normName = parser.parse( normName.toString() );
         nextInterceptor.add( upName, normName, attrs );
     }
 
 
     public void delete( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         nextInterceptor.delete( name );
     }
 
 
     public void modify( NextInterceptor nextInterceptor, Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         nextInterceptor.modify( name, modOp, attrs );
     }
 
 
     public void modify( NextInterceptor nextInterceptor, Name name, ModificationItem[] items ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         nextInterceptor.modify( name, items );
     }
 
 
     public void modifyRn( NextInterceptor nextInterceptor, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         nextInterceptor.modifyRn( name, newRn, deleteOldRn );
     }
 
 
     public void move( NextInterceptor nextInterceptor, Name name, Name newParentName ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-            newParentName = parser.parse( newParentName.toString() );
-        }
-
+        name = parser.parse( name.toString() );
+        newParentName = parser.parse( newParentName.toString() );
         nextInterceptor.move( name, newParentName );
     }
 
 
     public void move( NextInterceptor nextInterceptor, Name name, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-
-            newParentName = parser.parse( newParentName.toString() );
-        }
-
+        name = parser.parse( name.toString() );
+        newParentName = parser.parse( newParentName.toString() );
         nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
     }
 
 
     public NamingEnumeration search( NextInterceptor nextInterceptor,
-            Name base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+                                     Name base, Map env, ExprNode filter,
+                                     SearchControls searchCtls ) throws NamingException
     {
-        synchronized( parser )
+        base = parser.parse( base.toString() );
+
+        if ( filter.isLeaf() )
         {
-            base = parser.parse( base.toString() );
+            LeafNode ln = ( LeafNode ) filter;
+            if ( ! registry.hasAttributeType( ln.getAttribute() ) )
+            {
+                StringBuffer buf = new StringBuffer();
+                buf.append( "undefined filter based on undefined attributeType '" );
+                buf.append( ln.getAttribute() );
+                buf.append( "' not evaluted at all.  Returning empty enumeration." );
+                log.warn( buf.toString() );
+                return new EmptyEnumeration();
+            }
         }
 
         filter.accept( visitor );
+
+        // check that after pruning we have valid branch node at the top 
+        if ( ! filter.isLeaf() )
+        {
+            BranchNode child = ( BranchNode ) filter;
+
+            // if the remaining filter branch node has no children return an empty enumeration
+            if ( child.getChildren().size() == 0 )
+            {
+                log.warn( "Undefined branchnode filter without child nodes not evaluted at all.  Returning empty enumeration." );
+                return new EmptyEnumeration();
+            }
+
+            // now for AND & OR nodes with a single child left replace them with their child
+            if ( child.getChildren().size() == 1 && child.getOperator() != BranchNode.NOT )
+            {
+                filter = child.getChild();
+            }
+        }
         return nextInterceptor.search( base, env, filter, searchCtls );
     }
 
 
     public boolean hasEntry( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         return nextInterceptor.hasEntry( name );
     }
 
 
     public boolean isSuffix( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         return nextInterceptor.isSuffix( name );
     }
 
 
     public NamingEnumeration list( NextInterceptor nextInterceptor, Name base ) throws NamingException
     {
-        synchronized( parser )
-        {
-            base = parser.parse( base.toString() );
-        }
-
+        base = parser.parse( base.toString() );
         return nextInterceptor.list( base );
     }
 
 
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         return nextInterceptor.lookup( name );
     }
 
 
     public Attributes lookup( NextInterceptor nextInterceptor, Name name, String[] attrIds ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         return nextInterceptor.lookup( name, attrIds );
     }
 
@@ -227,36 +218,22 @@ public class NormalizationService extends BaseInterceptor
 
     public Name getMatchedName( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         return nextInterceptor.getMatchedName( name, normalized );
     }
 
 
     public Name getSuffix( NextInterceptor nextInterceptor, Name name, boolean normalized ) throws NamingException
     {
-        synchronized( parser )
-        {
-            name = parser.parse( name.toString() );
-        }
-
+        name = parser.parse( name.toString() );
         return nextInterceptor.getSuffix( name, normalized );
     }
 
 
     public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
     {
-        Name normalized;
-
-        synchronized( parser )
-        {
-            normalized = parser.parse( name.toString() );
-        }
-
-        return next.compare( normalized, oid, value );
+        name = parser.parse( name.toString() );
+        return next.compare( name, oid, value );
     }
 
 
@@ -266,22 +243,6 @@ public class NormalizationService extends BaseInterceptor
      */
     private class PerComponentNormalizer implements NameComponentNormalizer
     {
-        /** the attribute type registry we use to lookup component normalizers */
-        private final AttributeTypeRegistry registry;
-
-
-        /**
-         * Creates a name component normalizer that looks up normalizers using
-         * an AttributeTypeRegistry.
-         *
-         * @param registry the attribute type registry to get normalizers
-         */
-        public PerComponentNormalizer( AttributeTypeRegistry registry )
-        {
-            this.registry = registry;
-        }
-
-
         public String normalizeByName( String name, String value ) throws NamingException
         {
             AttributeType type = registry.lookup( name );
@@ -298,7 +259,7 @@ public class NormalizationService extends BaseInterceptor
 
         public boolean isDefined( String id )
         {
-            return this.registry.hasAttributeType( id );
+            return registry.hasAttributeType( id );
         }
     }
 }

@@ -18,6 +18,7 @@ package org.apache.ldap.server;
 
 
 import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.ldap.common.util.EmptyEnumeration;
 
 import java.util.Hashtable;
 import java.util.Set;
@@ -230,5 +231,27 @@ public class MiscTest extends AbstractServerTest
 
         InitialDirContext userCtx = new InitialDirContext( env );
         assertNotNull( userCtx );
+    }
+
+
+    /**
+     * Tests to make sure undefined attributes in filter assertions are pruned and do not
+     * result in exceptions.
+     */
+    public void testBogusAttributeInSearchFilter() throws Exception
+    {
+        SearchControls cons = new SearchControls();
+        NamingEnumeration e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
+        assertNotNull( e );
+        assertEquals( e.getClass(), EmptyEnumeration.class );
+        e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
+        assertNotNull( e );
+        assertEquals( e.getClass(), EmptyEnumeration.class );
+        e = sysRoot.search( "", "(& (bogusAttribute=abc123)(bogusAttribute=abc123) )", cons );
+        assertNotNull( e );
+        assertEquals( e.getClass(), EmptyEnumeration.class );
+        e = sysRoot.search( "", "(& (bogusAttribute=abc123)(ou=abc123) )", cons );
+        assertNotNull( e );
+        assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
     }
 }
