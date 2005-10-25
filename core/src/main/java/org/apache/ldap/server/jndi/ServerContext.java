@@ -382,8 +382,6 @@ public abstract class ServerContext implements EventContext
         // Check for Referenceable
         if ( obj instanceof Referenceable )
         {
-            obj = ( ( Referenceable ) obj ).getReference();
-
             throw new NamingException( "Do not know how to store Referenceables yet!" );
         }
 
@@ -579,9 +577,7 @@ public abstract class ServerContext implements EventContext
     public Object lookup( Name name ) throws NamingException
     {
         Object obj;
-
         LdapName target = buildTarget( name );
-
         Attributes attributes = nexusProxy.lookup( target );
 
         try
@@ -590,7 +586,11 @@ public abstract class ServerContext implements EventContext
         }
         catch ( Exception e )
         {
-            throw new NamingException( e.getMessage() );
+            String msg = "Failed to create an object for " + target;
+            msg += " using object factories within the context's environment.";
+            NamingException ne = new NamingException( msg );
+            ne.setRootCause( e );
+            throw ne;
         }
 
         if ( obj != null )
