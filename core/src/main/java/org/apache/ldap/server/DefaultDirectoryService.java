@@ -22,7 +22,6 @@ import java.util.Iterator;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
@@ -203,6 +202,7 @@ class DefaultDirectoryService extends DirectoryService
 
         initialize();
         firstStart = createBootstrapEntries();
+        showSecurityWarnings();
         createTestEntries();
         this.serviceListener = listener;
         started = true;
@@ -388,7 +388,6 @@ class DefaultDirectoryService extends DirectoryService
          */
         if ( !partitionNexus.hasEntry( DirectoryPartitionNexus.getAdminName() ) )
         {
-            checkPermissionToCreateBootstrapEntries();
             firstStart = true;
 
             Attributes attributes = new LockableAttributesImpl();
@@ -400,7 +399,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( objectClass );
 
             attributes.put( "uid", DirectoryPartitionNexus.ADMIN_UID );
-            attributes.put( "userPassword", environment.get( Context.SECURITY_CREDENTIALS ) );
+            attributes.put( "userPassword", DirectoryPartitionNexus.ADMIN_PASSWORD );
             attributes.put( "displayName", "Directory Superuser" );
             attributes.put( "cn", "system administrator" );
             attributes.put( "sn", "administrator" );
@@ -418,7 +417,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=users,ou=system" ) ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -440,7 +438,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=groups,ou=system" ) ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -464,7 +461,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( normName ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -488,7 +484,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=configuration,ou=system" ) ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -510,7 +505,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=partitions,ou=configuration,ou=system" ) ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -533,7 +527,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=services,ou=configuration,ou=system" ) ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -556,7 +549,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( new LdapName( "ou=interceptors,ou=configuration,ou=system" ) ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -579,7 +571,6 @@ class DefaultDirectoryService extends DirectoryService
         if ( !partitionNexus.hasEntry( new LdapName( "prefNodeName=sysPrefRoot,ou=system" ) ) )
         {
             firstStart = true;
-            checkPermissionToCreateBootstrapEntries();
 
             Attributes attributes = new LockableAttributesImpl();
             Attribute objectClass = new LockableAttributeImpl( "objectClass" );
@@ -600,18 +591,35 @@ class DefaultDirectoryService extends DirectoryService
         return firstStart;
     }
     
-    private void checkPermissionToCreateBootstrapEntries() throws NamingException
+    /**
+     * Displays security warning messages if any possible secutiry issue is found.
+     */
+    private void showSecurityWarnings() throws NamingException
     {
-        String principal = ( String ) environment.get( Context.SECURITY_PRINCIPAL );
-        if( principal == null || !DirectoryPartitionNexus.ADMIN_PRINCIPAL.equals( principal ) )
+        // Warn if the default password is not changed.
+        boolean needToChangeAdminPassword = false;
+        
+        Attributes adminEntry = partitionNexus.lookup( new LdapName( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) );
+        Object userPassword = adminEntry.get( "userPassword" ).get();
+        if( userPassword instanceof byte[] )
         {
-            throw new NoPermissionException(
-                    "Only '" + DirectoryPartitionNexus.ADMIN_PRINCIPAL + "' can initiate the first run." );
+            needToChangeAdminPassword = DirectoryPartitionNexus.ADMIN_PASSWORD.equals( new String( ( byte[] ) userPassword ) );
+        }
+        else if ( userPassword.toString().equals( new String( DirectoryPartitionNexus.ADMIN_PASSWORD ) ) )
+        {
+            needToChangeAdminPassword = DirectoryPartitionNexus.ADMIN_PASSWORD.equals( userPassword.toString() );
+        }
+        
+        if( needToChangeAdminPassword )
+        {
+            log.warn(
+                    "You didn't change the admin password of directory service " +
+                    "instance '" + instanceId + "'.  " +
+                    "Please update the admin password as soon as possible " +
+                    "to prevent a possible security breach." );
         }
     }
-
-
-
+    
     private void createTestEntries() throws NamingException
     {
         /*

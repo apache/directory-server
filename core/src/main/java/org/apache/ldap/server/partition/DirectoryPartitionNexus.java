@@ -44,7 +44,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     /** the admin super user uid */
     public final static String ADMIN_UID = "admin";
     /** the initial admin passwd set on startup */
-    public static final byte[] ADMIN_PW = "secret".getBytes();
+    public static final String ADMIN_PASSWORD = "secret";
     /** the base dn under which all users reside */
     public final static String USERS_BASE_NAME = "ou=users,ou=system";
     /** the base dn under which all groups reside */
