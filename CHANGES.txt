@@ -6,7 +6,39 @@ NOTE:  Regarding ApacheDS Releases
   releases and branches are for experimental feature release branches of which
   several releases may occur.  For example after 0.9 below there may be 0.9.1,
   0.9.2 ... 0.9.n et. cetera. until there is a feature freeze and a stable
-  release is created like 0.10.
+  release is created like 1.0.
+
+
+Changes in 0.9.3 (since 0.9.2)
+==============================
+
+Summary
+-------
+
+ o Many bug fixes.
+ o Many performance enhancements.
+ o X.501 Basic Access Control model implemented.
+ o Subentries implemented as specified by RFC 3672: 
+   http://www.faqs.org/rfcs/rfc3672.html.
+ o Collective attributes implemented as specified by RFC 3671:
+   http://www.faqs.org/rfcs/rfc3671.html.
+ o Undefined attributes in search filters are ignored (pruned from filter) as
+   specified by RFC 2251: http://www.faqs.org/rfcs/rfc2251.html.
+ o Additional schema checking is performed.
+ o RootDSE reads allowed by anonymous binds even when anonymous access is 
+   disabled to support reading info regarding available sasl mechanisms.
+ o Upgraded to JDBM 1.0.
+ o JNDI event notification support added.  You can now register for notification
+   of changes to entries selected by a filter when embedding apacheds.
+ o Better exception handling and corrections to return the right response codes
+   on error.
+
+Server JIRA Issues
+------------------
+
+Shared Ldap JIRA Issues
+-----------------------
+
 
 Changes in 0.9.2 (since 0.9.1)
 ==============================
