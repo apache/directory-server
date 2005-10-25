@@ -27,6 +27,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Testcase with different modify operations on a person entry. Each includes a
  * single add op only. Created to demonstrate DIREVE-241 ("Adding an already
@@ -37,11 +40,15 @@ import javax.naming.ldap.LdapContext;
  */
 public class ModifyAddTest extends AbstractServerTest
 {
+    private static final Logger log = LoggerFactory.getLogger( ModifyAddTest.class );
+    
     private LdapContext ctx = null;
 
     public static final String RDN = "cn=Tori Amos";
 
     public static final String PERSON_DESCRIPTION = "an American singer-songwriter";
+    
+    
 
     /**
      * Creation of required attributes of a person entry.
