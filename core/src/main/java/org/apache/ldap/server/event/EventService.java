@@ -18,12 +18,15 @@ package org.apache.ldap.server.event;
 
 
 import org.apache.ldap.server.DirectoryServiceConfiguration;
+import org.apache.ldap.server.invocation.Invocation;
+import org.apache.ldap.server.invocation.InvocationStack;
 import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.ScopeNode;
 import org.apache.ldap.common.filter.BranchNode;
@@ -32,10 +35,12 @@ import org.apache.ldap.common.message.DerefAliasesEnum;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.Binding;
+import javax.naming.NamingEnumeration;
 import javax.naming.event.*;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.Attribute;
 import java.util.*;
 
 
@@ -190,7 +195,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    private void notifyOnModify( Name name ) throws NamingException
+    private void notifyOnModify( Name name, ModificationItem[] mods, Attributes oriEntry ) throws NamingException
     {
         Attributes entry = nexus.lookup( name );
         Set selecting = getSelectingSources( name, entry );
@@ -208,24 +213,39 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof ObjectChangeListener )
             {
                 ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
-                Binding binding = new Binding( name.toString(), entry, false );
+                Binding before = new Binding( name.toString(), oriEntry, false );
+                Binding after = new Binding( name.toString(), entry, false );
                 oclistener.objectChanged( new NamingEvent( rec.getEventContext(),
-                        NamingEvent.OBJECT_CHANGED, binding, binding, entry ) );
+                        NamingEvent.OBJECT_CHANGED, after, before, mods ) );
             }
         }
     }
 
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes oriEntry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, name, modOp, mods );
-        notifyOnModify( name );
+
+        // package modifications in ModItem format for event delivery
+        ModificationItem[] modItems = new ModificationItem[mods.size()];
+        NamingEnumeration list = mods.getAll();
+        for ( int ii = 0; ii < modItems.length; ii++ )
+        {
+            modItems[ii] = new ModificationItem( modOp, ( Attribute ) list.next() );
+        }
+        notifyOnModify( name, modItems, oriEntry );
     }
 
 
     public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
     {
+        Invocation invocation = InvocationStack.getInstance().peek();
+        DirectoryPartitionNexusProxy proxy = invocation.getProxy();
+        Attributes oriEntry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, name, mods );
-        notifyOnModify( name );
+        notifyOnModify( name, mods, oriEntry );
     }
 
 
