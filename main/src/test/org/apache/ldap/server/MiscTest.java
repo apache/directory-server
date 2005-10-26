@@ -253,5 +253,13 @@ public class MiscTest extends AbstractServerTest
         e = sysRoot.search( "", "(& (bogusAttribute=abc123)(ou=abc123) )", cons );
         assertNotNull( e );
         assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
+
+        e = sysRoot.search( "", "(OBJECTclass=*)", cons );
+        assertNotNull( e );
+        assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
+
+        e = sysRoot.search( "", "(objectclass=*)", cons );
+        assertNotNull( e );
+        assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
     }
 }

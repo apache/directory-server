@@ -147,7 +147,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     {
         try
         {
-
             if ( oidRegistry.hasOid( id ) )
             {
                 return byOid.containsKey( oidRegistry.getOid( id ) ) ||

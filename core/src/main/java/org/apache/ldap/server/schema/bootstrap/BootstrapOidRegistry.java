@@ -105,7 +105,13 @@ public class BootstrapOidRegistry implements OidRegistry
      */
     public boolean hasOid( String name )
     {
-        return this.byName.containsKey( name ) || this.byOid.containsKey( name );
+        if ( this.byName.containsKey( name ) || this.byOid.containsKey( name ) )
+        {
+            return true;
+        }
+
+        String normalized = name.toLowerCase();
+        return this.byName.containsKey( normalized ) || this.byOid.containsKey( normalized );
     }
 
 
@@ -207,14 +213,14 @@ public class BootstrapOidRegistry implements OidRegistry
          *          Add new value to the list
          * 2). If we do not have a value then we just add it as a String
          */
-        Object value = null;
+        Object value;
         if ( ! byOid.containsKey( oid ) )
         {
             value = name;
         }
         else 
         {
-            ArrayList list = null;
+            ArrayList list;
             value = byOid.get( oid );
             
             if ( value instanceof String )

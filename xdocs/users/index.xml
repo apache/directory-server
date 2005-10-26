@@ -50,6 +50,28 @@
 
         <tr>
           <td>
+            <a href="./subentries.html">Subentries</a>
+          </td>
+          <td>
+            Documents the subentry implementation which 
+            conforms to <a href="http://www.faqs.org/rfcs/rfc3672.html">
+            RFC 3672</a>.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="./collective.html">Collective Attributes</a>
+          </td>
+          <td>
+            Documents the collective attributes implementation which 
+            conforms to <a href="http://www.faqs.org/rfcs/rfc3671.html">
+            RFC 3671</a>.
+          </td>
+        </tr>
+
+        <tr>
+          <td>
             <a href="./configuration.html">Configuration</a>
           </td>
           <td>

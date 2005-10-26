@@ -154,7 +154,7 @@ public class NormalizationService extends BaseInterceptor
 
         filter.accept( visitor );
 
-        // check that after pruning we have valid branch node at the top 
+        // check that after pruning we have valid branch node at the top
         if ( ! filter.isLeaf() )
         {
             BranchNode child = ( BranchNode ) filter;

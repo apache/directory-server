@@ -115,7 +115,6 @@ public class GlobalOidRegistry implements OidRegistry
         if ( Character.isDigit( name.charAt( 0 ) ) )
         {
             monitor.getOidWithOid( name );
-
             return name;
         }
 
@@ -124,18 +123,14 @@ public class GlobalOidRegistry implements OidRegistry
         if ( byName.containsKey( name ) )
         {
             String oid = ( String ) byName.get( name );
-
             monitor.oidResolved( name, oid );
-
             return oid;
         }
 
         if ( bootstrap.hasOid( name ) )
         {
             String oid = bootstrap.getOid( name );
-
             monitor.oidResolved( name, oid );
-
             return oid;
         }
 
@@ -147,19 +142,15 @@ public class GlobalOidRegistry implements OidRegistry
          * returned on a getNameSet.
          */
         String lowerCase = name.trim().toLowerCase();
-
         if ( ! name.equals( lowerCase ) )
 		{
 			if ( byName.containsKey( lowerCase ) )
 	        {
 	            String oid = ( String ) byName.get( lowerCase );
-
 	            monitor.oidResolved( name, lowerCase, oid );
-	
+
 	            // We expect to see this version of the key again so we add it
-
 	            byName.put( name, oid );
-
                 return oid;
 	        }
 			
@@ -172,23 +163,17 @@ public class GlobalOidRegistry implements OidRegistry
 			if ( bootstrap.hasOid( lowerCase) )
 			{
 	            String oid = bootstrap.getOid( name );
-
                 monitor.oidResolved( name, oid );
 
 	            // We expect to see this version of the key again so we add it
-
                 byName.put( name, oid );
-
                 return oid;
 			}
 		}
 
         String msg = "OID for name '" + name + "' was not " + "found within the OID registry";
-
         NamingException fault = new NamingException ( msg );
-
         monitor.oidResolutionFailed( name, fault );
-
         throw fault;
     }
 
@@ -198,8 +183,50 @@ public class GlobalOidRegistry implements OidRegistry
      */
     public boolean hasOid( String name )
     {
-        return this.byName.containsKey( name ) || this.byOid.containsKey( name )  ||
-               this.bootstrap.hasOid( name );
+        // check first with non-normalized name
+        if ( this.byName.containsKey( name ) || this.byOid.containsKey( name ) )
+        {
+            return true;
+        }
+
+        // check next with non-normalized name on the bootstrap registry
+        if ( this.bootstrap.hasOid( name ) )
+        {
+            return true;
+        }
+
+        /*
+        * As a last resort we check if name is not normalized and if the
+        * normalized version used as a key returns an OID.  If the normalized
+        * name works add the normalized name as a key with its OID to the
+        * byName lookup.  BTW these normalized versions of the key are not
+        * returned on a getNameSet.
+        */
+        String lowerCase = name.trim().toLowerCase();
+        if ( ! name.equals( lowerCase ) )
+		{
+			if ( byName.containsKey( lowerCase ) )
+	        {
+	            String oid = ( String ) byName.get( lowerCase );
+	            monitor.oidResolved( name, lowerCase, oid );
+
+	            // We expect to see this version of the key again so we add it
+	            byName.put( name, oid );
+                return true;
+	        }
+
+			/*
+			 * Some LDAP servers (MS Active Directory) tend to use some of the
+			 * bootstrap oid names as all caps, like OU. This should resolve that.
+			 * Lets stash this in the byName if we find it.
+			 */
+			if ( bootstrap.hasOid( lowerCase) )
+			{
+                return true;
+			}
+		}
+
+        return false;
     }
 
 
