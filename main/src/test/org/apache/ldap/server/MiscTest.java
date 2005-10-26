@@ -79,7 +79,29 @@ public class MiscTest extends AbstractServerTest
             partition.setIndexedAttributes( Collections.singleton( "dc" ) );
             partitions.add( partition );
             configuration.setContextPartitionConfigurations( partitions );
+	}
+        else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
+        {
+            // allow anonymous access
+            configuration.setAllowAnonymousAccess( true );
+            
+            // create a partition to search
+            Set partitions = new HashSet();
+            partitions.addAll( configuration.getContextPartitionConfigurations() );
+            MutableDirectoryPartitionConfiguration partition = new MutableDirectoryPartitionConfiguration();
+            partition.setSuffix( "dc=apache,dc=org" );
+            Attributes entry = new BasicAttributes( "dc", "apache", true );
+            Attribute oc = new BasicAttribute( "objectClass" );
+            entry.put( oc );
+            oc.add( "top" );
+            oc.add( "domain" );
+            partition.setName( "apache" );
+            partition.setContextEntry( entry );
+            partition.setIndexedAttributes( Collections.singleton( "dc" ) );
+            partitions.add( partition );
+            configuration.setContextPartitionConfigurations( partitions );
         }
+ 
 
         super.setUp();
     }
@@ -159,6 +181,39 @@ public class MiscTest extends AbstractServerTest
         assertEquals( "", result.getName().trim() );
     }
 
+    /**
+     * Test to make sure that if anonymous binds are allowed a user may search 
+     * within a a partition.
+     *
+     * @throws Exception if anything goes wrong
+     */
+    /*
+    public void testAnonymousBindsEnabledBaseSearch() throws Exception
+    {
+        // Use the SUN JNDI provider to hit server port and bind as anonymous
+
+        final Hashtable env = new Hashtable();
+
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
+        env.put( Context.SECURITY_AUTHENTICATION, "none" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+
+        InitialDirContext ctx = new InitialDirContext( env );
+        SearchControls cons = new SearchControls();
+        cons.setSearchScope( SearchControls.OBJECT_SCOPE );
+        NamingEnumeration list = ctx.search( "dc=apache,dc=org", "(objectClass=*)", cons );
+        SearchResult result = null;
+        if ( list.hasMore() )
+        {
+            result = ( SearchResult ) list.next();
+        }
+        assertFalse( list.hasMore() );
+        list.close();
+
+        assertNotNull( result );
+        assertNotNull( result.getAttributes().get("dc") );
+    }
+    */
 
     /**
      * Reproduces the problem with
