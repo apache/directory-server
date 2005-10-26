@@ -17,6 +17,7 @@
 package org.apache.ldap.server.normalization;
 
 
+import org.apache.asn1new.util.StringUtils;
 import org.apache.ldap.common.filter.FilterVisitor;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.BranchNode;
@@ -71,7 +72,7 @@ public class ValueNormalizingVisitor implements FilterVisitor
                 throw new RuntimeException( e.getMessage() );
             }
 
-            snode.setValue( normalized );
+            snode.setValue( StringUtils.getBytesUtf8( normalized ) );
             return;
         }
 

@@ -28,6 +28,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
+import org.apache.asn1new.util.StringUtils;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.SimpleNode;
@@ -153,7 +154,7 @@ public class SchemaService extends BaseInterceptor
             SimpleNode node = ( SimpleNode ) filter;
 
             if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) &&
-                    node.getValue().equalsIgnoreCase( "subschema" ) &&
+                    StringUtils.toUtf8( node.getValue() ).equalsIgnoreCase( "subschema" ) &&
                     node.getAssertionType() == SimpleNode.EQUALITY
             )
             {
