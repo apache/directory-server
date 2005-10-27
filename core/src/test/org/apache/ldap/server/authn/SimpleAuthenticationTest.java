@@ -119,7 +119,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
         DirContext ctx = ( DirContext ) sysRoot.lookup( "uid=admin" );
         Attributes attrs = ctx.getAttributes( "" );
         performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ));
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret" ));
     }
 
 
@@ -134,7 +134,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
         Attributes attrs = ctx.getAttributes( "" );
 
         performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ));
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret" ));
     }
 
 
