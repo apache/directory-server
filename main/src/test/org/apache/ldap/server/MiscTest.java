@@ -187,7 +187,6 @@ public class MiscTest extends AbstractServerTest
      *
      * @throws Exception if anything goes wrong
      */
-    /*
     public void testAnonymousBindsEnabledBaseSearch() throws Exception
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
@@ -213,7 +212,6 @@ public class MiscTest extends AbstractServerTest
         assertNotNull( result );
         assertNotNull( result.getAttributes().get("dc") );
     }
-    */
 
     /**
      * Reproduces the problem with
