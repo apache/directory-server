@@ -129,22 +129,43 @@ public class ServerContextFactory extends CoreContextFactory
 
             if ( cfg.isEnableKerberos() )
             {
-                KdcConfiguration kdcConfiguration = new KdcConfiguration( env, LoadStrategy.PROPS );
-                PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, this );
-                kdcServer = new KerberosServer( kdcConfiguration, minaRegistry, kdcStore );
+                try
+                {
+                    KdcConfiguration kdcConfiguration = new KdcConfiguration( env, LoadStrategy.PROPS );
+                    PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, this );
+                    kdcServer = new KerberosServer( kdcConfiguration, minaRegistry, kdcStore );
+                }
+                catch ( Throwable t )
+                {
+                    log.error( "Failed to start the Kerberos service", t );
+                }
             }
 
             if ( cfg.isEnableChangePassword() )
             {
-                ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration( env, LoadStrategy.PROPS );
-                PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, this );
-                changePasswordServer = new ChangePasswordServer( changePasswordConfiguration, minaRegistry, store );
+                try
+                {
+                    ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration( env, LoadStrategy.PROPS );
+                    PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, this );
+                    changePasswordServer = new ChangePasswordServer( changePasswordConfiguration, minaRegistry, store );
+                }
+                catch ( Throwable t )
+                {
+                    log.error( "Failed to start the Change Password service", t );
+                }
             }
 
             if ( cfg.isEnableNtp() )
             {
-                NtpConfiguration ntpConfig = new NtpConfiguration( env, LoadStrategy.PROPS );
-                ntpServer = new NtpServer( ntpConfig, minaRegistry );
+                try
+                {
+                    NtpConfiguration ntpConfig = new NtpConfiguration( env, LoadStrategy.PROPS );
+                    ntpServer = new NtpServer( ntpConfig, minaRegistry );
+                }
+                catch ( Throwable t )
+                {
+                    log.error( "Failed to start the NTP service", t );
+                }
             }
         }
     }
