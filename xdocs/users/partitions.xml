@@ -62,7 +62,7 @@
           other entry storing partitions to naming contexts and routes backing
           store calls to the partition containing the entry associated with the
           operation.
-        </p>
+       </p>
       </subsection>
 
       <subsection name="User Partitions">
@@ -86,6 +86,7 @@
         show you how to configure partitions by example using xml configuration
         files with the standalone application and programatically for embedding.
       </p>
+    </section>
 
     <section name="Future Progress">
       <subsection name="Partition Nesting">
