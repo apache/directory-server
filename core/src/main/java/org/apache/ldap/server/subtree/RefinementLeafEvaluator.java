@@ -87,7 +87,7 @@ public class RefinementLeafEvaluator
         }
 
         // check if AVA value exists in attribute
-        if ( objectClasses.contains( node.getValue() ) )
+        if ( objectClasses.contains( node.getValue() )  || objectClasses.contains( StringUtils.toUtf8( node.getValue() ) ) )
         {
             return true;
         }
