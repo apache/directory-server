@@ -40,9 +40,9 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private ServiceRegistry minaServiceRegistry = new SimpleServiceRegistry();
     private int ldapPort = 389;
     private int ldapsPort = 636;
-    private boolean enableKerberos;
-    private boolean enableChangePassword;
-    private boolean enableNtp;
+    private boolean enableKerberos = false;
+    private boolean enableChangePassword = false;
+    private boolean enableNtp = false;
     private final Collection extendedOperationHandlers = new ArrayList();
 
     protected ServerStartupConfiguration()

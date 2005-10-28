@@ -21,6 +21,9 @@
     <property name="workingDirectory"><value>apache.org</value></property>
     <property name="allowAnonymousAccess"><value>false</value></property>
     <property name="accessControlEnabled"><value>false</value></property>
+    <property name="enableNtp"><value>false</value></property>
+    <property name="enableKerberos"><value>false</value></property>
+    <property name="enableChangePassword"><value>false</value></property>
     <property name="ldapPort"><value>10389</value></property>
     <property name="contextPartitionConfigurations">
       <set>
