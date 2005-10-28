@@ -38,6 +38,9 @@ import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
 import org.apache.ntp.NtpServer;
 import org.apache.ntp.NtpConfiguration;
+import org.apache.protocol.common.LoadStrategy;
+import org.apache.changepw.ChangePasswordServer;
+import org.apache.changepw.ChangePasswordConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +58,7 @@ public class ServerContextFactory extends CoreContextFactory
     private static Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static Service ldapService;
     private static KerberosServer kdcServer;
+    private static ChangePasswordServer changePasswordServer;
     private static NtpServer ntpServer;
     private static ServiceRegistry minaRegistry;
 
@@ -89,6 +93,16 @@ public class ServerContextFactory extends CoreContextFactory
                 kdcServer = null;
             }
 
+            if ( changePasswordServer != null )
+            {
+                changePasswordServer.destroy();
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Unbind of Change Password Service complete: " + changePasswordServer );
+                }
+                changePasswordServer = null;
+            }
+
             if ( ntpServer != null )
             {
                 ntpServer.destroy();
@@ -115,15 +129,21 @@ public class ServerContextFactory extends CoreContextFactory
 
             if ( cfg.isEnableKerberos() )
             {
-                // construct the configuration, get the port, create the service, and prepare kdc objects
-                KdcConfiguration kdcConfiguration = new KdcConfiguration( env );
+                KdcConfiguration kdcConfiguration = new KdcConfiguration( env, LoadStrategy.PROPS );
                 PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, this );
                 kdcServer = new KerberosServer( kdcConfiguration, minaRegistry, kdcStore );
             }
 
+            if ( cfg.isEnableChangePassword() )
+            {
+                ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration( env, LoadStrategy.PROPS );
+                PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, this );
+                changePasswordServer = new ChangePasswordServer( changePasswordConfiguration, minaRegistry, store );
+            }
+
             if ( cfg.isEnableNtp() )
             {
-                NtpConfiguration ntpConfig = new NtpConfiguration( env );
+                NtpConfiguration ntpConfig = new NtpConfiguration( env, LoadStrategy.PROPS );
                 ntpServer = new NtpServer( ntpConfig, minaRegistry );
             }
         }

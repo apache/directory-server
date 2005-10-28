@@ -28,7 +28,7 @@ import org.apache.mina.registry.SimpleServiceRegistry;
 
 /**
  * A {@link StartupConfiguration} that starts up ApacheDS with network layer support.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -41,6 +41,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private int ldapPort = 389;
     private int ldapsPort = 636;
     private boolean enableKerberos;
+    private boolean enableChangePassword;
     private boolean enableNtp;
     private final Collection extendedOperationHandlers = new ArrayList();
 
@@ -73,6 +74,14 @@ public class ServerStartupConfiguration extends StartupConfiguration
     }
 
     /**
+     * Returns <tt>true</tt> if Change Password support is enabled.
+     */
+    public boolean isEnableChangePassword()
+    {
+        return enableChangePassword;
+    }
+
+    /**
      * Returns <tt>true</tt> if Kerberos support is enabled.
      */
     public boolean isEnableNtp()
@@ -86,6 +95,14 @@ public class ServerStartupConfiguration extends StartupConfiguration
     protected void setEnableKerberos( boolean enableKerberos )
     {
         this.enableKerberos = enableKerberos;
+    }
+
+    /**
+     * Sets whether to enable Change Password support or not.
+     */
+    protected void setEnableChangePassword( boolean enableChangePassword )
+    {
+        this.enableChangePassword = enableChangePassword;
     }
 
     /**

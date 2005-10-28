@@ -86,6 +86,11 @@ public class MutableServerStartupConfiguration extends
         super.setEnableKerberos( enableKerberos );
     }
 
+    public void setEnableChangePassword( boolean enableChangePassword )
+    {
+        super.setEnableChangePassword( enableChangePassword );
+    }
+
     public void setEnableNtp( boolean enableNtp )
     {
         super.setEnableNtp( enableNtp );
@@ -106,7 +111,8 @@ public class MutableServerStartupConfiguration extends
         super.setMinaServiceRegistry( minaServiceRegistry );
     }
 
-    public void setExtendedOperationHandlers(Collection handlers) {
-        super.setExtendedOperationHandlers(handlers);
+    public void setExtendedOperationHandlers( Collection handlers )
+    {
+        super.setExtendedOperationHandlers( handlers );
     }
 }
