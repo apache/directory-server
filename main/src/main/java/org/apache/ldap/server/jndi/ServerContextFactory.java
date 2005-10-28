@@ -21,23 +21,14 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.ldap.Control;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.kerberos.kdc.KdcConfiguration;
-import org.apache.kerberos.protocol.KerberosProtocolProvider;
-import org.apache.kerberos.sam.SamSubsystem;
+import org.apache.kerberos.kdc.KerberosServer;
 import org.apache.kerberos.store.JndiPrincipalStoreImpl;
 import org.apache.kerberos.store.PrincipalStore;
 import org.apache.ldap.common.exception.LdapConfigurationException;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.common.util.PropertiesUtils;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
@@ -45,6 +36,8 @@ import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
+import org.apache.ntp.NtpServer;
+import org.apache.ntp.NtpConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +54,8 @@ public class ServerContextFactory extends CoreContextFactory
 {
     private static Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static Service ldapService;
-    private static Service kerberosService;
+    private static KerberosServer kdcServer;
+    private static NtpServer ntpServer;
     private static ServiceRegistry minaRegistry;
 
 
@@ -69,6 +63,7 @@ public class ServerContextFactory extends CoreContextFactory
     {
         return minaRegistry;
     }
+
 
     public void afterShutdown( DirectoryService service )
     {
@@ -84,18 +79,29 @@ public class ServerContextFactory extends CoreContextFactory
                 ldapService = null;
             }
 
-            if ( kerberosService != null )
+            if ( kdcServer != null )
             {
-                minaRegistry.unbind( kerberosService );
+                kdcServer.destroy();
                 if ( log.isInfoEnabled() )
                 {
-                    log.info( "Unbind of KRB5 Service complete: " + kerberosService );
+                    log.info( "Unbind of KRB5 Service complete: " + kdcServer );
                 }
-                kerberosService = null;
+                kdcServer = null;
+            }
+
+            if ( ntpServer != null )
+            {
+                ntpServer.destroy();
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Unbind of NTP Service complete: " + ntpServer );
+                }
+                ntpServer = null;
             }
         }
     }
-    
+
+
     public void afterStartup( DirectoryService service ) throws NamingException
     {
         ServerStartupConfiguration cfg =
@@ -109,7 +115,16 @@ public class ServerContextFactory extends CoreContextFactory
 
             if ( cfg.isEnableKerberos() )
             {
-                startKerberosProtocol( env );
+                // construct the configuration, get the port, create the service, and prepare kdc objects
+                KdcConfiguration kdcConfiguration = new KdcConfiguration( env );
+                PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, this );
+                kdcServer = new KerberosServer( kdcConfiguration, minaRegistry, kdcStore );
+            }
+
+            if ( cfg.isEnableNtp() )
+            {
+                NtpConfiguration ntpConfig = new NtpConfiguration( env );
+                ntpServer = new NtpServer( ntpConfig, minaRegistry );
             }
         }
     }
@@ -120,78 +135,6 @@ public class ServerContextFactory extends CoreContextFactory
     private void setupRegistry( ServerStartupConfiguration cfg )
     {
         minaRegistry = cfg.getMinaServiceRegistry();
-    }
-
-
-    /**
-     * Starts the Kerberos protocol provider which is backed by the LDAP store.
-     *
-     * @throws NamingException if there are problems starting up the Kerberos provider
-     */
-    private void startKerberosProtocol( Hashtable env ) throws NamingException
-    {
-        /*
-         * Looks like KdcConfiguration takes properties and we use Hashtable for JNDI
-         * so I'm copying over the String based properties into a new Properties obj.
-         */
-        Properties props = new Properties();
-        Iterator list = env.keySet().iterator();
-        while ( list.hasNext() )
-        {
-            String key = ( String ) list.next();
-
-            if ( env.get( key ) instanceof String )
-            {
-                props.setProperty( key, ( String ) env.get( key ) );
-            }
-        }
-
-        // construct the configuration, get the port, create the service, and prepare kdc objects
-        KdcConfiguration config = new KdcConfiguration( props );
-        int port = PropertiesUtils.get( env, KdcConfiguration.KDC_PORT_KEY, KdcConfiguration.KDC_DEFAULT_PORT );
-        Service service= new Service( "kerberos", TransportType.DATAGRAM, new InetSocketAddress( port ) );
-        LdapContext ctx = getBaseRealmContext( config, env );
-        PrincipalStore store = new JndiPrincipalStoreImpl( ctx, new LdapName( "ou=Users" ) );
-        SamSubsystem.getInstance().setUserContext( ctx, "ou=Users" );
-
-        try
-        {
-            minaRegistry.bind( service, new KerberosProtocolProvider( config, store ) );
-            kerberosService = service;
-            if ( log.isInfoEnabled() )
-            {
-                log.info( "Successful bind of KRB5 Service completed: " + kerberosService );
-            }
-        }
-        catch ( IOException e )
-        {
-            log.error( "Could not start the kerberos service on port " +
-                        KdcConfiguration.KDC_DEFAULT_PORT, e );
-        }
-    }
-
-
-    /**
-     * Maps a Kerberos Realm name to a position within the DIT.  The primary realm of
-     * the KDC will use this area for configuration and for storing user entries.
-     *
-     * @param config the KDC's configuration
-     * @param env the JNDI environment properties
-     * @return the base context for the primary realm of the KDC
-     * @throws NamingException
-     */
-    private LdapContext getBaseRealmContext( KdcConfiguration config, Hashtable env ) throws NamingException
-    {
-        Hashtable cloned = ( Hashtable ) env.clone();
-        String dn = NamespaceTools.inferLdapName( config.getPrimaryRealm() );
-        cloned.put( Context.PROVIDER_URL, dn );
-
-        if ( log.isInfoEnabled() )
-        {
-            log.info( "Getting initial context for realm base at " + dn + " for " + config.getPrimaryRealm() );
-        }
-
-        return new InitialLdapContext( cloned, new Control[]{} );
     }
 
 

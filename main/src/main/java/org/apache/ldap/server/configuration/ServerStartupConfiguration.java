@@ -41,6 +41,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private int ldapPort = 389;
     private int ldapsPort = 636;
     private boolean enableKerberos;
+    private boolean enableNtp;
     private final Collection extendedOperationHandlers = new ArrayList();
 
     protected ServerStartupConfiguration()
@@ -72,11 +73,27 @@ public class ServerStartupConfiguration extends StartupConfiguration
     }
 
     /**
+     * Returns <tt>true</tt> if Kerberos support is enabled.
+     */
+    public boolean isEnableNtp()
+    {
+        return enableNtp;
+    }
+
+    /**
      * Sets whether to enable Kerberos support or not.
      */
     protected void setEnableKerberos( boolean enableKerberos )
     {
         this.enableKerberos = enableKerberos;
+    }
+
+    /**
+     * Sets whether to enable Ntp support or not.
+     */
+    protected void setEnableNtp( boolean enableNtp )
+    {
+        this.enableNtp = enableNtp;
     }
 
     /**

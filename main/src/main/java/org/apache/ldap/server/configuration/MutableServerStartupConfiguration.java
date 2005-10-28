@@ -86,6 +86,11 @@ public class MutableServerStartupConfiguration extends
         super.setEnableKerberos( enableKerberos );
     }
 
+    public void setEnableNtp( boolean enableNtp )
+    {
+        super.setEnableNtp( enableNtp );
+    }
+
     public void setLdapPort( int ldapPort )
     {
         super.setLdapPort( ldapPort );
