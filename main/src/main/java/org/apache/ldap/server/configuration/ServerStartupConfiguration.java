@@ -21,10 +21,14 @@ package org.apache.ldap.server.configuration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.io.File;
 
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.mina.registry.ServiceRegistry;
 import org.apache.mina.registry.SimpleServiceRegistry;
+import org.apache.protocol.common.store.LdifLoadFilter;
+
 
 /**
  * A {@link StartupConfiguration} that starts up ApacheDS with network layer support.
@@ -44,6 +48,8 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private boolean enableChangePassword = false;
     private boolean enableNtp = false;
     private final Collection extendedOperationHandlers = new ArrayList();
+    private File ldifDirectory = null;
+    private final List ldifFilters = new ArrayList();
 
     protected ServerStartupConfiguration()
     {
@@ -168,12 +174,12 @@ public class ServerStartupConfiguration extends StartupConfiguration
         }
         this.minaServiceRegistry = minaServiceRegistry;
     }
-    
+
     public Collection getExtendedOperationHandlers()
     {
         return new ArrayList( extendedOperationHandlers );
     }
-    
+
     protected void setExtendedOperationHandlers( Collection handlers )
     {
         for( Iterator i = handlers.iterator(); i.hasNext(); )
@@ -184,8 +190,38 @@ public class ServerStartupConfiguration extends StartupConfiguration
                         "The specified handler collection contains an element which is not an ExtendedOperationHandler." );
             }
         }
-        
+
         this.extendedOperationHandlers.clear();
         this.extendedOperationHandlers.addAll( handlers );
+    }
+
+    public File getLdifDirectory()
+    {
+        return this.ldifDirectory;
+    }
+
+    protected void setLdifDirectory( File ldifDirectory )
+    {
+        this.ldifDirectory = ldifDirectory;
+    }
+
+    public List getLdifFilters()
+    {
+        return new ArrayList( ldifFilters );
+    }
+
+    protected void setLdifFilters( List filters )
+    {
+        for( int ii = 0; ii < filters.size(); ii++ )
+        {
+            if( !( filters.get( ii ) instanceof LdifLoadFilter ) )
+            {
+                throw new IllegalArgumentException(
+                        "The specified filter collection contains an element which is not an LdifLoadFilter." );
+            }
+        }
+
+        this.ldifFilters.clear();
+        this.ldifFilters.addAll( filters );
     }
 }

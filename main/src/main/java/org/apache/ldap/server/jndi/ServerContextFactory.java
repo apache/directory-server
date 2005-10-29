@@ -18,11 +18,17 @@ package org.apache.ldap.server.jndi;
 
 
 import java.io.IOException;
+import java.io.FileFilter;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.naming.NamingException;
+import javax.naming.Context;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 
 import org.apache.kerberos.kdc.KdcConfiguration;
 import org.apache.kerberos.kdc.KerberosServer;
@@ -39,6 +45,7 @@ import org.apache.mina.registry.ServiceRegistry;
 import org.apache.ntp.NtpServer;
 import org.apache.ntp.NtpConfiguration;
 import org.apache.protocol.common.LoadStrategy;
+import org.apache.protocol.common.store.LdifFileLoader;
 import org.apache.changepw.ChangePasswordServer;
 import org.apache.changepw.ChangePasswordConfiguration;
 import org.slf4j.Logger;
@@ -55,7 +62,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerContextFactory extends CoreContextFactory
 {
-    private static Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
+    private static final Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
+    private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
+
     private static Service ldapService;
     private static KerberosServer kdcServer;
     private static ChangePasswordServer changePasswordServer;
@@ -122,6 +131,8 @@ public class ServerContextFactory extends CoreContextFactory
             ( ServerStartupConfiguration ) service.getConfiguration().getStartupConfiguration();
         Hashtable env = service.getConfiguration().getEnvironment();
 
+        loadLdifs( service );
+
         if ( cfg.isEnableNetworking() )
         {
             setupRegistry( cfg );
@@ -169,6 +180,149 @@ public class ServerContextFactory extends CoreContextFactory
             }
         }
     }
+
+
+    private void ensureLdifFileBase( DirContext root ) throws NamingException
+    {
+        Attributes entry = new BasicAttributes( "ou", "loadedLdifFiles", true );
+        entry.put( "objectClass", "top" );
+        entry.get( "objectClass" ).add( "organizationalUnit" );
+        try
+        {
+            root.createSubcontext( LDIF_FILES_DN, entry );
+            log.info( "Creating " + LDIF_FILES_DN );
+        }
+        catch( NamingException e ) { log.info( LDIF_FILES_DN + " exists" );}
+    }
+
+
+    private final static String WINDOWSFILE_ATTR = "windowsFilePath";
+    private final static String UNIXFILE_ATTR = "unixFilePath";
+    private final static String WINDOWSFILE_OC = "windowsFile";
+    private final static String UNIXFILE_OC = "unixFile";
+    private void addFileEntry( DirContext root, File ldif ) throws NamingException
+    {
+        String rdnAttr = File.pathSeparatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
+        String oc = File.pathSeparatorChar == '\\' ? WINDOWSFILE_OC : UNIXFILE_OC;
+        StringBuffer buf = new StringBuffer();
+        buf.append( rdnAttr );
+        buf.append( "=" );
+        buf.append( ldif.getAbsolutePath() );
+        buf.append( "," );
+        buf.append( LDIF_FILES_DN );
+
+        Attributes entry = new BasicAttributes( rdnAttr, ldif.getAbsolutePath(), true );
+        entry.put( "objectClass", "top" );
+        entry.get( "objectClass" ).add( oc );
+        root.createSubcontext( buf.toString(), entry );
+    }
+
+
+    private Attributes getLdifFileEntry( DirContext root, File ldif )
+    {
+        String rdnAttr = File.pathSeparatorChar == '\\' ? "windowsFile" : "unixFile";
+        StringBuffer buf = new StringBuffer();
+        buf.append( rdnAttr );
+        buf.append( "=" );
+        buf.append( ldif.getAbsolutePath() );
+        buf.append( "," );
+        buf.append( LDIF_FILES_DN );
+
+        try
+        {
+            return root.getAttributes( buf.toString(), new String[]{ "createTimestamp" });
+        }
+        catch ( NamingException e )
+        {
+            return null;
+        }
+    }
+
+
+    private void loadLdifs( DirectoryService service ) throws NamingException
+    {
+        ServerStartupConfiguration cfg =
+            ( ServerStartupConfiguration ) service.getConfiguration().getStartupConfiguration();
+
+        // log and bail if property not set
+        if ( cfg.getLdifDirectory() == null )
+        {
+            log.info( "LDIF load directory not specified.  No LDIF files will be loaded." );
+            return;
+        }
+
+        // log and bail if LDIF directory does not exists
+        if ( !cfg.getLdifDirectory().exists() )
+        {
+            log.warn( "LDIF load directory '" + cfg.getLdifDirectory().getAbsolutePath()
+                    + "' does not exist.  No LDIF files will be loaded.");
+            return;
+        }
+
+        // get an initial context to the rootDSE for creating the LDIF entries
+        Hashtable env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
+        env.put( Context.PROVIDER_URL, "" );
+        DirContext root = ( DirContext ) this.getInitialContext( env );
+
+        // make sure the configuration area for loaded ldif files is present
+        ensureLdifFileBase( root );
+
+        // if ldif directory is a file try to load it
+        if ( !cfg.getLdifDirectory().isDirectory() )
+        {
+            log.info( "LDIF load directory '" + cfg.getLdifDirectory().getAbsolutePath()
+                    + "' is a file.  Will attempt to load as LDIF." );
+            Attributes fileEntry = getLdifFileEntry( root, cfg.getLdifDirectory() );
+            if ( fileEntry != null )
+            {
+                String time = ( String ) fileEntry.get( "createTimestamp" ).get();
+                log.info( "Load of LDIF file '" + cfg.getLdifDirectory().getAbsolutePath()
+                        + "' skipped.  It has already been loaded on " + time + "." );
+                return;
+            }
+            LdifFileLoader loader = new LdifFileLoader( root, cfg.getLdifDirectory(), cfg.getLdifFilters() );
+            loader.execute();
+
+            addFileEntry( root, cfg.getLdifDirectory() );
+            return;
+        }
+
+        // get all the ldif files within the directory (should be sorted alphabetically)
+        File[] ldifFiles = cfg.getLdifDirectory().listFiles( new FileFilter()
+        {
+            public boolean accept( File pathname )
+            {
+                boolean isLdif = pathname.getName().toLowerCase().endsWith( ".ldif" );
+                return pathname.isFile() && pathname.canRead() && isLdif;
+            }
+        });
+
+        // log and bail if we could not find any LDIF files
+        if ( ldifFiles == null || ldifFiles.length == 0 )
+        {
+            log.warn( "LDIF load directory '" + cfg.getLdifDirectory().getAbsolutePath()
+                    + "' does not contain any LDIF files.  No LDIF files will be loaded.");
+            return;
+        }
+
+        // load all the ldif files and load each one that is loaded
+        for ( int ii = 0; ii < ldifFiles.length; ii++ )
+        {
+            Attributes fileEntry = getLdifFileEntry( root, ldifFiles[ii] );
+            if ( fileEntry != null )
+            {
+                String time = ( String ) fileEntry.get( "createTimestamp" ).get();
+                log.info( "Load of LDIF file '" + ldifFiles[ii].getAbsolutePath()
+                        + "' skipped.  It has already been loaded on " + time + "." );
+                continue;
+            }
+            LdifFileLoader loader = new LdifFileLoader( root, ldifFiles[ii], cfg.getLdifFilters() );
+            int count = loader.execute();
+            addFileEntry( root, cfg.getLdifDirectory() );
+            log.info( "Loaded " + count + " entries from LDIF file '" + ldifFiles[ii].getAbsolutePath() + "'" );
+        }
+    }
+
 
     /**
      * Starts up the MINA registry so various protocol providers can be started.

@@ -115,4 +115,14 @@ public class MutableServerStartupConfiguration extends
     {
         super.setExtendedOperationHandlers( handlers );
     }
+
+    public void setLdifDirectory( File ldifDirectory )
+    {
+        super.setLdifDirectory( ldifDirectory );
+    }
+
+    public void setLdifFilters( List ldifFilters )
+    {
+        super.setLdifFilters( ldifFilters );
+    }
 }

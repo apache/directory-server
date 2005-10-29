@@ -13,12 +13,35 @@
     	  <prop key="java.naming.security.principal">uid=admin,ou=system</prop>
           <prop key="java.naming.security.credentials">secret</prop>
           <prop key="java.naming.ldap.attributes.binary">photo personalSignature audio jpegPhoto javaSerializedData userPassword userCertificate cACertificate authorityRevocationList certificateRevocationList crossCertificatePair x500UniqueIdentifier krb5Key</prop>
+          <prop key="kdc.entryBaseDn">ou=Users,dc=apache,dc=org</prop>
       </props>
     </property>
   </bean>
   
   <bean id="configuration" class="org.apache.ldap.server.configuration.MutableServerStartupConfiguration">
     <property name="workingDirectory"><value>apache.org</value></property>
+
+    <!-- Uncomment below to have the server load entries on startup!        -->
+    <!-- ldifDirectory property can point to a relative file, directory or  -->
+    <!-- can point to an absolute path to either using the URL path         -->
+    <!-- notation: i.e. file:///Users/jack/apacheds/ldifs                   -->
+
+    <!-- Entries will optionally be filtered using LdifLoadFilters in the   -->
+    <!-- order specified.  The included Krb5KdcEntryFilter will filter      -->
+    <!-- kerberos principals creating keys for them using their             -->
+    <!-- userPassword attribute if present.                                 -->
+
+    <!--
+    <property name="ldifDirectory">
+      <value>blah.ldif</value>
+    </property>
+    <property name="ldifFilters">
+      <list>
+        <bean class="org.apache.protocol.common.store.Krb5KdcEntryFilter"/>
+      </list>
+    </property>
+    -->
+
     <property name="allowAnonymousAccess"><value>false</value></property>
     <property name="accessControlEnabled"><value>false</value></property>
     <property name="enableNtp"><value>false</value></property>
