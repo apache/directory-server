@@ -17,8 +17,8 @@
 package org.apache.ldap.server.schema;
 
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -93,6 +93,8 @@ public class SchemaService extends BaseInterceptor
      * the global schema object registries
      */
     private GlobalRegistries globalRegistries;
+    
+    private Set binaries;
 
     /**
      * subschemaSubentry attribute's value from Root DSE
@@ -112,18 +114,43 @@ public class SchemaService extends BaseInterceptor
         startUpTimeStamp = DateUtils.getGeneralizedTime();
     }
 
+    private void initBinaries( Hashtable env ) 
+    {
+        // construct the set for fast lookups while filtering
+        String binaryIds = (String)env.get( BINARY_KEY );
+
+        binaries = new HashSet();
+
+        if ( StringUtils.isEmpty( binaryIds ) == false )
+        {
+            String[] binaryArray = binaryIds.split( "/" );
+            
+            for ( int i = 0; i < binaryArray.length; i++ )
+            {
+                binaries.add( StringUtils.lowerCase( StringUtils.trim( binaryArray[i] ) ) );
+            }
+        }
+    }
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
         this.globalRegistries = factoryCfg.getGlobalRegistries();
         binaryAttributeFilter = new BinaryAttributeFilter();
+        initBinaries( factoryCfg.getEnvironment() );
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
         subentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
     }
 
+    /**
+     * @return Returns the binaries.
+     */
+    public boolean isBinary( String id )
+    {
+        return binaries.contains( StringUtils.lowerCase( StringUtils.trim( id ) ) );
+    }
 
     public void destroy()
     {
@@ -154,7 +181,7 @@ public class SchemaService extends BaseInterceptor
             SimpleNode node = ( SimpleNode ) filter;
 
             if ( node.getAttribute().equalsIgnoreCase( "objectClass" ) &&
-                    StringUtils.toUtf8( node.getValue() ).equalsIgnoreCase( "subschema" ) &&
+                    node.getValue().equalsIgnoreCase( "subschema" ) &&
                     node.getAssertionType() == SimpleNode.EQUALITY
             )
             {
@@ -615,34 +642,17 @@ public class SchemaService extends BaseInterceptor
     private void doFilter( Invocation invocation, Attributes entry )
             throws NamingException
     {
-        // set of AttributeType objects that are to behave as binaries
-        Set binaries;
-
-        // construct the set for fast lookups while filtering
-        String binaryIds = ( String ) invocation.getCaller().getEnvironment().get( BINARY_KEY );
-
-        if ( binaryIds == null )
+        long t0 = System.nanoTime();
+        
+        if ( log.isDebugEnabled() )
         {
-            binaries = Collections.EMPTY_SET;
+            log.debug( "Filtering entry " + AttributeUtils.toString( entry ) );  
         }
-        else
-        {
-            String[] binaryArray = binaryIds.split( " " );
-
-            binaries = new HashSet( binaryArray.length );
-
-            for ( int ii = 0; ii < binaryArray.length; ii++ )
-            {
-                AttributeType type = globalRegistries.getAttributeTypeRegistry().lookup( binaryArray[ii] );
-
-                binaries.add( type );
-            }
-        }
-
+        
         /*
-        * start converting values of attributes to byte[]s which are not
-        * human readable and those that are in the binaries set
-        */
+         * start converting values of attributes to byte[]s which are not
+         * human readable and those that are in the binaries set
+         */
         NamingEnumeration list = entry.getIDs();
 
         while ( list.hasMore() )
@@ -671,17 +681,17 @@ public class SchemaService extends BaseInterceptor
 
                 Attribute binary = new LockableAttributeImpl( id );
 
-                for ( int ii = 0; ii < attribute.size(); ii++ )
+                for ( int i = 0; i < attribute.size(); i++ )
                 {
-                    Object value = attribute.get( ii );
+                    Object value = attribute.get( i );
 
                     if ( value instanceof String )
                     {
-                        binary.add( ii, ( ( String ) value ).getBytes() );
+                        binary.add( i, StringUtils.getBytesUtf8( ( String ) value ) );
                     }
                     else
                     {
-                        binary.add( ii, value );
+                        binary.add( i, value );
                     }
                 }
 
@@ -689,6 +699,13 @@ public class SchemaService extends BaseInterceptor
 
                 entry.put( binary );
             }
+        }
+        
+        long t1 = System.nanoTime();
+        
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Time to filter entry = " + (t1 - t0) + "ns" );
         }
     }
 
