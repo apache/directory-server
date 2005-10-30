@@ -17,7 +17,6 @@
 package org.apache.ldap.server.subtree;
 
 
-import org.apache.asn1new.util.StringUtils;
 import org.apache.ldap.common.filter.*;
 import org.apache.ldap.server.schema.OidRegistry;
 
@@ -87,13 +86,13 @@ public class RefinementLeafEvaluator
         }
 
         // check if AVA value exists in attribute
-        if ( objectClasses.contains( node.getValue() )  || objectClasses.contains( StringUtils.toUtf8( node.getValue() ) ) )
+        if ( objectClasses.contains( node.getValue() ) )
         {
             return true;
         }
 
         // If the filter value for the objectClass is an OID we need to resolve a name
-        String value = StringUtils.toUtf8( node.getValue() );
+        String value = node.getValue();
         
         if ( Character.isDigit( value.charAt( 0 ) ) )
         {
