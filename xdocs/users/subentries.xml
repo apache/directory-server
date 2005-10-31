@@ -115,14 +115,14 @@ directory to administrative contacts in various
 departments.</p>
       <p>
 Do you really want to manage the corporate product catalog or just let the sales
-department manage it. But what do we mean by manage? You want sales people to
+department manage it? But what do we mean by manage? You want sales people to
 create, and delete entries but they may only trust a few people to do this.
 Others may just view the catelog. Who are the people with add/remove powers and
 why should you have to be involved with deciding this ever changing departmental
 policy? Instead you can delegate the management of access controls in this area
 to a administrative contact in the sales department. The sales contact can then
 administer access controls for their department. They're closer to the people in
-sales then you are and they probably have more bandwidth to handle sales related
+sales than you are and they probably have more bandwidth to handle sales related
 needs than you do. Delegating authority in this fashion is what X.500 engineers
 pioneered in the early 80's with the telecom boom in Europe. They knew different
 authorities will want to manage different aspects of directory administration
@@ -134,35 +134,37 @@ exactly.</p>
 An administrative area is some part of the directory tree that is arbitrarily
 defined. The tree can be split into different administrative areas to delegate
 authority for managing various aspects of administration. For example you can
-have a partition hanging off of 'dc=example,dc=com' with an 'ou=product catalog'
-area. You may want this area to be managed by the sales department with respect
-to the content, schema, it's visibility, and collective attributes. Perhaps you
-only want to delegate only one aspect of administration , access control, since
-you don't want people messing around with schema. To do so you can define
-everything under 'ou=product catalog' to be an administrative area specifically
-for access control and delegate that aspect only. In that case the entry,
-'ou=product catalog,dc=example,dc=com' becomes an administrative entry. It is
-also the administrative point for the area which is the tree rooted at this
+have a partition hanging off of *'dc=example,dc=com'* with an *'ou=product
+catalog'* area. You may want this area to be managed by the sales department
+with respect to the content, schema, it's visibility, and collective attributes.
+Perhaps you only want to delegate only one aspect of administration , access
+control, since you don't want people messing around with schema. To do so you
+can define everything under *'ou=product catalog'* to be an administrative area
+specifically for access control and delegate that aspect only. In that case the
+entry, *'ou=product catalog,dc=example,dc=com'* becomes an administrative entry.
+It is also the administrative point for the area which is the tree rooted at
+this
 entry.</p>
       <p>
-Not all administrative areas are equal. There are really two kinds. Autonomous
-and inner areas. Autonomous areas are areas of administration that cannot
-overlap. Meaning someone is assigned as the supreme authority for that subtree.
-Inner areas are, as their name suggests, nested administrative areas within
-autonomous areas and other inner areas. Yes, you can nest these inner areas as
-deep as you like. You may be asking yourself what the point to all this is.
-Well, say you're the supreme admin of admins. You delegate the authority to
-manage access control for the corporate catalog to the sales admin. That admin
-may in turn decide to delegate yet another area of the catalog to another
-contact within a different department. You delegate access control management to
-the sales admin over the product catalog. The sales admin realizes that the job
-is way bigger than he can manage so he delegates administration of subtrees in
-the catalog to various contacts in different departments. For example regions of
-the catalog under 'ou=electronics' and 'ou=produce' may be delegated to
-different contacts in their respective departments. However the sales admin
-still reserves the ability to override access controls in the catalog. The sales
-admin can change who manages access controls for different parts of the catalog.
-This chain of delegation is possible using inner administrative
+Not all administrative areas are equal. There are really two kinds :
+*autonomous* and *inner* areas. Autonomous areas are areas of administration
+that cannot overlap. Meaning someone is assigned as the supreme authority for
+that subtree. Inner areas are, as their name suggests, nested administrative
+areas within autonomous areas and other inner areas. Yes, you can nest these
+inner areas as deep as you like. You may be asking yourself what the point to
+all this is. Well, say you're the supreme admin of admins. You delegate the
+authority to manage access control for the corporate catalog to the sales admin.
+That admin may in turn decide to delegate yet another area of the catalog to
+another contact within a different department. You delegate access control
+management to the sales admin over the product catalog. The sales admin realizes
+that the job is way bigger than he can manage so he delegates administration of
+subtrees in the catalog to various contacts in different departments. For
+example regions of the catalog under *'ou=electronics' and 'ou=produce'* may be
+delegated to different contacts in their respective departments. However the
+sales admin still reserves the ability to override access controls in the
+catalog. The sales admin can change who manages access controls for different
+parts of the catalog. This chain of delegation is possible using inner
+administrative
 areas.</p>
     </section>
     <section heading="h2" name="How are administrative areas defined?">
@@ -216,14 +218,14 @@ collectiveAttributeInnerArea</td>
         </tr>
       </table>
       <p>
-As you can see, 3 aspects, schema, collective attributes, and access control are
-considered. An autonomous administrative area can hence be considered with
-respect to all three specific aspect of administration. If an AP is marked as an
-autonomousArea it generally means that administration of all aspects are allowed
-by the authority. If marked with a specific aspect then only that aspect of
-administration is delegated. The administrativeRole operational attribute is
-multivalued so the uber admin can delegate any number of specific administration
-aspects as he
+As you can see, 3 aspects, *schema*, *collective attributes*, and *access
+control* are considered. An autonomous administrative area can hence be
+considered with respect to all three specific aspect of administration. If an AP
+is marked as an autonomousArea it generally means that administration of all
+aspects are allowed by the authority. If marked with a specific aspect then only
+that aspect of administration is delegated. The administrativeRole operational
+attribute is multivalued so the uber admin can delegate any number of specific
+administration aspects as he
 likes.</p>
       <p>
 Also notice that two aspects, collective attribute and access controls, allow
@@ -248,7 +250,7 @@ AAs
       <p>
 Subentries hold administrative information for an IAA or an AAA. These entries
 are of the objectClass 'subentry'. The subentry must contain two attributes: a
-commonName and a subtreeSpecification. The commonName (or cn) is used as the
+*commonName* and a *subtreeSpecification*. The commonName (or cn) is used as the
 subentry's rdn attribute. The subtreeSpecification describes the collection of
 entries within the AA (IAA or AAA) that the administrative instruction applies
 to.</p>
@@ -260,10 +262,10 @@ addition.</p>
       <subsection heading="h3" name="Base parameter">
         <p>
 This is the relative name of the root vertex of the subtree relative to the AP.
-So if the AP is 'ou=system' and the base is 'ou=users', the subtree begins at
-'ou=users,ou=system'. The base can be any length of name components including 0
-where it's the empty name "". In this case, the subtree begins at the AP,
-'ou=system' in the example
+So if the AP is *'ou=system'* and the base is *'ou=users'*, the subtree begins
+at *'ou=users,ou=system'*. The base can be any length of name components
+including 0 where it's the empty name "". In this case, the subtree begins at
+the AP, *'ou=system'* in the example
 above.</p>
       </subsection>
       <subsection heading="h3" name="Chop parameters">
@@ -279,8 +281,8 @@ they are relative to the base parameter. They specify whether or not an entry
 and its descendants are to be excluded from the
 collection.</p>
           <p>
-When chopBefore is used, the entry specified is excluded from the collection.
-When chopAfter is used the entry is included however all descendants below the
+When *chopBefore* is used, the entry specified is excluded from the collection.
+When *chopAfter* is used the entry is included however all descendants below the
 entry are
 excluded.</p>
         </subsection>
@@ -298,8 +300,8 @@ The specification filter is a unique beast. It's a filter like a search filter,
 however its syntax and expressivity is radically different. Think of a
 specification filter as a simplified form of search filters where all terms only
 test the objectClass attribute and only equality checks can be performed. Oh and
-yes, you do have logical operators like and, or and
-not.</p>
+yes, you do have logical operators like *and*, *or* and
+*not*.</p>
         <p>
 So with a filter you have the ability to "refine" the subtree already specified
 with chop, and base parameters. This "refinement" makes it so the collection is
@@ -325,7 +327,7 @@ administration as well to allow both types of
 subentries.</p>
         <p>
 ApacheDS does not manage schema using subentries in the formal X.500 sense right
-now. There is a single global subentry defined at 'cn=schema' for the entire
+now. There is a single global subentry defined at *'cn=schema'* for the entire
 DSA. The schema is static and cannot be updated at runtime even by the
 administrator. Pretty rough for now but it's the only lagging subsystem. We'll
 of course make sure this subsystem catches
@@ -382,9 +384,9 @@ base:</p>
         <source>{ base "ou=users" }
 </source>
         <p>
-If this is the subtreeSpecification under the AP, 'ou=system', then it selects
+If this is the subtreeSpecification under the AP, *'ou=system'*, then it selects
 every entry under
-'ou=users,ou=system'.</p>
+*'ou=users,ou=system'*.</p>
         <p>
 OK that was easy so now let's slice and dice the tree now using the minimum and
 maximum chop
@@ -392,17 +394,19 @@ parameters.</p>
         <source>{ minimum 3, maximum 5 }
 </source>
         <p>
-This selects all entries below 'ou=system' which have a DN size equal to 3 name
-components, but no more than 5. So for example 'uid=jdoe,ou=users,ou=system'
-would be included but 'uid=jack,ou=do,ou=not,ou=select,ou=users,ou=system' would
-not be included. Let's continue and combine the base with just a minimum
+This selects all entries below *'ou=system'* which have a DN size equal to 3
+name components, but no more than 5. So for example
+*'uid=jdoe,ou=users,ou=system'* would be included but
+*'uid=jack,ou=do,ou=not,ou=select,ou=users,ou=system'* would not be included.
+Let's continue and combine the base with just a minimum
 parameter:</p>
         <source>{ base "ou=users", minimum 4 }
 </source>
         <p>
-Here the subtree starts at 'ou=users,ou=system' if the subentry subordinates to
-the AP at 'ou=system'. The user 'uid=jdoe,ou=deepenough,ou=users,ou=system' is
-selected by the spec where as 'uid=jbean,ou=users,ou=system' is
+Here the subtree starts at *'ou=users,ou=system'* if the subentry subordinates
+to the AP at *'ou=system'*. The user
+*'uid=jdoe,ou=deepenough,ou=users,ou=system'* is selected by the spec where as
+*'uid=jbean,ou=users,ou=system'* is
 not.</p>
         <p>
 It's time to add some chop
@@ -414,15 +418,15 @@ exclusions:</p>
 }
 </source>
         <p>
-Again if placed at the AP 'ou=system' this subtree would begin at
-'ou=users,ou=system'. It would not include users that subordinate to it though
+Again if placed at the AP *'ou=system'* this subtree would begin at
+*'ou=users,ou=system'*. It would not include users that subordinate to it though
 because of the minimum constraint since these users would have 3 components in
-their DN. The specific exclusions prevent 'ou=untrusted,ou=users,ou=system' and
-all its descendants from being included in the collection. However
-'uid=jbean,ou=trusted,ou=users,ou=system' would be included since it meets the
-minimum requirement, is a descendant of 'ou=users,ou=system' and is not under
+their DN. The specific exclusions prevent *'ou=untrusted,ou=users,ou=system'*
+and all its descendants from being included in the collection. However
+*'uid=jbean,ou=trusted,ou=users,ou=system'* would be included since it meets the
+minimum requirement, is a descendant of *'ou=users,ou=system'* and is not under
 the excluded DN,
-'ou=untrusted,ou=users,ou=system'.</p>
+*'ou=untrusted,ou=users,ou=system'*.</p>
         <p>
 Note that you can add as many exclusions as you like by comma delimiting them.
 For

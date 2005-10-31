@@ -32,9 +32,9 @@ so:</p>
       <p>
 When you start the server without a xml conf file arguement default settings are
 used. It tries to bind to 389 but this non-root user does not have the needed
-privledges so it tries to bind on the next available port which is 1024. You may
-like a conf file that can be used to override and set server specific properties
-to control its behavoir. Below we use
+priviledges so it tries to bind on the next available port which is 1024. You
+may like a conf file that can be used to override and set server specific
+properties to control its behavoir. Below we use
 the
         <a href="http://valpithy.notlong.com/">xml configuration</a>
 file that comes preconfigured for Apache under the server/trunk/main

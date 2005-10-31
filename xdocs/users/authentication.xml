@@ -46,26 +46,26 @@ in
 .
         </p>
       </subsection>
-      <subsection heading="h3" name="How do I bind as the admin superuser after initial startup?">
+      <subsection heading="h3" name="How to bind as the admin superuser after initial startup?">
         <p>
 You just downloaded the server and started it up for the first time. Now you're
 wondering how to bind to the server using an LDAP client like jxplorer, gq, or
 ldapbrowser.</p>
         <p>
 By default the super user or admin account is created when the system partition
-is created under the ou=system naming context. This occurs when the server is
+is created under the 'ou=system' naming context. This occurs when the server is
 started for the first time. The admin user can be found under the following
 DN:</p>
         <source>          uid=admin,ou=system
 </source>
         <p>
 The password is initially set to 'secret'. You definately want to change this
-after starting the server.  For the first time you can bind to the server as
-this user with 'secret' as the
+after starting the server. For the first time you can bind to the server as this
+user with 'secret' as the
 password.</p>
         <p>
 To change the password for the admin user you'll have to make changes to two
-places.  First you'll have to change the password in the directory for the user.
+places. First you'll have to change the password in the directory for the user.
 Second you'll have to change the password in the server.xml configuration file
 for the java.naming.security.credentials
 property.</p>
@@ -77,7 +77,7 @@ password.</p>
         <p>
 Even when anonymous binds are disabled anonymous users can still bind to the
 RootDSE as required by the protocol to lookup supported SASL mechanisms before
-attempting a bind.  Don't worry the RootDSE is read
+attempting a bind. Don't worry the RootDSE is read
 only.</p>
       </subsection>
       <subsection heading="h3" name="Adding and authenticating normal users">
@@ -85,9 +85,9 @@ only.</p>
 By default a user in the server can be just about any entry with a userPassword
 attribute that contains a clear text password. The DN can be anything reachable
 within one of the directory partitions. So if you add a partition to hang off of
-dc=example,dc=com then you can add user entries anywhere under this naming
-context or just add user entries under the ou=system naming context. Below is an
-LDIF of a user you can add to the directory as a test
+'dc=example,dc=com' then you can add user entries anywhere under this naming
+context or just add user entries under the 'ou=system' naming context. Below is
+an LDIF of a user you can add to the directory as a test
 user.</p>
         <source>dn: uid=jdoe,ou=users,ou=system
 cn: John Doe
@@ -133,24 +133,24 @@ so:</p>
       <subsection heading="h3" name="Protecting user passwords">
         <p>
 Without access controls enabled userPasswords and user entries are accessible
-and alterable by all: even anonymous users.  There are however some minimal
+and alterable by all: even anonymous users. There are however some minimal
 built-in rules for protecting users and groups within the server without having
 to turn on the ACI
 subsystem.</p>
         <p>
 Without ACIs the server automatically protects, hides, the admin user from
-everyone but the admin user.  Users cannot see other user entries under the
-'ou=users,ou=system' entry.  So placing new users there automatically protects
-them.  Placing new users anywhere else exposes them.  Groups defined using
+everyone but the admin user. Users cannot see other user entries under the
+'ou=users,ou=system' entry. So placing new users there automatically protects
+them. Placing new users anywhere else exposes them. Groups defined using
 groupOfNames or groupOfUniqueNames under the 'ou=groups,ou=system' are also
-protected from access or alteration by anyone other than the admin user.  Again
+protected from access or alteration by anyone other than the admin user. Again
 this protection is not allowed anywhere else but under these
 entries.</p>
         <p>
 For simple configurations this should provide adequate protection but it lacks
-flexibility.  For advanced configurations users should enable the ACI subsystem.
+flexibility. For advanced configurations users should enable the ACI subsystem.
 This however shuts down access to everything by everyone except the admin user
-which bypasses the ACI subsystem.  Directory administrators should look at the
+which bypasses the ACI subsystem. Directory administrators should look at the
 docomentation on how to specify access control information
 here:
           <a href="./authorization.html">Authorization</a>
@@ -162,7 +162,7 @@ here:
 Anonymous binds come enabled out of the box. So you might want to turn off this
 feature especially if you're not using a version of ApacheDS that is 0.9.3 or
 higher with ACI support. To do so you're going to have to restart the server
-after settting the allowAnonymousAccess property to false in the server.xml
+after setting the allowAnonymousAccess property to false in the server.xml
 configuration
 file.</p>
       </subsection>

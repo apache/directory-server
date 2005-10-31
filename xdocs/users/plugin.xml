@@ -20,7 +20,7 @@ theory.</li>
         <li>
 Published schemas never really change so why do they need to be in a human
 readable
-form.</li>
+form?</li>
         <li>
 Eventually, schema changes made through LDAP will be preserved through
 restarts.</li>
@@ -134,7 +134,7 @@ step wise process you can follow to do that using
 maven:</p>
       <ol nesting="0">
         <li>
-Place your schema files (i.e. foo.schema) with the schema extension into
+Place your schema files (i.e. *foo.schema*) with the schema extension into
 $\{basedir\}/src/main/schema. If you opt to store it in another location you
 must override the maven.ldap.server.schema.dir property in your
 project.properties file. For each schema file add the file base name to the
@@ -163,7 +163,7 @@ list for a schema. Schemas can obviously depend on others. The schema dependency
 list is a comma separated list of other schema names. These schemas need not be
 present in your project to generate the code for your schema. The dependent
 schema classes must however be present within the server at start up time in
-order to load and use your schema. At the end we list the the default schemas
+order to load and use your schema. At the end we list the default schemas
 already packaged into the server's jar. You can use any one of these schemas as
 dependencies needed by your schema and not worry about their presence. The
 property key base for the schema dependency list is
