@@ -207,24 +207,24 @@ public class ServerContextFactory extends CoreContextFactory
         StringBuffer buf = new StringBuffer();
         buf.append( rdnAttr );
         buf.append( "=" );
-        buf.append( ldif.getAbsolutePath() );
+        buf.append( getCanonical( ldif ) );
         buf.append( "," );
         buf.append( LDIF_FILES_DN );
 
-        Attributes entry = new BasicAttributes( rdnAttr, ldif.getAbsolutePath(), true );
+        Attributes entry = new BasicAttributes( rdnAttr, getCanonical( ldif ), true );
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( oc );
         root.createSubcontext( buf.toString(), entry );
     }
 
 
-    private Attributes getLdifFileEntry( DirContext root, File ldif )
+    private Attributes getLdifFileEntry( DirContext root, File ldif ) throws NamingException
     {
-        String rdnAttr = File.pathSeparatorChar == '\\' ? "windowsFile" : "unixFile";
+        String rdnAttr = File.pathSeparatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
         StringBuffer buf = new StringBuffer();
         buf.append( rdnAttr );
         buf.append( "=" );
-        buf.append( ldif.getAbsolutePath() );
+        buf.append( getCanonical( ldif ) );
         buf.append( "," );
         buf.append( LDIF_FILES_DN );
 
@@ -236,6 +236,22 @@ public class ServerContextFactory extends CoreContextFactory
         {
             return null;
         }
+    }
+
+
+    private String getCanonical( File file ) throws NamingException
+    {
+        String canonical = null;
+        try
+        {
+            canonical = file.getCanonicalPath();
+        }
+        catch (IOException e)
+        {
+            log.error( "could not get canonical path", e );
+            return null;
+        }
+        return canonical;
     }
 
 
@@ -254,7 +270,7 @@ public class ServerContextFactory extends CoreContextFactory
         // log and bail if LDIF directory does not exists
         if ( !cfg.getLdifDirectory().exists() )
         {
-            log.warn( "LDIF load directory '" + cfg.getLdifDirectory().getAbsolutePath()
+            log.warn( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
                     + "' does not exist.  No LDIF files will be loaded.");
             return;
         }
@@ -270,13 +286,13 @@ public class ServerContextFactory extends CoreContextFactory
         // if ldif directory is a file try to load it
         if ( !cfg.getLdifDirectory().isDirectory() )
         {
-            log.info( "LDIF load directory '" + cfg.getLdifDirectory().getAbsolutePath()
+            log.info( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
                     + "' is a file.  Will attempt to load as LDIF." );
             Attributes fileEntry = getLdifFileEntry( root, cfg.getLdifDirectory() );
             if ( fileEntry != null )
             {
                 String time = ( String ) fileEntry.get( "createTimestamp" ).get();
-                log.info( "Load of LDIF file '" + cfg.getLdifDirectory().getAbsolutePath()
+                log.info( "Load of LDIF file '" + getCanonical( cfg.getLdifDirectory() )
                         + "' skipped.  It has already been loaded on " + time + "." );
                 return;
             }
@@ -300,7 +316,7 @@ public class ServerContextFactory extends CoreContextFactory
         // log and bail if we could not find any LDIF files
         if ( ldifFiles == null || ldifFiles.length == 0 )
         {
-            log.warn( "LDIF load directory '" + cfg.getLdifDirectory().getAbsolutePath()
+            log.warn( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
                     + "' does not contain any LDIF files.  No LDIF files will be loaded.");
             return;
         }
@@ -312,14 +328,17 @@ public class ServerContextFactory extends CoreContextFactory
             if ( fileEntry != null )
             {
                 String time = ( String ) fileEntry.get( "createTimestamp" ).get();
-                log.info( "Load of LDIF file '" + ldifFiles[ii].getAbsolutePath()
+                log.info( "Load of LDIF file '" + getCanonical( ldifFiles[ii] )
                         + "' skipped.  It has already been loaded on " + time + "." );
                 continue;
             }
             LdifFileLoader loader = new LdifFileLoader( root, ldifFiles[ii], cfg.getLdifFilters() );
             int count = loader.execute();
-            addFileEntry( root, cfg.getLdifDirectory() );
-            log.info( "Loaded " + count + " entries from LDIF file '" + ldifFiles[ii].getAbsolutePath() + "'" );
+            log.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFiles[ii] ) + "'" );
+            if ( fileEntry == null )
+            {
+                addFileEntry( root, ldifFiles[ii] );
+            }
         }
     }
 
