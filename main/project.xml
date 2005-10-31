@@ -88,7 +88,7 @@
       <dependency>
         <groupId>directory-shared</groupId>
         <artifactId>kerberos-common</artifactId>
-        <version>0.5.1-SNAPSHOT</version>
+        <version>0.6</version>
       </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
@@ -98,22 +98,22 @@
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ldap-protocol</artifactId>
-      <version>0.9.3-SNAPSHOT</version>
+      <version>0.9.3</version>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>kerberos-protocol</artifactId>
-      <version>0.5.1-SNAPSHOT</version>
+      <version>0.6</version>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>changepw-protocol</artifactId>
-      <version>0.5.1-SNAPSHOT</version>
+      <version>0.6</version>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ntp-protocol</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.4</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
@@ -128,7 +128,7 @@
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>protocol-common</artifactId>
-      <version>0.5.0-SNAPSHOT</version>
+      <version>0.6</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
