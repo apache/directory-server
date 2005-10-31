@@ -13,10 +13,10 @@ it.</p>
     <section heading="h1" name="The Configuration API">
       <p>
 ApacheDS provides its configuration API in the
-{{org.apache.ldap.server.configuration}} package.  This package contains
-concrete configuration instruction classes that you can instantiate and specify
-in your JNDI environment variable.  To put your configuration instruction class
-into the JNDI environment
+org.apache.ldap.server.configuration package.  This package contains concrete
+configuration instruction classes that you can instantiate and specify in your
+JNDI environment variable.  To put your configuration instruction class into the
+JNDI environment
 variable:</p>
       <source>Properties env = new Properties();
 env.setProperty( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -35,75 +35,73 @@ new InitialContext( env );
       <p>
 Now let's find out what kind of instruction you can give to
 ApacheDS.</p>
-      <subsection heading="h2" name="{{StartupConfiguration}}">
+      <subsection heading="h2" name="StartupConfiguration">
         <p>
 This instruction starts up the ApacheDS if it is not started.  Here's the list
 of known
 properties:</p>
         <ul nesting="1">
           <li>
-{{authenticatorConfigurations}} - a collection of {{AuthenticatorConfiguration}}
-s.  {{AuthenticatorConfiguration}} specifies {{Authenticator}} s that
-authenticate a user who accesses the ApacheDS DIT.  (Default: &lt;all default
+authenticatorConfigurations - a collection of AuthenticatorConfigurations. 
+AuthenticatorConfiguration specifies Authenticators that authenticate a user who
+accesses the ApacheDS DIT.  (Default: &lt;all default
 authenticators&gt;)</li>
           <li>
-{{bootstrapSchemas}} - a set of {{BootstrapSchema}} s which are loaded at the
-first time ApacheDS starts up (Default: &lt;all default
+bootstrapSchemas - a set of BootstrapSchemas which are loaded at the first time
+ApacheDS starts up (Default: &lt;all default
 schemas&gt;)</li>
           <li>
-{{contextPartitionConfigurations}} - a collection of
-{{ContextPartitionConfiguration}} s.  {{ContextPartitionConfiguration}}
-specified {{ContextPartition}} s that consist the ApacheDS DIT.  (Default: no
-context partitions except system
+contextPartitionConfigurations - a collection of ContextPartitionConfigurations.
+ContextPartitionConfiguration specified ContextPartitions that consist the
+ApacheDS DIT.  (Default: no context partitions except system
 partition)</li>
           <li>
-{{accessControl}} - Set to {{true}} if you want to enable access control support
-of the ApacheDS. (Default:
-{{false}})</li>
+accessControl - Set to true if you want to enable access control support of the
+ApacheDS. (Default:
+false)</li>
           <li>
-{{allowAnonymousAccess}} - Set to {{true}} if you want to enable anonymous
-access. (Default:
-{{true}})</li>
+allowAnonymousAccess - Set to true if you want to enable anonymous access.
+(Default:
+true)</li>
           <li>
-{{interceptorConfigurations}} - a list of {{InterceptorConfiguration}} s which
-will configure the initial interceptor chain of the ApacheDS (Default: &lt;all
-default
+interceptorConfigurations - a list of InterceptorConfigurations which will
+configure the initial interceptor chain of the ApacheDS (Default: &lt;all default
 interceptors&gt;)</li>
           <li>
-{{testEntries}} - a list of {{javax.naming.directory.Attributes}} which will be
-added to the DIT while the ApacheDS is started up (Default: no test
+testEntries - a list of javax.naming.directory.Attributes which will be added to
+the DIT while the ApacheDS is started up (Default: no test
 entries)</li>
           <li>
-{{workingDirectory}} - a working directory the content of DIT will be stored to
+workingDirectory - a working directory the content of DIT will be stored to
 (Default:
-{{./server-work/}})</li>
+./server-work/)</li>
         </ul>
         <p>
 You don't need to specify any properties because all properties have the
-default.  Please use {{MutableStartupConfiguration}} to modify any properties
+default.  Please use MutableStartupConfiguration to modify any properties
 above.</p>
       </subsection>
-      <subsection heading="h2" name="{{ShutdownConfiguration}}">
+      <subsection heading="h2" name="ShutdownConfiguration">
         <p>
 This instruction shuts down the ApacheDS if it is not already shut down. 
 There's no property to
 configure.</p>
       </subsection>
-      <subsection heading="h2" name="{{SyncConfiguration}}">
+      <subsection heading="h2" name="SyncConfiguration">
         <p>
 This instruction flushes out any I/O buffer or write cache.  There's no property
 to
 configure.</p>
       </subsection>
-      <subsection heading="h2" name="{{AddContextPartitionConfiguration}}">
+      <subsection heading="h2" name="AddContextPartitionConfiguration">
         <p>
 This instruction adds a new context partition on-the-fly while the ApacheDS is
 running.  There is only one property, 'contextPartitionConfiguration'.  You can
-specify an appropriate {{ContextPartitionConfiguration}} to plug a context
-partition into the
+specify an appropriate ContextPartitionConfiguration to plug a context partition
+into the
 ApacheDS.</p>
       </subsection>
-      <subsection heading="h2" name="{{RemoveContextPartitionConfiguration}}">
+      <subsection heading="h2" name="RemoveContextPartitionConfiguration">
         <p>
 This instruction remove an existing context partition on-the-fly while the
 ApacheDS is running.  There is only one property, 'suffix'.  You can specify the
@@ -113,9 +111,8 @@ ApacheDS.</p>
       <subsection heading="h2" name="Running and Choosing Multiple Instances">
         <p>
 You can run multiple instances of ApacheDS by specifying {{instanceId}} to all
-{{Configuration}} instructions.  {{InstanceId}} can be specified as a
-constructor parameter.  Please take a look at the APi documentation (JavaDoc)
-for more
+Configuration instructions.  InstanceId can be specified as a constructor
+parameter.  Please take a look at the APi documentation (JavaDoc) for more
 details.</p>
         <source>// Create a configuration instruction that affects an ApacheDS instance 'instance4'.
 Configuration cfg = new MutableStartupConfiguration( "instance4" );

@@ -6,8 +6,6 @@
     <title>GrantModToEntry</title>
   </properties>
   <body>
-    <p>
-Coming soon
-...</p>
+    <section heading="h1" name="Coming soon ..."/>
   </body>
 </document>

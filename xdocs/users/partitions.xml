@@ -54,7 +54,7 @@ contexts and routes backing store calls to the partition containing the entry
 associated with the
 operation.</p>
       </subsection>
-      <subsection heading="h2" name="User Partitions">
+      <subsection heading="h2" name="User Paritions">
         <p>
 User partitions are partitions added by users. When you download and start using
 the server you may want to create a separate partition to store the entries of
