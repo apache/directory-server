@@ -175,9 +175,24 @@ GrantAndDenialsBit = id-grantAdd
 ;MYRULE
 ;id-X = "X"
 </source>
-    <p>
+    <table>
+      <tr>
+        <th>
+          <img src="http://docs.safehaus.org/images/icons/emoticons/information.png"/>
+        </th>
+        <th>
+          <center>The Apache Directory Server way...</center>
+        </th>
+      </tr>
+      <tr>
+        <td/>
+        <td>
+          <p>
 Apache Directory Server allows a fully flexible version of this grammar where
 order of named components and amount of spaces (where applicable) do not
 matter.</p>
+        </td>
+      </tr>
+    </table>
   </body>
 </document>

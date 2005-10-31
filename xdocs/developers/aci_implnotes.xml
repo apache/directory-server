@@ -71,11 +71,20 @@ access control decisions within the Access Control Decision Function
 \\</p>
       <p>
 \\</p>
-      <p>
+      <table>
+        <tr>
+          <td>
+            <img src="http://docs.safehaus.org/images/icons/emoticons/warning.png"/>
+          </td>
+          <td>
+            <p>
 A set of ACITuples are generated from an ACIItem.  Sets of ACITuples can be
 mixed and evaluated together to represent the combined access control affects of
 one or more
 ACIItems.</p>
+          </td>
+        </tr>
+      </table>
       <p>
 \\</p>
       <p>
