@@ -25,6 +25,9 @@
       <item name="User's Guide" href="/users/index.html" collapse="true">
         <item name="Building" href="/users/building.html"/>
         <item name="Authentication" href="/users/authentication.html"/>
+        <item name="Authorization" href="/users/aci.html"/>
+        <item name="Subentries" href="/users/subentries.html"/>
+        <item name="Collective Attributes" href="/users/collective.html"/>
         <item name="JNDI Properties" href="/users/jndi.html"/>
         <item name="Partitions" href="/users/partitions.html"/>
         <item name="Maven Plugin" href="/users/plugin.html"/>
