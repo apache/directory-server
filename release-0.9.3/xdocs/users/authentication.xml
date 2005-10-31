@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    <title>Authentication</title>
+  </properties>
+  <body>
+    <section heading="h2" name="Server Authentication">
+      <p>
+This page
+describes:</p>
+      <ol nesting="0">
+        <li>
+the status of
+authentication,</li>
+        <li>
+how to bind (authenticate) as the admin superuser after starting the server the
+first
+time,</li>
+        <li>
+adding non-superusers and binding to the directory as
+them,</li>
+        <li>
+how to protect user
+passwords,</li>
+        <li>
+how to disable anonymous
+binds,</li>
+        <li>
+how to customize the server to use different authentication
+mechanisms.</li>
+      </ol>
+      <subsection heading="h3" name="Status">
+        <p>
+Presently the directory server supports only simple authentication and anonymous
+binds while storing passwords in clear text within userPassword attributes in
+user
+entries.</p>
+        <p>
+Within a short while we'll be able to store passwords using the authPassword
+property which uses strong one way hashes for authentication such as MD5 and
+SHA1. These schemes and the schema used are described in detail here
+in
+          <a href="http://www.faqs.org/rfcs/rfc3112.html">RFC 3112</a>
+.
+        </p>
+      </subsection>
+      <subsection heading="h3" name="How to bind as the admin superuser after initial startup?">
+        <p>
+You just downloaded the server and started it up for the first time. Now you're
+wondering how to bind to the server using an LDAP client like jxplorer, gq, or
+ldapbrowser.</p>
+        <p>
+By default the super user or admin account is created when the system partition
+is created under the 'ou=system' naming context. This occurs when the server is
+started for the first time. The admin user can be found under the following
+DN:</p>
+        <source>          uid=admin,ou=system
+</source>
+        <p>
+The password is initially set to 'secret'. You definately want to change this
+after starting the server. For the first time you can bind to the server as this
+user with 'secret' as the
+password.</p>
+        <p>
+To change the password for the admin user you'll have to make changes to two
+places. First you'll have to change the password in the directory for the user.
+Second you'll have to change the password in the server.xml configuration file
+for the java.naming.security.credentials
+property.</p>
+        <p>
+If you did not disable anonymous binds by setting the respective property
+(described below), then you can bind anonymously to the server without any
+username or
+password.</p>
+        <p>
+Even when anonymous binds are disabled anonymous users can still bind to the
+RootDSE as required by the protocol to lookup supported SASL mechanisms before
+attempting a bind. Don't worry the RootDSE is read
+only.</p>
+      </subsection>
+      <subsection heading="h3" name="Adding and authenticating normal users">
+        <p>
+By default a user in the server can be just about any entry with a userPassword
+attribute that contains a clear text password. The DN can be anything reachable
+within one of the directory partitions. So if you add a partition to hang off of
+'dc=example,dc=com' then you can add user entries anywhere under this naming
+context or just add user entries under the 'ou=system' naming context. Below is
+an LDIF of a user you can add to the directory as a test
+user.</p>
+        <source>dn: uid=jdoe,ou=users,ou=system
+cn: John Doe
+sn: Doe
+givenname: John
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Human Resources
+ou: People
+l: Las Vegas
+uid: jdoe
+mail: jdoe@apachecon.comm
+telephonenumber: +1 408 555 5555
+facsimiletelephonenumber: +1 408 555 5556
+roomnumber: 4613
+userpassword: test
+</source>
+        <p>
+You can download
+this
+          <a href="./newuser.ldif.html">newuser.ldif</a>
+file and use it to add the user. Below we use the ldapadd OpenLDAP client to
+import the LDIF file presuming the server was started on port 1024 on the
+localhost:
+        </p>
+        <source>ldapadd -a -D 'uid=admin,ou=system' -f newuser.ldif -h localhost -p 1024 -x -w secret
+</source>
+        <p>
+You can confirm the add/import by performing a search for the user. This time
+using the OpenLDAP search client you use the following
+command:</p>
+        <source>ldapsearch -D 'uid=admin,ou=system' -h localhost -p 1024 -x -w secret -s one
+    -b 'ou=users,ou=system' '(uid=jdoe)'
+</source>
+        <p>
+You can start searching the directory using this new user like
+so:</p>
+        <source>ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s one -b 'ou=system' '(objectClass=*)'
+</source>
+      </subsection>
+      <subsection heading="h3" name="Protecting user passwords">
+        <p>
+Without access controls enabled userPasswords and user entries are accessible
+and alterable by all: even anonymous users. There are however some minimal
+built-in rules for protecting users and groups within the server without having
+to turn on the ACI
+subsystem.</p>
+        <p>
+Without ACIs the server automatically protects, hides, the admin user from
+everyone but the admin user. Users cannot see other user entries under the
+'ou=users,ou=system' entry. So placing new users there automatically protects
+them. Placing new users anywhere else exposes them. Groups defined using
+groupOfNames or groupOfUniqueNames under the 'ou=groups,ou=system' are also
+protected from access or alteration by anyone other than the admin user. Again
+this protection is not allowed anywhere else but under these
+entries.</p>
+        <p>
+For simple configurations this should provide adequate protection but it lacks
+flexibility. For advanced configurations users should enable the ACI subsystem.
+This however shuts down access to everything by everyone except the admin user
+which bypasses the ACI subsystem. Directory administrators should look at the
+docomentation on how to specify access control information
+here:
+          <a href="./authorization.html">Authorization</a>
+.
+        </p>
+      </subsection>
+      <subsection heading="h3" name="Disabling anonymous binds">
+        <p>
+Anonymous binds come enabled out of the box. So you might want to turn off this
+feature especially if you're not using a version of ApacheDS that is 0.9.3 or
+higher with ACI support. To do so you're going to have to restart the server
+after setting the allowAnonymousAccess property to false in the server.xml
+configuration
+file.</p>
+      </subsection>
+      <subsection heading="h3" name="Using custom authenticators">
+        <p>
+Authenticator SPI provides a way to implement your own authentication mechanism,
+for instance simple mechanism using password encryption such as MD5 or SHA1, or
+SASL mechanism. See the following
+example:</p>
+        <source>import javax.naming.NamingException;
+
+import org.apache.ldap.server.auth.AbstractAuthenticator;
+import org.apache.ldap.server.auth.LdapPrincipal;
+import org.apache.ldap.server.jndi.ServerContext;
+import org.apache.ldap.common.exception.LdapNoPermissionException;
+import org.apache.ldap.common.name.LdapName;
+
+public class MyAuthenticator extends AbstractAuthenticator {
+
+    public MyAuthenticator( )
+    {
+        // create authenticator that will handle "simple" authentication mechanism
+        super( "simple" );
+    }
+
+    public void init() throws NamingException
+    {
+        ...
+    }
+
+    public LdapPrincipal authenticate( ServerContext ctx ) throws NamingException
+    {
+        ...
+
+        // return the authorization id
+        LdapName principalDn = new LdapName( dn );
+        return new LdapPrincipal( principalDn );
+    }
+}
+</source>
+        <p>
+The authenticator class has to extend the
+org.apache.ldap.server.auth.AbstractAuthenticator. This class needs to have a
+no-argument constructor that calls the super() constructor with parameter the
+authentication mechanism it is going to handle. In the above example,
+MyAuthenticator class is going to handle the simple authentication mechanism. To
+implement a SASL mechanism you need to call super() with the name of the SASL
+mechanism, e.g. super( "DIGEST-MD5"
+).</p>
+        <p>
+You can optionally implement the init() method to initialize your authenticator
+class. This will be called when the authenticator is loaded by ApacheDS during
+start-up.</p>
+        <p>
+When a client performs an authentication, ApacheDS will call the authenticate()
+method. You can get the client authentication info from the server context.
+After you authenticate the client, you need to return the authorization id. If
+the authentication fails, you should throw an
+LdapNoPermissionException.</p>
+        <p>
+When there are multiple authenticators registered with the same authentication
+type, ApacheDS will try to use them in the order it was registered. If one fails
+it will use the next one, until it finds one that successfully authenticates the
+client.</p>
+        <p>
+To tell ApacheDS to load your custom authenticators, you need to specify it in
+the server.xml. You can also optionally specify the location of a .properties
+file containing the initialization parameters. See the following
+example:</p>
+        <p>
+EXAMPLE BELOW IS NO LONGER VALID WITH XML
+CONFIGURATION</p>
+        <source>server.authenticators=myauthenticator yourauthenticator
+
+server.authenticator.class.myauthenticator=com.mycompany.MyAuthenticator
+server.authenticator.properties.myauthenticator=myauthenticator.properties
+
+server.authenticator.class.yourauthenticator=com.yourcompany.YourAuthenticator
+server.authenticator.properties.yourauthenticator=yourauthenticator.properties
+</source>
+      </subsection>
+    </section>
+  </body>
+</document>

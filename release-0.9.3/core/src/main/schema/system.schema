@@ -1,0 +1,315 @@
+# =============================================================================
+#                               System Schema
+#
+# Depends on no other schema!
+# =============================================================================
+
+attributetype ( 2.5.4.0 NAME 'objectClass'
+    DESC 'RFC2256: object classes of the entity'
+    EQUALITY objectIdentifierMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
+
+attributetype ( 2.5.21.9 NAME 'structuralObjectClass'
+    DESC 'X.500(93): structural object class of entry'
+    EQUALITY objectIdentifierMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.1 NAME 'createTimestamp'
+    DESC 'RFC2252: time which object was created'
+    EQUALITY generalizedTimeMatch
+    ORDERING generalizedTimeOrderingMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.2 NAME 'modifyTimestamp'
+    DESC 'RFC2252: time which object was last modified'
+    EQUALITY generalizedTimeMatch
+    ORDERING generalizedTimeOrderingMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.3 NAME 'creatorsName'
+    DESC 'RFC2252: name of creator'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.4 NAME 'modifiersName'
+    DESC 'RFC2252: name of last modifier'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.9 NAME 'hasSubordinates'
+    DESC 'X.501: entry has children'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.10 NAME 'subschemaSubentry'
+    DESC 'RFC2252: name of controlling subschema entry'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.12 NAME 'collectiveAttributeSubentries'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.7 NAME 'collectiveExclusions'
+    EQUALITY objectIdentifierMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    USAGE directoryOperation )
+
+# root DSE attributes
+
+attributetype ( 1.3.6.1.4.1.1466.101.120.6 NAME 'altServer'
+    DESC 'RFC2252: alternative servers'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.120.5 NAME 'namingContexts'
+    DESC 'RFC2252: naming contexts'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.120.13 NAME 'supportedControl'
+    DESC 'RFC2252: supported controls'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.120.7 NAME 'supportedExtension'
+    DESC 'RFC2252: supported extended operations'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.120.15 NAME 'supportedLDAPVersion'
+    DESC 'RFC2252: supported LDAP versions'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.120.14 NAME 'supportedSASLMechanisms'
+    DESC 'RFC2252: supported SASL mechanisms'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.1.4 NAME 'vendorName'
+    DESC 'RFC3045: name of implementation vendor'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.1.5 NAME 'vendorVersion'
+    DESC 'RFC3045: version of implementation'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+# ===================
+# subentry attributes
+# ===================
+
+attributetype ( 2.5.18.5 NAME 'administrativeRole'
+    EQUALITY objectIdentifierMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+    USAGE directoryOperation )
+
+attributetype ( 2.5.18.6 NAME 'subtreeSpecification'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.45
+    SINGLE-VALUE
+    USAGE directoryOperation )
+
+# =============================
+# subschema subentry attributes
+# =============================
+
+attributetype ( 2.5.21.1 NAME 'dITStructureRules'
+    DESC 'RFC2252: DIT structure rules'
+    EQUALITY integerFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.17
+    USAGE directoryOperation )
+
+attributetype ( 2.5.21.2 NAME 'dITContentRules'
+    DESC 'RFC2252: DIT content rules'
+    EQUALITY objectIdentifierFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.16
+    USAGE directoryOperation )
+
+attributetype ( 2.5.21.4 NAME 'matchingRules'
+    DESC 'RFC2252: matching rules'
+    EQUALITY objectIdentifierFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.30
+    USAGE directoryOperation )
+
+attributetype ( 2.5.21.5 NAME 'attributeTypes'
+    DESC 'RFC2252: attribute types'
+    EQUALITY objectIdentifierFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.3
+    USAGE directoryOperation )
+
+attributetype ( 2.5.21.6 NAME 'objectClasses'
+    DESC 'RFC2252: object classes'
+    EQUALITY objectIdentifierFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.37
+    USAGE directoryOperation )
+
+attributetype ( 2.5.21.7 NAME 'nameForms'
+    DESC 'RFC2252: name forms '
+    EQUALITY objectIdentifierFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.35
+    USAGE directoryOperation )
+
+attributetype ( 2.5.21.8 NAME 'matchingRuleUse'
+    DESC 'RFC2252: matching rule uses'
+    EQUALITY objectIdentifierFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.31
+    USAGE directoryOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.120.16 NAME 'ldapSyntaxes'
+    DESC 'RFC2252: LDAP syntaxes'
+    EQUALITY objectIdentifierFirstComponentMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.54
+    USAGE directoryOperation )
+
+# =====================
+# knowledge information
+# =====================
+
+attributetype ( 2.5.4.1 NAME ( 'aliasedObjectName' 'aliasedEntryName' )
+    DESC 'RFC2256: name of aliased object'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE )
+
+attributetype ( 2.16.840.1.113730.3.1.34 NAME 'ref'
+    DESC 'namedref: subordinate referral URL'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    USAGE distributedOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.119.3 NAME 'entryTtl'
+    DESC 'RFC2589: entry time-to-live'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.1466.101.119.4 NAME 'dynamicSubtrees'
+    DESC 'RFC2589: dynamic subtrees'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+# =============================================================
+# userApplication attributes (which system schema depends upon)
+# =============================================================
+
+attributetype ( 2.5.4.49 NAME 'distinguishedName'
+    DESC 'RFC2256: common supertype of DN attributes'
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+
+attributetype ( 2.5.4.41 NAME 'name'
+    DESC 'RFC2256: common supertype of name attributes'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )
+
+attributetype ( 2.5.4.3 NAME ( 'cn' 'commonName' )
+    DESC 'RFC2256: common name(s) for which the entity is known by'
+    SUP name )
+
+attributetype ( 2.5.4.35 NAME 'userPassword'
+    DESC 'RFC2256/2307: password of user'
+    EQUALITY octetStringMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{128} )
+
+attributetype (  1.3.6.1.4.1.250.1.57 NAME 'labeledURI'
+    DESC 'RFC2079: Uniform Resource Identifier with optional label'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+
+# ==============
+# objectClasses
+# ==============
+
+
+objectclass ( 2.5.6.0 NAME 'top'
+    DESC 'top of the superclass chain'
+    ABSTRACT
+    MUST objectClass )
+
+
+objectclass ( 1.3.6.1.4.1.1466.101.120.111
+    NAME 'extensibleObject'
+    DESC 'RFC2252: extensible object'
+    SUP top
+    AUXILIARY )
+
+
+objectclass ( 2.5.6.1 NAME 'alias'
+    DESC 'RFC2256: an alias'
+    SUP top
+    STRUCTURAL
+    MUST aliasedObjectName )
+
+
+objectclass ( 2.16.840.1.113730.3.2.6 NAME 'referral'
+    DESC 'namedref: named subordinate referral'
+    SUP top
+    STRUCTURAL
+    MUST ref )
+
+
+objectclass ( 1.3.6.1.4.1.4203.1.4.1
+    NAME ( 'OpenLDAProotDSE' 'LDAProotDSE' )
+    DESC 'OpenLDAP Root DSE object'
+    SUP top
+    STRUCTURAL
+    MAY cn )
+
+
+objectclass ( 2.5.17.0 NAME 'subentry'
+    SUP top
+    STRUCTURAL
+    MUST ( cn $ subtreeSpecification ) )
+
+
+objectclass ( 2.5.20.1 NAME 'subschema'
+    DESC 'RFC2252: controlling subschema (sub)entry'
+    AUXILIARY
+    MAY ( dITStructureRules $ nameForms $ ditContentRules $
+          objectClasses $ attributeTypes $ matchingRules $
+          matchingRuleUse ) )
+
+
+objectclass ( 2.5.17.2
+    NAME 'collectiveAttributeSubentry'
+    AUXILIARY )
+
+
+objectclass ( 1.3.6.1.4.1.1466.101.119.2
+    NAME 'dynamicObject'
+    DESC 'RFC2589: Dynamic Object'
+    SUP top
+    AUXILIARY )

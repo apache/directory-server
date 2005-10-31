@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+
+ <title>Apache Directory Project</title>
+
+ <body>
+
+    <links>
+      <item name="Directory" href="../../../../index.html"/>
+      <item name="ApacheDS" href="../../../apacheds/index.html"/>
+      <item name="LDAP" href="../../../ldap.html"/>
+      <item name="Naming" href="../../../naming/index.html"/>
+      <item name="ASN.1" href="../../../asn1/index.html"/>
+      <item name="Kerberos" href="../../../kerberos.html"/>
+      <item name="AuthX" href="../../../authx/index.html"/>
+      <item name="MINA" href="../../../network/index.html"/>
+      <item name="Protocols" href="../../../providers.html"/>
+    </links>
+
+    <menu name="Apache Directory Server">
+      <item name="Overview" href="../../index.html"/>
+      <item name="Features" href="../../features.html"/>
+      <item name="Roadmap" href="../../roadmap.html"/>
+      <item name="User's Guide" href="../../users/index.html"/>
+      <item name="Developer's Guide" href="../../developers/index.html"/>
+      <item name="ApacheDS Projects" href="../../projects/index.html">
+        <item name="main" href="../../projects/apacheds-main/index.html"/>
+        <item name="core" href="../../projects/apacheds-core/index.html"/>
+        <item name="shared" href="/index.html"/>
+        <item name="plugin" href="../../projects/maven-directory-plugin/index.html"/>
+      </item>
+    </menu>
+    
+    <menu name="Project Information">
+      <item name="Wiki" href="http://wiki.apache.org/directory"/>
+      <item name="Open Issues" href="http://issues.apache.org/jira/browse/DIREVE"/>
+      <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/directory/apacheds/trunk/?root=Apache-SVN"/>
+      <item name="Mailing Lists" href="../../mailing-lists.html"/>
+      <item name="License" href="../../license.html"/>
+      <item name="Notices" href="../../notices.html"/>
+    </menu>
+
+    <menu name="ApacheCon Europe 2005"> 	 
+      <item name="ApacheCon Europe 2005" href="http://www.apachecon.com/"
+            img="http://apache.org/images/ac2005eu_135x50.gif" />
+    </menu>
+ </body>
+
+</project>

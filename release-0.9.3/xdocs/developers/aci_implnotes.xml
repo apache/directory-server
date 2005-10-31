@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    <title>Access Control Implementation Notes</title>
+  </properties>
+  <body>
+    <section heading="h2" name="Introduction">
+      <p>
+Do not take this document as the final description of how we implement access
+controls within ApacheDS (yet).  It is just some notes that have been taken as
+we started implementing the access control subsystem.  Eventually it can be
+compiled into developer documentation on how the access control subsystem is
+implemented.</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+Too follow the JIRA tasks that lead to this feature take a look
+at
+        <a href="http://issues.apache.org/jira/browse/DIREVE-204">DIREVE-204</a>
+.
+      </p>
+    </section>
+    <section heading="h2" name="Access Control Subentry Operational Attribute">
+      <p>
+Although two kinds of subentry types exist for access control administrative
+areas (accessControlSpecificAreas and accessControlInnerAreas) we will still be
+using a single operational attribute within entries to reference the subentries
+of these areas.  We will use _accessControlSubentries_ as the identifier for the
+operational attribute containing the DN of subentries which the entry is within
+the scope of: meaning the subtreeSpecification associated with the referenced
+subentries select the entry.  Below is the schema definition for this new
+operational attribute which we have assigned off of the apache OID
+space:</p>
+      <source>attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.26 NAME 'accessControlSubentries'
+    DESC 'Used to track a subentry associated with access control areas'
+    SUP distinguishedName
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+</source>
+      <p>
+The subentry subsystem will automatically handle the injection of this attribute
+into normal entries as new subentries are added and altered.  This house keeping
+also tracks newly added normal entries making sure they have these operational
+attributes pointing to the appropriate
+subentries.</p>
+    </section>
+    <section heading="h2" name="Performance Considerations">
+      <p>
+An LDAP server should be read optimized.  Hence we cannot expect to parse
+lengthy ACIs into ACIITems then transform them into ACITuples for evaluation
+during a search operation.  This would considerably slow down search
+operations.</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+Instead of repeatedly preparing ACI information during search request processing
+the server will cache ACI information in the form of ACITuples.   ACI Tuples are
+an intermediate representation of ACIItems designed for the sake of making
+access control decisions within the Access Control Decision Function
+(ACDF).</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <table>
+        <tr>
+          <td>
+            <img src="http://docs.safehaus.org/images/icons/emoticons/warning.png"/>
+          </td>
+          <td>
+            <p>
+A set of ACITuples are generated from an ACIItem.  Sets of ACITuples can be
+mixed and evaluated together to represent the combined access control affects of
+one or more
+ACIItems.</p>
+          </td>
+        </tr>
+      </table>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+ApacheDS will use the multivalued perscriptiveACI attribute within access
+control subentries to contain multiple ACIItems.  The server can generate and
+combine the ACITuple sets of these ACITems within a single subentry to represent
+the next access control effects of that subentry.  This superset of ACITuples
+can be cached and associated with the DN of the subentry containing their
+respective ACIItems.  Hence during solidstate operation prescriptive ACIItems
+need not be parsed or transformed into ACITuple sets.  A simple lookup retrieves
+the ACITuple set for each access control subentry influencing an entry candidate
+to be returned to the client.  The ACDF is invoked with this ACITuple set
+(possibly combined with entryACI Tuplesets) and other information to quickly
+determine whether or not access is allowed during any operation not just a
+search
+operation.</p>
+    </section>
+    <section heading="h2" name="Cache Initialization and Upkeep">
+      <p>
+On startup the server must populate the cache with the set of ACITuples from
+respective access control subentries.  A search must be conducted for all access
+contol subentries in all namingContexts to discover the set of prescriptiveACIs
+defined within the
+server.</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+After initialization, during solid state operation, the cache must be kept up to
+date with prescriptiveACI deletions, modifications, and additions.  With the
+current interceptor based architecture we can easily keep track of these
+alterations by trapping add, delete, and modify operations on access control
+subentries.</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+Check out the following JIRA issues and commits for more information on how this
+was
+implemented:</p>
+      <ul nesting="1">
+        <li>
+          <a href="http://svn.apache.org/viewcvs.cgi?view=rev&amp;rev=290038">Commit 290038</a>
+        </li>
+        <li>
+          <a href="http://issues.apache.org/jira/browse/DIREVE-258">DIREVE-258</a>
+        </li>
+        <li>
+          <a href="http://issues.apache.org/jira/browse/DIREVE-259">DIREVE-259</a>
+        </li>
+      </ul>
+    </section>
+    <section heading="h2" name="Marker ObjectClass for Access Control Subentries">
+      <p>
+A marker objectClass is needed for tracking subentries containing
+prescriptiveACI attributes.  Looking at various drafts, RFCs and the X.500
+specifications there was very little to go on.  However we decided on the
+following
+objectClass:</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <source>objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.100
+    NAME 'accessControlSubentry'
+    AUXILIARY 
+    MUST prescriptiveACI )
+</source>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+We chose the name because it matches the pattern used
+in
+        <a href="http://www.faqs.org/rfcs/rfc3671.html">RFC 3671</a>
+where the operational attribute used was collectiveAttributeSubentries and the
+marker objectClass was collectiveAttributeSubentry.  This makes the access
+control specific analogs consistent with this naming
+pattern.
+      </p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+A perscriptiveACI attribute is included in the must list suggesting that at
+least one ACIItem must be contained by such an entry.  This is consistent with
+X.501 where at least one ACIITem is required for an access control subentry. 
+This leads us to have to define a prescriptiveACI
+attribute:</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <source>attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.100 NAME 'prescriptiveACI'
+  DESC 'Access control information that applies to a set of entries'
+  EQUALITY directoryStringFirstComponentMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
+  USAGE directoryOperation
+)
+</source>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+Note that in the above attributetype description for the prescriptiveACI we have
+to include the syntax for ACIItem.  The syntax will need to be added to ApacheDS
+along with the new matching rule directoryStringFirstComponentMatch which is
+defined within section 2.6
+of
+        <a href="http://www.faqs.org/rfcs/rfc3698.html">RFC 3698</a>
+.  Note that RFC 2251 presumes the ACI Item syntax is not human readable.  We
+shall presume that it is human readable.  Here's the JIRA issue and commit
+revision that added these schema objects to the
+server:
+      </p>
+      <p>
+        <a href="http://svn.apache.org/viewcvs.cgi?view=rev&amp;rev=289953">Commit 289953</a>
+      </p>
+      <p>
+        <a href="http://issues.apache.org/jira/browse/DIREVE-257">DIREVE-257</a>
+      </p>
+    </section>
+    <section heading="h2" name="Adding Permission Check Guards to Interceptor Methods">
+      <p>
+To properly check access to an entry we must also check to see if the entry has
+ACIItems associated with it using the entryACI operational attribute.  This
+means for each entry we must check for the presence of this attribute and
+perform checks accordingly.  Entry ACIITems have tuples generated for them and
+those are combined to form s super ACITuple collection.  This collection is fed
+into the ACDF engine to determine if permission is to be
+granted.</p>
+      <p>
+\\</p>
+      <p>
+\\</p>
+      <p>
+Another aspect to this is to determine which grants are required to grant
+permission to an operation.  Unfortunately we loose some resolution regarding
+the correspondance of interceptor operations to protocol operations.  There
+needs to be a way to correlate LDAP protocol operations when interceptor
+operations are invoked so we can make sure the proper permissions are checked
+for.  Presently we have no way to do this.  One thing to research is a means to
+stuff protocol operation information into the environment of each JNDI
+operation.  There has even been some talk about using some sort of session
+object.</p>
+    </section>
+    <section heading="h2" name="UserGroup for ACI evaluation">
+      <p>
+Group membership is included in access control information and is taken into
+account within the ACDF.  The group membership is with respect to the LDAP
+principal the operation is executing as.  This means LDAP principals must either
+track this information or the Authorization subsystem must determine this
+information on the
+fly.</p>
+      <p>
+Question: Should we add group membership information to the LdapPrincipal class
+or should we just let the authorization subsystem track this
+info?</p>
+      <p>
+For the sake of performance it might be best to add group membership information
+to the LdapPrincipal so this information is not looked up every time access
+control decisions need to be made.  Adding the info to the LdapPrincipal however
+will require Authenticator implementations to have to populate this information.
+A base class can automatically populate this information or some utility class
+can also be provided.  Another potential problem is how to update the group
+membership information for LdapPrincipals while they are bound to the directory
+and updates to groups occur.  This however is a problem that can be solved
+later.</p>
+      <p>
+If group membership information is cached and updated within
+the</p>
+      <p>
+authorization module these problems can be minimized.  The interceptor can also
+update membership information as changes occur.  Really there is no other place
+where this info needs to be accessed.  It might not pay to put this fuctionality
+into the LdapPrincipal.  It's cut to have it there but it may not be required
+anywhere but in the authz
+subsystem.</p>
+    </section>
+    <section heading="h2" name="Special User Handling: Administrator">
+      <p>
+It is very easy for users to lock out the administrator from being able to
+access the directory.  This however is not that much of a problem if the access
+control mechanism can be turned off via the configuration.  However note that
+most of the configuration of the server is being pushed back into the DIT
+itself.  This may cause a problem.  In general the administrator of the server
+should have special consideration.  Meaning they should have full access and
+should bypass the access control
+mechanism.</p>
+      <p>
+This is why our implementation will detect this special user and bypass access
+control restrictions.  In effect the admin can perform any
+operation.</p>
+    </section>
+  </body>
+</document>
