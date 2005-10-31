@@ -1,107 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <document>
   <properties>
-    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <author email="akarasulu">akarasulu</author>
     <title>User's Guide</title>
   </properties>
-  
   <body>
-    <section name="User's Guide">
+    <section heading="h1" name="User's Guide">
       <p>
-        Here we have assembled a bunch of guides and howto like documents that
-        demonstrate how the server can be used.  Hopefully this will grow into
-        a user's guide.
-      </p>
-
+This is a simple guide to various ApacheDS features to help users get going. 
+It's be no means
+extensive.</p>
       <table>
         <tr>
-          <th>Topic</th>
-          <th>Description</th>
+          <th>
+Topic</th>
+          <th>
+Description</th>
         </tr>
-
         <tr>
           <td>
             <a href="./building.html">Building</a>
           </td>
           <td>
-            Shows how to build the directory server from the repository.
-          </td>
+How to build the directory server from the
+repository.</td>
         </tr>
-
         <tr>
           <td>
             <a href="./authentication.html">Authentication</a>
           </td>
           <td>
-            Demonstrates how to bind to the server as admin and setup other
-            user accounts.
-          </td>
+How to bind to the server and setup custom
+authenticators.</td>
         </tr>
-
         <tr>
           <td>
             <a href="./authorization.html">Authorization</a>
           </td>
           <td>
-            Explains the hardcoded authorization rules and how to replace 
-            them using the basic access control mechanism and ACI.
-          </td>
+How to enable basic access controls and what you get without
+them.</td>
         </tr>
-
         <tr>
           <td>
             <a href="./subentries.html">Subentries</a>
+and the Administrative
+Model
           </td>
           <td>
-            Documents the subentry implementation which 
-            conforms to <a href="http://www.faqs.org/rfcs/rfc3672.html">
-            RFC 3672</a>.
-          </td>
+What they are and how to specify their scope via
+subtreeSpecifications.</td>
         </tr>
-
         <tr>
           <td>
-            <a href="./collective.html">Collective Attributes</a>
+            <a href="./collective.html">Collective</a>
+Attributes
           </td>
           <td>
-            Documents the collective attributes implementation which 
-            conforms to <a href="http://www.faqs.org/rfcs/rfc3671.html">
-            RFC 3671</a>.
-          </td>
+How to use collective
+attributes.</td>
         </tr>
-
         <tr>
           <td>
             <a href="./configuration.html">Configuration</a>
           </td>
           <td>
-            Describes how to configure and control the server.
-          </td>
+How to configure and control the
+server.</td>
         </tr>
-
         <tr>
           <td>
             <a href="./partitions.html">Partitions</a>
           </td>
           <td>
-            A howto on creating context partitions besides the system partition
-            and having them store entries for a specific naming context.
-          </td>
+How to add new partitions besides the system
+partition.</td>
         </tr>
-
         <tr>
           <td>
-            <a href="./plugin.html">Maven Plugin</a>
+Maven
+            <a href="./plugin.html">Plugin</a>
           </td>
           <td>
-            Lists the goals, properties and the steps required to integrate
-            your project with the Maven Plugin for the directory server.
-          </td>
+How to use the plugin to extends the
+schema.</td>
         </tr>
-
       </table>
-
-
     </section>
   </body>
 </document>
