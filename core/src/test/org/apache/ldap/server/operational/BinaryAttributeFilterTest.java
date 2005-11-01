@@ -23,6 +23,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.asn1new.util.StringUtils;
 import org.apache.ldap.server.AbstractAdminTestCase;
 
 
@@ -59,7 +60,7 @@ public class BinaryAttributeFilterTest extends AbstractAdminTestCase
         ctx = ( DirContext ) sysRoot.lookup( "ou=test" ) ;
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
-        assertTrue( value instanceof byte[] );
+        assertEquals( "test", value );
 
         // try krb5Key which should be binary automatically - use ou as control
         byte[] keyValue = new byte[] { 0x45, 0x23, 0x7d, 0x7f };
@@ -68,10 +69,11 @@ public class BinaryAttributeFilterTest extends AbstractAdminTestCase
         ctx = ( DirContext ) sysRoot.lookup( "ou=anothertest" ) ;
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
-        assertTrue( value instanceof byte[] );
+        assertEquals( "anothertest", value );
         Attribute jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
         value = jpegPhoto.get();
         assertTrue( value instanceof byte[] );
+        assertEquals( "0x45 0x23 0x7D 0x7F ", StringUtils.dumpBytes( (byte[])value ) );
 
         // try jpegPhoto which should be binary automatically but use String to
         // create so we should still get back a byte[] - use ou as control
@@ -81,7 +83,7 @@ public class BinaryAttributeFilterTest extends AbstractAdminTestCase
         ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" ) ;
         ou = ctx.getAttributes( "" ).get( "ou" );
         value = ou.get();
-        assertTrue( value instanceof byte[] );
+        assertEquals( "yetanothertest", value );
         jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
         value = jpegPhoto.get();
         assertTrue( value instanceof byte[] );
