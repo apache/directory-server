@@ -89,7 +89,6 @@
             <groupId>directory-asn1</groupId>
             <artifactId>asn1-codec</artifactId>
             <version>0.3.4-SNAPSHOT</version>
-            <type>plugin</type>
         </dependency>
     </dependencies>
     <build />
