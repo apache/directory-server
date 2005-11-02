@@ -22,7 +22,6 @@ import org.apache.ldap.server.invocation.Invocation;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
 
 /**

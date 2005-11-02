@@ -30,8 +30,8 @@ import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.name.LdapName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.Name;
@@ -59,7 +59,7 @@ public class InterceptorChainTest extends TestCase
             new MockInterceptor( "3" ),
             new MockInterceptor( "4" )
     };
-    private final static Logger log = LoggerFactory.getLogger( InterceptorChainTest.class );
+//    private final static Logger log = LoggerFactory.getLogger( InterceptorChainTest.class );
     private InterceptorChain chain;
     private List interceptors = new ArrayList( interceptorArray.length );
 

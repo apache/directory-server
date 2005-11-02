@@ -32,7 +32,6 @@ import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
 import org.apache.ldap.server.event.Evaluator;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.subtree.RefinementEvaluator;
 import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 
@@ -46,15 +45,12 @@ import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
  */
 public class RelatedProtectedItemFilter implements ACITupleFilter
 {
-    private final AttributeTypeRegistry attrTypeRegistry;
     private final RefinementEvaluator refinementEvaluator;
     private final Evaluator entryEvaluator;
 
     public RelatedProtectedItemFilter(
-            AttributeTypeRegistry attrTypeRegistry,
             RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator )
     {
-        this.attrTypeRegistry = attrTypeRegistry;
         this.refinementEvaluator = refinementEvaluator;
         this.entryEvaluator = entryEvaluator;
     }

@@ -26,7 +26,6 @@ import javax.naming.directory.*;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.server.AbstractAdminTestCase;
-import org.apache.ldap.server.subtree.SubentryService;
 
 
 /**

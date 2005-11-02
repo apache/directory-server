@@ -80,13 +80,11 @@ public class RelatedProtectedItemFilterTest extends TestCase
             USER_NAME = new LdapName( "ou=test, ou=users, ou=system" );
             
             filterA = new RelatedProtectedItemFilter(
-                    ATTR_TYPE_REGISTRY_A,
                     new RefinementEvaluator(
                             new RefinementLeafEvaluator( OID_REGISTRY ) ),
                     new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_A ) );
 
             filterB = new RelatedProtectedItemFilter(
-                    ATTR_TYPE_REGISTRY_B,
                     new RefinementEvaluator(
                             new RefinementLeafEvaluator( OID_REGISTRY ) ),
                     new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_B ) );

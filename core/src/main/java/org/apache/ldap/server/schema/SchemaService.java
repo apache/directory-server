@@ -28,7 +28,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
-import org.apache.asn1new.util.StringUtils;
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.SimpleNode;

@@ -55,10 +55,10 @@ public class EntryDialog extends JDialog
     private JButton m_doneBut = new JButton() ;
     private JButton m_cancelBut = new JButton() ;
 
-    private String m_opMode = "Add" ;
-    private String m_dn ;
-    private String m_rdn ;
-    private Attributes m_entry ;
+//    private String m_opMode = "Add" ;
+//    private String m_dn ;
+//    private String m_rdn ;
+//    private Attributes m_entry ;
 
 
     /**
@@ -70,7 +70,7 @@ public class EntryDialog extends JDialog
     public EntryDialog( Frame a_parent, String a_opMode, boolean a_modal )
     {
         super( a_parent, a_modal ) ;
-        m_opMode = a_opMode ;
+//        m_opMode = a_opMode ;
         initGUI() ;
     }
 
@@ -250,20 +250,20 @@ public class EntryDialog extends JDialog
 
     public void setDn( String a_dn )
     {
-        m_dn = a_dn ;
+//        m_dn = a_dn ;
         m_dnText.setText( a_dn ) ;
     }
     
     
     public void setRdn( String a_rdn )
     {
-        m_rdn = a_rdn ;
+//        m_rdn = a_rdn ;
         // m_rdnChoice.setSelectedItem(  ) ;
     }
     
     
     public void setEntry( Attributes a_entry )
     {
-        m_entry = a_entry ;
+//        m_entry = a_entry ;
     }
 }

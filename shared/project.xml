@@ -12,14 +12,6 @@
     can go here so long as it does not depend on other modules.
   </description>
 
-  <dependencies>
-    <dependency>
-      <groupId>directory-shared</groupId>
-      <artifactId>ldap-common</artifactId>
-      <version>0.9.3-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
-
   <reports>
     <report>maven-changes-plugin</report>
     <report>maven-tasklist-plugin</report>

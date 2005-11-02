@@ -83,7 +83,7 @@ public class ACDFEngine
 
         filters = new ACITupleFilter[] {
                 new RelatedUserClassFilter( subtreeEvaluator ),
-                new RelatedProtectedItemFilter( attrTypeRegistry, refinementEvaluator, entryEvaluator ),
+                new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator ),
                 new MaxValueCountFilter(),
                 new MaxImmSubFilter(),
                 new RestrictedByFilter(),

@@ -23,7 +23,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.asn1new.util.StringUtils;
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.server.AbstractAdminTestCase;
 
 

@@ -71,12 +71,6 @@
             <url>http://jdbm.sourceforge.net</url>
         </dependency>
         <dependency>
-            <groupId>directory-shared</groupId>
-            <artifactId>ldap-common</artifactId>
-            <version>0.9.3-SNAPSHOT</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>apacheds-shared</artifactId>
             <version>${pom.currentVersion}</version>
@@ -87,6 +81,14 @@
             <groupId>${pom.groupId}</groupId>
             <artifactId>maven-directory-plugin</artifactId>
             <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
+
+       <!-- Remove this dependency after finding a home for StringUtils -->
+        <dependency>
+            <groupId>directory-asn1</groupId>
+            <artifactId>asn1-codec</artifactId>
+            <version>0.3.4-SNAPSHOT</version>
             <type>plugin</type>
         </dependency>
     </dependencies>
