@@ -77,30 +77,30 @@ public class SchemaCheckerTest extends TestCase
     }
 
 
-    private GlobalRegistries getGlobalRegistries() throws NamingException
-    {
-        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
-
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        Set schemas = new HashSet();
-        schemas.add( new SystemSchema() );
-        schemas.add( new ApacheSchema() );
-        schemas.add( new CoreSchema() );
-        schemas.add( new CosineSchema() );
-        schemas.add( new InetorgpersonSchema() );
-        schemas.add( new JavaSchema() );
-        loader.load( schemas, bootstrapRegistries );
-
-        java.util.List errors = bootstrapRegistries.checkRefInteg();
-        if ( !errors.isEmpty() )
-        {
-            NamingException e = new NamingException();
-            e.setRootCause( ( Throwable ) errors.get( 0 ) );
-            throw e;
-        }
-
-        return new GlobalRegistries( bootstrapRegistries );
-    }
+//    private GlobalRegistries getGlobalRegistries() throws NamingException
+//    {
+//        BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
+//
+//        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+//        Set schemas = new HashSet();
+//        schemas.add( new SystemSchema() );
+//        schemas.add( new ApacheSchema() );
+//        schemas.add( new CoreSchema() );
+//        schemas.add( new CosineSchema() );
+//        schemas.add( new InetorgpersonSchema() );
+//        schemas.add( new JavaSchema() );
+//        loader.load( schemas, bootstrapRegistries );
+//
+//        java.util.List errors = bootstrapRegistries.checkRefInteg();
+//        if ( !errors.isEmpty() )
+//        {
+//            NamingException e = new NamingException();
+//            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+//            throw e;
+//        }
+//
+//        return new GlobalRegistries( bootstrapRegistries );
+//    }
 
 
     /**

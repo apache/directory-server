@@ -59,11 +59,27 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
         return lookup( name ).normalize( value ).toString();
     }
 
+    /**
+     * @see NameComponentNormalizer#normalizeByName(String, String)
+     */
+    public String normalizeByName( String name, byte[] value ) throws NamingException
+    {
+        return lookup( name ).normalize( value ).toString();
+    }
+
 
     /**
      * @see NameComponentNormalizer#normalizeByOid(String, String)
      */
     public String normalizeByOid( String oid, String value ) throws NamingException
+    {
+        return lookup( oid ).normalize( value ).toString();
+    }
+
+    /**
+     * @see NameComponentNormalizer#normalizeByOid(String, String)
+     */
+    public String normalizeByOid( String oid, byte[] value ) throws NamingException
     {
         return lookup( oid ).normalize( value ).toString();
     }

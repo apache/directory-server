@@ -92,9 +92,11 @@ public class RefinementLeafEvaluator
         }
 
         // If the filter value for the objectClass is an OID we need to resolve a name
-        if ( Character.isDigit( node.getValue().charAt( 0 ) ) )
+        String value = node.getValue();
+        
+        if ( Character.isDigit( value.charAt( 0 ) ) )
         {
-            Iterator list = registry.getNameSet( node.getValue() ).iterator();
+            Iterator list = registry.getNameSet( value ).iterator();
             while ( list.hasNext() )
             {
                 String objectClass = ( String ) list.next();

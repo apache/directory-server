@@ -19,8 +19,6 @@ package org.apache.ldap.server.authn;
 
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Set;
-import java.util.Collections;
 
 import javax.naming.Name;
 

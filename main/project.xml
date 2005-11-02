@@ -80,21 +80,26 @@
       <version>1.0</version>
       <url>http://jdbm.sourceforge.net</url>
     </dependency>
-      <dependency>
-        <groupId>directory-shared</groupId>
-        <artifactId>ldap-common</artifactId>
-        <version>0.9.3</version>
-      </dependency>
-      <dependency>
-        <groupId>directory-shared</groupId>
-        <artifactId>kerberos-common</artifactId>
-        <version>0.6</version>
-      </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>kerberos-common</artifactId>
+      <version>0.7-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-shared</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>
+      <dependency>
+        <groupId>directory-protocols</groupId>
+        <artifactId>ldap-protocol</artifactId>
+        <version>0.9.4-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>directory-protocols</groupId>
+        <artifactId>kerberos-protocol</artifactId>
+        <version>0.7-SNAPSHOT</version>
+      </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ldap-protocol</artifactId>
@@ -118,12 +123,12 @@
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-codec</artifactId>
-      <version>0.3.3</version>
+      <version>0.3.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>apache-ldapber-provider</artifactId>
-      <version>0.9.3</version>
+      <version>0.9.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-shared</groupId>
@@ -133,12 +138,12 @@
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-ber</artifactId>
-      <version>0.3.3</version>
+      <version>0.3.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-der</artifactId>
-      <version>0.3.3</version>
+      <version>0.3.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-network</groupId>

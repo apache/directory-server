@@ -249,6 +249,13 @@ public class NormalizationService extends BaseInterceptor
             return ( String ) type.getEquality().getNormalizer().normalize( value );
         }
 
+        public String normalizeByName( String name, byte[] value ) throws NamingException
+        {
+            AttributeType type = registry.lookup( name );
+
+            return ( String ) type.getEquality().getNormalizer().normalize( value );
+        }
+
 
         public String normalizeByOid( String oid, String value ) throws NamingException
         {
@@ -256,10 +263,17 @@ public class NormalizationService extends BaseInterceptor
             return ( String ) type.getEquality().getNormalizer().normalize( value );
         }
 
-
         public boolean isDefined( String id )
         {
             return registry.hasAttributeType( id );
+        }
+
+
+        public String normalizeByOid( String oid, byte[] value ) throws NamingException
+        {
+            AttributeType type = registry.lookup( oid );
+
+            return ( String ) type.getEquality().getNormalizer().normalize( value );
         }
     }
 }

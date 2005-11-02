@@ -364,6 +364,7 @@ public class ServerContextFactory extends CoreContextFactory
 
         // Register all extended operation handlers.
         LdapProtocolProvider protocolProvider = new LdapProtocolProvider( ( Hashtable ) env.clone() );
+        
         for( Iterator i = cfg.getExtendedOperationHandlers().iterator(); i.hasNext(); )
         {
             ExtendedOperationHandler h = ( ExtendedOperationHandler ) i.next();
@@ -374,6 +375,7 @@ public class ServerContextFactory extends CoreContextFactory
         {
             minaRegistry.bind( service, protocolProvider );
             ldapService = service;
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Successful bind of LDAP Service completed: " + ldapService );
