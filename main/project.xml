@@ -103,17 +103,17 @@
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ldap-protocol</artifactId>
-      <version>0.9.3</version>
+      <version>0.9.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>kerberos-protocol</artifactId>
-      <version>0.6</version>
+      <version>0.7-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>changepw-protocol</artifactId>
-      <version>0.6</version>
+      <version>0.7-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
@@ -133,7 +133,7 @@
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>protocol-common</artifactId>
-      <version>0.6</version>
+      <version>0.7-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
