@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <artifactId>apacheds-main</artifactId>
+  <artifactId>apacheds-server-main</artifactId>
   <name>ApacheDS Main</name>
   <inceptionYear>2003</inceptionYear>
   <shortDescription>A single executable server jar</shortDescription>
@@ -90,16 +90,16 @@
       <artifactId>apacheds-shared</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>
-      <dependency>
-        <groupId>directory-protocols</groupId>
-        <artifactId>ldap-protocol</artifactId>
-        <version>0.9.4-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>directory-protocols</groupId>
-        <artifactId>kerberos-protocol</artifactId>
-        <version>0.7-SNAPSHOT</version>
-      </dependency>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>ldap-protocol</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>kerberos-protocol</artifactId>
+      <version>0.7-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ldap-protocol</artifactId>
@@ -157,7 +157,7 @@
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-core-unit</artifactId>
+      <artifactId>apacheds-server</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
@@ -207,8 +207,6 @@
     <report>maven-tasklist-plugin</report>
     <report>maven-junit-report-plugin</report>
     <report>maven-jdepend-plugin</report>
-    <!-- <report>maven-jcoverage-plugin</report> breaks build -->
-    <!-- <report>maven-checkstyle-plugin</report> -->
     <report>maven-simian-plugin</report>
     <report>maven-javadoc-plugin</report>
     <report>maven-jxr-plugin</report>
@@ -217,5 +215,3 @@
   </reports>
 
 </project>
-
-                           
