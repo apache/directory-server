@@ -642,7 +642,7 @@ public class SchemaService extends BaseInterceptor
     private void doFilter( Invocation invocation, Attributes entry )
             throws NamingException
     {
-        long t0 = System.nanoTime();
+        long t0 = System.currentTimeMillis();
         
         if ( log.isDebugEnabled() )
         {
@@ -701,7 +701,7 @@ public class SchemaService extends BaseInterceptor
             }
         }
         
-        long t1 = System.nanoTime();
+        long t1 = System.currentTimeMillis();
         
         if ( log.isDebugEnabled() )
         {

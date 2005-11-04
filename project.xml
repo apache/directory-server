@@ -98,7 +98,7 @@
     <build>
       <nagEmailAddress>dev@directory.apache.org</nagEmailAddress>
       <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-      <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
+      <unitTestSourceDirectory>${basedir}/src/test/java</unitTestSourceDirectory>
 
       <unitTest>
         <includes>
