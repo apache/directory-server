@@ -17,7 +17,7 @@
 package org.apache.ldap.server.authz;
 
 
-import org.apache.ldap.server.AbstractTestCase;
+import org.apache.ldap.server.unit.AbstractTestCase;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.subtree.SubentryService;
 import org.apache.ldap.common.name.LdapName;

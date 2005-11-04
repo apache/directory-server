@@ -27,7 +27,7 @@ import javax.naming.directory.BasicAttributes;
 
 import junit.framework.Assert;
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 import org.apache.ldap.server.jndi.CoreContextFactory;
 import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmDirectoryPartition;
 

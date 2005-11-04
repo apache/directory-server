@@ -23,7 +23,7 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-import org.apache.ldap.server.AbstractNonAdminTestCase;
+import org.apache.ldap.server.unit.AbstractNonAdminTestCase;
 
 
 /**

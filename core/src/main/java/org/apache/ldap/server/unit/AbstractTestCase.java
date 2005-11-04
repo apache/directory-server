@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.unit;
 
 
 import java.io.File;

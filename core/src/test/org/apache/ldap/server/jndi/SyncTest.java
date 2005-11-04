@@ -19,7 +19,7 @@ package org.apache.ldap.server.jndi;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 import org.apache.ldap.server.configuration.SyncConfiguration;
 
 

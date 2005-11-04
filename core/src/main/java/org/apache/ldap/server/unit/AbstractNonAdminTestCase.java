@@ -14,19 +14,21 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server;
+package org.apache.ldap.server.unit;
+
+
 
 
 /**
- * A simple testcase for testing JNDI provider functionality.
+ * Adds extra code to perform operations as another user besides the admin user.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 190555 $
  */
-public abstract class AbstractAdminTestCase extends AbstractTestCase
+public abstract class AbstractNonAdminTestCase extends AbstractTestCase
 {
-    protected AbstractAdminTestCase()
+    protected AbstractNonAdminTestCase()
     {
-        super( "uid=admin,ou=system", "secret" );
+        super( "uid=akarasulu,ou=users,ou=system", "test" );
     }
 }

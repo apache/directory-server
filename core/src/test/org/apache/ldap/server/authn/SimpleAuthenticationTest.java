@@ -34,7 +34,7 @@ import javax.naming.ldap.InitialLdapContext;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.util.ArrayUtils;
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 
 /**

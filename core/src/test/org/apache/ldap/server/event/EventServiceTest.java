@@ -17,7 +17,7 @@
 package org.apache.ldap.server.event;
 
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 import javax.naming.NamingException;
 import javax.naming.directory.*;

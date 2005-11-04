@@ -25,7 +25,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 
 /**

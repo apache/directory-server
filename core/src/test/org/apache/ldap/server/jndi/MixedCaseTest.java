@@ -22,7 +22,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 

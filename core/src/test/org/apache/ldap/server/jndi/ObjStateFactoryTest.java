@@ -30,7 +30,7 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 
 /**

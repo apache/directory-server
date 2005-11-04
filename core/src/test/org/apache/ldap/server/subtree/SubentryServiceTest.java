@@ -17,7 +17,7 @@
 package org.apache.ldap.server.subtree;
 
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;

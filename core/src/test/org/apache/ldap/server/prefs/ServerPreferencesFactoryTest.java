@@ -19,7 +19,7 @@ package org.apache.ldap.server.prefs;
 
 import java.util.prefs.Preferences;
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 
 /**
