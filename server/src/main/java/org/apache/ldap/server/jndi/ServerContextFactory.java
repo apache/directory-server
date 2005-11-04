@@ -373,7 +373,7 @@ public class ServerContextFactory extends CoreContextFactory
         
         try
         {
-            minaRegistry.bind( service, protocolProvider );
+            minaRegistry.bind( service, protocolProvider.getHandler() );
             ldapService = service;
             
             if ( log.isInfoEnabled() )

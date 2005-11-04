@@ -148,7 +148,7 @@
     <dependency>
       <groupId>directory-network</groupId>
       <artifactId>mina</artifactId>
-      <version>0.8.0</version>
+      <version>0.9.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
