@@ -156,6 +156,11 @@
       <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-unit</artifactId>
+      <version>${pom.currentVersion}</version>
+    </dependency>
+    <dependency>
       <groupId>maven-plugins</groupId>
       <artifactId>maven-javaapp-plugin</artifactId>
       <version>1.3</version>
