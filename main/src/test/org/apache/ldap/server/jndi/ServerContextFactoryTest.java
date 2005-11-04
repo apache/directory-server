@@ -30,7 +30,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.ldap.server.AbstractAdminTestCase;
+import org.apache.ldap.server.unit.AbstractAdminTestCase;
 import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 
 
