@@ -678,7 +678,7 @@ class DefaultDirectoryService extends DirectoryService
         }
 
         globalRegistries = new GlobalRegistries( bootstrapRegistries );
-        
+        Set binaries = new HashSet();
         if ( this.environment.containsKey( BINARY_KEY ) )
         {
             if ( log.isInfoEnabled() )
@@ -687,7 +687,6 @@ class DefaultDirectoryService extends DirectoryService
             }
 
             String binaryIds = ( String ) this.environment.get( BINARY_KEY );
-            Set binaries = new HashSet();
             if ( binaryIds == null )
             {
                 if ( log.isWarnEnabled() )
@@ -714,32 +713,32 @@ class DefaultDirectoryService extends DirectoryService
                             + BINARY_KEY );
                 }
             }
+        }
 
-            AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
-            Iterator list = registry.list();
-            while ( list.hasNext() )
+        // now get all the attributeTypes that are binary from the registry
+        AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
+        Iterator list = registry.list();
+        while ( list.hasNext() )
+        {
+            AttributeType type = ( AttributeType ) list.next();
+            if ( ! type.getSyntax().isHumanReadible() )
             {
-                AttributeType type = ( AttributeType ) list.next();
-                if ( ! type.getSyntax().isHumanReadible() )
-                {
-                    // add the OID for the attributeType
-                    binaries.add( type.getOid() );
+                // add the OID for the attributeType
+                binaries.add( type.getOid() );
 
-                    // add the lowercased name for the names for the attributeType
-                    String[] names = type.getNames();
-                    for ( int ii = 0; ii < names.length; ii++ )
-                    {
-                        binaries.add( StringUtils.lowerCase( StringUtils.trim( names[ii] ) ) );
-                    }
+                // add the lowercased name for the names for the attributeType
+                String[] names = type.getNames();
+                for ( int ii = 0; ii < names.length; ii++ )
+                {
+                    binaries.add( StringUtils.lowerCase( StringUtils.trim( names[ii] ) ) );
                 }
             }
+        }
 
-            this.environment.put( BINARY_KEY, binaries );
-
-            if ( log.isDebugEnabled() )
-            {
-                log.debug( "binary ids used: " + binaries );
-            }
+        this.environment.put( BINARY_KEY, binaries );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "binary ids used: " + binaries );
         }
 
         partitionNexus = new DefaultDirectoryPartitionNexus( new LockableAttributesImpl() );
