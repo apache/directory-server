@@ -25,6 +25,7 @@ import javax.naming.directory.*;
 
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributesImpl;
+import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 
@@ -86,7 +87,7 @@ public class AuthorizationServiceAsAdminTest extends AbstractAdminTestCase
         attributes.put( "userPassword", "replaced" );
         sysRoot.modifyAttributes( "uid=admin", DirContext.REPLACE_ATTRIBUTE, attributes );
         Attributes newAttrs = sysRoot.getAttributes( "uid=admin" );
-        assertEquals( "replaced", newAttrs.get( "userPassword" ).get() );
+        assertTrue( ArrayUtils.isEquals( "replaced".getBytes(), newAttrs.get( "userPassword" ).get() ) );
     }
 
 
