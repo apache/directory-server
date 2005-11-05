@@ -44,25 +44,15 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
     public void testObjectFactory() throws NamingException
     {
         super.sysRoot.addToEnvironment( Context.OBJECT_FACTORIES, PersonObjectFactory.class.getName() );
-
         Object obj = super.sysRoot.lookup( "uid=akarasulu, ou=users" );
-
         Attributes attrs = super.sysRoot.getAttributes( "uid=akarasulu, ou=users" );
-
         assertEquals( Person.class, obj.getClass() );
-
         Person me = ( Person ) obj;
-
         assertEquals( attrs.get( "sn" ).get(), me.getLastname() );
-
         assertEquals( attrs.get( "cn" ).get(), me.getCn() );
-
-        assertEquals( attrs.get( "userPassword" ).get(), me.getPassword() );
-
+        assertEquals( attrs.get( "userPassword" ).get(), "test".getBytes() );
         assertEquals( attrs.get( "telephonenumber" ).get(), me.getTelephoneNumber() );
-
         assertNull( me.getSeealso() );
-
         assertNull( me.getDescription() );
     }
 
@@ -70,25 +60,15 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
     public void testStateFactory() throws NamingException
     {
         super.sysRoot.addToEnvironment( Context.STATE_FACTORIES, PersonStateFactory.class.getName() );
-
         Person p = new Person( "Rodriguez", "Mr. Kerberos", "noices", "555-1212", "erodriguez", "committer" );
-
         super.sysRoot.bind( "uid=erodriguez, ou=users", p );
-
         Attributes attrs = super.sysRoot.getAttributes( "uid=erodriguez, ou=users" );
-
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
-
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
-
-        assertEquals( "noices", attrs.get( "userPassword" ).get() );
-
+        assertEquals( "noices".getBytes(), attrs.get( "userPassword" ).get() );
         assertEquals( "555-1212", attrs.get( "telephonenumber" ).get() );
-
         assertEquals( "erodriguez", attrs.get( "seealso" ).get() );
-
         assertEquals( "committer", attrs.get( "description" ).get() );
-
     }
 
 
@@ -115,9 +95,7 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
                 if ( outAttrs.get( "objectclass" ) == null )
                 {
                     BasicAttribute oc = new BasicAttribute( "objectclass", "person" );
-
                     oc.add( "top" );
-
                     outAttrs.put( oc );
                 }
 
@@ -180,13 +158,15 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
             // Only interested in Attributes with "person" objectclass
             // System.out.println("object factory: " + attrs);
             Attribute oc = (attrs != null ? attrs.get("objectclass") : null);
-            if (oc != null && oc.contains("person")) {
+            if (oc != null && oc.contains("person"))
+            {
                 Attribute attr;
-            String passwd = null;
+                String passwd = null;
 
             // Extract the password
             attr = attrs.get("userPassword");
-            if (attr != null) {
+            if (attr != null)
+            {
                 Object pw = attr.get();
 
                 if ( pw instanceof String )
@@ -194,14 +174,14 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
                 else
                     passwd = new String((byte[]) pw);
             }
-                Person per = new Person(
-                  (String)attrs.get("sn").get(),
-                  (String)attrs.get("cn").get(),
-              passwd,
-                  (attr=attrs.get("telephoneNumber")) != null ? (String)attr.get() : null,
-                  (attr=attrs.get("seealso")) != null ? (String)attr.get() : null,
-                  (attr=attrs.get("description")) != null ? (String)attr.get() : null);
-                return per;
+
+                return new Person(
+                      (String)attrs.get("sn").get(),
+                      (String)attrs.get("cn").get(),
+                      passwd,
+                      (attr=attrs.get("telephoneNumber")) != null ? (String)attr.get() : null,
+                      (attr=attrs.get("seealso")) != null ? (String)attr.get() : null,
+                      (attr=attrs.get("description")) != null ? (String)attr.get() : null);
             }
             return null;
         }

@@ -48,7 +48,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
 {
     /**
      * Cleans up old database files on creation.
-     * @throws IOException 
+     * @throws IOException
      */
     public SimpleAuthenticationTest() throws IOException
     {
@@ -72,15 +72,8 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
      */
     protected void setUp() throws Exception
     {
-        if ( getName().equals( "test1AdminAccountCreation" ) ||
-             getName().equals( "test2AccountExistsOnRestart" ) )
-        {
-            super.doDelete = false;
-        }
-        else
-        {
-            super.doDelete = true;
-        }
+        super.doDelete = !( getName().equals("test1AdminAccountCreation") ||
+                getName().equals("test2AccountExistsOnRestart") );
 
         if ( getName().equals( "test5BuildDbNoPassWithPrincAuthNone" ) ||
                 getName().equals( "test6BuildDbNoPassNotAdminPrinc" ) ||
@@ -211,7 +204,7 @@ public class SimpleAuthenticationTest extends AbstractAdminTestCase
 
         try
         {
-            ctx = ( InitialLdapContext ) initial.lookup( "uid=admin" );
+            initial.lookup( "uid=admin" );
             fail( "should not get here due to exception cuz anonymous user is "
                     + "not allowed read access to the admin account entry" );
         }
