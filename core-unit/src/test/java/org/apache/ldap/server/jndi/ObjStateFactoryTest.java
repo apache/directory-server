@@ -31,6 +31,7 @@ import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
 
 import org.apache.ldap.server.unit.AbstractAdminTestCase;
+import org.apache.ldap.common.util.ArrayUtils;
 
 
 /**
@@ -50,7 +51,7 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
         Person me = ( Person ) obj;
         assertEquals( attrs.get( "sn" ).get(), me.getLastname() );
         assertEquals( attrs.get( "cn" ).get(), me.getCn() );
-        assertEquals( attrs.get( "userPassword" ).get(), "test".getBytes() );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "test".getBytes() ) );
         assertEquals( attrs.get( "telephonenumber" ).get(), me.getTelephoneNumber() );
         assertNull( me.getSeealso() );
         assertNull( me.getDescription() );
@@ -65,7 +66,7 @@ public class ObjStateFactoryTest extends AbstractAdminTestCase
         Attributes attrs = super.sysRoot.getAttributes( "uid=erodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
-        assertEquals( "noices".getBytes(), attrs.get( "userPassword" ).get() );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "noices".getBytes() ) );
         assertEquals( "555-1212", attrs.get( "telephonenumber" ).get() );
         assertEquals( "erodriguez", attrs.get( "seealso" ).get() );
         assertEquals( "committer", attrs.get( "description" ).get() );
