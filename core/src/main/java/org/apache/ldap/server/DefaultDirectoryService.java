@@ -18,6 +18,8 @@ package org.apache.ldap.server;
 
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -35,6 +37,7 @@ import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.ConfigurationException;
@@ -49,6 +52,7 @@ import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.asn1.codec.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +66,7 @@ import org.slf4j.LoggerFactory;
 class DefaultDirectoryService extends DirectoryService
 {
     private static final Logger log = LoggerFactory.getLogger( DefaultDirectoryService.class );
+    private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 
     private final String instanceId;
 
@@ -605,7 +610,7 @@ class DefaultDirectoryService extends DirectoryService
         {
             needToChangeAdminPassword = DirectoryPartitionNexus.ADMIN_PASSWORD.equals( new String( ( byte[] ) userPassword ) );
         }
-        else if ( userPassword.toString().equals( new String( DirectoryPartitionNexus.ADMIN_PASSWORD ) ) )
+        else if ( userPassword.toString().equals( DirectoryPartitionNexus.ADMIN_PASSWORD ) )
         {
             needToChangeAdminPassword = DirectoryPartitionNexus.ADMIN_PASSWORD.equals( userPassword.toString() );
         }
@@ -645,6 +650,7 @@ class DefaultDirectoryService extends DirectoryService
         }
     }
 
+
     /**
      * Kicks off the initialization of the entire system.
      *
@@ -673,6 +679,69 @@ class DefaultDirectoryService extends DirectoryService
 
         globalRegistries = new GlobalRegistries( bootstrapRegistries );
         
+        if ( this.environment.containsKey( BINARY_KEY ) )
+        {
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Startup environment contains " + BINARY_KEY );
+            }
+
+            String binaryIds = ( String ) this.environment.get( BINARY_KEY );
+            Set binaries = new HashSet();
+            if ( binaryIds == null )
+            {
+                if ( log.isWarnEnabled() )
+                {
+                    log.warn( BINARY_KEY + " in startup environment contains null value.  " +
+                        "Using only schema info to set binary attributeTypes." );
+                }
+            }
+            else
+            {
+                if ( ! StringUtils.isEmpty( binaryIds ) )
+                {
+                    String[] binaryArray = binaryIds.split( " " );
+
+                    for ( int i = 0; i < binaryArray.length; i++ )
+                    {
+                        binaries.add( StringUtils.lowerCase( StringUtils.trim( binaryArray[i] ) ) );
+                    }
+                }
+
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Setting binaries to union of schema defined binaries and those provided in "
+                            + BINARY_KEY );
+                }
+            }
+
+            AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
+            Iterator list = registry.list();
+            while ( list.hasNext() )
+            {
+                AttributeType type = ( AttributeType ) list.next();
+                if ( ! type.getSyntax().isHumanReadible() )
+                {
+                    // add the OID for the attributeType
+                    binaries.add( type.getOid() );
+
+                    // add the lowercased name for the names for the attributeType
+                    String[] names = type.getNames();
+                    for ( int ii = 0; ii < names.length; ii++ )
+                    {
+                        binaries.add( StringUtils.lowerCase( StringUtils.trim( names[ii] ) ) );
+                    }
+                }
+            }
+
+            this.environment.put( BINARY_KEY, binaries );
+
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "binary ids used: " + binaries );
+            }
+        }
+
         partitionNexus = new DefaultDirectoryPartitionNexus( new LockableAttributesImpl() );
         partitionNexus.init( configuration, null );
         

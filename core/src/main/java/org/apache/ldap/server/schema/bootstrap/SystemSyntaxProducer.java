@@ -69,7 +69,12 @@ import org.apache.ldap.server.schema.SyntaxCheckerRegistry;
  * 36 Object Class Description        Y  1.3.6.1.4.1.1466.115.121.1.37
  * 37 OID                             Y  1.3.6.1.4.1.1466.115.121.1.38
  * 38 Other Mailbox                   Y  1.3.6.1.4.1.1466.115.121.1.39
+ *
  * 39 Octet String                    Y  1.3.6.1.4.1.1466.115.121.1.40
+ *
+ * This is not going to be followed for OctetString which needs to be treated
+ * as binary data.
+ *
  * 40 Postal Address                  Y  1.3.6.1.4.1.1466.115.121.1.41
  * 41 Protocol Information            Y  1.3.6.1.4.1.1466.115.121.1.42
  * 42 Presentation Address            Y  1.3.6.1.4.1.1466.115.121.1.43
@@ -369,9 +374,17 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax.setHumanReadible( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
+        /*
+         * This is where we deviate.  An octet string may or may not be human readable.  Essentially
+         * we are using this property of a syntax to determine if a value should be treated as binary
+         * data or not.  It must be human readable always in order to get this property set to true.
+         *
+         * If we set this to true then userPasswords which implement this syntax are not treated as
+         * binary attributes.  If that happens we can have data corruption due to UTF-8 handling.
+         */
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.40", syntaxCheckerRegistry );
         syntax.setNames( new String[] { "Octet String" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadible( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*

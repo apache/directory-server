@@ -18,7 +18,6 @@ package org.apache.ldap.server.schema;
 
 
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -114,35 +113,19 @@ public class SchemaService extends BaseInterceptor
         startUpTimeStamp = DateUtils.getGeneralizedTime();
     }
 
-    private void initBinaries( Hashtable env ) 
-    {
-        // construct the set for fast lookups while filtering
-        String binaryIds = (String)env.get( BINARY_KEY );
-
-        binaries = new HashSet();
-
-        if ( StringUtils.isEmpty( binaryIds ) == false )
-        {
-            String[] binaryArray = binaryIds.split( "/" );
-            
-            for ( int i = 0; i < binaryArray.length; i++ )
-            {
-                binaries.add( StringUtils.lowerCase( StringUtils.trim( binaryArray[i] ) ) );
-            }
-        }
-    }
 
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
         this.globalRegistries = factoryCfg.getGlobalRegistries();
         binaryAttributeFilter = new BinaryAttributeFilter();
-        initBinaries( factoryCfg.getEnvironment() );
+        binaries = ( Set ) factoryCfg.getEnvironment().get( BINARY_KEY );
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
         subentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
     }
+
 
     /**
      * @return Returns the binaries.
@@ -151,6 +134,7 @@ public class SchemaService extends BaseInterceptor
     {
         return binaries.contains( StringUtils.lowerCase( StringUtils.trim( id ) ) );
     }
+
 
     public void destroy()
     {
@@ -401,8 +385,7 @@ public class SchemaService extends BaseInterceptor
     public Attributes lookup( NextInterceptor nextInterceptor, Name name ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( name );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        doFilter( invocation, result );
+        doFilter( result );
         return result;
     }
 
@@ -415,8 +398,7 @@ public class SchemaService extends BaseInterceptor
             return null;
         }
 
-        Invocation invocation = InvocationStack.getInstance().peek();
-        doFilter( invocation, result );
+        doFilter( result );
         return result;
     }
 
@@ -639,8 +621,7 @@ public class SchemaService extends BaseInterceptor
     }
 
 
-    private void doFilter( Invocation invocation, Attributes entry )
-            throws NamingException
+    private void doFilter( Attributes entry ) throws NamingException
     {
         long t0 = System.currentTimeMillis();
         
@@ -727,7 +708,7 @@ public class SchemaService extends BaseInterceptor
 
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException
         {
-            doFilter( invocation, result.getAttributes() );
+            doFilter( result.getAttributes() );
             return true;
         }
     }
