@@ -24,3 +24,8 @@ deleted on: Oct 17, 2005
 delete rev: 325887
 resusitate: svn cp -r 325886 https://svn.apache.org/repos/asf/incubator/directory/server/tags/release-0.9.1 release-0.9.1
 
+branch: release-0.9.2 
+deleted on: Nov 5, 2005
+delete rev: 331019
+resusitate: svn cp -r 331018 https://svn.apache.org/repos/asf/incubator/directory/server/tags/release-0.9.2 release-0.9.2
+
