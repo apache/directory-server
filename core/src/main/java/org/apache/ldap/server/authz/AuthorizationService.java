@@ -559,7 +559,8 @@ public class AuthorizationService extends BaseInterceptor
         Attributes entry = proxy.lookup( name, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
 
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled
+                || name.toString().trim().equals( "" ) ) // no checks on the rootdse
         {
             return next.hasEntry( name );
         }
@@ -596,6 +597,12 @@ public class AuthorizationService extends BaseInterceptor
     private void checkLookupAccess( LdapPrincipal user, Name dn, Attributes entry )
             throws NamingException
     {
+        // no permissions checks on the RootDSE
+        if ( dn.toString().trim().equals( "" ) )
+        {
+            return;
+        }
+
         DirectoryPartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         Set userGroups = groupCache.getGroups( user.getName() );
         Collection tuples = new HashSet();
@@ -875,7 +882,9 @@ public class AuthorizationService extends BaseInterceptor
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         NamingEnumeration e = next.search( base, env, filter, searchCtls );
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled )
+
+        boolean isRootDSELookup = base.size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled || isRootDSELookup )
         {
             return e;
         }

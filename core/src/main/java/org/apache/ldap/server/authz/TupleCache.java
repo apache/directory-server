@@ -31,15 +31,17 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.ldap.common.aci.ACIItem;
 import org.apache.ldap.common.aci.ACIItemParser;
-import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.name.NameComponentNormalizer;
+import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
+import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +74,8 @@ public class TupleCache
     private final DirectoryPartitionNexus nexus;
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
+    /** a normalizing DN parser */
+    private final DnParser dnParser;
 
 
     /**
@@ -82,8 +86,10 @@ public class TupleCache
     public TupleCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
         this.nexus = factoryCfg.getPartitionNexus();
-        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer(
-                factoryCfg.getGlobalRegistries().getAttributeTypeRegistry() ) );
+        AttributeTypeRegistry registry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
+        aciParser = new ACIItemParser( ncn );
+        dnParser = new DnParser( ncn );
         env = ( Hashtable ) factoryCfg.getEnvironment().clone();
         initialize();
     }
@@ -114,7 +120,8 @@ public class TupleCache
                     continue;
                 }
 
-                subentryAdded( subentryDn, new LdapName( subentryDn ), result.getAttributes() );
+                Name normName = dnParser.parse( subentryDn );
+                subentryAdded( subentryDn, normName, result.getAttributes() );
             }
             results.close();
         }
