@@ -39,6 +39,8 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
+import org.apache.ldap.common.util.AttributeUtils;
+import org.apache.ldap.common.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +105,9 @@ public class SubentryService extends BaseInterceptor
                 return true;
             }
 
+//            String[] SUBENTRY_DESC = new String[] { SUBENTRY_OBJECTCLASS, SUBENTRY_OBJECTCLASS_OID };
+//
+//            boolean isSubentry = AttributeUtils.containsAnyValues( objectClasses, SUBENTRY_DESC, type );
             return !( objectClasses.contains(SUBENTRY_OBJECTCLASS) || objectClasses.contains(SUBENTRY_OBJECTCLASS_OID) );
         }
     };
@@ -443,7 +448,7 @@ public class SubentryService extends BaseInterceptor
                         }
                         else if ( role.equalsIgnoreCase( AC_AREA ) || role.equalsIgnoreCase( AC_INNERAREA ) )
                         {
-                            operational = ( Attribute ) entry.get( AC_SUBENTRY );
+                            operational = entry.get( AC_SUBENTRY );
                             if ( operational == null )
                             {
                                 operational = new LockableAttributeImpl( AC_SUBENTRY );
@@ -452,7 +457,7 @@ public class SubentryService extends BaseInterceptor
                         }
                         else if ( role.equalsIgnoreCase( SCHEMA_AREA ) )
                         {
-                            operational = ( Attribute ) entry.get( SCHEMA_AREA_SUBENTRY );
+                            operational = entry.get( SCHEMA_AREA_SUBENTRY );
                             if ( operational == null )
                             {
                                 operational = new LockableAttributeImpl( SCHEMA_AREA_SUBENTRY );
@@ -462,7 +467,7 @@ public class SubentryService extends BaseInterceptor
                         else if ( role.equalsIgnoreCase( COLLECTIVE_AREA ) ||
                                   role.equalsIgnoreCase( COLLECTIVE_INNERAREA ) )
                         {
-                            operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                            operational = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                             if ( operational == null )
                             {
                                 operational = new LockableAttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );

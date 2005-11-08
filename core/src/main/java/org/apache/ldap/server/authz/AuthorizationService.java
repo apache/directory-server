@@ -36,12 +36,11 @@ import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.subtree.SubentryService;
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.aci.MicroOperation;
-import org.apache.ldap.common.aci.ACIItemParser;
-import org.apache.ldap.common.aci.ACIItem;
+import org.apache.ldap.common.aci.*;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.DnParser;
+import org.apache.ldap.common.name.LdapName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,6 +130,8 @@ public class AuthorizationService extends BaseInterceptor
     private GroupCache groupCache;
     /** a normalizing ACIItem parser */
     private ACIItemParser aciParser;
+    /** a normalizing DN parser */
+    private DnParser dnParser;
     /** use and instance of the ACDF engine */
     private ACDFEngine engine;
     /** interceptor chain */
@@ -139,6 +140,8 @@ public class AuthorizationService extends BaseInterceptor
     private AttributeTypeRegistry attrRegistry;
     /** whether or not this interceptor is activated */
     private boolean enabled = false;
+    /** the system wide subschemaSubentryDn */
+    private String subschemaSubentryDn;
 
 
     /**
@@ -156,9 +159,14 @@ public class AuthorizationService extends BaseInterceptor
         groupCache = new GroupCache( factoryCfg );
         attrRegistry = factoryCfg.getGlobalRegistries().getAttributeTypeRegistry();
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
+        dnParser = new DnParser( new ConcreteNameComponentNormalizer( attrRegistry ) );
         engine = new ACDFEngine( factoryCfg.getGlobalRegistries().getOidRegistry(), attrRegistry );
         chain = factoryCfg.getInterceptorChain();
         enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
+
+        // stuff for dealing with subentries (garbage for now)
+        String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE().get( "subschemaSubentry" ).get();
+        subschemaSubentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
     }
 
 
@@ -673,7 +681,7 @@ public class AuthorizationService extends BaseInterceptor
         LdapPrincipal user = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         Name newName = ( Name ) name.clone();
         newName.remove( name.size() - 1 );
-        newName.add( newRn );
+        newName.add( dnParser.parse( newRn ).get( 0 ) );
 
 
         // bypass authz code if we are disabled
@@ -688,7 +696,12 @@ public class AuthorizationService extends BaseInterceptor
         {
             next.modifyRn( name, newRn, deleteOldRn );
             tupleCache.subentryRenamed( name, newName );
-            groupCache.groupRenamed( name, newName );
+            if ( groupCache.groupRenamed( name, newName ) )
+            {
+                ACITuple tup = null;
+                UserClass.UserGroup ug = null;
+
+            }
             return;
         }
 
@@ -883,8 +896,10 @@ public class AuthorizationService extends BaseInterceptor
         LdapPrincipal user = ctx.getPrincipal();
         NamingEnumeration e = next.search( base, env, filter, searchCtls );
 
+        boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( base.toString() );
         boolean isRootDSELookup = base.size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
-        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL ) || ! enabled || isRootDSELookup )
+        if ( user.getName().equalsIgnoreCase( DirectoryPartitionNexus.ADMIN_PRINCIPAL )
+                || ! enabled || isRootDSELookup || isSubschemaSubentryLookup )
         {
             return e;
         }

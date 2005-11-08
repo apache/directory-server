@@ -118,6 +118,11 @@ public class GroupCache
             }
             results.close();
         }
+
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "group cache contents on startup:\n" + groups );
+        }
     }
 
 
@@ -238,6 +243,10 @@ public class GroupCache
         Set memberSet = new HashSet( members.size() );
         addMembers( memberSet, members );
         groups.put( normName.toString(), memberSet );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "group cache contents after adding " + normName.toString() + ":\n" + groups );
+        }
     }
 
 
@@ -258,6 +267,10 @@ public class GroupCache
         }
 
         groups.remove( name.toString() );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "group cache contents after deleting " + name.toString() + ":\n" + groups );
+        }
     }
 
 
@@ -333,10 +346,14 @@ public class GroupCache
                 Set memberSet = ( Set ) groups.get( name.toString() );
                 if ( memberSet != null )
                 {
-                    modify( memberSet, mods[ii].getModificationOp(), members );
+                    modify( memberSet, mods[ii].getModificationOp(), mods[ii].getAttribute() );
                 }
                 break;
             }
+        }
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "group cache contents after modifying " + name.toString() + ":\n" + groups );
         }
     }
 
@@ -364,6 +381,10 @@ public class GroupCache
         if ( memberSet != null )
         {
             modify( memberSet, modOp, members );
+        }
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "group cache contents after modifying " + name.toString() + ":\n" + groups );
         }
     }
 
@@ -421,8 +442,19 @@ public class GroupCache
     }
 
 
-    public void groupRenamed( Name oldName, Name newName )
+    public boolean groupRenamed( Name oldName, Name newName )
     {
-        groups.put( newName.toString(), groups.remove( oldName.toString() ) );
+        Object members = groups.remove( oldName.toString() );
+
+        if ( members != null )
+        {
+            groups.put( newName.toString(), members );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "group cache contents after renaming " + oldName.toString() + ":\n" + groups );
+            }
+            return true;
+        }
+        return false;
     }
 }
