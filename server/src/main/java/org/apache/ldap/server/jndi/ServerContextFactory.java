@@ -202,8 +202,8 @@ public class ServerContextFactory extends CoreContextFactory
     private final static String UNIXFILE_OC = "unixFile";
     private void addFileEntry( DirContext root, File ldif ) throws NamingException
     {
-        String rdnAttr = File.pathSeparatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
-        String oc = File.pathSeparatorChar == '\\' ? WINDOWSFILE_OC : UNIXFILE_OC;
+        String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
+        String oc = File.separatorChar == '\\' ? WINDOWSFILE_OC : UNIXFILE_OC;
         StringBuffer buf = new StringBuffer();
         buf.append( rdnAttr );
         buf.append( "=" );
