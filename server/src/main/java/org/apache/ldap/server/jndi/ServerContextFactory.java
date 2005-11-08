@@ -24,11 +24,14 @@ import java.net.InetSocketAddress;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.kerberos.kdc.KdcConfiguration;
 import org.apache.kerberos.kdc.KerberosServer;
@@ -48,6 +51,7 @@ import org.apache.protocol.common.LoadStrategy;
 import org.apache.protocol.common.store.LdifFileLoader;
 import org.apache.changepw.ChangePasswordServer;
 import org.apache.changepw.ChangePasswordConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,7 +224,7 @@ public class ServerContextFactory extends CoreContextFactory
 
     private Attributes getLdifFileEntry( DirContext root, File ldif ) throws NamingException
     {
-        String rdnAttr = File.pathSeparatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
+        String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
         StringBuffer buf = new StringBuffer();
         buf.append( rdnAttr );
         buf.append( "=" );
@@ -251,7 +255,8 @@ public class ServerContextFactory extends CoreContextFactory
             log.error( "could not get canonical path", e );
             return null;
         }
-        return canonical;
+        
+        return StringUtils.replace( canonical, "\\", "\\\\" );
     }
 
 
