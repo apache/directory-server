@@ -374,6 +374,7 @@ public class ServerContextFactory extends CoreContextFactory
         {
             ExtendedOperationHandler h = ( ExtendedOperationHandler ) i.next();
             protocolProvider.addExtendedOperationHandler( h );
+            log.info( "Added Extended Request Handler: " + h.getOid() );
         }
         
         try
