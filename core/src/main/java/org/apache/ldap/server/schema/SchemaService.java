@@ -452,7 +452,7 @@ public class SchemaService extends BaseInterceptor
      */
     private boolean isCompleteRemoval( Attribute change, Attributes entry ) throws NamingException
     {
-        // if change size is 0 then all values are deleted then we're screwed
+        // if change size is 0 then all values are deleted then we're in trouble
         if ( change.size() == 0 )
         {
             return true;
@@ -462,7 +462,7 @@ public class SchemaService extends BaseInterceptor
         // values in the modify request may not be in the entry.  we need to
         // remove the values from a cloned version of the attribute and see
         // if nothing is left.
-        Attribute changedEntryAttr = entry.get( change.getID() );
+        Attribute changedEntryAttr = ( Attribute ) entry.get( change.getID() ).clone();
         for ( int jj = 0; jj < change.size(); jj++ )
         {
             changedEntryAttr.remove( change.get( jj ) );
