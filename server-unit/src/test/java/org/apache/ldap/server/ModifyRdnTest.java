@@ -28,7 +28,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import junit.framework.TestCase;
 
 /**
  * Testcase with different modify DN operations on a person entry.

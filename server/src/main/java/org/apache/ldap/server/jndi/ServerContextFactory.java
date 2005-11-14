@@ -24,14 +24,11 @@ import java.net.InetSocketAddress;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import org.apache.kerberos.kdc.KdcConfiguration;
 import org.apache.kerberos.kdc.KerberosServer;

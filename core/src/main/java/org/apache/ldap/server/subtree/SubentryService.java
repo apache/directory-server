@@ -39,8 +39,6 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
-import org.apache.ldap.common.util.AttributeUtils;
-import org.apache.ldap.common.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

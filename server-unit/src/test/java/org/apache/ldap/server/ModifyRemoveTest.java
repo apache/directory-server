@@ -29,7 +29,6 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import junit.framework.TestCase;
 
 /**
  * Testcase with different modify operations on a person entry. Each includes a

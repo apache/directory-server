@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Collections;
 
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NoPermissionException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;

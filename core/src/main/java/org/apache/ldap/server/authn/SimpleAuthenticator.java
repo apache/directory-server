@@ -27,7 +27,6 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.server.jndi.ServerContext;
-import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.invocation.InvocationStack;

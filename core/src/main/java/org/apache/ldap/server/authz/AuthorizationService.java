@@ -698,9 +698,6 @@ public class AuthorizationService extends BaseInterceptor
             tupleCache.subentryRenamed( name, newName );
             if ( groupCache.groupRenamed( name, newName ) )
             {
-                ACITuple tup = null;
-                UserClass.UserGroup ug = null;
-
             }
             return;
         }
