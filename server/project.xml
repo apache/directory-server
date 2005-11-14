@@ -72,76 +72,121 @@
       <groupId>directory-shared</groupId>
       <artifactId>kerberos-common</artifactId>
       <version>0.7-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-shared</artifactId>
       <version>${pom.currentVersion}</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
-      <dependency>
-        <groupId>directory-protocols</groupId>
-        <artifactId>ldap-protocol</artifactId>
-        <version>0.9.4-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>directory-protocols</groupId>
-        <artifactId>kerberos-protocol</artifactId>
-        <version>0.7-SNAPSHOT</version>
-      </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ldap-protocol</artifactId>
       <version>0.9.4-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>kerberos-protocol</artifactId>
       <version>0.7-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>ldap-protocol</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>kerberos-protocol</artifactId>
+      <version>0.7-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>changepw-protocol</artifactId>
       <version>0.7-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
       <artifactId>ntp-protocol</artifactId>
       <version>0.5-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-codec</artifactId>
       <version>0.3.4-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>apache-ldapber-provider</artifactId>
       <version>0.9.4-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-shared</groupId>
       <artifactId>protocol-common</artifactId>
       <version>0.7-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-ber</artifactId>
       <version>0.3.4-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-asn1</groupId>
       <artifactId>asn1-der</artifactId>
       <version>0.3.4-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>directory-network</groupId>
       <artifactId>mina</artifactId>
       <version>0.9.0-SNAPSHOT</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-core</artifactId>
       <version>${pom.currentVersion}</version>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
       <groupId>bouncycastle</groupId>

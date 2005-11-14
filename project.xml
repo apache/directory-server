@@ -92,6 +92,9 @@
         <groupId>directory-shared</groupId>
         <artifactId>ldap-common</artifactId>
         <version>0.9.4-SNAPSHOT</version>
+        <properties>
+          <eclipse.dependency>true</eclipse.dependency>
+        </properties>
       </dependency>
     </dependencies>        
   

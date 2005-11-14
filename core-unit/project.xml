@@ -71,12 +71,18 @@
             <artifactId>apacheds-core</artifactId>
             <version>${pom.currentVersion}</version>
             <type>jar</type>
+            <properties>
+              <eclipse.dependency>true</eclipse.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>apacheds-shared</artifactId>
             <version>${pom.currentVersion}</version>
             <type>jar</type>
+            <properties>
+              <eclipse.dependency>true</eclipse.dependency>
+            </properties>
         </dependency>
         <!-- The Directory Maven Plugin -->
         <dependency>
@@ -84,6 +90,9 @@
             <artifactId>maven-directory-plugin</artifactId>
             <version>${pom.currentVersion}</version>
             <type>plugin</type>
+            <properties>
+              <eclipse.dependency>true</eclipse.dependency>
+            </properties>
         </dependency>
 
        <!-- Remove this dependency after finding a home for StringUtils -->
@@ -91,6 +100,9 @@
             <groupId>directory-asn1</groupId>
             <artifactId>asn1-codec</artifactId>
             <version>0.3.4-SNAPSHOT</version>
+            <properties>
+              <eclipse.dependency>true</eclipse.dependency>
+            </properties>
         </dependency>
     </dependencies>
     <build />
