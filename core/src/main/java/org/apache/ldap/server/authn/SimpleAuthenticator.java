@@ -30,6 +30,8 @@ import org.apache.ldap.server.jndi.ServerContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.invocation.InvocationStack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Collections;
@@ -45,6 +47,8 @@ import java.util.Collection;
  */
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
+    private static final Logger log = LoggerFactory.getLogger( SimpleAuthenticator.class );
+
     private static final Collection USERLOOKUP_BYPASS;
 
     static
@@ -118,6 +122,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         try
         {
             userEntry = proxy.lookup( principalDn, new String[] {"userPassword"}, USERLOOKUP_BYPASS );
+            
             if ( userEntry == null )
             {
                 throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + principal );
@@ -125,6 +130,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         catch( Exception cause )
         {
+            log.error( cause.getMessage() );
             LdapAuthenticationException e = new LdapAuthenticationException();
             e.setRootCause( e );
             throw e;
