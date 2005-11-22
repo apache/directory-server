@@ -32,7 +32,7 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.util.LRUMap;
+import org.apache.ldap.common.util.SynchronizedLRUMap;
 import org.apache.ldap.server.partition.impl.btree.Index;
 import org.apache.ldap.server.partition.impl.btree.IndexComparator;
 import org.apache.ldap.server.partition.impl.btree.IndexEnumeration;
@@ -65,7 +65,7 @@ public class JdbmIndex implements Index
      * @todo I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
-    private LRUMap keyCache = null;
+    private SynchronizedLRUMap keyCache = null;
 
 
     // ------------------------------------------------------------------------
@@ -86,7 +86,7 @@ public class JdbmIndex implements Index
         throws NamingException
     {
         this.attribute = attribute;
-        keyCache = new LRUMap( 1000 );
+        keyCache = new SynchronizedLRUMap( 1000 );
         this.recMan = recMan;
         initTables();
     }
@@ -98,7 +98,7 @@ public class JdbmIndex implements Index
         File file = new File( wkDirPath.getPath() + File.separator 
             + attribute.getName() );
         this.attribute = attribute;
-        keyCache = new LRUMap( 1000 );
+        keyCache = new SynchronizedLRUMap( 1000 );
 
         try 
         {
