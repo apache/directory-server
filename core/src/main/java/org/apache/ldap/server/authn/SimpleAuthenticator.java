@@ -281,7 +281,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         try {
             digest = MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException nsae) {
-            throw new IllegalArgumentException(nsae);
+            throw new IllegalArgumentException(nsae.getMessage());
         }
 
         // calculate hashed value of password
