@@ -92,11 +92,6 @@
     </dependency>
     <dependency>
       <groupId>directory-protocols</groupId>
-      <artifactId>ldap-protocol</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>directory-protocols</groupId>
       <artifactId>kerberos-protocol</artifactId>
       <version>0.7-SNAPSHOT</version>
     </dependency>
