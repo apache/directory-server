@@ -181,7 +181,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = "  + upName );
+    		log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"  + upName + "'" );
     	}
     	
         authenticate();
@@ -193,7 +193,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Deleting name = " + name.toString() );
+    		log.debug( "Deleting name = '" + name.toString() + "'" );
     	}
     	
         authenticate();
@@ -205,7 +205,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Matching name = " + dn.toString() );
+    		log.debug( "Matching name = '" + dn.toString() + "'" );
     	}
 
     	authenticate();
@@ -229,7 +229,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Getting suffix for name = " + dn.toString() );
+    		log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
     	}
 
         authenticate();
@@ -241,7 +241,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Testing if entry name = " + name.toString() + " exists");
+    		log.debug( "Testing if entry name = '" + name.toString() + "' exists");
     	}
 
         authenticate();
@@ -253,7 +253,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Testing suffix for name = " + name.toString() );
+    		log.debug( "Testing suffix for name = '" + name.toString() + "'" );
     	}
 
         authenticate();
@@ -265,7 +265,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Listing base = " + base.toString() );
+    		log.debug( "Listing base = '" + base.toString() + "'" );
     	}
 
         authenticate();
@@ -289,7 +289,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Lookup name = " + dn.toString() + ", attributes = " + attrIds );
+    		log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
     	}
 
         authenticate();
@@ -301,7 +301,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Lookup name = " + name.toString() );
+    		log.debug( "Lookup name = '" + name.toString() + "'" );
     	}
 
         authenticate();
@@ -313,7 +313,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Modifying name = " + name.toString() + ", modifis = " + AttributeUtils.toString( mods ) );
+    		log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
     	}
 
         authenticate();
@@ -325,7 +325,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Modifying name = " + name.toString());
+    		log.debug( "Modifying name = '" + name.toString() + "'" );
     	}
 
         authenticate();
@@ -337,7 +337,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Modifying name = " + name.toString() + ", new RDN = " + newRn + ", oldRDN = " + deleteOldRn );
+    		log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
     	}
 
         authenticate();
@@ -349,7 +349,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Moving name = " + oriChildName.toString() + " to name = " + newParentName + ", new RDN = " + newRn + ", oldRDN = " + deleteOldRn );
+    		log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
     	}
 
         authenticate();
@@ -361,7 +361,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Moving name = " + oriChildName.toString() + " to name = " + newParentName );
+    		log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
     	}
 
         authenticate();
@@ -373,7 +373,7 @@ public class AuthenticationService extends BaseInterceptor
     {
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Search for base = " + base.toString() );
+    		log.debug( "Search for base = '" + base.toString() + "'" );
     	}
 
         authenticate();
