@@ -18,6 +18,7 @@ package org.apache.ldap.server.partition;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.schema.AttributeType;
@@ -363,14 +365,34 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
          * through all values looking for a match.
          */
         Normalizer normalizer = attrType.getEquality().getNormalizer();
-        String reqVal = ( String ) normalizer.normalize( value );
+        Object reqVal = normalizer.normalize( value );
+        
         for ( int ii = 0; ii < attr.size(); ii++ )
         {
-            String attrVal = ( String ) normalizer.normalize( attr.get( ii ) );
-            if ( attrVal.equals( reqVal ) )
-            {
-                return true;
-            }
+        	Object attrValObj = normalizer.normalize( attr.get( ii ) );
+        	
+        	if ( attrValObj instanceof String )
+        	{
+        		String attrVal = ( String ) attrValObj;
+        		
+	            if ( ( reqVal instanceof String) && attrVal.equals( reqVal ) )
+	            {
+	                return true;
+	            }
+        	}
+        	else
+        	{
+        		byte[] attrVal = (byte[])attrValObj;
+        		
+        		if ( reqVal instanceof byte[] ) 
+        		{
+        			return Arrays.equals( attrVal, (byte[])reqVal );
+        		}
+        		else if ( reqVal instanceof String )
+        		{
+        			return Arrays.equals( attrVal, StringUtils.getBytesUtf8( (String)reqVal ) );
+        		}
+        	}
         }
 
         return false;
