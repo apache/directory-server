@@ -226,6 +226,12 @@ public class InterceptorChain
             while( i.hasNext() )
             {
                 InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
+                
+                if ( log.isDebugEnabled() ) 
+                {
+                	log.debug( "Adding interceptor " + cfg.getName() ); 
+                }
+                
                 register( cfg );
             }
         }
