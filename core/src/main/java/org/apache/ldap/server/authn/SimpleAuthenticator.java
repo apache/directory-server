@@ -133,7 +133,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         catch( Exception cause )
         {
-            log.error( cause.getMessage() );
+            log.error( "Authentication error : " + cause.getMessage() );
             LdapAuthenticationException e = new LdapAuthenticationException();
             e.setRootCause( e );
             throw e;

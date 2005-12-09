@@ -104,13 +104,13 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         else if( cfg instanceof AddDirectoryPartitionConfiguration )
         {
             new DirectoryPartitionNexusProxy(
-                    service.getJndiContext( principal, credential, authentication, providerUrl ),
+                    service.getJndiContext( principal, credential, authentication, "" ),
                     service).addContextPartition( ( ( AddDirectoryPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
         }
         else if( cfg instanceof RemoveDirectoryPartitionConfiguration )
         {
             new DirectoryPartitionNexusProxy(
-                    service.getJndiContext( principal, credential, authentication, providerUrl ),
+                    service.getJndiContext( principal, credential, authentication, "" ),
                     service).removeContextPartition( ( ( RemoveDirectoryPartitionConfiguration ) cfg ).getSuffix() );
         }
         else if( service == null )

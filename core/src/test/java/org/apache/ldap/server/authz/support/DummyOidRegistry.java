@@ -21,6 +21,7 @@ package org.apache.ldap.server.authz.support;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -66,6 +67,24 @@ class DummyOidRegistry implements OidRegistry
     public void register( String name, String oid )
     {
         // Not used
+    }
+
+    /**
+     * Get the map of all the oids by their name
+     * @return The Map that contains all the oids
+     */
+    public Map getOidByName()
+    {
+    	return null;
+    }
+
+    /**
+     * Get the map of all the oids by their name
+     * @return The Map that contains all the oids
+     */
+    public Map getNameByOid()
+    {
+    	return null;
     }
     
 }

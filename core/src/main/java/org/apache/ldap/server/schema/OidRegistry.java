@@ -19,6 +19,7 @@ package org.apache.ldap.server.schema;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -87,4 +88,16 @@ public interface OidRegistry
      * @param oid the OID to add or associate a new name with
      */
     void register( String name, String oid );
+    
+    /**
+     * Get the map of all the oids by their name
+     * @return The Map that contains all the oids
+     */
+    public Map getOidByName();
+
+    /**
+     * Get the map of all the oids by their name
+     * @return The Map that contains all the oids
+     */
+    public Map getNameByOid();
 }

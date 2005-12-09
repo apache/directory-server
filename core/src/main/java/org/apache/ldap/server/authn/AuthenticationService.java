@@ -35,6 +35,7 @@ import org.apache.ldap.common.exception.LdapAuthenticationException;
 import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.util.AttributeUtils;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
@@ -178,6 +179,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"  + upName + "'" );
+    	}
+    	
         authenticate();
         next.add( upName, normName, entry );
     }
@@ -185,6 +191,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void delete( NextInterceptor next, Name name ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Deleting name = '" + name.toString() + "'" );
+    	}
+    	
         authenticate();
         next.delete( name );
     }
@@ -192,13 +203,23 @@ public class AuthenticationService extends BaseInterceptor
 
     public Name getMatchedName( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
     {
-        authenticate();
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Matching name = '" + dn.toString() + "'" );
+    	}
+
+    	authenticate();
         return next.getMatchedName( dn, normalized );
     }
 
 
     public Attributes getRootDSE( NextInterceptor next ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Getting root DSE" );
+    	}
+
         authenticate();
         return next.getRootDSE();
     }
@@ -206,6 +227,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public Name getSuffix( NextInterceptor next, Name dn, boolean normalized ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
+    	}
+
         authenticate();
         return next.getSuffix( dn, normalized );
     }
@@ -213,6 +239,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor next, Name name ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Testing if entry name = '" + name.toString() + "' exists");
+    	}
+
         authenticate();
         return next.hasEntry( name );
     }
@@ -220,6 +251,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public boolean isSuffix( NextInterceptor next, Name name ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Testing suffix for name = '" + name.toString() + "'" );
+    	}
+
         authenticate();
         return next.isSuffix( name );
     }
@@ -227,6 +263,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public NamingEnumeration list( NextInterceptor next, Name base ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Listing base = '" + base.toString() + "'" );
+    	}
+
         authenticate();
         return next.list( base );
     }
@@ -234,6 +275,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public Iterator listSuffixes( NextInterceptor next, boolean normalized ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Listing suffixes" );
+    	}
+
         authenticate();
         return next.listSuffixes( normalized );
     }
@@ -241,6 +287,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, Name dn, String[] attrIds ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
+    	}
+
         authenticate();
         return next.lookup( dn, attrIds );
     }
@@ -248,6 +299,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public Attributes lookup( NextInterceptor next, Name name ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Lookup name = '" + name.toString() + "'" );
+    	}
+
         authenticate();
         return next.lookup( name );
     }
@@ -255,6 +311,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
+    	}
+
         authenticate();
         next.modify( name, modOp, mods );
     }
@@ -262,6 +323,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Modifying name = '" + name.toString() + "'" );
+    	}
+
         authenticate();
         next.modify( name, mods );
     }
@@ -269,6 +335,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void modifyRn( NextInterceptor next, Name name, String newRn, boolean deleteOldRn ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
+    	}
+
         authenticate();
         next.modifyRn( name, newRn, deleteOldRn );
     }
@@ -276,6 +347,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName, String newRn, boolean deleteOldRn ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
+    	}
+
         authenticate();
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
@@ -283,6 +359,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public void move( NextInterceptor next, Name oriChildName, Name newParentName ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
+    	}
+
         authenticate();
         next.move( oriChildName, newParentName );
     }
@@ -290,6 +371,11 @@ public class AuthenticationService extends BaseInterceptor
 
     public NamingEnumeration search( NextInterceptor next, Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException
     {
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "Search for base = '" + base.toString() + "'" );
+    	}
+
         authenticate();
         return next.search( base, env, filter, searchCtls );
     }
