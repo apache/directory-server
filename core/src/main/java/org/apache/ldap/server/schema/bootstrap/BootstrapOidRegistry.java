@@ -19,9 +19,11 @@ package org.apache.ldap.server.schema.bootstrap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -40,9 +42,11 @@ import org.apache.ldap.server.schema.OidRegistryMonitorAdapter;
 public class BootstrapOidRegistry implements OidRegistry
 { 
     /** Maps OID to a name or a list of names if more than one name exists */
-    private Hashtable byOid = new Hashtable();
+    private Map byOid = new HashMap();
+    
     /** Maps several names to an OID */
-    private Hashtable byName = new Hashtable();
+    private Map byName = new HashMap();
+    
     /** Default OidRegistryMonitor */
     private OidRegistryMonitor monitor = new OidRegistryMonitorAdapter();
     
@@ -176,7 +180,24 @@ public class BootstrapOidRegistry implements OidRegistry
     {
         return Collections.unmodifiableSet( byOid.keySet() ).iterator();
     }
+    
+    /**
+     * Get the map of all the oids by their name
+     * @return The Map that contains all the oids
+     */
+    public Map getOidByName()
+    {
+    	return byName;
+    }
 
+    /**
+     * Get the map of all the oids by their name
+     * @return The Map that contains all the oids
+     */
+    public Map getNameByOid()
+    {
+    	return byOid;
+    }
 
     /**
      * @see org.apache.ldap.server.schema.OidRegistry#register(String, String)

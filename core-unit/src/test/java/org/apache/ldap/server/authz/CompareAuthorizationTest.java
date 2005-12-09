@@ -214,4 +214,23 @@ public class CompareAuthorizationTest extends AbstractAuthorizationTest
         // should work with billyd now that all users are authorized
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
     }
+    
+    public void testPasswordCompare() throws NamingException {
+        DirContext adminCtx = getContextAsAdmin();
+        Attributes user = new BasicAttributes( "uid", "bob", true );
+        user.put( "userPassword", "bobspassword".getBytes() );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
+        user.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "person" );
+        objectClass.add( "organizationalPerson" );
+        objectClass.add( "inetOrgPerson" );
+        user.put( "sn", "bob" );
+        user.put( "cn", "bob" );
+        adminCtx.createSubcontext( "uid=bob,ou=users", user );
+
+        ServerLdapContext ctx = ( ServerLdapContext ) adminCtx.lookup( "" );
+        assertTrue(ctx.compare(new LdapName( "uid=bob,ou=users,ou=system"), "userPassword", "bobspassword"));
+    }
+    
 }

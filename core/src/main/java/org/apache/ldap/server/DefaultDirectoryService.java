@@ -16,8 +16,10 @@
  */
 package org.apache.ldap.server;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -33,6 +35,7 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.name.DnOidContainer;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
@@ -94,8 +97,7 @@ class DefaultDirectoryService extends DirectoryService
     
     /** whether or not this instance has been shutdown */
     private boolean started = false;
-
-
+    
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
@@ -179,12 +181,12 @@ class DefaultDirectoryService extends DirectoryService
 
     public synchronized void startup( DirectoryServiceListener listener, Hashtable env ) throws NamingException
     {
-        Hashtable envCopy = ( Hashtable ) env.clone();
-
         if( started )
         {
             return;
         }
+
+        Hashtable envCopy = ( Hashtable ) env.clone();
 
         StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
         envCopy.put( Context.PROVIDER_URL, "" );
@@ -658,14 +660,21 @@ class DefaultDirectoryService extends DirectoryService
      */
     private void initialize() throws NamingException
     {
-        // --------------------------------------------------------------------
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "---> Initializing the DefaultDirectoryService " );
+    	}
+
+    	// --------------------------------------------------------------------
         // Load the schema here and check that it is ok!
         // --------------------------------------------------------------------
 
         BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+        
         loader.load( startupConfiguration.getBootstrapSchemas(), bootstrapRegistries );
+        DnOidContainer.setOidByName( bootstrapRegistries.getOidRegistry().getOidByName() );
 
         java.util.List errors = bootstrapRegistries.checkRefInteg();
         if ( !errors.isEmpty() )
@@ -746,5 +755,10 @@ class DefaultDirectoryService extends DirectoryService
         
         interceptorChain = new InterceptorChain();
         interceptorChain.init( configuration );
+        
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug( "<--- DefaultDirectoryService initialized" );
+    	}
     }
 }
