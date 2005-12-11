@@ -16,10 +16,8 @@
  */
 package org.apache.ldap.server;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -35,7 +33,6 @@ import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.name.DnOidContainer;
 import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
@@ -64,7 +61,6 @@ import org.slf4j.LoggerFactory;
  * Default implementation of {@link DirectoryService}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 class DefaultDirectoryService extends DirectoryService
 {
@@ -674,7 +670,6 @@ class DefaultDirectoryService extends DirectoryService
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         
         loader.load( startupConfiguration.getBootstrapSchemas(), bootstrapRegistries );
-        DnOidContainer.setOidByName( bootstrapRegistries.getOidRegistry().getOidByName() );
 
         java.util.List errors = bootstrapRegistries.checkRefInteg();
         if ( !errors.isEmpty() )
