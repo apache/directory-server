@@ -383,7 +383,7 @@ public class ExceptionService extends BaseInterceptor
                 e = new LdapNameNotFoundException( dn.toString() );
             }
 
-            e.setResolvedName( proxy.getMatchedName( dn.getSuffix( 1 ), false ) );
+            e.setResolvedName( proxy.getMatchedName( dn, false ) );
             throw e;
         }
     }
