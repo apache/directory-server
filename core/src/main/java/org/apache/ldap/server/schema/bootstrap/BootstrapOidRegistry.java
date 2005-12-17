@@ -255,6 +255,7 @@ public class BootstrapOidRegistry implements OidRegistry
                 }
                 
                 list = new ArrayList();
+                list.add( name );
                 list.add( value );
                 value = list;
             }
