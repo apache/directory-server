@@ -373,6 +373,7 @@ public class GlobalOidRegistry implements OidRegistry
                 list = new ArrayList();
 
                 list.add( value );
+                list.add( name );
 
                 value = list;
             }
