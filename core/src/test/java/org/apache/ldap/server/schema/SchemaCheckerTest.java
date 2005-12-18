@@ -23,9 +23,9 @@ import javax.naming.directory.*;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.name.LdapDN;
 import org.apache.ldap.server.schema.bootstrap.*;
 
 import java.util.Set;
@@ -109,7 +109,7 @@ public class SchemaCheckerTest extends TestCase
      */
     public void testPreventStructuralClassRemovalOnModifyReplace() throws Exception
     {
-        Name name = new LdapName( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        Name name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REPLACE_ATTRIBUTE;
         Attributes modifyAttributes = new BasicAttributes( true );
         modifyAttributes.put( new BasicAttribute( "cn" ) );
@@ -164,7 +164,7 @@ public class SchemaCheckerTest extends TestCase
      */
     public void testPreventStructuralClassRemovalOnModifyRemove() throws Exception
     {
-        Name name = new LdapName( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        Name name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REMOVE_ATTRIBUTE;
         Attributes modifyAttributes = new BasicAttributes( true );
         Attribute entryObjectClasses = new BasicAttribute( "objectClass" );
@@ -229,7 +229,7 @@ public class SchemaCheckerTest extends TestCase
     public void testPreventRdnChangeOnModifyRemove() throws Exception
     {
         int mod = DirContext.REMOVE_ATTRIBUTE;
-        Name name = new LdapName( "ou=user,dc=example,dc=com" );
+        Name name = new LdapDN( "ou=user,dc=example,dc=com" );
         Attributes attributes = new BasicAttributes( true );
         attributes.put( "cn", "does not matter" );
 
@@ -249,7 +249,7 @@ public class SchemaCheckerTest extends TestCase
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
-        name = new LdapName( "ou=users+cn=system users,dc=example,dc=com" );
+        name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
         attributes = new BasicAttributes( true );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, attributes );
@@ -294,7 +294,7 @@ public class SchemaCheckerTest extends TestCase
     public void testPreventRdnChangeOnModifyReplace() throws Exception
     {
         int mod = DirContext.REPLACE_ATTRIBUTE;
-        Name name = new LdapName( "ou=user,dc=example,dc=com" );
+        Name name = new LdapDN( "ou=user,dc=example,dc=com" );
         Attributes attributes = new BasicAttributes( true );
         attributes.put( "cn", "does not matter" );
 
@@ -314,7 +314,7 @@ public class SchemaCheckerTest extends TestCase
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
-        name = new LdapName( "ou=users+cn=system users,dc=example,dc=com" );
+        name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
         attributes = new BasicAttributes( true );
         attributes.put( "sn", "does not matter" );
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, attributes );
@@ -367,7 +367,7 @@ public class SchemaCheckerTest extends TestCase
         ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
 
         // this should pass
-        Name name = new LdapName( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        Name name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REPLACE_ATTRIBUTE;
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, new BasicAttribute( "cn" ) );
 
@@ -411,7 +411,7 @@ public class SchemaCheckerTest extends TestCase
      */
     public void testPreventStructuralClassRemovalOnModifyRemoveAttribute() throws Exception
     {
-        Name name = new LdapName( "uid=akarasulu,ou=users,dc=example,dc=com" );
+        Name name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
         int mod = DirContext.REMOVE_ATTRIBUTE;
         Attribute entryObjectClasses = new BasicAttribute( "objectClass" );
         entryObjectClasses.add( "top" );
@@ -468,7 +468,7 @@ public class SchemaCheckerTest extends TestCase
     public void testPreventRdnChangeOnModifyRemoveAttribute() throws Exception
     {
         int mod = DirContext.REMOVE_ATTRIBUTE;
-        Name name = new LdapName( "ou=user,dc=example,dc=com" );
+        Name name = new LdapDN( "ou=user,dc=example,dc=com" );
 
         // postive test which should pass
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new BasicAttribute( "cn", "does not matter" ) );
@@ -485,7 +485,7 @@ public class SchemaCheckerTest extends TestCase
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
-        name = new LdapName( "ou=users+cn=system users,dc=example,dc=com" );
+        name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, new BasicAttribute( "sn", "does not matter" ) );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
@@ -523,7 +523,7 @@ public class SchemaCheckerTest extends TestCase
     public void testPreventRdnChangeOnModifyReplaceAttribute() throws Exception
     {
         int mod = DirContext.REPLACE_ATTRIBUTE;
-        Name name = new LdapName( "ou=user,dc=example,dc=com" );
+        Name name = new LdapDN( "ou=user,dc=example,dc=com" );
 
         // postive test which should pass
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, new BasicAttribute( "cn", "does not matter" ) );
@@ -540,7 +540,7 @@ public class SchemaCheckerTest extends TestCase
         }
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
-        name = new LdapName( "ou=users+cn=system users,dc=example,dc=com" );
+        name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
         SchemaChecker.preventRdnChangeOnModifyReplace( name, mod, new BasicAttribute( "sn", "does not matter" ) );
 
         // test for failure when modifying Rdn attribute in multi attribute Rdn
