@@ -22,10 +22,12 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.asn1.codec.util.StringUtils;
+import org.apache.asn1new.primitives.OID;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.server.schema.NormalizerRegistry;
-import org.apache.ldap.server.schema.NormalizerRegistryMonitor;
-import org.apache.ldap.server.schema.NormalizerRegistryMonitorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,40 +38,27 @@ import org.apache.ldap.server.schema.NormalizerRegistryMonitorAdapter;
  */
 public class BootstrapNormalizerRegistry implements NormalizerRegistry
 {
+    /** The LoggerFactory used by this class */
+    private static Logger log = LoggerFactory.getLogger( BootstrapNormalizerRegistry.class );
+
     /** a map of Normalizers looked up by OID */
     private final Map byOid;
+    
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor used to deliver callback notification events */
-    private NormalizerRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
-
     /**
      * Creates a default normalizer registry.
      */
     public BootstrapNormalizerRegistry()
     {
-        this.byOid = new HashMap();
-        this.oidToSchema = new HashMap();
-        this.monitor = new NormalizerRegistryMonitorAdapter();
+        byOid = new HashMap();
+        oidToSchema = new HashMap();
     }
-
-
-    /**
-     * Sets the monitor used to deliver notification events to via callbacks.
-     *
-     * @param monitor the monitor to recieve callback events
-     */
-    public void setMonitor( NormalizerRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -81,15 +70,14 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
     {
         if ( byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer already " +
-                "registered for OID " + oid );
-            monitor.registerFailed( oid, normalizer, e );
-            throw e;
+        	String message = "Normalizer already registered for OID " + oid;
+        	
+        	log.error( message);
+            throw new NamingException( message );
         }
 
         oidToSchema.put( oid, schema );
         byOid.put( oid, normalizer );
-        monitor.registered( oid, normalizer );
     }
 
 
@@ -97,15 +85,14 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
     {
         if ( ! byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer for OID "
-                + oid + " does not exist!" );
-            monitor.lookupFailed( oid, e );
-            throw e;
+        	String message = "Normalizer for OID "
+                + oid + " does not exist!";
+        	
+        	log.error( message );
+            throw new NamingException( message );
         }
 
-        Normalizer normalizer = ( Normalizer ) byOid.get( oid );
-        monitor.lookedUp( oid, normalizer );
-        return normalizer;
+        return ( Normalizer ) byOid.get( oid );
     }
 
 
@@ -117,8 +104,9 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
 
     public String getSchemaName( String oid ) throws NamingException
     {
-        if ( Character.isDigit( oid.charAt( 0 ) ) )
+        if ( OID.isOID( oid )== false )
         {
+        	log.error( "Invalid oid :m '" + oid + "'" );
             throw new NamingException( "Looks like the arg is not a numeric OID" );
         }
 
@@ -127,7 +115,38 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
             return ( String ) oidToSchema.get( oid );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " +
-            "schema name map!" );
+        String message = "OID " + oid + " not found in oid to schema name map!";
+        log.error( message );
+        throw new NamingException( message );
+    }
+    
+    /**
+     * A String representation of this class
+     */
+    public String toString( String tabs )
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( tabs ).append( "BootstrapNormalizerRegistry : {\n" );
+    	
+    	sb.append( tabs ).append( "  By oid : \n" );
+    	
+    	sb.append( StringUtils.mapToString( byOid, tabs + "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append( "  By schema : \n" );
+
+    	sb.append( StringUtils.mapToString( oidToSchema, tabs + "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append( "}\n" );
+    	
+    	return sb.toString();
+    }
+
+    /**
+     * A String representation of this class
+     */
+    public String toString()
+    {
+    	return toString( "" );
     }
 }
