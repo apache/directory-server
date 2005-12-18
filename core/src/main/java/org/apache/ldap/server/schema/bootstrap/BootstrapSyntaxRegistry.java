@@ -23,11 +23,10 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.SyntaxRegistry;
-import org.apache.ldap.server.schema.SyntaxRegistryMonitor;
-import org.apache.ldap.server.schema.SyntaxRegistryMonitorAdapter;
 
 
 /**
@@ -41,13 +40,12 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
 {
     /** a map of entries using an OID for the key and a Syntax for the value */
     private final Map byOid;
+
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
+    
     /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
     private final OidRegistry oidRegistry;
-    /** a monitor used to track noteable oidRegistry events */
-    private SyntaxRegistryMonitor monitor = null;
-    
     
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -62,7 +60,6 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         this.oidRegistry = registry;
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
-        this.monitor = new SyntaxRegistryMonitorAdapter();
     }
     
 
@@ -81,12 +78,10 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         if ( byOid.containsKey( id ) )
         {
             Syntax syntax = ( Syntax ) byOid.get( id );
-            monitor.lookedUp( syntax );
             return syntax;
         }
         
         NamingException fault = new NamingException( "Unknown syntax OID " + id );
-        monitor.lookupFailed( id, fault );
         throw fault;
     }
     
@@ -100,14 +95,12 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
         {
             NamingException e = new NamingException( "syntax w/ OID " +
                 syntax.getOid() + " has already been registered!" );
-            monitor.registerFailed( syntax, e );
             throw e;
         }
 
         oidRegistry.register( syntax.getName(), syntax.getOid() );
         byOid.put( syntax.getOid(), syntax );
         oidToSchema.put( syntax.getOid(), schema );
-        monitor.registered( syntax );
     }
 
     
@@ -144,36 +137,42 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
             "schema name map!" );
     }
 
-
-    // ------------------------------------------------------------------------
-    // package friendly monitor methods
-    // ------------------------------------------------------------------------
-    
-    
-    /**
-     * Gets the monitor for this oidRegistry.
-     * 
-     * @return the monitor
-     */
-    SyntaxRegistryMonitor getMonitor()
-    {
-        return monitor;
-    }
-
-    
-    /**
-     * Sets the monitor for this oidRegistry.
-     * 
-     * @param monitor the monitor to set
-     */
-    void setMonitor( SyntaxRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     public Iterator list()
     {
         return byOid.values().iterator();
+    }
+
+    /**
+     * A String representation of this class
+     */
+    public String toString( String tabs )
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( tabs ).append( "BootstrapSyntaxRegistry : {\n" );
+    	
+    	sb.append( tabs ).append( "  By oid : \n" );
+    	
+    	sb.append( tabs ).append( StringUtils.mapToString( byOid, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append( "  Oid to schema : \n" );
+
+    	sb.append( tabs ).append( StringUtils.mapToString( oidToSchema, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append( "  OidRegistry :\n" );
+    	
+    	sb.append( oidRegistry.toString( tabs + "    " ) );
+    	
+    	sb.append( tabs ).append( "}\n" );
+    	
+    	return sb.toString();
+    }
+    
+    /**
+     * A String representation of this class
+     */
+    public String toString()
+    {
+    	return toString( "" );
     }
 }
