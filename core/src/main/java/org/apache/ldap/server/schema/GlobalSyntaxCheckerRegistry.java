@@ -38,8 +38,7 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     private final Map syntaxCheckers;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor for delivering callback events */
-    private SyntaxCheckerRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapSyntaxCheckerRegistry bootstrap;
 
@@ -57,7 +56,6 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         this.oidToSchema = new HashMap();
         this.syntaxCheckers = new HashMap();
-        this.monitor = new SyntaxCheckerRegistryMonitorAdapter();
 
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
@@ -65,18 +63,6 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
     }
-
-
-    /**
-     * Sets the monitor used by this registry.
-     *
-     * @param monitor the monitor to set for registry event callbacks
-     */
-    public void setMonitor( SyntaxCheckerRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -90,13 +76,11 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         {
             NamingException e = new NamingException( "SyntaxChecker with OID "
                 + oid + " already registered!" );
-            monitor.registerFailed( oid, syntaxChecker, e );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
         syntaxCheckers.put( oid, syntaxChecker );
-        monitor.registered( oid, syntaxChecker );
     }
 
 
@@ -108,19 +92,16 @@ public class GlobalSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         if ( syntaxCheckers.containsKey( oid ) )
         {
             c = ( SyntaxChecker ) syntaxCheckers.get( oid );
-            monitor.lookedUp( oid, c );
             return c;
         }
 
         if ( bootstrap.hasSyntaxChecker( oid ) )
         {
             c = bootstrap.lookup( oid );
-            monitor.lookedUp( oid, c );
             return c;
         }
 
         e = new NamingException( "SyntaxChecker not found for OID: " + oid );
-        monitor.lookupFailed( oid, e );
         throw e;
     }
 

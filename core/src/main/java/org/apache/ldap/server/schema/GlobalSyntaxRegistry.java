@@ -42,8 +42,7 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private SyntaxRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapSyntaxRegistry bootstrap;
 
@@ -61,7 +60,6 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new SyntaxRegistryMonitorAdapter();
 
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
@@ -69,18 +67,6 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
     }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( SyntaxRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -94,14 +80,12 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
         {
             NamingException e = new NamingException( "dITContentRule w/ OID " +
                 dITContentRule.getOid() + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
         byOid.put( dITContentRule.getOid(), dITContentRule );
         oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
     }
 
 
@@ -112,20 +96,17 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
         if ( byOid.containsKey( id ) )
         {
             Syntax dITContentRule = ( Syntax ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         if ( bootstrap.hasSyntax( id ) )
         {
             Syntax dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         NamingException e = new NamingException( "dITContentRule w/ OID "
             + id + " not registered!" );
-        monitor.lookupFailed( id, e );
         throw e;
     }
 
@@ -173,4 +154,6 @@ public class GlobalSyntaxRegistry implements SyntaxRegistry
         return new JoinIterator( new Iterator[]
             { byOid.values().iterator(),bootstrap.list() } );
     }
+    
+    
 }
