@@ -29,9 +29,7 @@ import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableInterceptorConfiguration;
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.name.LdapName;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.apache.ldap.common.name.LdapDN;
 
 import javax.naming.NamingException;
 import javax.naming.Name;
@@ -87,7 +85,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testNoBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        Name dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -112,7 +110,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testSingleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        Name dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -141,7 +139,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testAdjacentDoubleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        Name dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -174,7 +172,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testFrontAndBackDoubleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        Name dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -203,7 +201,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testDoubleBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        Name dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
@@ -232,7 +230,7 @@ public class InterceptorChainTest extends TestCase
 
     public void testCompleteBypass() throws NamingException
     {
-        Name dn = new LdapName( "ou=system" );
+        Name dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         DirectoryPartitionNexusProxy proxy = new DirectoryPartitionNexusProxy( ctx, ds );
