@@ -479,4 +479,28 @@ public class BootstrapRegistries implements Registries
 
         return isSuccess;
     }
+
+    public String toString()
+    {
+    	StringBuffer sb = new StringBuffer();
+
+    	sb.append( "Registries : {\n" );
+    	sb.append( "  OidRegistry : \n").append( oidRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  NormalizerRegistry : \n").append( normalizerRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  ComparatorRegistry : \n").append( comparatorRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  SyntaxCheckerRegistry : \n").append( syntaxCheckerRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  SyntaxRegistry : \n").append( syntaxRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  MatchingRuleRegistry : \n").append( matchingRuleRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  AttributeTypeRegistry : \n").append( attributeTypeRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  ObjectClassRegistry : \n").append( objectClassRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  DitContentRuleRegistry : \n").append( ditContentRuleRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  DitStructureRuleRegistry : \n").append( ditStructureRuleRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  MatchingRuleUseRegistry : \n").append( matchingRuleUseRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  NameFormRegistry : \n").append( nameFormRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  ObjectFactoryRegistry : \n").append( objectFactoryRegistry.toString( "    " ) ).append( '\n' );
+    	sb.append( "  StateFactoryRegistry : \n").append( stateFactoryRegistry.toString( "    " ) ).append( '\n' );
+        sb.append( '}' );
+    	
+    	return sb.toString();
+    }
 }
