@@ -34,8 +34,8 @@ import junit.framework.TestCase;
 import org.apache.ldap.common.aci.ACITuple;
 import org.apache.ldap.common.aci.AuthenticationLevel;
 import org.apache.ldap.common.aci.ProtectedItem;
-import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.filter.ExprNode;
+import org.apache.ldap.common.name.LdapDN;
 import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.DirectoryServiceListener;
@@ -56,7 +56,7 @@ public class MaxImmSubFilterTest extends TestCase
     private static final Set EMPTY_SET =
         Collections.unmodifiableSet( new HashSet() );
 
-    private static final Name ROOTDSE_NAME = new LdapName();
+    private static final Name ROOTDSE_NAME = new LdapDN();
     private static final Name ENTRY_NAME;
     private static final Collection PROTECTED_ITEMS = new ArrayList();
     private static final Attributes ENTRY = new BasicAttributes();
@@ -66,7 +66,7 @@ public class MaxImmSubFilterTest extends TestCase
     {
         try
         {
-            ENTRY_NAME = new LdapName( "ou=test, ou=system" );
+            ENTRY_NAME = new LdapDN( "ou=test, ou=system" );
         }
         catch( NamingException e )
         {
