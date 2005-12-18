@@ -39,7 +39,7 @@ import org.apache.ldap.common.aci.ProtectedItem;
 import org.apache.ldap.common.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.ldap.common.aci.ProtectedItem.RestrictedByItem;
 import org.apache.ldap.common.filter.PresenceNode;
-import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.name.LdapDN;
 import org.apache.ldap.server.event.ExpressionEvaluator;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
@@ -76,8 +76,8 @@ public class RelatedProtectedItemFilterTest extends TestCase
     {
         try
         {
-            GROUP_NAME = new LdapName( "ou=test,ou=groups,ou=system" );
-            USER_NAME = new LdapName( "ou=test, ou=users, ou=system" );
+            GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
+            USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
             
             filterA = new RelatedProtectedItemFilter(
                     new RefinementEvaluator(
@@ -331,14 +331,14 @@ public class RelatedProtectedItemFilterTest extends TestCase
         Assert.assertEquals(
                 1, filterA.filter(
                         tuples, OperationScope.ENTRY, null, null, USER_NAME,
-                        null, null, new LdapName( "ou=testEntry" ),
+                        null, null, new LdapDN( "ou=testEntry" ),
                         null, null, entry, null ).size() );
         
         entry.remove( "attrA" );
         Assert.assertEquals(
                 0, filterA.filter(
                         tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-                        null, null, new LdapName( "ou=testEntry" ),
+                        null, null, new LdapDN( "ou=testEntry" ),
                         null, null, entry, null ).size() );  
     }
     
