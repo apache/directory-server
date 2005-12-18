@@ -67,8 +67,10 @@ public class BootstrapSchemaLoader
 
     /** stores schemas of producers for callback access */
     private ThreadLocal schemas;
+    
     /** stores registries associated with producers for callback access */
     private ThreadLocal registries;
+    
     /** the callback that just calls register() */
     private final ProducerCallback cb = new ProducerCallback()
     {
@@ -208,6 +210,7 @@ public class BootstrapSchemaLoader
         this.schemas.set( schema );
 
         List producers = ProducerTypeEnum.list();
+        
         for ( int ii = 0; ii < producers.size(); ii++ )
         {
             ProducerTypeEnum producerType = ( ProducerTypeEnum ) producers.get( ii );
@@ -383,5 +386,19 @@ public class BootstrapSchemaLoader
             ne.setRootCause( e );
             throw ne;
         }
+    }
+    
+    public String toString()
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( "BootstrapSchemaLoader : {\n");
+    	
+    	sb.append( "  Schemas : {" ).append( ( BootstrapSchema ) this.schemas.get() ).append( "}\n" );
+    	
+    	sb.append( "  Registries : {" ).append( ( BootstrapRegistries ) this.registries.get() ).append( "}\n" );
+    	
+    	sb.append( "}\n" );
+    	return sb.toString();
     }
 }
