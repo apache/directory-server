@@ -100,4 +100,8 @@ public interface OidRegistry
      * @return The Map that contains all the oids
      */
     public Map getNameByOid();
+    
+    public String toString( String tabs );
+
+    public String toString();
 }
