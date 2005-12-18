@@ -87,4 +87,14 @@ class DummyOidRegistry implements OidRegistry
     	return null;
     }
     
+    public String toString()
+    {
+    	return toString( "" );
+    }
+    
+    public String toString( String tabs )
+    {
+    	return tabs + "DummyOidRegistry";
+    }
+    
 }
