@@ -23,10 +23,9 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.schema.MatchingRuleUse;
 import org.apache.ldap.server.schema.MatchingRuleUseRegistry;
-import org.apache.ldap.server.schema.MatchingRuleUseRegistryMonitor;
-import org.apache.ldap.server.schema.MatchingRuleUseRegistryMonitorAdapter;
 
 
 /**
@@ -39,10 +38,9 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 {
     /** maps a name to an MatchingRuleUse */
     private final Map byName;
+
     /** maps a MatchingRuleUse name to a schema name*/
     private final Map nameToSchema;
-    /** monitor notified via callback events */
-    private MatchingRuleUseRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -57,18 +55,6 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     {
         this.byName = new HashMap();
         this.nameToSchema = new HashMap();
-        this.monitor = new MatchingRuleUseRegistryMonitorAdapter();
-    }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( MatchingRuleUseRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
     }
 
 
@@ -84,13 +70,11 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
         {
             NamingException e = new NamingException( "matchingRuleUse w/ name "
                 + matchingRuleUse.getName() + " has already been registered!" );
-            monitor.registerFailed( matchingRuleUse, e );
             throw e;
         }
 
         nameToSchema.put( matchingRuleUse.getName(), schema );
         byName.put( matchingRuleUse.getName(), matchingRuleUse );
-        monitor.registered( matchingRuleUse );
     }
 
 
@@ -100,12 +84,10 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
         {
             NamingException e = new NamingException( "matchingRuleUse w/ name "
                 + name + " not registered!" );
-            monitor.lookupFailed( name, e );
             throw e;
         }
 
         MatchingRuleUse matchingRuleUse = ( MatchingRuleUse ) byName.get( name );
-        monitor.lookedUp( matchingRuleUse );
         return matchingRuleUse;
     }
 
@@ -131,5 +113,35 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     public Iterator list()
     {
         return byName.values().iterator();
+    }
+    
+    /**
+     * A String representation of this class
+     */
+    public String toString( String tabs )
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( tabs).append(  "BootstrapMatchingRuleUseRegistry : {\n" );
+    	
+    	sb.append( tabs).append(  "  By name : \n" );
+    	
+    	sb.append( tabs).append(  StringUtils.mapToString( byName, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs).append(  "  Name to schema : \n" );
+
+    	sb.append( tabs).append(  StringUtils.mapToString( nameToSchema, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs).append(  "}\n" );
+    	
+    	return sb.toString();
+    }
+
+    /**
+     * A String representation of this class
+     */
+    public String toString()
+    {
+    	return toString( "" );
     }
 }

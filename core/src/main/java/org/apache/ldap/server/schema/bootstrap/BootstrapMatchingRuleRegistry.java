@@ -23,10 +23,9 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.schema.MatchingRule;
 import org.apache.ldap.server.schema.MatchingRuleRegistry;
-import org.apache.ldap.server.schema.MatchingRuleRegistryMonitor;
-import org.apache.ldap.server.schema.MatchingRuleRegistryMonitorAdapter;
 import org.apache.ldap.server.schema.OidRegistry;
 
 
@@ -40,13 +39,12 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
 {
     /** a map using an OID for the key and a MatchingRule for the value */
     private final Map byOid;
+
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
+    
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** a monitor used to track noteable registry events */
-    private MatchingRuleRegistryMonitor monitor = null;
-    
     
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -63,7 +61,6 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
         this.byOid = new HashMap();
-        this.monitor = new MatchingRuleRegistryMonitorAdapter();
     }
     
 
@@ -82,12 +79,10 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         if ( byOid.containsKey( id ) )
         {
             MatchingRule MatchingRule = ( MatchingRule ) byOid.get( id );
-            monitor.lookedUp( MatchingRule );
             return MatchingRule;
         }
         
         NamingException fault = new NamingException( "Unknown MatchingRule OID " + id );
-        monitor.lookupFailed( id, fault );
         throw fault;
     }
     
@@ -101,7 +96,6 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         {
             NamingException e = new NamingException( "matchingRule w/ OID " +
                 matchingRule.getOid() + " has already been registered!" );
-            monitor.registerFailed( matchingRule, e );
             throw e;
         }
 
@@ -114,7 +108,6 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
         }
 
         byOid.put( matchingRule.getOid(), matchingRule );
-        monitor.registered( matchingRule );
     }
 
     
@@ -151,36 +144,42 @@ public class BootstrapMatchingRuleRegistry implements MatchingRuleRegistry
             "schema name map!" );
     }
 
-
-    // ------------------------------------------------------------------------
-    // package friendly monitor methods
-    // ------------------------------------------------------------------------
-    
-    
-    /**
-     * Gets the monitor for this registry.
-     * 
-     * @return the monitor
-     */
-    MatchingRuleRegistryMonitor getMonitor()
-    {
-        return monitor;
-    }
-
-    
-    /**
-     * Sets the monitor for this registry.
-     * 
-     * @param monitor the monitor to set
-     */
-    void setMonitor( MatchingRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     public Iterator list()
     {
         return byOid.values().iterator();
+    }
+
+    /**
+     * A String representation of this class
+     */
+    public String toString( String tabs )
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( tabs ).append( "BootstrapMatchingRuleRegistry : {\n" );
+    	
+    	sb.append( tabs ).append( "  By oid : \n" );
+    	
+    	sb.append( tabs ).append( StringUtils.mapToString( byOid, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append( "  Oid to schema : \n" );
+
+    	sb.append( tabs ).append( StringUtils.mapToString( oidToSchema, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append( "  OidRegistry :\n" );
+    	
+    	sb.append( oidRegistry.toString( tabs + "    " ) );
+    	
+    	sb.append( tabs ).append( "}\n" );
+    	
+    	return sb.toString();
+    }
+
+    /**
+     * A String representation of this class
+     */
+    public String toString()
+    {
+    	return toString( "" );
     }
 }

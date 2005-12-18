@@ -23,9 +23,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.server.schema.ComparatorRegistry;
-import org.apache.ldap.server.schema.ComparatorRegistryMonitor;
-import org.apache.ldap.server.schema.ComparatorRegistryMonitorAdapter;
 import org.apache.ldap.server.schema.SerializableComparator;
 
 
@@ -39,17 +38,14 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
 {
     /** the comparators in this registry */
     private final Map comparators;
+
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor for delivering callback events */
-    private ComparatorRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
-
     /**
      * Creates a default ComparatorRegistry by initializing the map and the
      * montior.
@@ -58,22 +54,9 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
     {
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
-        this.monitor = new ComparatorRegistryMonitorAdapter();
 
         SerializableComparator.setRegistry( this );
     }
-
-
-    /**
-     * Sets the monitor used by this registry.
-     *
-     * @param monitor the monitor to set for registry event callbacks
-     */
-    public void setMonitor( ComparatorRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -86,13 +69,11 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
         {
             NamingException e = new NamingException( "Comparator with OID "
                 + oid + " already registered!" );
-            monitor.registerFailed( oid, comparator, e );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
         comparators.put( oid, comparator );
-        monitor.registered( oid, comparator );
     }
 
 
@@ -101,13 +82,11 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
         if ( comparators.containsKey( oid ) )
         {
             Comparator c = ( Comparator ) comparators.get( oid );
-            monitor.lookedUp( oid, c );
             return c;
         }
 
 
         NamingException e = new NamingException( "Comparator not found for OID: " + oid );
-        monitor.lookupFailed( oid, e );
         throw e;
     }
 
@@ -132,5 +111,35 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
 
         throw new NamingException( "OID " + oid + " not found in oid to " +
             "schema name map!" );
+    }
+    
+    /**
+     * A String representation of this class
+     */
+    public String toString( String tabs )
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( tabs).append( "BootstrapComparatorRegistry : {\n" );
+    	
+    	sb.append( tabs).append( "  Comparators : \n" );
+    	
+    	sb.append( tabs).append( StringUtils.mapToString( comparators, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs).append( "  By schema : \n" );
+
+    	sb.append( tabs).append( StringUtils.mapToString( oidToSchema, "    " ) ) .append( '\n' );
+
+    	sb.append( tabs).append( "}\n" );
+    	
+    	return sb.toString();
+    }
+    
+    /**
+     * A String representation of this class
+     */
+    public String toString()
+    {
+    	return toString( "" );
     }
 }
