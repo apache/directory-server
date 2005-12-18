@@ -23,10 +23,9 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.schema.NameForm;
 import org.apache.ldap.server.schema.NameFormRegistry;
-import org.apache.ldap.server.schema.NameFormRegistryMonitor;
-import org.apache.ldap.server.schema.NameFormRegistryMonitorAdapter;
 import org.apache.ldap.server.schema.OidRegistry;
 
 
@@ -40,12 +39,12 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
 {
     /** maps an OID to an NameForm */
     private final Map byOid;
+
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
+    
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private NameFormRegistryMonitor monitor;
 
 
     // ------------------------------------------------------------------------
@@ -61,25 +60,11 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new NameFormRegistryMonitorAdapter();
     }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( NameFormRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
 
     public void register( String schema, NameForm nameForm ) throws NamingException
     {
@@ -87,14 +72,12 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
         {
             NamingException e = new NamingException( "nameForm w/ OID " +
                 nameForm.getOid() + " has already been registered!" );
-            monitor.registerFailed( nameForm, e );
             throw e;
         }
 
         oidToSchema.put( nameForm.getOid(), schema );
         oidRegistry.register( nameForm.getName(), nameForm.getOid() );
         byOid.put( nameForm.getOid(), nameForm );
-        monitor.registered( nameForm );
     }
 
 
@@ -106,12 +89,10 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
         {
             NamingException e = new NamingException( "nameForm w/ OID " + id
                 + " not registered!" );
-            monitor.lookupFailed( id, e );
             throw e;
         }
 
         NameForm nameForm = ( NameForm ) byOid.get( id );
-        monitor.lookedUp( nameForm );
         return nameForm;
     }
 
@@ -150,5 +131,39 @@ public class BootstrapNameFormRegistry implements NameFormRegistry
     public Iterator list()
     {
         return byOid.values().iterator();
+    }
+    
+    /**
+     * A String representation of this class
+     */
+    public String toString( String tabs )
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( tabs ).append( "BootstrapNameFormRegistry : {\n" );
+    	
+    	sb.append( tabs ).append(  "  By oid : \n" );
+    	
+    	sb.append( tabs ).append(  StringUtils.mapToString( byOid, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append(  "  Oid to schema : \n" );
+
+    	sb.append( tabs ).append(  StringUtils.mapToString( oidToSchema, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append(  "  OidRegistry :\n" );
+    	
+    	sb.append( oidRegistry.toString( tabs + "    " ) );
+    	
+    	sb.append( tabs ).append(  "}\n" );
+    	
+    	return sb.toString();
+    }
+
+    /**
+     * A String representation of this class
+     */
+    public String toString()
+    {
+    	return toString( "" );
     }
 }
