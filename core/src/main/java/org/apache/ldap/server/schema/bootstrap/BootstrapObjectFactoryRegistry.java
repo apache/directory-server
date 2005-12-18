@@ -23,6 +23,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.server.jndi.ServerDirObjectFactory;
 import org.apache.ldap.server.schema.ObjectFactoryRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
@@ -98,5 +99,35 @@ public class BootstrapObjectFactoryRegistry implements ObjectFactoryRegistry
     public void register( ServerDirObjectFactory factory ) throws NamingException
     {
         byOid.put( oidRegistry.getOid( factory.getObjectClassId() ), factory );
+    }
+    
+    /**
+     * A String representation of this class
+     */
+    public String toString( String tabs )
+    {
+    	StringBuffer sb = new StringBuffer();
+    	
+    	sb.append( tabs ).append( "BootstrapObjectFactoryRegistry : {\n" );
+    	
+    	sb.append( tabs ).append(  "  By oid : \n" );
+    	
+    	sb.append( tabs ).append(  StringUtils.mapToString( byOid, "    " ) ) .append( '\n' );
+    	
+    	sb.append( tabs ).append(  "  OidRegistry :\n" );
+    	
+    	sb.append( oidRegistry.toString( tabs +  "    " ) );
+    	
+    	sb.append( tabs ).append(  "}\n" );
+    	
+    	return sb.toString();
+    }
+
+    /**
+     * A String representation of this class
+     */
+    public String toString()
+    {
+    	return toString( "" );
     }
 }
