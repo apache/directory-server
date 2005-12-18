@@ -42,8 +42,7 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private DITStructureRuleRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapDitStructureRuleRegistry bootstrap;
 
@@ -61,7 +60,6 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new DITStructureRuleRegistryMonitorAdapter();
 
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
@@ -69,18 +67,6 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
     }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( DITStructureRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -94,14 +80,12 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
         {
             NamingException e = new NamingException( "dITStructureRule w/ OID " +
                 dITStructureRule.getOid() + " has already been registered!" );
-            monitor.registerFailed( dITStructureRule, e );
             throw e;
         }
 
         oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() ) ;
         byOid.put( dITStructureRule.getOid(), dITStructureRule );
         oidToSchema.put( dITStructureRule.getOid(), schema );
-        monitor.registered( dITStructureRule );
     }
 
 
@@ -112,20 +96,17 @@ public class GlobalDitStructureRuleRegistry implements DITStructureRuleRegistry
         if ( byOid.containsKey( id ) )
         {
             DITStructureRule dITStructureRule = ( DITStructureRule ) byOid.get( id );
-            monitor.lookedUp( dITStructureRule );
             return dITStructureRule;
         }
 
         if ( bootstrap.hasDITStructureRule( id ) )
         {
             DITStructureRule dITStructureRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITStructureRule );
             return dITStructureRule;
         }
 
         NamingException e = new NamingException( "dITStructureRule w/ OID "
             + id + " not registered!" );
-        monitor.lookupFailed( id, e );
         throw e;
     }
 

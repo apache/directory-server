@@ -42,8 +42,7 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private DITContentRuleRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapDitContentRuleRegistry bootstrap;
 
@@ -61,7 +60,6 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new DITContentRuleRegistryMonitorAdapter();
 
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
@@ -70,23 +68,9 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
         }
     }
 
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( DITContentRuleRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
-
     public void register( String schema, DITContentRule dITContentRule ) throws NamingException
     {
         if ( byOid.containsKey( dITContentRule.getOid() ) ||
@@ -94,14 +78,12 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
         {
             NamingException e = new NamingException( "dITContentRule w/ OID " +
                 dITContentRule.getOid() + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
         byOid.put( dITContentRule.getOid(), dITContentRule );
         oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
     }
 
 
@@ -112,20 +94,17 @@ public class GlobalDitContentRuleRegistry implements DITContentRuleRegistry
         if ( byOid.containsKey( id ) )
         {
             DITContentRule dITContentRule = ( DITContentRule ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         if ( bootstrap.hasDITContentRule( id ) )
         {
             DITContentRule dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         NamingException e = new NamingException( "dITContentRule w/ OID "
             + id + " not registered!" );
-        monitor.lookupFailed( id, e );
         throw e;
     }
 

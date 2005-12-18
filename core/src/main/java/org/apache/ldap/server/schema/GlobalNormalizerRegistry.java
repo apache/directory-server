@@ -38,8 +38,7 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
     private final Map normalizers;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor for delivering callback events */
-    private NormalizerRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapNormalizerRegistry bootstrap;
 
@@ -57,7 +56,6 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
     {
         this.oidToSchema = new HashMap();
         this.normalizers = new HashMap();
-        this.monitor = new NormalizerRegistryMonitorAdapter();
 
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
@@ -65,18 +63,6 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
     }
-
-
-    /**
-     * Sets the monitor used by this registry.
-     *
-     * @param monitor the monitor to set for registry event callbacks
-     */
-    public void setMonitor( NormalizerRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -90,13 +76,11 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
         {
             NamingException e = new NamingException( "Normalizer with OID "
                 + oid + " already registered!" );
-            monitor.registerFailed( oid, normalizer, e );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
         normalizers.put( oid, normalizer );
-        monitor.registered( oid, normalizer );
     }
 
 
@@ -108,19 +92,16 @@ public class GlobalNormalizerRegistry implements NormalizerRegistry
         if ( normalizers.containsKey( oid ) )
         {
             c = ( Normalizer ) normalizers.get( oid );
-            monitor.lookedUp( oid, c );
             return c;
         }
 
         if ( bootstrap.hasNormalizer( oid ) )
         {
             c = bootstrap.lookup( oid );
-            monitor.lookedUp( oid, c );
             return c;
         }
 
         e = new NamingException( "Normalizer not found for OID: " + oid );
-        monitor.lookupFailed( oid, e );
         throw e;
     }
 

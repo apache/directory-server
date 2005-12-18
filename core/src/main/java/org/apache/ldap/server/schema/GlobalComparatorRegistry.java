@@ -38,8 +38,6 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
     private final Map comparators;
     /** maps an OID to a schema name*/
     private final Map oidToSchema;
-    /** the monitor for delivering callback events */
-    private ComparatorRegistryMonitor monitor;
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapComparatorRegistry bootstrap;
 
@@ -57,7 +55,6 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
     {
         this.oidToSchema = new HashMap();
         this.comparators = new HashMap();
-        this.monitor = new ComparatorRegistryMonitorAdapter();
 
         // override bootstrap registry used by serializable comparators
         SerializableComparator.setRegistry( this );
@@ -68,18 +65,6 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
     }
-
-
-    /**
-     * Sets the monitor used by this registry.
-     *
-     * @param monitor the monitor to set for registry event callbacks
-     */
-    public void setMonitor( ComparatorRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -93,13 +78,11 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
         {
             NamingException e = new NamingException( "Comparator with OID "
                 + oid + " already registered!" );
-            monitor.registerFailed( oid, comparator, e );
             throw e;
         }
 
         oidToSchema.put( oid, schema );
         comparators.put( oid, comparator );
-        monitor.registered( oid, comparator );
     }
 
 
@@ -111,19 +94,16 @@ public class GlobalComparatorRegistry implements ComparatorRegistry
         if ( comparators.containsKey( oid ) )
         {
             c = ( Comparator ) comparators.get( oid );
-            monitor.lookedUp( oid, c );
             return c;
         }
 
         if ( bootstrap.hasComparator( oid ) )
         {
             c = bootstrap.lookup( oid );
-            monitor.lookedUp( oid, c );
             return c;
         }
 
         e = new NamingException( "Comparator not found for OID: " + oid );
-        monitor.lookupFailed( oid, e );
         throw e;
     }
 

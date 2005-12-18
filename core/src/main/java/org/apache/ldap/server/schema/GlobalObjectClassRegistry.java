@@ -42,8 +42,7 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private ObjectClassRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapObjectClassRegistry bootstrap;
 
@@ -61,7 +60,6 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new ObjectClassRegistryMonitorAdapter();
 
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
@@ -69,18 +67,6 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
     }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( ObjectClassRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -94,14 +80,12 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
         {
             NamingException e = new NamingException( "dITContentRule w/ OID " +
                 dITContentRule.getOid() + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
         byOid.put( dITContentRule.getOid(), dITContentRule );
         oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
     }
 
 
@@ -112,20 +96,17 @@ public class GlobalObjectClassRegistry implements ObjectClassRegistry
         if ( byOid.containsKey( id ) )
         {
             ObjectClass dITContentRule = ( ObjectClass ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         if ( bootstrap.hasObjectClass( id ) )
         {
             ObjectClass dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         NamingException e = new NamingException( "dITContentRule w/ OID "
             + id + " not registered!" );
-        monitor.lookupFailed( id, e );
         throw e;
     }
 

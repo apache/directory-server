@@ -42,8 +42,7 @@ public class GlobalNameFormRegistry implements NameFormRegistry
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private NameFormRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapNameFormRegistry bootstrap;
 
@@ -61,7 +60,6 @@ public class GlobalNameFormRegistry implements NameFormRegistry
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
         this.oidRegistry = oidRegistry;
-        this.monitor = new NameFormRegistryMonitorAdapter();
 
         this.bootstrap = bootstrap;
         if ( this.bootstrap == null )
@@ -69,18 +67,6 @@ public class GlobalNameFormRegistry implements NameFormRegistry
             throw new NullPointerException( "the bootstrap registry cannot be null" ) ;
         }
     }
-
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( NameFormRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
 
     // ------------------------------------------------------------------------
     // Service Methods
@@ -94,14 +80,12 @@ public class GlobalNameFormRegistry implements NameFormRegistry
         {
             NamingException e = new NamingException( "dITContentRule w/ OID " +
                 dITContentRule.getOid() + " has already been registered!" );
-            monitor.registerFailed( dITContentRule, e );
             throw e;
         }
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() ) ;
         byOid.put( dITContentRule.getOid(), dITContentRule );
         oidToSchema.put( dITContentRule.getOid(), schema );
-        monitor.registered( dITContentRule );
     }
 
 
@@ -112,20 +96,17 @@ public class GlobalNameFormRegistry implements NameFormRegistry
         if ( byOid.containsKey( id ) )
         {
             NameForm dITContentRule = ( NameForm ) byOid.get( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         if ( bootstrap.hasNameForm( id ) )
         {
             NameForm dITContentRule = bootstrap.lookup( id );
-            monitor.lookedUp( dITContentRule );
             return dITContentRule;
         }
 
         NamingException e = new NamingException( "dITContentRule w/ OID "
             + id + " not registered!" );
-        monitor.lookupFailed( id, e );
         throw e;
     }
 

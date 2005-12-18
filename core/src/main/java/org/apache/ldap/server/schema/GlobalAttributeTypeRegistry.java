@@ -42,8 +42,7 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     private final Map oidToSchema;
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** monitor notified via callback events */
-    private AttributeTypeRegistryMonitor monitor;
+
     /** the underlying bootstrap registry to delegate on misses to */
     private BootstrapAttributeTypeRegistry bootstrap;
 
@@ -64,7 +63,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
     {
         this.byOid = new HashMap();
         this.oidToSchema = new HashMap();
-        this.monitor = new AttributeTypeRegistryMonitorAdapter();
 
         this.oidRegistry = oidRegistry;
         if ( this.oidRegistry == null )
@@ -79,23 +77,9 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
         }
     }
 
-
-    /**
-     * Sets the monitor that is to be notified via callback events.
-     *
-     * @param monitor the new monitor to notify of notable events
-     */
-    public void setMonitor( AttributeTypeRegistryMonitor monitor )
-    {
-        this.monitor = monitor;
-    }
-
-
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
-
     public void register( String schema, AttributeType attributeType ) throws NamingException
     {
         if ( byOid.containsKey( attributeType.getOid() ) ||
@@ -103,7 +87,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
         {
             NamingException e = new NamingException( "attributeType w/ OID " +
                 attributeType.getOid() + " has already been registered!" );
-            monitor.registerFailed( attributeType, e );
             throw e;
         }
 
@@ -115,7 +98,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
 
         oidToSchema.put( attributeType.getOid(), schema );
         byOid.put( attributeType.getOid(), attributeType );
-        monitor.registered( attributeType );
     }
 
 
@@ -127,7 +109,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
         {
             NamingException e = new NamingException( "attributeType w/ OID "
                 + id + " not registered!" );
-            monitor.lookupFailed( id, e );
             throw e;
         }
 
@@ -138,7 +119,6 @@ public class GlobalAttributeTypeRegistry implements AttributeTypeRegistry
             attributeType = bootstrap.lookup( id );
         }
 
-        monitor.lookedUp( attributeType );
         return attributeType;
     }
 
