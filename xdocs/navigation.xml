@@ -56,11 +56,14 @@
       <item name="License" href="/license.html"/>
       <item name="Notices" href="/notices.html"/>
     </menu>
-
+    
+    <!-- Commented out, still useful as a placeholder for the next event 
     <menu name="ApacheCon US 2005"> 	 
       <item name="ApacheCon US 2005" href="http://www.apachecon.com/"
             img="http://apache.org/images/ac2005us_blue_125x125.jpg" />
     </menu>
+     -->
+     
  </body>
 
 </project>
