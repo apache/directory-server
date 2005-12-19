@@ -115,19 +115,19 @@ file and use it to add the user. Below we use the ldapadd OpenLDAP client to
 import the LDIF file presuming the server was started on port 1024 on the
 localhost:
         </p>
-        <source>ldapadd -a -D 'uid=admin,ou=system' -f newuser.ldif -h localhost -p 1024 -x -w secret
+        <source>ldapadd -a -D "uid=admin,ou=system" -f newuser.ldif -h localhost -p 1024 -x -w secret
 </source>
         <p>
 You can confirm the add/import by performing a search for the user. This time
 using the OpenLDAP search client you use the following
 command:</p>
-        <source>ldapsearch -D 'uid=admin,ou=system' -h localhost -p 1024 -x -w secret -s one
-    -b 'ou=users,ou=system' '(uid=jdoe)'
+        <source>ldapsearch -D "uid=admin,ou=system" -h localhost -p 1024 -x -w secret -s one
+    -b "ou=users,ou=system" "(uid=jdoe)"
 </source>
         <p>
 You can start searching the directory using this new user like
 so:</p>
-        <source>ldapsearch -D 'uid=jdoe,ou=users,ou=system' -h localhost -p 1024 -x -w test -s one -b 'ou=system' '(objectClass=*)'
+        <source>ldapsearch -D "uid=jdoe,ou=users,ou=system" -h localhost -p 1024 -x -w test -s one -b "ou=system" "(objectClass=*)"
 </source>
       </subsection>
       <subsection heading="h3" name="Protecting user passwords">
