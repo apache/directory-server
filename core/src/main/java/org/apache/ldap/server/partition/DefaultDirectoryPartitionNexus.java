@@ -41,7 +41,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.MultiException;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.common.schema.AttributeType;
@@ -58,6 +57,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
 import org.apache.ldap.common.util.SingletonEnumeration;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
@@ -390,7 +390,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         		}
         		else if ( reqVal instanceof String )
         		{
-        			return Arrays.equals( attrVal, StringUtils.getBytesUtf8( (String)reqVal ) );
+        			return Arrays.equals( attrVal, StringTools.getBytesUtf8( (String)reqVal ) );
         		}
         	}
         }

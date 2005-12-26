@@ -27,7 +27,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
-import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.filter.SimpleNode;
@@ -47,6 +46,7 @@ import org.apache.ldap.common.schema.Syntax;
 import org.apache.ldap.common.util.SingletonEnumeration;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.AttributeUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
@@ -132,7 +132,7 @@ public class SchemaService extends BaseInterceptor
      */
     public boolean isBinary( String id )
     {
-        return binaries.contains( StringUtils.lowerCase( StringUtils.trim( id ) ) );
+        return binaries.contains( StringTools.lowerCase( StringTools.trim( id ) ) );
     }
 
 
@@ -668,7 +668,7 @@ public class SchemaService extends BaseInterceptor
 
                     if ( value instanceof String )
                     {
-                        binary.add( i, StringUtils.getBytesUtf8( ( String ) value ) );
+                        binary.add( i, StringTools.getBytesUtf8( ( String ) value ) );
                     }
                     else
                     {

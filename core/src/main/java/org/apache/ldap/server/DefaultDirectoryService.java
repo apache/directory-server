@@ -37,6 +37,7 @@ import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.util.DateUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.server.authz.AuthorizationService;
 import org.apache.ldap.server.configuration.Configuration;
@@ -52,7 +53,6 @@ import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.asn1.codec.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -701,13 +701,13 @@ class DefaultDirectoryService extends DirectoryService
             }
             else
             {
-                if ( ! StringUtils.isEmpty( binaryIds ) )
+                if ( ! StringTools.isEmpty( binaryIds ) )
                 {
                     String[] binaryArray = binaryIds.split( " " );
 
                     for ( int i = 0; i < binaryArray.length; i++ )
                     {
-                        binaries.add( StringUtils.lowerCase( StringUtils.trim( binaryArray[i] ) ) );
+                        binaries.add( StringTools.lowerCase( StringTools.trim( binaryArray[i] ) ) );
                     }
                 }
 
@@ -734,7 +734,7 @@ class DefaultDirectoryService extends DirectoryService
                 String[] names = type.getNames();
                 for ( int ii = 0; ii < names.length; ii++ )
                 {
-                    binaries.add( StringUtils.lowerCase( StringUtils.trim( names[ii] ) ) );
+                    binaries.add( StringTools.lowerCase( StringTools.trim( names[ii] ) ) );
                 }
             }
         }

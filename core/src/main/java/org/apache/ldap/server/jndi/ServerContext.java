@@ -43,13 +43,13 @@ import javax.naming.ldap.Control;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
-import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.exception.LdapNoPermissionException;
 import org.apache.ldap.common.filter.ExprNode;
 import org.apache.ldap.common.filter.PresenceNode;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.NamespaceTools;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.authn.AuthenticationService;
@@ -568,7 +568,7 @@ public abstract class ServerContext implements EventContext
      */
     public Object lookup( String name ) throws NamingException
     {
-    	if ( StringUtils.isEmpty( name ) )
+    	if ( StringTools.isEmpty( name ) )
     	{
     		return lookup( LdapName.EMPTY_LDAP_NAME );
     	}
