@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.asn1.codec.util.StringUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.schema.ComparatorRegistry;
 import org.apache.ldap.server.schema.SerializableComparator;
 
@@ -124,11 +124,11 @@ public class BootstrapComparatorRegistry implements ComparatorRegistry
     	
     	sb.append( tabs).append( "  Comparators : \n" );
     	
-    	sb.append( tabs).append( StringUtils.mapToString( comparators, "    " ) ) .append( '\n' );
+    	sb.append( tabs).append( StringTools.mapToString( comparators, "    " ) ) .append( '\n' );
     	
     	sb.append( tabs).append( "  By schema : \n" );
 
-    	sb.append( tabs).append( StringUtils.mapToString( oidToSchema, "    " ) ) .append( '\n' );
+    	sb.append( tabs).append( StringTools.mapToString( oidToSchema, "    " ) ) .append( '\n' );
 
     	sb.append( tabs).append( "}\n" );
     	

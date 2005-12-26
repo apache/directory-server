@@ -22,9 +22,9 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.asn1.codec.util.StringUtils;
 import org.apache.asn1new.primitives.OID;
 import org.apache.ldap.common.schema.Normalizer;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.schema.NormalizerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,11 +131,11 @@ public class BootstrapNormalizerRegistry implements NormalizerRegistry
     	
     	sb.append( tabs ).append( "  By oid : \n" );
     	
-    	sb.append( StringUtils.mapToString( byOid, tabs + "    " ) ) .append( '\n' );
+    	sb.append( StringTools.mapToString( byOid, tabs + "    " ) ) .append( '\n' );
     	
     	sb.append( tabs ).append( "  By schema : \n" );
 
-    	sb.append( StringUtils.mapToString( oidToSchema, tabs + "    " ) ) .append( '\n' );
+    	sb.append( StringTools.mapToString( oidToSchema, tabs + "    " ) ) .append( '\n' );
     	
     	sb.append( tabs ).append( "}\n" );
     	

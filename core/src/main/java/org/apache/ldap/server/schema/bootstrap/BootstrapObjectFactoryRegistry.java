@@ -23,7 +23,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.asn1.codec.util.StringUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.jndi.ServerDirObjectFactory;
 import org.apache.ldap.server.schema.ObjectFactoryRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
@@ -112,7 +112,7 @@ public class BootstrapObjectFactoryRegistry implements ObjectFactoryRegistry
     	
     	sb.append( tabs ).append(  "  By oid : \n" );
     	
-    	sb.append( tabs ).append(  StringUtils.mapToString( byOid, "    " ) ) .append( '\n' );
+    	sb.append( tabs ).append(  StringTools.mapToString( byOid, "    " ) ) .append( '\n' );
     	
     	sb.append( tabs ).append(  "  OidRegistry :\n" );
     	

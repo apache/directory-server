@@ -23,8 +23,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.schema.MatchingRuleUse;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.schema.MatchingRuleUseRegistry;
 
 
@@ -126,11 +126,11 @@ public class BootstrapMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     	
     	sb.append( tabs).append(  "  By name : \n" );
     	
-    	sb.append( tabs).append(  StringUtils.mapToString( byName, "    " ) ) .append( '\n' );
+    	sb.append( tabs).append(  StringTools.mapToString( byName, "    " ) ) .append( '\n' );
     	
     	sb.append( tabs).append(  "  Name to schema : \n" );
 
-    	sb.append( tabs).append(  StringUtils.mapToString( nameToSchema, "    " ) ) .append( '\n' );
+    	sb.append( tabs).append(  StringTools.mapToString( nameToSchema, "    " ) ) .append( '\n' );
     	
     	sb.append( tabs).append(  "}\n" );
     	
