@@ -34,7 +34,7 @@ import org.apache.ldap.common.filter.SimpleNode;
 import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
-import org.apache.ldap.common.name.LdapName;
+import org.apache.ldap.common.name.LdapDN;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.DITContentRule;
 import org.apache.ldap.common.schema.DITStructureRule;
@@ -123,7 +123,7 @@ public class SchemaService extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
-        subentryDn = new LdapName( subschemaSubentry ).toString().toLowerCase();
+        subentryDn = new LdapDN( subschemaSubentry ).toString().toLowerCase();
     }
 
 
