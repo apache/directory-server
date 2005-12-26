@@ -23,7 +23,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.asn1.codec.util.StringUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 
@@ -73,7 +73,7 @@ public class BinaryAttributeFilterTest extends AbstractAdminTestCase
         Attribute jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
         value = jpegPhoto.get();
         assertTrue( value instanceof byte[] );
-        assertEquals( "0x45 0x23 0x7D 0x7F ", StringUtils.dumpBytes( (byte[])value ) );
+        assertEquals( "0x45 0x23 0x7D 0x7F ", StringTools.dumpBytes( (byte[])value ) );
 
         // try jpegPhoto which should be binary automatically but use String to
         // create so we should still get back a byte[] - use ou as control
