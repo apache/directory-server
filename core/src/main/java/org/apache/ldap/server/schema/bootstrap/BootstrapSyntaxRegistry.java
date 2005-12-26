@@ -23,8 +23,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.asn1.codec.util.StringUtils;
 import org.apache.ldap.common.schema.Syntax;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.schema.OidRegistry;
 import org.apache.ldap.server.schema.SyntaxRegistry;
 
@@ -153,11 +153,11 @@ public class BootstrapSyntaxRegistry implements SyntaxRegistry
     	
     	sb.append( tabs ).append( "  By oid : \n" );
     	
-    	sb.append( tabs ).append( StringUtils.mapToString( byOid, "    " ) ) .append( '\n' );
+    	sb.append( tabs ).append( StringTools.mapToString( byOid, "    " ) ) .append( '\n' );
     	
     	sb.append( tabs ).append( "  Oid to schema : \n" );
 
-    	sb.append( tabs ).append( StringUtils.mapToString( oidToSchema, "    " ) ) .append( '\n' );
+    	sb.append( tabs ).append( StringTools.mapToString( oidToSchema, "    " ) ) .append( '\n' );
     	
     	sb.append( tabs ).append( "  OidRegistry :\n" );
     	

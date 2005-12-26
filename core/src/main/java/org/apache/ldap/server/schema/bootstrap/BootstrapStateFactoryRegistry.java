@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import javax.naming.NamingException;
 
-import org.apache.asn1.codec.util.StringUtils;
+import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.jndi.ServerDirStateFactory;
 import org.apache.ldap.server.schema.StateFactoryRegistry;
 
@@ -89,7 +89,7 @@ public class BootstrapStateFactoryRegistry implements StateFactoryRegistry
     	
     	sb.append( tabs ).append(  "  By class : \n" );
     	
-    	sb.append( tabs ).append(  StringUtils.mapToString( byClass, "    " ) ) .append( '\n' );
+    	sb.append( tabs ).append(  StringTools.mapToString( byClass, "    " ) ) .append( '\n' );
     	
     	sb.append( tabs ).append(  "}\n" );
 
