@@ -33,5 +33,6 @@
   
   <modules>
     <module>../apacheds-shared</module>
+    <module>../apacheds-plugin</module>
   </modules>
 </project>
