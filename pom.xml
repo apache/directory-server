@@ -14,17 +14,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <version>1.2.17</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.ldap.common</groupId>
       <artifactId>org.apache.ldap.common</artifactId>
       <version>0.9.4-SNAPSHOT</version>
@@ -32,7 +21,12 @@
   </dependencies>
   
   <modules>
+    <module>../apacheds</module>
     <module>../apacheds-shared</module>
     <module>../apacheds-plugin</module>
+    <module>../apacheds-core-unit</module>
+    <module>../apacheds-server</module>
+    <module>../apacheds-server-unit</module>
+    <module>../apacheds-server-main</module>
   </modules>
 </project>
