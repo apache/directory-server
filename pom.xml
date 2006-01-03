@@ -6,15 +6,15 @@
     <artifactId>build</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.ldap.server</groupId>
+  <groupId>org.apache.directory.server</groupId>
   <version>0.9.4-SNAPSHOT</version>
-  <artifactId>build</artifactId>
+  <artifactId>apacheds-build</artifactId>
   <name>apacheds-build</name>
   <packaging>pom</packaging>
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.ldap.common</groupId>
+      <groupId>org.apache.directory</groupId>
       <artifactId>org.apache.ldap.common</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
