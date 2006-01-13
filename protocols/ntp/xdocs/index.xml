@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<properties>
+		<author email="erodriguez@apache.org">Enrique Rodriguez</author>
+		<title>Apache Simple Network Time Protocol</title>
+	</properties>
+	<body>
+		<section name="Introduction">
+			<p>The Apache NTP Protocol Provider is a Java server that implements <a 
+				href="http://www.ietf.org/rfc/rfc2030.txt">RFC 2030</a> to service Simple Network 
+				Time Protocol requests. The Network Time Protocol is used to synchronize computer
+				clocks on the Internet.</p>
+			<p>Apache NTP, in conjunction with MINA and the Apache Directory, provides an 
+				easy-to-use yet fully-featured network time synchronization service. As implemented 
+				within the Apache Directory, Apache NTP will provide:</p>
+			<ul>
+				<li>Simple Network Time Protocol (SNTP) service (RFC 2030)</li>
+				<li>JMX remote management (JSR 160, JSR 28)</li>
+				<li>UDP and TCP Support (MINA)</li>
+				<li>Traffic throttling (MINA)</li>
+				<li>Overload shielding (MINA)</li>
+				<li>Easy POJO embeddability for containers such as Geronimo, JBoss, and OSGi</li>
+			</ul>
+		</section>
+	</body>
+</document>

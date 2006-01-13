@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <title>DHCP Provider</title>
+  <body>
+    <links>
+      <item name="Directory" href="../../../index.html"/>
+      <item name="ApacheDS" href="../../apacheds/index.html"/>
+      <item name="LDAP" href="../../ldap.html"/>
+      <item name="Naming" href="../../naming/index.html"/>
+      <item name="ASN.1" href="../../asn1/index.html"/>
+      <item name="Kerberos" href="../../../subprojects/kerberos.html"/>
+      <item name="AuthX" href="../../authx/index.html"/>
+      <item name="MINA" href="../../network/index.html"/>
+      <item name="Protocols" href="../../providers.html"/>
+    </links>
+    <menu name="DHCP Provider">
+      <item name="Overview" href="/index.html"/>
+    </menu>
+  </body>
+</project>
