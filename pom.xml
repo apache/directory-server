@@ -52,6 +52,11 @@
       <name>snapshot plugins</name>
       <url>http://snapshots.maven.codehaus.org/maven2</url>
     </pluginRepository>
+    <pluginRepository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Plugin Repository</name>
+      <url>http://cvs.apache.org/maven-snapshot-repository</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <profiles>
