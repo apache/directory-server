@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>protocols-build</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
   <version>0.3-SNAPSHOT</version>

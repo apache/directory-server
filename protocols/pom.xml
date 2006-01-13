@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
+  </parent>
+  <groupId>org.apache.directory.server.protocols</groupId>
+  <version>0.9.4-SNAPSHOT</version>
+  <artifactId>build</artifactId>
+  <name>protocols-build</name>
+  <packaging>pom</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory</groupId>
+      <artifactId>org.apache.ldap.common</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <modules>
+    <module>common</module>
+    <!--
+    <module>ntp</module>
+    <module>dns</module>
+    <module>dhcp</module>
+    <module>ldap</module>
+    <module>kerberos</module>
+    <module>changepw</module>
+    -->
+  </modules>
+</project>

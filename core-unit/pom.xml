@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>apacheds-build</artifactId>
+    <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
   <artifactId>org.apache.ldap.server.core.unit</artifactId>

@@ -2,11 +2,11 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory</groupId>
+  <groupId>org.apache.directory.server.protocols</groupId>
   <version>0.7-SNAPSHOT</version>
   <artifactId>org.apache.directory.protocol.changepw</artifactId>
   <name>changepw-protocol</name>
