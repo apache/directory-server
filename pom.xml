@@ -19,14 +19,70 @@
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
-  
-  <modules>
-    <module>../apacheds</module>
-    <module>../apacheds-shared</module>
-    <module>../apacheds-plugin</module>
-    <module>../apacheds-core-unit</module>
-    <module>../apacheds-server</module>
-    <module>../apacheds-server-unit</module>
-    <module>../apacheds-server-main</module>
-  </modules>
+
+  <profiles>
+    <profile>
+      <id>jdk1.5</id>
+      <activation>
+        <jdk>1.5</jdk>
+      </activation>
+      <modules>
+        <module>../apacheds</module>
+        <module>../apacheds-shared</module>
+        <module>../apacheds-plugin</module>
+        <module>../apacheds-core-unit</module>
+        <module>../apacheds-server</module>
+        <module>../apacheds-server-ssl</module>
+        <module>../apacheds-server-unit</module>
+        <module>../apacheds-server-main</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>jdk1.4</id>
+      <activation>
+        <jdk>1.4</jdk>
+      </activation>
+      <modules>
+        <module>../apacheds</module>
+        <module>../apacheds-shared</module>
+        <module>../apacheds-plugin</module>
+        <module>../apacheds-core-unit</module>
+        <module>../apacheds-server</module>
+        <module>../apacheds-server-unit</module>
+        <module>../apacheds-server-main</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+====================================================================
+                       W A R N I N G
+                       -------------
+
+Build with 1.4 jvm will not include modules:
+ 
+ o apacheds-server-ssl
+
+Use JDK 1.5 to make sure these modules build.
+====================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
