@@ -14,7 +14,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory</groupId>
+      <groupId>org.apache.directory.common</groupId>
       <artifactId>org.apache.ldap.common</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
@@ -31,10 +31,12 @@
         <module>shared</module>
         <module>plugin</module>
         <module>core-unit</module>
+        <!--
         <module>server</module>
         <module>server-ssl</module>
         <module>server-unit</module>
         <module>server-main</module>
+        -->
         <module>protocols</module>
       </modules>
     </profile>
