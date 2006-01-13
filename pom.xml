@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory</groupId>
+    <artifactId>build</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <groupId>org.apache.directory.common</groupId>
+  <artifactId>build</artifactId>
+  <name>common-build</name>
+  <packaging>pom</packaging>  
+  <version>0.9.4-SNAPSHOT</version>
+  <modules>
+    <module>ldap</module>
+  </modules>
+</project>
+

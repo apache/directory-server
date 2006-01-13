@@ -2,11 +2,11 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory</groupId>
+    <groupId>org.apache.directory.common</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory</groupId>
+  <groupId>org.apache.directory.common</groupId>
   <artifactId>org.apache.ldap.common</artifactId>
   <version>0.9.4-SNAPSHOT</version>
   <name>ldap-common</name>
