@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="erodriguez@apache.org">Enrique Rodriguez</author>
+    <title>Configuring Change Password Clients</title>
+  </properties>
+  <body>
+    <section name="Configuring Change Password Clients">
+      <subsection name="Changing Your Password">
+        <p> The gnome-kerberos client (<code>/usr/bin/krb5</code>) may be used to
+          change passwords. Clicking the button <code>Change Password ...</code> will
+          open a Change Kerberos Password dialog. </p>
+      </subsection>
+    </section>
+  </body>
+</document>

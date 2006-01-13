@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+      <author email="akarasulu@apache.org">Alex Karasulu</author>
+      <author email="erodriguez@apache.org">Enrique Rodriguez</author>
+    <title>Change Password Protocol Provider</title>
+  </properties>
+  <body>
+    <section name="Introduction">
+      <p>The Change Password service is a protocol provider that implements <a
+        href="http://www.ietf.org/rfc/rfc3244.txt">RFC 3244</a> to service Kerberos Change
+        Password and Set Password Protocol requests. Change Password is a request-reply
+        protocol that uses Kerberos infrastructure to allow users to securely set initial
+        passwords or to change existing passwords. The Change Password protocol
+        interoperates with the original Kerberos Change Password protocol, while adding the
+        ability for an administrator to set a password for a new user.</p>
+      <p>The Change Password service is implemented as a protocol-provider plugin for the Apache
+        Directory server. As a plugin, Change Password leverages Apache MINA for front-end
+        services and the Apache Directory read-optimized backing store via JNDI for
+        persistent directory services.</p>
+      <p>Change Password, in conjunction with MINA and the Apache Directory, provides
+        an easy-to-use yet fully-featured password service. As implemented within the
+        Apache Directory, Change Password will provide:</p>
+      <ul>
+        <li>Original Kerberos password changing service</li>
+        <li>Initial password setting service (RFC 3244)</li>
+        <li>Optional LDAP management</li>
+        <li>UDP and TCP Support (MINA)</li>
+        <li>Traffic throttling (MINA)</li>
+        <li>Overload shielding (MINA)</li>
+        <li>Easy POJO embeddability for containers such as Geronimo, JBoss, and OSGi</li>
+      </ul>
+    </section>
+  </body>
+</document>
