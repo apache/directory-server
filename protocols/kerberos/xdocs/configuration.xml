@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="erodriguez@apache.org">Enrique Rodriguez</author>
+    <title>Configuring Kerberos Clients</title>
+  </properties>
+  
+  <body>
+
+    <section name="Configuring Kerberos Clients">
+      <subsection name="Linux Configuration">
+        <p>
+          You may use the gnome-kerberos client or command-line tools such as kinit to 
+          perform authentication or change a password in Linux.  Configuration in Linux is
+          in the <code>/etc/krb5.conf</code> text file.  At a minimum, you need to tell Linux
+          the default realm to use.  You also may wish to set the default encryption types,
+          depending on your environment.
+        </p>
+
+        <source>
+[libdefaults]
+ default_realm = EXAMPLE.COM
+ default_tkt_enctypes = des-cbc-md5
+ default_tgs_enctypes = des-cbc-md5
+
+[realms]
+ EXAMPLE.COM = {
+  kdc = kerberos.example.com:88
+  admin_server = kerberos.example.com:749
+  default_domain = example.com
+ }
+
+[domain_realm]
+ .example.com = EXAMPLE.COM
+ example.com = EXAMPLE.COM
+        </source>
+        
+        <p>Note that using the above configuration, <code>kerberos.example.com</code> must
+        resolve on your network.  If <code>kerberos.example.com</code> is not found, you may
+        see the error <code>Error getting credentials: Cannot resolve network address for KDC
+        in requested realm</code>.  Assuming you are running Kerberos on your local workstation,
+        you can correct this with the following <code>/etc/hosts</code> entry.</p>
+
+        <source>
+127.0.0.1       kerberos.example.com
+        </source>
+
+        <p>
+          You can install kerberos clients from the apt repositories.  A working GUI client
+          is <code>gnome-kerberos</code> and the command-line tools can be found as
+          <code>krb5-workstation</code>.
+        </p>
+        
+        <source>
+$ apt-get install gnome-kerberos
+        </source>
+        
+        <p>
+          or
+        </p>
+        
+        <source>
+$ apt-get install krb5-workstation
+        </source>
+
+        <p>
+          When you run the gnome-kerberos client (<code>/usr/bin/krb5</code>) after a fresh
+          install, you will see that the <code>EXAMPLE.COM</code> domain is already configured.
+          Users must currently be added to the Eve backing store using LDAP tools.
+        </p>
+
+      </subsection>
+
+    </section>
+  </body>
+</document>

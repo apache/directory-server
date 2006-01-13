@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <author email="erodriguez@apache.org">Enrique Rodriguez</author>
+    <title>Overview</title>
+  </properties>
+  <body>
+    <section name="Introduction">
+      <p>The ApacheDS LDAP provider implements <a 
+         href="http://www.ietf.org/rfc/rfc2251.txt">RFC 2251</a>, the 
+         Lightweight Directory Access Protocol. The purpose of LDAP is to 
+         provide access to directories supporting X.500 models. LDAP is 
+         specifically targeted at provided centralized highly available
+         access to common data accessed by many applications.  
+      </p>
+      <p>The LDAP provider, in conjunction with MINA and the Apache Directory
+         JNDI store provides an easy to-use yet fully-featured lightweight 
+         directory access service. As implemented within the Apache Directory, 
+         it will provide:
+      </p>
+      <ul>
+        <li>LDAPv3 service (RFC 2251)</li>
+        <li>Secure authentication methods (RFC 2829)</li>
+        <li>Extensions for Transport Layer Security (TLS) (RFC 2830)</li>
+        <li>Traffic throttling (MINA)</li>
+        <li>Overload shielding (MINA)</li>
+        <li>Easy POJO embeddability for containers such as Geronimo, JBoss, and OSGi</li>
+      </ul>
+    </section>
+  </body>
+</document>

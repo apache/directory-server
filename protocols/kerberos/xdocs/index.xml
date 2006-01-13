@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+      <author email="akarasulu@apache.org">Alex Karasulu</author>
+      <author email="erodriguez@apache.org">Enrique Rodriguez</author>
+    <title>Overview</title>
+  </properties>
+  <body>
+    <section name="Introduction">
+      <p>The Kerberos provider for ApacheDS implements <a
+        href="http://www.ietf.org/rfc/rfc1510.txt">RFC 1510</a> the Kerberos V5 Network
+        Authentication Service. The purpose of Kerberos is to verify the identities of
+        principals (users or services) on an unprotected network. While generally thought
+        of as a single-sign-on technology, Kerberos' true strength is in authenticating
+        users without ever sending their password over the network. Kerberos is designed
+        for use on open (untrusted) networks and, therefore, operates under the assumption
+        that packets traveling along the network can be read, modified, and inserted at
+        will. <a
+        href="http://www.computerworld.com/computerworld/records/images/pdf/kerberos_chart.pdf">This
+        chart</a> provides a good description of the protocol workflow.</p>
+      <p>Kerberos is named for the three-headed dog that guards the gates to Hades. The three
+        heads are the client, the Kerberos server, and the network service being
+        accessed.</p>
+      <p>The ApacheDS Kerberos provider is implemented as a protocol-provider plugin.
+        As a plugin, the Kerberos provider leverages Apache Directory's MINA for front-end
+        services and the Apache Directory read-optimized backing store via JNDI for
+        persistent directory services.</p>
+      <p>The Kerberos provider for ApacheDS, in conjunction with MINA and the ApacheDS
+        store, provides an easy-to-use yet fully-featured network authentication service.
+        As implemented within the Apache Directory, the Kerberos provider will provide:</p>
+      <ul>
+        <li>Authentication service (RFC 1510)</li>
+        <li>Ticket-granting service (RFC 1510)</li>
+        <li>Pre-authentication support (RFC 1510)</li>
+        <li>DES encryption systems (RFC 1510)</li>
+        <li>Triple-DES (DES3) encryption systems</li>
+        <li>LDAP/JMX management</li>
+        <li>UDP and TCP Support (MINA)</li>
+        <li>Traffic throttling (MINA)</li>
+        <li>Overload shielding (MINA)</li>
+        <li>Easy POJO embeddability for containers such as Geronimo, JBoss, and OSGi</li>
+      </ul>
+    </section>
+  </body>
+</document>
