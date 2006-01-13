@@ -32,13 +32,13 @@
         <module>plugin</module>
         <module>core-unit</module>
         <!--
-        <module>server</module>
         <module>server-ssl</module>
         <module>server-unit</module>
         <module>server-main</module>
         -->
         <module>protocol-common</module>
         <module>protocols</module>
+        <module>standalone/simple</module>
       </modules>
     </profile>
 

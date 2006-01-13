@@ -10,6 +10,11 @@
   <groupId>org.apache.directory.standalone.simple</groupId>
   <name>simple-build</name>
   <packaging>pom</packaging>  
+  <modules>
+    <!--
+    <module>jndi</module>
+    -->
+  </modules>
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
