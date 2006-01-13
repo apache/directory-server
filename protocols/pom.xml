@@ -16,7 +16,7 @@
     <module>ntp</module>
     <module>dhcp</module>
     <module>dns</module>
-    <module>kerberos-core</module>
+    <module>kerberos-common</module>
     <module>kerberos</module>
     <module>changepw</module>
     <!--
