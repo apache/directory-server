@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
+  </parent>
+  <artifactId>build</artifactId>
+  <groupId>org.apache.directory.standalone.simple</groupId>
+  <name>simple-build</name>
+  <packaging>pom</packaging>  
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.19</version>
+      <scope>provided</scope>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.changepw</artifactId>
+      <version>0.7-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.ntp</artifactId>
+      <version>0.5-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.kerberos</artifactId>
+      <version>0.7-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.ldap</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>  
+  </dependencies>
+</project>
+
