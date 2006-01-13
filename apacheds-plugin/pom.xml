@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
+  </parent>
+  <artifactId>org.apache.ldap.server.plugin</artifactId>
+  <name>apacheds-plugin</name>
+  <packaging>maven-plugin</packaging>  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <version>2.7.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.shared</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity-dep</artifactId>
+      <version>1.4</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antlr-plugin</artifactId>
+        <configuration>
+          <grammars>openldap.g</grammars>
+        </configuration>
+        <executions>
+           <execution>
+              <goals>
+                 <goal>generate</goal>
+              </goals>
+           </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/Abstract*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
+

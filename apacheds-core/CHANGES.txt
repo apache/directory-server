@@ -1,0 +1,167 @@
+
+NOTE:  Regarding ApacheDS Releases
+
+  We use even minor numbers to denote stable releases and release branches 
+  where new features are not added but only bug fixes are made.  Odd numbered
+  releases and branches are for experimental feature release branches of which
+  several releases may occur.  For example after 0.9 below there may be 0.9.1,
+  0.9.2 ... 0.9.n et. cetera. until there is a feature freeze and a stable
+  release is created like 1.0.
+
+
+Changes in 0.9.3 (since 0.9.2)
+==============================
+
+Summary
+-------
+
+ o Many bug fixes.
+ o Many performance enhancements.
+ o Updated documentation.
+ o Integrated NTP (RFC 2030) service provider.
+ o Integrated Changepw (RFC 3244) service provider to complement the existing 
+   integrated Kerberos (RFC 1510) provider.
+ o X.501 Basic Access Control model implemented.
+ o Subentries implemented as specified by RFC 3672: 
+   http://www.faqs.org/rfcs/rfc3672.html.
+ o Collective attributes implemented as specified by RFC 3671:
+   http://www.faqs.org/rfcs/rfc3671.html.
+ o Undefined attributes in search filters are ignored (pruned from filter) as
+   specified by RFC 2251: http://www.faqs.org/rfcs/rfc2251.html.
+ o Additional schema checking is performed.
+ o RootDSE reads allowed by anonymous binds even when anonymous access is 
+   disabled to support reading info regarding available sasl mechanisms.
+ o Upgraded to JDBM 1.0.
+ o JNDI event notification support added.  You can now register for notification
+   of changes to entries selected by a filter when embedding apacheds.
+ o Better exception handling and corrections to return the right response codes
+   on error.
+
+Server JIRA Issues
+------------------
+
+Shared Ldap JIRA Issues
+-----------------------
+
+
+Changes in 0.9.2 (since 0.9.1)
+==============================
+ o 3.5x boost in performance due to changes to DnComparator by Emmanuel Lecharny
+ o Fixed Server Bugs:
+    * [DIREVE-165] - Parser failure on name: Antlr exception trace: line 15:7: unexpected char: '#'
+    * [DIREVE-167] - specification of server.xml arg. file when starting DS fails if server.xml is specified with absolute path
+    * [DIREVE-173] - On modifyRdn server now adds additional Rdn attribute
+    * [DIREVE-176] - Admin user is missing the required cn and dn attributes on initial startup.
+    * [DIREVE-177] - The bahavior of LockableAttributesImpl.put() is different from that of BasicAttributes.
+    * [DIREVE-178] - Custom authenticator is never called
+    * [DIREVE-179] - NormalizationService is failing to parse escaped names
+    * [DIREVE-180] - Problem with the shutdown sequence.
+    * [DIREVE-188] - JdbmContextPartition doesn't search an attribute added by MODIFY operation at first.
+    * [DIREVE-210] - All User Attribures ("*") is not supported
+    * [DIREVE-215] - Wrong error messages for some operations
+    * [DIREVE-216] - Adding new object classes to an entry removes the old ones
+    * [DIREVE-217] - ExceptionService bypasses all interceptors in the chain.
+    * [DIREVE-219] - RFC3673 (all operational attributes) support is incomplete
+    * [DIREVE-220] - Modify operation attempt on admin uid removes the uid attribute
+    * [DIREVE-221] - search on specific object class results in java.lang.NoSuchMethodError
+    * [DIREVE-226] - Compare operation on non existing or invalid attributes causes wrong return codes
+    * [DIREVE-227] - Fetching the schema fails on some LDAP clients
+    * [DIREVE-228] - Schema container issue.
+    * [DIREVE-230] - Deletion of RDN and objectClass attribute
+    * [DIREVE-232] - Modify operation (removal) provides wrong return codes in two situations.
+ o New Server Features:
+    * [DIREVE-128] - setup command line arguments (property parameters)
+    * [DIREVE-212] - Ability to add/remove ContextPartitions in runtime
+    * [DIREVE-213] - Design DIT structure for storing server and service configuration information within the ou=system partition
+    * [DIREVE-214] - Make Interceptor chains runtime configurable
+ o Server Improvements:
+    * [DIREVE-189] - log4j.properties is being bundled by the jar:resource goal - override it in maven.xml
+    * [DIREVE-209] - standalone script should use apacheds-server.xml by default
+    * [DIREVE-211] - Add vendorVersion to attributes of Root DSE
+ o Server Tasks:
+    * [DIREVE-50] - Logging IBS
+ o LDAP Common Fixed Bugs:
+    * [DIRLDAP-23] - DnParser throws IOException in Java 5
+    * [DIRLDAP-24] - Ldif parser does not accept comments
+    * [DIRLDAP-26] - Ldif file could have multi-lines atrribute values
+    * [DIRLDAP-29] - Class SnickersEncoder does not send data with a WritableByteChannel on Linux
+    * [DIRLDAP-34] - DnParser does not respect RFC2253
+    * [DIRLDAP-36] - Order of multi-valued RDN should not matters while comparing
+    * [DIRLDAP-39] - Unicode Attributes allowed in a DN (but not in the RFC 2253!)
+    * [DIRLDAP-44] - Invalid rule in filter grammar
+ o Added LDAP Common Improvements:
+    * [DIRLDAP-48] - The type of the subtree base in the SubtreeSpecification bean should be Name instead String
+    * [DIRLDAP-49] - new Subtree Specification (RFC 3672) implementation
+
+
+Changes in 0.9.1 (since 0.9)
+============================
+ o Used SpringFramework to demonstrate runtime configuration
+ o Removed dependency on AspectJ within the core
+ o Started using SLF4J and NLog4J eventually to replace commons logging
+ o Enabled multiple instances to exist for a single JVM
+ o Added support for multiple calls to InitialContext with different principals
+ o Added ContextFactoryService interface that gives user more control to 
+   available ContextFactories in a JVM.
+ o Refactoring ...
+   o Created new partition package placing all store related classes there
+     (see org.apache.ldap.server.partition)
+   o JdbmDatabase is replaced with JdbmContextPartition to simplify its design.
+   o Made CoreContextFactory more extensible using pre post stage hooks
+   o Simplified property based configuration using POJOs
+     (see org.apache.ldap.server.configuration)
+   o Extracted JNDI configuration management into JNDI Utils
+   o Using separate configuration beans for shutdown, sync and startup
+   o Redesigned Interceptor interface to be more user-friendly so that
+     Intereceptor implementations look cleaner.
+ o Fixed bugs
+   o DIREVE-155
+   o DIREVE-175
+
+Changes in 0.9 (since 0.8)
+==========================
+
+ o Added Preferences implementation for system settings (user Prefs not done)
+ o Added support for JNDI state factories and object factories
+ o Added schema support for object and state factories - plugin is prep'd for
+   generating these from schema definitions and domain models: code to do this
+   just needs to be added.
+ o Added factory.hints property to help drive the selection of a object
+   factory when there are multiple alternatives
+ o Added Authenticator (thanks to Endi)
+ o Added support for multiple types of custom backends (thanks to Endi)
+ o 0.9 now uses MINA instead of apseda for massive performance and concurrency
+   gains.  MINA is the network layer for Apache Directory.
+ o Revamped interceptor factory: interceptors easier to manage and to add
+   custom interceptors.  Design is similar to filter chaining.  Excellent 
+   feature that makes extending and configuring interceptors for the server
+   a breeze.
+ o Several performance improvements
+ o Refactored and cleaned up APIs in general
+ o Several documentation improvements were made with slight revamp and the
+   addition of docs for new features
+ o Perhaps the latest most exciting feature is the addition of the Kerberos 
+   provider plugin which is a full Kerberos V service listening by default on
+   port 88.  The plugin uses the Directory Network layer (MINA) to service
+   UDP and TCP requests to the KDC and it uses the ApacheDS DIT to store its 
+   entires without any netork latency or unnecessary security exposure.  
+ o Fixed bugs with filter parser in LDAP common affecting server
+ o Fixed issues with authenticating to server
+ o Corrected broken simple authentication and annonymous binds
+ o Cleaned up user partition creation and configurationn
+ o Created and added better user and developer guide information
+ o Corrected case problems with attribute type names
+ o Added proper ou=schema presentation of schema objects
+ o Added Samba schema
+ o Created and added new distinguished name normalized
+ o Added DHCP schema
+ o Fixed bug when trying to shutdown the server via JNDI
+ o Changed package structure to accomodate growth better
+ o We now try to take next available port if user does not have access rights
+   for 389 or the alt port specified is already in use
+ o Moved logic to start up LDAP and Kerberos providers out into main
+   subproject, leaving a new base class for a context factory implementation
+   called the CoreContextFactory
+ o Exited incubator so all groupIds were finalized
+ o Rearranged the SVN repository to reflect better project demarcations
+

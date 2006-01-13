@@ -1,0 +1,215 @@
+# =============================================================================
+#                                Apache Schema
+# =============================================================================
+#
+#              +-----------------------------+-----------------+
+#              |  Apache AttributeType OID   |      name       |
+#              +-----------------------------+-----------------+
+#              | 1.2.6.1.4.1.18060.1.1.1.3.1 | apacheNdn       |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.2 | apacheUpdn      |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.3 | apacheExistance |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.4 | apacheHierarchy |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.5 | apacheOneAlias  |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.6 | apacheSubAlias  |
+#              | 1.2.6.1.4.1.18060.1.1.1.3.7 | apacheAlias     |
+#              +-----------------------------+-----------------+
+# =============================================================================
+
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.1 NAME 'apacheNdn'
+    DESC 'Index attribute DN whose values are normalized based on schema'
+    SUP distinguishedName
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.2 NAME 'apacheUpdn'
+    DESC 'Index attribute for DN whose values are NOT normalized in any way'
+    EQUALITY exactDnAsStringMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.3 NAME 'apacheExistance'
+    DESC 'Index attribute used to track the existence of attributes'
+    SUP name
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.4 NAME 'apacheHierarchy'
+    DESC 'Index attribute used to track the DIT hierarchy'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.5 NAME 'apacheOnealias'
+    DESC 'Index attribute used to track single level aliases'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.6 NAME 'apacheSubalias'
+    DESC 'Index attribute used to track single level aliases'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.7 NAME 'apacheAlias'
+    DESC 'asdf'
+    SUP distinguishedName
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.9 NAME 'apacheSamType'
+    DESC 'Single-use Authentication Mechanism type/vendor code'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.8 NAME 'prefNodeName'
+    DESC 'Attribute to describe the name of a Java Preferences API node'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.10 NAME 'autonomousAreaSubentry'
+    DESC 'Used to track a subentry associated with an autonomousArea'
+    SUP distinguishedName
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.11 NAME 'accessControlSubentries'
+    DESC 'Used to track a subentry associated with access control areas'
+    SUP distinguishedName
+    EQUALITY distinguishedNameMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE directoryOperation )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.1 NAME 'prefNode'
+    SUP top
+    STRUCTURAL
+    MUST prefNodeName )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.12 NAME 'prescriptiveACI'
+  DESC 'Access control information that applies to a set of entries'
+  EQUALITY directoryStringFirstComponentMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
+  USAGE directoryOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.13 NAME 'entryACI'
+  DESC 'Access control information that applies to a single entry'
+  EQUALITY directoryStringFirstComponentMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
+  USAGE directoryOperation )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.14 NAME 'subentryACI'
+  DESC 'Access control information that applies to a single subentry'
+  EQUALITY directoryStringFirstComponentMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.1
+  USAGE directoryOperation )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.2
+    NAME 'accessControlSubentry'
+    AUXILIARY 
+    MUST prescriptiveACI )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.15
+    NAME 'apacheServicePid'
+	DESC 'A string up to 256 characters in length'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.16
+    NAME 'apacheServiceFactoryPid'
+	DESC 'A string up to 256 characters in length'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.3
+    NAME 'apacheServiceConfiguration'
+    SUP top
+    STRUCTURAL
+    MUST ( cn $ apacheServicePid )
+    MAY ( apacheServiceFactoryPid ) )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.4
+    NAME 'apacheFactoryConfiguration'
+    SUP top
+    STRUCTURAL
+    MUST ( cn $ apacheServicePid ) )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.17
+    NAME 'apacheCatalogEntryName'
+	DESC 'A string up to 256 characters in length'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.18
+    NAME 'apacheCatalogEntryBaseDn'
+	DESC 'A string up to 256 characters in length'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.5
+    NAME 'apacheCatalogEntry'
+    SUP top
+    STRUCTURAL
+    MUST ( cn $ apacheCatalogEntryBaseDn )
+    MAY ( apacheCatalogEntryName ) )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.19
+    NAME 'windowsFilePath'
+	DESC 'A windows file path where case does not make a difference'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.20
+    NAME 'unixFilePath'
+	DESC 'A UNIX file path where case does make a difference'
+	EQUALITY caseExactIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.6
+    NAME 'windowsFile'
+    SUP top
+    STRUCTURAL
+    MUST ( windowsFilePath ) )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.7
+    NAME 'unixFile'
+    SUP top
+    STRUCTURAL
+    MUST ( unixFilePath ) )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.21
+    NAME 'fqcn'
+	DESC 'The fully qualified class name of a java class'
+	EQUALITY caseExactIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.2.6.1.4.1.18060.1.1.1.3.22
+    NAME 'byteCode'
+	DESC 'The actual byte code for a java class'
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
+
+objectclass ( 1.2.6.1.4.1.18060.1.1.1.4.8
+    NAME 'javaClass'
+    SUP top
+    STRUCTURAL
+    MUST ( fqcn $ byteCode ) )

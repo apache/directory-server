@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="elecharny">elecharny</author>
+    <title>SubtreeSpecificationGrammar</title>
+  </properties>
+  <body>
+    <section heading="h1" name="Subtree Specification LL(1) Grammar">
+      <p>
+Here is the LL(1) grammar used to decode a subtreeSpecification as described
+by
+        <a href="http://www.faqs.org/rfcs/rfc3672.html">RFC 3672</a>
+      </p>
+      <source>&lt;SubtreeSpecification&gt; ::= '{' &lt;spse&gt; &lt;base-e&gt; &lt;chopSpecification&gt; &lt;spse&gt; &lt;refinement-e&gt; '}'
+
+&lt;base-e&gt; ::= 
+	¬´base¬ª &lt;sps&gt; &lt;localName&gt; &lt;spse&gt; ',' &lt;spse&gt; | 
+	e
+
+&lt;chopSpecification&gt; ::= ¬´chopSpecification¬ª '{' &lt;spse&gt; &lt;chopSpecification-in&gt; '}'
+
+&lt;chopSpecification-in&gt; ::= 
+	¬´specificExclusions¬ª &lt;spse&gt; &lt;chop-set-of-choice&gt; &lt;spse&gt; &lt;specificExclusions-follower&gt; |
+	¬´minimum¬ª &lt;sps&gt; &lt;number&gt; &lt;spse&gt; &lt;minimum-follower&gt; |
+	¬´maximum¬ª &lt;sps&gt; &lt;number&gt; &lt;spse&gt;
+
+&lt;specificExclusions-follower&gt; ::= 
+	',' &lt;spse&gt; ¬´minimum¬ª &lt;sps&gt; &lt;number&gt; &lt;spse&gt; &lt;minimum-follower&gt; |
+	',' &lt;spse&gt; ¬´maximum¬ª &lt;sps&gt; &lt;number&gt; &lt;spse&gt;
+
+&lt;minimum-follower&gt; ::= ',' &lt;spse&gt; ¬´maximum¬ª &lt;sps&gt; &lt;number&gt; &lt;spse&gt;
+
+&lt;refinement-e&gt; ::= 
+        ¬´specificationFilter¬ª &lt;sps&gt; &lt;refinement&gt; | 
+        e
+
+&lt;refinement&gt; ::= 
+	¬´item¬ª &lt;spse&gt; ':' &lt;spse&gt; OID &lt;spse&gt; |
+	¬´and¬ª &lt;spse&gt; ':' &lt;spse&gt; &lt;set-of-refinement&gt; |
+	¬´or¬ª &lt;spse&gt; ':' &lt;spse&gt; &lt;set-of-refinement&gt; |
+	¬´not¬ª &lt;spse&gt; ':' &lt;spse&gt; &lt;refinement&gt; |
+
+&lt;set-of-refinement&gt; ::= '{' &lt;spse&gt; &lt;refinement&gt; &lt;refinements&gt; '}' &lt;spse&gt;
+
+&lt;refinements&gt; ::= 
+        ',' &lt;spse&gt; &lt;refinement&gt; | 
+        e
+
+&lt;localName&gt; ::= '"' DN '"'
+</source>
+    </section>
+  </body>
+</document>

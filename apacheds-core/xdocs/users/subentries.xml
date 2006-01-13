@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    <title>Subentries</title>
+  </properties>
+  <body>
+    <section heading="h2" name="Introduction">
+      <p>
+Subentries are used for managing the administration of different aspects of the
+directory.  LDAP has just recently formalized the notion of subentires
+in
+        <a href="http://www.faqs.org/rfcs/rfc3672.html">RFC 3672</a>
+.  Subentries have existed within X.500 Directories for years with clear
+specifications for administering collective attributes, schema, and access
+controls.  With the exception of managing collective attributes LDAP has no
+equivalent *yet* for administering these aspects.  However with RFC 3672, LDAP
+is on its way towards adopting and adapting these mechanisms from X.500
+Directories.  It is only a matter of
+time.
+      </p>
+      <p>
+For this reason we intend to remain ahead of the curve by implementing these
+aspects of administration using Subentries and Administrative Areas similar to
+X.500
+Directories.</p>
+    </section>
+    <section heading="h2" name="What exactly are subentries?">
+      <p>
+To explain this properly we're going to need to discuss a couple other things
+like administrative areas (AA) and administrative points (AP) within the
+directory.  However for the impatient here's a quick attempt to describe what
+subentries
+are:</p>
+      <p>
+Subentries are hidden leaf entries (which cannot have children).  These entries
+immediately subordinate to an administrative point (AP) within the directory. 
+They are used to specify administrative information for a part of the Directory
+Information Tree (DIT).  Subentries can contain administrative information for
+aspects of access control, schema administration, and collective attributes (and
+others which have not been defined in any specification
+yet).</p>
+    </section>
+    <section heading="h2" name="Administrative Areas, Entries and Points">
+      <p>
+First some definitions as provided by
+X.501:</p>
+      <ul nesting="1">
+        <li>
+11.1.1 administrative area: A subtree of the DIT considered from the perspective
+of
+administration.</li>
+        <li>
+11.1.2 administrative entry: An entry located at an administrative
+point.</li>
+        <li>
+11.1.3 administrative point: The root vertex of an administrative
+area.</li>
+        <li>
+11.1.5 autonomous administrative area: A subtree of the DIT whose entries are
+all administered by the same Administrative Authority. Autonomous administrative
+areas are
+non-overlapping.</li>
+        <li>
+11.1.11 inner administrative area: A specific administrative area whose scope is
+wholly contained within the scope of another specific administrative area of the
+same
+type.</li>
+        <li>
+11.1.17 specific administrative area: A subset (in the form of a subtree) of an
+autonomous administrative area defined for a particular aspect of
+administration: access control, subschema or entry collection administration.
+When defined, specific administrative areas of a particular kind partition an
+autonomous administrative
+area.</li>
+        <li>
+11.1.18 specific administrative point: The root vertex of a specific
+administrative
+area.</li>
+      </ul>
+      <p>
+Now take a step back because the above definitions are, well, from a sleep
+inducing spec. Let's just talk about some
+situations.</p>
+      <p>
+Presume you're the uber directory administrator over at WallyWorld (a Walmart
+competitor). Let's say WallyWorld uses their corporate directory for various
+things including their product catalog. As the uber admin you're going to have a
+bunch of people wanting access, update and even administer your directory.
+Entire departments within WallyWorld are going to want to control different
+parts of the directory. Sales may want to manage the product catalog, while
+operations may want to manage information in other areas dealing with suppliers
+and store locations. Whatever the domain some department will need to manage the
+information as the
+authority.</p>
+      <p>
+Each department will probably designate different people to manage different
+aspects of their domain. You're not going to want to deal with their little
+fiefdoms instead you can delegate the administration of access control policy to
+a departmental contact. You will want to empower your users and administrative
+contacts in these departments so they can do part of the job for you. Plus it's
+much better than having to communicate with everyone in the company to meet
+their needs. This is where the delegation of authority comes into the
+picture.</p>
+      <p>
+Usually administrators do this already to an extent without defining
+administrative areas. Giving users the ability to change their own passwords for
+example is a form of delegation. This is generally a good idea because you don't
+want to set passwords for people. First because you don't want to see the
+password and secondly because of the management nightmare you'd have to deal
+with. Expand this idea out a little further and think about delegating
+administration not of users on their passwords but of entire subtrees in the
+directory to administrative contacts in various
+departments.</p>
+      <p>
+Do you really want to manage the corporate product catalog or just let the sales
+department manage it? But what do we mean by manage? You want sales people to
+create, and delete entries but they may only trust a few people to do this.
+Others may just view the catelog. Who are the people with add/remove powers and
+why should you have to be involved with deciding this ever changing departmental
+policy? Instead you can delegate the management of access controls in this area
+to a administrative contact in the sales department. The sales contact can then
+administer access controls for their department. They're closer to the people in
+sales than you are and they probably have more bandwidth to handle sales related
+needs than you do. Delegating authority in this fashion is what X.500 engineers
+pioneered in the early 80's with the telecom boom in Europe. They knew different
+authorities will want to manage different aspects of directory administration
+for themselves. These X.500 definitions are there to be able to talk about
+administrative areas within the directory. Now let's get back to what these
+things are
+exactly.</p>
+      <p>
+An administrative area is some part of the directory tree that is arbitrarily
+defined. The tree can be split into different administrative areas to delegate
+authority for managing various aspects of administration. For example you can
+have a partition hanging off of *'dc=example,dc=com'* with an *'ou=product
+catalog'* area. You may want this area to be managed by the sales department
+with respect to the content, schema, it's visibility, and collective attributes.
+Perhaps you only want to delegate only one aspect of administration , access
+control, since you don't want people messing around with schema. To do so you
+can define everything under *'ou=product catalog'* to be an administrative area
+specifically for access control and delegate that aspect only. In that case the
+entry, *'ou=product catalog,dc=example,dc=com'* becomes an administrative entry.
+It is also the administrative point for the area which is the tree rooted at
+this
+entry.</p>
+      <p>
+Not all administrative areas are equal. There are really two kinds :
+*autonomous* and *inner* areas. Autonomous areas are areas of administration
+that cannot overlap. Meaning someone is assigned as the supreme authority for
+that subtree. Inner areas are, as their name suggests, nested administrative
+areas within autonomous areas and other inner areas. Yes, you can nest these
+inner areas as deep as you like. You may be asking yourself what the point to
+all this is. Well, say you're the supreme admin of admins. You delegate the
+authority to manage access control for the corporate catalog to the sales admin.
+That admin may in turn decide to delegate yet another area of the catalog to
+another contact within a different department. You delegate access control
+management to the sales admin over the product catalog. The sales admin realizes
+that the job is way bigger than he can manage so he delegates administration of
+subtrees in the catalog to various contacts in different departments. For
+example regions of the catalog under *'ou=electronics' and 'ou=produce'* may be
+delegated to different contacts in their respective departments. However the
+sales admin still reserves the ability to override access controls in the
+catalog. The sales admin can change who manages access controls for different
+parts of the catalog. This chain of delegation is possible using inner
+administrative
+areas.</p>
+    </section>
+    <section heading="h2" name="How are administrative areas defined?">
+      <p>
+Usually an entry is selected as the administrative point and marked with an
+operational attribute. The attributeType of the operational attribute is
+'administrativeRole'. This attribute can have the following
+values:</p>
+      <table>
+        <tr>
+          <th>
+OID</th>
+          <th>
+NAME</th>
+        </tr>
+        <tr>
+          <td>
+2.5.23.1</td>
+          <td>
+autonomousArea</td>
+        </tr>
+        <tr>
+          <td>
+2.5.23.2</td>
+          <td>
+accessControlSpecificArea</td>
+        </tr>
+        <tr>
+          <td>
+2.5.23.3</td>
+          <td>
+accessControlInnerArea</td>
+        </tr>
+        <tr>
+          <td>
+2.5.23.4</td>
+          <td>
+subschemaAdminSpecificArea</td>
+        </tr>
+        <tr>
+          <td>
+2.5.23.5</td>
+          <td>
+collectiveAttributeSpecificArea</td>
+        </tr>
+        <tr>
+          <td>
+2.5.23.6</td>
+          <td>
+collectiveAttributeInnerArea</td>
+        </tr>
+      </table>
+      <p>
+As you can see, 3 aspects, *schema*, *collective attributes*, and *access
+control* are considered. An autonomous administrative area can hence be
+considered with respect to all three specific aspect of administration. If an AP
+is marked as an autonomousArea it generally means that administration of all
+aspects are allowed by the authority. If marked with a specific aspect then only
+that aspect of administration is delegated. The administrativeRole operational
+attribute is multivalued so the uber admin can delegate any number of specific
+administration aspects as he
+likes.</p>
+      <p>
+Also notice that two aspects, collective attribute and access controls, allow
+administrative points to be inner areas. Delegated authorities for these two
+aspects can create inner administrative areas to further delegate their
+administrative powers. The schema aspect unlike the others cannot have inner
+areas because of potential conflicts this may cause which would lead to data
+integrity issues. For this reason only the authority of an automomous area can
+manage schema for the entire
+subtree.</p>
+      <p>
+An autonomous administrative area (AAA) includes the AP and spans all
+descendants below the AP down to the leaf entries of the subtree with one
+exception. If another AAA, let's call it AAA' (prime) is present and rooted
+below the first AAA then the first AAA does not include the entries of AAA'.
+Translation: an AAA spans down until other AAAs or leaf entries are encountered
+within the subtree. This is due to the fact that AAAs do not overlap as do inner
+AAs
+(IAA).</p>
+    </section>
+    <section heading="h2" name="Subentries under an IAA or an AAA">
+      <p>
+Subentries hold administrative information for an IAA or an AAA. These entries
+are of the objectClass 'subentry'. The subentry must contain two attributes: a
+*commonName* and a *subtreeSpecification*. The commonName (or cn) is used as the
+subentry's rdn attribute. The subtreeSpecification describes the collection of
+entries within the AA (IAA or AAA) that the administrative instruction applies
+to.</p>
+      <p>
+A subtree specification uses various parameters described below to define the
+set of entries. Note that entries need not exist for them to be included in the
+collection on
+addition.</p>
+      <subsection heading="h3" name="Base parameter">
+        <p>
+This is the relative name of the root vertex of the subtree relative to the AP.
+So if the AP is *'ou=system'* and the base is *'ou=users'*, the subtree begins
+at *'ou=users,ou=system'*. The base can be any length of name components
+including 0 where it's the empty name "". In this case, the subtree begins at
+the AP, *'ou=system'* in the example
+above.</p>
+      </subsection>
+      <subsection heading="h3" name="Chop parameters">
+        <p>
+Chop specification parameters define specific nodes to be excluded from the
+collection as well as how deep the subtree spans and even where it starts
+relative to the
+base.</p>
+        <subsection heading="h4" name="chopBefore and chopAfter">
+          <p>
+These parameters are names relative to the root vertex of the subtree, hence
+they are relative to the base parameter. They specify whether or not an entry
+and its descendants are to be excluded from the
+collection.</p>
+          <p>
+When *chopBefore* is used, the entry specified is excluded from the collection.
+When *chopAfter* is used the entry is included however all descendants below the
+entry are
+excluded.</p>
+        </subsection>
+        <subsection heading="h4" name="minimum and maximum">
+          <p>
+The minimum parameter describes the minimum DN length required to include
+entries within the selection. The maximum parameter describes the maximum DN
+length allowed before entries are excluded from the
+collection.</p>
+        </subsection>
+      </subsection>
+      <subsection heading="h3" name="Specification filter parameter">
+        <p>
+The specification filter is a unique beast. It's a filter like a search filter,
+however its syntax and expressivity is radically different. Think of a
+specification filter as a simplified form of search filters where all terms only
+test the objectClass attribute and only equality checks can be performed. Oh and
+yes, you do have logical operators like *and*, *or* and
+*not*.</p>
+        <p>
+So with a filter you have the ability to "refine" the subtree already specified
+with chop, and base parameters. This "refinement" makes it so the collection is
+not really a contiguous subtree of entries but a possibly disconnected set of
+selected based on the objectClass characteristics of entries. This feature of a
+subtreeSpecification is very powerful. For example, I can define a subtree to
+cover a region of an AA yet include only inetOrgPersons within this
+region.</p>
+      </subsection>
+      <subsection heading="h3" name="Subentry types in ApacheDS">
+        <p>
+Different subentry objectClasses exist for applying different aspects of
+administration to the entry collection described by their subtreeSpecification
+attribute. By the way the subtreeSpecification attribute is single valued so
+there can only be one in a subentry. However you can have several subentries of
+various kinds under an AP. Furthermore their collections can
+intersect.</p>
+        <p>
+The kinds of subentries allowed though are limited by the administrativeRole of
+the AP. If the AP is for an access control AA then you can't add a subentry to
+it for schema administration. The AP must have the role for schema
+administration as well to allow both types of
+subentries.</p>
+        <p>
+ApacheDS does not manage schema using subentries in the formal X.500 sense right
+now. There is a single global subentry defined at *'cn=schema'* for the entire
+DSA. The schema is static and cannot be updated at runtime even by the
+administrator. Pretty rough for now but it's the only lagging subsystem. We'll
+of course make sure this subsystem catches
+up.</p>
+        <p>
+ApacheDS does however manage collective attributes using subentries. An AP that
+takes the administrativeRole for managing collective attributes can have
+subentries added. These subentries are described in greater detail
+here:
+          <a href="./collective.html">Collective</a>
+. In short, collective attributes added to subentries show up within entries
+included by the subtreeSpecification. Adding, removing, and modifying the values
+of collective attributes within the subentries instantly manifest changes in the
+entries selected by the subtreeSpecification. Again
+consult
+          <a href="./collective.html">Collective</a>
+for a hands on explanation of how to use this
+feature.
+        </p>
+        <p>
+ApacheDS performs access control and allows delegation using subentries, AAAs,
+and IAAs. ApacheDS uses the Basic Access Control Scheme from X.501 to manage
+access control. By default this subsystem is deactivated because it locks down
+everything except access by the admin. More information about hands on use is
+available
+here:
+          <a href="./authorization.html">Authorization</a>
+. However to summarize its association with subentries, access control
+information (ACI) can be added to subentries under an AP for access control AAs.
+When one or more ACI are added in this fashion, the access rules of the ACI set
+apply to all entries selected by the subtreeSpecification. Even with this
+powerful feature individual entries can have ACI added to them for controlling
+access to them. Also there are things you can do with ACI added to subentries
+that cannot be done with entry level ACI. For example you cannot allow entry
+addition with entry ACI. You must use subtreeSpecifications to define where
+entries may be added because those entries and their parents may not exist
+yet.
+        </p>
+      </subsection>
+      <subsection heading="h3" name="How to specify a subentry's subtreeSpecification">
+        <p>
+The best way to demonstrate subtreeSpecification values are through examples.
+Here's the simplest filter of them
+all:</p>
+        <source>{}
+</source>
+        <p>
+This basically selects the entire contiguous subtree below the AP. The base is
+the empty name and it's rooted at the
+AP.</p>
+        <p>
+Next step let's add a
+base:</p>
+        <source>{ base "ou=users" }
+</source>
+        <p>
+If this is the subtreeSpecification under the AP, *'ou=system'*, then it selects
+every entry under
+*'ou=users,ou=system'*.</p>
+        <p>
+OK that was easy so now let's slice and dice the tree now using the minimum and
+maximum chop
+parameters.</p>
+        <source>{ minimum 3, maximum 5 }
+</source>
+        <p>
+This selects all entries below *'ou=system'* which have a DN size equal to 3
+name components, but no more than 5. So for example
+*'uid=jdoe,ou=users,ou=system'* would be included but
+*'uid=jack,ou=do,ou=not,ou=select,ou=users,ou=system'* would not be included.
+Let's continue and combine the base with just a minimum
+parameter:</p>
+        <source>{ base "ou=users", minimum 4 }
+</source>
+        <p>
+Here the subtree starts at *'ou=users,ou=system'* if the subentry subordinates
+to the AP at *'ou=system'*. The user
+*'uid=jdoe,ou=deepenough,ou=users,ou=system'* is selected by the spec where as
+*'uid=jbean,ou=users,ou=system'* is
+not.</p>
+        <p>
+It's time to add some chop
+exclusions:</p>
+        <source>{ 
+  base "ou=users", 
+  minimum 4, 
+  specificExclusions { chopBefore: "ou=untrusted" } 
+}
+</source>
+        <p>
+Again if placed at the AP *'ou=system'* this subtree would begin at
+*'ou=users,ou=system'*. It would not include users that subordinate to it though
+because of the minimum constraint since these users would have 3 components in
+their DN. The specific exclusions prevent *'ou=untrusted,ou=users,ou=system'*
+and all its descendants from being included in the collection. However
+*'uid=jbean,ou=trusted,ou=users,ou=system'* would be included since it meets the
+minimum requirement, is a descendant of *'ou=users,ou=system'* and is not under
+the excluded DN,
+*'ou=untrusted,ou=users,ou=system'*.</p>
+        <p>
+Note that you can add as many exclusions as you like by comma delimiting them.
+For
+example:</p>
+        <source>{ 
+  base "ou=users", 
+  minimum 4, 
+  specificExclusions { chopBefore: "ou=untrusted", chopAfter: "ou=ugly", chopBefore: "ou=bad" } 
+}
+</source>
+        <p>
+The final example includes a refinement. Again any combination of chop, filter
+and base parameters can be used. The following refinement makes sure the users
+selected are of the objectClass inetOrgPerson and specialUser where the OID for
+the specialUser class is 32.5.2.1
+(fictitious).</p>
+        <source>{ 
+  base "ou=users", 
+  minimum 4, 
+  specificExclusions { chopBefore: "ou=untrusted", chopAfter: "ou=ugly", chopBefore: "ou=bad" }
+  specificationFilter and:{ item:32.5.2.1, item:inetOrgPerson } 
+}
+</source>
+        <p>
+If you'd like to see the whole specification of the grammar used for the
+subtreeSpecification take a look at Appendix A
+in
+          <a href="http://www.faqs.org/rfcs/rfc3672.html">RFC 3672</a>
+.
+        </p>
+      </subsection>
+    </section>
+    <section heading="h2" name="Future Possibilities">
+      <p>
+In the immediate future we intend to
+introduce
+        <a href="./triggers.html">Triggers</a>
+, stored procedures and views into ApacheDS. Subentries will play a critical
+role in the administration and application of these features. For example a
+Trigger specification need not include information on what entries it applies to
+since the subtreeSpecification handles this. The question of "on what" a trigger
+applies to is nicely disassociated from the "which operation" part of the
+specification. This makes for much better reuse of triggers. It also allows for
+the pin point application of triggers to entries in the DIT. Likewise a view
+itself will be defined by a specification. A view for example in a subentry can
+define a region of the tree that does not exist but is shadowed from another
+region all together. The possibilities here are
+limitless.
+      </p>
+      <p>
+Of course we will revamp the schema subsystem of ApacheDS to use subentries in
+AAA to manage the schema in effect within different regions of the DIT. Today
+most LDAP servers just have a global scheme in effect for the entire DIT served
+by a DSA. We don't think that is reasonable at all. So expect some serious
+advances in the design of a new schema subsystem based on
+subentries.</p>
+      <p>
+Replication is yet another excellent candidate for using subentries. Replication
+of specific collections of entries can be managed for each cluster rather than
+replicating the entire DIT served by a DSA to replicas. This way we don't only
+control what is replicated but we can also control how and where it is
+replicated.</p>
+    </section>
+    <section heading="h2" name="Conclusions">
+      <p>
+ApacheDS has implemented subentries for the administration of various aspects of
+the directory and gains several powerful features as a result: namely precision
+application of control to entry collections and the ability to delegate
+administrative authority. For details on the administration of each aspect using
+subentries
+(
+        <a href="./collective.html">Collective</a>
+and
+        <a href="./authorization.html">Authorization</a>
+) please see the respective
+documentation.
+      </p>
+      <p>
+As ApacheDS progresses it will gain an immense advantage from subentries. Both
+for existing LDAP features like scheme and for new experimental features like
+triggers, and
+replication.</p>
+    </section>
+  </body>
+</document>

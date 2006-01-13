@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    <title>Partitions</title>
+  </properties>
+  <body>
+    <section heading="h1" name="Introduction">
+      <p>
+Partitions are entry stores assigned to a naming context. The idea behind a
+partition is that it stores a subset of the Directory Information Base (DIB).
+Partitions can be implemented in any way so long as they adhere to
+interfaces.</p>
+      <subsection heading="h2" name="Status">
+        <p>
+Presently the server has a single partition implementation. This implementation
+is used for both the system partition and user partitions. It
+uses
+          <a href="http://jdbm.sourceforge.net/">JDBM</a>
+as the underlying B+Tree implementation for storing
+entries.
+        </p>
+        <p>
+Other implementations are possible like in memory based partitions either BTree
+based or based on something
+like
+          <a href="http://www.prevayler.org/wiki.jsp">Prevayler</a>
+.
+        </p>
+        <p>
+Partitions have simple interfaces that can be used to align any data source to
+the LDAP data model thereby accessing it via JNDI or via LDAP over the wire.
+This makes the server very flexible as a bridge to standardize access to
+disparate data sources and formats. Dynamic mapping based backends are also
+interesting.</p>
+      </subsection>
+      <subsection heading="h2" name="System Partitions">
+        <p>
+The system partition is a very special partition that is hardcoded to hang off
+of the *ou=system* naming context. It is always present and contains
+administrative and operational informations needed by the server to operate.
+Hence its
+name.</p>
+        <p>
+The server's subsystems will use this partition to store informations critical
+to its
+operation.</p>
+      </subsection>
+      <subsection heading="h2" name="Root Nexus">
+        <p>
+Several partitions can be assigned to different naming contexts within the
+server so long as their names do not overlap such that one partition's naming
+context is contained within another's. The root nexus is a fake partition that
+does not really store entries. It maps other entry storing partitions to naming
+contexts and routes backing store calls to the partition containing the entry
+associated with the
+operation.</p>
+      </subsection>
+      <subsection heading="h2" name="User Partitions">
+        <p>
+User partitions are partitions added by users. When you download and start using
+the server you may want to create a separate partition to store the entries of
+your application. To us user (sometimes also referred to as application)
+partitions are those that are not the system partition! In the following section
+we describe how a user partition can be created in the
+server.</p>
+      </subsection>
+    </section>
+    <section heading="h1" name="Adding User Partitions">
+      <p>
+Adding new application partitions to the server is a matter of adding
+DirectoryPartitionConfiguration objects to the StartupConfigration added to the
+JNDI environment. These properties are used in both standalone and in embedded
+configurations. You'll see how to configure partitions by example using xml
+configuration files with the standalone application and programatically for
+embedding.</p>
+      <p>
+Until this section is filled with more specific examples just geared towards the
+configuration of partitions please
+see
+        <a href="./configuration.html">Configuration</a>
+.
+      </p>
+    </section>
+    <section heading="h1" name="Future">
+      <p>
+Things we'd like to do with the existing partitioning scheme and
+beyond.</p>
+      <subsection heading="h2" name="Partition Nesting">
+        <p>
+Today we have some limitations to the way we can partition the DIB. Namely we
+can't have a partition within a partition and sometimes this makes sense.
+Eventually we intend to enable this kind of functionality using a special type
+of nexus which is both a router and a backing store for entries. It's smart
+enough to know what to route verses when to use its own database. Here's
+a
+          <a href="http://issues.apache.org/jira/browse/DIREVE-23">JIRA improvement</a>
+specifically aimed at achieving this
+goal.
+        </p>
+      </subsection>
+      <subsection heading="h2" name="Partition Implementations">
+        <p>
+Obviously we want as many different kinds of partitions as possible. Some really
+cool ideas have floated around out there for a while. Here's a list of
+theoretically possible partition types that might be useful or just
+cool:</p>
+        <ul nesting="1">
+          <li>
+Partitions that use JDBC to store entries. These would probably be way too slow.
+However they might be useful if some mapping were to be used to represent an
+existing application's database schema as an LDAP DIT. This would allow us to
+expose any database data via LDAP.  Great for
+virtualization.</li>
+          <li>
+Partitions using other LDAP servers to store their entries. Why do this when
+introducing latency? Perhaps you want to proxy other servers or make other
+servers behave like the personality of another server all
+together.</li>
+          <li>
+A partition that serves out the Windows registry via LDAP. A standard mechanism
+to map the Windows registry to an LDAP DIT is pretty simple. This would be a
+neat way to expose client machine registry
+management.</li>
+          <li>
+A partition based on an in-memory BTree implementation. This would be fast and
+really cool for storing things like schema info. It would also be cool for
+staging data between memory and
+disk.</li>
+          <li>
+A partition based
+on
+            <a href="http://www.prevayler.org/wiki.jsp">Prevayler</a>
+. This is like an in-memory partition but you can save it at the end of the day.
+This might be really useful especially for things the system partition which
+almost always need to be in memory. The system partition can do this by using
+really large caches equal to the number of entries in the system
+partition.
+          </li>
+        </ul>
+      </subsection>
+      <subsection heading="h2" name="Partitioning Entries Under a Single Context">
+        <p>
+Other aspirations include entry partitioning within a container context. Imagine
+having 250 million entries under '*ou=citizens,dc=census,dc=gov*'. You don't
+want all 250 million in one partition but would like to subpartition these
+entries under the same context based on some attribute. Basically we will be
+using the attribute's value to implement subpartitioning where within a single
+context we are partitioning entries. The value is used to hash entries across
+buckets (the buckets are other partitions). Yes, this is a bit on the heavy duty
+end but it would be useful in several
+situations.</p>
+      </subsection>
+    </section>
+  </body>
+</document>
