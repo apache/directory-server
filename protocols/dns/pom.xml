@@ -2,9 +2,9 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory</groupId>
-    <artifactId>protocols-build</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>org.apache.directory.server.protocols</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
   <version>0.3-SNAPSHOT</version>
   <artifactId>org.apache.directory.protocol.dns</artifactId>
@@ -17,28 +17,6 @@
       <version>1.2.17</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.directory</groupId>
-      <artifactId>org.apache.directory.protocol.common</artifactId>
-      <version>0.7.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.mina</groupId>
-      <artifactId>org.apache.mina</artifactId>
-      <version>0.9.1-SNAPSHOT</version>
-    </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 

@@ -6,7 +6,7 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory.server.protocols</groupId>
+  <groupId>org.apache.directory.server</groupId>
   <version>0.7.1-SNAPSHOT</version>
   <artifactId>org.apache.directory.protocol.common</artifactId>
   <name>protocol-common</name>

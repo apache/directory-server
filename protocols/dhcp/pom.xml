@@ -2,38 +2,22 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory</groupId>
-    <artifactId>protocols-build</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>org.apache.directory.server.protocols</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory</groupId>
+  <groupId>org.apache.directory.server.protocols</groupId>
   <version>0.1-SNAPSHOT</version>
   <artifactId>org.apache.directory.protocol.dhcp</artifactId>
   <name>dhcp-protocol</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.mina</groupId>
-      <artifactId>org.apache.mina</artifactId>
-      <version>0.9.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 

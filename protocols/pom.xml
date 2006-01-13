@@ -13,13 +13,27 @@
   <packaging>pom</packaging>
 
   <modules>
-    <!--
     <module>ntp</module>
-    <module>dns</module>
     <module>dhcp</module>
-    <module>ldap</module>
+    <module>dns</module>
+    <module>kerberos-core</module>
     <module>kerberos</module>
     <module>changepw</module>
+    <!--
+    <module>ldap</module>
     -->
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.mina</groupId>
+      <artifactId>org.apache.mina</artifactId>
+      <version>0.9.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.directory.protocol.common</artifactId>
+      <version>0.7.1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
 </project>

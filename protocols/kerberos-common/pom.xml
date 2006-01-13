@@ -8,20 +8,14 @@
   </parent>
   <groupId>org.apache.directory.server.protocols</groupId>
   <version>0.7-SNAPSHOT</version>
-  <artifactId>org.apache.directory.protocol.changepw</artifactId>
-  <name>changepw-protocol</name>
+  <artifactId>org.apache.directory.kerberos.common</artifactId>
+  <name>kerberos-common</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <version>1.2.17</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server.protocols</groupId>
-      <artifactId>org.apache.directory.kerberos.common</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <groupId>bouncycastle</groupId>
+      <artifactId>lcrypto-jdk14</artifactId>
+      <version>131</version>
     </dependency>
   </dependencies>
 </project>

@@ -37,6 +37,7 @@
         <module>server-unit</module>
         <module>server-main</module>
         -->
+        <module>protocol-common</module>
         <module>protocols</module>
       </modules>
     </profile>
