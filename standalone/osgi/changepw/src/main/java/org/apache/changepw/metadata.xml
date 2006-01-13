@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<!DOCTYPE bundle SYSTEM "metadata.dtd">-->
+<bundle>
+  <component class="org.apache.changepw.ChangePasswordServerFactory">
+    <provides service="org.osgi.service.cm.ManagedServiceFactory"/>
+    <property name="service.pid" value="org.apache.changepw.factory" type="string"/>
+    <requires
+        service="org.apache.mina.registry.ServiceRegistry"
+        filter=""
+        cardinality="1..1"
+        policy="static"
+        bind-method="setServiceRegistry"
+        unbind-method="unsetServiceRegistry"
+    />
+    <requires
+        service="org.osgi.service.cm.ConfigurationAdmin"
+        filter=""
+        cardinality="0..n"
+        policy="dynamic"
+        bind-method="setConfigurationAdmin"
+        unbind-method="unsetConfigurationAdmin"
+    />
+    <requires
+        service="javax.naming.spi.InitialContextFactory"
+        filter=""
+        cardinality="1..1"
+        policy="static"
+        bind-method="setInitialContextFactory"
+        unbind-method="unsetInitialContextFactory"
+    />
+  </component>
+</bundle>

@@ -1,0 +1,74 @@
+Basically, we work as follows:
+
+   * the most important property/setting for us is 'vtmp.home' this is
+     a key base directory, set and used by both developers during code
+     modification depending on build tree and at runtime to control the
+     runtime tree: 'vtmp' is our application abbreviation, so think of
+     this as 'app.home'
+
+   * as developers, we all use a common Ant based build script. This
+     builds jars to a set of key directories depending on purpose:
+
+       ${vtmp.home}/lib - general libraries (a few of these are
+       dual-role and can also be OSGi bundles)
+       ${vtmp.home}/lib/modules - OSGi service bundles
+       ${vtmp.home}/lib/uiservices - GUI service OSGi bundles
+       ${vtmp.home}/lib/oscar- standard Oscar service OSGi bundles
+
+   the ${vtmp.home} is a property expansion I'll explain more later
+
+   * we also have an 'etc' directory where we store config settings,
+     the most important being our Oscar properties files. I've attached
+     a cut-down example of our 'vtmp.system.properties' and
+     'vtmp.bundle.properties' files. You'll notice that all bundle
+     references are relative to ${vtmp.home}. This is a feature of
+     Oscar I convince Richard to include which allows a system/bundle
+     property to be expanded relative to a System property ;)
+
+   * so when we launch Oscar, we just need to set 'vtmp.home' first and
+     it'll load from whichever directory we need (see attached
+     'vtmp.bat' for example)
+
+   * All of our variant programs are launched through a common launcher
+     which, generally, just sets up the appropriate settings and
+     launches Oscar. I've attached a snippet of our VtLauncher.java
+
+   * when we're developing, we work build and test out of the normal
+     filesystem with ${vtmp.home} set to our development tree e.g.
+     e:\data\vtmp, ~/vtmp. The launcher works fine with this as long as
+     vtmp.home is set
+
+   * for distrubition purposes we have a common approach - the Ant
+     build script creates two compressed files a dist.zip (ZIP) and a
+     dist.tgz (tarball). Aside from the compression format, the ZIP has
+     all text files munged to Windows line endings and the TGZ to Unix
+     line endings. The compressed 'dist' file contains :
+
+       ${vmp.home}/lib/* - dir tree of jars
+       ${vmp.home}/etc/* - dir tree of Oscar properties files
+       ${vmp.home}/bin/* - tree of various BAT and other execution wrappers
+       ${vmp.home}/doc/* - doc and help files
+
+   * As far as development/builds that's the end of the story - after
+     that we're into install/deployment tools. Regardless of the tool
+     or approach, the build process exports a standard format: a .zip
+     or .tgz file. The installer then needs to take over in terms of
+     install process
+
+   * What the install tools dom is generally pretty simple:
+
+       * prompt the user for an install.dir
+
+       * expand the .ZIP or .TGZ files
+
+       * munge execution files and/or set environment variables so the
+         vtmp.home = install.dir
+
+       * create platform specific executable wrappers (e.g. .EXE on
+         Windoze) for top level app binaries - in all cases these are
+         simply variations on starting VtLauncher.jar with different
+         paramters
+
+   We happen to use InstallAnywhere (ZeroG) but that's pretty much
+   irrelevant - the approach would work with any installer tool 
+

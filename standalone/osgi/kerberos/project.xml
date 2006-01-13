@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <artifactId>apache-kerberos</artifactId>
+  <name>Apache Kerberos Network Service</name>
+  <currentVersion>0.1.1</currentVersion>
+  <properties>
+    <osgi.bundle.category>Network Service</osgi.bundle.category>
+    <osgi.bundle.activator>org.apache.kerberos.Activator</osgi.bundle.activator>
+    <osgi.import.package>org.ungoverned.gravity.servicebinder,org.apache.ldap.server.configuration,org.osgi.framework,org.apache.mina.registry,org.apache.mina.protocol,org.apache.mina.common,org.osgi.service.cm</osgi.import.package>
+  </properties>
+  <package>org.apache.kerberos</package>
+  <shortDescription>Apache Kerberos Network Service</shortDescription>
+  <description>Apache Kerberos Network Service</description>
+  <dependencies>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>kerberos-protocol</artifactId>
+      <version>0.5.1-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>kerberos-common</artifactId>
+      <version>0.5.1-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-asn1</groupId>
+      <artifactId>asn1-der</artifactId>
+      <version>0.3.3-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bcprov-jdk14</artifactId>
+      <version>124</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+  </dependencies>
+</project>

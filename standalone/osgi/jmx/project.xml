@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <artifactId>apache-jmxlogger</artifactId>
+  <name>Apache JMX Logger Bundle</name>
+  <currentVersion>0.1.1</currentVersion>
+  <properties>
+    <osgi.import.package>org.osgi.framework</osgi.import.package>
+  </properties>
+  <package>org.apache.jmx</package>
+  <shortDescription>Apache JMX Logger Bundle</shortDescription>
+  <description>Apache JMX Logger Bundle</description>
+  <dependencies>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-jmx</artifactId>
+      <version>2.0</version>
+    </dependency>
+  </dependencies>
+</project>
+

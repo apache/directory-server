@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <artifactId>apache-ldap</artifactId>
+  <name>Apache LDAP Network Service</name>
+  <currentVersion>0.1.1</currentVersion>
+  <properties>
+    <osgi.bundle.category>Network Service</osgi.bundle.category>
+    <osgi.bundle.activator>org.apache.ldap.Activator</osgi.bundle.activator>
+    <osgi.import.package>org.ungoverned.gravity.servicebinder,org.apache.ldap.server.jndi,org.apache.ldap.common.filter,org.apache.ldap.server.configuration,org.osgi.framework,org.apache.mina.registry,org.apache.mina.protocol,org.apache.mina.protocol.handler,org.apache.mina.protocol.codec,org.apache.mina.common,org.osgi.service.cm</osgi.import.package>
+  </properties>
+  <package>org.apache.ldap</package>
+  <shortDescription>Apache LDAP Network Service</shortDescription>
+  <description>Apache LDAP Network Service</description>
+  <dependencies>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>ldap-protocol</artifactId>
+      <version>0.9.3-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>apache-ldapber-provider</artifactId>
+      <version>0.9.3-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>0.9.3-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-asn1</groupId>
+      <artifactId>asn1-codec</artifactId>
+      <version>0.3.2-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>directory-asn1</groupId>
+      <artifactId>asn1-ber</artifactId>
+      <version>0.3.2-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+      <version>20041207.202534</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <version>2.7.2</version>
+      <url>http://antlr.org/</url>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <!-- required to load Configuration base class -->
+      <groupId>directory</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>0.9.3-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+</project>
+

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <artifactId>apache-dns</artifactId>
+  <name>Apache DNS Network Service</name>
+  <currentVersion>0.1.1</currentVersion>
+  <properties>
+    <osgi.bundle.category>Network Service</osgi.bundle.category>
+    <osgi.bundle.activator>org.apache.dns.Activator</osgi.bundle.activator>
+    <osgi.import.package>org.ungoverned.gravity.servicebinder,org.apache.ldap.server.configuration,org.osgi.framework,org.apache.mina.registry,org.apache.mina.protocol,org.apache.mina.common,org.osgi.service.cm</osgi.import.package>
+  </properties>
+  <package>org.apache.dns</package>
+  <shortDescription>Apache DNS Network Service</shortDescription>
+  <description>Apache DNS Network Service</description>
+  <dependencies>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>dns-protocol</artifactId>
+      <version>0.3-SNAPSHOT</version>
+      <properties>
+        <osgi.jar.bundle>true</osgi.jar.bundle>
+      </properties>
+    </dependency>
+  </dependencies>
+</project>
+
