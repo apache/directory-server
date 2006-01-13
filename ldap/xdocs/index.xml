@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="jmachols@apache.org">Jeff Machols</author>
+    <title>Apache Directory Project: LDAP Common Code</title>
+  </properties>
+  
+  <body>
+    <section name="Overview">
+      <p>LDAP Common Code</p>
+      <p> 
+      This project contains code and utilities common to the LDAP protocol.
+      </p>
+    </section>
+    <section name="LDAP Common Packages">
+      <subsection name="Filter">
+        <p>
+          The filter package will parsese and LDAP expression into 
+          a filter expression tree as defined in <a href="http://www.ietf.org/rfc/rfc2254.txt">RFC 2254</a>
+        </p>  
+      </subsection>
+        
+      <subsection name="LDIF">
+        <p>
+          The The LDAP Data Interchange Format (LDIF) parsing 
+          package Parses an LDIF into a multimap or a JNDI 
+          Attributes instance of attribute key/value pairs with 
+          potential more than one attribute value per attribute.  
+          This parser populates the MultiMap or Attributes 
+          instance with all attributes within the LDIF including 
+          control attributes like the 'dn' and the changeType.
+        </p>
+        <p>
+          The package contain an LDIF entry class that can be used.  Along
+          with the parsing utility, the embedding application can LDIF
+          parsing and management without becomming an expert on the RFC.
+          Addition details about LDIF can be obtained from the 
+          <a href="http://www.ietf.org/rfc/rfc2849.txt">LDIF RFC</a>
+        </p>        
+      </subsection>
+      
+      <subsection name="Message">
+      	<p>
+          The LDAP Common Messaging package provides a framework for
+          all LDAP request and response messages.  Each of the reponses
+          and requests have an implementation.
+      	</p>
+      </subsection>
+      
+      <subsection name="Name">
+        <p>
+          This package provides LDAP distinguished name creation and 
+          normalization.  This provides a common method for ensuring 
+          you are creating the entry DN correctly.  Failure to properly
+          create and normalize the DN of an entry will result in unpredicatble
+          results when operations are performed on the entry.  
+        </p>
+      </subsection>
+      
+    </section>
+  </body>
+</document>

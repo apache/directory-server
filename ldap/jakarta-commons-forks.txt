@@ -1,0 +1,47 @@
+In an effort to reduce the amount of jars users have to include during
+runtime we have forked some of the commons classes that we use or depend
+upon.  The following list of classes have been forked.  We did not want
+to fork these classes but users just don't want too many dependencies.
+We appologise for this temporary impediment to reuse.
+
+The use of these classes are really for trivial means.  Much of the 
+functionality can actually be replaced all together with a tiny bit of
+effort to remove most of the forked classes here.  So expect many of 
+these forked classes to gradually disappear. 
+
+src/java/org/apache/ldap/common/util/ArrayUtils.java
+src/java/org/apache/ldap/common/util/BooleanUtils.java
+src/java/org/apache/ldap/common/util/EqualsBuilder.java
+src/java/org/apache/ldap/common/util/Enum.java
+src/java/org/apache/ldap/common/util/SystemUtils.java
+src/java/org/apache/ldap/common/util/ValuedEnum.java
+src/java/org/apache/ldap/common/util/NestableError.java
+src/java/org/apache/ldap/common/util/NestableException.java
+src/java/org/apache/ldap/common/util/ExceptionUtils.java
+src/java/org/apache/ldap/common/util/ToStringBuilder.java
+src/java/org/apache/ldap/common/util/NestableRuntimeException.java
+src/java/org/apache/ldap/common/util/HashCodeBuilder.java
+src/java/org/apache/ldap/common/util/EnumUtils.java
+src/java/org/apache/ldap/common/util/ClassUtils.java
+src/java/org/apache/ldap/common/util/ObjectUtils.java
+src/java/org/apache/ldap/common/util/NestableDelegate.java
+src/java/org/apache/ldap/common/util/MultiMap.java
+src/java/org/apache/ldap/common/util/ToStringStyle.java
+src/java/org/apache/ldap/common/util/ReflectionToStringBuilder.java
+src/java/org/apache/ldap/common/util/Nestable.java
+
+These here is forked from collections:
+
+src/java/org/apache/ldap/common/util/LRUMap.java
+src/java/org/apache/ldap/common/util/KeyValue.java
+src/java/org/apache/ldap/common/util/SequencedHashMap.java
+
+At this point we only have two runtime dependencies.  Regexp and the
+antlr runtime.  Eventually as changes are made to the backend we will
+move away from using Regexp to using the regular expressions packaged
+with the 1.4 JDK.  The best however would be to have a single commons-logging
+like wrapper around the various RE implementations out there.
+
+Cheers,
+Alex
+ 

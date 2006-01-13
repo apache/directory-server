@@ -1,0 +1,9 @@
+ o cleanup all the noise from tests
+ o figure out a way to export DnCommonTokenTypes.txt so we don't need antrun
+ o place xdocs in the right place to properly build the site
+ o cleanup dependencies
+ o reduce footprint
+ o remove old provider architecture structures since we now have only one 
+   asn1 provider library
+ o delete unneeded tag transitions that don't have actions
+ o remove Assert.assertXXX lines in test cases

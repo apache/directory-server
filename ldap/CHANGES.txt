@@ -1,0 +1,7 @@
+Changes since 0.8 
+-----------------
+
+ o added utilities to commons: 
+   o ArrayEnumeration - wraps array as Enumeration
+   o PreferencesDictionary - wraps Preferences as Dictionary
+

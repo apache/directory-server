@@ -1,0 +1,306 @@
+/*
+ *   Copyright 2005 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package org.apache.ldap.common.codec;
+
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+
+import org.apache.asn1.codec.EncoderException;
+import org.apache.asn1.Asn1Object;
+import org.apache.asn1.ber.tlv.UniversalTag;
+import org.apache.asn1.ber.tlv.Length;
+import org.apache.asn1.ber.tlv.Value;
+import org.apache.ldap.common.codec.util.LdapString;
+import org.apache.ldap.common.util.StringTools;
+
+
+/**
+ * A Asn1Object to store a Control.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+public class Control extends Asn1Object
+{
+    //~ Instance fields ----------------------------------------------------------------------------
+
+    /** The control type */
+    private LdapString controlType;
+
+    /** The criticality (default value is false) */
+    private boolean criticality = false;
+
+    /** Optionnal control value */
+    private Object controlValue;
+    
+    /** Optionnal control value in encoded form */
+    private byte[] encodedValue;
+    
+    /** The control length */
+    private transient int controlLength;
+    
+    private static final byte[] EMPTY_BYTES = new byte[]{};
+
+    //~ Methods ------------------------------------------------------------------------------------
+
+    /**
+     * Get the control type
+     *
+     * @return A string which represent the control type
+     */
+    public String getControlType()
+    {
+        return (controlType == null ? "" : controlType.toString() );
+    }
+
+    /**
+     * Set the control type
+     *
+     * @param controlType An OID to store
+     */
+    public void setControlType( LdapString controlType )
+    {
+        this.controlType = controlType;
+    }
+
+    /**
+     * Get the control value
+     *
+     * @return The control value
+     */
+    public Object getControlValue()
+    {
+        if ( controlValue == null )
+        {
+            return EMPTY_BYTES;
+        }
+        else if ( controlValue instanceof String )
+        {
+            return StringTools.getBytesUtf8( (String)controlValue );
+        }
+        else
+        {
+            return controlValue;
+        }
+    }
+
+    /**
+     * Set the encoded control value
+     *
+     * @param encodedValue The encoded control value to store
+     */
+    public void setEncodedValue( byte[] encodedValue )
+    {
+        this.encodedValue = encodedValue;
+    }
+
+    /**
+     * Get the raw control encoded bytes
+     *
+     * @return the encoded bytes for the control
+     */
+    public byte[] getEnodedValue()
+    {
+        if ( encodedValue == null )
+        {
+            return EMPTY_BYTES;
+        }
+        
+        return encodedValue;
+    }
+
+    /**
+     * Set the control value
+     *
+     * @param controlValue The control value to store
+     */
+    public void setControlValue( Object controlValue )
+    {
+        this.controlValue = controlValue;
+    }
+
+    /**
+     * Get the criticality
+     *
+     * @return <code>true</code> if the criticality flag is true.
+     */
+    public boolean getCriticality()
+    {
+        return criticality;
+    }
+
+    /**
+     * Set the criticality
+     *
+     * @param criticality The criticality value
+     */
+    public void setCriticality( boolean criticality )
+    {
+        this.criticality = criticality;
+    }
+
+    /**
+     * Compute the Control length
+     * 
+     * Control :
+     * 
+     * 0x30 L1
+     *  |
+     *  +--> 0x04 L2 controlType
+     * [+--> 0x01 0x01 criticality]
+     * [+--> 0x04 L3 controlValue] 
+     * 
+     * Control length = Length(0x30) + length(L1) 
+     *                  + Length(0x04) + Length(L2) + L2
+     *                  [+ Length(0x01) + 1 + 1]
+     *                  [+ Length(0x04) + Length(L3) + L3]
+     */
+    public int computeLength()
+    {
+        // The controlType
+        int controlTypeLengh = controlType.getNbBytes();
+        controlLength = 1 + Length.getNbBytes( controlTypeLengh ) + controlTypeLengh;  
+        
+        // The criticality, only if true
+        if (criticality)
+        {
+            controlLength += 1 + 1 + 1; // Always 3 for a boolean
+        }
+        
+        // The control value, if any
+        if (controlValue != null)
+        {
+            byte[] controlBytes;
+            if ( controlValue instanceof byte[] )
+            {
+                controlBytes = ( byte[] ) controlValue;
+                controlLength += 1 + Length.getNbBytes( controlBytes.length ) + controlBytes.length;
+            }
+            else if ( controlValue instanceof String )
+            {
+                controlBytes = StringTools.getBytesUtf8( ( String ) controlValue );
+                controlLength += 1 + Length.getNbBytes( controlBytes.length ) + controlBytes.length;
+            }
+            else if ( controlValue instanceof Asn1Object )
+            {
+                int length = ( ( Asn1Object ) controlValue ).computeLength();
+                controlLength += 1 + Length.getNbBytes( length ) + length;
+            }
+            else
+            {
+                throw new IllegalStateException( "Don't know how to handle control value class " 
+                    + controlValue.getClass() );
+            }
+        }
+        
+        return 1 + Length.getNbBytes( controlLength ) + controlLength;
+    }
+    
+    
+    /**
+     * Generate the PDU which contains the Control.
+     * 
+     * Control :
+     * 0x30 LL
+     *   0x04 LL type 
+     *   [0x01 0x01 criticality]
+     *   [0x04 LL value]
+     *   
+     * @param buffer The encoded PDU
+     * @return A ByteBuffer that contaons the PDU
+     * @throws EncoderException If anything goes wrong.
+     */
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
+    {
+        try 
+        {
+            // The LdapMessage Sequence
+            buffer.put( UniversalTag.SEQUENCE_TAG );
+            
+            // The length has been calculated by the computeLength method
+            buffer.put( Length.getBytes( controlLength ) );
+        }
+        catch ( BufferOverflowException boe )
+        {
+            throw new EncoderException("The PDU buffer size is too small !"); 
+        }
+            
+        // The control type
+        Value.encode( buffer, controlType.getBytes() );
+
+        // The control criticality, if true
+        if ( criticality )
+        {
+            Value.encode( buffer, criticality );
+        }
+        
+        // The control value, if any
+        if ( controlValue != null )
+        {
+            byte[] controlBytes;
+            if ( controlValue instanceof byte[] )
+            {
+                controlBytes = ( byte[] ) controlValue;
+                encodedValue = controlBytes;
+            }
+            else if ( controlValue instanceof String )
+            {
+                controlBytes = StringTools.getBytesUtf8( ( String ) controlValue );
+                encodedValue = controlBytes;
+            }
+            else if ( controlValue instanceof Asn1Object )
+            {
+                controlBytes = ( ( Asn1Object ) controlValue ).encode( null ).array();
+                encodedValue = controlBytes;
+            }
+            else
+            {
+                throw new IllegalStateException( "Don't know how to handle control value class " 
+                    + controlValue.getClass() );
+            }
+
+            Value.encode( buffer, controlBytes );
+        }
+
+        return buffer;
+    }
+
+    /**
+     * Return a String representing a Control
+     */
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append("    Control\n");
+        sb.append("        Control type : '").append( controlType.toString() ).append("'\n");
+        sb.append("        Criticality : '").append( criticality ).append( "'\n") ;
+        
+        if ( controlValue != null ) 
+        {
+        	if ( controlValue instanceof byte[] )
+        	{
+                sb.append("        Control value : '").append( StringTools.dumpBytes( (byte[])controlValue ) ).append("'\n");
+        	}
+            else
+            {
+                sb.append("        Control value : '").append( controlValue ).append("'\n");
+            }
+        }
+        
+        return sb.toString();
+    }
+}
