@@ -7,7 +7,7 @@
     <version>0.9.4-SNAPSHOT</version>
   </parent>
   <artifactId>org.apache.ldap.server.core</artifactId>
-  <name>apacheds</name>
+  <name>apacheds-core</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
