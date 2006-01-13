@@ -20,6 +20,40 @@
     </dependency>
   </dependencies>
 
+  <repositories>
+    <!-- For ibiblio standard: might want to add a mirror as well later            
+    <repository>
+      <id>ibiblio</id>
+      <name>Standard Ibiblio Repository</name>
+      <url>http://ibiblio.org/maven2</url>
+    </repository>
+    -->
+ 
+    <!-- For our snapshots (do not upload release jars or non-apache jars here)    -->
+    <repository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <url>http://cvs.apache.org/maven-snapshot-repository</url>
+    </repository>
+    
+    <!-- Temp repo for 3rd party jars that are not in ibiblio.org yet.-->
+    <!-- Artifacts in repo should be requested for ibiblio upload &   -->
+    <!-- removed from this repository - this repo will disappear.     -->
+    <repository>
+      <id>safehaus</id>
+      <name>Alternate Repository for Missing Ibiblio Artifacts</name>
+      <url>http://m2.safehaus.org</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>snapshots</id>
+      <name>snapshot plugins</name>
+      <url>http://snapshots.maven.codehaus.org/maven2</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <profiles>
     <profile>
       <id>jdk1.5</id>
