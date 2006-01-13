@@ -2,11 +2,11 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory</groupId>
-    <artifactId>protocols-build</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>org.apache.directory.server.protocols</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory</groupId>
+  <groupId>org.apache.directory.server.protocols</groupId>
   <version>0.9.4-SNAPSHOT</version>
   <artifactId>org.apache.directory.protocol.ldap</artifactId>
   <name>ldap-protocol</name>
@@ -15,7 +15,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
-      <version>1.2.17</version>
+      <version>1.2.19</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -34,17 +34,5 @@
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 

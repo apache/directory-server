@@ -19,9 +19,7 @@
     <module>kerberos-common</module>
     <module>kerberos</module>
     <module>changepw</module>
-    <!--
     <module>ldap</module>
-    -->
   </modules>
 
   <dependencies>
