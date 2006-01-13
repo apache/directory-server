@@ -6,7 +6,6 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory.server.protocols</groupId>
   <version>0.1-SNAPSHOT</version>
   <artifactId>org.apache.directory.protocol.dhcp</artifactId>
   <name>dhcp-protocol</name>

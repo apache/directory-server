@@ -2,17 +2,17 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server</groupId>
+    <groupId>org.apache.directory.server.standalone.simple</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.main</artifactId>
-  <name>apacheds-server-main</name>
+  <artifactId>org.apache.ldap.server.standalone.simple.main</artifactId>
+  <name>standalone-simple-main</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server</artifactId>
+      <groupId>org.apache.directory.server.standalone.simple</groupId>
+      <artifactId>org.apache.ldap.server.standalone.simple.jndi</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>
@@ -63,14 +63,6 @@
           <classifier>app</classifier>
           <appendAssemblyId>false</appendAssemblyId>
       	</configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
-        </configuration>
       </plugin>
     </plugins>
   </build>

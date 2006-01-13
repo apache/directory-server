@@ -6,7 +6,6 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory</groupId>
   <version>0.5-SNAPSHOT</version>
   <artifactId>org.apache.directory.protocol.ntp</artifactId>
   <name>ntp-protocol</name>

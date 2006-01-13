@@ -7,12 +7,15 @@
     <version>0.9.4-SNAPSHOT</version>
   </parent>
   <artifactId>build</artifactId>
-  <groupId>org.apache.directory.standalone.simple</groupId>
+  <groupId>org.apache.directory.server.standalone.simple</groupId>
   <name>simple-build</name>
   <packaging>pom</packaging>  
   <modules>
-    <!--
     <module>jndi</module>
+    <module>main</module>
+    <module>ssl</module>
+    <module>unit</module>
+    <!--
     -->
   </modules>
   <dependencies>
