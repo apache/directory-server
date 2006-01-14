@@ -165,6 +165,79 @@ public class ReferralService extends BaseInterceptor
     }
 
 
+    public void doReferralException( Name farthest, Name targetUpdn, Attribute refs ) throws NamingException
+    {
+        // handle referral here
+        List list = new ArrayList( refs.size() );
+        for ( int ii = 0; ii < refs.size(); ii++ )
+        {
+            String val = ( String ) refs.get( ii );
+            
+            // need to add non-ldap URLs as-is
+            if ( ! val.startsWith( "ldap" ) )
+            {
+                list.add( val );
+                continue;
+            }
+            
+            // parse the ref value and normalize the DN according to schema 
+            LdapURL ldapUrl = new LdapURL();
+            try
+            {
+                ldapUrl.parse( val.toCharArray() );
+            }
+            catch ( LdapURLEncodingException e )
+            {
+                log.error( "Bad URL ("+ val +") for ref in " + farthest + ".  Reference will be ignored." ); 
+            }
+            
+            Name urlDn = parser.parse( ldapUrl.getDn().toString() );
+            if ( urlDn.equals( farthest ) )
+            {
+                // according to the protocol there is no need for the dn since it is the same as this request
+                StringBuffer buf = new StringBuffer();
+                buf.append( ldapUrl.getScheme() );
+                buf.append( ldapUrl.getHost() );
+                if ( ldapUrl.getPort() > 0 )
+                {
+                    buf.append( ":" );
+                    buf.append( ldapUrl.getPort() );
+                }
+                
+                list.add( buf.toString() );
+                continue;
+            }
+            
+            /*
+             * If we get here then the DN of the referral was not the same as the 
+             * DN of the ref LDAP URL.  We must calculate the remaining (difference)
+             * name past the farthest referral DN which the target name extends.
+             */
+            int diff = targetUpdn.size() - farthest.size();
+            Name extra = new LdapName(); 
+            for ( int jj = 0; jj < diff; jj++ )
+            {
+                extra.add( targetUpdn.get( farthest.size() + jj ) );
+            }
+
+            urlDn.addAll( extra );
+            StringBuffer buf = new StringBuffer();
+            buf.append( ldapUrl.getScheme() );
+            buf.append( ldapUrl.getHost() );
+            if ( ldapUrl.getPort() > 0 )
+            {
+                buf.append( ":" );
+                buf.append( ldapUrl.getPort() );
+            }
+            buf.append( "/" );
+            buf.append( urlDn );
+            list.add( buf.toString() );
+        }
+        LdapReferralException lre = new LdapReferralException( list );
+        throw lre;
+    }
+    
+    
     public void add( NextInterceptor next, String upName, Name normName, Attributes entry ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -193,80 +266,9 @@ public class ReferralService extends BaseInterceptor
                 return;
             }
             
-            // handle referral here
             Attributes referral = invocation.getProxy().lookup( farthest, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
             Attribute refs = referral.get( REF_ATTR );
-            List list = new ArrayList( refs.size() );
-            for ( int ii = 0; ii < refs.size(); ii++ )
-            {
-                String val = ( String ) refs.get( ii );
-                
-                // need to add non-ldap URLs as-is
-                if ( ! val.startsWith( "ldap" ) )
-                {
-                    list.add( val );
-                    continue;
-                }
-                
-                // parse the ref value and normalize the DN according to schema 
-                LdapURL ldapUrl = new LdapURL();
-                try
-                {
-                    ldapUrl.parse( val.toCharArray() );
-                }
-                catch ( LdapURLEncodingException e )
-                {
-                    log.error( "Bad URL ("+ val +") for ref in " + farthest + ".  Reference will be ignored." ); 
-                }
-                
-                Name urlDn = parser.parse( ldapUrl.getDn().toString() );
-                if ( urlDn.equals( farthest ) )
-                {
-                    // according to the protocol there is no need for the dn since it is the same as this request
-                    StringBuffer buf = new StringBuffer();
-                    buf.append( ldapUrl.getScheme() );
-                    buf.append( ldapUrl.getHost() );
-                    if ( ldapUrl.getPort() > 0 )
-                    {
-                        buf.append( ":" );
-                        buf.append( ldapUrl.getPort() );
-                    }
-                    
-                    list.add( buf.toString() );
-                    continue;
-                }
-                
-                /*
-                 * If we get here then the DN of the referral was not the same as the 
-                 * DN of the ref LDAP URL.  We must calculate the remaining (difference)
-                 * name past the farthest referral DN which the target name extends.
-                 */
-                Name upNameAsName = new LdapName( upName );
-                int diff = normName.size() - farthest.size();
-                Name extra = new LdapName(); 
-                for ( int jj = 0; jj < diff; jj++ )
-                {
-                    extra.add( upNameAsName.get( farthest.size() + jj ) );
-                }
-
-                urlDn.addAll( extra );
-                
-                
-                
-                StringBuffer buf = new StringBuffer();
-                buf.append( ldapUrl.getScheme() );
-                buf.append( ldapUrl.getHost() );
-                if ( ldapUrl.getPort() > 0 )
-                {
-                    buf.append( ":" );
-                    buf.append( ldapUrl.getPort() );
-                }
-                buf.append( "/" );
-                buf.append( urlDn );
-                list.add( buf.toString() );
-            }
-            LdapReferralException lre = new LdapReferralException( list );
-            throw lre;
+            doReferralException( farthest, new LdapName( upName ), refs );
         }
         else if ( refval.equals( FOLLOW ) )
         {
@@ -308,7 +310,9 @@ public class ReferralService extends BaseInterceptor
                 return;
             }
             
-            // handle referral here
+            Attributes referral = invocation.getProxy().lookup( farthest, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            Attribute refs = referral.get( REF_ATTR );
+            doReferralException( farthest, normName, refs );
         }
         else if ( refval.equals( FOLLOW ) )
         {
