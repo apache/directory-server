@@ -16,6 +16,11 @@
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.19</version>
+    </dependency>
+    <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring-core</artifactId>
       <version>1.2.1</version>
