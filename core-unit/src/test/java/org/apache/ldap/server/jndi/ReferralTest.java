@@ -27,7 +27,10 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -158,6 +161,29 @@ public class ReferralTest extends AbstractAdminTestCase
     }
 
     
+    public void checkAncestorReferrals( ReferralException e ) throws Exception
+    {
+        assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+        assertTrue( e.skipReferral() );
+        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", 
+            e.getReferralInfo() );
+        assertTrue( e.skipReferral() );
+        assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+        assertFalse( e.skipReferral() );
+    }
+
+    
+    public void checkParentReferrals( ReferralException e ) throws Exception
+    {
+        assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+        assertTrue( e.skipReferral() );
+        assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
+        assertTrue( e.skipReferral() );
+        assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+        assertFalse( e.skipReferral() );
+    }
+    
+    
     /**
      * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
      * for an add operation with the parent context being a referral.
@@ -184,12 +210,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
         catch( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
-            assertFalse( e.skipReferral() );
+            checkParentReferrals( e );
         }
     }
     
@@ -220,13 +241,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
         catch( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", 
-                e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
-            assertFalse( e.skipReferral() );
+            checkAncestorReferrals( e );
         }
     }
     
@@ -253,12 +268,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
         catch( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
-            assertFalse( e.skipReferral() );
+            checkParentReferrals( e );
         }
     }
     
@@ -285,13 +295,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
         catch( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", 
-                e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
-            assertFalse( e.skipReferral() );
+            checkAncestorReferrals( e );
         }
     }
     
@@ -327,12 +331,7 @@ public class ReferralTest extends AbstractAdminTestCase
         }
         catch( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
-            assertFalse( e.skipReferral() );
+            checkParentReferrals( e );
         }
     }
     
@@ -368,13 +367,123 @@ public class ReferralTest extends AbstractAdminTestCase
         }
         catch( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", 
-                e.getReferralInfo() );
-            assertTrue( e.skipReferral() );
-            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
-            assertFalse( e.skipReferral() );
+            checkAncestorReferrals( e );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a modify operation with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testModifyWithReferralParent() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the attributes of an entry below the referral 
+        // parent.  We should encounter referral errors with referral setting 
+        // set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, 
+                new BasicAttributes( "description", "just some text", true ) );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkParentReferrals( e );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a modify operation with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testModifyWithReferralAncestor() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the attributes of an entry below the referral 
+        // ancestor. We should encounter referral errors when referral setting 
+        // is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, 
+                new BasicAttributes( "description", "just some text", true ) );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkAncestorReferrals( e );
+        }
+    }
+
+
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a modify operation with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testModifyWithReferralParent2() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the attributes of an entry below the referral 
+        // parent.  We should encounter referral errors with referral setting 
+        // set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            ModificationItem[] mods = new ModificationItem[] { new ModificationItem( 
+                DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            td.refCtx.modifyAttributes( "cn=alex karasulu", mods );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkParentReferrals( e );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a modify operation with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testModifyWithReferralAncestor2() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the attributes of an entry below the referral 
+        // ancestor. We should encounter referral errors when referral setting 
+        // is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            ModificationItem[] mods = new ModificationItem[] { new ModificationItem( 
+                DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", mods );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkAncestorReferrals( e );
         }
     }
 }

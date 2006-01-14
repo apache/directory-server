@@ -244,16 +244,14 @@ public class ReferralService extends BaseInterceptor
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
 
-        // handle updating the lut
-        if ( isReferral( entry ) ) 
-        {
-            lut.referralAdded( normName );
-        }
-        
         // handle a normal add without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
             next.add( upName, normName, entry );
+            if ( isReferral( entry ) ) 
+            {
+                lut.referralAdded( normName );
+            }
             return;
         }
 
@@ -263,6 +261,10 @@ public class ReferralService extends BaseInterceptor
             if ( farthest == null ) 
             {
                 next.add( upName, normName, entry );
+                if ( isReferral( entry ) ) 
+                {
+                    lut.referralAdded( normName );
+                }
                 return;
             }
             
@@ -327,16 +329,14 @@ public class ReferralService extends BaseInterceptor
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
 
-        // handle updating the lut
-        if ( lut.isReferral( normName ) ) 
-        {
-            lut.referralDeleted( normName );
-        }
-        
         // handle a normal delete without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
             next.delete( normName );
+            if ( lut.isReferral( normName ) ) 
+            {
+                lut.referralDeleted( normName );
+            }
             return;
         }
         
@@ -346,6 +346,10 @@ public class ReferralService extends BaseInterceptor
             if ( farthest == null ) 
             {
                 next.delete( normName );
+                if ( lut.isReferral( normName ) ) 
+                {
+                    lut.referralDeleted( normName );
+                }
                 return;
             }
             
@@ -409,10 +413,8 @@ public class ReferralService extends BaseInterceptor
     }
     
 
-    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    private void checkModify( Name name, int modOp, Attributes mods ) throws NamingException
     {
-        next.modify( name, modOp, mods );
-        
         // -------------------------------------------------------------------
         // Check and update lut if we change the objectClass 
         // -------------------------------------------------------------------
@@ -469,10 +471,49 @@ public class ReferralService extends BaseInterceptor
     }
     
     
-    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    public void modify( NextInterceptor next, Name name, int modOp, Attributes mods ) throws NamingException
+    {
+        Invocation invocation = InvocationStack.getInstance().peek();
+        ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
+        String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
+
+        // handle a normal modify without following referrals
+        if ( refval == null || refval.equals( IGNORE ) )
+        {
+            next.modify( name, modOp, mods );
+            checkModify( name, modOp, mods );
+            return;
+        }
+
+        if ( refval.equals( THROW ) )
+        {
+            Name farthest = lut.getFarthestReferralAncestor( name );
+            if ( farthest == null ) 
+            {
+                next.modify( name, modOp, mods );
+                checkModify( name, modOp, mods );
+                return;
+            }
+            
+            Attributes referral = invocation.getProxy().lookup( farthest, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            Attribute refs = referral.get( REF_ATTR );
+            doReferralException( farthest, name, refs );
+        }
+        else if ( refval.equals( FOLLOW ) )
+        {
+            throw new NotImplementedException( FOLLOW + " referral handling mode not implemented" );
+        }
+        else
+        {
+            throw new LdapNamingException( "Undefined value for " + Context.REFERRAL  + " key: " 
+                + refval, ResultCodeEnum.OTHER );
+        }
+    }
+    
+    
+    private void checkModify( Name name, ModificationItem[] mods ) throws NamingException
     {
         boolean isTargetReferral = lut.isReferral( name );
-        next.modify( name, mods );
 
         // -------------------------------------------------------------------
         // Check and update lut if we change the objectClass 
@@ -530,6 +571,46 @@ public class ReferralService extends BaseInterceptor
 
                 break;
             }
+        }
+    }
+    
+    
+    public void modify( NextInterceptor next, Name name, ModificationItem[] mods ) throws NamingException
+    {
+        Invocation invocation = InvocationStack.getInstance().peek();
+        ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
+        String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
+
+        // handle a normal modify without following referrals
+        if ( refval == null || refval.equals( IGNORE ) )
+        {
+            next.modify( name, mods );
+            checkModify( name, mods );
+            return;
+        }
+
+        if ( refval.equals( THROW ) )
+        {
+            Name farthest = lut.getFarthestReferralAncestor( name );
+            if ( farthest == null ) 
+            {
+                next.modify( name, mods );
+                checkModify( name, mods );
+                return;
+            }
+            
+            Attributes referral = invocation.getProxy().lookup( farthest, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            Attribute refs = referral.get( REF_ATTR );
+            doReferralException( farthest, name, refs );
+        }
+        else if ( refval.equals( FOLLOW ) )
+        {
+            throw new NotImplementedException( FOLLOW + " referral handling mode not implemented" );
+        }
+        else
+        {
+            throw new LdapNamingException( "Undefined value for " + Context.REFERRAL  + " key: " 
+                + refval, ResultCodeEnum.OTHER );
         }
     }
     
