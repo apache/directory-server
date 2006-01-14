@@ -280,6 +280,45 @@ public class ReferralService extends BaseInterceptor
                 + refval, ResultCodeEnum.OTHER );
         }
     }
+
+    
+    public boolean compare( NextInterceptor next, Name normName, String oid, Object value ) throws NamingException
+    {
+        Invocation invocation = InvocationStack.getInstance().peek();
+        ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
+        String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
+        
+        // handle a normal add without following referrals
+        if ( refval == null || refval.equals( IGNORE ) )
+        {
+            return next.compare( normName, oid, value );
+        }
+
+        if ( refval.equals( THROW ) )
+        {
+            Name farthest = lut.getFarthestReferralAncestor( normName );
+            if ( farthest == null ) 
+            {
+                return next.compare( normName, oid, value );
+            }
+            
+            Attributes referral = invocation.getProxy().lookup( farthest, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            Attribute refs = referral.get( REF_ATTR );
+            doReferralException( farthest, normName, refs );
+            
+            // we really can't get here since doReferralException will throw an exception
+            return false;
+        }
+        else if ( refval.equals( FOLLOW ) )
+        {
+            throw new NotImplementedException( FOLLOW + " referral handling mode not implemented" );
+        }
+        else
+        {
+            throw new LdapNamingException( "Undefined value for " + Context.REFERRAL  + " key: " 
+                + refval, ResultCodeEnum.OTHER );
+        }
+    }
     
     
     public void delete( NextInterceptor next, Name normName ) throws NamingException 

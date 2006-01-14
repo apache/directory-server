@@ -31,6 +31,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
 
@@ -280,6 +281,89 @@ public class ReferralTest extends AbstractAdminTestCase
         try 
         {
             td.refCtx.destroySubcontext( "cn=alex karasulu,ou=apache" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", 
+                e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for an delete operation with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testCompareWithReferralParent() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to compare attributes in an entry below the referral parent. 
+        // We should encounter referral errors with referral setting set to 
+        // throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            if ( td.refCtx instanceof ServerLdapContext )
+            {
+                LdapName dn = new LdapName( "cn=alex karasulu,ou=users,ou=system" );
+                ( ( ServerLdapContext ) td.refCtx ).compare( dn, "sn", "karasulu" );
+            }
+            else
+            {
+                // abort the test because we're using the sun jdni provider
+                return;
+            }
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a compare operation with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testCompareWithReferralAncestor() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to compare attributes in an entry below the referral ancestor. 
+        // We should encounter referral errors when referral setting is set to 
+        // throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            if ( td.refCtx instanceof ServerLdapContext )
+            {
+                LdapName dn = new LdapName( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
+                ( ( ServerLdapContext ) td.refCtx ).compare( dn, "sn", "karasulu" );
+            }
+            else
+            {
+                // abort the test because we're using the sun jdni provider
+                return;
+            }
             fail( "Should fail here throwing a ReferralException" );
         }
         catch( ReferralException e )
