@@ -18,8 +18,10 @@ package org.apache.ldap.server.jndi;
 
 
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.naming.Context;
+import javax.naming.Name;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -42,6 +44,7 @@ public class ReferralTest extends AbstractAdminTestCase
 {
     private static final boolean SUNJNDI = false;
     private boolean sunjndi = System.getProperty( "sunjndi" ) != null || SUNJNDI;
+    TestData td = new TestData();
     
     
     public void setUp() throws Exception
@@ -50,17 +53,29 @@ public class ReferralTest extends AbstractAdminTestCase
         {
             super.setUp();
         }
+        
+        addReferralEntry();
     }
     
     
     public void tearDown() throws Exception
     {
+        if ( td.refCtx != null )
+        {
+            td.refCtx.close();
+        }
+        
         if ( ! sunjndi )
         {
             super.tearDown();
         }
+        else if ( td.rootCtx != null )
+        {
+            td.rootCtx.close();
+        }
     }
 
+    
     /*
      * NOTE: We may encounter conflicting circumstances where the ManageDsaIT control
      * is included in the request controls yet the Context.REFERRAL is set to 
@@ -96,19 +111,20 @@ public class ReferralTest extends AbstractAdminTestCase
     }
     
     
-    /**
-     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
-     * for an add operation with the parent context being a referral.
-     * 
-     * @throws Exception if something goes wrong.
-     */
-    public void testAddWithReferralParent() throws Exception
+    class TestData {
+        LdapContext rootCtx;
+        Name ctxDn;
+        LdapContext refCtx;
+        List refs;
+    }
+    
+    
+    public void addReferralEntry() throws NamingException
     {
         String ref0 = "ldap://fermi:10389/ou=users,ou=system";
         String ref1 = "ldap://hertz:10389/ou=users,dc=example,dc=com";
         String ref2 = "ldap://maxwell:10389/ou=users,ou=system";
-        LdapContext root = getSystemRoot();
-        LdapContext refctx = null;
+        td.rootCtx = getSystemRoot();
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
@@ -124,37 +140,45 @@ public class ReferralTest extends AbstractAdminTestCase
         referral.put( "ou", "users" );
 
         // Just in case if server is a remote server destroy remaing referral
-        root.addToEnvironment( Context.REFERRAL, "ignore" );
-        try { root.destroySubcontext( "uid=akarasulu,ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
-        try { root.destroySubcontext( "ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
+        td.rootCtx.addToEnvironment( Context.REFERRAL, "ignore" );
+        try { td.rootCtx.destroySubcontext( "uid=akarasulu,ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
+        try { td.rootCtx.destroySubcontext( "ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
         try
         {
-            refctx = ( LdapContext ) root.createSubcontext( "ou=users", referral );
+            td.refCtx = ( LdapContext ) td.rootCtx.createSubcontext( "ou=users", referral );
         }
         catch( NameAlreadyBoundException e )
         {
-            refctx = ( LdapContext ) root.lookup( "ou=users" );
+            td.refCtx = ( LdapContext ) td.rootCtx.lookup( "ou=users" );
         }
-        referral = refctx.getAttributes( "" );
+        referral = td.refCtx.getAttributes( "" );
         assertTrue( referral.get( "ou" ).contains( "users" ) );
         assertTrue( referral.get( "objectClass" ).contains( "referral" ) );
+    }
 
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for an add operation with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testAddWithReferralParent() throws Exception
+    {
         // -------------------------------------------------------------------
         // Attempt to add a normal entry below the referral parent. We should
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
-        
-        // attempt to add another entry below the referral entry but now throw and exception
-        refctx.addToEnvironment( Context.REFERRAL, "throw" );
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
 
-        //try { refctx.destroySubcontext( "cn=Alex Karasulu" ); } catch( NameNotFoundException e ) {}
         try 
         {
-            refctx.createSubcontext( "cn=alex karasulu", userEntry );
+            td.refCtx.createSubcontext( "cn=alex karasulu", userEntry );
             fail( "Should fail here throwing a ReferralException" );
         }
         catch( ReferralException e )
@@ -165,12 +189,6 @@ public class ReferralTest extends AbstractAdminTestCase
             assertTrue( e.skipReferral() );
             assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
             assertFalse( e.skipReferral() );
-        }
-        refctx.close();
-        
-        if ( sunjndi )
-        {
-            root.close();
         }
     }
     
@@ -183,48 +201,12 @@ public class ReferralTest extends AbstractAdminTestCase
      */
     public void testAddWithReferralAncestor() throws Exception
     {
-        String ref0 = "ldap://fermi:10389/ou=users,ou=system";
-        String ref1 = "ldap://hertz:10389/ou=users,dc=example,dc=com";
-        String ref2 = "ldap://maxwell:10389/ou=users,ou=system";
-        LdapContext root = getSystemRoot();
-        LdapContext refctx = null;
-
-        // -------------------------------------------------------------------
-        // Adds a referral entry regardless of referral handling settings
-        // -------------------------------------------------------------------
-        
-        // Add a referral entry ( should be fine with or without the control )
-        Attributes referral = new BasicAttributes( "objectClass", "top", true );
-        referral.get( "objectClass" ).add( "referral" );
-        referral.get( "objectClass" ).add( "extensibleObject" );
-        referral.put( "ref", ref0 );
-        referral.get( "ref" ).add( ref1 );
-        referral.get( "ref" ).add( ref2 );
-        referral.put( "ou", "users" );
-
-        // Just in case if server is a remote server destroy remaing referral
-        root.addToEnvironment( Context.REFERRAL, "ignore" );
-        try { root.destroySubcontext( "uid=akarasulu,ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
-        try { root.destroySubcontext( "ou=users" ); } catch( NameNotFoundException e ) { e.printStackTrace(); }
-        try
-        {
-            refctx = ( LdapContext ) root.createSubcontext( "ou=users", referral );
-        }
-        catch( NameAlreadyBoundException e )
-        {
-            refctx = ( LdapContext ) root.lookup( "ou=users" );
-        }
-        referral = refctx.getAttributes( "" );
-        assertTrue( referral.get( "ou" ).contains( "users" ) );
-        assertTrue( referral.get( "objectClass" ).contains( "referral" ) );
-
         // -------------------------------------------------------------------
         // Attempt to add a normal entry below the referral ancestor. We should
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
-        
-        // attempt to add another entry below the referral entry but now throw and exception
-        refctx.addToEnvironment( Context.REFERRAL, "throw" );
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
@@ -232,7 +214,7 @@ public class ReferralTest extends AbstractAdminTestCase
 
         try 
         {
-            refctx.createSubcontext( "cn=alex karasulu,ou=apache", userEntry );
+            td.refCtx.createSubcontext( "cn=alex karasulu,ou=apache", userEntry );
             fail( "Should fail here throwing a ReferralException" );
         }
         catch( ReferralException e )
@@ -245,11 +227,70 @@ public class ReferralTest extends AbstractAdminTestCase
             assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
             assertFalse( e.skipReferral() );
         }
-        refctx.close();
-        
-        if ( sunjndi )
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for an delete operation with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testDeleteWithReferralParent() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to delete a non-existent entry below the referral parent. 
+        // We should encounter referral errors with referral setting set to 
+        // throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
         {
-            root.close();
+            td.refCtx.destroySubcontext( "cn=alex karasulu" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a delete operation with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testDeleteWithReferralAncestor() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to delete a non-existent entry below the referral ancestor. 
+        // We should encounter referral errors when referral setting is set to 
+        // throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.destroySubcontext( "cn=alex karasulu,ou=apache" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com", 
+                e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
         }
     }
 }

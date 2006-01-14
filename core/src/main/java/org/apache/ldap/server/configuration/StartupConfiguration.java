@@ -141,6 +141,11 @@ public class StartupConfiguration extends Configuration
         interceptorCfg.setName( "authenticationService" );
         interceptorCfg.setInterceptor( new AuthenticationService() );
         list.add( interceptorCfg );
+
+        interceptorCfg = new MutableInterceptorConfiguration();
+        interceptorCfg.setName( "referralService" );
+        interceptorCfg.setInterceptor( new ReferralService() );
+        list.add( interceptorCfg );
         
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "authorizationService" );
@@ -150,11 +155,6 @@ public class StartupConfiguration extends Configuration
         interceptorCfg = new MutableInterceptorConfiguration();
         interceptorCfg.setName( "oldAuthorizationService" );
         interceptorCfg.setInterceptor( new OldAuthorizationService() );
-        list.add( interceptorCfg );
-
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "referralService" );
-        interceptorCfg.setInterceptor( new ReferralService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();

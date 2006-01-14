@@ -96,6 +96,12 @@
           </property>
         </bean>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>referralService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.referral.ReferralService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>authorizationService</value></property>
           <property name="interceptor">
             <bean class="org.apache.ldap.server.authz.AuthorizationService" />
