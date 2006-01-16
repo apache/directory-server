@@ -452,7 +452,7 @@ public class TwixTransformer implements TransformerSpi
     					
     					while ( iter.hasNext() )
     					{
-    						anyString.add( iter.next() );
+    						anyString.add( iter.next().toString() );
     					}
     				}
     				
