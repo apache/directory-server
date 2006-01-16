@@ -101,7 +101,7 @@ public class AbandonRequest extends LdapMessage
     	
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Message length : " + length );
+    		log.debug( "Message length : {}", new Integer(length) );
     	}
     	
         return length;

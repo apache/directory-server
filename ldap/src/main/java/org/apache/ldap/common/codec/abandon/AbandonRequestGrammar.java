@@ -100,6 +100,13 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
                         TLV   tlv       = ldapMessageContainer.getCurrentTLV();
 
                         Value value     = tlv.getValue();
+                        
+                        if ( ( value == null ) || ( value.getData() == null ) )
+                        {
+                        	String msg = "The AbandonRequest messgaeId must not be null";
+                        	log.error( msg );
+                        	throw new DecoderException( msg );
+                        }
 
                         try
                         {
@@ -114,7 +121,7 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
 
                             if ( log.isDebugEnabled() )
                             {
-                                log.debug( "AbandonMessage Id has been decoded : " + abandonnedMessageId );
+                                log.debug( "AbandonMessage Id has been decoded : {}", new Integer( abandonnedMessageId ) );
                             }
 
                             ldapMessageContainer.grammarEndAllowed( true );
@@ -122,8 +129,9 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( IntegerDecoderException ide )
                         {
-                            log.error("The Abandonned Message Id " + StringTools.dumpBytes( value.getData() ) + 
-                                        " is invalid : " + ide.getMessage() + ". The message ID must be between (0 .. 2 147 483 647)" );
+                            log.error("The Abandonned Message Id {} is invalid : {}. The message ID must be between (0 .. 2 147 483 647)",
+                            		StringTools.dumpBytes( value.getData() ), 
+                                    ide.getMessage() );
                             
                             throw new DecoderException( ide.getMessage() );
                         }
