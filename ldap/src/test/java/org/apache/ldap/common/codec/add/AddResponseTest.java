@@ -102,7 +102,6 @@ public class AddResponseTest extends TestCase {
             ee.printStackTrace();
             fail( ee.getMessage() );
         }
-
     }
 
     /**
