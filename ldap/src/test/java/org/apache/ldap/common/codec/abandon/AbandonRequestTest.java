@@ -28,7 +28,6 @@ import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.abandon.AbandonRequest;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -68,18 +67,18 @@ public class AbandonRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         // Check that everything is OK
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         AbandonRequest abandonRequest = message.getAbandonRequest();
 
-        Assert.assertEquals( 3, message.getMessageId() );
-        Assert.assertEquals( 2, abandonRequest.getAbandonedMessageId() );
+        assertEquals( 3, message.getMessageId() );
+        assertEquals( 2, abandonRequest.getAbandonedMessageId() );
         
         // Check the length
-        Assert.assertEquals(8, message.computeLength());
+        assertEquals(8, message.computeLength());
         
         // Check the encoding
         try
@@ -88,12 +87,12 @@ public class AbandonRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -146,18 +145,18 @@ public class AbandonRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
         
         // Check that everything is OK
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         AbandonRequest abandonRequest = message.getAbandonRequest();
 
-        Assert.assertEquals( 3, message.getMessageId() );
-        Assert.assertEquals( 2, abandonRequest.getAbandonedMessageId() );
+        assertEquals( 3, message.getMessageId() );
+        assertEquals( 2, abandonRequest.getAbandonedMessageId() );
         
         // Check the length
-        Assert.assertEquals(0x64, message.computeLength());
+        assertEquals(0x64, message.computeLength());
         
         // Check the encoding
         try
@@ -166,12 +165,12 @@ public class AbandonRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -206,18 +205,18 @@ public class AbandonRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
         
         // Check that everything is OK
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         AbandonRequest abandonRequest = message.getAbandonRequest();
 
-        Assert.assertEquals( 32787, message.getMessageId() );
-        Assert.assertEquals( 2, abandonRequest.getAbandonedMessageId() );
+        assertEquals( 32787, message.getMessageId() );
+        assertEquals( 2, abandonRequest.getAbandonedMessageId() );
         
         // Check the length
-        Assert.assertEquals(10, message.computeLength());
+        assertEquals(10, message.computeLength());
         
         // Check the encoding
         try
@@ -226,12 +225,12 @@ public class AbandonRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 

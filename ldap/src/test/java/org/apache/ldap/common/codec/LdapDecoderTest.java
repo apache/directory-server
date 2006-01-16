@@ -81,18 +81,18 @@ public class LdapDecoderTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         // Check the decoded PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         BindRequest br      = message.getBindRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( 3, br.getVersion() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
-        Assert.assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
-        Assert.assertEquals( "password",
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 3, br.getVersion() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
+        assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
+        assertEquals( "password",
             StringTools.utf8ToString( ( ( SimpleAuthentication ) br.getAuthentication() ).getSimple() ) );
     }
 
@@ -130,7 +130,7 @@ public class LdapDecoderTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         Assert.assertEquals( TLVStateEnum.VALUE_STATE_PENDING, ldapMessageContainer.getState() );
@@ -139,10 +139,10 @@ public class LdapDecoderTest extends TestCase
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         BindRequest br      = message.getBindRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( 3, br.getVersion() );
-        Assert.assertEquals( null, br.getName() );
-        Assert.assertEquals( false, ( br.getAuthentication() instanceof SimpleAuthentication ) );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 3, br.getVersion() );
+        assertEquals( null, br.getName() );
+        assertEquals( false, ( br.getAuthentication() instanceof SimpleAuthentication ) );
     }
 
     /**
@@ -179,10 +179,10 @@ public class LdapDecoderTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
-        Assert.assertEquals( TLVStateEnum.VALUE_STATE_PENDING, ldapMessageContainer.getState() );
+        assertEquals( TLVStateEnum.VALUE_STATE_PENDING, ldapMessageContainer.getState() );
 
         // Second block of data
         stream = ByteBuffer.allocate( 37 );
@@ -205,20 +205,20 @@ public class LdapDecoderTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
-        Assert.assertEquals( ldapMessageContainer.getState(), TLVStateEnum.PDU_DECODED );
+        assertEquals( ldapMessageContainer.getState(), TLVStateEnum.PDU_DECODED );
         
         // Check the decoded PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         BindRequest br      = message.getBindRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( 3, br.getVersion() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
-        Assert.assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
-        Assert.assertEquals( "password",
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 3, br.getVersion() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", br.getName() );
+        assertEquals( true, ( br.getAuthentication() instanceof SimpleAuthentication ) );
+        assertEquals( "password",
             StringTools.utf8ToString( ( ( SimpleAuthentication ) br.getAuthentication() ).getSimple() ) );
     }
 
@@ -261,12 +261,12 @@ public class LdapDecoderTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            Assert.assertEquals( "The current Value length is above the expected length",
+            assertEquals( "The current Value length is above the expected length",
                 de.getMessage() );
             return;
         }
 
-        Assert.fail( "Should never reach this point.." );
+        fail( "Should never reach this point.." );
     }
 
     /**
@@ -308,11 +308,11 @@ public class LdapDecoderTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            Assert.assertEquals( "Universal tag 14 is reserved", de.getMessage() );
+            assertEquals( "Universal tag 14 is reserved", de.getMessage() );
             return;
         }
 
-        Assert.fail( "Should never reach this point." );
+        fail( "Should never reach this point." );
     }
 
     /**
@@ -354,11 +354,11 @@ public class LdapDecoderTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            Assert.assertEquals( "Bad transition !",
+            assertEquals( "Bad transition !",
                 de.getMessage() );
             return;
         }
 
-        Assert.fail( "Should never reach this point." );
+        fail( "Should never reach this point." );
     }
 }
