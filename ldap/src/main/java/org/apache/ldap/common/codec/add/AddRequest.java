@@ -283,7 +283,7 @@ public class AddRequest extends LdapMessage
         
         if ( log.isDebugEnabled() )
         {
-            log.debug( "AddRequest PDU length = " + result );
+            log.debug( "AddRequest PDU length = {}", new Integer( result ) );
         }
         
         return result;
@@ -397,8 +397,8 @@ public class AddRequest extends LdapMessage
 
         if ( log.isDebugEnabled() )
         {
-            log.debug( "AddRequest encoding : " + StringTools.dumpBytes( buffer.array() ) );
-            log.debug( "AddRequest initial value : " + toString() );
+            log.debug( "AddRequest encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            log.debug( "AddRequest initial value : {}", toString() );
         }
         
         return buffer;

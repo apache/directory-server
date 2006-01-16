@@ -23,6 +23,7 @@ import org.apache.asn1.ber.grammar.GrammarAction;
 import org.apache.asn1.ber.IAsn1Container;
 import org.apache.asn1.ber.tlv.TLV;
 import org.apache.asn1.ber.tlv.UniversalTag;
+import org.apache.asn1.codec.DecoderException;
 import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -77,7 +78,7 @@ public class AddResponseGrammar extends AbstractGrammar implements IGrammar
                 LdapStatesEnum.ADD_RESPONSE_VALUE, LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT, 
                 new GrammarAction( "Init AddResponse" )
                 {
-                    public void action( IAsn1Container container )
+                    public void action( IAsn1Container container ) throws DecoderException
                     {
 
                         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
@@ -85,11 +86,20 @@ public class AddResponseGrammar extends AbstractGrammar implements IGrammar
                         LdapMessage      ldapMessage          =
                             ldapMessageContainer.getLdapMessage();
 
+                        // We will check that the request is not null
+                        TLV   tlv       = ldapMessageContainer.getCurrentTLV();
+
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                        	String msg = "The AddResponse must not be null";
+                        	log.error( msg );
+                        	throw new DecoderException( msg );
+                        }
+                        
                         // Now, we can allocate the AddRequest Object
                         AddResponse addResponse = new AddResponse();
 
                         // As this is a new Constructed object, we have to init its length
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
                         int expectedLength = tlv.getLength().getLength();
                         addResponse.setExpectedLength( expectedLength );
                         addResponse.setCurrentLength( 0 );
@@ -98,10 +108,7 @@ public class AddResponseGrammar extends AbstractGrammar implements IGrammar
                         // And we associate it to the ldapMessage Object
                         ldapMessage.setProtocolOP( addResponse );
                         
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Add Response" );
-                        }
+                        log.debug( "Add Response" );
                     }
                 } );
 

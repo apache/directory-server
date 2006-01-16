@@ -103,7 +103,7 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( ( value == null ) || ( value.getData() == null ) )
                         {
-                        	String msg = "The AbandonRequest messgaeId must not be null";
+                        	String msg = "The AbandonRequest messageId must not be null";
                         	log.error( msg );
                         	throw new DecoderException( msg );
                         }

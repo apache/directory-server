@@ -85,13 +85,23 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                 LdapStatesEnum.ADD_REQUEST_VALUE, LdapStatesEnum.ADD_REQUEST_ENTRY_TAG,
                 new GrammarAction( "Init addRequest" )
                 {
-                    public void action( IAsn1Container container )
+                    public void action( IAsn1Container container ) throws DecoderException
                     {
 
                         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
                             container;
                         LdapMessage          ldapMessage          =
                             ldapMessageContainer.getLdapMessage();
+
+                        // We will check that the request is not null
+                        TLV   tlv       = ldapMessageContainer.getCurrentTLV();
+
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                        	String msg = "The AddRequest must not be null";
+                        	log.error( msg );
+                        	throw new DecoderException( msg );
+                        }
 
                         // Now, we can allocate the ModifyRequest Object
                         // And we associate it to the ldapMessage Object
@@ -144,23 +154,20 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "The DN is invalid : " + StringTools.dumpBytes(tlv.getValue().getData()) + " : " + ine.getMessage(); 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "The DN is invalid : " + StringTools.dumpBytes(tlv.getValue().getData()) + " : " + ne.getMessage();
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
                             addRequest.setEntry( entry );
                         }
                         
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Adding an entry with DN : " + addRequest.getEntry() );
-                        }
+                        log.debug( "Adding an entry with DN : {}", addRequest.getEntry() );
                     }
                 } );
 
@@ -270,14 +277,14 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                             }
                             catch ( LdapStringEncodingException lsee )
                             {
-                                log.error( "The type is invalid : " + StringTools.dumpBytes( tlv.getValue().getData() ) + " : " + lsee.getMessage() );
+                                log.error( "The type is invalid : {} : {}", StringTools.dumpBytes( tlv.getValue().getData() ), lsee.getMessage() );
                                 throw new DecoderException( "Invalid attribute type : " + lsee.getMessage() );
                             }
                         }
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Adding type " + type );
+                            log.debug( "Adding type {}", type );
                         }
                     }
                 } );
@@ -356,17 +363,14 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
                                 
                                 if ( log.isDebugEnabled() )
                                 {
-                                    log.debug( "Adding value " + StringTools.dumpBytes( (byte[])value ) );
+                                    log.debug( "Adding value {}", StringTools.dumpBytes( (byte[])value ) );
                                 }
                             }
                             else
                             {
                                 value = StringTools.utf8ToString( tlv.getValue().getData() );
 
-                                if ( log.isDebugEnabled() )
-                                {
-                                    log.debug( "Adding value " + value );
-                                }
+                                log.debug( "Adding value {}" + value );
                             }
                             
                             addRequest.addAttributeValue( value );

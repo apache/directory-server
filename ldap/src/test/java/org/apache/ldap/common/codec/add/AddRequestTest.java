@@ -35,7 +35,6 @@ import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.add.AddRequest;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -57,25 +56,25 @@ public class AddRequestTest extends TestCase {
             new byte[]
             {
                 0x30, 0x57, 		// LDAPMessage ::= SEQUENCE {
-				0x02, 0x01, 0x01, 	//     messageID MessageID
-				0x68, 0x52, 		//     CHOICE { ..., addRequest   AddRequest, ...
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x52, 		//     CHOICE { ..., addRequest   AddRequest, ...
                         			// AddRequest ::= [APPLICATION 8] SEQUENCE {
 									//     entry           LDAPDN,
-				0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+				    0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
 									//     attributes      AttributeList }
-                0x30, 0x2E,         // AttributeList ::= SEQUENCE OF SEQUENCE {
-                0x30, 0x0c,         // attribute 1
-                0x04, 0x01, 'l',    //     type    AttributeDescription,
-                0x31, 0x07,         //     vals    SET OF AttributeValue }
-                0x04, 0x05, 'P', 'a', 'r', 'i', 's',
+                    0x30, 0x2E,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+                      0x30, 0x0c,         // attribute 1
+                        0x04, 0x01, 'l',    //     type    AttributeDescription,
+                        0x31, 0x07,         //     vals    SET OF AttributeValue }
+                          0x04, 0x05, 'P', 'a', 'r', 'i', 's',
 
-                0x30, 0x1E,         // attribute 2
+                      0x30, 0x1E,         // attribute 2
                 					//     type    AttributeDescription,
-                0x04, 0x05, 'a', 't', 't', 'r', 's', 
-                0x31, 0x15,         //     vals    SET OF AttributeValue }
-                0x04, 0x05, 't', 'e', 's', 't', '1',
-                0x04, 0x05, 't', 'e', 's', 't', '2',
-                0x04, 0x05, 't', 'e', 's', 't', '3',
+                        0x04, 0x05, 'a', 't', 't', 'r', 's', 
+                        0x31, 0x15,         //     vals    SET OF AttributeValue }
+                          0x04, 0x05, 't', 'e', 's', 't', '1',
+                          0x04, 0x05, 't', 'e', 's', 't', '2',
+                          0x04, 0x05, 't', 'e', 's', 't', '3',
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -92,19 +91,19 @@ public class AddRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         AddRequest addRequest      = message.getAddRequest();
 
         // Check the decoded message
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry() );
 
         Attributes attributes = addRequest.getAttributes();
         
-        Assert.assertEquals( 2, attributes.size() );
+        assertEquals( 2, attributes.size() );
         
         HashSet expectedTypes = new HashSet();
         
@@ -125,7 +124,7 @@ public class AddRequestTest extends TestCase {
         
         BasicAttribute attributeValue = (BasicAttribute)attributes.get( "l" );
             
-        Assert.assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
+        assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
             
         NamingEnumeration values = attributeValue.getAll();
         HashSet vals = (HashSet)typesVals.get( attributeValue.getID().toLowerCase() );
@@ -134,14 +133,14 @@ public class AddRequestTest extends TestCase {
         {
             Object value = values.next();
             
-            Assert.assertTrue( vals.contains( value.toString() ) );
+            assertTrue( vals.contains( value.toString() ) );
             
             vals.remove( value.toString() );
         }
 
         attributeValue = (BasicAttribute)attributes.get( "attrs" );
         
-	    Assert.assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
+	    assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
 	        
 	    values = attributeValue.getAll();
 	    vals = (HashSet)typesVals.get( attributeValue.getID().toLowerCase() );
@@ -150,13 +149,13 @@ public class AddRequestTest extends TestCase {
 	    {
 	        Object value = values.next();
 	        
-	        Assert.assertTrue( vals.contains( value.toString() ) );
+	        assertTrue( vals.contains( value.toString() ) );
 	        
 	        vals.remove( value.toString() );
 	    }
 	    
         // Check the length
-        Assert.assertEquals(0x59, message.computeLength());
+        assertEquals(0x59, message.computeLength());
 	    
         // Check the encoding
         try
@@ -165,12 +164,407 @@ public class AddRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a null body
+     */
+    public void testDecodeAddRequestNullBody() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x39 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x37, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x00 		//     CHOICE { ..., addRequest   AddRequest, ...
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a null entry
+     */
+    public void testDecodeAddRequestNullEntry() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x39 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x37, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x26, 		//     CHOICE { ..., addRequest   AddRequest, ...
+                        			// AddRequest ::= [APPLICATION 8] SEQUENCE {
+									//     entry           LDAPDN,
+				    0x04, 0x00,
+									//     attributes      AttributeList }
+                    0x30, 0x2E,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+                      0x30, 0x0c,         // attribute 1
+                        0x04, 0x01, 'l',    //     type    AttributeDescription,
+                        0x31, 0x07,         //     vals    SET OF AttributeValue }
+                          0x04, 0x05, 'P', 'a', 'r', 'i', 's',
+
+                      0x30, 0x1E,         // attribute 2
+                					//     type    AttributeDescription,
+                        0x04, 0x05, 'a', 't', 't', 'r', 's', 
+                        0x31, 0x15,         //     vals    SET OF AttributeValue }
+                          0x04, 0x05, 't', 'e', 's', 't', '1',
+                          0x04, 0x05, 't', 'e', 's', 't', '2',
+                          0x04, 0x05, 't', 'e', 's', 't', '3',
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a null attributeList
+     */
+    public void testDecodeAddRequestNullAttributes() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x2B );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x29, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x24, 		//     CHOICE { ..., addRequest   AddRequest, ...
+                        			// AddRequest ::= [APPLICATION 8] SEQUENCE {
+									//     entry           LDAPDN,
+					0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+									//     attributes      AttributeList }
+                    0x30, 0x00,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a empty attributeList
+     */
+    public void testDecodeAddRequestNullAttributeList() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x2D );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x2B, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x26, 		//     CHOICE { ..., addRequest   AddRequest, ...
+                        			// AddRequest ::= [APPLICATION 8] SEQUENCE {
+									//     entry           LDAPDN,
+					0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+									//     attributes      AttributeList }
+                    0x30, 0x02,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+                      0x30, 0x00,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a empty attributeList
+     */
+    public void testDecodeAddRequestNullType() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x2F );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x2D, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x28, 		//     CHOICE { ..., addRequest   AddRequest, ...
+                        			// AddRequest ::= [APPLICATION 8] SEQUENCE {
+									//     entry           LDAPDN,
+					0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+									//     attributes      AttributeList }
+                    0x30, 0x04,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+                      0x30, 0x02,         // attribute 1
+                        0x04, 0x00,    //     type    AttributeDescription,
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a empty attributeList
+     */
+    public void testDecodeAddRequestNoVals() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x30 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x2E, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x29, 		//     CHOICE { ..., addRequest   AddRequest, ...
+                        			// AddRequest ::= [APPLICATION 8] SEQUENCE {
+									//     entry           LDAPDN,
+					0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+									//     attributes      AttributeList }
+                    0x30, 0x05,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+                      0x30, 0x03,         // attribute 1
+                        0x04, 0x01, 'A',   //     type    AttributeDescription,
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a empty attributeList
+     */
+    public void testDecodeAddRequestNullVals() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x32 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x30, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x2B, 		//     CHOICE { ..., addRequest   AddRequest, ...
+                        			// AddRequest ::= [APPLICATION 8] SEQUENCE {
+									//     entry           LDAPDN,
+					0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+									//     attributes      AttributeList }
+                    0x30, 0x07,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+                      0x30, 0x05,         // attribute 1
+                        0x04, 0x01, 'A',   //     type    AttributeDescription,
+                        0x31, 0x00
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a AddRequest with a empty attributeList
+     */
+    public void testDecodeAddRequestEmptyAttributeValue() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x34 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x32, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				  0x68, 0x2D, 		//     CHOICE { ..., addRequest   AddRequest, ...
+                        			// AddRequest ::= [APPLICATION 8] SEQUENCE {
+									//     entry           LDAPDN,
+					0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+									//     attributes      AttributeList }
+                    0x30, 0x09,         // AttributeList ::= SEQUENCE OF SEQUENCE {
+                      0x30, 0x07,         // attribute 1
+                        0x04, 0x01, 'l',   //     type    AttributeDescription,
+                        0x31, 0x02,
+                          0x04, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a AddRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+    	
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddRequest addRequest      = message.getAddRequest();
+
+        // Check the decoded message
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry() );
+
+        Attributes attributes = addRequest.getAttributes();
+        
+        assertEquals( 1, attributes.size() );
+        
+        BasicAttribute attributeValue = (BasicAttribute)attributes.get( "l" );
+            
+        assertEquals( "l", attributeValue.getID().toLowerCase() );
+            
+        NamingEnumeration values = attributeValue.getAll();
+        
+        while ( values.hasMore() )
+        {
+            Object value = values.next();
+            
+            assertEquals( "", value.toString() );
+        }
+
+        // Check the length
+        assertEquals(0x34, message.computeLength());
+	    
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
         }
     }
 }
