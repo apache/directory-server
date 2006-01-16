@@ -17,13 +17,16 @@
 package org.apache.ldap.server.jndi;
 
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attributes;
@@ -31,9 +34,13 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.ldap.common.exception.LdapNamingException;
+import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.unit.AbstractAdminTestCase;
 
@@ -426,8 +433,6 @@ public class ReferralTest extends AbstractAdminTestCase
             checkAncestorReferrals( e );
         }
     }
-
-
     
     
     /**
@@ -485,5 +490,474 @@ public class ReferralTest extends AbstractAdminTestCase
         {
             checkAncestorReferrals( e );
         }
+    }
+
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a modify rdn interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testModifyRdnWithReferralParent() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an parent which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.rename( "cn=alex karasulu", "cn=aok" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkParentReferrals( e );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a modify rdn interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testModifyRdnWithReferralAncestor() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an ancestor which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.rename( "cn=alex karasulu,ou=apache", "cn=aok,ou=apache" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkAncestorReferrals( e );
+        }
+    }
+
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralParent() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an parent which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.rename( "cn=alex karasulu", "cn=alex karasulu,ou=groups" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkParentReferrals( e );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralAncestor() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an ancestor which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.rename( "cn=alex karasulu,ou=apache", "cn=alex karasulu,ou=groups" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkAncestorReferrals( e );
+        }
+    }
+
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralParent2() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an parent which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.rename( "cn=alex karasulu", "cn=aok,ou=groups" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkParentReferrals( e );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralAncestor2() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an ancestor which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.refCtx.rename( "cn=alex karasulu,ou=apache", "cn=aok,ou=groups" );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch( ReferralException e )
+        {
+            checkAncestorReferrals( e );
+        }
+    }
+
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralParentDest() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an parent which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        createLocalUser();
+        td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.rootCtx.rename( "cn=akarasulu", "cn=akarasulu,ou=users" );
+            fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
+        }
+        catch( LdapNamingException e )
+        {
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralAncestorDest() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an ancestor which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        createDeepLocalUser();
+        td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.rootCtx.rename( "cn=akarasulu,ou=deep", "cn=akarasulu,ou=users" );
+            fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
+        }
+        catch( LdapNamingException e )
+        {
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+        }
+    }
+
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with the parent context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralParent2Dest() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an parent which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        createLocalUser();
+        td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.rootCtx.rename( "cn=akarasulu", "cn=aok,ou=users" );
+            fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
+        }
+        catch( LdapNamingException e )
+        {
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+        }
+    }
+    
+    
+    /**
+     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * for a move interceptor operation (corresponds to a subset of the modify 
+     * dn operation) with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    public void testMoveWithReferralAncestor2Dest() throws Exception
+    {
+        // -------------------------------------------------------------------
+        // Attempt to modify the last component of the entry's name which 
+        // resides below an ancestor which is a referral. We should encounter 
+        // referral errors when referral setting is set to throw.
+        // -------------------------------------------------------------------
+
+        createDeepLocalUser();
+        td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try 
+        {
+            td.rootCtx.rename( "cn=akarasulu,ou=deep", "cn=aok,ou=users" );
+            fail( "Should fail here throwing a LdapNamingException with ResultCodeEnum = AFFECTSMULTIPLEDSAS" );
+        }
+        catch( LdapNamingException e )
+        {
+            assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTSMULTIPLEDSAS );
+        }
+    }
+    
+    
+    public void createLocalUser() throws Exception
+    {
+        LdapContext userCtx = null;
+        Attributes referral = new BasicAttributes( "objectClass", "top", true );
+        referral.get( "objectClass" ).add( "person" );
+        referral.put( "cn", "akarasulu" );
+        referral.put( "sn", "karasulu" );
+
+        try { td.rootCtx.destroySubcontext( "uid=akarasulu" ); } catch( NameNotFoundException e ) {}
+        try
+        {
+            userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu", referral );
+        }
+        catch( NameAlreadyBoundException e )
+        {
+            td.refCtx = ( LdapContext ) td.rootCtx.lookup( "cn=akarasulu" );
+        }
+        referral = userCtx.getAttributes( "" );
+        assertTrue( referral.get( "cn" ).contains( "akarasulu" ) );
+        assertTrue( referral.get( "sn" ).contains( "karasulu" ) );
+    }
+    
+    
+    public void createDeepLocalUser() throws Exception
+    {
+        LdapContext userCtx = null;
+        Attributes referral = new BasicAttributes( "objectClass", "top", true );
+        referral.get( "objectClass" ).add( "person" );
+        referral.put( "cn", "akarasulu" );
+        referral.put( "sn", "karasulu" );
+
+        try { td.rootCtx.destroySubcontext( "uid=akarasulu,ou=deep" ); } catch( NameNotFoundException e ) {}
+        try { td.rootCtx.destroySubcontext( "ou=deep" ); } catch( NameNotFoundException e ) {}
+        try
+        {
+            td.rootCtx.createSubcontext( "ou=deep" );
+            userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu,ou=deep", referral );
+        }
+        catch( NameAlreadyBoundException e )
+        {
+            td.refCtx = ( LdapContext ) td.rootCtx.lookup( "cn=akarasulu,ou=deep" );
+        }
+        referral = userCtx.getAttributes( "" );
+        assertTrue( referral.get( "cn" ).contains( "akarasulu" ) );
+        assertTrue( referral.get( "sn" ).contains( "karasulu" ) );
+    }
+    
+    
+    public void testSearchBaseIsReferral() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try
+        {
+            td.rootCtx.search( "ou=users", "(objectClass=*)", controls );
+            fail( "should never get here" );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389/ou=users,ou=system??sub", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/ou=users,dc=example,dc=com??sub", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389/ou=users,ou=system??sub", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+    }
+
+    
+    public void testSearchBaseParentIsReferral() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try
+        {
+            td.refCtx.search( "cn=alex karasulu", "(objectClass=*)", controls );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=users,ou=system??base", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=users,dc=example,dc=com??base", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=users,ou=system??base", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+    }
+
+    
+    public void testSearchBaseAncestorIsReferral() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        try
+        {
+            td.refCtx.search( "cn=alex karasulu,ou=apache", "(objectClass=*)", controls );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/cn=alex karasulu,ou=apache,ou=users,dc=example,dc=com??base", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389/cn=alex karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+    }
+
+    
+    public void testSearchContinuations() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration list = td.rootCtx.search( "", "(objectClass=*)", controls );
+        Map results = new HashMap();
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult) list.next();
+            System.out.println( "name = " + result.getName() + " results .. " + result );
+            results.put ( result.getName(), result );
+        }
+        
+        assertNotNull( results.get( "ou=users,ou=system" ) );
+        
+        // -------------------------------------------------------------------
+        // Now we will throw exceptions when searching for referrals 
+        // -------------------------------------------------------------------
+        
+        td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        list = td.rootCtx.search( "", "(objectClass=*)", controls );
+        results = new HashMap();
+        
+        try
+        {
+            while ( list.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) list.next();
+                System.out.println( "name = " + result.getName() + " results .. " + result );
+                results.put ( result.getName(), result );
+            }
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389/ou=users,ou=system??sub", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/ou=users,dc=example,dc=com??sub", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389/ou=users,ou=system??sub", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+        
+        assertNull( results.get( "ou=users" ) );
+
+        // try again but this time with single level scope
+        
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        list = td.rootCtx.search( "", "(objectClass=*)", controls );
+        results = new HashMap();
+        
+        try
+        {
+            while ( list.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) list.next();
+                System.out.println( "name = " + result.getName() + " results .. " + result );
+                results.put ( result.getName(), result );
+            }
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://fermi:10389/ou=users,ou=system??base", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://hertz:10389/ou=users,dc=example,dc=com??base", e.getReferralInfo() );
+            assertTrue( e.skipReferral() );
+            assertEquals( "ldap://maxwell:10389/ou=users,ou=system??base", e.getReferralInfo() );
+            assertFalse( e.skipReferral() );
+        }
+        
+        assertNull( results.get( "ou=users" ) );
     }
 }
