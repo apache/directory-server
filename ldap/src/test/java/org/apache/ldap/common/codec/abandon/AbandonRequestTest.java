@@ -235,4 +235,39 @@ public class AbandonRequestTest extends TestCase {
         }
     }
 
+    /**
+     * Test the decoding of a AbandonRequest with no controls
+     */
+    public void testDecodeAbandonRequestNoMessageId()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x0A );
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x08,         // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01,	//        messageID MessageID
+                0x50, 0x00    		//        CHOICE { ..., abandonRequest AbandonRequest,...
+                                    // AbandonRequest ::= [APPLICATION 16] MessageID
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessageContainer Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	assertTrue( true );
+        	return;
+        }
+        
+        fail( "We should not reach this point" );
+    }
 }
