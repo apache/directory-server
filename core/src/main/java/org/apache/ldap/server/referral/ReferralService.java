@@ -80,8 +80,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ReferralService extends BaseInterceptor
 {
+    public static final String NAME = "referralService";
     private static final Logger log = LoggerFactory.getLogger( ReferralService.class );
     private static final String IGNORE = "ignore";
+    private static final String THROW_FINDING_BASE = "throw-finding-base";
     private static final String THROW = "throw";
     private static final String FOLLOW = "follow";
     private static final String REFERRAL_OC = "referral";
@@ -880,6 +882,31 @@ public class ReferralService extends BaseInterceptor
             return next.search( base, env, filter, controls );
         }
 
+        /**
+         * THROW_FINDING_BASE is a special setting which allows for finding base to 
+         * throw exceptions but not when searching.  While search all results are 
+         * returned as if they are regular entries.
+         */
+        if ( refval.equals( THROW_FINDING_BASE ) )
+        {
+            if ( lut.isReferral( base ) )
+            {
+                Attributes referral = invocation.getProxy().lookup( base, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+                Attribute refs = referral.get( REF_ATTR );
+                doReferralExceptionOnSearchBase( base, refs, controls.getSearchScope() );
+            }
+            
+            Name farthest = lut.getFarthestReferralAncestor( base );
+            if ( farthest == null ) 
+            {
+                return next.search( base, env, filter, controls );
+            }
+            
+            Attributes referral = invocation.getProxy().lookup( farthest, DirectoryPartitionNexusProxy.LOOKUP_BYPASS );
+            Attribute refs = referral.get( REF_ATTR );
+            doReferralExceptionOnSearchBase( farthest, base, refs, controls.getSearchScope() );
+            throw new IllegalStateException( "Should never get here: shutting up compiler" );
+        }
         if ( refval.equals( THROW ) )
         {
             if ( lut.isReferral( base ) )
@@ -1048,5 +1075,21 @@ public class ReferralService extends BaseInterceptor
         }
         LdapReferralException lre = new LdapReferralException( list );
         throw lre;
+    }
+    
+    
+    public boolean isReferral( String name ) throws NamingException
+    {
+        if ( lut.isReferral( name ) )
+        {
+            return true;
+        }
+        
+        if ( lut.isReferral( parser.parse( name ) ) )
+        {
+            return true;
+        }
+        
+        return false;
     }
 }

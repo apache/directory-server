@@ -29,6 +29,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.authn.LdapPrincipal;
+import org.apache.ldap.server.referral.ReferralService;
 
 
 /**
@@ -163,5 +164,18 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public boolean compare( Name name, String oid, Object value ) throws NamingException
     {
        return super.getNexusProxy().compare( name, oid, value );
+    }
+    
+    
+    private transient ReferralService refService;
+    public boolean isReferral( String name ) throws NamingException
+    {
+        if ( refService == null )
+        {
+            refService = ( ReferralService ) getService().getConfiguration().getInterceptorChain().
+                get( ReferralService.NAME );
+        }
+        
+        return refService.isReferral( name );
     }
 }

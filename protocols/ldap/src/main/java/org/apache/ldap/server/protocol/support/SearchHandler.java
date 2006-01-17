@@ -174,7 +174,7 @@ public class SearchHandler implements MessageHandler
             }
             else
             {
-                ctx.addToEnvironment( Context.REFERRAL, "throw" );
+                ctx.addToEnvironment( Context.REFERRAL, "throw-finding-base" );
             }
 
             // ===============================================================
@@ -216,7 +216,7 @@ public class SearchHandler implements MessageHandler
                     }
                     if( list.hasMore() )
                     {
-                        Iterator it = new SearchResponseIterator( req, list );
+                        Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope() );
                         while( it.hasNext() )
                         {
                             Response resp = ( Response ) it.next();
@@ -267,7 +267,7 @@ public class SearchHandler implements MessageHandler
             
             if( list.hasMore() )
             {
-                Iterator it = new SearchResponseIterator( req, list );
+                Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope() );
                 while( it.hasNext() )
                 {
                     session.write( it.next() );

@@ -35,8 +35,6 @@
         <configuration>
           <excludes>
             <exclude>**/Abstract*</exclude>
-            <!-- test fails because of twix bug on referral result encoding -->
-            <exclude>**/ReferralTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
