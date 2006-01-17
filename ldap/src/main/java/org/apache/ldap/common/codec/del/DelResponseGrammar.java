@@ -89,10 +89,7 @@ public class DelResponseGrammar extends AbstractGrammar implements IGrammar
                         // And we associate it to the ldapMessage Object
                         ldapMessage.setProtocolOP( new DelResponse() );
                         
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Del response " );
-                        }
+                        log.debug( "Del response " );
                     }
                 } );
 

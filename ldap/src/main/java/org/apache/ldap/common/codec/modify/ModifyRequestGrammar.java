@@ -151,13 +151,13 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "Invalid DN " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + ine.getMessage(); 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "Invalid DN " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + ne.getMessage();
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
@@ -166,7 +166,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Modification of DN " + modifyRequest.getObject() );
+                            log.debug( "Modification of DN {}", modifyRequest.getObject() );
                         }
                     }
                 } );
@@ -286,8 +286,9 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( IntegerDecoderException ide )
                         {
-                            log.error( "Invalid operation (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ", it should be 0, 1 or 2 " );
-                            throw new DecoderException( "Invalid operation (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ", it should be 0, 1 or 2 " );
+                        	String msg = "Invalid operation ({}), it should be 0, 1 or 2" + StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( msg );
+                            throw new DecoderException( msg );
                         }
                         
                         // Store the current operation.
@@ -380,14 +381,14 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                             }
                             catch ( LdapStringEncodingException lsee )
                             {
-                                log.error( "Invalid type : " + StringTools.dumpBytes( tlv.getValue().getData() ) );
+                                log.error( "Invalid type : {}", StringTools.dumpBytes( tlv.getValue().getData() ) );
                                 throw new DecoderException( "Invalid type : " + lsee.getMessage() );
                             }
                         }
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Modifying type : " + type );
+                            log.debug( "Modifying type : {}", type );
                         }
                     }
                 } );
@@ -484,10 +485,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Value modified : " + value );
-                        }
+                        log.debug( "Value modified : {}", value );
                     }
                 } );
 

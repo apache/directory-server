@@ -199,7 +199,7 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
 
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Extended value : {}" + extendedResponse.getResponse() );
+                            log.debug( "Extended value : {}", extendedResponse.getResponse() );
                         }
                     }
                 } );

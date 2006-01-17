@@ -115,13 +115,13 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid"; 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid";
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
@@ -136,7 +136,7 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Deleting DN " + entry );
+                            log.debug( "Deleting DN {}", entry );
                         }
                     }
                 } );

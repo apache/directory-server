@@ -570,8 +570,7 @@ public class ModifyRequest extends LdapMessage
                 }
                 catch ( NamingException ne )
                 {
-                    log.error( "Naming exception while printing the '" + attribute.getID() +
-                        "'" );
+                    log.error( "Naming exception while printing the '{}'", attribute.getID() );
                 }
             }
         }

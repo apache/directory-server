@@ -87,10 +87,7 @@ public class ModifyResponseGrammar extends AbstractGrammar implements IGrammar
                         // We associate it to the ldapMessage Object
                         ldapMessage.setProtocolOP( new ModifyResponse() );
                         
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Modify response" );
-                        }
+                        log.debug( "Modify response" );
                     }
                 } );
 
