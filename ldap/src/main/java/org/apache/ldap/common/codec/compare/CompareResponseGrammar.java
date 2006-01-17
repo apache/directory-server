@@ -22,6 +22,7 @@ import org.apache.asn1.ber.grammar.GrammarTransition;
 import org.apache.asn1.ber.grammar.AbstractGrammar;
 import org.apache.asn1.ber.grammar.GrammarAction;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.asn1.ber.tlv.TLV;
 import org.apache.asn1.ber.tlv.UniversalTag;
 import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.LdapMessage;
@@ -85,14 +86,21 @@ public class CompareResponseGrammar extends AbstractGrammar implements IGrammar
                         LdapMessage      ldapMessage          =
                             ldapMessageContainer.getLdapMessage();
 
+                        // We will check that the request is not null
+                        TLV   tlv       = ldapMessageContainer.getCurrentTLV();
+
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                        	String msg = "The CompareResponse must not be null";
+                        	log.error( msg );
+                        	throw new DecoderException( msg );
+                        }
+
                         // Now, we can allocate the CompareResponse Object
                         // And we associate it to the ldapMessage Object
                         ldapMessage.setProtocolOP( new CompareResponse() );
 
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Compare response " );
-                        }
+                        log.debug( "Compare response " );
                     }
                 } );
 

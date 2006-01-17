@@ -28,7 +28,6 @@ import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.compare.CompareResponse;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -77,20 +76,20 @@ public class CompareResponseTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         // Check the decoded CompareResponse PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         CompareResponse compareResponse      = message.getCompareResponse();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( 0, compareResponse.getLdapResult().getResultCode() );
-        Assert.assertEquals( "", compareResponse.getLdapResult().getMatchedDN() );
-        Assert.assertEquals( "", compareResponse.getLdapResult().getErrorMessage() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 0, compareResponse.getLdapResult().getResultCode() );
+        assertEquals( "", compareResponse.getLdapResult().getMatchedDN() );
+        assertEquals( "", compareResponse.getLdapResult().getErrorMessage() );
 
         // Check the length
-        Assert.assertEquals(0x0E, message.computeLength());
+        assertEquals(0x0E, message.computeLength());
         
         // Check the encoding
         try
@@ -99,12 +98,49 @@ public class CompareResponseTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
+    }
+    
+    /**
+     * Test the decoding of a CompareResponse with no LdapResult
+     */
+    public void testDecodeCompareResponseEmptyResult()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x07 );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x05, 		// LDAPMessage ::=SEQUENCE {
+    				  0x02, 0x01, 0x01, 	//         messageID MessageID
+    				  0x6F, 0x00 		//        CHOICE { ..., compareResponse CompareResponse, ...
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a CompareResponse message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
     }
 }
