@@ -30,7 +30,6 @@ import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.del.DelRequest;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -74,18 +73,18 @@ public class DelRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         // Check the decoded DelRequest PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         DelRequest delRequest      = message.getDelRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "cn=testModify,ou=users,ou=system", delRequest.getEntry() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", delRequest.getEntry() );
 
         // Check the length
-        Assert.assertEquals(0x27, message.computeLength());
+        assertEquals(0x27, message.computeLength());
 
         // Check the encoding
         try
@@ -94,17 +93,17 @@ public class DelRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
     /**
-     * Test the decoding of aempty DelRequest
+     * Test the decoding of an empty DelRequest
      */
     public void testDecodeDelRequestEmpty() throws NamingException
     {
@@ -133,11 +132,11 @@ public class DelRequestTest extends TestCase {
         try
         {
             ldapDecoder.decode( stream, ldapMessageContainer );
-            Assert.fail("We should never reach this point !!!");
+            fail("We should never reach this point !!!");
         }
         catch ( DecoderException de )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
         }
     }
 }
