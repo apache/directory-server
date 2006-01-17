@@ -168,7 +168,7 @@ public class BindResponseGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "The SASL credentials value is : " + bindResponseMessage.getServerSaslCreds().toString() );
+                            log.debug( "The SASL credentials value is : {}", bindResponseMessage.getServerSaslCreds().toString() );
                         }
                         
                         return;
