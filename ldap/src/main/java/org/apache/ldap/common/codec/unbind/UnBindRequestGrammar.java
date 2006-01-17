@@ -110,7 +110,7 @@ public class UnBindRequestGrammar extends AbstractGrammar implements IGrammar
                         // If the length is not null, this is an error.
                         if ( expectedLength != 0 )
                         {
-                            log.error( "The length of a UnBindRequest must be null, the actual value is " + expectedLength );
+                            log.error( "The length of a UnBindRequest must be null, the actual value is {}", new Integer( expectedLength ) );
                             throw new DecoderException( "The length of a UnBindRequest must be null" );
                         }
 

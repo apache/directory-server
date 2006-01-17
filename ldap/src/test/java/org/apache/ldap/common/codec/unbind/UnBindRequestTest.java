@@ -27,7 +27,6 @@ import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -64,15 +63,15 @@ public class UnBindRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
-        Assert.assertEquals( 1, message.getMessageId() );
+        assertEquals( 1, message.getMessageId() );
         
         // Check the length
-        Assert.assertEquals(7, message.computeLength());
+        assertEquals(7, message.computeLength());
 
         try
         {
@@ -80,12 +79,50 @@ public class UnBindRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
+    }
+
+    /**
+     * Test the decoding of a UnBindRequest with a not null body
+     */
+    public void testDecodeUnBindRequestNotNull()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x09 );
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x07,         // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01,   //         messageID MessageID
+                0x42, 0x02,         //        CHOICE { ..., unbindRequest UnbindRequest,...
+                  0x04, 0x00        // UnbindRequest ::= [APPLICATION 2] NULL
+                                    
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a UnbindRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "We should not reach this point" );
     }
 }
