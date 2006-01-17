@@ -30,7 +30,6 @@ import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.extended.ExtendedRequest;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -75,19 +74,19 @@ public class ExtendedRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         // Check the decoded ExtendedRequest PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         ExtendedRequest extendedRequest      = message.getExtendedRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
-        Assert.assertEquals( "value", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
+        assertEquals( "value", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
         
         // Check the length
-        Assert.assertEquals(0x16, message.computeLength());
+        assertEquals(0x16, message.computeLength());
 
         // Check the encoding
         try
@@ -96,12 +95,83 @@ public class ExtendedRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of an empty ExtendedRequest
+     */
+    public void testDecodeExtendedRequestEmpty() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x07 );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x05, 		// LDAPMessage ::= SEQUENCE {
+    				  0x02, 0x01, 0x01, 	//     messageID MessageID
+    				            		//     CHOICE { ..., extendedReq     ExtendedRequest, ...
+    				  0x77, 0x00,         // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a ExtendedRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+            fail("We should never reach this point !!!");
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of an empty OID
+     */
+    public void testDecodeEmptyOID() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x09 );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x07, 		// LDAPMessage ::= SEQUENCE {
+    				  0x02, 0x01, 0x01, 	//     messageID MessageID
+    				            		//     CHOICE { ..., extendedReq     ExtendedRequest, ...
+    				  0x77, 0x02,         // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+    				    (byte)0x80, 0x00
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a ExtendedRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+            fail("We should never reach this point !!!");
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
         }
     }
 
@@ -139,18 +209,18 @@ public class ExtendedRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         // Check the decoded ExtendedRequest PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         ExtendedRequest extendedRequest      = message.getExtendedRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
         
         // Check the length
-        Assert.assertEquals(0x0F, message.computeLength());
+        assertEquals(0x0F, message.computeLength());
 
         // Check the encoding
         try
@@ -159,12 +229,77 @@ public class ExtendedRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of an empty name ExtendedRequest
+     */
+    public void testDecodeExtendedRequestEmptyName() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x11 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x0F, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
+				            		//     CHOICE { ..., extendedReq     ExtendedRequest, ...
+				  0x77, 0x0A,         // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+				                    //     requestName      [0] LDAPOID,
+				    (byte)0x80, 0x06, 0x2b, 0x06, 0x01, 0x05, 0x05, 0x02,
+				    (byte)0x81, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the ExtendedRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+    	
+        // Check the decoded ExtendedRequest PDU
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedRequest extendedRequest      = message.getExtendedRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
+        assertEquals( "", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
+        
+        // Check the length
+        assertEquals(0x11, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
         }
     }
 }
