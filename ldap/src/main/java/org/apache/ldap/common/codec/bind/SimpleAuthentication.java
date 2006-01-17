@@ -82,7 +82,7 @@ public class SimpleAuthentication  extends LdapAuthentication
 
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "Simple Authentication length : " + length );
+    		log.debug( "Simple Authentication length : {}", new Integer( length ) );
     	}
 
     	return length;

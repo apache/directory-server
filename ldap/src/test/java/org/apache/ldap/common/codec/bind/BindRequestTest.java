@@ -698,4 +698,177 @@ public class BindRequestTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
+
+    /**
+     * Test the decoding of a BindRequest with an empty sasl
+     */
+    public void testDecodeBindRequestEmptySasl()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x0E );
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x0C, 			// LDAPMessage ::=SEQUENCE {
+  				  0x02, 0x01, 0x01, 	//         messageID MessageID
+  				  0x60, 0x07, 			//        CHOICE { ..., bindRequest BindRequest, ...
+  				    0x02, 0x01, 0x03,    //        version INTEGER (1..127),
+  				    0x04, 0x00,
+  				    (byte)0xA3, 0x00
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a BindRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+        	System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+    	
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a BindRequest with an empty mechanism
+     */
+    public void testDecodeBindRequestEmptyMechanism()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x10 );
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x0E, 			// LDAPMessage ::=SEQUENCE {
+  				  0x02, 0x01, 0x01, 	//         messageID MessageID
+  				  0x60, 0x09, 			//        CHOICE { ..., bindRequest BindRequest, ...
+  				    0x02, 0x01, 0x03,    //        version INTEGER (1..127),
+  				    0x04, 0x00,
+  				    (byte)0xA3, 0x02,
+  				      0x04, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the BindRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+    	
+        // Check the decoded BindRequest 
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindRequest br      = message.getBindRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 3, br.getVersion() );
+        assertEquals( "", br.getName() );
+        assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
+        assertEquals( "", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
+
+        // Check the length
+        assertEquals(0x10, message.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a BindRequest with an empty credentials
+     */
+    public void testDecodeBindRequestEmptyCredentials()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x12 );
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x10, 			// LDAPMessage ::=SEQUENCE {
+  				  0x02, 0x01, 0x01, 	//         messageID MessageID
+  				  0x60, 0x0B, 			//        CHOICE { ..., bindRequest BindRequest, ...
+  				    0x02, 0x01, 0x03,    //        version INTEGER (1..127),
+  				    0x04, 0x00,
+  				    (byte)0xA3, 0x04,
+  				      0x04, 0x00,
+  				      0x04, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the BindRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+    	
+        // Check the decoded BindRequest 
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindRequest br      = message.getBindRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 3, br.getVersion() );
+        assertEquals( "", br.getName() );
+        assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
+        assertEquals( "", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
+        assertEquals( "", StringTools.utf8ToString( ( ( SaslCredentials ) br.getAuthentication() ).getCredentials() ) );
+
+        // Check the length
+        assertEquals(0x12, message.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
 }
