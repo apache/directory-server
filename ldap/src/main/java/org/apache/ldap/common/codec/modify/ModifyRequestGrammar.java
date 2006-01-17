@@ -286,7 +286,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( IntegerDecoderException ide )
                         {
-                        	String msg = "Invalid operation ({}), it should be 0, 1 or 2" + StringTools.dumpBytes( tlv.getValue().getData() );
+                        	String msg = "Invalid operation ( " + StringTools.dumpBytes( tlv.getValue().getData() ) + "), it should be 0, 1 or 2";
                             log.error( msg );
                             throw new DecoderException( msg );
                         }
@@ -405,10 +405,33 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
         //    AttributeTypeAndValues ::= SEQUENCE {
         //        ...
         //        vals    SET OF AttributeValue } (Value)
-        // Nothing to do
+        // It can be null.
         super.transitions[LdapStatesEnum.MODIFY_REQUEST_VALS_VALUE][UniversalTag.SET_TAG] = new GrammarTransition(
                 LdapStatesEnum.MODIFY_REQUEST_VALS_VALUE,
-                LdapStatesEnum.MODIFY_REQUEST_ATTRIBUTE_VALUE_OR_MODIFICATION_TAG, null );
+                LdapStatesEnum.MODIFY_REQUEST_ATTRIBUTE_VALUE_OR_MODIFICATION_TAG,                 
+                new GrammarAction( "Attribute vals" )
+                {
+                    public void action( IAsn1Container container )
+                    {
+
+                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
+                            container;
+
+                        TLV                  tlv                  =
+                            ldapMessageContainer.getCurrentTLV();
+
+                        // If the length is null, we store an empty value
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                            log.debug( "No vals for this attribute" );
+                        }
+                        
+                        // We can have an END transition
+                        ldapMessageContainer.grammarEndAllowed( true );
+                        
+                        log.debug( "Some vals are to be decoded" );
+                    }
+                } );
 
         //    AttributeTypeAndValues ::= SEQUENCE {
         //        ...
