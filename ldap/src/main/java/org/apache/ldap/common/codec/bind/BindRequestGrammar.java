@@ -104,12 +104,22 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                 LdapStatesEnum.BIND_REQUEST_VALUE, LdapStatesEnum.BIND_REQUEST_VERSION_TAG, 
                 new GrammarAction( "Init BindRequest" )
                 {
-                    public void action( IAsn1Container container )
+                    public void action( IAsn1Container container ) throws DecoderException
                     {
                         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
                             container;
                         LdapMessage      ldapMessage          =
                             ldapMessageContainer.getLdapMessage();
+
+                        // We will check that the request is not null
+                        TLV   tlv       = ldapMessageContainer.getCurrentTLV();
+
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                        	String msg = "The BindRequest must not be null";
+                        	log.error( msg );
+                        	throw new DecoderException( msg );
+                        }
 
                         // Now, we can allocate the BindRequest Object
                         ldapMessage.setProtocolOP( new BindRequest() );
@@ -147,22 +157,23 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
     
                             if ( version != 3 )
                             {
-                                log.error("The version " + version + " is invalid : it must be 3" );
+                                log.error("The version {} is invalid : it must be 3", new Integer( version ) );
                             
                                 throw new DecoderException( "Ldap Version " + version + " is not supported" );
                             }
                             
                             if ( log.isDebugEnabled() )
                             {
-                                log.debug( "Ldap version " + version );
+                                log.debug( "Ldap version ", new Integer( version ) );
                             }
                             
                             bindRequestMessage.setVersion( version );
                         }
                         catch ( IntegerDecoderException ide )
                         {
-                            log.error("The version " + StringTools.dumpBytes( value.getData() ) + 
-                                    " is invalid : " + ide.getMessage() + ". The version must be between (0 .. 127)" );
+                            log.error("The version {} is invalid : {}. The version must be between (0 .. 127)",
+                            		StringTools.dumpBytes( value.getData() ), 
+                                    ide.getMessage() );
                         
                             throw new DecoderException( ide.getMessage() );
                         }
@@ -213,13 +224,13 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "Incorrect DN given : " + StringTools.dumpBytes( tlv.getValue().getData() ) + " : " + ine.getMessage(); 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "Incorrect DN given : " + StringTools.dumpBytes( tlv.getValue().getData() ) + " : " + ne.getMessage();
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
@@ -228,7 +239,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( " The Bind name is " + bindRequestMessage.getName() );
+                            log.debug( " The Bind name is {}", bindRequestMessage.getName() );
                         }
 
                         return;
@@ -289,10 +300,27 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "The simple authentication is : " + authentication.getSimple() );
+                            log.debug( "The simple authentication is : {}", authentication.getSimple() );
                         }
                     }
                 } );
+
+        //--------------------------------------------------------------------------------------------
+        // If it's 0xA3, it is a Sasl Credentials.
+        // AuthenticationChoice ::= CHOICE {
+        //          ...
+        //        sasl         [3] SaslCredentials }
+        //
+        // SaslCredentials ::= SEQUENCE {
+        //        mechanism     LDAPSTRING,
+        //        credentials   OCTET STRING OPTIONNAL }
+        //--------------------------------------------------------------------------------------------
+        // AuthenticationChoice ::= CHOICE {
+        //        sasl         [3] saslCredentials, (Tag)
+        // Nothing to do. In fact, 0xA3 is the mechanism tag. 
+        super.transitions[LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_CHOICE_TAG][LdapConstants.BIND_REQUEST_SASL_TAG] =
+            new GrammarTransition( LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_CHOICE_TAG,
+                LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_SASL_VALUE, null );
 
         //--------------------------------------------------------------------------------------------
         // If it's 0x83, it is a Sasl Credentials.
@@ -305,10 +333,53 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
         //        credentials   OCTET STRING OPTIONNAL }
         //--------------------------------------------------------------------------------------------
         // AuthenticationChoice ::= CHOICE {
-        //        sasl         [3] saslCredentials, (Tag)
-        // Nothing to do. In fact, 0x83 is the mechanism tag. 
-        super.transitions[LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_CHOICE_TAG][LdapConstants.BIND_REQUEST_SASL_TAG] =
+        //        sasl         [3] saslCredentials, (Value)
+        // We will just check that the structure is not null, and create the structure
+        super.transitions[LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_SASL_VALUE][LdapConstants.BIND_REQUEST_SASL_TAG] =
             new GrammarTransition( LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_CHOICE_TAG,
+                LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_MECHANISM_TAG, 
+                new GrammarAction( "Create Bind sasl Authentication Object" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+
+                        LdapMessageContainer   ldapMessageContainer = ( LdapMessageContainer )
+                            container;
+                        BindRequest        bindRequestMessage = 
+                            ldapMessageContainer.getLdapMessage().getBindRequest();
+                        TLV tlv = ldapMessageContainer.getCurrentTLV();
+                        
+                        // We will check that the sasl is not null
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                        	String msg = "The SaslCredential must not be null";
+                        	log.error( msg );
+                        	throw new DecoderException( msg );
+                        }
+
+                        // Create the SaslCredentials Object
+                        SaslCredentials authentication = new SaslCredentials();
+
+                        authentication.setParent( bindRequestMessage );
+
+                        bindRequestMessage.setAuthentication( authentication );
+
+                        log.debug( "The SaslCredential has been created" );
+
+                        return;
+                    }
+                } );
+
+        //--------------------------------------------------------------------------------------------
+        // AuthenticationChoice ::= CHOICE {
+        //        sasl         [3] saslCredentials, (Tag)
+        //
+        // SaslCredentials ::= SEQUENCE {
+        //        mechanism     LDAPSTRING,  (Value)
+        //		  ...
+        // Nothing to do. 
+        super.transitions[LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_MECHANISM_TAG][UniversalTag.OCTET_STRING_TAG] =
+            new GrammarTransition( LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_MECHANISM_TAG,
                 LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_MECHANISM_VALUE, null );
 
         // AuthenticationChoice ::= CHOICE {
@@ -318,7 +389,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
         //        mechanism     LDAPSTRING,  (Value)
         //		  ...
         // We have to store the mechanism.
-        super.transitions[LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_MECHANISM_VALUE][LdapConstants.BIND_REQUEST_SASL_TAG] =
+        super.transitions[LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_MECHANISM_VALUE][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition( LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_MECHANISM_VALUE,
                 LdapStatesEnum.BIND_REQUEST_AUTHENTICATION_CREDENTIALS_TAG,
                 new GrammarAction( "Create Bind sasl Authentication Object" )
@@ -332,12 +403,8 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                             ldapMessageContainer.getLdapMessage().getBindRequest();
                         TLV tlv = ldapMessageContainer.getCurrentTLV();
                         
-                        // Create the SaslCredentials Object
-                        SaslCredentials authentication = new SaslCredentials();
-
-                        authentication.setParent( bindRequestMessage );
-
-                        bindRequestMessage.setAuthentication( authentication );
+                        // Get the SaslCredentials Object
+                        SaslCredentials authentication = bindRequestMessage.getSaslAuthentication();
 
                         // We have to handle the special case of a 0 length mechanism
                         if (tlv.getLength().getLength() == 0)
@@ -352,7 +419,9 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                             }
                             catch ( LdapStringEncodingException lsee )
                             {
-                                log.error( "Invalid mechanism : " + StringTools.dumpBytes( tlv.getValue().getData() ) + " : " + lsee.getMessage() );
+                                log.error( "Invalid mechanism : {} : {}", 
+                                		StringTools.dumpBytes( tlv.getValue().getData() ), 
+                                		lsee.getMessage() );
                                 throw new DecoderException( lsee.getMessage() );
                             }
                         }
@@ -362,7 +431,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "The mechanism is : " + authentication.getMechanism() );
+                            log.debug( "The mechanism is : {}", authentication.getMechanism() );
                         }
 
                         return;
@@ -435,7 +504,7 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "The credentials are : " + credentials.getCredentials() );
+                            log.debug( "The credentials are : {}", credentials.getCredentials() );
                         }
 
                         return;

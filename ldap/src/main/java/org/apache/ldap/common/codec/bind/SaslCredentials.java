@@ -50,6 +50,12 @@ public class SaslCredentials extends LdapAuthentication
 
     /** optional credentials of the user */
     private byte[] credentials;
+    
+    /** The mechanism length */
+    private transient int mechanismLength;
+
+    /** The credentials length */
+    private transient int credentialsLength;
 
     //~ Methods ------------------------------------------------------------------------------------
 
@@ -99,27 +105,33 @@ public class SaslCredentials extends LdapAuthentication
      * 
      * Sasl authentication :
      * 
-     * 0x83 L1 mechanism
-     * [0x04 L2 credentials]
+     * 0xA3 L1 
+     *   0x04 L2 mechanism
+     *   [0x04 L3 credentials]
      * 
-     * L1 = Length(mechanism)
-     * L2 = Length(credentials)
+     * L2 = Length(mechanism)
+     * L3 = Length(credentials)
+     * L1 = L2 + L3
      * 
-     * Length(Sasl authentication) = Length(0x83) + Length(L1) + Length(mechanism)
-     *                               [+ Length(0x04) + Length(L2) + Length(credentials)]
+     * Length(Sasl authentication) = Length(0xA3) + Length(L1) + 
+     *                               Length(0x04) + Length(L2) + Length(mechanism)
+     *                               [+ Length(0x04) + Length(L3) + Length(credentials)]
      */
     public int computeLength()
     {
-        int saslLength = 1 + Length.getNbBytes( mechanism.getNbBytes() ) + mechanism.getNbBytes();
+    	mechanismLength = 1 + Length.getNbBytes( mechanism.getNbBytes() ) + mechanism.getNbBytes();
+    	credentialsLength = 0;
         
         if (credentials != null)
         {
-            saslLength += 1 + Length.getNbBytes( credentials.length ) + credentials.length;
+            credentialsLength = 1 + Length.getNbBytes( credentials.length ) + credentials.length;
         }
-        
+
+        int saslLength = 1 + Length.getNbBytes( mechanismLength + credentialsLength) + mechanismLength + credentialsLength;
+
     	if ( log.isDebugEnabled() )
     	{
-    		log.debug( "SASL Authentication length : " + saslLength );
+    		log.debug( "SASL Authentication length : {}", new Integer( saslLength ) );
     	}
 
     	return saslLength;
@@ -130,8 +142,9 @@ public class SaslCredentials extends LdapAuthentication
      * 
      * SimpleAuthentication :
      * 
-     * 0x83 LL mechanism
-     * [0x04 LL credentials]
+     * 0xA3 L1 
+     *   0x04 L2 mechanism
+     *   [0x04 L3 credentials]
      * 
      * @param buffer The buffer where to put the PDU
      * @return The PDU.
@@ -148,8 +161,10 @@ public class SaslCredentials extends LdapAuthentication
         {
             // The saslAuthentication Tag
             buffer.put( (byte) LdapConstants.BIND_REQUEST_SASL_TAG );
-            buffer.put( Length.getBytes( mechanism.getNbBytes() ) ) ;
-            buffer.put( mechanism.getBytes() ) ;
+            
+          	buffer.put( Length.getBytes( mechanismLength + credentialsLength ) ) ;
+
+            Value.encode( buffer, mechanism.toString() );
             
             if ( credentials != null )
             {
