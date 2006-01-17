@@ -46,7 +46,6 @@ import org.apache.ldap.common.codec.search.SearchRequest;
 import org.apache.ldap.common.codec.search.SubstringFilter;
 import org.apache.ldap.common.codec.util.LdapString;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -148,72 +147,72 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (& (...
         AndFilter andFilter = (AndFilter)sr.getFilter();
-        Assert.assertNotNull(andFilter);
+        assertNotNull(andFilter);
         
         ArrayList andFilters = andFilter.getAndFilter();
         
         // (& (| (...
-        Assert.assertEquals(2, andFilters.size());
+        assertEquals(2, andFilters.size());
         OrFilter orFilter = (OrFilter)andFilters.get(0);
-        Assert.assertNotNull(orFilter);
+        assertNotNull(orFilter);
         
         // (& (| (obectclass=top) (...
         ArrayList orFilters = orFilter.getOrFilter();
-        Assert.assertEquals(2, orFilters.size());
+        assertEquals(2, orFilters.size());
         AttributeValueAssertionFilter equalityMatch = (AttributeValueAssertionFilter)orFilters.get(0);  
-        Assert.assertNotNull(equalityMatch);
+        assertNotNull(equalityMatch);
         
         AttributeValueAssertion assertion = equalityMatch.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("objectclass", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("top", assertion.getAssertionValue().toString());
+        assertEquals("objectclass", assertion.getAttributeDesc().toString());
+        assertEquals("top", assertion.getAssertionValue().toString());
         
         // (& (| (objectclass=top) (ou=contacts) ) (...
         equalityMatch = (AttributeValueAssertionFilter)orFilters.get(1);  
-        Assert.assertNotNull(equalityMatch);
+        assertNotNull(equalityMatch);
         
         assertion = equalityMatch.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("ou", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("contacts", assertion.getAssertionValue().toString());
+        assertEquals("ou", assertion.getAttributeDesc().toString());
+        assertEquals("contacts", assertion.getAssertionValue().toString());
         
         // (& (| (objectclass=top) (ou=contacts) ) (! ...
         NotFilter notFilter = ( NotFilter )andFilters.get(1);
-        Assert.assertNotNull(notFilter);
+        assertNotNull(notFilter);
         
         // (& (| (objectclass=top) (ou=contacts) ) (! (objectclass=ttt) ) )
         equalityMatch = (AttributeValueAssertionFilter)notFilter.getNotFilter();  
-        Assert.assertNotNull(equalityMatch);
+        assertNotNull(equalityMatch);
         
         assertion = equalityMatch.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("objectclass", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("ttt", assertion.getAssertionValue().toString());
+        assertEquals("objectclass", assertion.getAttributeDesc().toString());
+        assertEquals("ttt", assertion.getAssertionValue().toString());
         
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
 
         // Check the encoding
@@ -225,12 +224,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x81 ), decodedPdu.substring( 0, 0x81 ) );
+            assertEquals(encodedPdu.substring( 0, 0x81 ), decodedPdu.substring( 0, 0x81 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -311,77 +310,77 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (& (...
         AndFilter andFilter = (AndFilter)sr.getFilter();
-        Assert.assertNotNull(andFilter);
+        assertNotNull(andFilter);
         
         ArrayList andFilters = andFilter.getAndFilter();
         
         // (& (| (...
-        Assert.assertEquals(2, andFilters.size());
+        assertEquals(2, andFilters.size());
         OrFilter orFilter = (OrFilter)andFilters.get(0);
-        Assert.assertNotNull(orFilter);
+        assertNotNull(orFilter);
         
         // (& (| (objectclass~=top) (...
         ArrayList orFilters = orFilter.getOrFilter();
-        Assert.assertEquals(2, orFilters.size());
+        assertEquals(2, orFilters.size());
         AttributeValueAssertionFilter approxMatch = (AttributeValueAssertionFilter)orFilters.get(0);  
-        Assert.assertNotNull(approxMatch);
+        assertNotNull(approxMatch);
         
         AttributeValueAssertion assertion = approxMatch.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("objectclass", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("top", assertion.getAssertionValue().toString());
+        assertEquals("objectclass", assertion.getAttributeDesc().toString());
+        assertEquals("top", assertion.getAssertionValue().toString());
         
         // (& (| (objectclass~=top) (ou<=contacts) ) (...
         AttributeValueAssertionFilter lessOrEqual = (AttributeValueAssertionFilter)orFilters.get(1);  
-        Assert.assertNotNull(lessOrEqual);
+        assertNotNull(lessOrEqual);
         
         assertion = lessOrEqual.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("ou", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("contacts", assertion.getAssertionValue().toString());
+        assertEquals("ou", assertion.getAttributeDesc().toString());
+        assertEquals("contacts", assertion.getAssertionValue().toString());
         
         // (& (| (objectclass~=top) (ou<=contacts) ) (! ...
         NotFilter notFilter = (NotFilter)andFilters.get(1);
-        Assert.assertNotNull(notFilter);
+        assertNotNull(notFilter);
         
         // (& (| (objectclass~=top) (ou<=contacts) ) (! (objectclass>=ttt) ) )
         AttributeValueAssertionFilter greaterOrEqual = (AttributeValueAssertionFilter)notFilter.getNotFilter();  
-        Assert.assertNotNull(greaterOrEqual);
+        assertNotNull(greaterOrEqual);
         
         assertion = greaterOrEqual.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("objectclass", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("ttt", assertion.getAssertionValue().toString());
+        assertEquals("objectclass", assertion.getAttributeDesc().toString());
+        assertEquals("ttt", assertion.getAssertionValue().toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x90, message.computeLength());
+        assertEquals(0x90, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -392,12 +391,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x81 ), decodedPdu.substring( 0, 0x81 ) );
+            assertEquals(encodedPdu.substring( 0, 0x81 ), decodedPdu.substring( 0, 0x81 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -473,70 +472,70 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (& (...
         AndFilter andFilter = (AndFilter)sr.getFilter();
-        Assert.assertNotNull(andFilter);
+        assertNotNull(andFilter);
         
         ArrayList andFilters = andFilter.getAndFilter();
         
         // (& (| (...
-        Assert.assertEquals(2, andFilters.size());
+        assertEquals(2, andFilters.size());
         OrFilter orFilter = (OrFilter)andFilters.get(0);
-        Assert.assertNotNull(orFilter);
+        assertNotNull(orFilter);
         
         // (& (| (objectclass=*) (...
         ArrayList orFilters = orFilter.getOrFilter();
-        Assert.assertEquals(2, orFilters.size());
+        assertEquals(2, orFilters.size());
 
         PresentFilter presentFilter = (PresentFilter)orFilters.get(0);  
-        Assert.assertNotNull(presentFilter);
+        assertNotNull(presentFilter);
         
-        Assert.assertEquals("objectclass", presentFilter.getAttributeDescription().toString());
+        assertEquals("objectclass", presentFilter.getAttributeDescription().toString());
         
         // (& (| (objectclass=*) (ou=*) ) (...
         presentFilter = (PresentFilter)orFilters.get(1);  
-        Assert.assertNotNull(presentFilter);
+        assertNotNull(presentFilter);
         
-        Assert.assertEquals("ou", presentFilter.getAttributeDescription().toString());
+        assertEquals("ou", presentFilter.getAttributeDescription().toString());
         
         // (& (| (objectclass=*) (ou=*) ) (! ...
         NotFilter notFilter = (NotFilter)andFilters.get(1);
-        Assert.assertNotNull(notFilter);
+        assertNotNull(notFilter);
         
         // (& (| (objectclass=*) (ou=*) ) (! (objectclass>=ttt) ) )
         AttributeValueAssertionFilter greaterOrEqual = (AttributeValueAssertionFilter)notFilter.getNotFilter();  
-        Assert.assertNotNull(greaterOrEqual);
+        assertNotNull(greaterOrEqual);
         
         AttributeValueAssertion assertion = greaterOrEqual.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("objectclass", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("ttt", assertion.getAssertionValue().toString());
+        assertEquals("objectclass", assertion.getAttributeDesc().toString());
+        assertEquals("ttt", assertion.getAssertionValue().toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x7B, message.computeLength());
+        assertEquals(0x7B, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -547,12 +546,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x6C ), decodedPdu.substring( 0, 0x6C ) );
+            assertEquals(encodedPdu.substring( 0, 0x6C ), decodedPdu.substring( 0, 0x6C ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -614,32 +613,32 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 3, message.getMessageId() );
-        Assert.assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_BASE_OBJECT, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 0, sr.getSizeLimit() );
-        Assert.assertEquals( 0, sr.getTimeLimit() );
-        Assert.assertEquals( false, sr.isTypesOnly() );
+        assertEquals( 3, message.getMessageId() );
+        assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_BASE_OBJECT, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 0, sr.getSizeLimit() );
+        assertEquals( 0, sr.getTimeLimit() );
+        assertEquals( false, sr.isTypesOnly() );
         
         // (objectClass = *)
         PresentFilter presentFilter = (PresentFilter)sr.getFilter();
-        Assert.assertNotNull(presentFilter);
-        Assert.assertEquals("objectClass", presentFilter.getAttributeDescription().toString());
+        assertNotNull(presentFilter);
+        assertEquals("objectClass", presentFilter.getAttributeDescription().toString());
         
         // The attributes
         Attributes attributes = sr.getAttributes();
         
-       	Assert.assertNull( attributes );
+       	assertNull( attributes );
 
         // Check the length
-        Assert.assertEquals(0x39, message.computeLength());
+        assertEquals(0x39, message.computeLength());
 
         // Check the encoding
         try
@@ -648,12 +647,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu.substring( 0, decodedPdu.length() - 35) );
+            assertEquals(encodedPdu, decodedPdu.substring( 0, decodedPdu.length() - 35) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -719,37 +718,37 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().toString());
-        Assert.assertEquals("t", substringFilter.getInitialSubstrings().toString());
+        assertEquals("objectclass", substringFilter.getType().toString());
+        assertEquals("t", substringFilter.getInitialSubstrings().toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
 
         // Check the length
-        Assert.assertEquals(0x64, message.computeLength());
+        assertEquals(0x64, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -760,12 +759,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x53 ), decodedPdu.substring( 0, 0x53 ) );
+            assertEquals(encodedPdu.substring( 0, 0x53 ), decodedPdu.substring( 0, 0x53 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -831,39 +830,39 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().toString());
-        Assert.assertEquals(null, substringFilter.getInitialSubstrings());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
-        Assert.assertEquals(null, substringFilter.getFinalSubstrings());
+        assertEquals("objectclass", substringFilter.getType().toString());
+        assertEquals(null, substringFilter.getInitialSubstrings());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
+        assertEquals(null, substringFilter.getFinalSubstrings());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
 
         // Check the length
-        Assert.assertEquals(0x64, message.computeLength());
+        assertEquals(0x64, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -874,12 +873,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x53 ), decodedPdu.substring( 0, 0x53 ) );
+            assertEquals(encodedPdu.substring( 0, 0x53 ), decodedPdu.substring( 0, 0x53 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -946,39 +945,39 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().toString());
-        Assert.assertEquals(null, substringFilter.getInitialSubstrings());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
-        Assert.assertEquals("t", substringFilter.getFinalSubstrings().toString());
+        assertEquals("objectclass", substringFilter.getType().toString());
+        assertEquals(null, substringFilter.getInitialSubstrings());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
+        assertEquals("t", substringFilter.getFinalSubstrings().toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x67, message.computeLength());
+        assertEquals(0x67, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -989,12 +988,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x58 ), decodedPdu.substring( 0, 0x58 ) );
+            assertEquals(encodedPdu.substring( 0, 0x58 ), decodedPdu.substring( 0, 0x58 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -1062,39 +1061,39 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().toString());
-        Assert.assertEquals("t", substringFilter.getInitialSubstrings().toString());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
-        Assert.assertEquals("t", substringFilter.getFinalSubstrings().toString());
+        assertEquals("objectclass", substringFilter.getType().toString());
+        assertEquals("t", substringFilter.getInitialSubstrings().toString());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
+        assertEquals("t", substringFilter.getFinalSubstrings().toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x6A, message.computeLength());
+        assertEquals(0x6A, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -1105,12 +1104,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x5B ), decodedPdu.substring( 0, 0x5B ) );
+            assertEquals(encodedPdu.substring( 0, 0x5B ), decodedPdu.substring( 0, 0x5B ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -1177,38 +1176,38 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().toString());
-        Assert.assertEquals("t", substringFilter.getInitialSubstrings().toString());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
+        assertEquals("objectclass", substringFilter.getType().toString());
+        assertEquals("t", substringFilter.getInitialSubstrings().toString());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x67, message.computeLength());
+        assertEquals(0x67, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -1219,12 +1218,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x58 ), decodedPdu.substring( 0, 0x58 ) );
+            assertEquals(encodedPdu.substring( 0, 0x58 ), decodedPdu.substring( 0, 0x58 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -1292,40 +1291,40 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().toString());
-        Assert.assertEquals(null, substringFilter.getInitialSubstrings());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(1)).toString());
-        Assert.assertEquals("t", substringFilter.getFinalSubstrings().toString());
+        assertEquals("objectclass", substringFilter.getType().toString());
+        assertEquals(null, substringFilter.getInitialSubstrings());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(1)).toString());
+        assertEquals("t", substringFilter.getFinalSubstrings().toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x6A, message.computeLength());
+        assertEquals(0x6A, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -1336,12 +1335,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x5B ), decodedPdu.substring( 0, 0x5B ) );
+            assertEquals(encodedPdu.substring( 0, 0x5B ), decodedPdu.substring( 0, 0x5B ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -1408,38 +1407,38 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().toString());
-        Assert.assertEquals("t", substringFilter.getInitialSubstrings().toString());
-        Assert.assertEquals("*", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
+        assertEquals("objectclass", substringFilter.getType().toString());
+        assertEquals("t", substringFilter.getInitialSubstrings().toString());
+        assertEquals("*", ((LdapString)substringFilter.getAnySubstrings().get(0)).toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x67, message.computeLength());
+        assertEquals(0x67, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -1450,12 +1449,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x58 ), decodedPdu.substring( 0, 0x58 ) );
+            assertEquals(encodedPdu.substring( 0, 0x58 ), decodedPdu.substring( 0, 0x58 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -1523,41 +1522,41 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         SubstringFilter substringFilter = (SubstringFilter)sr.getFilter();
-        Assert.assertNotNull(substringFilter);
+        assertNotNull(substringFilter);
         
-        Assert.assertEquals("objectclass", substringFilter.getType().getString());
-        Assert.assertEquals(null, substringFilter.getInitialSubstrings());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).getString());
-        Assert.assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(1)).getString());
-        Assert.assertEquals("t", (( LdapString )substringFilter.getAnySubstrings().get(2)).getString());
-        Assert.assertEquals(null, substringFilter.getFinalSubstrings());
+        assertEquals("objectclass", substringFilter.getType().getString());
+        assertEquals(null, substringFilter.getInitialSubstrings());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(0)).getString());
+        assertEquals("t", ((LdapString)substringFilter.getAnySubstrings().get(1)).getString());
+        assertEquals("t", (( LdapString )substringFilter.getAnySubstrings().get(2)).getString());
+        assertEquals(null, substringFilter.getFinalSubstrings());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x6A, message.computeLength());
+        assertEquals(0x6A, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -1568,12 +1567,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x5B ), decodedPdu.substring( 0, 0x5B ) );
+            assertEquals(encodedPdu.substring( 0, 0x5B ), decodedPdu.substring( 0, 0x5B ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -1632,64 +1631,64 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 33, message.getMessageId() );
-        Assert.assertEquals( "dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_BASE_OBJECT, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_FINDING_BASE_OBJ, sr.getDerefAliases() );
-        Assert.assertEquals( 2, sr.getSizeLimit() );
-        Assert.assertEquals( 3, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 33, message.getMessageId() );
+        assertEquals( "dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_BASE_OBJECT, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_FINDING_BASE_OBJ, sr.getDerefAliases() );
+        assertEquals( 2, sr.getSizeLimit() );
+        assertEquals( 3, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (objectclass=t*)
         OrFilter orFilter = (OrFilter)sr.getFilter();
-        Assert.assertNotNull(orFilter);
+        assertNotNull(orFilter);
 
         // uid=akarasulu
         AttributeValueAssertion assertion = ((AttributeValueAssertionFilter)orFilter.getOrFilter().get(0)).getAssertion();
         
-        Assert.assertEquals("uid", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("akarasulu", assertion.getAssertionValue().toString());
+        assertEquals("uid", assertion.getAttributeDesc().toString());
+        assertEquals("akarasulu", assertion.getAssertionValue().toString());
 
         // cn=aok
         assertion = ((AttributeValueAssertionFilter)orFilter.getOrFilter().get(1)).getAssertion();
         
-        Assert.assertEquals("cn", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("aok", assertion.getAssertionValue().toString());
+        assertEquals("cn", assertion.getAttributeDesc().toString());
+        assertEquals("aok", assertion.getAssertionValue().toString());
 
         // ou = Human Resources
         assertion = ((AttributeValueAssertionFilter)orFilter.getOrFilter().get(2)).getAssertion();
         
-        Assert.assertEquals("ou", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("Human Resources", assertion.getAssertionValue().toString());
+        assertEquals("ou", assertion.getAttributeDesc().toString());
+        assertEquals("Human Resources", assertion.getAssertionValue().toString());
 
         // l=Santa Clara
         assertion = ((AttributeValueAssertionFilter)orFilter.getOrFilter().get(3)).getAssertion();
         
-        Assert.assertEquals("l", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("Santa Clara", assertion.getAssertionValue().toString());
+        assertEquals("l", assertion.getAttributeDesc().toString());
+        assertEquals("Santa Clara", assertion.getAssertionValue().toString());
 
         // cn=abok
         assertion = (( AttributeValueAssertionFilter )orFilter.getOrFilter().get(4)).getAssertion();
         
-        Assert.assertEquals("cn", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("abok", assertion.getAssertionValue().toString());
+        assertEquals("cn", assertion.getAttributeDesc().toString());
+        assertEquals("abok", assertion.getAssertionValue().toString());
 
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x96, message.computeLength());
+        assertEquals(0x96, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -1700,12 +1699,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x87 ), decodedPdu.substring( 0, 0x87 ) );
+            assertEquals(encodedPdu.substring( 0, 0x87 ), decodedPdu.substring( 0, 0x87 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -1756,30 +1755,30 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_BASE_OBJECT, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_FINDING_BASE_OBJ, sr.getDerefAliases() );
-        Assert.assertEquals( 2, sr.getSizeLimit() );
-        Assert.assertEquals( 3, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_BASE_OBJECT, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_FINDING_BASE_OBJ, sr.getDerefAliases() );
+        assertEquals( 2, sr.getSizeLimit() );
+        assertEquals( 3, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // The attributes
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
         
         // Check the length
-        Assert.assertEquals(0x65, message.computeLength());
+        assertEquals(0x65, message.computeLength());
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -1790,12 +1789,12 @@ public class SearchRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu.substring( 0, 0x56 ), decodedPdu.substring( 0, 0x56 ) );
+            assertEquals(encodedPdu.substring( 0, 0x56 ), decodedPdu.substring( 0, 0x56 ) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
     
@@ -1852,34 +1851,34 @@ public class SearchRequestTest extends TestCase {
        catch ( DecoderException de )
        {
            de.printStackTrace();
-           Assert.fail( de.getMessage() );
+           fail( de.getMessage() );
        }
     
        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-       Assert.assertEquals( 4, message.getMessageId() );
-       Assert.assertEquals( 2, message.getControls().size() );
+       assertEquals( 4, message.getMessageId() );
+       assertEquals( 2, message.getControls().size() );
     
        // this is a constant in Java 5 API
        String pagedResultsControlOID = "1.2.840.113556.1.4.319";
        Control pagedResultsControl = message.getControls( 0 );
-       Assert.assertEquals( pagedResultsControlOID, pagedResultsControl.getControlType() );
-       Assert.assertTrue( pagedResultsControl.getCriticality() );
+       assertEquals( pagedResultsControlOID, pagedResultsControl.getControlType() );
+       assertTrue( pagedResultsControl.getCriticality() );
     
        // this is a constant in Java 5 API
        String manageReferralControlOID = "2.16.840.1.113730.3.4.2";
        Control manageReferralControl = message.getControls( 1 );
-       Assert.assertEquals( manageReferralControlOID, manageReferralControl.getControlType() );
+       assertEquals( manageReferralControlOID, manageReferralControl.getControlType() );
     
        SearchRequest sr    = message.getSearchRequest();
-       Assert.assertEquals( "dc=my-domain,dc=com", sr.getBaseObject() );
-       Assert.assertEquals( LdapConstants.SCOPE_WHOLE_SUBTREE, sr.getScope() );
-       Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-       Assert.assertEquals( 0, sr.getSizeLimit() );
-       Assert.assertEquals( 0, sr.getTimeLimit() );
-       Assert.assertEquals( false, sr.isTypesOnly() );
+       assertEquals( "dc=my-domain,dc=com", sr.getBaseObject() );
+       assertEquals( LdapConstants.SCOPE_WHOLE_SUBTREE, sr.getScope() );
+       assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+       assertEquals( 0, sr.getSizeLimit() );
+       assertEquals( 0, sr.getTimeLimit() );
+       assertEquals( false, sr.isTypesOnly() );
     
-       Assert.assertTrue( sr.getFilter() instanceof PresentFilter );
-       Assert.assertEquals ( "objectClass",
+       assertTrue( sr.getFilter() instanceof PresentFilter );
+       assertEquals ( "objectClass",
            ( (PresentFilter) sr.getFilter() ).getAttributeDescription().getString());
     
        // Check the encoding
@@ -1887,12 +1886,12 @@ public class SearchRequestTest extends TestCase {
        {
            ByteBuffer bb = message.encode( null );
            String encodedPdu = StringTools.dumpBytes( bb.array() );
-           Assert.assertEquals(encodedPdu, decodedPdu );
+           assertEquals(encodedPdu, decodedPdu );
        }
        catch ( EncoderException ee )
        {
            ee.printStackTrace();
-           Assert.fail( ee.getMessage() );
+           fail( ee.getMessage() );
        }
     }    
 
@@ -1972,72 +1971,72 @@ public class SearchRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr      = message.getSearchRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        Assert.assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
-        Assert.assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
-        Assert.assertEquals( 1000, sr.getSizeLimit() );
-        Assert.assertEquals( 1000, sr.getTimeLimit() );
-        Assert.assertEquals( true, sr.isTypesOnly() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
+        assertEquals( LdapConstants.SCOPE_SINGLE_LEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 1000, sr.getSizeLimit() );
+        assertEquals( 1000, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
         
         // (& (...
         AndFilter andFilter = (AndFilter)sr.getFilter();
-        Assert.assertNotNull(andFilter);
+        assertNotNull(andFilter);
         
         ArrayList andFilters = andFilter.getAndFilter();
         
         // (& (| (...
-        Assert.assertEquals(2, andFilters.size());
+        assertEquals(2, andFilters.size());
         OrFilter orFilter = (OrFilter)andFilters.get(0);
-        Assert.assertNotNull(orFilter);
+        assertNotNull(orFilter);
         
         // (& (| (obectclass=top) (...
         ArrayList orFilters = orFilter.getOrFilter();
-        Assert.assertEquals(2, orFilters.size());
+        assertEquals(2, orFilters.size());
         AttributeValueAssertionFilter equalityMatch = (AttributeValueAssertionFilter)orFilters.get(0);  
-        Assert.assertNotNull(equalityMatch);
+        assertNotNull(equalityMatch);
         
         AttributeValueAssertion assertion = equalityMatch.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("objectclass", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("top", assertion.getAssertionValue().toString());
+        assertEquals("objectclass", assertion.getAttributeDesc().toString());
+        assertEquals("top", assertion.getAssertionValue().toString());
         
         // (& (| (objectclass=top) (ou=contacts) ) (...
         equalityMatch = (AttributeValueAssertionFilter)orFilters.get(1);  
-        Assert.assertNotNull(equalityMatch);
+        assertNotNull(equalityMatch);
         
         assertion = equalityMatch.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("ou", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("contacts", assertion.getAssertionValue().toString());
+        assertEquals("ou", assertion.getAttributeDesc().toString());
+        assertEquals("contacts", assertion.getAssertionValue().toString());
         
         // (& (| (objectclass=top) (ou=contacts) ) (! ...
         NotFilter notFilter = ( NotFilter )andFilters.get(1);
-        Assert.assertNotNull(notFilter);
+        assertNotNull(notFilter);
         
         // (& (| (objectclass=top) (ou=contacts) ) (! (objectclass=ttt) ) )
         equalityMatch = (AttributeValueAssertionFilter)notFilter.getNotFilter();  
-        Assert.assertNotNull(equalityMatch);
+        assertNotNull(equalityMatch);
         
         assertion = equalityMatch.getAssertion();
-        Assert.assertNotNull(assertion);
+        assertNotNull(assertion);
         
-        Assert.assertEquals("ou", assertion.getAttributeDesc().toString());
-        Assert.assertEquals("ttt", assertion.getAssertionValue().toString());
+        assertEquals("ou", assertion.getAttributeDesc().toString());
+        assertEquals("ttt", assertion.getAssertionValue().toString());
         
         Attributes attributes = sr.getAttributes();
         
         for (int i = 0; i < attributes.size(); i++) 
         {
-        	Assert.assertNotNull( attributes.get( "attr" + i ) );
+        	assertNotNull( attributes.get( "attr" + i ) );
         }
 
         // We won't check the encoding, as it has changed because of 

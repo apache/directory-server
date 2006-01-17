@@ -34,7 +34,6 @@ import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.search.SearchResultEntry;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -90,24 +89,24 @@ public class SearchResultEntryTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
         
-        Assert.assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, partialAttributesList.size() );
         
         for ( int i = 0; i < partialAttributesList.size(); i++ )
         {
             BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( "objectclass" );
             
-            Assert.assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
             
             NamingEnumeration values = attributeValue.getAll();
             
@@ -120,14 +119,14 @@ public class SearchResultEntryTest extends TestCase {
             {
                 Object value = values.next();
                 
-                Assert.assertTrue( expectedValues.contains( value.toString() ) );
+                assertTrue( expectedValues.contains( value.toString() ) );
                 
                 expectedValues.remove( value.toString() );
             }
         }
         
         // Check the length
-        Assert.assertEquals(0x50, message.computeLength());
+        assertEquals(0x50, message.computeLength());
 
         // Check the encoding
         try
@@ -136,12 +135,12 @@ public class SearchResultEntryTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 
@@ -198,18 +197,18 @@ public class SearchResultEntryTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
         
-        Assert.assertEquals( 2, partialAttributesList.size() );
+        assertEquals( 2, partialAttributesList.size() );
         
         String[] expectedAttributes = new String[]{"objectClass", "objectClass2"}; 
         
@@ -217,7 +216,7 @@ public class SearchResultEntryTest extends TestCase {
         {
             BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( expectedAttributes[i] );
             
-            Assert.assertEquals( expectedAttributes[i].toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( expectedAttributes[i].toLowerCase(), attributeValue.getID().toLowerCase() );
             
             NamingEnumeration values = attributeValue.getAll();
             
@@ -230,14 +229,14 @@ public class SearchResultEntryTest extends TestCase {
             {
                 Object value = values.next();
                 
-                Assert.assertTrue( expectedValues.contains( value.toString() ) );
+                assertTrue( expectedValues.contains( value.toString() ) );
                 
                 expectedValues.remove( value.toString() );
             }
         }
         
         // Check the length
-        Assert.assertEquals(0x7b, message.computeLength());
+        assertEquals(0x7b, message.computeLength());
 
         // Check the encoding
         try
@@ -249,7 +248,7 @@ public class SearchResultEntryTest extends TestCase {
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
     
@@ -303,24 +302,24 @@ public class SearchResultEntryTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
 
-        Assert.assertEquals( 2, message.getMessageId() );
-        Assert.assertEquals( "uid=admin,ou=system", searchResultEntry.getObjectName() );
+        assertEquals( 2, message.getMessageId() );
+        assertEquals( "uid=admin,ou=system", searchResultEntry.getObjectName() );
 
         Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
         
-        Assert.assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, partialAttributesList.size() );
         
         for ( int i = 0; i < partialAttributesList.size(); i++ )
         {
             BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( "objectclass" );
             
-            Assert.assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
             
             NamingEnumeration values = attributeValue.getAll();
             
@@ -335,21 +334,21 @@ public class SearchResultEntryTest extends TestCase {
             {
                 Object value = values.next();
                 
-                Assert.assertTrue( expectedValues.contains( value.toString() ) );
+                assertTrue( expectedValues.contains( value.toString() ) );
                 
                 expectedValues.remove( value.toString() );
             }
         }
         
         // Check the length
-        Assert.assertEquals(0x61, message.computeLength());
+        assertEquals(0x61, message.computeLength());
         
         // Check that the next bytes is the first of the next PDU
-        Assert.assertEquals(0x30, stream.get(stream.position()));
-        Assert.assertEquals(0x45, stream.get(stream.position() + 1));
-        Assert.assertEquals(0x02, stream.get(stream.position() + 2));
-        Assert.assertEquals(0x01, stream.get(stream.position() + 3));
-        Assert.assertEquals(0x02, stream.get(stream.position() + 4));
+        assertEquals(0x30, stream.get(stream.position()));
+        assertEquals(0x45, stream.get(stream.position() + 1));
+        assertEquals(0x02, stream.get(stream.position() + 2));
+        assertEquals(0x01, stream.get(stream.position() + 3));
+        assertEquals(0x02, stream.get(stream.position() + 4));
 
         // Check the encoding
         try
@@ -360,12 +359,12 @@ public class SearchResultEntryTest extends TestCase {
             
             // We have to supress the last 5 chars from the decodedPDU, as they
             // belongs to the next message.
-            Assert.assertEquals(encodedPdu, decodedPdu.substring(0, 0x61 * 5) );
+            assertEquals(encodedPdu, decodedPdu.substring(0, 0x61 * 5) );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
         }
     }
 }
