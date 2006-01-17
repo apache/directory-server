@@ -30,7 +30,6 @@ import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.compare.CompareRequest;
 import org.apache.ldap.common.util.StringTools;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -80,20 +79,20 @@ public class CompareRequestTest extends TestCase {
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
     	
         // Ceck the decoded CompareRequest PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         CompareRequest compareRequest      = message.getCompareRequest();
 
-        Assert.assertEquals( 1, message.getMessageId() );
-        Assert.assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry() );
-        Assert.assertEquals( "test", compareRequest.getAttributeDesc() );
-        Assert.assertEquals( "value", compareRequest.getAssertionValue().toString() );
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry() );
+        assertEquals( "test", compareRequest.getAttributeDesc() );
+        assertEquals( "value", compareRequest.getAssertionValue().toString() );
 
         // Check the length
-        Assert.assertEquals(0x38, message.computeLength());
+        assertEquals(0x38, message.computeLength());
 
         // Check the encoding
         try
@@ -102,12 +101,47 @@ public class CompareRequestTest extends TestCase {
             
             String encodedPdu = StringTools.dumpBytes( bb.array() ); 
             
-            Assert.assertEquals(encodedPdu, decodedPdu );
+            assertEquals(encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
             ee.printStackTrace();
-            Assert.fail( ee.getMessage() );
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of an empty CompareRequest
+     */
+    public void testDecodeCompareRequestEmptyRequest() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x07 );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x05, 		// LDAPMessage ::= SEQUENCE {
+      				  0x02, 0x01, 0x01, 	//     messageID MessageID
+    				            		//     CHOICE { ..., compareRequest   CompareRequest, ...
+    				  0x6E, 0x00         // CompareRequest ::= [APPLICATION 14] SEQUENCE {
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the CompareRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+            fail("We should never reach this point !!!");
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
         }
     }
 
@@ -145,11 +179,161 @@ public class CompareRequestTest extends TestCase {
         try
         {
             ldapDecoder.decode( stream, ldapMessageContainer );
-            Assert.fail("We should never reach this point !!!");
+            fail("We should never reach this point !!!");
         }
         catch ( DecoderException de )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of an empty ava
+     */
+    public void testDecodeCompareRequestEmptyAVA() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x2B );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x29, 		// LDAPMessage ::= SEQUENCE {
+    				  0x02, 0x01, 0x01, //     messageID MessageID
+    				            		//     CHOICE { ..., compareRequest   CompareRequest, ...
+    				  0x6E, 0x24,       // CompareRequest ::= [APPLICATION 14] SEQUENCE {
+    			         				//     entry           LDAPDN,
+    				    0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+    				                    //     ava             AttributeValueAssertion }
+    				    0x30, 0x00      // AttributeValueAssertion ::= SEQUENCE {
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the CompareRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+            fail("We should never reach this point !!!");
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of an empty attributeDesc ava
+     */
+    public void testDecodeCompareRequestEmptyAttributeDesc() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x2D );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x2B, 		// LDAPMessage ::= SEQUENCE {
+    				  0x02, 0x01, 0x01, //     messageID MessageID
+    				            		//     CHOICE { ..., compareRequest   CompareRequest, ...
+    				  0x6E, 0x26,       // CompareRequest ::= [APPLICATION 14] SEQUENCE {
+    			         				//     entry           LDAPDN,
+    				    0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+    				                    //     ava             AttributeValueAssertion }
+    				    0x30, 0x02,      // AttributeValueAssertion ::= SEQUENCE {
+    				      0x04, 0x00
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the CompareRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+            fail("We should never reach this point !!!");
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of an empty attributeValue ava
+     */
+    public void testDecodeCompareRequestEmptyAttributeValue() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x33 );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x31, 		// LDAPMessage ::= SEQUENCE {
+     				  0x02, 0x01, 0x01, //     messageID MessageID
+    				            		//     CHOICE { ..., compareRequest   CompareRequest, ...
+    				  0x6E, 0x2C,       // CompareRequest ::= [APPLICATION 14] SEQUENCE {
+    				                    //     entry           LDAPDN,
+    				    0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+    				                    //     ava             AttributeValueAssertion }
+    				    0x30, 0x08,     // AttributeValueAssertion ::= SEQUENCE {
+                                        //     attributeDesc   AttributeDescription,
+    				      0x04, 0x04, 't', 'e', 's', 't',
+    				                    //     assertionValue  AssertionValue }
+    				      0x04, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the CompareRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+    	
+        // Ceck the decoded CompareRequest PDU
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        CompareRequest compareRequest      = message.getCompareRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", compareRequest.getEntry() );
+        assertEquals( "test", compareRequest.getAttributeDesc() );
+        assertEquals( "", compareRequest.getAssertionValue().toString() );
+
+        // Check the length
+        assertEquals(0x33, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
         }
     }
 }

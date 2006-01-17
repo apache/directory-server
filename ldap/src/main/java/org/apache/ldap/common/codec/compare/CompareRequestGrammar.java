@@ -145,13 +145,13 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "The DN to compare  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid"; 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "The DN to compare  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid";
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
@@ -160,7 +160,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
 
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Comparing DN " + entry );
+                            log.debug( "Comparing DN {}", entry );
                         }
                     }
                 } );
@@ -227,7 +227,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
                             }
                             catch ( LdapStringEncodingException lsee )
                             {
-                                log.error( "The attribute description (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
+                                log.error( "The attribute description ({}) is invalid.", StringTools.dumpBytes( tlv.getValue().getData() )  );
                                 throw new DecoderException( "Invalid attribute description " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
                                 
                             }
@@ -235,7 +235,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
 
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Comparing attribute description " + compareRequest.getAttributeDesc() );
+                            log.debug( "Comparing attribute description {}", compareRequest.getAttributeDesc() );
                         }
                     }
                 } );
@@ -284,7 +284,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
 
                                 if ( log.isDebugEnabled() )
                                 {
-                                    log.debug( "Comparing attribute value " + StringTools.dumpBytes( (byte[])compareRequest.getAssertionValue() ) );
+                                    log.debug( "Comparing attribute value {}", StringTools.dumpBytes( (byte[])compareRequest.getAssertionValue() ) );
                                 }
                             }
                             else
@@ -293,7 +293,7 @@ public class CompareRequestGrammar extends AbstractGrammar implements IGrammar
 
                                 if ( log.isDebugEnabled() )
                                 {
-                                    log.debug( "Comparing attribute value " + compareRequest.getAssertionValue() );
+                                    log.debug( "Comparing attribute value {}", compareRequest.getAssertionValue() );
                                 }
                             }
                         }
