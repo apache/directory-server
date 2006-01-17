@@ -101,6 +101,5 @@ Use JDK 1.5 to make sure these modules build.
       </build>
     </profile>
   </profiles>
-
 </project>
 
