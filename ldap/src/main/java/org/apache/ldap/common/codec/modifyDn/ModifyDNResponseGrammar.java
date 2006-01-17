@@ -87,10 +87,7 @@ public class ModifyDNResponseGrammar extends AbstractGrammar implements IGrammar
                         // And we associate it to the ldapMessage Object
                         ldapMessage.setProtocolOP( new ModifyDNResponse() );
 
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Modify DN response " );
-                        }
+                        log.debug( "Modify DN response " );
                     }
                 } );
 

@@ -152,13 +152,13 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "The DN to modify  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid"; 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "The DN to modify  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid";
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
@@ -167,7 +167,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
 
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Modifying DN " + entry );
+                            log.debug( "Modifying DN {}", entry );
                         }
 
                         return;
@@ -227,13 +227,13 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "The new RDN (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid"; 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "The new RDN (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid";
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
@@ -242,7 +242,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
 
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "Modifying with new RDN " + newRdn );
+                            log.debug( "Modifying with new RDN {}", newRdn );
                         }
                     }
                 } );
@@ -292,8 +292,9 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( BooleanDecoderException bde )
                         {
-                            log.error("The oldRDN flag " + StringTools.dumpBytes( value.getData() ) + 
-                                    " is invalid : " + bde.getMessage() + ". It should be 0 or 255" );
+                            log.error( "The oldRDN flag {} is invalid : {}. It should be 0 or 255",
+                                    StringTools.dumpBytes( value.getData() ), 
+                                    bde.getMessage() );
                         
                             throw new DecoderException( bde.getMessage() );
                         }
@@ -378,13 +379,13 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "The new superior DN (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid"; 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "The new superior DN (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid";
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
 
@@ -396,7 +397,7 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "New superior DN " + newSuperior );
+                            log.debug( "New superior DN {}", newSuperior );
                         }
                         
                         return;
