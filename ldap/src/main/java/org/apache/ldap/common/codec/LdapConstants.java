@@ -75,8 +75,6 @@ public class LdapConstants {
     public static final int SEARCH_TYPE_TAG                     = 0x82;
     public static final int SEARCH_SUBSTRINGS_FINAL_TAG         = 0x82;
     public static final int SEARCH_MATCH_VALUE_TAG              = 0x83;
-    public static final int BIND_REQUEST_SASL_TAG               = 0x83;
-    public static final int LDAP_RESULT_REFERRAL_SEQUENCE_TAG   = 0xa3;
     public static final int DN_ATTRIBUTES_FILTER_TAG            = 0x84;
     public static final int SERVER_SASL_CREDENTIAL_TAG          = 0x87;
     public static final int PRESENT_FILTER_TAG                  = 0x87;
@@ -86,6 +84,8 @@ public class LdapConstants {
     public static final int AND_FILTER_TAG                      = 0xA0;
     public static final int OR_FILTER_TAG                       = 0xA1;
     public static final int NOT_FILTER_TAG                      = 0xA2;
+    public static final int BIND_REQUEST_SASL_TAG               = 0xA3;
+    public static final int LDAP_RESULT_REFERRAL_SEQUENCE_TAG   = 0xA3;
     public static final int EQUALITY_MATCH_FILTER_TAG           = 0xA3;
     public static final int SUBSTRINGS_FILTER_TAG               = 0xA4;
     public static final int GREATER_OR_EQUAL_FILTER_TAG         = 0xA5;
