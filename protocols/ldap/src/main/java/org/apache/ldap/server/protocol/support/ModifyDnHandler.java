@@ -19,6 +19,7 @@ package org.apache.ldap.server.protocol.support;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.ldap.common.exception.LdapException;
@@ -26,6 +27,7 @@ import org.apache.ldap.common.message.Control;
 import org.apache.ldap.common.message.LdapResult;
 import org.apache.ldap.common.message.ManageDsaITControl;
 import org.apache.ldap.common.message.ModifyDnRequest;
+import org.apache.ldap.common.message.ReferralImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.ExceptionUtils;
@@ -118,6 +120,22 @@ public class ModifyDnHandler implements MessageHandler
                     newDn.add( req.getNewRdn() );
                     ctx.rename( new LdapName( req.getName() ), newDn );
                 }
+            }
+            catch( ReferralException e )
+            {
+                ReferralImpl refs = new ReferralImpl();
+                result.setReferral( refs );
+                result.setResultCode( ResultCodeEnum.REFERRAL );
+                result.setErrorMessage( "Encountered referral attempting to handle modifyDn request." );
+                /* coming up null causing a NPE */
+                // result.setMatchedDn( e.getResolvedName().toString() );
+                do
+                {
+                    refs.addLdapUrl( ( String ) e.getReferralInfo() );
+                }
+                while( e.skipReferral() );
+                session.write( req.getResultResponse() );
+                return;
             }
             catch ( NamingException e )
             {

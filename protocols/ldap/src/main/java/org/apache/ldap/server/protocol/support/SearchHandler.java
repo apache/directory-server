@@ -24,6 +24,7 @@ import java.util.Iterator;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
@@ -35,6 +36,7 @@ import org.apache.ldap.common.message.AbandonListener;
 import org.apache.ldap.common.message.LdapResult;
 import org.apache.ldap.common.message.ManageDsaITControl;
 import org.apache.ldap.common.message.PersistentSearchControl;
+import org.apache.ldap.common.message.ReferralImpl;
 import org.apache.ldap.common.message.Response;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.message.ScopeEnum;
@@ -284,6 +286,23 @@ public class SearchHandler implements MessageHandler
                 }
                 return;
             }
+        }
+        catch( ReferralException e )
+        {
+            LdapResult result = req.getResultResponse().getLdapResult();
+            ReferralImpl refs = new ReferralImpl();
+            result.setReferral( refs );
+            result.setResultCode( ResultCodeEnum.REFERRAL );
+            result.setErrorMessage( "Encountered referral attempting to handle add request." );
+            /* coming up null causing a NPE */
+            // result.setMatchedDn( e.getResolvedName().toString() );
+            do
+            {
+                refs.addLdapUrl( ( String ) e.getReferralInfo() );
+            }
+            while( e.skipReferral() );
+            session.write( req.getResultResponse() );
+            return;
         }
         catch( NamingException e )
         {

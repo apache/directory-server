@@ -90,8 +90,7 @@ public class ReferralTest extends AbstractServerTest
 
     
     /**
-     * Get's the root "ou=system" using the SUN JNDI provider on the embedded 
-     * ApacheDS instance.
+     * Get's the root "ou=system" using the SUN JNDI provider on the embedded ApacheDS instance
      */
     private LdapContext getSystemRoot() throws NamingException
     {
