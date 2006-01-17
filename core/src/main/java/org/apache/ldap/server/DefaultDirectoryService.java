@@ -735,11 +735,8 @@ class DefaultDirectoryService extends DirectoryService
         // --------------------------------------------------------------------
 
         BootstrapRegistries bootstrapRegistries = new BootstrapRegistries();
-
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        
         loader.load( startupConfiguration.getBootstrapSchemas(), bootstrapRegistries );
-        
         setupOidsMap( bootstrapRegistries );
 
         java.util.List errors = bootstrapRegistries.checkRefInteg();

@@ -36,8 +36,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -243,8 +241,8 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         systemCfg.setIndexedAttributes( indexedSystemAttrs );
         
         // Add context entry for system partition
-        Attributes systemEntry = new BasicAttributes( true );
-        Attribute objectClassAttr = new BasicAttribute( "objectClass" );
+        Attributes systemEntry = new LockableAttributesImpl();
+        Attribute objectClassAttr = new LockableAttributeImpl( "objectClass" );
         objectClassAttr.add( "top" );
         objectClassAttr.add( "organizationalUnit" );
         systemEntry.put( objectClassAttr );
