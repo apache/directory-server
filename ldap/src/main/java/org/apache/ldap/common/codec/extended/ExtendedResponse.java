@@ -49,6 +49,9 @@ public class ExtendedResponse extends LdapResponse
     /** The extended response length */
     private transient int extendedResponseLength;
 
+    /** The OID length */
+    private transient int responseNameLength;
+
     //~ Constructors -------------------------------------------------------------------------------
 
     /**
@@ -131,13 +134,12 @@ public class ExtendedResponse extends LdapResponse
     */
     public int computeLength()
     {
-
         extendedResponseLength = super.computeLength();
 
         if ( responseName != null )
         {
-            extendedResponseLength += 1 + Length.getNbBytes( responseName.getOIDLength() ) +
-            responseName.getOIDLength();
+            responseNameLength = responseName.toString().length();
+            extendedResponseLength += 1 + Length.getNbBytes( responseNameLength ) + responseNameLength;
 
             if ( response != null )
             {
@@ -188,11 +190,11 @@ public class ExtendedResponse extends LdapResponse
             if ( responseName != null )
             {
                 buffer.put( (byte) LdapConstants.EXTENDED_RESPONSE_RESPONSE_NAME_TAG );
-                buffer.put( Length.getBytes( responseName.getOIDLength() ) );
+                buffer.put( Length.getBytes( responseNameLength ) );
 
                 if ( responseName.getOIDLength() != 0 )
                 {
-                    buffer.put( responseName.getOID() );
+                    buffer.put( StringTools.getBytesUtf8( responseName.toString() ) );
                 }
             }
 

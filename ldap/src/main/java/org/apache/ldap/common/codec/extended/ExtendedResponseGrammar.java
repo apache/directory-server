@@ -29,6 +29,7 @@ import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.LdapStatesEnum;
+import org.apache.ldap.common.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +142,7 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
 			                }
 			                else
 			                {
-			                    extendedResponse.setResponseName( new OID( tlv.getValue().getData() ) );
+			                    extendedResponse.setResponseName( new OID( StringTools.utf8ToString( tlv.getValue().getData() ) ) );
 			                }
                             
 	                        // We can have an END transition

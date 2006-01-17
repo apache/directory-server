@@ -45,19 +45,19 @@ public class ExtendedRequestTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x16 );
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x1D );
         
         stream.put(
             new byte[]
             {
-                0x30, 0x14, 		// LDAPMessage ::= SEQUENCE {
-				0x02, 0x01, 0x01, 	//     messageID MessageID
+                0x30, 0x1B, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, //     messageID MessageID
 				            		//     CHOICE { ..., extendedReq     ExtendedRequest, ...
-				0x77, 0x0F,         // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+				  0x77, 0x16,       // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
 				                    //     requestName      [0] LDAPOID,
-				(byte)0x80, 0x06, 0x2b, 0x06, 0x01, 0x05, 0x05, 0x02,
+                    (byte)0x80, 0x0D, '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '2',
 				                    //     requestValue     [1] OCTET STRING OPTIONAL }
-				(byte)0x81, 0x05, 'v', 'a', 'l', 'u', 'e'
+				    (byte)0x81, 0x05, 'v', 'a', 'l', 'u', 'e'
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -86,7 +86,7 @@ public class ExtendedRequestTest extends TestCase {
         assertEquals( "value", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
         
         // Check the length
-        assertEquals(0x16, message.computeLength());
+        assertEquals(0x1D, message.computeLength());
 
         // Check the encoding
         try
@@ -182,17 +182,17 @@ public class ExtendedRequestTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x0F );
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x16 );
         
         stream.put(
             new byte[]
             {
-                0x30, 0x0D, 		// LDAPMessage ::= SEQUENCE {
-				0x02, 0x01, 0x01, 	//     messageID MessageID
+                0x30, 0x14, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, 	//     messageID MessageID
 				            		//     CHOICE { ..., extendedReq     ExtendedRequest, ...
-				0x77, 0x08,         // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+				  0x77, 0x0F,         // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
 				                    //     requestName      [0] LDAPOID,
-				(byte)0x80, 0x06, 0x2b, 0x06, 0x01, 0x05, 0x05, 0x02,
+				    (byte)0x80, 0x0D, '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '2', 
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -220,7 +220,7 @@ public class ExtendedRequestTest extends TestCase {
         assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
         
         // Check the length
-        assertEquals(0x0F, message.computeLength());
+        assertEquals(0x16, message.computeLength());
 
         // Check the encoding
         try
@@ -245,17 +245,17 @@ public class ExtendedRequestTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x11 );
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x18 );
         
         stream.put(
             new byte[]
             {
-                0x30, 0x0F, 		// LDAPMessage ::= SEQUENCE {
-				  0x02, 0x01, 0x01, 	//     messageID MessageID
+                0x30, 0x16, 		// LDAPMessage ::= SEQUENCE {
+				  0x02, 0x01, 0x01, //     messageID MessageID
 				            		//     CHOICE { ..., extendedReq     ExtendedRequest, ...
-				  0x77, 0x0A,         // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+				  0x77, 0x11,       // ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
 				                    //     requestName      [0] LDAPOID,
-				    (byte)0x80, 0x06, 0x2b, 0x06, 0x01, 0x05, 0x05, 0x02,
+                    (byte)0x80, 0x0D, '1', '.', '3', '.', '6', '.', '1', '.', '5', '.', '5', '.', '2',
 				    (byte)0x81, 0x00
             } );
 
@@ -285,7 +285,7 @@ public class ExtendedRequestTest extends TestCase {
         assertEquals( "", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
         
         // Check the length
-        assertEquals(0x11, message.computeLength());
+        assertEquals(0x18, message.computeLength());
 
         // Check the encoding
         try

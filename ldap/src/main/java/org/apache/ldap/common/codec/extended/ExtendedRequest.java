@@ -24,6 +24,7 @@ import org.apache.asn1.primitives.OID;
 import org.apache.asn1.ber.tlv.Length;
 import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.LdapMessage;
+import org.apache.ldap.common.util.StringTools;
 
 
 /**
@@ -46,6 +47,9 @@ public class ExtendedRequest extends LdapMessage
 
     /** The extended request length */
     private transient int extendedRequestLength;
+    
+    /** The OID length */
+    private transient int oidLength;
 
     //~ Constructors -------------------------------------------------------------------------------
 
@@ -126,7 +130,8 @@ public class ExtendedRequest extends LdapMessage
      */
     public int computeLength()
     {
-        extendedRequestLength = 1 + Length.getNbBytes( requestName.getOIDLength() ) + requestName.getOIDLength();
+        oidLength = requestName.toString().length();
+        extendedRequestLength = 1 + Length.getNbBytes( oidLength ) + oidLength;
 
         if ( requestValue != null)
         {
@@ -167,11 +172,11 @@ public class ExtendedRequest extends LdapMessage
             }
 
             buffer.put( (byte)LdapConstants.EXTENDED_REQUEST_NAME_TAG );
-            buffer.put( Length.getBytes( requestName.getOIDLength() ) );
+            buffer.put( Length.getBytes( oidLength ) );
 
             if ( requestName.getOIDLength() != 0 )
             {
-                buffer.put( requestName.getOID() );
+                buffer.put( StringTools.getBytesUtf8( requestName.toString() ) );
             }
 
             // The requestValue, if any
