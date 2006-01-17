@@ -10,14 +10,6 @@
   <groupId>org.apache.directory.server.standalone.simple</groupId>
   <name>simple-build</name>
   <packaging>pom</packaging>  
-  <modules>
-    <module>jndi</module>
-    <module>main</module>
-    <module>ssl</module>
-    <module>unit</module>
-    <!--
-    -->
-  </modules>
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -51,5 +43,64 @@
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>jdk1.5</id>
+      <activation>
+        <jdk>1.5</jdk>
+      </activation>
+      <modules>
+        <module>jndi</module>
+        <module>main</module>
+        <module>ssl</module>
+        <module>unit</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>jdk1.4</id>
+      <activation>
+        <jdk>1.4</jdk>
+      </activation>
+      <modules>
+        <module>jndi</module>
+        <module>main</module>
+        <module>unit</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+====================================================================
+                       W A R N I N G
+                       -------------
+
+Build with 1.4 jvm will not include modules:
+
+ o standalone-simple-ssl
+
+Use JDK 1.5 to make sure these modules build.
+====================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
 

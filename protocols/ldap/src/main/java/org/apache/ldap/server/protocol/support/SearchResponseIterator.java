@@ -25,6 +25,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
 
 import org.apache.ldap.common.exception.LdapException;
+import org.apache.ldap.common.message.ManageDsaITControl;
 import org.apache.ldap.common.message.ReferralImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.message.SearchRequest;
@@ -79,8 +80,7 @@ class SearchResponseIterator implements Iterator
                  * local variable for the following call to next()
                  */
                 Attribute ref = result.getAttributes().get( "ref" );
-
-                if( ref == null || ref.size() > 0 )
+                if( ref == null || ref.size() == 0 || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
                 {
                     SearchResponseEntry respEntry;
                     respEntry = new SearchResponseEntryImpl( req.getMessageId() );
