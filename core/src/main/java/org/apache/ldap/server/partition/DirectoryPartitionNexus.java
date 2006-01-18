@@ -51,7 +51,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
 
     /**
-     * System backend suffix constant.  Should be kept down to a single Dn name 
+     * System partition suffix constant.  Should be kept down to a single Dn name 
      * component or the default constructor will have to parse it instead of 
      * building the name.  Note that what ever the SUFFIX equals it should be 
      * both the normalized and the user provided form.
@@ -152,6 +152,18 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public abstract void removeContextPartition( Name suffix ) throws NamingException;
 
     public abstract DirectoryPartition getSystemPartition();
+    
+    /**
+     * Get's the partition corresponding to a distinguished name.  This 
+     * name need not be the name of the partition suffix.  When used in 
+     * conjunction with get suffix this can properly find the partition 
+     * associated with the DN.  Make sure to use the normalized DN.
+     * 
+     * @param dn the normalized distinguished name to get a partition for
+     * @return the partition containing the entry represented by the dn
+     * @throws NamingException if there is no partition for the dn
+     */
+    public abstract DirectoryPartition getPartition( Name dn ) throws NamingException;
 
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
@@ -183,7 +195,7 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
     public abstract Name getSuffix( Name name, boolean normalized ) throws NamingException;
 
     /**
-     * Gets an iteration over the Name suffixes of the Backends managed by this
+     * Gets an iteration over the Name suffixes of the partitions managed by this
      * {@link DirectoryPartitionNexus}.
      *
      * @param normalized if true the returned Iterator contains normalized Dn

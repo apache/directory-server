@@ -43,6 +43,7 @@ import org.apache.ldap.common.message.SearchRequest;
 import org.apache.ldap.common.message.SearchRequestImpl;
 import org.apache.ldap.common.message.UnbindRequest;
 import org.apache.ldap.common.message.UnbindRequestImpl;
+import org.apache.ldap.server.protocol.support.ExtendedHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
@@ -96,8 +97,8 @@ public class LdapProtocolProviderTest extends TestCase
         props.setProperty( DeleteRequest.class.getName(), BogusDeleteHandler.class.getName() );
         props.setProperty( DeleteRequestImpl.class.getName(), BogusDeleteHandler.class.getName() );
 
-        props.setProperty( ExtendedRequest.class.getName(), BogusExtendedHandler.class.getName() );
-        props.setProperty( ExtendedRequestImpl.class.getName(), BogusExtendedHandler.class.getName() );
+        props.setProperty( ExtendedRequest.class.getName(), ExtendedHandler.class.getName() );
+        props.setProperty( ExtendedRequestImpl.class.getName(), ExtendedHandler.class.getName() );
 
         props.setProperty( ModifyRequest.class.getName(), BogusModifyHandler.class.getName() );
         props.setProperty( ModifyRequestImpl.class.getName(), BogusModifyHandler.class.getName() );
@@ -158,15 +159,6 @@ public class LdapProtocolProviderTest extends TestCase
     }
 
     public static class BogusDeleteHandler implements MessageHandler
-    {
-        public void messageReceived( IoSession session, Object request )
-        {
-            throw new NotImplementedException( "handler not implemented!" );
-        }
-    }
-
-
-    public static class BogusExtendedHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {

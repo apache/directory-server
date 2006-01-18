@@ -775,4 +775,10 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         }
         throw new NameNotFoundException( dn.toString() );
     }
+
+
+    public DirectoryPartition getPartition( Name dn ) throws NamingException
+    {
+        return getBackend( dn );
+    }
 }

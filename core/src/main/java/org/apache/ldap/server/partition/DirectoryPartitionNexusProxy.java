@@ -144,6 +144,12 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
     
+    public DirectoryPartition getPartition( Name dn ) throws NamingException
+    {
+        return this.configuration.getPartitionNexus().getPartition( dn );
+    }
+
+    
     public Name getSuffix( boolean normalized ) throws NamingException
     {
         return this.configuration.getPartitionNexus().getSuffix( normalized );

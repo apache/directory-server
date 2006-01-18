@@ -27,6 +27,8 @@ import org.apache.ldap.common.message.extended.LaunchDiagnosticUiResponse;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
+import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
+import org.apache.ldap.server.partition.impl.btree.gui.MainFrame;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.SessionRegistry;
 import org.apache.mina.common.IoSession;
@@ -43,6 +45,8 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     public void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws NamingException 
     {
         LdapContext ctx = registry.getLdapContext( session, null, false );
+        ctx = ( LdapContext ) ctx.lookup( "" );
+        
         if ( ctx instanceof ServerLdapContext )
         {
             ServerLdapContext slc = ( ServerLdapContext ) ctx;
@@ -57,6 +61,10 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             session.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
             
             // Launch UI here using the provider, session registry and directory service
+            BTreeDirectoryPartition partition = ( BTreeDirectoryPartition ) service.getConfiguration().getPartitionNexus().getSystemPartition();
+            MainFrame frame = new MainFrame( partition, partition.getSearchEngine() );
+            frame.setVisible( true );
+            return;
         }
 
         session.write( new LaunchDiagnosticUiResponse( req.getMessageId(), ResultCodeEnum.OPERATIONSERROR ) );
