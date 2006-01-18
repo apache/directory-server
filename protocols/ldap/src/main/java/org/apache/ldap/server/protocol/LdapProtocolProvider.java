@@ -60,6 +60,7 @@ import org.apache.ldap.common.message.SearchRequest;
 import org.apache.ldap.common.message.SearchRequestImpl;
 import org.apache.ldap.common.message.UnbindRequest;
 import org.apache.ldap.common.message.UnbindRequestImpl;
+import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 import org.apache.ldap.common.message.spi.Provider;
 import org.apache.ldap.server.protocol.support.AbandonHandler;
 import org.apache.ldap.server.protocol.support.AddHandler;
@@ -429,9 +430,14 @@ public class LdapProtocolProvider
             super.messageReceived( session, message );
         }
         
+
         public void exceptionCaught( IoSession session, Throwable cause )
         {
-            SessionLog.warn( session, "Unexpected exception.", cause );
+            SessionLog.warn( session, 
+                "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
+            session.write( new NoticeOfDisconnect( ResultCodeEnum.PROTOCOLERROR ) );
+            SessionRegistry.getSingleton().remove( session );
+            session.close();
         }
     }
 }
