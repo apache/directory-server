@@ -31,7 +31,7 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
 {
     private static final long serialVersionUID = -3824715470944544189L;
-    public static final String OID = "1.2.6.1.4.1.18060.1.1.1.100.2";
+    public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.2";
     private static final byte[] EMPTY_RESPONSE = new byte[0];
     
     
@@ -101,7 +101,7 @@ public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
      */
     public String getResponseName()
     {
-        return OID;
+        return EXTENSION_OID;
     }
 
 
@@ -113,7 +113,7 @@ public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
      */
     public void setResponseName( String oid )
     {
-        throw new UnsupportedOperationException( "the OID is fixed: " + OID );
+        throw new UnsupportedOperationException( "the OID is fixed: " + EXTENSION_OID );
     }
 
 
