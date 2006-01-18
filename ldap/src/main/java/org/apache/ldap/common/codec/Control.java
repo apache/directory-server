@@ -112,7 +112,7 @@ public class Control extends Asn1Object
      *
      * @return the encoded bytes for the control
      */
-    public byte[] getEnodedValue()
+    public byte[] getEncodedValue()
     {
         if ( encodedValue == null )
         {
