@@ -27,7 +27,7 @@ import org.apache.ldap.server.invocation.Invocation;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
-import org.apache.ldap.common.message.SubentryRequestControl;
+import org.apache.ldap.common.message.SubentriesControl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.LockableAttributeImpl;
@@ -39,6 +39,7 @@ import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 import org.apache.ldap.common.exception.LdapInvalidAttributeValueException;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ import java.util.*;
 public class SubentryService extends BaseInterceptor
 {
     /** the subentry control OID */
-    private static final String SUBENTRY_CONTROL = "1.3.6.1.4.1.4203.1.10.1";
+    private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
     /** the objectClass value for a subentry */
     private static final String SUBENTRY_OBJECTCLASS = "subentry";
     /** the objectClass OID for a subentry */
@@ -87,27 +88,6 @@ public class SubentryService extends BaseInterceptor
         AC_SUBENTRY,
         SCHEMA_AREA_SUBENTRY,
         COLLECTIVE_ATTRIBUTE_SUBENTRIES
-    };
-
-    /**
-     * the search result filter to filter out subentries based on objectClass values.
-     */
-    private static final SearchResultFilter SUBENTRY_FILTER = new SearchResultFilter()
-    {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-        {
-            Attribute objectClasses = result.getAttributes().get( "objectClass" );
-
-            if ( objectClasses == null )
-            {
-                return true;
-            }
-
-//            String[] SUBENTRY_DESC = new String[] { SUBENTRY_OBJECTCLASS, SUBENTRY_OBJECTCLASS_OID };
-//
-//            boolean isSubentry = AttributeUtils.containsAnyValues( objectClasses, SUBENTRY_DESC, type );
-            return !( objectClasses.contains(SUBENTRY_OBJECTCLASS) || objectClasses.contains(SUBENTRY_OBJECTCLASS_OID) );
-        }
     };
 
     private static final Logger log = LoggerFactory.getLogger( SubentryService.class );
@@ -180,7 +160,8 @@ public class SubentryService extends BaseInterceptor
 
         if ( ! isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SUBENTRY_FILTER );
+            return new SearchResultFilteringEnumeration( e, new SearchControls(), 
+                invocation, new HideSubentriesFilter() );
         }
 
         return e;
@@ -202,10 +183,12 @@ public class SubentryService extends BaseInterceptor
         // for subtree and one level scope we filter
         if ( ! isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SUBENTRY_FILTER );
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideSubentriesFilter() );
         }
-
-        return e;
+        else
+        {            
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideEntriesFilter() );
+        }
     }
 
 
@@ -232,8 +215,8 @@ public class SubentryService extends BaseInterceptor
             // found the subentry request control so we return its value
             if ( reqControls[ii].getID().equals( SUBENTRY_CONTROL ) )
             {
-                SubentryRequestControl subentryControl = ( SubentryRequestControl ) reqControls[ii];
-                return subentryControl.getSubentryVisibility();
+                SubentriesControl subentriesControl = ( SubentriesControl ) reqControls[ii];
+                return subentriesControl.isVisible();
             }
         }
 
@@ -1263,5 +1246,114 @@ public class SubentryService extends BaseInterceptor
         ModificationItem[] mods = new ModificationItem[modList.size()];
         mods = ( ModificationItem[] ) modList.toArray( mods );
         return mods;
+    }
+
+
+    /**
+     * SearchResultFilter used to filter out subentries based on objectClass values.
+     */
+    public class HideSubentriesFilter implements SearchResultFilter
+    {
+        public boolean accept(Invocation invocation, SearchResult result, SearchControls controls) throws NamingException
+        {
+            String dn = result.getName();
+            
+            // see if we can get a match without normalization
+            if ( subtrees.containsKey( dn ) )
+            {
+                return false;
+            }
+            
+            // see if we can use objectclass if present
+            Attribute objectClasses = result.getAttributes().get( "objectClass" );
+            if ( objectClasses != null )
+            {
+                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS ) )
+                {
+                    return false;
+                }
+                
+                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
+                {
+                    return false;
+                }
+                
+                for ( int ii = 0; ii < objectClasses.size(); ii++ )
+                {
+                    String oc = ( String ) objectClasses.get( ii );
+                    if ( oc.equalsIgnoreCase( SUBENTRY_OBJECTCLASS ) )
+                    {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+
+            if ( ! result.isRelative() )
+            {
+                String normalizedDn = dnParser.parse( dn ).toString();
+                return !subtrees.containsKey( normalizedDn );
+            }
+            
+            Name name = dnParser.parse( invocation.getCaller().getNameInNamespace() );
+            name.addAll( dnParser.parse( result.getName() ) );
+            return !subtrees.containsKey( name.toString() );
+        }
+    }
+
+
+    /**
+     * SearchResultFilter used to filter out normal entries but shows subentries based on 
+     * objectClass values.
+     */
+    public class HideEntriesFilter implements SearchResultFilter
+    {
+        public boolean accept(Invocation invocation, SearchResult result, SearchControls controls) throws NamingException
+        {
+            String dn = result.getName();
+            
+            // see if we can get a match without normalization
+            if ( subtrees.containsKey( dn ) )
+            {
+                return true;
+            }
+            
+            // see if we can use objectclass if present
+            Attribute objectClasses = result.getAttributes().get( "objectClass" );
+            if ( objectClasses != null )
+            {
+                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS ) )
+                {
+                    return true;
+                }
+                
+                if ( objectClasses.contains( SUBENTRY_OBJECTCLASS_OID ) )
+                {
+                    return true;
+                }
+                
+                for ( int ii = 0; ii < objectClasses.size(); ii++ )
+                {
+                    String oc = ( String ) objectClasses.get( ii );
+                    if ( oc.equalsIgnoreCase( SUBENTRY_OBJECTCLASS ) )
+                    {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            if ( ! result.isRelative() )
+            {
+                String normalizedDn = dnParser.parse( dn ).toString();
+                return subtrees.containsKey( normalizedDn );
+            }
+            
+            Name name = dnParser.parse( invocation.getCaller().getNameInNamespace() );
+            name.addAll( dnParser.parse( result.getName() ) );
+            return subtrees.containsKey( name.toString() );
+        }
     }
 }

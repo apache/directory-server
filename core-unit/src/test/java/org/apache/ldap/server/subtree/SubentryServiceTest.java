@@ -20,11 +20,14 @@ package org.apache.ldap.server.subtree;
 import org.apache.ldap.server.unit.AbstractAdminTestCase;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.LockableAttributeImpl;
+import org.apache.ldap.common.message.SubentriesControl;
 import org.apache.ldap.common.exception.LdapNoSuchAttributeException;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
+import javax.naming.ldap.Control;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -856,5 +859,35 @@ public class SubentryServiceTest extends AbstractAdminTestCase
         assertNotNull( "cn=marked,ou=services,ou=configuration should be marked", autonomousSubentry );
         assertEquals( "cn=testsubentry,ou=system", autonomousSubentry.get() );
         assertEquals( 1, autonomousSubentry.size() );
+    }
+    
+    
+    public void testSubentriesControl() throws Exception
+    {
+        addAdministrativeRole( "autonomousArea" );
+        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        // perform the search without the control
+        Map entries = new HashMap();
+        NamingEnumeration list = super.sysRoot.search( "", "(objectClass=*)", searchControls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            entries.put( result.getName(), result );
+        }
+        assertTrue( entries.size() > 1  );
+        assertNull( entries.get( "cn=testsubentry,ou=system" ) );
+        
+        // now add the control with visibility set to true where all entries 
+        // except subentries disappear
+        SubentriesControl ctl = new SubentriesControl();
+        ctl.setVisibility( true );
+        super.sysRoot.setRequestControls( new Control[] { ctl } );
+        list = super.sysRoot.search( "", "(objectClass=*)", searchControls );
+        SearchResult result = ( SearchResult ) list.next();
+        assertFalse( list.hasMore() );
+        assertEquals( "cn=testsubentry,ou=system", result.getName() );
     }
 }
