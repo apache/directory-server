@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -171,4 +172,82 @@ public class StringToolsTest extends TestCase
 		
 		Assert.assertTrue( res );
 	}
+	
+	public void testGetRegexpEmpty() throws Exception
+	{
+		Pattern pattern = StringTools.getRegex( "", new String[]{""}, "" );
+		
+		boolean b1 = pattern.matcher( "" ).matches();
+		
+		assertTrue( b1 );
+	}
+
+	public void testGetRegexpInitial() throws Exception
+	{
+		Pattern pattern = StringTools.getRegex( "Test", new String[]{""}, "" );
+		
+		boolean b1 = pattern.matcher( "Test just a test" ).matches();
+		
+		assertTrue( b1 );
+
+		boolean b3 = pattern.matcher( "test just a test" ).matches();
+		
+		assertFalse( b3 );
+	}
+
+	public void testGetRegexpFinal() throws Exception
+	{
+		Pattern pattern = StringTools.getRegex( "", new String[]{""}, "Test" );
+		
+		boolean b1 = pattern.matcher( "test just a Test" ).matches();
+		
+		assertTrue( b1 );
+
+		boolean b3 = pattern.matcher( "test just a test" ).matches();
+		
+		assertFalse( b3 );
+	}
+
+	public void testGetRegexpAny() throws Exception
+	{
+		Pattern pattern = StringTools.getRegex( "", new String[]{ "just", "a" }, "" );
+		
+		boolean b1 = pattern.matcher( "test just a Test" ).matches();
+		
+		assertTrue( b1 );
+
+		boolean b3 = pattern.matcher( "test just A test" ).matches();
+		
+		assertFalse( b3 );
+	}
+
+	public void testGetRegexpFull() throws Exception
+	{
+		Pattern pattern = StringTools.getRegex( "Test", new String[]{ "just", "a" }, "test" );
+		
+		boolean b1 = pattern.matcher( "Test (this is) just (truly !) a (little) test" ).matches();
+		
+		assertTrue( b1 );
+
+		boolean b3 = pattern.matcher( "Test (this is) just (truly !) A (little) test" ).matches();
+		
+		assertFalse( b3 );
+	}
+    
+    public void testDeepTrim() 
+    {
+        assertEquals( "", StringTools.deepTrim( " ", false ) );
+        assertEquals( "ab", StringTools.deepTrim( " ab ", false ) );
+        assertEquals( "a b", StringTools.deepTrim( " a b ", false ) );
+        assertEquals( "a b", StringTools.deepTrim( " a  b ", false ) );
+        assertEquals( "a b", StringTools.deepTrim( "  a  b  ", false ) );
+        assertEquals( "ab", StringTools.deepTrim( "ab ", false ) );
+        assertEquals( "ab", StringTools.deepTrim( " ab", false ) );
+        assertEquals( "ab", StringTools.deepTrim( "ab  ", false ) );
+        assertEquals( "ab", StringTools.deepTrim( "  ab", false ) );
+        assertEquals( "a b", StringTools.deepTrim( "a b", false ) );
+        assertEquals( "a b", StringTools.deepTrim( "a  b", false ) );
+        assertEquals( "a b", StringTools.deepTrim( " a b", false ) );
+        assertEquals( "a b", StringTools.deepTrim( "a b ", false ) );
+    }
 }
