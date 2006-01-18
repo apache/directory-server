@@ -18,13 +18,13 @@ package org.apache.ldap.server.partition.impl.btree;
 
 
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.ldap.common.schema.AttributeType;
-import org.apache.regexp.RE;
 
 
 /**
@@ -106,9 +106,9 @@ public interface Index
     IndexEnumeration listIndices( Object attrVal, boolean isGreaterThan )
         throws NamingException;
 
-    IndexEnumeration listIndices( RE regex ) throws NamingException;
+    IndexEnumeration listIndices( Pattern regex ) throws NamingException;
 
-    IndexEnumeration listIndices( RE regex, String prefix )
+    IndexEnumeration listIndices( Pattern regex, String prefix )
         throws NamingException;
 
     boolean hasValue( Object attrVal, BigInteger id ) 
@@ -117,7 +117,7 @@ public interface Index
     boolean hasValue( Object attrVal, BigInteger id, boolean isGreaterThan )
         throws NamingException;
 
-    boolean hasValue( RE regex, BigInteger id ) throws NamingException;
+    boolean hasValue( Pattern regex, BigInteger id ) throws NamingException;
 
     void close() throws NamingException;
 

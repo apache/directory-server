@@ -27,6 +27,9 @@
 package org.apache.ldap.server.partition.impl.btree;
 
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
@@ -35,8 +38,6 @@ import org.apache.ldap.common.filter.SubstringNode;
 import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
 
 
 /**
@@ -84,7 +85,7 @@ public class SubstringEnumerator implements Enumerator
     public NamingEnumeration enumerate( final ExprNode node )
         throws NamingException
     {
-        RE regex = null;
+        Pattern regex = null;
         Index idx = null;
         final SubstringNode snode = ( SubstringNode ) node;
         AttributeType type = attributeTypeRegistry.lookup( snode.getAttribute() );
@@ -100,7 +101,7 @@ public class SubstringEnumerator implements Enumerator
             {
                 regex = snode.getRegex( normalizer );
             } 
-            catch ( RESyntaxException e ) 
+            catch ( PatternSyntaxException e ) 
             {
                 NamingException ne = new NamingException( "SubstringNode '" 
                     + node + "' had incorrect syntax" );

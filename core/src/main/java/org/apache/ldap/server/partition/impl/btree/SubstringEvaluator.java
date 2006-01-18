@@ -17,6 +17,9 @@
 package org.apache.ldap.server.partition.impl.btree;
 
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -28,9 +31,6 @@ import org.apache.ldap.common.schema.AttributeType;
 import org.apache.ldap.common.schema.Normalizer;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
 import org.apache.ldap.server.schema.OidRegistry;
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
-
 
 /**
  * Evaluates substring filter assertions on an entry.
@@ -70,7 +70,7 @@ public class SubstringEvaluator implements Evaluator
     public boolean evaluate( ExprNode node, IndexRecord record )
         throws NamingException
     {
-        RE regex = null; 
+        Pattern regex = null; 
         SubstringNode snode = ( SubstringNode ) node;
         String oid = oidRegistry.getOid( snode.getAttribute() );
         AttributeType type = attributeTypeRegistry.lookup( oid );
@@ -94,11 +94,11 @@ public class SubstringEvaluator implements Evaluator
             {
                 regex = snode.getRegex( normalizer );
             } 
-            catch ( RESyntaxException e ) 
+            catch ( PatternSyntaxException pse ) 
             {
                 NamingException ne = new NamingException( "SubstringNode '" 
                     + node + "' had " + "incorrect syntax" );
-                ne.setRootCause( e );
+                ne.setRootCause( pse );
                 throw ne;
             }
 
@@ -108,7 +108,7 @@ public class SubstringEvaluator implements Evaluator
                 IndexRecord rec = ( IndexRecord ) list.next();
             
                 // once match is found cleanup and return true
-                if ( regex.match( ( String ) rec.getIndexKey() ) ) 
+                if ( regex.matcher( ( String ) rec.getIndexKey() ).matches() ) 
                 {
                     list.close();
                     return true;
@@ -144,11 +144,11 @@ public class SubstringEvaluator implements Evaluator
         {
             regex = snode.getRegex( normalizer );
         } 
-        catch ( RESyntaxException e ) 
+        catch ( PatternSyntaxException pse ) 
         {
             NamingException ne = new NamingException( "SubstringNode '" 
                 + node + "' had " + "incorrect syntax" );
-            ne.setRootCause( e );
+            ne.setRootCause( pse );
             throw ne;
         }
         
@@ -165,7 +165,7 @@ public class SubstringEvaluator implements Evaluator
                 normalizer.normalize( list.next() );
             
             // Once match is found cleanup and return true
-            if ( regex.match( value ) ) 
+            if ( regex.matcher( value ).matches() ) 
             {
                 list.close();
                 return true;

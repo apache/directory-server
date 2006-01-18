@@ -18,12 +18,10 @@ package org.apache.ldap.server.partition.impl.btree;
 
 
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-
-import org.apache.regexp.RE;
-
 
 /**
  * A NamingEnumeration over an Index which returns IndexRecords.
@@ -35,7 +33,7 @@ public class IndexEnumeration
     implements NamingEnumeration
 {
     /** */
-    private final RE re;
+    private final Pattern re;
     /** */
     private final IndexRecord tmp = new IndexRecord();
     /** */
@@ -70,7 +68,7 @@ public class IndexEnumeration
 
 
     public IndexEnumeration( NamingEnumeration list, boolean swapKeyVal,
-                             RE regex )
+                             Pattern regex )
         throws NamingException
     {
         re = regex;
@@ -171,7 +169,7 @@ public class IndexEnumeration
             // If regex is null just transfer into prefetched from tmp record
             // but if it is not then use it to match.  Successful match shorts
             // while loop.
-            if ( null == re || re.match( ( String ) tmp.getIndexKey() ) ) 
+            if ( null == re || re.matcher( ( String ) tmp.getIndexKey() ).matches() )
             {
                 prefetched.copy( tmp );
                 return;
