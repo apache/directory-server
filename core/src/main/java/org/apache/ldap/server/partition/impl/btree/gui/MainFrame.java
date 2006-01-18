@@ -136,7 +136,7 @@ public class MainFrame extends JFrame
     /**
      * This method is called from within the constructor to initialize the form
      */
-    private void initGUI() 
+    private void initGUI() throws NamingException
     {
         mainPnl.setBorder( null );
         mainPnl.setLayout( new java.awt.BorderLayout() );
@@ -160,7 +160,7 @@ public class MainFrame extends JFrame
         content.add( mainPnl, java.awt.BorderLayout.NORTH );
         getContentPane().add( content, BorderLayout.CENTER );
         // set title
-        setTitle( "Backend DB Viewer" );
+        setTitle( "Partition: " + this.partition.getSuffix( false ).toString() );
         // add status bar
         getContentPane().add( statusBar, BorderLayout.SOUTH );
         // add menu bar

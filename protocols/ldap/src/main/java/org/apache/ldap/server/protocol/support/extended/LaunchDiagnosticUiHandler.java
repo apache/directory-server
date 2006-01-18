@@ -17,6 +17,8 @@
 package org.apache.ldap.server.protocol.support.extended;
 
 
+import java.util.Iterator;
+
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
@@ -24,8 +26,10 @@ import org.apache.ldap.common.message.ExtendedRequest;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.message.extended.LaunchDiagnosticUiRequest;
 import org.apache.ldap.common.message.extended.LaunchDiagnosticUiResponse;
+import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.jndi.ServerLdapContext;
+import org.apache.ldap.server.partition.DirectoryPartition;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
 import org.apache.ldap.server.partition.impl.btree.gui.MainFrame;
@@ -59,11 +63,21 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             }
 
             session.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
+
+            DirectoryPartitionNexus nexus = service.getConfiguration().getPartitionNexus();
+            Iterator list = nexus.listSuffixes( true );
+            while ( list.hasNext() )
+            {
+                LdapName dn = new LdapName( ( String ) list.next() );
+                DirectoryPartition partition = nexus.getPartition( dn );
+                if ( partition instanceof BTreeDirectoryPartition )
+                {
+                    BTreeDirectoryPartition btPartition = ( BTreeDirectoryPartition ) partition;
+                    MainFrame frame = new MainFrame( btPartition, btPartition.getSearchEngine() );
+                    frame.setVisible( true );
+                }
+            }
             
-            // Launch UI here using the provider, session registry and directory service
-            BTreeDirectoryPartition partition = ( BTreeDirectoryPartition ) service.getConfiguration().getPartitionNexus().getSystemPartition();
-            MainFrame frame = new MainFrame( partition, partition.getSearchEngine() );
-            frame.setVisible( true );
             return;
         }
 
