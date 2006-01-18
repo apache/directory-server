@@ -72,6 +72,7 @@ import org.apache.ldap.server.protocol.support.ModifyDnHandler;
 import org.apache.ldap.server.protocol.support.ModifyHandler;
 import org.apache.ldap.server.protocol.support.SearchHandler;
 import org.apache.ldap.server.protocol.support.UnbindHandler;
+import org.apache.ldap.server.protocol.support.extended.LaunchDiagnosticUiHandler;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
@@ -223,6 +224,7 @@ public class LdapProtocolProvider
         }
 
         this.codecFactory = new ProtocolCodecFactoryImpl( copy );
+        addExtendedOperationHandler( new LaunchDiagnosticUiHandler() );
     }
 
     /**
