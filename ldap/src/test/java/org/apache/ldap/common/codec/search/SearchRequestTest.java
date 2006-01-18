@@ -44,6 +44,7 @@ import org.apache.ldap.common.codec.search.OrFilter;
 import org.apache.ldap.common.codec.search.PresentFilter;
 import org.apache.ldap.common.codec.search.SearchRequest;
 import org.apache.ldap.common.codec.search.SubstringFilter;
+import org.apache.ldap.common.codec.search.controls.SubEntryControl;
 import org.apache.ldap.common.codec.util.LdapString;
 
 import junit.framework.TestCase;
@@ -2042,4 +2043,92 @@ public class SearchRequestTest extends TestCase {
         // We won't check the encoding, as it has changed because of 
         // attributes transformations
     }
+
+    /**
+     * Test the decoding of a SearchRequest with SubEntry control.
+     */
+     public void testDecodeSearchRequestSubEntryControl()
+     {
+        byte[] asn1BER = new byte[]
+        {
+            0x30, 0x5D,
+                0x02, 0x01, 0x04, // messageID
+                0x63, 0x33,
+                    0x04, 0x13,
+                        0x64, 0x63, 0x3d, 0x6d, 0x79, 0x2d, 0x64, 0x6f, 0x6d, 0x61,
+                                0x69, 0x6e, 0x2c, 0x64, 0x63, 0x3d, 0x63, 0x6f, 0x6d, // baseObject: dc=my-domain,dc=com
+                    0x0a, 0x01, 0x02, // scope: subtree
+                    0x0a, 0x01, 0x03, // derefAliases: derefAlways
+                    0x02, 0x01, 0x00, // sizeLimit: 0
+                    0x02, 0x01, 0x00, // timeLimit: 0
+                    0x01, 0x01, 0x00, // typesOnly: false
+                    (byte)0x87, 0x0b,
+                        0x6f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x43, 0x6c, 0x61, 0x73, 0x73, // filter: (objectClass=*)
+                    0x30, 0x00,
+                (byte)0xa0, 0x23, // controls
+                    0x30, 0x21,
+                        0x04, 0x17, 
+                          '1', '.', '3', '.', '6', '.', '1', '.',  
+                          '4', '.', '1', '.', '4', '2', '0', '3',  
+                          '.', '1', '.', '1', '0', '.', '1', // SubEntry OID
+                        0x01, 0x01, (byte)0xFF, // criticality: true
+                        0x04, 0x03,
+                            0x01, 0x01, (byte)0xFF // SubEntry visibility
+        };
+     
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+     
+        ByteBuffer  stream      = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        String decodedPdu       = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+     
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+     
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+     
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        assertEquals( 4, message.getMessageId() );
+        assertEquals( 1, message.getControls().size() );
+     
+        // SubEntry Control
+        String subEntryControlOID = "1.3.6.1.4.1.4203.1.10.1";
+        Control subEntryControl = message.getControls( 0 );
+        assertEquals( subEntryControlOID, subEntryControl.getControlType() );
+        assertTrue( subEntryControl.getCriticality() );
+        assertTrue( ( (SubEntryControl)subEntryControl.getControlValue() ).isVisible() );
+     
+        SearchRequest sr    = message.getSearchRequest();
+        assertEquals( "dc=my-domain,dc=com", sr.getBaseObject() );
+        assertEquals( LdapConstants.SCOPE_WHOLE_SUBTREE, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 0, sr.getSizeLimit() );
+        assertEquals( 0, sr.getTimeLimit() );
+        assertEquals( false, sr.isTypesOnly() );
+     
+        assertTrue( sr.getFilter() instanceof PresentFilter );
+        assertEquals ( "objectClass",
+            ( (PresentFilter) sr.getFilter() ).getAttributeDescription().getString());
+     
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+     }    
 }
