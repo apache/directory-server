@@ -55,6 +55,9 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ManageDsaITControl;
 import org.apache.ldap.common.message.PersistentSearchControl;
+import org.apache.ldap.common.message.SubentriesControl;
+import org.apache.ldap.common.message.extended.LaunchDiagnosticUiRequest;
+import org.apache.ldap.common.message.extended.LaunchDiagnosticUiResponse;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
@@ -131,10 +134,16 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
         rootDSE.put( attr );
         attr.add( "1.3.6.1.4.1.4203.1.5.1" );
 
+        attr = new LockableAttributeImpl( "supportedExtension" );
+        rootDSE.put( attr );
+        attr.add( LaunchDiagnosticUiRequest.EXTENSION_OID );
+        attr.add( LaunchDiagnosticUiResponse.EXTENSION_OID );
+
         attr = new LockableAttributeImpl( "supportedControl" );
         rootDSE.put( attr );
         attr.add( PersistentSearchControl.CONTROL_OID );
         attr.add( EntryChangeControl.CONTROL_OID );
+        attr.add( SubentriesControl.CONTROL_OID );
         attr.add( ManageDsaITControl.CONTROL_OID );
 
         attr = new LockableAttributeImpl( "objectClass" );

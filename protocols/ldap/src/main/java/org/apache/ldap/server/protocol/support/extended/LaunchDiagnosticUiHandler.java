@@ -42,7 +42,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 {
     public String getOid()
     {
-        return LaunchDiagnosticUiRequest.OID;
+        return LaunchDiagnosticUiRequest.EXTENSION_OID;
     }
 
     
