@@ -91,21 +91,9 @@
     </dependency>
 
     <dependency>
-      <groupId>regexp</groupId>
-      <artifactId>regexp</artifactId>
-      <version>1.2</version>
-    </dependency>
-
-    <dependency>
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <version>2.0.8</version>
     </dependency>
 
   </dependencies>
