@@ -27,11 +27,11 @@ package org.apache.ldap.common.filter ;
 
 
 import java.util.ArrayList ;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.naming.NamingException;
-
-import org.apache.regexp.RE ;
-import org.apache.regexp.RESyntaxException ;
 
 import org.apache.ldap.common.util.StringTools ;
 import org.apache.ldap.common.schema.Normalizer;
@@ -47,16 +47,16 @@ import org.apache.ldap.common.schema.Normalizer;
 public class SubstringNode extends LeafNode
 {
     /** The initial fragment before any wildcards */
-    private final String m_initial ;
+    private final String initialPattern ;
 
     /** The end fragment after wildcards */
-    private final String m_final ;
+    private final String finalPattern ;
 
     /** List of fragments between wildcards */
-    private final ArrayList m_any ;
+    private final List anyPattern ;
 
     /** Generated regular expression from substring assertion expression */
-    private transient RE m_regex = null ;
+    private transient Pattern regex = null ;
 
 
     /**
@@ -67,13 +67,13 @@ public class SubstringNode extends LeafNode
      * @param a_initial the initial fragment
      * @param a_final the final fragment
      */
-    public SubstringNode( String a_attribute, String a_initial, String a_final )
+    public SubstringNode( String attribute, String initialPattern, String finalPattern )
     {
-        super( a_attribute, SUBSTRING ) ;
+        super( attribute, SUBSTRING ) ;
 
-        m_any = new ArrayList( 2 ) ;
-        m_final = a_final ;
-        m_initial = a_initial ;
+        anyPattern = new ArrayList( 2 ) ;
+        this.finalPattern = finalPattern ;
+        this.initialPattern = initialPattern ;
     }
 
 
@@ -86,14 +86,14 @@ public class SubstringNode extends LeafNode
      * @param a_initial the initial fragment
      * @param a_final the final fragment
      */
-    public SubstringNode( ArrayList a_anyList, String a_attribute,
-        String a_initial, String a_final )
+    public SubstringNode( ArrayList anyPattern, String attribute,
+        String initialPattern, String finalPattern )
     {
-        super( a_attribute, SUBSTRING ) ;
+        super( attribute, SUBSTRING ) ;
 
-        m_any = a_anyList ;
-        m_final = a_final ;
-        m_initial = a_initial ;
+        this.anyPattern = anyPattern ;
+        this.finalPattern = finalPattern ;
+        this.initialPattern = initialPattern ;
     }
 
 
@@ -104,7 +104,7 @@ public class SubstringNode extends LeafNode
      */
     public final String getInitial()
     {
-        return m_initial ;
+        return initialPattern ;
     }
 
 
@@ -115,7 +115,7 @@ public class SubstringNode extends LeafNode
      */
     public final String getFinal()
     {
-        return m_final ;
+        return finalPattern ;
     }
 
 
@@ -124,9 +124,9 @@ public class SubstringNode extends LeafNode
      *
      * @return the any fragments
      */
-    public final ArrayList getAny()
+    public final List getAny()
     {
-        return m_any ;
+        return anyPattern ;
     }
 
 
@@ -136,51 +136,52 @@ public class SubstringNode extends LeafNode
      * @return the equivalent compiled regular expression
      * @throws RESyntaxException if the regular expression is invalid
      */
-    public final RE getRegex( Normalizer normalizer )
-            throws RESyntaxException, NamingException
+    public final Pattern getRegex( Normalizer normalizer )
+            throws PatternSyntaxException, NamingException
     {
-        if ( m_regex != null )
+        if ( regex != null )
         {
-            return m_regex ;
+            return regex ;
         }
 
-
-        if ( m_any.size() > 0 )
+        if ( anyPattern.size() > 0 )
         {
-            String[] l_any = new String[m_any.size()] ;
+            String[] any = new String[anyPattern.size()] ;
 
-            for ( int ii = 0 ; ii < l_any.length ; ii++ )
+            for ( int i = 0 ; i < any.length ; i++ )
             {
-                l_any[ii] = ( String ) normalizer.normalize( m_any.get( ii ) );
+                any[i] = ( String ) normalizer.normalize( anyPattern.get( i ) );
             }
 
-
             String initialStr = null;
-            if ( this.m_initial != null )
+            
+            if ( initialPattern != null )
             {
-                initialStr = ( String ) normalizer.normalize( this.m_initial );
+                initialStr = ( String ) normalizer.normalize( initialPattern );
             }
 
             String finalStr = null;
-            if ( this.m_final != null )
+            
+            if ( finalPattern != null )
             {
-                finalStr = ( String ) normalizer.normalize( this.m_final );
+                finalStr = ( String ) normalizer.normalize( finalPattern );
             }
 
-            return StringTools.getRegex( initialStr, l_any, finalStr );
+            return StringTools.getRegex( initialStr, any, finalStr );
         }
 
-
         String initialStr = null;
-        if ( this.m_initial != null )
+        
+        if ( initialPattern != null )
         {
-            initialStr = ( String ) normalizer.normalize( this.m_initial );
+            initialStr = ( String ) normalizer.normalize( initialPattern );
         }
 
         String finalStr = null;
-        if ( this.m_final != null )
+        
+        if ( finalPattern != null )
         {
-            finalStr = ( String ) normalizer.normalize( this.m_final );
+            finalStr = ( String ) normalizer.normalize( finalPattern );
         }
 
         return StringTools.getRegex( initialStr, null, finalStr );
@@ -192,58 +193,58 @@ public class SubstringNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer l_buf = new StringBuffer() ;
-        printToBuffer( l_buf ) ;
+        StringBuffer buf = new StringBuffer() ;
+        printToBuffer( buf ) ;
 
-        return ( l_buf.toString() ) ;
+        return ( buf.toString() ) ;
     }
 
 
     /**
      * @see org.apache.ldap.common.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
      */
-    public StringBuffer printToBuffer( StringBuffer a_buf )
+    public StringBuffer printToBuffer( StringBuffer buf )
     {
-        a_buf.append( '(' ).append( getAttribute() ).append( '=' ) ;
+        buf.append( '(' ).append( getAttribute() ).append( '=' ) ;
 
-        if ( null != m_initial )
+        if ( null != initialPattern )
         {
-            a_buf.append( m_initial ).append( '*' ) ;
+            buf.append( initialPattern ).append( '*' ) ;
         }
         else
         {
-            a_buf.append( '*' ) ;
+            buf.append( '*' ) ;
         }
 
 
-        for ( int ii = 0 ; ii < m_any.size() ; ii++ )
+        for ( int i = 0 ; i < anyPattern.size() ; i++ )
         {
-            a_buf.append( m_any.get( ii ).toString() ) ;
-            a_buf.append( '*' ) ;
+            buf.append( anyPattern.get( i ).toString() ) ;
+            buf.append( '*' ) ;
         }
 
 
-        if ( null != m_final )
+        if ( null != finalPattern )
         {
-            a_buf.append( m_final ) ;
+            buf.append( finalPattern ) ;
         }
 
 
-        a_buf.append( ')' ) ;
+        buf.append( ')' ) ;
 
         if ( ( null != getAnnotations() )
                 && getAnnotations().containsKey( "count" ) )
         {
-            a_buf.append( '[' ) ;
-            a_buf.append( getAnnotations().get( "count" ).toString() ) ;
-            a_buf.append( "] " ) ;
+            buf.append( '[' ) ;
+            buf.append( getAnnotations().get( "count" ).toString() ) ;
+            buf.append( "] " ) ;
         }
         else
         {
-            a_buf.append( ' ' ) ;
+            buf.append( ' ' ) ;
         }
         
-        return a_buf;
+        return buf;
     }
 
 
