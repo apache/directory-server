@@ -26,6 +26,7 @@ import org.apache.asn1.ber.tlv.TLV;
 import org.apache.asn1.ber.tlv.Value;
 import org.apache.asn1.codec.DecoderException;
 import org.apache.ldap.common.codec.search.controls.PSearchControlDecoder;
+import org.apache.ldap.common.codec.search.controls.SubEntryControlDecoder;
 import org.apache.ldap.common.util.StringTools;
 
 import org.slf4j.Logger;
@@ -53,7 +54,11 @@ public class ControlValueAction extends GrammarAction
         ControlDecoder decoder;
         decoder = new PSearchControlDecoder();
         controlDecoders.put( decoder.getControlType(), decoder );
+        
         decoder = new ManageDsaITControlDecoder();
+        controlDecoders.put( decoder.getControlType(), decoder );
+        
+        decoder = new SubEntryControlDecoder();
         controlDecoders.put( decoder.getControlType(), decoder );
     }
 
@@ -78,6 +83,7 @@ public class ControlValueAction extends GrammarAction
         else
         {
             Object decoded;
+            
             if ( decoder != null )
             {
                 decoded = decoder.decode( value.getData() );
@@ -86,6 +92,7 @@ public class ControlValueAction extends GrammarAction
             {
                 decoded = value.getData();
             }
+            
             control.setEncodedValue( value.getData() );
             control.setControlValue( decoded );
         }
