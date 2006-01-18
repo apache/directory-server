@@ -20,8 +20,6 @@ package org.apache.ldap.common.schema;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import org.apache.oro.text.perl.Perl5Util;
-
 
 /**
  * A SyntaxChecker implemented using Perl5 regular expressions to constrain 
@@ -37,8 +35,6 @@ public class RegexSyntaxChecker
     private final String oid;
     /** the set of regular expressions */
     private final String [] expressions;
-    /** the Perl5 regex utilities */
-    private final Perl5Util perl = new Perl5Util();
 
 
     /**
@@ -75,17 +71,18 @@ public class RegexSyntaxChecker
         if ( value instanceof String )
         {
             str = ( String ) value;
-        }
 
-        for ( int ii = 0; ii < expressions.length; ii++ )
-        {
-            match = match && perl.match( expressions[ii], str );
-            if ( ! match )
-            {
-                break;
-            }
+	        for ( int i = 0; i < expressions.length; i++ )
+	        {
+	            match = match && str.matches( expressions[i] );
+	            
+	            if ( ! match )
+	            {
+	                break;
+	            }
+	        }
         }
-
+        
         return match;
     }
 
