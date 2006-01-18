@@ -151,6 +151,10 @@ public class SubstringNode extends LeafNode
             for ( int i = 0 ; i < any.length ; i++ )
             {
                 any[i] = ( String ) normalizer.normalize( anyPattern.get( i ) );
+                if ( any[i].length() == 0 )
+                {
+                    any[i] = " ";
+                }
             }
 
             String initialStr = null;

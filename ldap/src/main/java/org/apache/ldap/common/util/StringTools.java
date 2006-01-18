@@ -372,15 +372,7 @@ public class StringTools
         {
             for ( int i = 0; i < anyPattern.length; i++ ) 
             {
-                if ( anyPattern[i].length() == 0 )
-                {
-                    // we must keep the space
-                    buf.append( ".* " );
-                }
-                else
-                {
-                    buf.append( ".*" ).append( anyPattern[i] ) ;
-                }
+                buf.append( ".*" ).append( anyPattern[i] ) ;
             }
         }
 
