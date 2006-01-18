@@ -24,10 +24,8 @@ import java.util.List ;
 import java.util.Map;
 import java.io.FileFilter ;
 import java.util.ArrayList ;
-
-import org.apache.regexp.RE ;
-import org.apache.regexp.RESyntaxException ;
-
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Various string manipulation methods that are more efficient then chaining
@@ -133,7 +131,8 @@ public class StringTools
         char ch ;
         char[] buf = str.toCharArray();
         char[] newbuf = new char[buf.length];
-        boolean wsSeen = true;
+        boolean wsSeen = false;
+        boolean isStart = true;
         int pos = 0;
 
         for ( int i = 0; i < str.length(); i++ )
@@ -155,25 +154,34 @@ public class StringTools
                 // If the buffer has had characters added already check last
                 // added character.  Only append a spc if last character was
                 // not whitespace.
-                if ( wsSeen) 
+                if ( wsSeen ) 
                 {
                     continue;
                 }
                 else
                 {
                     wsSeen = true;
-                    newbuf[pos++] = ch;
+                    
+                    if ( isStart )
+                    {
+                        isStart = false;
+                    }
+                    else
+                    {
+                        newbuf[pos++] = ch;
+                    }
                 }
             } 
             else 
             {
                 // Add all non-whitespace
                 wsSeen = false;
+                isStart = false;
                 newbuf[pos++] = ch;
             }
         }
 
-        return new String( newbuf, 0, (wsSeen ? pos - 1 : pos) );
+        return (pos == 0 ? "" : new String( newbuf, 0, (wsSeen ? pos - 1 : pos) ) );
     }
 
 
@@ -350,30 +358,42 @@ public class StringTools
      * @throws RESyntaxException if a syntactically correct regular expression
      * cannot be compiled
      */
-    public static RE getRegex( String a_initial, String [] a_any, 
-        String a_final ) throws RESyntaxException
+    public static Pattern getRegex( String initialPattern, String [] anyPattern, 
+        String finalPattern ) throws PatternSyntaxException
     {
-        StringBuffer l_buf = new StringBuffer() ;
+        StringBuffer buf = new StringBuffer() ;
 
-        if ( a_initial != null ) 
+        if ( initialPattern != null ) 
         {
-            l_buf.append( '^' ).append( a_initial ) ;
+            buf.append( '^' ).append( initialPattern ) ;
         }
 
-        if ( a_any != null ) 
+        if ( anyPattern != null ) 
         {
-            for ( int ii = 0; ii < a_any.length; ii++ ) 
+            for ( int i = 0; i < anyPattern.length; i++ ) 
             {
-                l_buf.append( ".*" ).append( a_any[ii] ) ;
+                if ( anyPattern[i].length() == 0 )
+                {
+                    // we must keep the space
+                    buf.append( ".* " );
+                }
+                else
+                {
+                    buf.append( ".*" ).append( anyPattern[i] ) ;
+                }
             }
         }
 
-        if ( a_final != null ) 
+        if ( finalPattern != null ) 
         {
-            l_buf.append( ".*" ).append( a_final ) ;
+            buf.append( ".*" ).append( finalPattern ) ;
+        }
+        else
+        {
+        	buf.append( ".*" );
         }
 
-        return new RE( l_buf.toString() ) ;
+        return Pattern.compile( buf.toString() ) ;
     }
 
 
@@ -386,59 +406,60 @@ public class StringTools
      * @throws RESyntaxException if a syntactically correct regular expression
      * cannot be compiled
      */
-    public static RE getRegex( String a_ldapRegex )
-        throws RESyntaxException
+    public static Pattern getRegex( String ldapRegex )
+        throws PatternSyntaxException
     {
-        if ( a_ldapRegex == null ) 
+        if ( ldapRegex == null ) 
         {
-            throw new RESyntaxException( "Regex was null" ) ;
+            throw new PatternSyntaxException( "Regex was null", "null", -1 ) ;
         }
 
-        ArrayList l_any = new ArrayList() ;
-        String l_remaining = a_ldapRegex ;
-        int l_index = l_remaining.indexOf( '*' ) ;
+        ArrayList any = new ArrayList() ;
+        String remaining = ldapRegex ;
+        int index = remaining.indexOf( '*' ) ;
 
-        if ( l_index == -1 ) 
+        if ( index == -1 ) 
         {
-            throw new RESyntaxException( "Ldap regex must have wild cards!" ) ;
+            throw new PatternSyntaxException( "Ldap regex must have wild cards!", remaining, -1  ) ;
         }
 
-        String l_initial = null ;
-        if ( l_remaining.charAt( 0 ) != '*' ) 
+        String initialPattern = null ;
+        
+        if ( remaining.charAt( 0 ) != '*' ) 
         {
-            l_initial = l_remaining.substring( 0, l_index ) ;
+        	initialPattern = remaining.substring( 0, index ) ;
         }
         
-        l_remaining = l_remaining.substring( 
-            l_index + 1, l_remaining.length() ) ;
+        remaining = remaining.substring( 
+            index + 1, remaining.length() ) ;
 
-        while ( ( l_index = l_remaining.indexOf( '*' ) ) != -1 ) 
+        while ( ( index = remaining.indexOf( '*' ) ) != -1 ) 
         {
-            l_any.add( l_remaining.substring( 0, l_index ) ) ;
-            l_remaining = l_remaining.substring( l_index + 1,
-                l_remaining.length() ) ;
+            any.add( remaining.substring( 0, index ) ) ;
+            remaining = remaining.substring( index + 1,
+                remaining.length() ) ;
         }
 
-        String l_final = null ;
-        if ( !l_remaining.endsWith( "*" ) && l_remaining.length() > 0 ) 
+        String finalPattern = null ;
+        if ( !remaining.endsWith( "*" ) && remaining.length() > 0 ) 
         {
-            l_final = l_remaining ;
+        	finalPattern = remaining ;
         }
 
-        if ( l_any.size() > 0 ) 
+        if ( any.size() > 0 ) 
         {
-            String [] l_anyStrs = new String [ l_any.size() ] ;
-            for ( int ii = 0; ii < l_anyStrs.length; ii++ ) 
+            String [] anyStrs = new String [ any.size() ] ;
+            
+            for ( int i = 0; i < anyStrs.length; i++ ) 
             {
-                l_anyStrs[ii] = ( String ) l_any.get( ii ) ;
+                anyStrs[i] = ( String ) any.get( i ) ;
             }
     
-            return getRegex( l_initial, l_anyStrs, l_final ) ;
+            return getRegex( initialPattern, anyStrs, finalPattern ) ;
         }
 
-        return getRegex( l_initial, null, l_final ) ;
+        return getRegex( initialPattern, null, finalPattern ) ;
     }
-
 
     /**
      * Splits apart a OS separator delimited set of paths in a string into
