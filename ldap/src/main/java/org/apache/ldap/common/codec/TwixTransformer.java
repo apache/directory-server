@@ -693,7 +693,7 @@ public class TwixTransformer implements TransformerSpi
                     neutralPsearch.setChangesOnly( twixPsearch.isChangesOnly() );
                     neutralPsearch.setReturnECs( twixPsearch.isReturnECs() );
                     neutralPsearch.setCritical( twixControl.getCriticality() );
-                    neutralPsearch.setValue( twixControl.getEnodedValue() );
+                    neutralPsearch.setValue( twixControl.getEncodedValue() );
                 }
                 else if ( twixControl.getControlValue() instanceof byte[] )
                 {
