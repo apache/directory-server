@@ -17,7 +17,8 @@
 package org.apache.ldap.common.schema;
 
 
-import org.apache.oro.text.perl.Perl5Util ;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -30,10 +31,10 @@ import org.apache.oro.text.perl.Perl5Util ;
 public class RegexNormalizer implements Normalizer
 {
     /** the perl 5 regex engine */
-    private final Perl5Util perl = new Perl5Util() ;
+    private final Pattern[] regexes;
     
     /** the set of regular expressions used to transform values*/
-    private String [] regexes ;
+    private final Matcher[] matchers;
 
 
     /**
@@ -41,9 +42,15 @@ public class RegexNormalizer implements Normalizer
      *
      * @param regexes the set of regular expressions used to transform values
      */
-    public RegexNormalizer( String [] regexes )
+    public RegexNormalizer( Pattern[] regexes )
     {
-        this.regexes = regexes ;
+    	this.regexes = regexes;
+    	matchers = new Matcher[ regexes.length ];
+    	
+    	for ( int i = 0; i < regexes.length; i++ )
+    	{
+    		matchers[i] = regexes[i].matcher( "" ); 
+    	}
     }
 
 
@@ -61,9 +68,10 @@ public class RegexNormalizer implements Normalizer
         {
             String str = ( String ) value ;
     
-            for ( int ii = 0; ii < regexes.length; ii++ )
+            for ( int i = 0; i < matchers.length; i++ )
             {
-                str = perl.substitute( regexes[ii], str ) ;
+            	
+                str = matchers[i].replaceAll( str ) ;
             }
     
             return str ;
@@ -81,11 +89,11 @@ public class RegexNormalizer implements Normalizer
         StringBuffer buf = new StringBuffer() ;
         buf.append( "RegexNormalizer( " ) ;
 
-        for ( int ii = 0; ii < regexes.length; ii++ )
+        for ( int i = 0; i < regexes.length; i++ )
         {
-            buf.append( regexes[ii] );
+            buf.append( regexes[i] );
 
-            if ( ii < regexes.length - 1 )
+            if ( i < regexes.length - 1 )
             {
                 buf.append( ", " );
             }
