@@ -84,6 +84,8 @@ public class ExtendedResponseImplTest extends TestCase
         ExtendedResponseImpl resp0 = createStub();
         ExtendedResponse resp1 = new ExtendedResponse()
         {
+            private static final long serialVersionUID = 5297000474419901408L;
+
             public String getResponseName()
             {
                 return "1.1.1.1";
@@ -147,6 +149,16 @@ public class ExtendedResponseImplTest extends TestCase
             public Object put( Object a_key, Object a_value )
             {
                 return null;
+            }
+
+            public String getID()
+            {
+                return "1.1.1.1";
+            }
+
+            public byte[] getEncodedValue()
+            {
+                return getResponse();
             }
         };
 

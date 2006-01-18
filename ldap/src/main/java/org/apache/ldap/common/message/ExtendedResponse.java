@@ -24,7 +24,7 @@ package org.apache.ldap.common.message ;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public interface ExtendedResponse extends ResultResponse
+public interface ExtendedResponse extends ResultResponse, javax.naming.ldap.ExtendedResponse
 {
     /** Extended response message type enumeration value */
     MessageTypeEnum TYPE = MessageTypeEnum.EXTENDEDRESP;

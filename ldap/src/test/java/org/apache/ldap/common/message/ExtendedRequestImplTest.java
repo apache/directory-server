@@ -22,6 +22,9 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.naming.NamingException;
+import javax.naming.ldap.ExtendedResponse;
+
 
 /**
  * TestCase for the ExtendedRequestImpl class.
@@ -115,6 +118,8 @@ public class ExtendedRequestImplTest extends TestCase
     {
         ExtendedRequest req0 = new ExtendedRequest()
         {
+            private static final long serialVersionUID = 1L;
+
             public String getOid()
             {
                 return null;
@@ -177,6 +182,21 @@ public class ExtendedRequestImplTest extends TestCase
             }
 
             public ResultResponse getResultResponse()
+            {
+                return null;
+            }
+
+            public String getID()
+            {
+                return null;
+            }
+
+            public byte[] getEncodedValue()
+            {
+                return null;
+            }
+
+            public ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length) throws NamingException
             {
                 return null;
             }

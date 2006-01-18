@@ -17,6 +17,9 @@
 package org.apache.ldap.common.message;
 
 
+import javax.naming.NamingException;
+import javax.naming.ldap.ExtendedResponse;
+
 import org.apache.ldap.common.util.ArrayUtils;
 import org.apache.ldap.common.util.StringTools;
 
@@ -34,7 +37,7 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
     private String oid;
     /** Extended request's payload or <b>requestValue</b> */
     private byte [] payload;
-    private ExtendedResponse response;
+    private ResultResponse response;
 
 
     // -----------------------------------------------------------------------
@@ -219,5 +222,23 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
         }
 
         return sb.toString();
+    }
+
+
+    public String getID()
+    {
+        return getOid();
+    }
+
+
+    public byte[] getEncodedValue()
+    {
+        return getPayload();
+    }
+
+
+    public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length ) throws NamingException
+    {
+        return null;
     }
 }

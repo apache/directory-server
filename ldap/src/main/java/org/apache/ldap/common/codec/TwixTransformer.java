@@ -275,7 +275,7 @@ public class TwixTransformer implements TransformerSpi
      */
     private Message transformExtendedRequest(LdapMessage twixMessage, int messageId)
     {
-    	ExtendedRequestImpl snickersMessage = new ExtendedRequestImpl( messageId ) ;
+    	ExtendedRequestImpl snickersMessage = new ExtendedRequestImpl( messageId );
     	ExtendedRequest extendedRequest = twixMessage.getExtendedRequest();
 
     	// Twix : OID requestName -> Snickers : String oid

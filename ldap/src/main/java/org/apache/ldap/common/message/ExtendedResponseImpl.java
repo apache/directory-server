@@ -161,4 +161,16 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
 
         return true;
     }
+
+
+    public String getID()
+    {
+        return getResponseName();
+    }
+
+
+    public byte[] getEncodedValue()
+    {
+        return getResponse();
+    }
 }
