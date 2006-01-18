@@ -893,7 +893,6 @@ public class TwixTransformer implements TransformerSpi
     private void transformExtendedResponse( LdapMessage twixMessage, Message snickersMessage )
     {
     	ExtendedResponseImpl snickersExtendedResponse = (ExtendedResponseImpl)snickersMessage;
-		
     	ExtendedResponse extendedResponse = new ExtendedResponse();
 		
 	    // Snickers : String oid -> Twix : OID responseName
