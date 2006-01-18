@@ -1,28 +1,16 @@
-/*
- *   Copyright 2004 The Apache Software Foundation
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- *
- */
 package org.apache.ldap.server.partition.impl.btree.gui ;
 
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,13 +23,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.ldap.common.util.ExceptionUtils;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.partition.impl.btree.Index;
 import org.apache.ldap.server.partition.impl.btree.IndexRecord;
-import org.apache.regexp.RE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,27 +52,27 @@ public class IndexDialog extends JDialog
     public static final String LESS_CURSOR = "Less" ;
     public static final String REGEX_CURSOR = "Regex" ;
 
-    private Panel m_mainPnl = new Panel();
-    private JTabbedPane m_tabbedPane = new JTabbedPane();
-    private JPanel m_listPnl = new JPanel();
-    private JPanel m_cursorPnl = new JPanel();
-    private JPanel m_resultsPnl = new JPanel();
+    private Panel mainPnl = new Panel();
+    private JTabbedPane tabbedPane = new JTabbedPane();
+    private JPanel listPnl = new JPanel();
+    private JPanel cursorPnl = new JPanel();
+    private JPanel resultsPnl = new JPanel();
     private JScrollPane jScrollPane2 = new JScrollPane();
-    private JTable m_resultsTbl = new JTable();
-    private JPanel m_buttonPnl = new JPanel();
-    private JButton m_doneBut = new JButton();
+    private JTable resultsTbl = new JTable();
+    private JPanel buttonPnl = new JPanel();
+    private JButton doneBut = new JButton();
     private JLabel jLabel1 = new JLabel();
-    private JTextField m_keyText = new JTextField();
+    private JTextField keyText = new JTextField();
     private JLabel jLabel2 = new JLabel();
-    private JComboBox m_cursorType = new JComboBox();
-    private JButton m_scanBut = new JButton();
-    private Index m_index = null ;
+    private JComboBox cursorType = new JComboBox();
+    private JButton scanBut = new JButton();
+    private Index index = null ;
 
     /** Creates new form JDialog */
-    public IndexDialog( Frame parent, boolean modal, Index a_index )
+    public IndexDialog( Frame parent, boolean modal, Index index )
     {
         super ( parent, modal ) ;
-        m_index = a_index ;
+        this.index = index ;
         initGUI() ;
     }
 
@@ -103,15 +91,15 @@ public class IndexDialog extends JDialog
         });
 
         pack();
-        setTitle("Index On Attribute '" + m_index.getAttribute() + "'");
+        setTitle("Index On Attribute '" + index.getAttribute() + "'");
         setBounds(new java.awt.Rectangle(0, 0, 512, 471));
-        getContentPane().add(m_mainPnl, java.awt.BorderLayout.CENTER);
-        m_mainPnl.setLayout(new java.awt.BorderLayout());
-        m_mainPnl.add(m_tabbedPane, java.awt.BorderLayout.CENTER);
-        m_tabbedPane.add(m_listPnl, "Listing");
-        m_listPnl.setLayout(new java.awt.GridBagLayout());
-        m_listPnl.add(
-            m_cursorPnl,
+        getContentPane().add(mainPnl, java.awt.BorderLayout.CENTER);
+        mainPnl.setLayout(new java.awt.BorderLayout());
+        mainPnl.add(tabbedPane, java.awt.BorderLayout.CENTER);
+        tabbedPane.add(listPnl, "Listing");
+        listPnl.setLayout(new java.awt.GridBagLayout());
+        listPnl.add(
+            cursorPnl,
             new java.awt.GridBagConstraints(
                 0,
                 0,
@@ -124,8 +112,8 @@ public class IndexDialog extends JDialog
                 new java.awt.Insets(15, 0, 30, 0),
                 0,
                 0));
-        m_listPnl.add(
-            m_resultsPnl,
+        listPnl.add(
+            resultsPnl,
             new java.awt.GridBagConstraints(
                 0,
                 1,
@@ -138,8 +126,8 @@ public class IndexDialog extends JDialog
                 new java.awt.Insets(0, 0, 0, 0),
                 0,
                 0));
-        m_listPnl.add(
-            m_buttonPnl,
+        listPnl.add(
+            buttonPnl,
             new java.awt.GridBagConstraints(
                 0,
                 2,
@@ -152,8 +140,8 @@ public class IndexDialog extends JDialog
                 new java.awt.Insets(0, 0, 0, 0),
                 0,
                 0));
-        m_cursorPnl.setLayout(new java.awt.GridBagLayout());
-        m_cursorPnl.setBorder(
+        cursorPnl.setLayout(new java.awt.GridBagLayout());
+        cursorPnl.setBorder(
             javax.swing.BorderFactory.createTitledBorder(
                 javax.swing.BorderFactory.createLineBorder(
                     new java.awt.Color(153, 153, 153),
@@ -163,7 +151,7 @@ public class IndexDialog extends JDialog
                 javax.swing.border.TitledBorder.TOP,
                 new java.awt.Font("SansSerif", 0, 14),
                 new java.awt.Color(60, 60, 60)));
-        m_cursorPnl.add(
+        cursorPnl.add(
             jLabel1,
             new java.awt.GridBagConstraints(
                 0,
@@ -177,8 +165,8 @@ public class IndexDialog extends JDialog
                 new java.awt.Insets(0, 15, 0, 10),
                 0,
                 0));
-        m_cursorPnl.add(
-            m_keyText,
+        cursorPnl.add(
+            keyText,
             new java.awt.GridBagConstraints(
                 1,
                 1,
@@ -191,7 +179,7 @@ public class IndexDialog extends JDialog
                 new java.awt.Insets(5, 5, 5, 236),
                 0,
                 0));
-        m_cursorPnl.add(
+        cursorPnl.add(
             jLabel2,
             new java.awt.GridBagConstraints(
                 0,
@@ -205,8 +193,8 @@ public class IndexDialog extends JDialog
                 new java.awt.Insets(0, 15, 0, 10),
                 0,
                 0));
-        m_cursorPnl.add(
-            m_cursorType,
+        cursorPnl.add(
+            cursorType,
             new java.awt.GridBagConstraints(
                 1,
                 0,
@@ -219,8 +207,8 @@ public class IndexDialog extends JDialog
                 new java.awt.Insets(5, 5, 5, 0),
                 0,
                 0));
-        m_resultsPnl.setLayout(new java.awt.BorderLayout());
-        m_resultsPnl.setBorder(
+        resultsPnl.setLayout(new java.awt.BorderLayout());
+        resultsPnl.setBorder(
             javax.swing.BorderFactory.createTitledBorder(
                 javax.swing.BorderFactory.createLineBorder(
                     new java.awt.Color(153, 153, 153),
@@ -230,14 +218,14 @@ public class IndexDialog extends JDialog
                 javax.swing.border.TitledBorder.TOP,
                 new java.awt.Font("SansSerif", 0, 14),
                 new java.awt.Color(60, 60, 60)));
-        m_resultsPnl.add(jScrollPane2, java.awt.BorderLayout.CENTER);
-        jScrollPane2.getViewport().add(m_resultsTbl);
-        m_buttonPnl.setLayout(
+        resultsPnl.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+        jScrollPane2.getViewport().add(resultsTbl);
+        buttonPnl.setLayout(
             new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 5));
-        m_buttonPnl.add(m_doneBut);
-        m_buttonPnl.add(m_scanBut);
-        m_doneBut.setText("Done");
-        m_doneBut.addActionListener(new ActionListener()
+        buttonPnl.add(doneBut);
+        buttonPnl.add(scanBut);
+        doneBut.setText("Done");
+        doneBut.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
@@ -246,33 +234,33 @@ public class IndexDialog extends JDialog
         });
 
         jLabel1.setText("Key Constraint:");
-        m_keyText.setText("");
-        m_keyText.setMinimumSize(new java.awt.Dimension(130, 20));
-        m_keyText.setPreferredSize(new java.awt.Dimension(130, 20));
-        m_keyText.setMaximumSize(new java.awt.Dimension(130, 20));
-        m_keyText.setFont(
+        keyText.setText("");
+        keyText.setMinimumSize(new java.awt.Dimension(130, 20));
+        keyText.setPreferredSize(new java.awt.Dimension(130, 20));
+        keyText.setMaximumSize(new java.awt.Dimension(130, 20));
+        keyText.setFont(
             new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 14));
-        m_keyText.setSize(new java.awt.Dimension(130, 20));
+        keyText.setSize(new java.awt.Dimension(130, 20));
         jLabel2.setText("Cursor Type:");
-        m_cursorType.setMaximumSize(new java.awt.Dimension(32767, 20));
-        m_cursorType.setMinimumSize(new java.awt.Dimension(126, 20));
-        m_cursorType.setPreferredSize(new java.awt.Dimension(130, 20));
+        cursorType.setMaximumSize(new java.awt.Dimension(32767, 20));
+        cursorType.setMinimumSize(new java.awt.Dimension(126, 20));
+        cursorType.setPreferredSize(new java.awt.Dimension(130, 20));
         DefaultComboBoxModel l_comboModel = new DefaultComboBoxModel();
         l_comboModel.addElement(DEFAULT_CURSOR);
         l_comboModel.addElement(EQUALITY_CURSOR);
         l_comboModel.addElement(GREATER_CURSOR);
         l_comboModel.addElement(LESS_CURSOR);
         l_comboModel.addElement(REGEX_CURSOR);
-        m_cursorType.setModel(l_comboModel);
-        m_cursorType.setMaximumRowCount(5);
-        m_scanBut.setText("Scan");
-        m_scanBut.addActionListener(new ActionListener()
+        cursorType.setModel(l_comboModel);
+        cursorType.setMaximumRowCount(5);
+        scanBut.setText("Scan");
+        scanBut.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
                 doScan(
-                    m_keyText.getText(),
-                    (String) m_cursorType.getSelectedItem());
+                    keyText.getText(),
+                    (String) cursorType.getSelectedItem());
             }
         });
 
@@ -287,87 +275,88 @@ public class IndexDialog extends JDialog
     }
 
 
-    public boolean doScan( String a_key, String a_scanType )
+    public boolean doScan( String key, String scanType )
     {
-        if ( a_key == null || a_key.trim().equals( "" ) ) 
+        if ( key == null || key.trim().equals( "" ) ) 
         {
-            a_key = null ;
+            key = null ;
         }
 
-        if ( a_key == null && a_scanType != DEFAULT_CURSOR ) 
+        if ( key == null && scanType != DEFAULT_CURSOR ) 
         {
             JOptionPane.showMessageDialog( null, "Cannot use a " +
-                a_scanType + " scan type with a null key constraint.",
+                scanType + " scan type with a null key constraint.",
                 "Missing Key Constraint", JOptionPane.ERROR_MESSAGE ) ;
             return false ;
         }
 
         try 
         {
-            NamingEnumeration l_list = null ;
+            NamingEnumeration list = null ;
 
-            if ( a_scanType == EQUALITY_CURSOR ) 
+            if ( scanType == EQUALITY_CURSOR ) 
             {
-                l_list = m_index.listIndices( a_key ) ;
+                list = index.listIndices( key ) ;
             } 
-            else if ( a_scanType == GREATER_CURSOR ) 
+            else if (scanType == GREATER_CURSOR ) 
             {
-                l_list = m_index.listIndices( a_key, true ) ;
+                list = index.listIndices( key, true ) ;
             } 
-            else if ( a_scanType == LESS_CURSOR ) 
+            else if ( scanType == LESS_CURSOR ) 
             {
-                l_list = m_index.listIndices( a_key, false ) ;
+                list = index.listIndices( key, false ) ;
             } 
-            else if ( a_scanType == REGEX_CURSOR ) 
+            else if ( scanType == REGEX_CURSOR ) 
             {
-                RE l_regex = StringTools.getRegex( a_key ) ;
-                int l_starIndex = a_key.indexOf( '*' ) ;
+                Pattern regex = StringTools.getRegex( key ) ;
+                int starIndex = key.indexOf( '*' ) ;
 
-                if ( l_starIndex > 0 ) 
+                if ( starIndex > 0 ) 
                 {
-                    String l_prefix = a_key.substring( 0, l_starIndex ) ;
+                    String prefix = key.substring( 0, starIndex ) ;
 
                     if (log.isDebugEnabled())
-                        log.debug( "Regex prefix = " + l_prefix ) ;
+                        log.debug( "Regex prefix = " + prefix ) ;
 
-                    l_list = m_index.listIndices( l_regex, l_prefix ) ;
+                    list = index.listIndices( regex, prefix ) ;
                 } 
                 else 
                 {
-                    l_list = m_index.listIndices( l_regex ) ;
+                    list = index.listIndices( regex ) ;
                 }
             } 
             else 
             {
-                l_list = m_index.listIndices() ;
+                list = index.listIndices() ;
             }
 
-            Object [] l_cols = new Object [2] ;
-            Object [] l_row = null ;
-            l_cols[0] = "Keys ( Attribute Value )" ;
-            l_cols[1] = "Values ( Entry Id )" ;
-            DefaultTableModel l_model = new DefaultTableModel( l_cols, 0 ) ;
-            int l_count = 0 ;
-            while( l_list.hasMore() )
+            Object [] cols = new Object [2] ;
+            Object [] row = null ;
+            cols[0] = "Keys ( Attribute Value )" ;
+            cols[1] = "Values ( Entry Id )" ;
+            DefaultTableModel model = new DefaultTableModel( cols, 0 ) ;
+            int count = 0 ;
+            
+            while( list.hasMore() )
             {
-                IndexRecord l_rec = ( IndexRecord ) l_list.next() ;
-                l_row = new Object [2] ;
-                l_row[0] = l_rec.getIndexKey() ;
-                l_row[1] = l_rec.getEntryId() ;
-                l_model.addRow( l_row ) ;
-                l_count++ ;
+                IndexRecord rec = ( IndexRecord ) list.next() ;
+                row = new Object [2] ;
+                row[0] = rec.getIndexKey() ;
+                row[1] = rec.getEntryId() ;
+                model.addRow( row ) ;
+                count++ ;
             }
 
-            m_resultsTbl.setModel( l_model ) ;
-            m_resultsPnl.setBorder(
-                javax.swing.BorderFactory.createTitledBorder(
-                javax.swing.BorderFactory.createLineBorder(
-                new java.awt.Color( 153, 153, 153 ), 1 ),
-                "Scan Results: " + l_count,
-                javax.swing.border.TitledBorder.LEADING,
-                javax.swing.border.TitledBorder.TOP,
-                new java.awt.Font( "SansSerif", 0, 14 ),
-                new java.awt.Color( 60, 60, 60 ) ) ) ;
+            resultsTbl.setModel( model ) ;
+            resultsPnl.setBorder(
+                BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(
+                new Color( 153, 153, 153 ), 1 ),
+                "Scan Results: " + count,
+                TitledBorder.LEADING,
+                TitledBorder.TOP,
+                new Font( "SansSerif", 0, 14 ),
+                new Color( 60, 60, 60 ) ) ) ;
 
             if ( isVisible() ) 
             {
@@ -376,22 +365,22 @@ public class IndexDialog extends JDialog
         } 
         catch ( Exception e ) 
         {
-            String l_msg = ExceptionUtils.getStackTrace( e );
+            String msg = ExceptionUtils.getStackTrace( e );
 
-            if ( l_msg.length() > 1024 ) 
+            if ( msg.length() > 1024 ) 
             {
-                l_msg = l_msg.substring( 0, 1024 )
+                msg = msg.substring( 0, 1024 )
                     + "\n. . . TRUNCATED . . ." ;
             }
 
-            l_msg = "Error while scanning index "
-                + "on attribute " + m_index.getAttribute() + " using a "
-                + a_scanType + " cursor type with a key constraint of '"
-                + a_key + "':\n" + l_msg ;
+            msg = "Error while scanning index "
+                + "on attribute " + index.getAttribute() + " using a "
+                + scanType + " cursor type with a key constraint of '"
+                + key + "':\n" + msg ;
                 
-            JTextArea l_area = new JTextArea() ;
-            l_area.setText( l_msg ) ;
-            JOptionPane.showMessageDialog( null, l_area, "Index Scan Error",
+            JTextArea area = new JTextArea() ;
+            area.setText( msg ) ;
+            JOptionPane.showMessageDialog( null, area, "Index Scan Error",
                     JOptionPane.ERROR_MESSAGE ) ;
             return false ;
         }
