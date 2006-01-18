@@ -84,9 +84,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MainFrame extends JFrame
+public class PartitionFrame extends JFrame
 {
-    private static final Logger log = LoggerFactory.getLogger(MainFrame.class);
+    private static final Logger log = LoggerFactory.getLogger(PartitionFrame.class);
 
     private static final long serialVersionUID = 4049353102291513657L;
 
@@ -120,13 +120,13 @@ public class MainFrame extends JFrame
     /**
      * Creates new form JFrame
      */
-    public MainFrame( BTreeDirectoryPartition db, SearchEngine eng )
+    public PartitionFrame( BTreeDirectoryPartition db, SearchEngine eng )
         throws NamingException
     {
         partition = db;
         this.eng = eng;
 
-        initGUI();
+        initialize();
         buildIndicesMenu( partition );
         pack();
         load();
@@ -136,7 +136,7 @@ public class MainFrame extends JFrame
     /**
      * This method is called from within the constructor to initialize the form
      */
-    private void initGUI() throws NamingException
+    private void initialize() throws NamingException
     {
         mainPnl.setBorder( null );
         mainPnl.setLayout( new java.awt.BorderLayout() );
@@ -171,7 +171,7 @@ public class MainFrame extends JFrame
         // --------------------------------------------------------------------
         
         JMenu backendMenu = new JMenu( "Backend" );
-        backendMenu.setText( "Backend" );
+        backendMenu.setText("Partition");
         backendMenu.setBackground( new java.awt.Color( 205, 205, 205 ) );
         backendMenu.setMnemonic( 'B' );
 
@@ -225,8 +225,8 @@ public class MainFrame extends JFrame
             public void actionPerformed( ActionEvent e ) 
             {
                 AboutDialog aboutDialog = 
-                    new AboutDialog ( MainFrame.this, true );
-                MainFrame.this.centerOnScreen( aboutDialog );
+                    new AboutDialog ( PartitionFrame.this, true );
+                PartitionFrame.this.centerOnScreen( aboutDialog );
                 aboutDialog.setVisible( true );
             }
         } );
@@ -792,7 +792,7 @@ public class MainFrame extends JFrame
         }
 
 		AnnotatedFilterTreeDialog treeDialog = new
-			AnnotatedFilterTreeDialog( MainFrame.this, false );
+			AnnotatedFilterTreeDialog( PartitionFrame.this, false );
 		treeDialog.setFilter( filter );
 
         eng.getOptimizer().annotate( root );

@@ -32,7 +32,7 @@ import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.DirectoryPartition;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
-import org.apache.ldap.server.partition.impl.btree.gui.MainFrame;
+import org.apache.ldap.server.partition.impl.btree.gui.PartitionFrame;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.SessionRegistry;
 import org.apache.mina.common.IoSession;
@@ -73,7 +73,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                 if ( partition instanceof BTreeDirectoryPartition )
                 {
                     BTreeDirectoryPartition btPartition = ( BTreeDirectoryPartition ) partition;
-                    MainFrame frame = new MainFrame( btPartition, btPartition.getSearchEngine() );
+                    PartitionFrame frame = new PartitionFrame( btPartition, btPartition.getSearchEngine() );
                     frame.setVisible( true );
                 }
             }

@@ -85,7 +85,7 @@ public class PartitionViewer
 
     public void execute() throws NamingException
     {
-        MainFrame frame = new MainFrame( partition, eng ) ;
+        PartitionFrame frame = new PartitionFrame( partition, eng ) ;
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize() ;
         Dimension frameSize = frame.getSize() ;

@@ -142,7 +142,7 @@ public class SearchResultDialog extends JDialog implements ListSelectionListener
             if(selectionModel.isSelectedIndex(ii) && !an_event.getValueIsAdjusting()) {
                 BigInteger id = (BigInteger)
                     m_resultsTbl.getModel().getValueAt(ii, 0) ;
-                ((MainFrame) getParent()).selectTreeNode(id) ;
+                ((PartitionFrame) getParent()).selectTreeNode(id) ;
             }
         }
     }
