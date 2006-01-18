@@ -20,6 +20,7 @@ package org.apache.ldap.server.partition.impl.btree.jdbm;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -37,7 +38,6 @@ import org.apache.ldap.server.partition.impl.btree.Index;
 import org.apache.ldap.server.partition.impl.btree.IndexComparator;
 import org.apache.ldap.server.partition.impl.btree.IndexEnumeration;
 import org.apache.ldap.server.schema.SerializableComparator;
-import org.apache.regexp.RE;
 
 
 /**
@@ -386,7 +386,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listIndices(org.apache.regexp.RE)
      */
-    public IndexEnumeration listIndices( RE regex )
+    public IndexEnumeration listIndices( Pattern regex )
         throws NamingException
     {
         return new IndexEnumeration( forward.listTuples(), false, regex );
@@ -397,7 +397,7 @@ public class JdbmIndex implements Index
      * @see Index#listIndices(org.apache.regexp.RE,
      * java.lang.String)
      */
-    public IndexEnumeration listIndices( RE regex, String prefix )
+    public IndexEnumeration listIndices( Pattern regex, String prefix )
         throws NamingException
     {
         return new IndexEnumeration( forward.listTuples(
@@ -438,7 +438,7 @@ public class JdbmIndex implements Index
      * @see Index#hasValue(org.apache.regexp.RE,
      * java.math.BigInteger)
      */
-    public boolean hasValue( RE regex, BigInteger id )
+    public boolean hasValue( Pattern regex, BigInteger id )
         throws NamingException
     {
         IndexEnumeration list = new IndexEnumeration( 
