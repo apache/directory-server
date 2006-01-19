@@ -17,10 +17,14 @@
 package org.apache.ldap.server.protocol.support.extended;
 
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
+import javax.swing.JFrame;
 
 import org.apache.ldap.common.message.ExtendedRequest;
 import org.apache.ldap.common.message.ResultCodeEnum;
@@ -67,6 +71,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
             DirectoryPartitionNexus nexus = service.getConfiguration().getPartitionNexus();
             Iterator list = nexus.listSuffixes( true );
+            int launchedWindowCount = 0;
             while ( list.hasNext() )
             {
                 LdapName dn = new LdapName( ( String ) list.next() );
@@ -75,15 +80,45 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                 {
                     BTreeDirectoryPartition btPartition = ( BTreeDirectoryPartition ) partition;
                     PartitionFrame frame = new PartitionFrame( btPartition, btPartition.getSearchEngine() );
+                    Point pos = getCenteredPosition( frame );
+                    pos.y = launchedWindowCount*20 + pos.y;
+                    double multiplier = getAspectRatio() * 20.0;
+                    pos.x =  ( int ) ( launchedWindowCount * multiplier ) + pos.x;
+                    frame.setLocation( pos );
                     frame.setVisible( true );
+                    launchedWindowCount++;
                 }
             }
             
             SessionsFrame sessions = new SessionsFrame();
+            Point pos = getCenteredPosition( sessions );
+            pos.y = launchedWindowCount*20 + pos.y;
+            double multiplier = getAspectRatio() * 20.0;
+            pos.x =  ( int ) ( launchedWindowCount * multiplier ) + pos.x;
+            sessions.setLocation( pos );
             sessions.setVisible( true );
             return;
         }
 
         session.write( new LaunchDiagnosticUiResponse( req.getMessageId(), ResultCodeEnum.OPERATIONSERROR ) );
+    }
+    
+    
+    public double getAspectRatio()
+    {
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        Dimension screenSize = tk.getScreenSize();
+        return ( double ) screenSize.getWidth() / ( double ) screenSize.getHeight();
+    }
+    
+    
+    public Point getCenteredPosition( JFrame frame )
+    {
+        Point pt = new Point();
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        Dimension screenSize = tk.getScreenSize();
+        pt.x = ( screenSize.width - frame.getWidth() ) / 2;
+        pt.y = ( screenSize.height - frame.getHeight() ) / 2;
+        return pt;
     }
 }

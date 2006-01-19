@@ -92,7 +92,7 @@ public class IndexDialog extends JDialog
         });
 
         pack();
-        setTitle("Index On Attribute '" + index.getAttribute() + "'");
+        setTitle("Index On Attribute '" + index.getAttribute().getName() + "'");
         setBounds(new java.awt.Rectangle(0, 0, 512, 471));
         getContentPane().add(mainPnl, java.awt.BorderLayout.CENTER);
         mainPnl.setLayout(new java.awt.BorderLayout());
