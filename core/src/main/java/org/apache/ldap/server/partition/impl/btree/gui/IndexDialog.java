@@ -11,13 +11,14 @@ import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -64,8 +65,8 @@ public class IndexDialog extends JDialog
     private JLabel jLabel1 = new JLabel();
     private JTextField keyText = new JTextField();
     private JLabel jLabel2 = new JLabel();
-    private JComboBox cursorType = new JComboBox();
     private JButton scanBut = new JButton();
+    
     private Index index = null ;
 
     /** Creates new form JDialog */
@@ -98,6 +99,45 @@ public class IndexDialog extends JDialog
         mainPnl.add(tabbedPane, java.awt.BorderLayout.CENTER);
         tabbedPane.add(listPnl, "Listing");
         listPnl.setLayout(new java.awt.GridBagLayout());
+
+        
+        RadioButtonListener radioListener = new RadioButtonListener();
+        JRadioButton radioDefault = new JRadioButton( DEFAULT_CURSOR );
+        radioDefault.setActionCommand( DEFAULT_CURSOR );
+        radioDefault.setSelected( true );
+        radioDefault.addActionListener( radioListener );
+        
+        JRadioButton radioEquality = new JRadioButton( EQUALITY_CURSOR );
+        radioEquality.setActionCommand( EQUALITY_CURSOR );
+        radioEquality.addActionListener( radioListener );
+        
+        JRadioButton radioGreater = new JRadioButton( GREATER_CURSOR );
+        radioGreater.setActionCommand( GREATER_CURSOR );
+        radioGreater.addActionListener( radioListener );
+        
+        JRadioButton radioLess = new JRadioButton( LESS_CURSOR );
+        radioLess.setActionCommand( LESS_CURSOR );
+        radioLess.addActionListener( radioListener );
+        
+        JRadioButton radioRegex = new JRadioButton( REGEX_CURSOR );
+        radioRegex.setActionCommand( REGEX_CURSOR );
+        radioRegex.addActionListener( radioListener );
+
+        ButtonGroup group = new ButtonGroup();
+        group.add( radioDefault );
+        group.add( radioEquality );
+        group.add( radioGreater );
+        group.add( radioLess );
+        group.add( radioRegex );
+
+        JPanel radioPanel = new JPanel();
+        radioPanel.setLayout( new BoxLayout( radioPanel, BoxLayout.X_AXIS ) );
+        radioPanel.add( radioDefault );
+        radioPanel.add( radioEquality );
+        radioPanel.add( radioGreater );
+        radioPanel.add( radioLess );
+        radioPanel.add( radioRegex );
+        
         listPnl.add(
             cursorPnl,
             new java.awt.GridBagConstraints(
@@ -194,7 +234,7 @@ public class IndexDialog extends JDialog
                 0,
                 0));
         cursorPnl.add(
-            cursorType,
+            radioPanel,
             new java.awt.GridBagConstraints(
                 1,
                 0,
@@ -242,32 +282,49 @@ public class IndexDialog extends JDialog
             new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 14));
         keyText.setSize(new java.awt.Dimension(130, 20));
         jLabel2.setText("Cursor Type:");
-        cursorType.setMaximumSize(new java.awt.Dimension(32767, 20));
-        cursorType.setMinimumSize(new java.awt.Dimension(126, 20));
-        cursorType.setPreferredSize(new java.awt.Dimension(130, 20));
-        DefaultComboBoxModel l_comboModel = new DefaultComboBoxModel();
-        l_comboModel.addElement(DEFAULT_CURSOR);
-        l_comboModel.addElement(EQUALITY_CURSOR);
-        l_comboModel.addElement(GREATER_CURSOR);
-        l_comboModel.addElement(LESS_CURSOR);
-        l_comboModel.addElement(REGEX_CURSOR);
-        cursorType.setModel(l_comboModel);
-        cursorType.setMaximumRowCount(5);
+
         scanBut.setText("Scan");
         scanBut.addActionListener(new ActionListener()
         {
-            public void actionPerformed(ActionEvent e)
+            public void actionPerformed( ActionEvent e )
             {
-                doScan(
-                    keyText.getText(),
-                    (String) cursorType.getSelectedItem());
+                doScan( keyText.getText(), selectedCursorType );
             }
         });
 
-        doScan(null, DEFAULT_CURSOR);
+        doScan( null, DEFAULT_CURSOR );
     }
 
 
+    private String selectedCursorType = DEFAULT_CURSOR;
+    class RadioButtonListener implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            if ( e.getActionCommand() == DEFAULT_CURSOR )
+            {
+                selectedCursorType = DEFAULT_CURSOR;
+            }
+            else if ( e.getActionCommand() == EQUALITY_CURSOR )
+            {
+                selectedCursorType = EQUALITY_CURSOR;
+            }
+            else if ( e.getActionCommand() == GREATER_CURSOR )
+            {
+                selectedCursorType = GREATER_CURSOR;
+            }
+            else if ( e.getActionCommand() == LESS_CURSOR )
+            {
+                selectedCursorType = LESS_CURSOR;
+            }
+            else if ( e.getActionCommand() == REGEX_CURSOR )
+            {
+                selectedCursorType = REGEX_CURSOR;
+            }
+        }
+    }
+
+    
     private void closeDialog()
     {
         setVisible( false ) ;

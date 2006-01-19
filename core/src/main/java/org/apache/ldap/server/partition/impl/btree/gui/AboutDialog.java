@@ -31,6 +31,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 
 
 /**
@@ -44,13 +45,13 @@ public class AboutDialog extends JDialog
     private static final long serialVersionUID = 3257853194544952884L;
 
     private String title = "About";
-    private String product = "Eve jdbm partition inspector";
-    private String version = "0.1";
+    private String product = "Vendor: Apache Software Foundation";
+    private String version = "Version: 0.1";
     private String copyright = "Copyright (c) 2003";
     private String comments =
-        "This is the jdbm partition viewer or introspector.\nIrregular behavior "
+        "This is the btree partition introspector.\nParitions "
       + "can be analyzed by using this tool to inspect\nthe state of system "
-      + "indices and entry attributes within the partition's database.";
+      + "indices and entry attributes.";
     private JPanel contentPane = new JPanel();
     private JLabel prodLabel = new JLabel();
     private JLabel verLabel = new JLabel();
@@ -96,7 +97,7 @@ public class AboutDialog extends JDialog
         getContentPane().setLayout(formLayout);
         contentPane.setLayout(contentPaneLayout);
         contentPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(
-        new java.awt.Color(153, 153, 153), 1), "Directory Project: Eve", javax.swing.border.TitledBorder.LEADING, javax.swing.border.TitledBorder.TOP,
+        new java.awt.Color(153, 153, 153), 1), "BTree Partition Inspector", javax.swing.border.TitledBorder.LEADING, javax.swing.border.TitledBorder.TOP,
         new java.awt.Font("SansSerif", 0, 14), new java.awt.Color(60, 60, 60)));
         prodLabel.setText(product);
         prodLabel.setAlignmentX(0.5f);
@@ -125,16 +126,17 @@ public class AboutDialog extends JDialog
         java.awt.GridBagConstraints.REMAINDER, 3, 0.0, 1.0, java.awt.GridBagConstraints.NORTHWEST, java.awt.GridBagConstraints.BOTH,
         new java.awt.Insets(5, 5, 5, 0), 0, 0));
 
-        image.setText("Eve");
-        image.setIcon( new ImageIcon( getClass().getResource( "server.gif" ) ) );
-
-        image.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        image.setMinimumSize(new java.awt.Dimension(98,44));
-        image.setMaximumSize(new java.awt.Dimension(98,44));
+        image.setText( "ApacheDS" );
+        image.setVerticalTextPosition( SwingConstants.BOTTOM );
+        image.setHorizontalTextPosition( SwingConstants.CENTER );
+        image.setIcon( new ImageIcon( AboutDialog.class.getResource( "server.gif" ) ) );
+        image.setHorizontalAlignment(javax.swing.SwingConstants.CENTER );
+        image.setMinimumSize(new java.awt.Dimension(120,44));
+        image.setMaximumSize(new java.awt.Dimension(120,44));
         image.setAlignmentX(0.5f);
         image.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         image.setPreferredSize(new java.awt.Dimension(98,44));
-        image.setSize(new java.awt.Dimension(98,200));
+        image.setSize(new java.awt.Dimension(120,200));
         btnPanel.setLayout(btnPaneLayout);
         okButton.setText("OK");
         okButton.addActionListener(
