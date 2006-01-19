@@ -248,6 +248,7 @@ public class SearchHandler implements MessageHandler
                 StringBuffer buf = new StringBuffer();
                 req.getFilter().printToBuffer( buf );
                 ctx.addNamingListener( req.getBase(), buf.toString(), controls, handler );
+                SessionRegistry.getSingleton().addOutstandingRequest( session, req );
                 return;
             }
             
@@ -302,6 +303,7 @@ public class SearchHandler implements MessageHandler
             }
             while( e.skipReferral() );
             session.write( req.getResultResponse() );
+            SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
             return;
         }
         catch( NamingException e )
@@ -357,10 +359,10 @@ public class SearchHandler implements MessageHandler
             {
                 session.write( it.next() );
             }
+            SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
         }
         finally
         {
-            SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
             if ( list != null )
             {
                 try { list.close(); } catch( NamingException e ){ log.error("failed on list.close()", e ); } 

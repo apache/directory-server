@@ -35,6 +35,7 @@ import org.apache.ldap.server.partition.impl.btree.BTreeDirectoryPartition;
 import org.apache.ldap.server.partition.impl.btree.gui.PartitionFrame;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.SessionRegistry;
+import org.apache.ldap.server.protocol.gui.SessionsFrame;
 import org.apache.mina.common.IoSession;
 
 
@@ -78,6 +79,8 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                 }
             }
             
+            SessionsFrame sessions = new SessionsFrame();
+            sessions.setVisible( true );
             return;
         }
 

@@ -68,6 +68,11 @@ public class SessionRegistry
      */
     public static SessionRegistry getSingleton()
     {
+        if ( s_singleton == null )
+        {
+            s_singleton = new SessionRegistry( new Hashtable() );
+        }
+
         return s_singleton;
     }
 
@@ -135,6 +140,7 @@ public class SessionRegistry
             if ( reqmap == null )
             {
                 reqmap = new HashMap();
+                requests.put( session, reqmap );
             }
             reqmap.put( new Integer( req.getMessageId() ), req );
         }
@@ -214,6 +220,18 @@ public class SessionRegistry
         Map reqmap = ( Map ) requests.get( session );
         if ( reqmap == null ) return null;
         return ( Request ) reqmap.get( id );
+    }
+    
+    
+    public IoSession[] getSessions()
+    {
+        IoSession[] sessions;
+        synchronized ( contexts )
+        {
+            sessions = new IoSession[contexts.size()];
+            sessions = ( IoSession[] ) contexts.keySet().toArray( sessions );
+        }
+        return sessions;
     }
     
     
