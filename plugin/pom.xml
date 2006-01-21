@@ -16,7 +16,7 @@
   <distributionManagement>
     <site>
       <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-plugin/</url>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/maven-directory-plugin/</url>
     </site>
   </distributionManagement> 
   <dependencies>
