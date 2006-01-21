@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    
+  </properties>
+  <body>
+    <section heading="h2" name="Introduction">
+      <p>
+Collective attributes are attributes whose values are shared across a collection
+of entries. It's very common to encounter situations where a bunch of entries
+have the same value for an attribute. Collective attributes for LDAP are defined
+in
+        <a href="http://www.faqs.org/rfcs/rfc3671.html">RFC 3671</a>
+. ApacheDS implements this
+RFC.
+      </p>
+      <subsection heading="h3" name="Use Case">
+        <p>
+For example one might organize everyone in an engineering department under an
+ou, 'ou=engineering'. If the engineering team is located in the same area and
+building then several attributes in each user entry within engineering will have
+the same value. An example of such an attribute would be the locale. If
+engineering is located in Sunnyvale CA then all locale attributes of entries
+under 'ou=engineering' would be set to
+Sunnyvale.</p>
+        <p>
+Rather than manage the value for this attribute in each entry a single
+collective attribute can be used in a subentry. Changes to the value of this
+attribute would immediately be reflected to those entries selected by the
+subtreeSpecification of subentry. For more information on specifying subtrees
+take
+at
+          <a href="./subentries.html">Subentries</a>
+.
+        </p>
+      </subsection>
+    </section>
+    <section heading="h2" name="Setting up a Collective Attribute Administration Area (AA)">
+      <p>
+To manage collective attributes for a collection of entries you must add
+collective subentries to the Administrative Point (AP) of the collective AA. For
+more information on AAs
+see
+        <a href="./subentries.html">Subentries</a>
+. These collective subentries must have the objectClass subentry as well as
+collectiveAttributeSubentry. Also the AP, of the AA, must have an
+administrativeRole value of collectiveAttributeSpecificArea (2.5.23.5) or
+collectiveAttributeInnerArea
+(2.5.23.6).
+      </p>
+      <subsection heading="h3" name="Example">
+        <p>
+For the use case above we can presume a partition at the namingContext
+'dc=example,dc=com' with an 'ou=engineering' entry below containing users from
+the engineering team in Sunnyvale. Let's presume no AA has yet been defined so
+we have to create one. We'll set the partition root 'dc=example,dc=com' as the
+AP of an AA that spans the entire subtree. For this simple example the AA will
+be autonomous for the collective aspect. Setting this up is just a matter of
+modifying the 'dc=example,dc=com' entry so it contains the operational attribute
+administrativeRole with the value collectiveAttributeSpecificArea. The code
+below sets up this AAA for collective attribute
+administration.</p>
+        <source>  // Get a DirContext on the dc=example,dc=com entry
+  Hashtable env = new Hashtable();
+  env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+  env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
+  env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+  env.put( "java.naming.security.credentials", "secret" );
+  env.put( "java.naming.security.authentication", "simple" );
+  ctx = new InitialDirContext( env );
+
+  // Modify the entry to make it an AAA for collective attribute administration
+  Attributes mods = new BasicAttributes( "administrativeRole", "collectiveAttributeSpecificArea", true );
+  ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, mods );
+</source>
+        <p>
+Now 'dc=example,dc=com' is the AP for a collective attribute AAA that spans the
+entire subtree under and including it down to every leaf entry. All that remains
+is the addition of the subentry with the collective attributes we want included
+in the entries of all engineering users. Here's what the LDIF would look like
+for this subentry given that its commonName is
+'engineeringLocale'.</p>
+        <source>dn: cn=engineeringLocale,dc=example,dc=com
+objectClass: top
+objectClass: subentry
+objectClass: collectiveAttributeSubentry
+cn: engineeringLocale
+c-l: Sunnyvale
+subtreeSpecification: {base "ou=engineering", minimum 4}
+</source>
+        <p>
+A couple points regarding this subentry's
+LDIF:</p>
+        <ol nesting="0">
+          <li>
+It subordinates to the AP
+('dc=example,dc=com')</li>
+          <li>
+It contains the objectClasses: subentry and
+collectiveAttributeSubentry</li>
+          <li>
+It contains the collective version of locale (l):
+c-l</li>
+          <li>
+Its subtreeSpecification excludes entries whose number of DN name components is
+is less than
+4</li>
+        </ol>
+        <p>
+Note that the minimum value of 4 is used in the subtreeSpecification to make
+sure that the entry 'ou=engineering,dc=example,dc=com' does not have c-l:
+Sunnyvale added to it. It's got 3 components to the DN so minimum 4 chops it out
+of the
+collection.</p>
+      </subsection>
+    </section>
+    <section heading="h2" name="Collective Attribute Types">
+      <p>
+As one can see from the example above, special collective attributes are used
+for regular attributes: c-l for l. These attributes are derived from the
+original attribute and are marked as COLLECTIVE. RFC 3671 defines a bunch of
+these which are listed below. If you don't find what you're looking for just add
+it to your own schema using this
+pattern.</p>
+      <p>
+We have included this list from RFC 3671 into the collective.schema which comes
+standard with
+ApacheDS.</p>
+      <source>3.1. Collective Locality Name
+
+   The c-l attribute type specifies a locality name for a collection of
+   entries.
+
+      ( 2.5.4.7.1 NAME 'c-l'
+        SUP l COLLECTIVE )
+
+3.2. Collective State or Province Name
+
+   The c-st attribute type specifies a state or province name for a
+   collection of entries.
+
+      ( 2.5.4.8.1 NAME 'c-st'
+        SUP st COLLECTIVE )
+
+3.3. Collective Street Address
+
+   The c-street attribute type specifies a street address for a
+   collection of entries.
+
+      ( 2.5.4.9.1 NAME 'c-street'
+        SUP street COLLECTIVE )
+
+3.4. Collective Organization Name
+
+   The c-o attribute type specifies an organization name for a
+   collection of entries.
+
+      ( 2.5.4.10.1 NAME 'c-o'
+        SUP o COLLECTIVE )
+
+3.5. Collective Organizational Unit Name
+
+   The c-ou attribute type specifies an organizational unit name for a
+   collection of entries.
+
+      ( 2.5.4.11.1 NAME 'c-ou'
+        SUP ou COLLECTIVE )
+
+3.6. Collective Postal Address
+
+   The c-PostalAddress attribute type specifies a postal address for a
+   collection of entries.
+
+      ( 2.5.4.16.1 NAME 'c-PostalAddress'
+        SUP postalAddress COLLECTIVE )
+
+3.7. Collective Postal Code
+
+   The c-PostalCode attribute type specifies a postal code for a
+   collection of entries.
+
+      ( 2.5.4.17.1 NAME 'c-PostalCode'
+        SUP postalCode COLLECTIVE )
+
+3.8. Collective Post Office Box
+
+   The c-PostOfficeBox attribute type specifies a post office box for a
+   collection of entries.
+
+      ( 2.5.4.18.1 NAME 'c-PostOfficeBox'
+        SUP postOfficeBox COLLECTIVE )
+
+3.9. Collective Physical Delivery Office Name
+
+   The c-PhysicalDeliveryOfficeName attribute type specifies a physical
+   delivery office name for a collection of entries.
+
+      ( 2.5.4.19.1 NAME 'c-PhysicalDeliveryOfficeName'
+        SUP physicalDeliveryOfficeName COLLECTIVE )
+
+3.10. Collective Telephone Number
+
+   The c-TelephoneNumber attribute type specifies a telephone number for
+   a collection of entries.
+
+      ( 2.5.4.20.1 NAME 'c-TelephoneNumber'
+        SUP telephoneNumber COLLECTIVE )
+
+3.11. Collective Telex Number
+
+   The c-TelexNumber attribute type specifies a telex number for a
+   collection of entries.
+
+      ( 2.5.4.21.1 NAME 'c-TelexNumber'
+        SUP telexNumber COLLECTIVE )
+
+3.13. Collective Facsimile Telephone Number
+
+   The c-FacsimileTelephoneNumber attribute type specifies a facsimile
+   telephone number for a collection of entries.
+
+      ( 2.5.4.23.1 NAME 'c-FacsimileTelephoneNumber'
+
+   SUP facsimileTelephoneNumber COLLECTIVE )
+
+3.14. Collective International ISDN Number
+
+   The c-InternationalISDNNumber attribute type specifies an
+   international ISDN number for a collection of entries.
+
+      ( 2.5.4.25.1 NAME 'c-InternationalISDNNumber'
+        SUP internationalISDNNumber COLLECTIVE )
+
+</source>
+    </section>
+  </body>
+</document>

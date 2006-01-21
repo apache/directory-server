@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    
+  </properties>
+  <body>
+    <p>
+ApacheDS uses an adaptation of the X.500 basic access control scheme in
+combination with X.500 subentries to control access to entries and attributes
+within the DIT. This document will show you how to enable the basic access
+control mechanism and how to define access control information to manage access
+to protected
+resources.</p>
+    <section heading="h2" name="Enabling Basic Access Controls">
+      <p>
+By default the access control subsystem is turned off. Once enabled everything
+is tightly locked down. Only the special admin user, '*uid=admin,ou=system*', is
+not affected by permissions. Access to all operations are denied by default
+until enabled using an ACIItem. For this reason enabling basic access controls
+is a configuration
+option.</p>
+      <p>
+To turn on the basic access control mechanism you need to set the
+*accessControlEnabled* property in the configuration to true. This can be set
+programatically on the StartupConfiguration or via the
+server.xml.</p>
+    </section>
+    <section heading="h2" name="Types of ACI (Access Control Information)">
+      <p>
+Three different types of ACI exist. All types use the same specification syntax
+for an ACIITem. These types differ in their placement and manner of use within
+the
+directory.</p>
+      <subsection heading="h3" name="Entry ACI">
+        <p>
+Entry ACI are access controls added to entries to protect that entry
+specifically. Meaning the protoected entry is the entry where the ACI resides.
+When performing an operation on an entry, ApacheDS checks for the presence of
+the multivalued operational attribute, *entryACI*. The values of the entryACI
+attribute contain
+ACIItems.</p>
+        <table>
+          <tr>
+            <td>
+              <img src="http://docs.safehaus.org/images/icons/emoticons/warning.png"/>
+            </td>
+            <td>
+              <p>
+There is one exception to the rule of consulting entryACI attributes within
+ApacheDS: add operations do not consult the entryACI within the entry being
+added. This is a security precaution. If allowed users can arbitrarily add
+entries where they wanted by putting entryACI into the new entry being added.
+This could comprimise the
+DSA.</p>
+            </td>
+          </tr>
+        </table>
+      </subsection>
+      <subsection heading="h3" name="Prescriptive ACI">
+        <p>
+Prescriptive ACI are access controls that are applied to a collection of
+entries, not just to a single entry. Collections of entries are defined by the
+subtreeSpecifications of subentries. Hence prescriptive ACI are added to
+subentries as attributes and are applied by ApacheDS to the entries selected by
+the subentry's subtreeSpecification. ApacheDS uses the *prescriptiveACI*
+multivalued operational attribute within subentries to contain ACIItems that
+apply to the entry
+collection.</p>
+        <p>
+Prescriptive ACI can save much effort when trying to control access to a
+collection of resources. Prescriptive ACI can even be specified to apply access
+controls to entries that do not yet exist within the DIT. They are a very
+powerful mechanism and for this reason they are the prefered mechanism for
+managing access to protected resources. ApacheDS is optimized specifically for
+managing access to collections of entries rather than point entries
+themselves.</p>
+        <p>
+Users should try to avoid entry ACIs whenever possible, and use prescriptive
+ACIs instead. Entry ACIs are more for managing exceptional cases and should not
+be used
+excessively.</p>
+        <table>
+          <tr>
+            <th>
+              <img src="http://docs.safehaus.org/images/icons/emoticons/information.png"/>
+            </th>
+            <th>
+              <center>How it works!</center>
+            </th>
+          </tr>
+          <tr>
+            <td/>
+            <td>
+              <p>
+For every type of LDAP operation ApacheDS checks to see if any access control
+subentries include the protected entry in their collection. The set of
+subentries which include the protected entry are discovered very rapidly by the
+subentry subsystem. The subentry subsystem caches subtreeSpecifications for all
+subentries within the server so inclusion checks are
+fast.</p>
+              <p>
+For each access control subentry in the set, ApacheDS checks within a
+prescriptive ACI cache for ACI tuples. ApacheDS also caches prescriptive ACI
+information in a special form called ACI tuples. This is done so ACIItem parsing
+and conversion to an optimal representations for evaluation is not required at
+access time. This way access based on prescriptive ACIs is determined very
+rapidly.</p>
+            </td>
+          </tr>
+        </table>
+      </subsection>
+      <subsection heading="h3" name="Subentry ACI">
+        <p>
+Access to subentries also needs to be controlled. Subentries are special in
+ApacheDS. Although they subordinate to an administrative entry (entry of an
+Administrative Point), they are technically considered to be in the same context
+as their administrative entry. ApacheDS considers the perscriptive ACI applied
+to the administrative entry, to also apply to its
+subentries.</p>
+        <p>
+This however is not the most intuitive mechanism to use for explicitly
+controlling access to subentries. A more explicit mechanism is used to specify
+ACIs specifically for protecting subentries. ApacheDS uses the multivalued
+operational attribute, *subentryACI*, within administrative entries to control
+access to immediately subordinate
+subentries.</p>
+        <p>
+Protection policies for ACIs themselves can be managed within the entry of an
+administrative
+point.</p>
+      </subsection>
+    </section>
+    <section heading="h2" name="Some Simple Examples">
+      <p>
+The ACIItem syntax is very expressive and that makes it extremely powerful for
+specifying complex access control policies. However the syntax is not very easy
+to grasp for beginners. For this reason we start with simple examples that focus
+on different protection mechanisms offered by the ACIItem syntax. We do this
+instead of specifying the grammar which is not the best way to learn a
+language.</p>
+      <table>
+        <tr>
+          <th>
+            <img src="http://docs.safehaus.org/images/icons/emoticons/forbidden.png"/>
+          </th>
+          <th>
+            <center>Before you go any further...</center>
+          </th>
+        </tr>
+        <tr>
+          <td/>
+          <td>
+            <p>
+Please don't go any further until you have read up on the use
+of
+              <a href="./subentries.html">Subentries</a>
+. Knowledge of subentries, subtreeSpecifications, administrative areas, and
+administrative roles are required to properly digest the following
+matterial.
+            </p>
+          </td>
+        </tr>
+      </table>
+      <p>
+Before going on to these trails you might want to set up an Administrative Area
+for managing access control via prescriptiveACI.  Both subentryACI and
+prescriptiveACI require the presence of an Administrative Point entry.  For more
+information and code examples
+see
+        <a href="./acareas.html">ACAreas</a>
+.
+      </p>
+      <subsection heading="h3" name="ACI Trails">
+        <p>
+Here are some trails that resemble simple HOWTO guides.  They're ordered with
+the most pragmatic usage first.  We will add to these trails over
+time.</p>
+        <table>
+          <tr>
+            <th>
+Trail</th>
+            <th>
+Description</th>
+          </tr>
+          <tr>
+            <td>
+              <a href="./enablesearchforallusers.html">EnableSearchForAllUsers</a>
+            </td>
+            <td>
+Enabling access to browse and read all entries and their attributes by
+authenticated
+users.</td>
+          </tr>
+          <tr>
+            <td>
+              <a href="./denysubentryaccess.html">DenySubentryAccess</a>
+            </td>
+            <td>
+Protecting access to subentries
+themselves.</td>
+          </tr>
+          <tr>
+            <td>
+              <a href="./allowselfpasswordmodify.html">AllowSelfPasswordModify</a>
+            </td>
+            <td>
+Granting users the rights needed to change their own
+passwords.</td>
+          </tr>
+          <tr>
+            <td>
+              <a href="./grantadddelmodtogroup.html">GrantAddDelModToGroup</a>
+            </td>
+            <td>
+Granting add, delete, and modify permissions to a group of
+users.</td>
+          </tr>
+          <tr>
+            <td>
+              <a href="./grantmodtoentry.html">GrantModToEntry</a>
+            </td>
+            <td>
+Applying ACI to a single
+entry.</td>
+          </tr>
+        </table>
+      </subsection>
+    </section>
+  </body>
+</document>
