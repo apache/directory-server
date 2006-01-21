@@ -22,7 +22,6 @@ import javax.naming.NamingException;
 
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.ber.Asn1Decoder;
-import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.util.StringTools;
 
 import junit.framework.Assert;
@@ -39,7 +38,7 @@ public class EntryChangeControlTest extends TestCase {
      */
     public void testDecodeEntryChangeControlSuccess() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
         bb.put( new byte[]
             {
@@ -56,7 +55,7 @@ public class EntryChangeControlTest extends TestCase {
         EntryChangeControlContainer container = new EntryChangeControlContainer();
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {
@@ -76,7 +75,7 @@ public class EntryChangeControlTest extends TestCase {
      */
     public void testDecodeEntryChangeControlWithADDAndChangeNumber() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
         bb.put( new byte[]
             {
@@ -92,7 +91,7 @@ public class EntryChangeControlTest extends TestCase {
         EntryChangeControlContainer container = new EntryChangeControlContainer();
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {
@@ -112,7 +111,7 @@ public class EntryChangeControlTest extends TestCase {
      */
     public void testDecodeEntryChangeControlWithADDAndPreviousDNBad() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
         bb.put( new byte[]
             {
@@ -130,7 +129,7 @@ public class EntryChangeControlTest extends TestCase {
         
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {
@@ -148,7 +147,7 @@ public class EntryChangeControlTest extends TestCase {
      */
     public void testDecodeEntryChangeControlWithADD() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
             {
@@ -164,7 +163,7 @@ public class EntryChangeControlTest extends TestCase {
         
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {
@@ -184,7 +183,7 @@ public class EntryChangeControlTest extends TestCase {
      */
     public void testDecodeEntryChangeControlWithWrongChangeType() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
             {
@@ -200,7 +199,7 @@ public class EntryChangeControlTest extends TestCase {
         
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {

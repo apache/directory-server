@@ -23,7 +23,6 @@ import javax.naming.NamingException;
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
-import org.apache.ldap.common.codec.LdapDecoder;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -39,7 +38,7 @@ public class SubEntryControlTest extends TestCase {
      */
     public void testDecodeSubEntryVisibilityTrue() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
         bb.put( new byte[]
             {
@@ -50,7 +49,7 @@ public class SubEntryControlTest extends TestCase {
         SubEntryControlContainer container = new SubEntryControlContainer();
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {
@@ -67,7 +66,7 @@ public class SubEntryControlTest extends TestCase {
      */
     public void testDecodeSubEntryVisibilityFalse() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
         bb.put( new byte[]
             {
@@ -78,7 +77,7 @@ public class SubEntryControlTest extends TestCase {
         SubEntryControlContainer container = new SubEntryControlContainer();
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {
@@ -95,7 +94,7 @@ public class SubEntryControlTest extends TestCase {
      */
     public void testDecodeSubEntryEmptyVisibility() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x02 );
 
         bb.put( new byte[]
@@ -112,7 +111,7 @@ public class SubEntryControlTest extends TestCase {
         // Decode a SubEntryControl PDU
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
             fail("We should never reach this point !!!");
         }
         catch ( DecoderException de )
@@ -126,7 +125,7 @@ public class SubEntryControlTest extends TestCase {
      */
     public void testDecodeSubEntryBad() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
 
         bb.put( new byte[]
@@ -143,7 +142,7 @@ public class SubEntryControlTest extends TestCase {
         // Decode a SubEntryControl PDU
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
             fail("We should never reach this point !!!");
         }
         catch ( DecoderException de )

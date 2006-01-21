@@ -22,7 +22,6 @@ import javax.naming.NamingException;
 
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.ber.Asn1Decoder;
-import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.search.controls.PSearchControl;
 import org.apache.ldap.common.codec.search.controls.PSearchControlContainer;
 import org.apache.ldap.common.util.StringTools;
@@ -41,7 +40,7 @@ public class PSearchControlTest extends TestCase {
      */
     public void testDecodeModifyDNRequestSuccess() throws NamingException
     {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
+        Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
         bb.put( new byte[]
             {
@@ -56,7 +55,7 @@ public class PSearchControlTest extends TestCase {
         PSearchControlContainer container = new PSearchControlContainer();
         try
         {
-            ldapDecoder.decode( bb, container );
+            decoder.decode( bb, container );
         }
         catch ( DecoderException de )
         {
