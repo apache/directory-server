@@ -30,7 +30,7 @@ import org.apache.ldap.common.codec.ControlDecoder;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryChangeControlDecoder implements ControlDecoder
+public class EntryChangeControlDecoder extends Asn1Decoder implements ControlDecoder
 {
     private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.7";
     
