@@ -9,7 +9,17 @@
   <artifactId>build</artifactId>
   <groupId>org.apache.directory.server.standalone.simple</groupId>
   <name>simple-build</name>
-  <packaging>pom</packaging>  
+  <packaging>pom</packaging>
+  <description>
+    A single executable server jar containing all dependencies. This jar 
+    can be used as the JNDI provider or to fire up the standalone directory server.
+  </description>
+  <distributionManagement>
+    <site>
+      <id>apache.websites</id>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-standalone/</url>
+    </site>
+  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>

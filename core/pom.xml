@@ -8,7 +8,19 @@
   </parent>
   <artifactId>org.apache.ldap.server.core</artifactId>
   <name>apacheds-core</name>
-  <packaging>jar</packaging>  
+  <packaging>jar</packaging>
+  <description>
+     Server's core contains all backend subsystems. It depends on protocol 
+     and uses it with seda to service LDAP requests. The core contains the 
+     JNDI provider, interceptor framework, interceptor services, the schema 
+     subsystem and the database subsystem. Hence the core is the heart of the server.
+  </description>
+  <distributionManagement>
+    <site>
+      <id>apache.websites</id>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-core/</url>
+    </site>
+  </distributionManagement> 
   <dependencies>
     <dependency>
       <groupId>commons-io</groupId>

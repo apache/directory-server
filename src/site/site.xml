@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-
- 
-
- <body>
-
+  <body>
     <links>
-      <item name="Directory" href="../../index.html"/>
-      <item name="ApacheDS" href="../apacheds/index.html"/>
-      <item name="LDAP" href="../ldap.html"/>
-      <item name="Naming" href="../naming/index.html"/>
-      <item name="ASN.1" href="../asn1/index.html"/>
-      <item name="Kerberos" href="../kerberos.html"/>
-      <item name="AuthX" href="../authx/index.html"/>
-      <item name="MINA" href="../network/index.html"/>
-      <item name="Protocols" href="../providers.html"/>
     </links>
 
     <menu name="Apache Directory Server">
@@ -40,7 +27,7 @@
         <item name="Backend Subsystem" href="/developers/backend.html"/>
       </item>
       <item name="ApacheDS Projects" href="/projects/index.html" collapse="true">
-        <item name="main" href="/projects/apacheds-main/index.html"/>
+        <item name="standalone" href="/projects/apacheds-standalone/index.html"/>
         <item name="core" href="/projects/apacheds-core/index.html"/>
         <item name="shared" href="/projects/apacheds-shared/index.html"/>
         <item name="plugin" href="/projects/maven-directory-plugin/index.html"/>

@@ -8,6 +8,17 @@
   </parent>
   <artifactId>org.apache.ldap.server.shared</artifactId>
   <name>apacheds-shared</name>
-  <packaging>jar</packaging>  
+  <packaging>jar</packaging>
+  <description>
+     Created to eliminate cyclic project dependencies between the core 
+     and the maven plugin. Any code shared across modules in general 
+     can go here so long as it does not depend on other modules. 
+  </description>
+  <distributionManagement>
+    <site>
+      <id>apache.websites</id>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-shared/</url>
+    </site>
+  </distributionManagement>
 </project>
 
