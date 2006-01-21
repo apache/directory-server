@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
+  <bannerLeft>
+     <name>Apache Diretory Project</name>
+     <src>images/apache-directory-logo.png</src>
+     <href>http://directory.apache.org/</href>
+   </bannerLeft>
+
   <body>
     <links>
     </links>
