@@ -439,8 +439,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The assertion description (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid assertion description " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The assertion description ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid assertion description " + msg + ", : " + lsee.getMessage() );
                         }
                         
                         AttributeValueAssertionFilter currentFilter = (AttributeValueAssertionFilter)searchRequest.getCurrentFilter();
@@ -530,8 +531,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The assertion value (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid assertion value " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The assertion value ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid assertion value " + msg + ", : " + lsee.getMessage() );
                         }
                         
                         AttributeValueAssertionFilter currentFilter = (AttributeValueAssertionFilter)searchRequest.getCurrentFilter();
@@ -585,18 +587,28 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                             searchRequest.setFilter( presentFilter );
                         }
 
-                        // Store the value.
-                        try
-                        {
-                        	LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
-                            presentFilter.setAttributeDescription( type );
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            log.error( "Present filter attribute description (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid present filter attribute description " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
-                        }
+                        String value = StringTools.utf8ToString( tlv.getValue().getData() );
                         
+                        if ( StringTools.isEmpty( value ) )
+                        {
+                            presentFilter.setAttributeDescription( LdapString.EMPTY_STRING );
+                        }
+                        else
+                        {
+                            // Store the value.
+                            try
+                            {
+                            	LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                                presentFilter.setAttributeDescription( type );
+                            }
+                            catch ( LdapStringEncodingException lsee )
+                            {
+                                String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                                log.error( "Present filter attribute description ({}) is invalid", msg );
+                                throw new DecoderException( "Invalid present filter attribute description " + msg + ", : " + lsee.getMessage() );
+                            }
+                        }
+                            
                         // We now have to get back to the nearest filter which is not terminal.
                         unstackFilters( container );
                     }
@@ -693,8 +705,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The substring filter type (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid substring filter type " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The substring filter type ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid substring filter type " + msg + ", : " + lsee.getMessage() );
                         }
 
                         // We now have to get back to the nearest filter which is not terminal.
@@ -761,8 +774,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The substring filter initial (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid substring filter initial " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The substring filter initial ({}) is invalid" );
+                            throw new DecoderException( "Invalid substring filter initial " + msg + ", : " + lsee.getMessage() );
                         }
 
                         // We now have to get back to the nearest filter which is not terminal.
@@ -823,8 +837,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The substring any filter (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid substring any filter " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The substring any filter ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid substring any filter " + msg + ", : " + lsee.getMessage() );
                         }
 
                         // We now have to get back to the nearest filter which is not terminal.
@@ -898,8 +913,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The substring final filter (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid substring final filter " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The substring final filter ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid substring final filter " + msg + ", : " + lsee.getMessage() );
                         }
 
                         // We now have to get back to the nearest filter which is not terminal.
@@ -1117,8 +1133,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The matching rule (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid matching rule " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The matching rule ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid matching rule " + msg + ", : " + lsee.getMessage() );
                         }
                     }
                 });
@@ -1168,8 +1185,9 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( LdapStringEncodingException lsee )
                         {
-                            log.error( "The match filter (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid" );
-                            throw new DecoderException( "Invalid match filter " + StringTools.dumpBytes( tlv.getValue().getData() ) + ", : " + lsee.getMessage() );
+                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                            log.error( "The match filter ({}) is invalid", msg );
+                            throw new DecoderException( "Invalid match filter " + msg + ", : " + lsee.getMessage() );
                         }
                     }
                 });
@@ -1248,15 +1266,16 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         }
                         catch ( BooleanDecoderException bde )
                         {
-                            log.error("The DN attributes flag " + StringTools.dumpBytes( value.getData() ) + 
-                                    " is invalid : " + bde.getMessage() + ". It should be 0 or 255" );
+                            log.error("The DN attributes flag {} is invalid : {}. It should be 0 or 255",
+                                    StringTools.dumpBytes( value.getData() ), 
+                                    bde.getMessage() );
                         
                             throw new DecoderException( bde.getMessage() );
                         }
                             
                         if ( log.isDebugEnabled() )
                         {
-                            log.debug( "DN Attributes : " + extensibleMatchFilter.isDnAttributes() );
+                            log.debug( "DN Attributes : {}", new Boolean( extensibleMatchFilter.isDnAttributes() ) );
                         }
                     }
                 });
@@ -1304,7 +1323,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
 	        {
 	            parent = parent.getParent();
 	            
-	            if ( currentFilter.getParent() instanceof Filter )
+	            if ( ( currentFilter != null ) && ( currentFilter.getParent() instanceof Filter ) )
 	            {
 	                currentFilter = (Filter)currentFilter.getParent();
 	            }
