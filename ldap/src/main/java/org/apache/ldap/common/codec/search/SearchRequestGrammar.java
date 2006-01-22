@@ -150,13 +150,13 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                             catch ( InvalidNameException ine )
                             {
                             	String msg = "The root DN " + baseObject.toString() + " is invalid"; 
-                                log.error( msg + " : " + ine.getMessage());
+                                log.error( "{} : {}", msg, ine.getMessage());
                                 throw new DecoderException( msg, ine );
                             }
                             catch ( NamingException ne )
                             {
                             	String msg = "The root DN " + baseObject.toString() + " cannot be modified";
-                                log.error( msg + " : " + ne.getMessage() );
+                                log.error( "{} : {}", msg, ne.getMessage() );
                                 throw new DecoderException( msg, ne );
                             }
                         }
