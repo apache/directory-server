@@ -28,7 +28,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
- * Test the PSearchControlTest codec
+ * Test the GracefulShutdownTest codec
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

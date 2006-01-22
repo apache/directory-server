@@ -18,12 +18,12 @@ package org.apache.ldap.common.codec.extended.operations;
 
 
 /**
- * GracefullShutdown extended operation constants  
+ * GracefulShutdown extended operation constants  
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class GracefulShutdownConstants
 {
-    public static final int GRACEFULL_SHUTDOWN_DELAY_TAG = 0x80;
+    public static final int GRACEFUL_SHUTDOWN_DELAY_TAG = 0x80;
 }

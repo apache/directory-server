@@ -54,7 +54,7 @@ public class GracefulShutdownStatesEnum implements IStates
     public static int DELAY_VALUE = 5;
 
     /** terminal state */
-    public static int LAST_GRACEFUL_SHUTDOWN_STATE = 8;
+    public static int LAST_GRACEFUL_SHUTDOWN_STATE = 6;
 
     //=========================================================================
     // Grammars declaration.

@@ -80,14 +80,14 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
             new GrammarTransition( GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG,
                 GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE, null );
 
-        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG][GracefulShutdownConstants.GRACEFULL_SHUTDOWN_DELAY_TAG] =
+        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG][GracefulShutdownConstants.GRACEFUL_SHUTDOWN_DELAY_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG,
                 GracefulShutdownStatesEnum.DELAY_VALUE, null );
 
         super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE][UniversalTag.INTEGER_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE, 
                 GracefulShutdownStatesEnum.DELAY_OR_END_TAG, 
-                new GrammarAction( "Set PSearchControl changeTypes" )
+                new GrammarAction( "Set Graceful Shutdown time offline" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
                     {
@@ -117,14 +117,14 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
                 }
             );
 
-        super.transitions[GracefulShutdownStatesEnum.DELAY_OR_END_TAG][GracefulShutdownConstants.GRACEFULL_SHUTDOWN_DELAY_TAG] =
+        super.transitions[GracefulShutdownStatesEnum.DELAY_OR_END_TAG][GracefulShutdownConstants.GRACEFUL_SHUTDOWN_DELAY_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.DELAY_OR_END_TAG,
                 GracefulShutdownStatesEnum.DELAY_VALUE, null );
 
-        super.transitions[GracefulShutdownStatesEnum.DELAY_VALUE][GracefulShutdownConstants.GRACEFULL_SHUTDOWN_DELAY_TAG] =
+        super.transitions[GracefulShutdownStatesEnum.DELAY_VALUE][GracefulShutdownConstants.GRACEFUL_SHUTDOWN_DELAY_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.DELAY_VALUE, 
                 GracefulShutdownStatesEnum.GRAMMAR_END, 
-                new GrammarAction( "Set PSearchControl changesOnly" )
+                new GrammarAction( "Set Graceful Shutdown Delay" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
                     {
@@ -137,7 +137,7 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
                             
                             if ( log.isDebugEnabled() )
                             {
-                                log.debug( "changesOnly = " + delay );
+                                log.debug( "Delay = " + delay );
                             }
                             
                             gracefulShutdownContainer.getGracefulShutdown().setDelay( delay );

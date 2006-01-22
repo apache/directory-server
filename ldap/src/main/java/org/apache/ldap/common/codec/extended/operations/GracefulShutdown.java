@@ -26,10 +26,10 @@ import org.apache.asn1.codec.EncoderException;
 
 
 /**
- * An extended operation to proceed a gracefull shutdown  
+ * An extended operation to proceed a graceful shutdown  
  * 
  * <pre>
- *  GracefullShutdown ::= SEQUENCE
+ *  GracefulShutdown ::= SEQUENCE
  *  {
  *      timeOffline INTEGER DEFAULT 0,
  *      delay       [0] INTEGER DEFAULT 0 
@@ -43,7 +43,7 @@ public class GracefulShutdown extends Asn1Object
 {
     private int timeOffline;
     private int delay;
-    private transient int gracefullSequenceLength;
+    private transient int gracefulSequenceLength;
     
     public GracefulShutdown( int timeOffline, int delay )
     {
@@ -77,7 +77,7 @@ public class GracefulShutdown extends Asn1Object
     }
     
     /**
-     * Compute the GracefullShutdown length
+     * Compute the GracefulShutdown length
      * 0x30 L1
      *  |
      *  +--> [0x02 0x0(1-4) [0..720] ]
@@ -87,24 +87,24 @@ public class GracefulShutdown extends Asn1Object
      */
     public int computeLength()
     {
-        int gracefullLength = 1 + 1;
-        gracefullSequenceLength = 0;
+        int gracefulLength = 1 + 1;
+        gracefulSequenceLength = 0;
         
         if ( timeOffline != 0 )
         {
-            gracefullSequenceLength += 1 + 1 + Length.getNbBytes( timeOffline );
+            gracefulSequenceLength += 1 + 1 + Length.getNbBytes( timeOffline );
         }
 
         if ( delay != 0 )
         {
-            gracefullSequenceLength += 1 + 1 + Length.getNbBytes( delay );
+            gracefulSequenceLength += 1 + 1 + Length.getNbBytes( delay );
         }
 
-        return gracefullLength + gracefullSequenceLength;
+        return gracefulLength + gracefulSequenceLength;
     }
     
     /**
-     * Encodes the gracefullShutdown extended request.
+     * Encodes the gracefulShutdown extended request.
      * 
      * @param buffer The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
@@ -116,7 +116,7 @@ public class GracefulShutdown extends Asn1Object
         ByteBuffer bb = ByteBuffer.allocate( computeLength() );
         
         bb.put( UniversalTag.SEQUENCE_TAG );
-        bb.put( Length.getBytes( gracefullSequenceLength ) );
+        bb.put( Length.getBytes( gracefulSequenceLength ) );
 
         if ( timeOffline != 0 )
         {
@@ -125,7 +125,7 @@ public class GracefulShutdown extends Asn1Object
         
         if ( delay != 0 )
         {
-            bb.put( (byte)GracefulShutdownConstants.GRACEFULL_SHUTDOWN_DELAY_TAG );
+            bb.put( (byte)GracefulShutdownConstants.GRACEFUL_SHUTDOWN_DELAY_TAG );
             bb.put( (byte)Length.getNbBytes( delay ) );
             bb.put( Value.getBytes( delay ) );
         }
