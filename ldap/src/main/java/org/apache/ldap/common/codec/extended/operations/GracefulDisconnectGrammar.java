@@ -1,5 +1,5 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -39,6 +39,21 @@ import org.apache.ldap.common.codec.util.LdapURLEncodingException;
  * This class implements the Graceful Disconnect. All the actions are declared in this
  * class. As it is a singleton, these declaration are only done once.
  * 
+ * The grammar is : 
+ * <pre>
+ * GracefulDisconnect ::= SEQUENCE {
+ *                        timeOffline INTEGER (0..720) DEFAULT 0,
+ *                        delay [0] INTEGER (0..86400) DEFAULT 0,
+ *                        replicatedContexts Referral OPTIONAL
+ *             }
+ * 
+ * Referral ::= SEQUENCE OF LDAPURL
+ * 
+ * LDAPURL ::= LDAPString -- limited to characters permitted in URLs
+ * 
+ * LDAPString ::= OCTET STRING
+ * </pre>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class GracefulDisconnectGrammar extends AbstractGrammar implements IGrammar
@@ -60,10 +75,22 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
         // Create the transitions table
         super.transitions = new GrammarTransition[GracefulDisconnectStatesEnum.LAST_GRACEFUL_DISCONNECT_STATE][256];
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE { (Tag)
+         *    ...
+         *    
+         * Nothing to do...
+         */
         super.transitions[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_TAG][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_TAG,
                     GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_VALUE, null );
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE { (Value)
+         *    ...
+         *    
+         * Creates the GracefulDisconnect object
+         */
         super.transitions[GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_VALUE][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.GRACEFUL_DISCONNECT_SEQUENCE_VALUE,
                     GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG, 
@@ -79,22 +106,54 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
                 }
             );
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    timeOffline INTEGER (0..720) DEFAULT 0, (Tag)
+         *    ...
+         *    
+         * Nothing to do
+         */
         super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG][UniversalTag.INTEGER_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG,
                 GracefulDisconnectStatesEnum.TIME_OFFLINE_VALUE, null );
 
-        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG][GracefulDisconnectConstants.GRACEFUL_DISCONNECT_DELAY_TAG] =
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    delay [0] INTEGER (0..86400) DEFAULT 0, (Tag)
+         *    ...
+         *    
+         * We have no TimeOffline. Nothing to do.
+         */
+        super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG,
                 GracefulDisconnectStatesEnum.DELAY_VALUE, null );
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    replicatedContexts Referral OPTIONAL
+         * }
+         * 
+         * Referral ::= SEQUENCE OF LDAPURL (Tag)
+         * 
+         * We have no TimeOffline nor delay, just a replicatedContexts. Nothing to do.
+         */
         super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.TIME_OFFLINE_OR_DELAY_OR_REPLICATED_OR_END_TAG,
                 GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE, null );
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    timeOffline INTEGER (0..720) DEFAULT 0, (Value)
+         *    ...
+         *    
+         * Set the time offline value into the GracefulDisconnect object.
+         */
         super.transitions[GracefulDisconnectStatesEnum.TIME_OFFLINE_VALUE][UniversalTag.INTEGER_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.TIME_OFFLINE_VALUE, 
                 GracefulDisconnectStatesEnum.DELAY_OR_REPLICATED_OR_END_TAG, 
-                new GrammarAction( "Set Graceful Disconnect delay" )
+                new GrammarAction( "Set Graceful Disconnect time offline" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
                     {
@@ -124,11 +183,27 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
                 }
             );
 
-        super.transitions[GracefulDisconnectStatesEnum.DELAY_OR_REPLICATED_OR_END_TAG][GracefulDisconnectConstants.GRACEFUL_DISCONNECT_DELAY_TAG] =
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    delay [0] INTEGER (0..86400) DEFAULT 0, (Tag)
+         *    ...
+         *    
+         * We have had a TimeOffline, and now we are reading the delay. Nothing to do.
+         */
+        super.transitions[GracefulDisconnectStatesEnum.DELAY_OR_REPLICATED_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.DELAY_OR_REPLICATED_OR_END_TAG,
                 GracefulDisconnectStatesEnum.DELAY_VALUE, null );
 
-        super.transitions[GracefulDisconnectStatesEnum.DELAY_VALUE][GracefulDisconnectConstants.GRACEFUL_DISCONNECT_DELAY_TAG] =
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    delay [0] INTEGER (0..86400) DEFAULT 0, (Value)
+         *    ...
+         *    
+         * Set the delay value into the GracefulDisconnect object.
+         */
+        super.transitions[GracefulDisconnectStatesEnum.DELAY_VALUE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.DELAY_VALUE, 
                 GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_OR_END_TAG, 
                 new GrammarAction( "Set Graceful Disconnect Delay" )
@@ -161,18 +236,62 @@ public class GracefulDisconnectGrammar extends AbstractGrammar implements IGramm
                 }
             );
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    replicatedContexts Referral OPTIONAL
+         * }
+         * 
+         * Referral ::= SEQUENCE OF LDAPURL (Tag)
+         * 
+         * We have a referral sequence. Nothing to do.
+         */
         super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_OR_END_TAG][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_OR_END_TAG,
                 GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE, null );
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    replicatedContexts Referral OPTIONAL
+         * }
+         * 
+         * Referral ::= SEQUENCE OF LDAPURL (Value)
+         * 
+         * We have a sequence, so we will have Octet String following. Nothing to do.
+         */
         super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition( GracefulDisconnectStatesEnum.REPLICATED_CONTEXTS_VALUE, 
                 GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG, null );
     
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    replicatedContexts Referral OPTIONAL
+         * }
+         * 
+         * Referral ::= SEQUENCE OF LDAPURL
+         * 
+         * LDAPURL ::= LDAPString (Tag)
+         * 
+         * We have a referral. It can be the first one, or one of the following. Nothing to do
+         */
         super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG][UniversalTag.OCTET_STRING] =
             new GrammarTransition( GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG,
                 GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_VALUE, null );
 
+        /**
+         * GracefulDisconnect ::= SEQUENCE {
+         *    ...
+         *    replicatedContexts Referral OPTIONAL
+         * }
+         * 
+         * Referral ::= SEQUENCE OF LDAPURL (Tag)
+         * 
+         * LDAPURL ::= LDAPString (Tag)
+         * 
+         * Read and store a referral url.
+         */
         super.transitions[GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_VALUE][UniversalTag.OCTET_STRING] =
             new GrammarTransition( GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_VALUE, 
                 GracefulDisconnectStatesEnum.REPLICATED_CONTEXT_OR_END_TAG, 
