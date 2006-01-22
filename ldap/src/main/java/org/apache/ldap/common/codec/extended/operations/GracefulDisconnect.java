@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.asn1.Asn1Object;
 import org.apache.asn1.ber.tlv.Length;
 import org.apache.asn1.ber.tlv.UniversalTag;
 import org.apache.asn1.ber.tlv.Value;
@@ -35,70 +34,64 @@ import org.apache.ldap.common.codec.util.LdapURL;
  * <pre>
  *  GracefulDisconnect ::= SEQUENCE 
  *  {
- *      timeOffline INTEGER (0..720) DEFAULT 0,
- *      delay [0] INTEGER (0..86400) DEFAULT 0,
- *      replicatedContexts Referral OPTIONAL
+ *      timeOffline           INTEGER (0..720) DEFAULT 0,
+ *      delay             [0] INTEGER (0..86400) DEFAULT 0,
+ *      replicatedContexts    Referral OPTIONAL
  *  }
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GracefulDisconnect extends Asn1Object
+public class GracefulDisconnect extends GracefulAction
 {
-    private int timeOffline;
-    private int delay;
+    /** List of the alternate servers to use */
     private List replicatedContexts;
+
+    /** Length of the sequence */
     private transient int gracefulDisconnectSequenceLength;
+    
+    /** Length of the replicated contexts */
     private transient int replicatedContextsLength;
     
+    /**
+     * Create a GracefulDisconnect object, with a timeOffline and a delay
+     * @param timeOffline The time the server will be offline
+     * @param delay The delay before the disconnection
+     */
     public GracefulDisconnect( int timeOffline, int delay )
     {
-        this.timeOffline = timeOffline;
-        this.delay = delay;
+        super( timeOffline, delay );
+
+        // Two urls will be enough, generally
         this.replicatedContexts = new ArrayList(2);
     }
 
+    /**
+     * Default constructor.
+     *
+     */
     public GracefulDisconnect()
     {
-        this.timeOffline = 0;
-        this.delay = 0;
+        super();
+
+        // Two urls will be enough, generally
         this.replicatedContexts = new ArrayList(2);
     }
 
-    public int getDelay() 
-    {
-        return delay;
-    }
-
-
-    public void setDelay( int delay ) 
-    {
-        this.delay = delay;
-    }
-
-
-    public int getTimeOffline() 
-    {
-        return timeOffline;
-    }
-
-
-    public void setTimeOffline( int timeOffline ) 
-    {
-        this.timeOffline = timeOffline;
-    }
-    
+    /**
+     * Get the list of replicated servers
+     * @return The list of replicated servers
+     */
     public List getReplicatedContexts() 
     {
         return replicatedContexts;
     }
 
-    public void setReplicatedContexts( List replicatedContexts ) 
-    {
-        this.replicatedContexts = replicatedContexts;
-    }
-
+    /** 
+     * Add a new URL of a replicated server
+     * @param replicatedContext The replictaed server to add.
+     */
     public void addReplicatedContexts( LdapURL replicatedContext ) 
     {
         replicatedContexts.add( replicatedContext );
@@ -106,6 +99,7 @@ public class GracefulDisconnect extends Asn1Object
 
     /**
      * Compute the GracefulDisconnect length
+     * 
      * 0x30 L1
      *  |
      *  +--> [ 0x02 0x0(1-4) [0..720] ]
@@ -113,7 +107,6 @@ public class GracefulDisconnect extends Asn1Object
      *  +--> [ 0x30 L2
      *          |
      *          +--> (0x04 L3 value) + 
-     *  
      */
     public int computeLength()
     {
@@ -153,7 +146,7 @@ public class GracefulDisconnect extends Asn1Object
     }
     
     /**
-     * Encodes the gracefulDisconnect extended request.
+     * Encodes the gracefulDisconnect extended operation.
      * 
      * @param buffer The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
@@ -197,10 +190,14 @@ public class GracefulDisconnect extends Asn1Object
         return bb;
     }
     
+    /**
+     * Return a string representation of the graceful disconnect
+     */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
         
+        sb.append( "Graceful Disconnect extended operation" );
         sb.append( "    TimeOffline : " ).append( timeOffline ).append( '\n' );
         sb.append( "    Delay : ").append( delay ).append( '\n' );
         

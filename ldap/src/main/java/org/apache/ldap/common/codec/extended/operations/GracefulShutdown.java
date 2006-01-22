@@ -18,7 +18,6 @@ package org.apache.ldap.common.codec.extended.operations;
 
 import java.nio.ByteBuffer;
 
-import org.apache.asn1.Asn1Object;
 import org.apache.asn1.ber.tlv.Length;
 import org.apache.asn1.ber.tlv.UniversalTag;
 import org.apache.asn1.ber.tlv.Value;
@@ -31,51 +30,19 @@ import org.apache.asn1.codec.EncoderException;
  * <pre>
  *  GracefulShutdown ::= SEQUENCE
  *  {
- *      timeOffline INTEGER DEFAULT 0,
- *      delay       [0] INTEGER DEFAULT 0 
+ *      timeOffline     INTEGER (0..720) DEFAULT 0,
+ *      delay       [0] INTEGER (0..86400) DEFAULT 0, 
  *  }
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GracefulShutdown extends Asn1Object
+public class GracefulShutdown extends GracefulAction
 {
-    private int timeOffline;
-    private int delay;
+    /** Length of the sequence */
     private transient int gracefulSequenceLength;
-    
-    public GracefulShutdown( int timeOffline, int delay )
-    {
-        this.timeOffline = timeOffline;
-        this.delay = delay;
-    }
 
-    public GracefulShutdown()
-    {
-        this.timeOffline = 0;
-        this.delay = 0;
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-
-
-    public void setDelay(int delay) {
-        this.delay = delay;
-    }
-
-
-    public int getTimeOffline() {
-        return timeOffline;
-    }
-
-
-    public void setTimeOffline(int timeOffline) {
-        this.timeOffline = timeOffline;
-    }
-    
     /**
      * Compute the GracefulShutdown length
      * 0x30 L1
@@ -104,7 +71,7 @@ public class GracefulShutdown extends Asn1Object
     }
     
     /**
-     * Encodes the gracefulShutdown extended request.
+     * Encodes the gracefulShutdown extended operation.
      * 
      * @param buffer The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
@@ -132,8 +99,17 @@ public class GracefulShutdown extends Asn1Object
         return bb;
     }
     
+    /**
+     * Return a string representation of the graceful shutdown
+     */
     public String toString()
     {
-        return "    TimeOffline : " + timeOffline + "\n    Delay : " + delay;
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append( "Graceful Shiutdown extended operation" );
+        sb.append( "    TimeOffline : " ).append( timeOffline ).append( '\n' );
+        sb.append( "    Delay : ").append( delay ).append( '\n' );
+
+        return sb.toString();
     }
 }
