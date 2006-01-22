@@ -1,5 +1,5 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -36,6 +36,13 @@ import org.slf4j.LoggerFactory;
  * This class implements the Graceful shutdown. All the actions are declared in this
  * class. As it is a singleton, these declaration are only done once.
  * 
+ * The grammar is : 
+ * <pre>
+ * GracefulShutdwon ::= SEQUENCE {
+ *                        timeOffline INTEGER (0..720) DEFAULT 0,
+ *                        delay [0] INTEGER (0..86400) DEFAULT 0
+ *             }
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
@@ -57,10 +64,22 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
         // Create the transitions table
         super.transitions = new GrammarTransition[GracefulShutdownStatesEnum.LAST_GRACEFUL_SHUTDOWN_STATE][256];
 
+        /**
+         * GracefulShutdown ::= SEQUENCE { (Tag)
+         *    ...
+         *    
+         * Nothing to do...
+         */
         super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_TAG][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_TAG,
                     GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_VALUE, null );
 
+        /**
+         * GracefulShutdown ::= SEQUENCE { (Tag)
+         *    ...
+         *    
+         * Creates the GracefulShutdown object
+         */
         super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_VALUE][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_VALUE,
                     GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG, 
@@ -76,14 +95,36 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
                 }
             );
 
+        /**
+         * GracefulShutdown ::= SEQUENCE {
+         *    timeOffline INTEGER (0..720) DEFAULT 0, (Tag)
+         *    ...
+         *    
+         * Nothing to do
+         */
         super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG][UniversalTag.INTEGER_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG,
                 GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE, null );
 
-        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG][GracefulShutdownConstants.GRACEFUL_SHUTDOWN_DELAY_TAG] =
+        /**
+         * GracefulShutdown ::= SEQUENCE {
+         *    ...
+         *    delay [0] INTEGER (0..86400) DEFAULT 0, (Tag)
+         *    ...
+         *    
+         * We have no TimeOffline. Nothing to do.
+         */
+        super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.TIME_OFFLINE_OR_DELAY_OR_END_TAG,
                 GracefulShutdownStatesEnum.DELAY_VALUE, null );
 
+        /**
+         * GracefulShutdown ::= SEQUENCE {
+         *    timeOffline INTEGER (0..720) DEFAULT 0, (Value)
+         *    ...
+         *    
+         * Set the time offline value into the GracefulShutdown object.
+         */
         super.transitions[GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE][UniversalTag.INTEGER_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.TIME_OFFLINE_VALUE, 
                 GracefulShutdownStatesEnum.DELAY_OR_END_TAG, 
@@ -117,11 +158,27 @@ public class GracefulShutdownGrammar extends AbstractGrammar implements IGrammar
                 }
             );
 
-        super.transitions[GracefulShutdownStatesEnum.DELAY_OR_END_TAG][GracefulShutdownConstants.GRACEFUL_SHUTDOWN_DELAY_TAG] =
+        /**
+         * GracefulShutdown ::= SEQUENCE {
+         *    ...
+         *    delay [0] INTEGER (0..86400) DEFAULT 0, (Tag)
+         *    ...
+         *    
+         * We have had a TimeOffline, and now we are reading the delay. Nothing to do.
+         */
+        super.transitions[GracefulShutdownStatesEnum.DELAY_OR_END_TAG][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.DELAY_OR_END_TAG,
                 GracefulShutdownStatesEnum.DELAY_VALUE, null );
 
-        super.transitions[GracefulShutdownStatesEnum.DELAY_VALUE][GracefulShutdownConstants.GRACEFUL_SHUTDOWN_DELAY_TAG] =
+        /**
+         * GracefulShutdown ::= SEQUENCE {
+         *    ...
+         *    delay [0] INTEGER (0..86400) DEFAULT 0, (Value)
+         *    ...
+         *    
+         * Set the delay value into the GracefulShutdown object.
+         */
+        super.transitions[GracefulShutdownStatesEnum.DELAY_VALUE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] =
             new GrammarTransition( GracefulShutdownStatesEnum.DELAY_VALUE, 
                 GracefulShutdownStatesEnum.GRAMMAR_END, 
                 new GrammarAction( "Set Graceful Shutdown Delay" )
