@@ -1,5 +1,5 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -31,13 +31,28 @@ import org.apache.asn1.codec.DecoderException;
  */
 public class GracefulShutdownDecoder extends Asn1Decoder
 {
+    /** The decoder */
     private static final Asn1Decoder decoder = new Asn1Decoder();
     
-    public Asn1Object decode(byte[] controlBytes) throws DecoderException
+    /**
+     * Decode a PDU which must contain a GracefulShutdown extended operation.
+     * 
+     * Note that the stream of bytes much contain a full PDU, not a partial one.
+     * 
+     * @param stream The bytes to be decoded
+     * @return An GracefulShutdown object
+     * @throws DecoderException If the decoding failed
+     */
+    public Asn1Object decode( byte[] stream ) throws DecoderException
     {
-        ByteBuffer bb = ByteBuffer.wrap( controlBytes );
+        ByteBuffer bb = ByteBuffer.wrap( stream );
         GracefulShutdownContainer container = new GracefulShutdownContainer();
         decoder.decode( bb, container );
-        return container.getGracefulShutdown();
+        GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
+        
+        // Clean the container for the next decoding
+        container.clean();
+        
+        return gracefulShutdown;
     }
 }
