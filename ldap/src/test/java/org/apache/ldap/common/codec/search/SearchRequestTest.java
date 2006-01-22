@@ -2047,8 +2047,8 @@ public class SearchRequestTest extends TestCase {
     /**
      * Test the decoding of a SearchRequest with SubEntry control.
      */
-     public void testDecodeSearchRequestSubEntryControl()
-     {
+    public void testDecodeSearchRequestSubEntryControl()
+    {
         byte[] asn1BER = new byte[]
         {
             0x30, 0x5D,
@@ -2130,5 +2130,379 @@ public class SearchRequestTest extends TestCase {
             ee.printStackTrace();
             fail( ee.getMessage() );
         }
+    }    
+
+    // Defensive tests
+    /**
+     * Test the decoding of a SearchRequest with an empty body
+     */
+    public void testDecodeSearchRequestEmptyBody()
+    {
+        byte[] asn1BER = new byte[]
+        {
+            0x30, 0x05,
+              0x02, 0x01, 0x04, // messageID
+              0x63, 0x00
+        };
+      
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+      
+        ByteBuffer  stream      = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+      
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+         
+        fail( "We should not reach this point" );
+    }    
+
+    /**
+     * Test the decoding of a SearchRequest with an empty baseDN
+     */
+    public void testDecodeSearchRequestEmptyBaseDn() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x07, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x02, 
+                    0x04, 0x00 
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
      }    
+
+    /**
+     * Test the decoding of a SearchRequest with an empty scope
+     */
+    public void testDecodeSearchRequestEmptyScope() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x28, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x23, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+     }    
+
+    /**
+     * Test the decoding of a SearchRequest with an empty derefAlias
+     */
+    public void testDecodeSearchRequestEmptyDerefAlias() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x2B, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x26, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x00,
+                    0x0A, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+     }    
+
+    /**
+     * Test the decoding of a SearchRequest with an empty size limit
+     */
+    public void testDecodeSearchRequestEmptySizeLimit() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x2E, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x29, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x00,
+                    0x0A, 0x01, 0x00,
+                    0x02, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }    
+    
+    /**
+     * Test the decoding of a SearchRequest with an empty time limit
+     */
+    public void testDecodeSearchRequestEmptyTimeLimit() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x31, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x2C, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x00,
+                    0x0A, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }    
+
+    /**
+     * Test the decoding of a SearchRequest with an empty filter
+     */
+    public void testDecodeSearchRequestEmptyTypeOnly() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x34, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x2F, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x00,
+                    0x0A, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }    
+
+    /**
+     * Test the decoding of a SearchRequest with an empty filter
+     */
+    public void testDecodeSearchRequestEmptyFilter() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x37, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x32, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x00,
+                    0x0A, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0xA0, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }    
+
+    /**
+     * Test the decoding of a SearchRequest with an empty filter
+     */
+    public void testDecodeSearchRequestEmptyPresentFilter() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x37, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x32, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x00,
+                    0x0A, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0x87, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }    
 }
