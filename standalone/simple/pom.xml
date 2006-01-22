@@ -5,6 +5,7 @@
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>build</artifactId>
   <groupId>org.apache.directory.server.standalone.simple</groupId>
