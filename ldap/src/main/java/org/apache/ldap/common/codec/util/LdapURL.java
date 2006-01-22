@@ -285,6 +285,11 @@ public class LdapURL extends LdapString
      */
     public LdapURL( String string ) throws LdapURLEncodingException
     {
+        if ( string == null )
+        {
+            throw new LdapURLEncodingException( "The string is empty : this is not a valid LdapURL." );
+        }
+        
         try 
         {
             bytes = string.getBytes( "UTF-8" );
@@ -307,6 +312,11 @@ public class LdapURL extends LdapString
      */
     public LdapURL(  byte[] bytes ) throws LdapURLEncodingException
     {
+        if ( ( bytes == null ) || ( bytes.length == 0 ) )
+        {
+            throw new LdapURLEncodingException( "The byte array is empty : this is not a valid LdapURL." );
+        }
+        
         try
         {
             string = new String( bytes, "UTF-8" );
