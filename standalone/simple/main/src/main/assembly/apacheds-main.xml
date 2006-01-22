@@ -28,10 +28,13 @@
         <exclude>xml-apis:xml-apis</exclude>
         <exclude>aspectwerkz:aspectwerkz-core</exclude>
         <exclude>velocity:velocity</exclude>
+        <exclude>velocity:velocity-dep</exclude>
         <exclude>org.springframework:spring-aop</exclude>
         <exclude>qdox:qdox</exclude>
         <exclude>commons-attributes:commons-attributes-compiler</exclude>
+        <exclude>commons-attributes:commons-attributes-api</exclude>
         <exclude>cglib:cglib</exclude>
+        <exclude>ant:ant</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
