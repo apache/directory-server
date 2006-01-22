@@ -1,5 +1,5 @@
 /*
- *   Copyright 2005 The Apache Software Foundation
+ *   Copyright 2006 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.asn1.ber.grammar.IGrammar;
 
 
 /**
+ * A container for the GracefulDisconnect codec.
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -49,16 +50,13 @@ public class GracefulDisconnectContainer extends AbstractContainer implements IA
         states = GracefulDisconnectStatesEnum.getInstance();
     }
 
-
     /**
      * @return Returns the Graceful Shutdown object.
      */
     public GracefulDisconnect getGracefulDisconnect()
     {
-
         return gracefulDisconnect;
     }
-
     
     /**
      * Set a GracefulDisconnect Object into the container. It will be completed
@@ -71,7 +69,9 @@ public class GracefulDisconnectContainer extends AbstractContainer implements IA
         this.gracefulDisconnect = gracefulDisconnect;
     }
 
-    
+    /**
+     * Clean the container for the next decoding.
+     */
     public void clean()
     {
         super.clean();
