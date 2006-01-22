@@ -87,10 +87,7 @@ public class SearchResultDoneGrammar extends AbstractGrammar implements IGrammar
                         // Now, we can allocate the SearchResultDone Object
                         ldapMessage.setProtocolOP( new SearchResultDone() );
                         
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Search Result Done found" );
-                        }
+                        log.debug( "Search Result Done found" );
                     }
                 } );
 
