@@ -84,4 +84,14 @@ public class DirectoryServer
         env.putAll( new SyncConfiguration().toJndiEnvironment() );
         new InitialDirContext( env );
     }
+    
+
+    public void stop() throws Exception
+    {
+    }
+    
+
+    public void start() throws Exception
+    {
+    }
 }

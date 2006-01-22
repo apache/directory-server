@@ -19,6 +19,7 @@
       <groupId>org.apache.directory.server.standalone.daemon</groupId>
       <artifactId>org.apache.directory.server.standalone.daemon</artifactId>
       <version>0.9.4-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>  
     <dependency>
       <groupId>org.slf4j</groupId>

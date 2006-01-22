@@ -266,7 +266,7 @@ public class Bootstrapper
     public void stop() throws Exception
     {
         log.debug( "stop() called" );
-//        callStop( bootstrapProperties.getProperty( BOOTSTRAP_STOP_CLASS_PROP, null )  );
+        callStop( bootstrapProperties.getProperty( BOOTSTRAP_STOP_CLASS_PROP, null )  );
     }
 
 
@@ -280,7 +280,7 @@ public class Bootstrapper
     {
         log.debug( "start() called" );
         Thread.currentThread().setContextClassLoader( parentLoader );
-//        callStart();
+        callStart();
     }
 
 

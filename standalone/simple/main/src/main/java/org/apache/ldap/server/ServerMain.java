@@ -50,6 +50,7 @@ public class ServerMain
 
         while ( true )
         {
+            Thread.sleep( 20000 );
             server.synch();
         }
     }

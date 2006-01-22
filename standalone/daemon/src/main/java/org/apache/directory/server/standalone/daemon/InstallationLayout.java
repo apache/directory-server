@@ -129,15 +129,27 @@ public class InstallationLayout
     }
     
     
+    public File getConfigurationDirectory()
+    {
+        return new File( baseDirectory, "conf" );
+    }
+
+    
     public File getConfigurationFile()
     {
-        return new File( baseDirectory, "server.xml" );
+        return new File( getConfigurationDirectory(), "server.xml" );
+    }
+
+    
+    public File getLog4jConfigurationFile()
+    {
+        return new File( getConfigurationDirectory(), "log4j.properties" );
     }
 
     
     public File getBootstrapperConfigurationFile()
     {
-        return new File( getBinDirectory(), "bootstrapper.properties" );
+        return new File( getConfigurationDirectory(), "bootstrapper.properties" );
     }
 
     
@@ -150,6 +162,7 @@ public class InstallationLayout
                 this.getBinDirectory(),
                 this.getLibDirectory(),
                 this.getExtensionsDirectory(),
+                this.getConfigurationDirectory(),
                 this.getVarDirectory(),
                 this.getLogDirectory(),
                 this.getPartitionsDirectory(),
@@ -159,7 +172,7 @@ public class InstallationLayout
         
         if ( files == null )
         {
-            // pid file 
+            // only these files are requred to be present
             files = new File[] {
                 this.getBootstrapper(),
                 this.getBootstrapperConfigurationFile()
