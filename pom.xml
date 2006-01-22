@@ -35,6 +35,7 @@
     <module>protocol-common</module>
     <module>protocols</module>
     <module>standalone/simple</module>
+    <module>standalone/daemon</module>
   </modules>
   <build>
     <plugins>

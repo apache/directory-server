@@ -187,7 +187,7 @@ public class InstallationLayout
             if ( ! dirs[ii].canWrite() )
             {
                 throw new IllegalStateException( dirs[ii] + " is write protected from the current user: " 
-                    + System.getProperty( "java.user" ) );
+                    + System.getProperty( "user.name" ) );
             }
         }
         
@@ -206,7 +206,7 @@ public class InstallationLayout
             if ( ! dirs[ii].canRead() )
             {
                 throw new IllegalStateException( files[ii] + " is not readable by the current user: " 
-                    + System.getProperty( "java.user" ) );
+                    + System.getProperty( "user.name" ) );
             }
         }
     }

@@ -75,6 +75,17 @@ public class Bootstrapper
         this.parentLoader = parentLoader;
         URL[] jars = install.getAllJars();
         this.appLoader = new URLClassLoader( jars, parentLoader );
+        
+        if ( log.isDebugEnabled() )
+        {
+            StringBuffer buf = new StringBuffer();
+            buf.append( "urls in app loader: \n" );
+            for ( int ii = 0; ii < jars.length; ii++ )
+            {
+                buf.append( "\t" ).append( jars[ii] ).append( "\n" );
+            }
+            log.debug( buf.toString() );
+        }
     }
 
 
@@ -83,6 +94,7 @@ public class Bootstrapper
         Class clazz = null;
         Method op = null;
         
+        Thread.currentThread().setContextClassLoader( appLoader );
         try
         {
             clazz = appLoader.loadClass( className );
@@ -109,7 +121,7 @@ public class Bootstrapper
         }
         catch ( Exception e )
         {
-            log.error( "Could not find initialize(InstallationLayout) method for " + className, e );
+            log.error( "Could not find init(InstallationLayout) method for " + className, e );
             System.exit( METHOD_LOOKUP_FAILURE_EXITCODE );
         }
         
@@ -119,7 +131,7 @@ public class Bootstrapper
         }
         catch ( Exception e )
         {
-            log.error( "Failed on " + className + ".initialize(InstallationLayout)", e );
+            log.error( "Failed on " + className + ".init(InstallationLayout)", e );
             System.exit( INITIALIZATION_FAILURE_EXITCODE );
         }
     }
@@ -146,7 +158,7 @@ public class Bootstrapper
         }
         catch ( Exception e )
         {
-            log.error( "Failed on " + clazz.getName() + ".initialize(InstallationLayout)", e );
+            log.error( "Failed on " + clazz.getName() + ".start()", e );
             System.exit( START_FAILURE_EXITCODE );
         }
     }
@@ -183,7 +195,7 @@ public class Bootstrapper
         }
         catch ( Exception e )
         {
-            log.error( "Could not find initialize(InstallationLayout) method for " + className, e );
+            log.error( "Could not find stop() method for " + className, e );
             System.exit( METHOD_LOOKUP_FAILURE_EXITCODE );
         }
         
@@ -193,7 +205,7 @@ public class Bootstrapper
         }
         catch ( Exception e )
         {
-            log.error( "Failed on " + className + ".stop(stop)", e );
+            log.error( "Failed on " + className + ".stop()", e );
             System.exit( STOP_FAILURE_EXITCODE );
         }
     }
@@ -204,28 +216,57 @@ public class Bootstrapper
     
     public void init( String[] args )
     {
-        log.debug( "init(String[]) called" );
+        if ( log.isDebugEnabled() )
+        {
+            StringBuffer buf = new StringBuffer();
+            buf.append( "init(String[]) called with args: \n" );
+            for ( int ii = 0; ii < args.length; ii++ )
+            {
+                buf.append( "\t" ).append( args[ii] ).append( "\n" );
+            }
+            log.debug( buf.toString() );
+        }
 
         if ( install == null )
         {
+            log.debug( "install was null: initializing it using first argument" );
             setInstallationLayout( args[0] );
+            log.debug( "install initialized" );
+        }
+        else
+        {
+            log.debug( "install was not null" );
         }
 
         if ( parentLoader == null )
         {
             log.info( "Trying to get handle on system classloader as the parent" );
             setParentLoader( Thread.currentThread().getContextClassLoader() );
-            log.info( "systemLoader = " + parentLoader );
+            log.info( "parentLoader = " + parentLoader );
         }
         
         callInit( bootstrapProperties.getProperty( BOOTSTRAP_START_CLASS_PROP, null ) );
+        
+        while( true )
+        {
+            try
+            {
+                Thread.sleep( 2000 );
+            }
+            catch ( InterruptedException e )
+            {
+                e.printStackTrace();
+            }
+
+            log.debug( "tick-tock" );
+        }
     }
     
     
     public void stop() throws Exception
     {
         log.debug( "stop() called" );
-        callStop( bootstrapProperties.getProperty( BOOTSTRAP_STOP_CLASS_PROP, null )  );
+//        callStop( bootstrapProperties.getProperty( BOOTSTRAP_STOP_CLASS_PROP, null )  );
     }
 
 
@@ -239,7 +280,7 @@ public class Bootstrapper
     {
         log.debug( "start() called" );
         Thread.currentThread().setContextClassLoader( parentLoader );
-        callStart();
+//        callStart();
     }
 
 

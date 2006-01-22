@@ -385,16 +385,6 @@ public class StartupConfiguration extends Configuration
      */
     protected void setWorkingDirectory( File workingDirectory )
     {
-        workingDirectory.mkdirs();
-        if( !workingDirectory.exists() )
-        {
-            throw new ConfigurationException( "Working directory '" + workingDirectory + "' doesn't exist." );
-        }
-        if( !workingDirectory.isDirectory() )
-        {
-            throw new ConfigurationException( "Working directory '" + workingDirectory + "' is not a directory." );
-        }
-
         this.workingDirectory = workingDirectory;
     }
     
