@@ -67,7 +67,7 @@ case "`uname`" in
 	   ;;
 esac
 
-if [ -z "$${app.caps}_HOME" ] ; then
+if [ -z "$_${app.caps}_HOME" ] ; then
   # try to find install home 
   if [ -d ${app.install.base}/${app}-${version} ] ; then
     ${app.caps}_HOME=${app.install.base}/${app}-${version}
@@ -91,28 +91,28 @@ else
   echo JAVA_HOME=$JAVA_HOME
 fi
 
-if [ -z "$${app.caps}_HOME" ] ; then
+if [ -z "$_${app.caps}_HOME" ] ; then
   echo "Warning: ${app.caps}_HOME environment variable is not set."
   echo "  If script fails because classes could not be found"
   echo "  you will need to set the ${app.caps}_HOME environment variable"
   echo "  to the installation directory of ${app}."
 else
-  echo ${app.caps}_HOME=$${app.caps}_HOME
+  echo ${app.caps}_HOME=$_${app.caps}_HOME
 fi
 CLASSPATH=$CLASSPATH:$JAVA_HOME/lib/tools.jar
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin ; then
-  [ -n "$${app.caps}_HOME" ] &&
-    ${app.caps}_HOME=`cygpath --unix "$${app.caps}_HOME"`
-  [ -n "$${app.caps}_HOME_LOCAL" ] &&
-    ${app.caps}_HOME_LOCAL=`cygpath --unix "$${app.caps}_HOME_LOCAL"`
+  [ -n "$_${app.caps}_HOME" ] &&
+    ${app.caps}_HOME=`cygpath --unix "$_${app.caps}_HOME"`
+  [ -n "$_${app.caps}_HOME_LOCAL" ] &&
+    ${app.caps}_HOME_LOCAL=`cygpath --unix "$_${app.caps}_HOME_LOCAL"`
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
   [ -n "$CLASSPATH" ] &&
     CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
 fi
 
-SERVER_HOME=$${app.caps}_HOME
+SERVER_HOME=$_${app.caps}_HOME
 DAEMON_HOME=$SERVER_HOME/bin
 CLASSPATH=$CLASSPATH:$DAEMON_HOME/bootstrapper.jar
 echo CLASSPATH=$CLASSPATH
@@ -133,7 +133,7 @@ case "$1" in
     RETVAL=0
     
     $DAEMON_HOME/${app} \
-    -user $${app.caps}_USER \
+    -user $_${app.caps}_USER \
     -home $JAVA_HOME \
     -Djava.io.tmpdir=$TMP_DIR \
     -Dlog4j.configuration=file://$SERVER_HOME/conf/log4j.properties\
@@ -143,7 +143,7 @@ case "$1" in
     -errfile $SERVER_HOME/var/log/${app}-stderr.log \
     -cp $CLASSPATH \
     org.apache.directory.server.standalone.daemon.Bootstrapper \
-    $${app.caps}_HOME start
+    $_${app.caps}_HOME start
 
     #
     # To get a verbose JVM
@@ -207,7 +207,7 @@ case "$1" in
     -Xdebug -Xnoagent -Djava.compiler=NONE\
     -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT\
     -jar $DAEMON_HOME/bootstrapper.jar \
-    $${app.caps}_HOME start
+    $_${app.caps}_HOME start
     ;;
 
   *)

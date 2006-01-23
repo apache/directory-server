@@ -119,7 +119,13 @@ public class InstallationLayout
     
     public File getInitScript()
     {
-        return new File( getBinDirectory(), "server.init" );
+        return getInitScript( "server.init" );
+    }
+    
+    
+    public File getInitScript( String name )
+    {
+        return new File( getBinDirectory(), name );
     }
     
     
@@ -143,13 +149,25 @@ public class InstallationLayout
     
     public File getConfigurationFile()
     {
-        return new File( getConfigurationDirectory(), "server.xml" );
+        return getConfigurationFile( "server.xml" );
+    }
+
+    
+    public File getConfigurationFile( String name )
+    {
+        return new File( getConfigurationDirectory(), name );
     }
 
     
     public File getLoggerConfigurationFile()
     {
-        return new File( getConfigurationDirectory(), "log4j.properties" );
+        return getLoggerConfigurationFile( "log4j.properties" );
+    }
+
+    
+    public File getLoggerConfigurationFile( String name )
+    {
+        return new File( getConfigurationDirectory(), name );
     }
 
     

@@ -63,6 +63,26 @@
         <groupId>org.apache.directory.server.standalone.installers.plugin</groupId>
         <artifactId>plugin</artifactId>
         <configuration>
+          <excludes>
+            <exclude>ant:ant</exclude>
+            <exclude>aopalliance:aopalliance</exclude>
+            <exclude>xerces:xerces</exclude>
+            <exclude>commons-pool:commons-pool</exclude>
+            <exclude>xml-apis:xml-apis</exclude>
+            <exclude>aspectwerkz:aspectwerkz-core</exclude>
+            <exclude>velocity:velocity</exclude>
+            <exclude>org.springframework:spring-aop</exclude>
+            <exclude>qdox:qdox</exclude>
+            <exclude>commons-attributes:commons-attributes-compiler</exclude>
+            <exclude>commons-attributes:commons-attributes-api</exclude>
+            <exclude>cglib:cglib</exclude>
+            <exclude>velocity:velocity-dep</exclude>
+            <exclude>com.jamonapi:jamon</exclude>
+            <exclude>asm:asm</exclude>
+            <exclude>freemarker:freemarker</exclude>
+            <exclude>asm:asm-util</exclude>
+            <exclude>jasperreports:jasperreports</exclude>
+          </excludes>
           <applicationName>test</applicationName>
           <applicationClass>org.apache.ldap.server.DirectoryServer</applicationClass>
           <applicationVersion>${pom.version}</applicationVersion>
@@ -74,6 +94,31 @@
               <osVersion>5.1</osVersion>
               <osArch>x86</osArch>
               <daemonFramework>procrun</daemonFramework>
+              <installer>inno</installer>
+            </target>
+            <target>
+              <id>linux-jsvc-izpack</id>
+              <osName>Linux</osName>
+              <osFamily>unix</osFamily>
+              <osArch>i386</osArch>
+              <daemonFramework>jsvc</daemonFramework>
+              <installer>izpack</installer>
+            </target>
+            <target>
+              <id>macosx-jsvc-izpack</id>
+              <osName>macosx</osName>
+              <osFamily>unix</osFamily>
+              <osArch>ppc</osArch>
+              <daemonFramework>jsvc</daemonFramework>
+              <installer>izpack</installer>
+            </target>
+            <target>
+              <id>solaris-jsvc-izpack</id>
+              <osName>sunos</osName>
+              <osFamily>unix</osFamily>
+              <minVersion>5.6</minVersion>
+              <osArch>sparc</osArch>
+              <daemonFramework>jsvc</daemonFramework>
               <installer>izpack</installer>
             </target>
           </targets>

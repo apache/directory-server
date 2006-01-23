@@ -1,19 +1,3 @@
-/*
- *   Copyright 2004 The Apache Software Foundation
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- *
- */
 package org.apache.directory.server.standalone.installers;
 
 
@@ -29,8 +13,10 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -45,7 +31,7 @@ import org.codehaus.plexus.util.InterpolationFilterReader;
 /**
  * Maven 2 mojo creating the platform specific installation layout images.
  * 
- * @goal create
+ * @goal generate
  * @description Creates platform specific installation layout images.
  * @phase package
  * @requiresDependencyResolution runtime
@@ -111,6 +97,11 @@ public class CreateImage extends AbstractMojo
      * @parameter
      */
     private String encoding;
+    
+    /**
+     * @parameter
+     */
+    private Set excludes;
 
 
     private Properties filterProperties;
@@ -195,20 +186,133 @@ public class CreateImage extends AbstractMojo
             }
             
             // copy over the init script template
-            if ( targets[ii].isFamily( "unix" ) )
+            if ( targets[ii].getOsFamily().equals( "unix" ) )
             {
                 try
                 {
-                    copyFile( getClass().getResourceAsStream( "template.init" ), layout.getInitScript(), true );
+                    copyAsciiFile( getClass().getResourceAsStream( "template.init" ), layout.getInitScript(), true );
                 }
                 catch ( IOException e )
                 {
                     getLog().error( "Failed to copy server configuration file "  
                         + targets[ii].getServerConfigurationFile()
-                        + " into position " + layout.getConfigurationFile(), e );
+                        + " into position " + layout.getInitScript(), e );
                 }
             }
+            
+            // now copy over the jsvc executable renaming it to the applicationName 
+            if ( targets[ii].getOsName().equals( "linux" ) && targets[ii].getOsArch().equals( "i386" ) )
+            {
+                File executable = new File ( layout.getBinDirectory(), applicationName );
+                try
+                {
+                    copyBinaryFile( getClass().getResourceAsStream( "jsvc_linux_i386" ), executable );
+                }
+                catch ( IOException e )
+                {
+                    throw new MojoFailureException( "Failed to copy jsvc executable file "  
+                        + getClass().getResource( "jsvc_linux_i386" )
+                        + " into position " + executable.getAbsolutePath() );
+                }
+            }
+            
+            // now copy over the jsvc executable renaming it to the applicationName 
+            if ( targets[ii].getOsName().equals( "sunos" ) && targets[ii].getOsArch().equals( "sparc" ) )
+            {
+                File executable = new File ( layout.getBinDirectory(), applicationName );
+                try
+                {
+                    copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_sparc" ), executable );
+                }
+                catch ( IOException e )
+                {
+                    throw new MojoFailureException( "Failed to copy jsvc executable file "  
+                        + getClass().getResource( "jsvc_solaris_sparc" )
+                        + " into position " + executable.getAbsolutePath() );
+                }
+            }
+            
+            // now copy over the jsvc executable renaming it to the applicationName 
+            if ( targets[ii].getOsName().equals( "macosx" ) && targets[ii].getOsArch().equals( "ppc" ) )
+            {
+                File executable = new File ( layout.getBinDirectory(), applicationName );
+                try
+                {
+                    copyBinaryFile( getClass().getResourceAsStream( "jsvc_macosx_ppc" ), executable );
+                }
+                catch ( IOException e )
+                {
+                    throw new MojoFailureException( "Failed to copy jsvc executable file "  
+                        + getClass().getResource( "jsvc_macosx_ppc" )
+                        + " into position " + executable.getAbsolutePath() );
+                }
+            }
+            
+            // now copy over the Prunsrv and Prunmgr executables renaming them to the applicationName + w for mgr
+            if ( targets[ii].getOsFamily().equals( "windows" ) && targets[ii].getOsArch().equals( "x86" ) )
+            {
+                File executable = new File ( layout.getBinDirectory(), applicationName + ".exe" );
+                try
+                {
+                    copyBinaryFile( getClass().getResourceAsStream( "prunsrv.exe" ), executable );
+                }
+                catch ( IOException e )
+                {
+                    throw new MojoFailureException( "Failed to copy prunsrv executable file "  
+                        + getClass().getResource( "prunsrv.exe" )
+                        + " into position " + executable.getAbsolutePath() );
+                }
+
+                executable = new File ( layout.getBinDirectory(), applicationName + "w.exe" );
+                try
+                {
+                    copyBinaryFile( getClass().getResourceAsStream( "prunmgr.exe" ), executable );
+                }
+                catch ( IOException e )
+                {
+                    throw new MojoFailureException( "Failed to copy prunmgr executable file "  
+                        + getClass().getResource( "prunmgr.exe" )
+                        + " into position " + executable.getAbsolutePath() );
+                }
+            }
+            
+            copyDependencies( layout );
         }        
+    }
+    
+    
+    private void copyDependencies( InstallationLayout layout ) throws MojoFailureException
+    {
+        Artifact artifact = null;
+        Iterator artifacts = project.getRuntimeArtifacts().iterator();
+        while ( artifacts.hasNext() )
+        {
+            artifact = ( Artifact ) artifacts.next();
+            if ( artifact.getArtifactId().equals( BOOTSTRAPPER_ARTIFACT_ID ) || artifact.getGroupId().equals( BOOTSTRAPPER_GROUP_ID ) )
+            {
+                getLog().info( "Not copying bootstrapper " + artifact );
+            }
+            else
+            {
+                String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
+                if ( excludes.contains( key ) )
+                {
+                    getLog().info( "<<<=== excluded <<<=== " + key );
+                    continue;
+                }
+                
+                try
+                {
+                    FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
+                    getLog().info( "===>>> included ===>>> " + key );
+                }
+                catch ( IOException e )
+                {
+                    throw new MojoFailureException( "Failed to copy dependency artifact "  
+                        + artifact + " into position " + layout.getLibDirectory() );
+                }
+            }
+        }
     }
     
     
@@ -234,6 +338,10 @@ public class CreateImage extends AbstractMojo
             if ( target.getServerConfigurationFile() == null )
             {
                 target.setServerConfigurationFile( new File( sourceDirectory, "server.xml" ) );
+            }
+            if ( target.getOsVersion() == null )
+            {
+                target.setOsVersion( "*" );
             }
         }
     }
@@ -289,9 +397,9 @@ public class CreateImage extends AbstractMojo
                 getLog().info( "osVersion: " + targets[ii].getOsVersion() );
                 getLog().info( "installer: " + targets[ii].getInstaller() );
                 getLog().info( "daemonFramework: " + targets[ii].getDaemonFramework() );
-                getLog().info( "log4jProperties: " + targets[ii].getLoggerConfigurationFile() );
-                getLog().info( "bootstrapperProperties: " + targets[ii].getBootstrapperConfiguraitonFile() );
-                getLog().info( "serverXml: " + targets[ii].getServerConfigurationFile() );
+                getLog().info( "loggerConfigurationFile: " + targets[ii].getLoggerConfigurationFile() );
+                getLog().info( "bootstrapperConfiguraitonFiles: " + targets[ii].getBootstrapperConfiguraitonFile() );
+                getLog().info( "serverConfigurationFil: " + targets[ii].getServerConfigurationFile() );
                 
                 if ( ii + 1 < targets.length )
                 {
@@ -325,7 +433,23 @@ public class CreateImage extends AbstractMojo
     }
 
     
-    private void copyFile( InputStream from, File to, boolean filtering ) throws IOException
+    private void copyBinaryFile( InputStream from, File to ) throws IOException
+    {
+        FileOutputStream out = null;
+        try 
+        {
+            out = new FileOutputStream( to );
+            IOUtil.copy( from, out );
+        }
+        finally
+        {
+            IOUtil.close( from );
+            IOUtil.close( out );
+        }
+    }
+    
+    
+    private void copyAsciiFile( InputStream from, File to, boolean filtering ) throws IOException
     {
         // buffer so it isn't reading a byte at a time!
         Reader fileReader = null;
@@ -347,8 +471,10 @@ public class CreateImage extends AbstractMojo
             Reader reader = null;
             if ( filtering )
             {
+                // support _${token}
+                reader = new InterpolationFilterReader( fileReader, filterProperties, "_${", "}" );
                 // support ${token}
-                reader = new InterpolationFilterReader( fileReader, filterProperties, "${", "}" );
+                reader = new InterpolationFilterReader( reader, filterProperties, "${", "}" );
                 // support @token@
                 reader = new InterpolationFilterReader( reader, filterProperties, "@", "@" );
     
