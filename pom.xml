@@ -9,7 +9,7 @@
   <groupId>org.apache.directory.server</groupId>
   <version>0.9.4-SNAPSHOT</version>
   <artifactId>build</artifactId>
-  <name>apacheds-build</name>
+  <name>Apache Directory Server</name>
   <packaging>pom</packaging>
 
   <distributionManagement>
