@@ -2,7 +2,6 @@
 
 <project>
   <bannerLeft>
-     <name>Apache Diretory Project</name>
      <src>images/apache-directory-logo.png</src>
      <href>http://directory.apache.org/</href>
    </bannerLeft>
