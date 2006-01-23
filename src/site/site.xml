@@ -10,7 +10,7 @@
     <links>
     </links>
 
-    <menu name="Apache Directory Server">
+    <menu name="Apache Directory Server" inherited="top">
       <item name="Overview" href="/index.html"/>
       <item name="Features" href="/features.html"/>
       <item name="Roadmap" href="/roadmap.html"/>
