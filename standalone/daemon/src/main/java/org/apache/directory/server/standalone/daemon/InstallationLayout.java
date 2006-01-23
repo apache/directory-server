@@ -117,6 +117,12 @@ public class InstallationLayout
     }
     
     
+    public File getInitScript()
+    {
+        return new File( getBinDirectory(), "server.init" );
+    }
+    
+    
     public File getExtensionsDirectory()
     {
         return new File( getLibDirectory(), "ext" );
@@ -141,7 +147,7 @@ public class InstallationLayout
     }
 
     
-    public File getLog4jConfigurationFile()
+    public File getLoggerConfigurationFile()
     {
         return new File( getConfigurationDirectory(), "log4j.properties" );
     }
