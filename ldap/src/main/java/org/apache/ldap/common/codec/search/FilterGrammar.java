@@ -24,9 +24,6 @@ import org.apache.asn1.ber.grammar.GrammarAction;
 import org.apache.asn1.ber.IAsn1Container;
 import org.apache.asn1.ber.tlv.UniversalTag;
 import org.apache.asn1.ber.tlv.TLV;
-import org.apache.asn1.ber.tlv.Value;
-import org.apache.asn1.util.BooleanDecoderException;
-import org.apache.asn1.util.BooleanDecoder;
 import org.apache.ldap.common.codec.AttributeValueAssertion;
 import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.LdapMessage;
@@ -173,7 +170,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
         //     ...
         // Nothing to do
         super.transitions[LdapStatesEnum.FILTER_TAG][LdapConstants.SUBSTRINGS_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_VALUE, null );
+                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.SUBSTRING_FILTER_GRAMMAR_SWITCH, null );
 
         // Filter ::= CHOICE {
         //     ...
@@ -212,7 +209,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
         //     extensibleMatch [9] ExtensibleMatchFilter } (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.FILTER_TAG][LdapConstants.EXTENSIBLE_MATCH_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.FILTER_EXTENSIBLE_MATCH_VALUE, null );
+                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH, null );
 
         // Filter ::= CHOICE {
         //     and             [0] SET OF Filter, (Value)
@@ -229,6 +226,15 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                             container;
                         LdapMessage      ldapMessage          =
                             ldapMessageContainer.getLdapMessage();
+                        
+                        TLV tlv = ldapMessageContainer.getCurrentTLV();
+                        
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                            log.error( "The And filter PDU must not be empty" );
+                            throw new DecoderException( "The And filter PDU must not be empty" );
+                        }
+                        
                         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
                         // We can allocate the SearchRequest
@@ -271,6 +277,15 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                             container;
                         LdapMessage      ldapMessage          =
                             ldapMessageContainer.getLdapMessage();
+
+                        TLV tlv = ldapMessageContainer.getCurrentTLV();
+                        
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                            log.error( "The Or filter PDU must not be empty" );
+                            throw new DecoderException( "The Or filter PDU must not be empty" );
+                        }
+                        
                         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
                         // We can allocate the SearchRequest
@@ -313,6 +328,15 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                             container;
                         LdapMessage      ldapMessage          =
                             ldapMessageContainer.getLdapMessage();
+
+                        TLV tlv = ldapMessageContainer.getCurrentTLV();
+                        
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                            log.error( "The Not filter PDU must not be empty" );
+                            throw new DecoderException( "The Not filter PDU must not be empty" );
+                        }
+                        
                         SearchRequest searchRequest = ldapMessage.getSearchRequest();
 
                         // We can allocate the SearchRequest
@@ -462,7 +486,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
         // We have to set the attribute description in the current filter.
         // It could be an equalityMatch, greaterOrEqual, lessOrEqual or an
         // approxMatch filter.
-        // Whgen finished, we will transit to the first state.
+        // When finished, we will transit to the first state.
         super.transitions[LdapStatesEnum.FILTER_ASSERTION_VALUE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
                 LdapStatesEnum.FILTER_ASSERTION_VALUE_VALUE, LdapStatesEnum.FILTER_TAG, 
                 new GrammarAction( "Init AssertionValue Value" )
@@ -524,20 +548,28 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         
                         AttributeValueAssertion assertion = new AttributeValueAssertion();
                         
-                        try
+                        if ( tlv.getLength().getLength() == 0 )
                         {
-                        	LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
-                            assertion.setAttributeDesc( type );
+                            log.error( "The attribute description is empty " );
+                            throw new DecoderException( "The type can't be null" );
                         }
-                        catch ( LdapStringEncodingException lsee )
+                        else
                         {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The assertion value ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid assertion value " + msg + ", : " + lsee.getMessage() );
+                            try
+                            {
+                            	LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                                assertion.setAttributeDesc( type );
+                            }
+                            catch ( LdapStringEncodingException lsee )
+                            {
+                                String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                                log.error( "The assertion value ({}) is invalid", msg );
+                                throw new DecoderException( "Invalid assertion value " + msg + ", : " + lsee.getMessage() );
+                            }
+                            
+                            AttributeValueAssertionFilter currentFilter = (AttributeValueAssertionFilter)searchRequest.getCurrentFilter();
+                            currentFilter.setAssertion(assertion);
                         }
-                        
-                        AttributeValueAssertionFilter currentFilter = (AttributeValueAssertionFilter)searchRequest.getCurrentFilter();
-                        currentFilter.setAssertion(assertion);
                     }
                 });
 
@@ -614,672 +646,6 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                     }
                 } );
 
-        // Here we are dealing with substrings. LDAP grammar is not very explicit about
-        // what is allowed (-- at least one must be present !!!), while RFC 2254 is
-        // really clear. But LDAP grammar is the one to follow...
-        //
-        // substring ::= attr "=" [AttributeValue] any [AttributeValue]
-        // any       ::= "*" *(AttributeValue "*")
-        //
-        // Filter ::= CHOICE {
-        //     ...
-        //     substrings      [4] SubstringFilter, (Value)
-        //     ...
-        // Store the substring
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_VALUE][LdapConstants.SUBSTRINGS_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_VALUE, LdapStatesEnum.FILTER_SUBSTRINGS_TYPE_TAG, 
-                new GrammarAction( "Init Substring Filter" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage      ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // We can allocate the SearchRequest
-                        Filter substringFilter = new SubstringFilter();
-                        
-                        // Get the parent, if any
-                        Filter currentFilter = searchRequest.getCurrentFilter();
-                        
-                        if (currentFilter != null)
-                        {
-                            // Ok, we have a parent. The new Filter will be added to
-                            // this parent, then. 
-                            ((ConnectorFilter)currentFilter).addFilter(substringFilter);
-                            substringFilter.setParent( currentFilter );
-                        }
-                        else
-                        {
-                            // No parent. This Filter will become the root.
-
-                            searchRequest.setFilter(substringFilter);
-                            substringFilter.setParent( searchRequest );
-                        }
-
-                        searchRequest.setCurrentFilter(substringFilter);
-                        
-                        // As this is a new Constructed object, we have to init its length
-                        int expectedLength = tlv.getLength().getLength();
-
-                        substringFilter.setExpectedLength( expectedLength );
-                        substringFilter.setCurrentLength( 0 );                    }
-                } );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     type            AttributeDescription, (Tag)
-        //     ...
-        // Nothing to do
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_TYPE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_TYPE_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_TYPE_VALUE, null );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     type            AttributeDescription, (Value)
-        //     ...
-        // 
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_TYPE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_TYPE_VALUE, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_TAG, 
-                new GrammarAction( "Store substring filter Value" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        SubstringFilter substringFilter = (SubstringFilter)searchRequest.getCurrentFilter();
-                        
-                        try
-                        {
-                        	LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
-                            substringFilter.setType( type );
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The substring filter type ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid substring filter type " + msg + ", : " + lsee.getMessage() );
-                        }
-
-                        // We now have to get back to the nearest filter which is not terminal.
-                        unstackFilters( container );
-                    }
-                } );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { (Tag)
-        //          ...
-        // Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_VALUE, null );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { (Value)
-        //          ...
-        // Nothing to do. Here, we may have three possibilities. We may have an "initial" value,
-        // or an "any" value, or a "final" value. Any other option is an error. 
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_VALUE, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, null );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE {
-        //          initial [0] LDAPString, (Tag)
-        //          ...
-        // We have an "initial" value. Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.SEARCH_SUBSTRINGS_INITIAL_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_INITIAL_VALUE, null );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE {
-        //          initial [0] LDAPString, (Value)
-        //          ...
-        // Store the initial value.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_INITIAL_VALUE][LdapConstants.SEARCH_SUBSTRINGS_INITIAL_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_INITIAL_VALUE, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG, 
-                new GrammarAction( "Store substring filter initial Value" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        SubstringFilter substringFilter = (SubstringFilter)searchRequest.getCurrentFilter();
-                        
-                        try
-                        {
-                            substringFilter.setInitialSubstrings(new LdapString(tlv.getValue().getData()));
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The substring filter initial ({}) is invalid" );
-                            throw new DecoderException( "Invalid substring filter initial " + msg + ", : " + lsee.getMessage() );
-                        }
-
-                        // We now have to get back to the nearest filter which is not terminal.
-                        unstackFilters( container );
-                    }
-                });
-                
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { 
-        //          ...
-        //          any     [1] LDAPString, (Tag)
-        //          ...
-        // We have an 'any' value without an 'initial' value. Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.SEARCH_SUBSTRINGS_ANY_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_VALUE, null);
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { 
-        //          initial [0] LDAPString,
-        //          any     [1] LDAPString, (Tag)
-        //          ...
-        // We had an 'initial' substring, and now we have an 'any' substring. Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG][LdapConstants.SEARCH_SUBSTRINGS_ANY_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_VALUE, null );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { 
-        //          ...
-        //          any     [1] LDAPString, (Value)
-        //          ...
-        // Store the 'any' value. 
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_VALUE][LdapConstants.SEARCH_SUBSTRINGS_ANY_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_VALUE, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG, 
-                new GrammarAction( "Store substring filter any Value" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        SubstringFilter substringFilter = (SubstringFilter)searchRequest.getCurrentFilter();
-                        
-                        try
-                        {
-                            substringFilter.addAnySubstrings(new LdapString(tlv.getValue().getData()));
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The substring any filter ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid substring any filter " + msg + ", : " + lsee.getMessage() );
-                        }
-
-                        // We now have to get back to the nearest filter which is not terminal.
-                        unstackFilters( container );
-                    }
-                });
-                
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { 
-        //          ...
-        //			any       [1] LDAPString, 
-        //          final     [2] LDAPString, (Tag)
-        //     }
-        //
-        // We have an 'final' value after an 'any' value. Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG][LdapConstants.SEARCH_SUBSTRINGS_FINAL_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_VALUE, null);
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { 
-        //          ...
-        //          final     [2] LDAPString, (Tag)
-        //     }
-        //
-        // We have an 'final' value only. Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.SEARCH_SUBSTRINGS_FINAL_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_VALUE, null);
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE { 
-        //          initial [0] LDAPString,
-        //          final     [2] LDAPString, (Tag)
-        //     }
-        // We had an 'initial' substring, and now we have an 'final' substring. Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG][LdapConstants.SEARCH_SUBSTRINGS_FINAL_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG, LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_VALUE, null );
-
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     substrings      SEQUENCE OF CHOICE {
-        //          ...
-        //          final     [2] LDAPString, (Value)
-        // Store the initial value.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_VALUE][LdapConstants.SEARCH_SUBSTRINGS_FINAL_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_VALUE, LdapStatesEnum.END_STATE, 
-                new GrammarAction( "Store substring filter final Value" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        SubstringFilter substringFilter = (SubstringFilter)searchRequest.getCurrentFilter();
-                        
-                        try
-                        {
-                            substringFilter.setFinalSubstrings(new LdapString(tlv.getValue().getData()));
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The substring final filter ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid substring final filter " + msg + ", : " + lsee.getMessage() );
-                        }
-
-                        // We now have to get back to the nearest filter which is not terminal.
-                        unstackFilters( container );
-                    }
-                });
-                
-        // SubstringFilter ::= SEQUENCE {
-        //     ...
-        //     -- at least one must be present
-        //     }
-        //
-        // Has we must have at least an initial, any or final value, every other value is an error.
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.AND_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.OR_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.NOT_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.EQUALITY_MATCH_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.SUBSTRINGS_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.GREATER_OR_EQUAL_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.LESS_OR_EQUAL_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.PRESENT_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.APPROX_MATCH_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][LdapConstants.EXTENSIBLE_MATCH_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-        
-        super.transitions[LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG, LdapStatesEnum.FILTER_TAG, 
-                new GrammarAction( "Bad tag exception" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        throw new DecoderException("At least an 'initial', 'any' or 'final' value must be found");
-                    }
-                });
-
-        // Here we are dealing with extensible matches 
-        //
-        // Filter ::= CHOICE {
-        //     ...
-        //     extensibleMatch [9] MatchingRuleAssertion} (Value)
-        //
-        // Nothing to do
-        super.transitions[LdapStatesEnum.FILTER_EXTENSIBLE_MATCH_VALUE][LdapConstants.EXTENSIBLE_MATCH_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_EXTENSIBLE_MATCH_VALUE, LdapStatesEnum.FILTER_MATCHING_RULE_ASSERTION_TAG, 
-                new GrammarAction( "Init extensible match Filter" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage      ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        // We can allocate the ExtensibleMatch Filter
-                        Filter extensibleMatchFilter = new ExtensibleMatchFilter();
-                        
-                        // Get the parent, if any
-                        Filter currentFilter = searchRequest.getCurrentFilter();
-                        
-                        if (currentFilter != null)
-                        {
-                            // Ok, we have a parent. The new Filter will be added to
-                            // this parent, then. 
-                            ((ConnectorFilter)currentFilter).addFilter(extensibleMatchFilter);
-                            extensibleMatchFilter.setParent( currentFilter );
-                        }
-                        else
-                        {
-                            // No parent. This Filter will become the root.
-                            searchRequest.setFilter(extensibleMatchFilter);
-                            extensibleMatchFilter.setParent( searchRequest );
-                        }
-
-                        searchRequest.setCurrentFilter(extensibleMatchFilter);
-
-                        // We now have to get back to the nearest filter which is not terminal.
-                        unstackFilters( container );
-                    }
-                } ); 
-
-        // MatchingRuleAssertion ::= SEQUENCE { (Tag)
-        //          ...
-        // Nothing to do
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_RULE_ASSERTION_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_RULE_ASSERTION_TAG, LdapStatesEnum.FILTER_MATCHING_RULE_ASSERTION_VALUE, null );
-
-        // MatchingRuleAssertion ::= SEQUENCE { (Value)
-        //          ...
-        // Nothing to do. Two cases next : we may have a matching rule or a type.
-        // At least one of those two elements must be present.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_RULE_ASSERTION_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_RULE_ASSERTION_VALUE, LdapStatesEnum.FILTER_MATCHING_RULE_OR_TYPE_TAG, null);
-        
-        
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //          matchingRule    [1] MatchingRuleId OPTIONAL, (Tag)
-        //			...
-        // Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_RULE_OR_TYPE_TAG][LdapConstants.SEARCH_MATCHING_RULE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_RULE_OR_TYPE_TAG, LdapStatesEnum.FILTER_MATCHING_RULE_VALUE, null );
-
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //          matchingRule    [1] MatchingRuleId OPTIONAL, (Value)
-        //			...
-        // Store the matching rule value.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_RULE_VALUE][LdapConstants.SEARCH_MATCHING_RULE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_RULE_VALUE, LdapStatesEnum.FILTER_MATCHING_TYPE_OR_MATCH_VALUE_TAG, 
-                new GrammarAction( "Store matching rule Value" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        ExtensibleMatchFilter extensibleMatchFilter = (ExtensibleMatchFilter)searchRequest.getCurrentFilter();
-                        
-                        try
-                        {
-                            extensibleMatchFilter.setMatchingRule(new LdapString(tlv.getValue().getData()));
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The matching rule ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid matching rule " + msg + ", : " + lsee.getMessage() );
-                        }
-                    }
-                });
-                
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //			(void)
-        //          type            [2] AttributeDescription OPTIONAL, (Tag)
-        //			...
-        // Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_RULE_OR_TYPE_TAG][LdapConstants.SEARCH_TYPE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_RULE_OR_TYPE_TAG, LdapStatesEnum.FILTER_MATCHING_TYPE_VALUE, null );
-
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //			matchingRule    [1] MatchingRuleId OPTIONAL,
-        //          type            [2] AttributeDescription OPTIONAL, (Tag)
-        //			...
-        // Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_TYPE_OR_MATCH_VALUE_TAG][LdapConstants.SEARCH_TYPE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_RULE_OR_TYPE_TAG, LdapStatesEnum.FILTER_MATCHING_TYPE_VALUE, null );
-
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //          ...
-        //          type            [2] AttributeDescription OPTIONAL, (Length)
-        //			...
-        // Store the matching type value.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_TYPE_VALUE][LdapConstants.SEARCH_TYPE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_TYPE_VALUE, LdapStatesEnum.FILTER_MATCHING_MATCH_VALUE_TAG, 
-                new GrammarAction( "Store matching type Value" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        ExtensibleMatchFilter extensibleMatchFilter = (ExtensibleMatchFilter)searchRequest.getCurrentFilter();
-                        
-                        try
-                        {
-                        	LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
-                            extensibleMatchFilter.setType( type );
-                        }
-                        catch ( LdapStringEncodingException lsee )
-                        {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The match filter ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid match filter " + msg + ", : " + lsee.getMessage() );
-                        }
-                    }
-                });
-                
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //			...
-        //          matchValue      [3] AssertionValue, (Tag)
-        //			...
-        // Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_MATCH_VALUE_TAG][LdapConstants.SEARCH_MATCH_VALUE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_MATCH_VALUE_TAG, LdapStatesEnum.FILTER_MATCHING_MATCH_VALUE_VALUE, null );
-
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //          ...
-        //          matchValue      [3] AssertionValue, (Value)
-        //			...
-        // Store the matching type value.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_MATCH_VALUE_VALUE][LdapConstants.SEARCH_MATCH_VALUE_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_MATCH_VALUE_VALUE, LdapStatesEnum.FILTER_MATCHING_DN_ATTRIBUTES_OR_END_TAG, 
-                new GrammarAction( "Store matching match value Value" )
-                {
-                    public void action( IAsn1Container container )
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        ExtensibleMatchFilter extensibleMatchFilter = (ExtensibleMatchFilter)searchRequest.getCurrentFilter();
-                        extensibleMatchFilter.setMatchValue( StringTools.utf8ToString( tlv.getValue().getData() ) );
-                    }
-                });
-                
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //			...
-        //          dnAttributes    [4] BOOLEAN DEFAULT FALSE } (Tag)
-        // Nothing to do.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_DN_ATTRIBUTES_OR_END_TAG][LdapConstants.DN_ATTRIBUTES_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_DN_ATTRIBUTES_OR_END_TAG, LdapStatesEnum.FILTER_MATCHING_DN_ATTRIBUTES_VALUE, null );
-
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //          ...
-        //          dnAttributes    [4] BOOLEAN DEFAULT FALSE } (Length)
-        // Store the matching type value.
-        super.transitions[LdapStatesEnum.FILTER_MATCHING_DN_ATTRIBUTES_VALUE][LdapConstants.DN_ATTRIBUTES_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_MATCHING_DN_ATTRIBUTES_VALUE, LdapStatesEnum.END_STATE, 
-                new GrammarAction( "Store matching dnAttributes Value" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                        container;
-                        LdapMessage      ldapMessage          =
-                        ldapMessageContainer.getLdapMessage();
-                        SearchRequest searchRequest = ldapMessage.getSearchRequest();
-
-                        TLV tlv            = ldapMessageContainer.getCurrentTLV();
-
-                        // Store the value.
-                        ExtensibleMatchFilter extensibleMatchFilter = (ExtensibleMatchFilter)searchRequest.getCurrentFilter();
-
-                        // We get the value. If it's a 0, it's a FALSE. If it's
-                        // a FF, it's a TRUE. Any other value should be an error,
-                        // but we could relax this constraint. So if we have something
-                        // which is not 0, it will be interpreted as TRUE, but we
-                        // will generate a warning.
-                        Value value     = tlv.getValue();
-
-                        try
-                        {
-                            extensibleMatchFilter.setDnAttributes( BooleanDecoder.parse( value ) );
-                        }
-                        catch ( BooleanDecoderException bde )
-                        {
-                            log.error("The DN attributes flag {} is invalid : {}. It should be 0 or 255",
-                                    StringTools.dumpBytes( value.getData() ), 
-                                    bde.getMessage() );
-                        
-                            throw new DecoderException( bde.getMessage() );
-                        }
-                            
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "DN Attributes : {}", new Boolean( extensibleMatchFilter.isDnAttributes() ) );
-                        }
-                    }
-                });
-                
     }
 
     //~ Methods ------------------------------------------------------------------------------------
