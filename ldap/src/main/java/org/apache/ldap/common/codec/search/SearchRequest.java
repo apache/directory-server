@@ -96,6 +96,7 @@ public class SearchRequest extends LdapMessage
         super( );
 
         currentFilter = null;
+        attributes = new BasicAttributes( true );
     }
 
     //~ Methods ------------------------------------------------------------------------------------
@@ -128,14 +129,6 @@ public class SearchRequest extends LdapMessage
     public void addAttribute( LdapString attribute )
     {
         attributes.put( new BasicAttribute( StringTools.lowerCase( attribute.getString() ) ) );
-    }
-
-    /**
-     * Initialize the attributes list
-     */
-    public void initAttributes()
-    {
-        attributes = new BasicAttributes( true );
     }
 
     /**
