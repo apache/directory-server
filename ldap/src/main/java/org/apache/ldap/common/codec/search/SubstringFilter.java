@@ -272,7 +272,7 @@ public class SubstringFilter extends Filter
             // The initial substring
             if ( initialSubstrings != null )
             {
-                buffer.put( (byte)LdapConstants.SEARCH_SUBSTRINGS_INITIAL_TAG );
+                buffer.put( (byte)LdapConstants.SUBSTRINGS_FILTER_INITIAL_TAG );
                 buffer.put( Length.getBytes( initialSubstrings.getNbBytes() ) );
                 buffer.put( initialSubstrings.getBytes() );
             }
@@ -285,7 +285,7 @@ public class SubstringFilter extends Filter
                 while ( anyIterator.hasNext() )
                 {
                     LdapString any = (LdapString)anyIterator.next();
-                    buffer.put( (byte)LdapConstants.SEARCH_SUBSTRINGS_ANY_TAG );
+                    buffer.put( (byte)LdapConstants.SUBSTRINGS_FILTER_ANY_TAG );
                     buffer.put( Length.getBytes( any.getNbBytes() ) );
                     buffer.put( any.getBytes() );
                 }
@@ -294,7 +294,7 @@ public class SubstringFilter extends Filter
             // The final substring
             if ( finalSubstrings != null )
             {
-                buffer.put( (byte) LdapConstants.SEARCH_SUBSTRINGS_FINAL_TAG );
+                buffer.put( (byte) LdapConstants.SUBSTRINGS_FILTER_FINAL_TAG );
                 buffer.put( Length.getBytes( finalSubstrings.getNbBytes() ) );
                 buffer.put( finalSubstrings.getBytes() );
             }
