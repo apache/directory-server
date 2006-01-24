@@ -68,12 +68,12 @@ public class LdapConstants {
     public static final int BIND_REQUEST_SIMPLE_TAG             = 0x80;
     public static final int EXTENDED_REQUEST_NAME_TAG           = 0x80;
     public static final int MODIFY_DN_REQUEST_NEW_SUPERIOR_TAG  = 0x80;
-    public static final int SEARCH_SUBSTRINGS_INITIAL_TAG       = 0x80;
+    public static final int SUBSTRINGS_FILTER_INITIAL_TAG       = 0x80;
     public static final int EXTENDED_REQUEST_VALUE_TAG          = 0x81;
     public static final int SEARCH_MATCHING_RULE_TAG            = 0x81;
-    public static final int SEARCH_SUBSTRINGS_ANY_TAG           = 0x81;
-    public static final int SEARCH_TYPE_TAG                     = 0x82;
-    public static final int SEARCH_SUBSTRINGS_FINAL_TAG         = 0x82;
+    public static final int SUBSTRINGS_FILTER_ANY_TAG           = 0x81;
+    public static final int MATCHING_RULE_ASSERTION_TYPE_TAG    = 0x82;
+    public static final int SUBSTRINGS_FILTER_FINAL_TAG         = 0x82;
     public static final int SEARCH_MATCH_VALUE_TAG              = 0x83;
     public static final int DN_ATTRIBUTES_FILTER_TAG            = 0x84;
     public static final int SERVER_SASL_CREDENTIAL_TAG          = 0x87;
