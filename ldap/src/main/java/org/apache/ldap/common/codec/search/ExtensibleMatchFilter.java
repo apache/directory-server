@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.tlv.Length;
-import org.apache.asn1.ber.tlv.UniversalTag;
 import org.apache.asn1.ber.tlv.Value;
 import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.util.LdapString;
@@ -57,7 +56,7 @@ public class ExtensibleMatchFilter extends Filter
     private transient int extensibleMatchLength;
 
     /** The matching Rule Assertion Length */
-    private transient int matchingRuleAssertionLength;
+    //private transient int matchingRuleAssertionLength;
 
     //~ Constructors -------------------------------------------------------------------------------
 
@@ -179,24 +178,22 @@ public class ExtensibleMatchFilter extends Filter
      * 
      * 0xA9 L1
      *  |
-     *  +--> 0x30 L2
-     *        |
-     *       [+--> 0x81 L3 matchingRule]
-     *       [+--> 0x82 L4 type]
-     *       [+--> 0x83 L5 matchValue]
-     *       [+--> 0x01 0x01 dnAttributes]
+     * [+--> 0x81 L3 matchingRule]
+     * [+--> 0x82 L4 type]
+     * [+--> 0x83 L5 matchValue]
+     * [+--> 0x01 0x01 dnAttributes]
      *  
      */
     public int computeLength()
     {
         if ( matchingRule != null )
         {
-            matchingRuleAssertionLength = 1 + Length.getNbBytes( matchingRule.getNbBytes() ) + matchingRule.getNbBytes();
+            extensibleMatchLength = 1 + Length.getNbBytes( matchingRule.getNbBytes() ) + matchingRule.getNbBytes();
         }
 
         if ( type != null )
         {
-            matchingRuleAssertionLength += 1 + Length.getNbBytes( type.getNbBytes() ) + type.getNbBytes();
+            extensibleMatchLength += 1 + Length.getNbBytes( type.getNbBytes() ) + type.getNbBytes();
         }
 
         if ( matchValue != null )
@@ -204,22 +201,20 @@ public class ExtensibleMatchFilter extends Filter
             if ( matchValue instanceof String )
             {
                 int matchValueLength = StringTools.getBytesUtf8( (String)matchValue ).length;
-                matchingRuleAssertionLength += 1 + Length.getNbBytes( matchValueLength ) + matchValueLength;
+                extensibleMatchLength += 1 + Length.getNbBytes( matchValueLength ) + matchValueLength;
             }
             else
             {
-                matchingRuleAssertionLength += 1 + Length.getNbBytes( ((byte[])matchValue).length ) + ((byte[])matchValue).length;
+                extensibleMatchLength += 1 + Length.getNbBytes( ((byte[])matchValue).length ) + ((byte[])matchValue).length;
             }
         }
 
         if ( dnAttributes )
         {
-            matchingRuleAssertionLength += 1 + 1 + 1;
+            extensibleMatchLength += 1 + 1 + 1;
         }
 
-        extensibleMatchLength = 1 + Length.getNbBytes( matchingRuleAssertionLength ) + matchingRuleAssertionLength;
-
-        return 1 + Length.getNbBytes( extensibleMatchLength ) + extensibleMatchLength;
+        return 1 + Length.getNbBytes( extensibleMatchLength ) + extensibleMatchLength; 
     }
 
     /**
@@ -228,7 +223,6 @@ public class ExtensibleMatchFilter extends Filter
      * ExtensibleMatch filter :
      * 
      * 0xA9 LL 
-     * 0x30 LL matchingRuleAssertion
      *  |     0x81 LL matchingRule
      *  |    / |   0x82 LL Type  
      *  |   /  |  /0x83 LL matchValue
@@ -255,10 +249,6 @@ public class ExtensibleMatchFilter extends Filter
             buffer.put( (byte)LdapConstants.EXTENSIBLE_MATCH_FILTER_TAG );
             buffer.put( Length.getBytes( extensibleMatchLength ) );
 
-            // The MatchingRuleAssertion sequence tag
-            buffer.put( UniversalTag.SEQUENCE_TAG );
-            buffer.put( Length.getBytes( matchingRuleAssertionLength ) );
-
             if ( ( matchingRule == null ) && ( type == null ) )
             {
                 throw new EncoderException("Cannot have a null matching rule and a null type");
@@ -275,7 +265,7 @@ public class ExtensibleMatchFilter extends Filter
             // The type
             if ( type != null )
             {
-                buffer.put( (byte) LdapConstants.SEARCH_TYPE_TAG );
+                buffer.put( (byte) LdapConstants.MATCHING_RULE_ASSERTION_TYPE_TAG );
                 buffer.put( Length.getBytes( type.getNbBytes() ) );
                 buffer.put( type.getBytes() );
             }
