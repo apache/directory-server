@@ -36,10 +36,12 @@ import org.apache.ldap.common.codec.modify.ModifyResponseGrammar;
 import org.apache.ldap.common.codec.modifyDn.ModifyDNRequestGrammar;
 import org.apache.ldap.common.codec.modifyDn.ModifyDNResponseGrammar;
 import org.apache.ldap.common.codec.search.FilterGrammar;
+import org.apache.ldap.common.codec.search.MatchingRuleAssertionGrammar;
 import org.apache.ldap.common.codec.search.SearchRequestGrammar;
 import org.apache.ldap.common.codec.search.SearchResultDoneGrammar;
 import org.apache.ldap.common.codec.search.SearchResultEntryGrammar;
 import org.apache.ldap.common.codec.search.SearchResultReferenceGrammar;
+import org.apache.ldap.common.codec.search.SubstringFilterGrammar;
 import org.apache.ldap.common.codec.unbind.UnBindRequestGrammar;
 import org.apache.asn1.ber.AbstractContainer;
 import org.apache.asn1.ber.IAsn1Container;
@@ -111,6 +113,8 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
         grammars[LdapStatesEnum.COMPARE_REQUEST_GRAMMAR] = CompareRequestGrammar.getInstance();
         grammars[LdapStatesEnum.EXTENDED_REQUEST_GRAMMAR] = ExtendedRequestGrammar.getInstance();
         grammars[LdapStatesEnum.EXTENDED_RESPONSE_GRAMMAR] = ExtendedResponseGrammar.getInstance();
+        grammars[LdapStatesEnum.SUBSTRING_FILTER_GRAMMAR] = SubstringFilterGrammar.getInstance();
+        grammars[LdapStatesEnum.MATCHING_RULE_ASSERTION_GRAMMAR] = MatchingRuleAssertionGrammar.getInstance();
 
         grammarStack[currentGrammar] = grammars[LdapStatesEnum.LDAP_MESSAGE_GRAMMAR];
 
