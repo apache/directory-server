@@ -27,7 +27,6 @@ public class Target
     public final static String[] OPERATING_SYSTEMS = new String[] { "Linux", "SunOS", "Windows", "Mac OS X" };
     public final static String[] ARCHITECTURES = new String[] { "intel", "sparc", "ppc" };
     public final static String[] DAEMON_FRAMEWORKS = new String[] { "jsvc", "procrun" };
-    public final static String[] INSTALLERS = new String[] { "izpack", "inno", "rpm", "deb", "pkg" };
 
     // required stuff
     private String id;
@@ -35,7 +34,6 @@ public class Target
     private String osArch;
     private String osFamily;
     private String daemonFramework;
-    private String installer;
     
     // optional stuff
     private String minVersion;
@@ -79,18 +77,6 @@ public class Target
     public String getDaemonFramework()
     {
         return daemonFramework;
-    }
-
-
-    public void setInstaller(String installer)
-    {
-        this.installer = installer.toLowerCase( Locale.US );
-    }
-
-
-    public String getInstaller()
-    {
-        return installer;
     }
 
 
