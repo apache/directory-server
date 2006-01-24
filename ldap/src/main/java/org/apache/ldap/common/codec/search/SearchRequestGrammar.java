@@ -658,17 +658,6 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
                             container;
 
-                        SearchRequest     searchRequest =
-                            ldapMessageContainer.getLdapMessage().getSearchRequest();
-
-                        TLV                  tlv = ldapMessageContainer.getCurrentTLV();
-
-                        // The attribute list may be null.
-                        if ( tlv.getLength().getLength() != 0 )
-                        {
-                        	searchRequest.initAttributes();
-                        }
-
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
 
@@ -700,9 +689,20 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                         TLV                  tlv = ldapMessageContainer.getCurrentTLV();
                         LdapString attributeDescription = null;
                         
+                        byte[] value = null;
+                        
+                        if ( tlv.getLength().getLength() == 0 )
+                        {
+                            value = new byte[]{ '*' }; 
+                        }
+                        else
+                        {
+                            value = tlv.getValue().getData();
+                        }
+
                         try
                         {
-                            attributeDescription = new LdapString( tlv.getValue().getData() );
+                            attributeDescription = new LdapString( value );
                             searchRequest.addAttribute( attributeDescription );
                         }
                         catch ( LdapStringEncodingException lsee )
@@ -710,7 +710,7 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                             log.error( "Cannot decode the attribute description : {}", StringTools.dumpBytes( tlv.getValue().getData() ) );
                             throw new DecoderException( "Cannot decode the attribute description" );
                         }
-                        
+                            
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
 
