@@ -1,3 +1,4 @@
+<!--
 /*
  *   Copyright 2004 The Apache Software Foundation
  *
@@ -14,16 +15,10 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.standalone.installers;
+ -->
+<userInput>
+  <panel order="0">
+    <field id="input.comment" type="staticText" align="left" txt="Please configure ${app} Server."/>
+  </panel>
+</userInput>
 
-
-/**
- * An IzPack multiplatform installer target.
- *  
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
- */
-public class IzPackTarget extends Target
-{
-    
-}

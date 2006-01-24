@@ -171,6 +171,42 @@ public class InstallationLayout
     }
 
     
+    public File getLogoIconFile()
+    {
+        return getLogoIconFile( "logo.png" );
+    }
+
+    
+    public File getLogoIconFile( String name )
+    {
+        return new File( getBaseDirectory(), name );
+    }
+
+    
+    public File getLicenseFile()
+    {
+        return getLicenseFile( "LICENSE.txt" );
+    }
+
+    
+    public File getLicenseFile( String name )
+    {
+        return new File( getBaseDirectory(), name );
+    }
+
+    
+    public File getReadmeFile()
+    {
+        return getReadmeFile( "README.txt" );
+    }
+
+    
+    public File getReadmeFile( String name )
+    {
+        return new File( getBaseDirectory(), name );
+    }
+
+    
     public File getBootstrapperConfigurationFile()
     {
         return new File( getConfigurationDirectory(), "bootstrapper.properties" );

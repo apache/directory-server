@@ -104,6 +104,7 @@
               <osArch>i386</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
+            <!-- 
             <izPackTarget>
               <id>macosx-jsvc-izpack</id>
               <osName>macosx</osName>
@@ -111,6 +112,7 @@
               <osArch>ppc</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
+             -->
             <izPackTarget>
               <id>solaris-jsvc-izpack</id>
               <osName>sunos</osName>

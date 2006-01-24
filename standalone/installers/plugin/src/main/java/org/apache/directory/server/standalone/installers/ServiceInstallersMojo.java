@@ -1,3 +1,19 @@
+/*
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package org.apache.directory.server.standalone.installers;
 
 
@@ -136,12 +152,23 @@ public class ServiceInstallersMojo extends AbstractMojo
         // search for and find the bootstrapper artifact
         setBootstrapperArtifact();
         
-        // creates installation images for all targets
+        // generate installers for all targets
         for ( int ii = 0; ii < allTargets.size(); ii++ )
         {
-            CreateImageCommand command = new CreateImageCommand( this, ( Target ) allTargets.get( ii ) );
-            command.execute();
-        }        
+            Target target = ( Target ) allTargets.get( ii );
+            
+            // create the installation image first
+            CreateImageCommand imgCommand = new CreateImageCommand( this, target );
+            imgCommand.execute();
+            
+            // generate the installer
+            if ( target instanceof IzPackTarget )
+            {
+                IzPackInstallerCommand izPackCmd = null;
+                izPackCmd = new IzPackInstallerCommand( this, ( IzPackTarget ) target, imgCommand.getLayout() );
+                izPackCmd.execute();
+            }
+        }
     }
     
     
