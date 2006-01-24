@@ -35,10 +35,12 @@ import org.apache.ldap.common.codec.modify.ModifyResponseGrammar;
 import org.apache.ldap.common.codec.modifyDn.ModifyDNRequestGrammar;
 import org.apache.ldap.common.codec.modifyDn.ModifyDNResponseGrammar;
 import org.apache.ldap.common.codec.search.FilterGrammar;
+import org.apache.ldap.common.codec.search.MatchingRuleAssertionGrammar;
 import org.apache.ldap.common.codec.search.SearchRequestGrammar;
 import org.apache.ldap.common.codec.search.SearchResultDoneGrammar;
 import org.apache.ldap.common.codec.search.SearchResultEntryGrammar;
 import org.apache.ldap.common.codec.search.SearchResultReferenceGrammar;
+import org.apache.ldap.common.codec.search.SubstringFilterGrammar;
 import org.apache.ldap.common.codec.unbind.UnBindRequestGrammar;
 
 
@@ -520,81 +522,96 @@ public class LdapStatesEnum implements IStates
     /** Filter Assertion Value Value */
     public static int FILTER_ASSERTION_VALUE_VALUE = 25;
 
-    // Filter Substrings type -------------------------------------------------
-    /** Filter Substrings Type Tag */
-    public static int FILTER_SUBSTRINGS_TYPE_TAG = 26;
+    /** The last state */
+    public static int LAST_FILTER_STATE = 26;
 
-    /** Filter Substrings Type Value */
-    public static int FILTER_SUBSTRINGS_TYPE_VALUE = 27;
+    //=========================================================================
+    // SubSstrings Filter grammar states 
+    //=========================================================================
+    /** Substrings Filter Tag */
+    public static int SUBSTRINGS_FILTER_TAG = 0;
 
-    // Filter Substrings Substrings -------------------------------------------
-    /** Filter Substrings Substrings Tag */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_TAG = 28;
+    /** Substrings Filter Value */
+    public static int SUBSTRINGS_FILTER_VALUE = 1;
 
-    /** Filter Substrings Substrings Value */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_VALUE = 29;
+    // Substrings Filter type -------------------------------------------------
+    /** Substrings Filter Type Tag */
+    public static int SUBSTRINGS_FILTER_TYPE_TAG = 2;
 
-    // Filter Substrings Substrings Initial -----------------------------------
-    /** Filter Substrings Substrings choice Tag */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG = 30;
+    /** Substrings Filter Type Value */
+    public static int SUBSTRINGS_FILTER_TYPE_VALUE = 3;
 
-    /** Filter Substrings Substrings Initial Tag */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_INITIAL_TAG = 31;
+    // Substrings Filter sequence Substrings -------------------------------------------
+    /** Substrings Filter Substrings sequence Tag */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_TAG = 4;
 
-    /** Filter Substrings Substrings Initial Value */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_INITIAL_VALUE = 32;
+    /** Substrings Filter Substrings sequence Value */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_VALUE = 5;
 
-    // Filter Substrings Substrings Any ---------------------------------------
-    /** Filter Substrings Substrings Any Tag */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG = 33;
+    // Substrings Filter Substrings Initial -----------------------------------
+    /** Substrings Filter Substrings initial Tag */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_OR_ANY_OR_FINAL_TAG = 6;
 
-    /** Filter Substrings Substrings Any Value */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_ANY_VALUE = 34;
+    /** Substrings Filter Substrings Initial Value */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_VALUE = 7;
 
-    // Filter Substrings Substrings Final -------------------------------------
-    /** Filter Substrings Substrings Final Tag */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_TAG = 35;
+    // Substrings Filter Substrings Substrings Any ---------------------------------------
+    /** Substrings Filter Substrings Substrings Any Tag */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_ANY_OR_FINAL_TAG = 8;
 
-    /** Filter Substrings Substrings Final Value */
-    public static int FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_VALUE = 36;
+    /** Substrings Filter Substrings Substrings Any Value */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_ANY_VALUE = 9;
 
-    // Filter Matching rule assertion -----------------------------------------
-    /** Filter Matching rule assertion Tag */
-    public static int FILTER_MATCHING_RULE_ASSERTION_TAG = 37;
+    // Substrings Filter Substrings Substrings Final -------------------------------------
+    /** Substrings Filter Substrings Substrings Final Tag */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_TAG = 10;
 
-    /** Filter Matching rule assertion Value */
-    public static int FILTER_MATCHING_RULE_ASSERTION_VALUE = 38;
-
-    // Filter Matching rule ---------------------------------------------------
-    /** Filter Matching rule Tag */
-    public static int FILTER_MATCHING_RULE_OR_TYPE_TAG = 39;
-
-    /** Filter Matching rule Value */
-    public static int FILTER_MATCHING_RULE_VALUE = 40;
-
-    // Filter Matching type ---------------------------------------------------
-    /** Filter Matching type Tag */
-    public static int FILTER_MATCHING_TYPE_OR_MATCH_VALUE_TAG = 41;
-
-    /** Filter Matching type Value */
-    public static int FILTER_MATCHING_TYPE_VALUE = 42;
-
-    // Filter Matching matchValue ---------------------------------------------
-    /** Filter Matching matchValue Tag */
-    public static int FILTER_MATCHING_MATCH_VALUE_TAG = 43;
-
-    /** Filter Matching matchValue Value */
-    public static int FILTER_MATCHING_MATCH_VALUE_VALUE = 44;
-
-    // Filter Matching dnAttributes -------------------------------------------
-    /** Filter Matching dnAttributes Tag */
-    public static int FILTER_MATCHING_DN_ATTRIBUTES_OR_END_TAG = 45;
-
-    /** Filter Matching dnAttributes Value */
-    public static int FILTER_MATCHING_DN_ATTRIBUTES_VALUE = 46;
+    /** Substrings Filter Substrings Substrings Final Value */
+    public static int SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_VALUE = 11;
 
     /** The last state */
-    public static int LAST_FILTER_STATE = 47;
+    public static int LAST_SUBSTRING_FILTER_STATE = 12;
+
+    //=========================================================================
+    // Matching rule assertion Filter grammar states 
+    //=========================================================================
+    // Matching rule assertion -----------------------------------------
+    /** Matching rule assertion Tag */
+    public static int MATCHING_RULE_ASSERTION_TAG = 0;
+
+    /** Matching rule assertion Value */
+    public static int MATCHING_RULE_ASSERTION_VALUE = 1;
+
+    // Matching rule assertion Matching rule ---------------------------------------------------
+    /** Matching rule assertion matching rule assertion rule Tag */
+    public static int MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG = 2;
+
+    /** Matching rule assertion matching rule Value */
+    public static int MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE = 3;
+
+    // Matching rule assertion type ---------------------------------------------------
+    /** Matching rule assertion type Tag */
+    public static int MATCHING_RULE_ASSERTION_TYPE_OR_MATCH_VALUE_TAG = 4;
+
+    /** Matching rule assertion type Value */
+    public static int MATCHING_RULE_ASSERTION_TYPE_VALUE = 5;
+
+    // Matching rule assertion matchValue ---------------------------------------------
+    /** Matching rule assertion matchValue Tag */
+    public static int MATCHING_RULE_ASSERTION_MATCH_VALUE_TAG = 6;
+
+    /** Matching rule assertion  matchValue Value */
+    public static int MATCHING_RULE_ASSERTION_MATCH_VALUE_VALUE = 7;
+
+    // Matching rule assertion  dnAttributes -------------------------------------------
+    /** Matching rule assertion  dnAttributes Tag */
+    public static int MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_TAG = 8;
+
+    /** Matching rule assertion  dnAttributes Value */
+    public static int MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_VALUE = 9;
+
+    /** The last state */
+    public static int LAST_MATCHING_RULE_ASSERTION_STATE = 10;
 
     //=========================================================================
     // Search Result Entry grammar states 
@@ -1103,9 +1120,21 @@ public class LdapStatesEnum implements IStates
 
     /** ExtendedResponse number */
     public static final int EXTENDED_RESPONSE_GRAMMAR = 23;
+    
+    /** SubstringFilter grammar */
+    public static final int SUBSTRING_FILTER_GRAMMAR_SWITCH = 0x1900;
 
+    /** SubstringFilter number */
+    public static final int SUBSTRING_FILTER_GRAMMAR = 24;
+    
+    /** MatchingRuleAssertion grammar */
+    public static final int MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH = 0x1A00;
+
+    /** MatchingRuleAssertion number */
+    public static final int MATCHING_RULE_ASSERTION_GRAMMAR = 25;
+    
     /** The total number of grammars used */
-    public static final int NB_GRAMMARS = 24;
+    public static final int NB_GRAMMARS = 26;
 
     //=========================================================================
     // Grammar switches debug strings 
@@ -1137,7 +1166,9 @@ public class LdapStatesEnum implements IStates
             "DEL_REQUEST_GRAMMAR_SWITCH",
             "COMPARE_REQUEST_GRAMMAR_SWITCH",
             "EXTENDED_REQUEST_GRAMMAR_SWITCH",
-            "EXTENDED_RESPONSE_GRAMMAR_SWITCH"
+            "EXTENDED_RESPONSE_GRAMMAR_SWITCH",
+            "SUBSTRING_FILTER_GRAMMAR_SWITCH",
+            "MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH"
         };
 
     //=========================================================================
@@ -1344,27 +1375,6 @@ public class LdapStatesEnum implements IStates
             "FILTER_ATTRIBUTE_DESC_VALUE",
             "FILTER_ASSERTION_VALUE_TAG",
             "FILTER_ASSERTION_VALUE_VALUE",
-            "FILTER_SUBSTRINGS_TYPE_TAG",
-            "FILTER_SUBSTRINGS_TYPE_VALUE",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_TAG",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_VALUE",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_CHOICE_TAG",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_INITIAL_TAG",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_INITIAL_VALUE",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_ANY_OR_FINAL_TAG",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_ANY_VALUE",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_TAG",
-            "FILTER_SUBSTRINGS_SUBSTRINGS_FINAL_VALUE",
-            "FILTER_MATCHING_RULE_ASSERTION_TAG",
-            "FILTER_MATCHING_RULE_ASSERTION_VALUE",
-            "FILTER_MATCHING_RULE_OR_TYPE_TAG",
-            "FILTER_MATCHING_RULE_VALUE",
-            "FILTER_MATCHING_TYPE_OR_MATCH_VALUE_TAG",
-            "FILTER_MATCHING_TYPE_VALUE",
-            "FILTER_MATCHING_MATCH_VALUE_TAG",
-            "FILTER_MATCHING_MATCH_VALUE_VALUE",
-            "FILTER_MATCHING_DN_ATTRIBUTES_OR_END_TAG",
-            "FILTER_MATCHING_DN_ATTRIBUTES_VALUE"
         };
 
     /** A string representation of all the search result entry states */
@@ -1510,6 +1520,40 @@ public class LdapStatesEnum implements IStates
             "EXTENDED_RESPONSE_VALUE_VALUE"
         };
 
+    /** A string representation of all the substring filter states */
+    private static String[] SubstringFilterString =
+        new String[]
+        {
+            "SUBSTRINGS_FILTER_TAG",
+            "SUBSTRINGS_FILTER_VALUE",
+            "SUBSTRINGS_FILTER_TYPE_TAG",
+            "SUBSTRINGS_FILTER_TYPE_VALUE",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_VALUE",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_OR_ANY_OR_FINAL_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_VALUE",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_ANY_OR_FINAL_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_ANY_VALUE",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_VALUE"
+        };
+
+    /** A string representation of all the Matching Rule Assertion states */
+    private static String[] MatchingRuleAssertionString =
+        new String[]
+        {
+            "MATCHING_RULE_ASSERTION_TAG",
+            "MATCHING_RULE_ASSERTION_VALUE",
+            "MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG",
+            "MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE",
+            "MATCHING_RULE_ASSERTION_TYPE_OR_MATCH_VALUE_TAG",
+            "MATCHING_RULE_ASSERTION_TYPE_VALUE",
+            "MATCHING_RULE_ASSERTION_MATCH_VALUE_TAG",
+            "MATCHING_RULE_ASSERTION_MATCH_VALUE_VALUE",
+            "MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_TAG",
+            "MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_VALUE"
+        };
+
     /** The instance */
     private static LdapStatesEnum instance = new LdapStatesEnum();
 
@@ -1567,6 +1611,8 @@ public class LdapStatesEnum implements IStates
             case COMPARE_REQUEST_GRAMMAR         : return "COMPARE_REQUEST_GRAMMAR";
             case EXTENDED_REQUEST_GRAMMAR        : return "EXTENDED_REQUEST_GRAMMAR";
             case EXTENDED_RESPONSE_GRAMMAR       : return "EXTENDED_RESPONSE_GRAMMAR";
+            case SUBSTRING_FILTER_GRAMMAR        : return "SUBSTRING_FILTER_GRAMMAR";
+            case MATCHING_RULE_ASSERTION_GRAMMAR : return "MATCHING_RULE_ASSERTION_GRAMMAR";
 
             default                              : return "UNKNOWN";
         }
@@ -1577,105 +1623,113 @@ public class LdapStatesEnum implements IStates
      * @param grammar The grammar class
      * @return The grammar name
      */
-    public String getGrammarName( IGrammar grammar)
+    public String getGrammarName( IGrammar grammar )
     {
-        if (grammar instanceof LdapMessageGrammar)
+        if ( grammar instanceof LdapMessageGrammar )
         {
             return "LDAP_MESSAGE_GRAMMAR";
         }
-        else if (grammar instanceof LdapResultGrammar)
+        else if ( grammar instanceof LdapResultGrammar )
         {
             return "LDAP_RESULT_GRAMMAR";
         }
-        else if (grammar instanceof LdapControlGrammar)
+        else if ( grammar instanceof LdapControlGrammar )
         {
             return "LDAP_CONTROL_GRAMMAR";
         }
-        else if (grammar instanceof BindRequestGrammar )
+        else if ( grammar instanceof BindRequestGrammar )
         {
             return "BIND_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof BindResponseGrammar )
+        else if ( grammar instanceof BindResponseGrammar )
         {
             return "BIND_RESPONSE_GRAMMAR";
         }
-        else if (grammar instanceof UnBindRequestGrammar)
+        else if ( grammar instanceof UnBindRequestGrammar )
         {
             return "UNBIND_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof AbandonRequestGrammar )
+        else if ( grammar instanceof AbandonRequestGrammar )
         {
             return "ABANDON_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof AddResponseGrammar )
+        else if ( grammar instanceof AddResponseGrammar )
         {
             return "ADD_RESPONSE_GRAMMAR";
         }
-        else if (grammar instanceof CompareResponseGrammar)
+        else if ( grammar instanceof CompareResponseGrammar )
         {
             return "COMPARE_RESPONSE_GRAMMAR";
         }
-        else if (grammar instanceof DelResponseGrammar)
+        else if ( grammar instanceof DelResponseGrammar )
         {
             return "DEL_RESPONSE_GRAMMAR";
         }
-        else if (grammar instanceof ModifyResponseGrammar)
+        else if ( grammar instanceof ModifyResponseGrammar )
         {
             return "MODIFY_RESPONSE_GRAMMAR";
         }
-        else if (grammar instanceof ModifyDNResponseGrammar)
+        else if ( grammar instanceof ModifyDNResponseGrammar )
         {
             return "MODIFY_DN_RESPONSE_GRAMMAR";
         }
-        else if (grammar instanceof SearchResultDoneGrammar)
+        else if ( grammar instanceof SearchResultDoneGrammar )
         {
             return "SEARCH_RESULT_DONE_GRAMMAR";
         }
-        else if (grammar instanceof SearchRequestGrammar)
+        else if ( grammar instanceof SearchRequestGrammar )
         {
             return "SEARCH_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof FilterGrammar)
+        else if ( grammar instanceof FilterGrammar )
         {
             return "FILTER_GRAMMAR";
         }
-        else if (grammar instanceof SearchResultEntryGrammar)
+        else if ( grammar instanceof SearchResultEntryGrammar )
         {
             return "SEARCH_RESULT_ENTRY_GRAMMAR";
         }
-        else if (grammar instanceof ModifyRequestGrammar)
+        else if ( grammar instanceof ModifyRequestGrammar )
         {
             return "MODIFY_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof SearchResultReferenceGrammar)
+        else if ( grammar instanceof SearchResultReferenceGrammar )
         {
             return "SEARCH_RESULT_REFERENCE_GRAMMAR";
         }
-        else if (grammar instanceof AddRequestGrammar )
+        else if ( grammar instanceof AddRequestGrammar )
         {
             return "ADD_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof ModifyDNRequestGrammar)
+        else if ( grammar instanceof ModifyDNRequestGrammar )
         {
             return "MODIFY_DN_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof DelRequestGrammar)
+        else if ( grammar instanceof DelRequestGrammar )
         {
             return "DEL_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof CompareRequestGrammar)
+        else if ( grammar instanceof CompareRequestGrammar )
         {
             return "COMPARE_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof ExtendedRequestGrammar)
+        else if ( grammar instanceof ExtendedRequestGrammar )
         {
             return "EXTENDED_REQUEST_GRAMMAR";
         }
-        else if (grammar instanceof ExtendedResponseGrammar)
+        else if ( grammar instanceof ExtendedResponseGrammar )
         {
             return "EXTENDED_RESPONSE_GRAMMAR";
         }
-        else
+        else if ( grammar instanceof SubstringFilterGrammar )
+        {
+            return "SUBSTRING_FILTER_GRAMMAR";
+        }
+        else if ( grammar instanceof MatchingRuleAssertionGrammar )
+        {
+            return "MATCHING_RULE_ASSERTION_GRAMMAR";
+        }
+        else 
         {
             return "UNKNOWN GRAMMAR";
         }
@@ -1773,6 +1827,12 @@ public class LdapStatesEnum implements IStates
 
                 case EXTENDED_RESPONSE_GRAMMAR :
                     return ( ( state == GRAMMAR_END ) ? "EXTENDED_RESPONSE_END_STATE" : ExtendedResponseString[state] );
+
+                case SUBSTRING_FILTER_GRAMMAR :
+                    return ( ( state == GRAMMAR_END ) ? "SUBSTRING_FILTER_END_STATE" : SubstringFilterString[state] );
+
+                case MATCHING_RULE_ASSERTION_GRAMMAR :
+                    return ( ( state == GRAMMAR_END ) ? "MATCHING_RULE_ASSERTION_END_STATE" : MatchingRuleAssertionString[state] );
 
                 default :
                     return "UNKNOWN";
