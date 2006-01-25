@@ -584,7 +584,7 @@ public class LdapStatesEnum implements IStates
 
     // Matching rule assertion Matching rule ---------------------------------------------------
     /** Matching rule assertion matching rule assertion rule Tag */
-    public static int MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG = 2;
+    public static int MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG = 2;
 
     /** Matching rule assertion matching rule Value */
     public static int MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE = 3;
@@ -1544,7 +1544,7 @@ public class LdapStatesEnum implements IStates
         {
             "MATCHING_RULE_ASSERTION_TAG",
             "MATCHING_RULE_ASSERTION_VALUE",
-            "MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG",
+            "MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG",
             "MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE",
             "MATCHING_RULE_ASSERTION_TYPE_OR_MATCH_VALUE_TAG",
             "MATCHING_RULE_ASSERTION_TYPE_VALUE",

@@ -87,6 +87,7 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
         grammars = new IGrammar[LdapStatesEnum.NB_GRAMMARS];
         grammarStack = new IGrammar[10];
         stateStack = new int[10];
+        popAllowedStack = new boolean[10];
         nbGrammars = 0;
 
         grammars[LdapStatesEnum.LDAP_MESSAGE_GRAMMAR] = LdapMessageGrammar.getInstance();

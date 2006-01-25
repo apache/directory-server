@@ -661,6 +661,9 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
 
+                        // We can have an Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+                        
                         return;
                     }
                 } );
@@ -713,6 +716,9 @@ public class SearchRequestGrammar extends AbstractGrammar implements IGrammar
                             
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
+
+                        // We can have a pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
 
                         if ( log.isDebugEnabled() )
                         {

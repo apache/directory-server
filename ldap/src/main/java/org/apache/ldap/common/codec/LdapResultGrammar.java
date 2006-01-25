@@ -356,6 +356,9 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                         {
                             log.debug( "The error message is : " + ldapResult.getErrorMessage() );
                         }
+
+                        // We cazn pop this grammar
+                        container.grammarPopAllowed( true );
                         
                         return;
                     }
@@ -378,12 +381,12 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
         // This is a referral.
         super.transitions[LdapStatesEnum.LDAP_RESULT_REFERRAL_SEQUENCE_TAG][LdapConstants.LDAP_RESULT_REFERRAL_SEQUENCE_TAG] =
             new GrammarTransition( LdapStatesEnum.LDAP_RESULT_REFERRAL_SEQUENCE_TAG,
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG, null );
+                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG, null);
 
         // In case we are coming from a error message state
         super.transitions[LdapStatesEnum.LDAP_RESULT_ERROR_MESSAGE_VALUE][LdapConstants.LDAP_RESULT_REFERRAL_SEQUENCE_TAG] =
             new GrammarTransition( LdapStatesEnum.LDAP_RESULT_ERROR_MESSAGE_VALUE,
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG, null );
+                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG, null);
 
         // Referral ::= SEQUENCE OF LDAPURL (Tag)
         // This is a SEQUENCE, we will have at least one referral, but may be many.

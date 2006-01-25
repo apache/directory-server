@@ -275,6 +275,9 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 
                         // We now have to get back to the nearest filter which is not terminal.
                         unstackFilters( container );
+
+                        // We can have a pop transition
+                        container.grammarPopAllowed( true );
                     }
                 });
                 
@@ -344,6 +347,9 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 
                         // We now have to get back to the nearest filter which is not terminal.
                         unstackFilters( container );
+
+                        // We can have a pop transition
+                        container.grammarPopAllowed( true );
                     }
                 });
                 
@@ -403,6 +409,8 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 
                         // We now have to get back to the nearest filter which is not terminal.
                         unstackFilters( container );
+                        // We can have a pop transition
+                        container.grammarPopAllowed( true );
                     }
                 });
                 
@@ -456,7 +464,7 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
 	            else
 	            {
 	                currentFilter = null;
-	                break;
+                    break;
 	            }
 	        }
 	        

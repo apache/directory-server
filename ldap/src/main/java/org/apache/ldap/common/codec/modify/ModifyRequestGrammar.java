@@ -224,7 +224,7 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
         super.transitions[LdapStatesEnum.MODIFY_REQUEST_ATTRIBUTE_VALUE_OR_MODIFICATION_TAG][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.MODIFY_REQUEST_ATTRIBUTE_VALUE_OR_MODIFICATION_TAG,
-                LdapStatesEnum.MODIFY_REQUEST_MODIFICATION_SEQUENCE_VALUE, null );
+                LdapStatesEnum.MODIFY_REQUEST_MODIFICATION_SEQUENCE_VALUE, null);
 
         // LdapMessage ::= ... ModifyRequest ...
         // ModifyRequest ::= [APPLICATION 6] SEQUENCE {
@@ -507,6 +507,9 @@ public class ModifyRequestGrammar extends AbstractGrammar implements IGrammar
                         
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
+                        
+                        // We can have an Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
                         
                         log.debug( "Value modified : {}", value );
                     }

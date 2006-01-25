@@ -84,7 +84,7 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                 LdapStatesEnum.MATCHING_RULE_ASSERTION_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_VALUE, null );
 
         super.transitions[LdapStatesEnum.MATCHING_RULE_ASSERTION_VALUE][LdapConstants.EXTENSIBLE_MATCH_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.MATCHING_RULE_ASSERTION_VALUE, LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG, 
+                LdapStatesEnum.MATCHING_RULE_ASSERTION_VALUE, LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG, 
                 new GrammarAction( "Init extensible match Filter" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
@@ -126,8 +126,8 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
         //          matchingRule    [1] MatchingRuleId OPTIONAL, (Tag)
         //          ...
         // Nothing to do
-        super.transitions[LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG][LdapConstants.SEARCH_MATCHING_RULE_TAG] = new GrammarTransition(
-                LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE, null );
+        super.transitions[LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG][LdapConstants.SEARCH_MATCHING_RULE_TAG] = new GrammarTransition(
+                LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE, null );
 
         // MatchingRuleAssertion ::= SEQUENCE {
         //          matchingRule    [1] MatchingRuleId OPTIONAL, (Value)
@@ -177,8 +177,8 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
         //          ...
         // Nothing to do.
         // Nothing to do.
-        super.transitions[LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG][LdapConstants.MATCHING_RULE_ASSERTION_TYPE_TAG] = new GrammarTransition(
-                LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_TYPE_VALUE, null );
+        super.transitions[LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG][LdapConstants.MATCHING_RULE_ASSERTION_TYPE_TAG] = new GrammarTransition(
+                LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_TYPE_VALUE, null );
 
                 
         // MatchingRuleAssertion ::= SEQUENCE { 
@@ -208,32 +208,31 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
 
                         TLV tlv            = ldapMessageContainer.getCurrentTLV();
 
-                        // Store the value.
-                        ExtensibleMatchFilter extensibleMatchFilter = (ExtensibleMatchFilter)searchRequest.getCurrentFilter();
-                        
-                        try
+                        if ( tlv.getLength().getLength() == 0 )
                         {
-                            LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
-                            extensibleMatchFilter.setType( type );
+                            log.error( "The type cannot be null in a MacthingRuleAssertion" );
+                            throw new DecoderException( "The type cannot be null in a MacthingRuleAssertion" );
                         }
-                        catch ( LdapStringEncodingException lsee )
+                        else
                         {
-                            String msg = StringTools.dumpBytes( tlv.getValue().getData() );
-                            log.error( "The match filter ({}) is invalid", msg );
-                            throw new DecoderException( "Invalid match filter " + msg + ", : " + lsee.getMessage() );
+                            // Store the value.
+                            ExtensibleMatchFilter extensibleMatchFilter = (ExtensibleMatchFilter)searchRequest.getCurrentFilter();
+                            
+                            try
+                            {
+                                LdapString type = LdapDN.normalizeAttribute( tlv.getValue().getData() );
+                                extensibleMatchFilter.setType( type );
+                            }
+                            catch ( LdapStringEncodingException lsee )
+                            {
+                                String msg = StringTools.dumpBytes( tlv.getValue().getData() );
+                                log.error( "The match filter ({}) is invalid", msg );
+                                throw new DecoderException( "Invalid match filter " + msg + ", : " + lsee.getMessage() );
+                            }
                         }
                     }
                 });
                 
-        // MatchingRuleAssertion ::= SEQUENCE { 
-        //          (void),
-        //          (void),
-        //          matchValue      [3] AssertionValue, (Tag)
-        //          ...
-        // Nothing to do.
-        super.transitions[LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG][LdapConstants.SEARCH_MATCH_VALUE_TAG] = new GrammarTransition(
-                LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_OR_MATCH_VALUE_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_MATCH_VALUE_VALUE, null );
-
         // MatchingRuleAssertion ::= SEQUENCE { 
         //          matchingRule    [1] MatchingRuleId OPTIONAL,
         //          (void),
@@ -274,6 +273,9 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                         // Store the value.
                         ExtensibleMatchFilter extensibleMatchFilter = (ExtensibleMatchFilter)searchRequest.getCurrentFilter();
                         extensibleMatchFilter.setMatchValue( StringTools.utf8ToString( tlv.getValue().getData() ) );
+
+                        // We can have a pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
                     }
                 });
                 
@@ -329,6 +331,9 @@ public class MatchingRuleAssertionGrammar extends AbstractGrammar implements IGr
                         {
                             log.debug( "DN Attributes : {}", new Boolean( extensibleMatchFilter.isDnAttributes() ) );
                         }
+                        
+                        // We can have a pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
                     }
                 });
     }

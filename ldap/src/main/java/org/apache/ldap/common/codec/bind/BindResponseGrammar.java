@@ -23,6 +23,7 @@ import org.apache.asn1.ber.grammar.GrammarAction;
 import org.apache.asn1.ber.IAsn1Container;
 import org.apache.asn1.ber.tlv.UniversalTag;
 import org.apache.asn1.ber.tlv.TLV;
+import org.apache.asn1.codec.DecoderException;
 import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -105,7 +106,13 @@ public class BindResponseGrammar extends AbstractGrammar implements IGrammar
         // The current state will be stored.
         super.transitions[LdapStatesEnum.BIND_RESPONSE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
                 LdapStatesEnum.BIND_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH,
-                null );
+                new GrammarAction( "Allow pop" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                } );
 
         // LdapMessage ::= ... BindResponse ...
         // BindResponse ::= [APPLICATION 1] SEQUENCE {

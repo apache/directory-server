@@ -170,7 +170,14 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
         //     ...
         // Nothing to do
         super.transitions[LdapStatesEnum.FILTER_TAG][LdapConstants.SUBSTRINGS_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.SUBSTRING_FILTER_GRAMMAR_SWITCH, null );
+                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.SUBSTRING_FILTER_GRAMMAR_SWITCH, 
+                new GrammarAction( "Allow pop" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                });
 
         // Filter ::= CHOICE {
         //     ...
@@ -209,7 +216,14 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
         //     extensibleMatch [9] ExtensibleMatchFilter } (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.FILTER_TAG][LdapConstants.EXTENSIBLE_MATCH_FILTER_TAG] = new GrammarTransition(
-                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH, null );
+                LdapStatesEnum.FILTER_TAG, LdapStatesEnum.MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH,                 
+                new GrammarAction( "Allow pop" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                });
 
         // Filter ::= CHOICE {
         //     and             [0] SET OF Filter, (Value)
@@ -523,6 +537,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                         
                         // We now have to get back to the nearest filter which is not terminal.
                         unstackFilters( container );
+                        container.grammarPopAllowed( true );
                     }
                 });
 
@@ -643,6 +658,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
                             
                         // We now have to get back to the nearest filter which is not terminal.
                         unstackFilters( container );
+                        container.grammarPopAllowed( true );
                     }
                 } );
 
@@ -679,7 +695,7 @@ public class FilterGrammar extends AbstractGrammar implements IGrammar
         // Get the parent, if any
         Filter currentFilter = searchRequest.getCurrentFilter();
 
-        // We know have to check if the parent has been completed
+        // We now have to check if the parent has been completed
 	    if (tlv.getParent().getExpectedLength() == 0)
 	    {
 	        TLV parent = tlv.getParent();
