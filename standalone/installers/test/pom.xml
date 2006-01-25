@@ -20,6 +20,11 @@
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>
+      <groupId>org.apache.directory.server.standalone.simple</groupId>
+      <artifactId>org.apache.ldap.server.standalone.simple.main</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
       <groupId>org.apache.directory.server.standalone.daemon</groupId>
       <artifactId>org.apache.directory.server.standalone.daemon</artifactId>
       <version>0.9.4-SNAPSHOT</version>
@@ -29,6 +34,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <version>1.2.19</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-daemon</groupId>
+      <artifactId>commons-daemon</artifactId>
+      <version>1.0.1</version>
     </dependency>
     <dependency>
       <groupId>springframework</groupId>

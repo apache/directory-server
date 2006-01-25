@@ -86,6 +86,28 @@ public class CreateImageCommand implements MojoCommand
                 + " into position " + layout.getBootstrapper() );
         }
         
+        // copy over the REQUIRED logger artifact
+        try
+        {
+            FileUtils.copyFile( mymojo.getLogger().getFile(), layout.getLogger() );
+        }
+        catch ( IOException e )
+        {
+            throw new MojoFailureException( "Failed to copy logger.jar " + mymojo.getLogger().getFile()
+                + " into position " + layout.getLogger() );
+        }
+        
+        // copy over the REQUIRED daemon.jar file 
+        try
+        {
+            FileUtils.copyFile( mymojo.getDaemon().getFile(), layout.getDaemon() );
+        }
+        catch ( IOException e )
+        {
+            throw new MojoFailureException( "Failed to copy daemon.jar " + mymojo.getDaemon().getFile()
+                + " into position " + layout.getDaemon() );
+        }
+        
         // copy over the REQUIRED bootstrapper configuration file
         try
         {

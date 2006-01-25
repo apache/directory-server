@@ -124,6 +124,14 @@ public class MojoHelperUtils
             {
                 mymojo.getLog().info( "Not copying bootstrapper " + artifact );
             }
+            else if ( artifact.equals( mymojo.getLogger() ) )
+            {
+                mymojo.getLog().info( "Not copying logger " + artifact );
+            }
+            else if ( artifact.equals( mymojo.getDaemon() ) )
+            {
+                mymojo.getLog().info( "Not copying daemon " + artifact );
+            }
             else
             {
                 String key = artifact.getGroupId() + ":" + artifact.getArtifactId();

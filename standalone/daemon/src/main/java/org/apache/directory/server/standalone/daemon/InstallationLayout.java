@@ -117,6 +117,18 @@ public class InstallationLayout
     }
     
     
+    public File getLogger()
+    {
+        return new File( getBinDirectory(), "logger.jar" );
+    }
+    
+    
+    public File getDaemon()
+    {
+        return new File( getBinDirectory(), "daemon.jar" );
+    }
+    
+    
     public File getInitScript()
     {
         return getInitScript( "server.init" );

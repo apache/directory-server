@@ -44,6 +44,10 @@ public class ServiceInstallersMojo extends AbstractMojo
 {
     static final String BOOTSTRAPPER_ARTIFACT_ID = "org.apache.directory.server.standalone.daemon";
     static final String BOOTSTRAPPER_GROUP_ID = "org.apache.directory.server.standalone.daemon";
+    static final String LOGGER_ARTIFACT_ID = "nlog4j";
+    static final String LOGGER_GROUP_ID = "org.slf4j";
+    static final String DAEMON_ARTIFACT_ID = "commons-daemon";
+    static final String DAEMON_GROUP_ID = "commons-daemon";
 
     /**
      * The target directory into which the mojo creates os and platform 
@@ -124,7 +128,12 @@ public class ServiceInstallersMojo extends AbstractMojo
      */
     private Set excludes;
 
+    /** daemon bootstrapper */
     private Artifact bootstrapper;
+    /** logging API need by bootstraper */
+    private Artifact logger;
+    /** commons-daemon dependency needed by native daemon */
+    private Artifact daemon;
     private List allTargets;
     
     
@@ -150,7 +159,7 @@ public class ServiceInstallersMojo extends AbstractMojo
         reportSetup();
 
         // search for and find the bootstrapper artifact
-        setBootstrapperArtifact();
+        setBootstrapArtifacts();
         
         // generate installers for all targets
         for ( int ii = 0; ii < allTargets.size(); ii++ )
@@ -224,7 +233,7 @@ public class ServiceInstallersMojo extends AbstractMojo
     }
     
     
-    private void setBootstrapperArtifact() throws MojoFailureException
+    private void setBootstrapArtifacts() throws MojoFailureException
     {
         Artifact artifact = null;
         Iterator artifacts = project.getDependencyArtifacts().iterator();
@@ -235,12 +244,34 @@ public class ServiceInstallersMojo extends AbstractMojo
             {
                 getLog().info( "Found bootstrapper dependency with version: " + artifact.getVersion() );
                 bootstrapper = artifact;
-                return;
+            }
+            if ( artifact.getArtifactId().equals( LOGGER_ARTIFACT_ID ) || artifact.getGroupId().equals( LOGGER_GROUP_ID ) )
+            {
+                getLog().info( "Found logger dependency with version: " + artifact.getVersion() );
+                logger = artifact;
+            }
+            if ( artifact.getArtifactId().equals( DAEMON_ARTIFACT_ID ) || artifact.getGroupId().equals( DAEMON_GROUP_ID ) )
+            {
+                getLog().info( "Found daemon dependency with version: " + artifact.getVersion() );
+                daemon = artifact;
             }
         }
 
-        throw new MojoFailureException( "Bootstrapper dependency artifact required: " 
-            + BOOTSTRAPPER_GROUP_ID + ":" + BOOTSTRAPPER_ARTIFACT_ID );
+        if ( bootstrapper == null )
+        {
+            throw new MojoFailureException( "Bootstrapper dependency artifact required: " 
+                + BOOTSTRAPPER_GROUP_ID + ":" + BOOTSTRAPPER_ARTIFACT_ID );
+        }
+        if ( logger == null )
+        {
+            throw new MojoFailureException( "Logger dependency artifact required: " 
+                + LOGGER_GROUP_ID + ":" + LOGGER_ARTIFACT_ID );
+        }
+        if ( daemon == null )
+        {
+            throw new MojoFailureException( "Daemon dependency artifact required: " 
+                + DAEMON_GROUP_ID + ":" + DAEMON_ARTIFACT_ID );
+        }
     }
     
     
@@ -289,6 +320,18 @@ public class ServiceInstallersMojo extends AbstractMojo
     public Artifact getBootstrapper()
     {
         return bootstrapper;
+    }
+
+
+    public Artifact getDaemon()
+    {
+        return daemon;
+    }
+
+
+    public Artifact getLogger()
+    {
+        return logger;
     }
 
 

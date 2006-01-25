@@ -11,12 +11,13 @@
   <groupId>org.apache.directory.server.standalone.daemon</groupId>
   <name>standalone-daemon</name>
   <packaging>jar</packaging>
-  <description>
-  </description>
+  <description></description>
   <distributionManagement>
     <site>
       <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-standalone/</url>
+      <url>
+        scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-standalone/
+      </url>
     </site>
   </distributionManagement>
   <dependencies>
@@ -25,12 +26,12 @@
       <artifactId>nlog4j</artifactId>
       <version>1.2.19</version>
       <!-- scope>provided</scope -->
-    </dependency>  
+    </dependency>
     <dependency>
       <groupId>commons-daemon</groupId>
       <artifactId>commons-daemon</artifactId>
       <version>1.0.1</version>
-    </dependency>  
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -40,7 +41,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.apache.ldap.server.ServerMain</mainClass>
+              <mainClass>org.apache.directory.server.standalone.daemon.Bootstrapper</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -49,16 +50,28 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>org.apache.directory.server.standalone.daemon.Bootstrapper</mainClass>
-            </manifest> 
-          </archive>
-          <descriptor>src/main/assembly/bootstrapper.xml</descriptor>
-          <classifier>app</classifier>
-          <appendAssemblyId>false</appendAssemblyId>
-        </configuration>
+        <executions>
+          <execution>
+            <id>1</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>
+                    org.apache.directory.server.standalone.daemon.Bootstrapper
+                  </mainClass>
+                </manifest>
+              </archive>
+              <descriptor>src/main/assembly/bootstrapper.xml</descriptor>
+              <classifier>app</classifier>
+              <appendAssemblyId>false</appendAssemblyId>
+              <finalName>${project.build.finalName}</finalName>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
