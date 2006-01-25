@@ -130,22 +130,6 @@ public class CreateImageCommand implements MojoCommand
             }
         }
         
-        // copy over the init script template
-        if ( target.getOsFamily().equals( "unix" ) )
-        {
-            try
-            {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                    getClass().getResourceAsStream( "template.init" ), layout.getInitScript(), true );
-            }
-            catch ( IOException e )
-            {
-                mymojo.getLog().error( "Failed to copy server configuration file "  
-                    + target.getServerConfigurationFile()
-                    + " into position " + layout.getInitScript(), e );
-            }
-        }
-        
         // now copy over the jsvc executable renaming it to the applicationName 
         if ( target.getOsName().equals( "linux" ) && 
              target.getOsArch().equals( "i386" ) )

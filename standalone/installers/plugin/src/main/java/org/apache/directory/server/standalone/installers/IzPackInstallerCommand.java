@@ -48,6 +48,8 @@ public class IzPackInstallerCommand implements MojoCommand
     private File izPackWindowsShortcuts;
     private File izPackUnixShortcuts;
     private File izPackOutput;
+    private File shellLinkDll;
+    private File izPackBase;
     
     
     IzPackInstallerCommand( ServiceInstallersMojo mymojo, IzPackTarget target, InstallationLayout layout )
@@ -55,22 +57,14 @@ public class IzPackInstallerCommand implements MojoCommand
         this.target = target;
         this.layout = layout;
         this.mymojo = mymojo;
-        
-        izPackOutput = layout.getBaseDirectory().getParentFile();
-        izPackOutput = new File( izPackOutput, target.getId() + "_izpack_installer.jar" );
-        
-        izPackInput = layout.getBaseDirectory().getParentFile();
-        izPackInput = new File( izPackInput, target.getId() + "_izpack_install.xml" );
-        
-        izPackUserInput = layout.getBaseDirectory().getParentFile();
-        izPackUserInput = new File( izPackUserInput, target.getId() + "_izpack_install_user_input.xml" );
-        
-        izPackWindowsShortcuts = layout.getBaseDirectory().getParentFile();
-        izPackWindowsShortcuts = new File( izPackWindowsShortcuts, target.getId() + "_izpack_windows_shortcuts.xml" );
-        
-        izPackUnixShortcuts = layout.getBaseDirectory().getParentFile();
-        izPackUnixShortcuts = new File( izPackUnixShortcuts, target.getId() + "_izpack_unix_shortcuts.xml" );
-        
+        File imageDir = layout.getBaseDirectory().getParentFile();
+        izPackBase = new File( imageDir, target.getId() );
+        izPackOutput = new File( imageDir, target.getId() + "_izpack_installer.jar" );
+        izPackInput = new File( imageDir, target.getId() + "_izpack_install.xml" );
+        izPackUserInput = new File( imageDir, target.getId() + "_izpack_install_user_input.xml" );
+        izPackWindowsShortcuts = new File( imageDir, target.getId() + "_izpack_windows_shortcuts.xml" );
+        izPackUnixShortcuts = new File( imageDir, target.getId() + "_izpack_unix_shortcuts.xml" );
+        shellLinkDll = new File( imageDir, "ShellLink.dll" );
         initializeFiltering();
     }
     
@@ -80,7 +74,7 @@ public class IzPackInstallerCommand implements MojoCommand
         generateInstallerFiles( target, layout );
         Project antProject = new Project();
         IzPackTask task = new IzPackTask();
-        task.setBasedir( layout.getBaseDirectory().getParent() );
+        task.setBasedir( izPackBase.getPath() );
         task.setProject( antProject );
         task.setInput( izPackInput.getPath() );
         task.setOutput( izPackOutput.getPath() );
@@ -91,16 +85,80 @@ public class IzPackInstallerCommand implements MojoCommand
 
     private void generateInstallerFiles( IzPackTarget target, InstallationLayout layout ) throws MojoFailureException
     {
-        try
+        if ( target.getOsFamily().equals( "windows" ) )
         {
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                getClass().getResourceAsStream( "izpack_install_template.xml" ), izPackInput, true );
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
+                    getClass().getResourceAsStream( "izpack_install_windows_template.xml" ), izPackInput, true );
+            }
+            catch ( IOException e )
+            {
+                mymojo.getLog().error( "Failed to copy izpack input file "  
+                    + getClass().getResource( "izpack_install_windows_template.xml" )
+                    + " into position " + izPackInput, e );
+            }
+
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
+                    getClass().getResourceAsStream( "izpack_install_shortcuts_windows.xml" ), izPackWindowsShortcuts, true );
+            }
+            catch ( IOException e )
+            {
+                mymojo.getLog().error( "Failed to copy izpack windows shortcuts file "  
+                    + getClass().getResource( "izpack_install_shortcuts_windows.xml" )
+                    + " into position " + izPackWindowsShortcuts, e );
+            }
+
+            try
+            {
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "ShellLink.dll" ), shellLinkDll );
+            }
+            catch ( IOException e )
+            {
+                mymojo.getLog().error( "Failed to copy izpack shellLinkDll file "  
+                    + getClass().getResource( "ShellLink.dll" )
+                    + " into position " + shellLinkDll, e );
+            }
         }
-        catch ( IOException e )
+        else if ( target.getOsFamily().equals( "unix" ) || target.getOsFamily().equals( "mac" ) )
         {
-            mymojo.getLog().error( "Failed to copy izpack input file "  
-                + getClass().getResource( "izpack_install_template.xml" )
-                + " into position " + izPackInput, e );
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
+                    getClass().getResourceAsStream( "izpack_install_unix_template.xml" ), izPackInput, true );
+            }
+            catch ( IOException e )
+            {
+                mymojo.getLog().error( "Failed to copy izpack input file "  
+                    + getClass().getResource( "izpack_install_unix_template.xml" )
+                    + " into position " + izPackInput, e );
+            }
+
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
+                    getClass().getResourceAsStream( "izpack_install_shortcuts_unix.xml" ), izPackUnixShortcuts, true );
+            }
+            catch ( IOException e )
+            {
+                mymojo.getLog().error( "Failed to copy izpack unix shortcuts file "  
+                    + getClass().getResource( "izpack_install_shortcuts_unix.xml" )
+                    + " into position " + izPackUnixShortcuts, e );
+            }
+
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
+                    getClass().getResourceAsStream( "template.init" ), layout.getInitScript(), true );
+            }
+            catch ( IOException e )
+            {
+                mymojo.getLog().error( "Failed to copy init script "  
+                    + getClass().getResource( "template.init" )
+                    + " into position " + layout.getInitScript(), e );
+            }
         }
 
         try
@@ -113,30 +171,6 @@ public class IzPackInstallerCommand implements MojoCommand
             mymojo.getLog().error( "Failed to copy izpack input file "  
                 + getClass().getResource( "izpack_install_user_input.xml" )
                 + " into position " + izPackUserInput, e );
-        }
-
-        try
-        {
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                getClass().getResourceAsStream( "izpack_install_shortcuts_windows.xml" ), izPackWindowsShortcuts, true );
-        }
-        catch ( IOException e )
-        {
-            mymojo.getLog().error( "Failed to copy izpack windows shortcuts file "  
-                + getClass().getResource( "izpack_install_shortcuts_windows.xml" )
-                + " into position " + izPackWindowsShortcuts, e );
-        }
-
-        try
-        {
-            MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                getClass().getResourceAsStream( "izpack_install_shortcuts_unix.xml" ), izPackUnixShortcuts, true );
-        }
-        catch ( IOException e )
-        {
-            mymojo.getLog().error( "Failed to copy izpack unix shortcuts file "  
-                + getClass().getResource( "izpack_install_shortcuts_unix.xml" )
-                + " into position " + izPackUnixShortcuts, e );
         }
     }
 
@@ -158,25 +192,6 @@ public class IzPackInstallerCommand implements MojoCommand
             filterProperties.put( "app.init.message", mymojo.getApplicationDescription() );
         }
 
-/*
-optional properties from mojo but should default:
-${app.author}
-${app.email}
-${app.url}
-${app.java.version}
-
-files which are user specified also from mojo:
-${app.license}
-${app.readme}
-${app.icon}
-
-files generated:
-${windows.shortcuts}
-${unix.shortcuts}
-${user.input}
-${image.basedir}
-${server.init}
-*/
         // -------------------------------------------------------------------
         // WARNING: hard code values just to for testing
         // -------------------------------------------------------------------
@@ -207,11 +222,28 @@ ${server.init}
         filterProperties.put( "app.icon" , layout.getLogoIconFile().getPath() );
         
         // generated files
-        filterProperties.put( "windows.shortcuts" , izPackWindowsShortcuts.getPath() );
-        filterProperties.put( "unix.shortcuts", izPackUnixShortcuts.getPath() );
+        if ( target.getOsFamily().equals( "windows" ) )
+        {
+            filterProperties.put( "windows.shortcuts" , izPackWindowsShortcuts.getPath() );
+        }
+        
+        if ( target.getOsFamily().equals( "unix" ) && target.getOsFamily().equals( "unix" ) )
+        {
+            filterProperties.put( "unix.shortcuts", izPackUnixShortcuts.getPath() );
+        }
         filterProperties.put( "user.input", izPackUserInput.getPath() );
         filterProperties.put( "image.basedir", layout.getBaseDirectory().getPath() );
-        filterProperties.put( "server.init", layout.getInitScript().getPath() );
+
+        if ( target.getOsFamily().equals( "mac" )|| target.getOsFamily().equals( "unix" ) )
+        {
+            System.out.println( " ***************************************** " );
+            System.out.println( layout.getInitScript().getName() );
+            System.out.println( " ***************************************** " );
+            filterProperties.put( "server.init", layout.getInitScript().getName() );
+        }
+        
+        // for the substitution of the application's installation path done by izPack
+        filterProperties.put( "app.install.base", "%INSTALL_PATH" );
     }
     
     

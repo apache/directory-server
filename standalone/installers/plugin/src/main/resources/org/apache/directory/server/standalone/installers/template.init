@@ -69,8 +69,8 @@ esac
 
 if [ -z "$_${app.caps}_HOME" ] ; then
   # try to find install home 
-  if [ -d ${app.install.base}/${app}-${version} ] ; then
-    ${app.caps}_HOME=${app.install.base}/${app}-${version}
+  if [ -d ${app.install.base} ] ; then
+    ${app.caps}_HOME=${app.install.base}
   fi
 
   if [ -d "$HOME/${app}-${version}" ] ; then
