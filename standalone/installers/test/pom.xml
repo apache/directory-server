@@ -88,7 +88,7 @@
           <applicationVersion>${pom.version}</applicationVersion>
           <innoTargets>
             <innoTarget>
-              <id>windows-xp-procrun-izpack</id>
+              <id>windows-xp-procrun</id>
               <osName>Windows XP</osName>
               <osFamily>windows</osFamily>
               <osVersion>5.1</osVersion>
@@ -98,7 +98,7 @@
           </innoTargets>
           <izPackTargets>
             <izPackTarget>
-              <id>linux-jsvc-izpack</id>
+              <id>linux-jsvc</id>
               <osName>Linux</osName>
               <osFamily>unix</osFamily>
               <osArch>i386</osArch>
@@ -106,7 +106,7 @@
             </izPackTarget>
             <!-- 
             <izPackTarget>
-              <id>macosx-jsvc-izpack</id>
+              <id>macosx-jsvc</id>
               <osName>macosx</osName>
               <osFamily>unix</osFamily>
               <osArch>ppc</osArch>
@@ -114,7 +114,7 @@
             </izPackTarget>
              -->
             <izPackTarget>
-              <id>solaris-jsvc-izpack</id>
+              <id>solaris-jsvc</id>
               <osName>sunos</osName>
               <osFamily>unix</osFamily>
               <minVersion>5.6</minVersion>
