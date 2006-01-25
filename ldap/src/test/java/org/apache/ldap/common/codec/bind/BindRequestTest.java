@@ -142,7 +142,7 @@ public class BindRequestTest extends TestCase {
         }
         catch ( DecoderException de )
         {
-            assertEquals( "Bad transition !", de.getMessage() );
+            assertEquals( "Cannot pop the grammar BIND_REQUEST_GRAMMAR for state BIND_REQUEST_NAME_TAG", de.getMessage() );
             return;
         }
     	
