@@ -55,6 +55,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SearchRequestTest extends TestCase {
+    
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -3646,7 +3647,7 @@ public class SearchRequestTest extends TestCase {
                     0x02, 0x01, 0x00,
                     0x01, 0x01, (byte)0xFF,
                     (byte)0xA9, 0x02,
-                      (byte)0x80, 0x00,
+                      (byte)0x81, 0x00,
                     0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
                       0x04, 0x00
         };
@@ -3695,7 +3696,7 @@ public class SearchRequestTest extends TestCase {
                     0x02, 0x01, 0x00,
                     0x01, 0x01, (byte)0xFF,
                     (byte)0xA9, 0x02,
-                      (byte)0x81, 0x00,
+                      (byte)0x82, 0x00,
                     0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
                       0x04, 0x00
         };
@@ -3798,5 +3799,202 @@ public class SearchRequestTest extends TestCase {
         {
             assertNotNull( attributes.get( "*" ) );
         }
+    }
+
+    /**
+     * Test the decoding of a SearchRequest with an extensible match and
+     * an matching rule and an empty type
+     */
+    public void testDecodeSearchRequestExtensibleMatchMatchingRuleEmptyType() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x43, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x3E, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x01,
+                    0x0A, 0x01, 0x03,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0xA9, 0x08,
+                        (byte)0x81, 0x04, 't', 'e', 's', 't',
+                        (byte)0x82, 0x00,
+                    0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                      0x04, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a SearchRequest with an extensible match and
+     * a matching rule and nothing else
+     */
+    public void testDecodeSearchRequestExtensibleMatchMatchingRuleAlone() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x41, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x3C, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x01,
+                    0x0A, 0x01, 0x03,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0xA9, 0x06,
+                        (byte)0x81, 0x04, 't', 'e', 's', 't',
+                    0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                      0x04, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a SearchRequest with an extensible match and
+     * a type and nothing else
+     */
+    public void testDecodeSearchRequestExtensibleMatchTypeAlone() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x43, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x3E, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x01,
+                    0x0A, 0x01, 0x03,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0xA9, 0x06,
+                        (byte)0x82, 0x04, 't', 'e', 's', 't',
+                    0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                      0x04, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a SearchRequest with an extensible match and
+     * a match Value and nothing else
+     */
+    public void testDecodeSearchRequestExtensibleMatchMatchValueAlone() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x43, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x3E, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x01,
+                    0x0A, 0x01, 0x03,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0xA9, 0x06,
+                        (byte)0x83, 0x04, 't', 'e', 's', 't',
+                    0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                      0x04, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
     }
 }
