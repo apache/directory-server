@@ -27,7 +27,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
@@ -121,8 +123,9 @@ public class MojoHelperUtils
     }
 
 
-    public static void copyDependencies( ServiceInstallersMojo mymojo, InstallationLayout layout ) throws MojoFailureException
+    public static List copyDependencies( ServiceInstallersMojo mymojo, InstallationLayout layout ) throws MojoFailureException
     {
+        List libArtifacts = new ArrayList();
         Artifact artifact = null;
         Iterator artifacts = mymojo.getProject().getRuntimeArtifacts().iterator();
         while ( artifacts.hasNext() )
@@ -152,6 +155,7 @@ public class MojoHelperUtils
                 try
                 {
                     FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
+                    libArtifacts.add( artifact );
                     mymojo.getLog().info( "===>>> included ===>>> " + key );
                 }
                 catch ( IOException e )
@@ -161,5 +165,7 @@ public class MojoHelperUtils
                 }
             }
         }
+        
+        return libArtifacts;
     }
 }

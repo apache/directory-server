@@ -73,6 +73,7 @@ public class CreateImageCommand implements MojoCommand
         // make the layout directories
         File dir = new File( mymojo.getOutputDirectory(), target.getId() );
         layout = new InstallationLayout( dir );
+        target.setLayout( layout );
         layout.mkdirs();
 
 
@@ -306,12 +307,6 @@ public class CreateImageCommand implements MojoCommand
             }
         }
         
-        MojoHelperUtils.copyDependencies( mymojo, layout );
-    }
-    
-    
-    InstallationLayout getLayout()
-    {
-        return layout;
+        target.setLibArtifacts( MojoHelperUtils.copyDependencies( mymojo, layout ) );
     }
 }

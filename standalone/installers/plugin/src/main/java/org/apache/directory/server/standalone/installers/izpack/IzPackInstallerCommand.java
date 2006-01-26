@@ -62,10 +62,10 @@ public class IzPackInstallerCommand implements MojoCommand
     private File izPackBase;
     
     
-    public IzPackInstallerCommand( ServiceInstallersMojo mymojo, IzPackTarget target, InstallationLayout layout )
+    public IzPackInstallerCommand( ServiceInstallersMojo mymojo, IzPackTarget target )
     {
         this.target = target;
-        this.layout = layout;
+        this.layout = target.getLayout();
         this.mymojo = mymojo;
         File imageDir = layout.getBaseDirectory().getParentFile();
         izPackBase = new File( imageDir, target.getId() );

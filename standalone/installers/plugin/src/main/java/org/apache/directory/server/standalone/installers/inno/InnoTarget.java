@@ -16,6 +16,8 @@
  */
 package org.apache.directory.server.standalone.installers.inno;
 
+import java.io.File;
+
 import org.apache.directory.server.standalone.installers.Target;
 
 
@@ -27,5 +29,17 @@ import org.apache.directory.server.standalone.installers.Target;
  */
 public class InnoTarget extends Target
 {
+    private File innoCompiler = new File( "C:\\Program Files\\Inno Setup 5\\ISCC.exe" );
 
+
+    public void setInnoCompiler(File innoCompiler)
+    {
+        this.innoCompiler = innoCompiler;
+    }
+
+    
+    public File getInnoCompiler()
+    {
+        return innoCompiler;
+    }
 }

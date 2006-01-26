@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.standalone.installers.inno.InnoInstallerCommand;
 import org.apache.directory.server.standalone.installers.inno.InnoTarget;
 import org.apache.directory.server.standalone.installers.izpack.IzPackInstallerCommand;
 import org.apache.directory.server.standalone.installers.izpack.IzPackTarget;
@@ -205,16 +206,26 @@ public class ServiceInstallersMojo extends AbstractMojo
             Target target = ( Target ) allTargets.get( ii );
             
             // create the installation image first
-            CreateImageCommand imgCommand = new CreateImageCommand( this, target );
-            imgCommand.execute();
+            CreateImageCommand imgCmd = new CreateImageCommand( this, target );
+            imgCmd.execute();
             
-            // generate the installer
+            // ---------------------------------------------------------------
+            // Generate all installers
+            // ---------------------------------------------------------------
+
             if ( target instanceof IzPackTarget )
             {
                 IzPackInstallerCommand izPackCmd = null;
-                izPackCmd = new IzPackInstallerCommand( this, ( IzPackTarget ) target, imgCommand.getLayout() );
+                izPackCmd = new IzPackInstallerCommand( this, ( IzPackTarget ) target );
                 izPackCmd.execute();
             }
+
+//            if ( target instanceof InnoTarget )
+//            {
+//                InnoInstallerCommand innoCmd = null;
+//                innoCmd = new InnoInstallerCommand( this, ( InnoTarget ) target );
+//                innoCmd.execute();
+//            }
         }
     }
     

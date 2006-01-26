@@ -18,7 +18,10 @@ package org.apache.directory.server.standalone.installers;
 
 
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
+
+import org.apache.directory.server.standalone.daemon.InstallationLayout;
 
 
 /**
@@ -70,6 +73,8 @@ public class Target
     private File serverConfigurationFile;
     private File bootstrapperConfiguraitonFile;
     
+    private InstallationLayout layout;
+    private List libArtifacts;
     
     public void setOsName( String osName )
     {
@@ -252,5 +257,29 @@ public class Target
     public String getApplicationEmail()
     {
         return applicationEmail;
+    }
+
+
+    public void setLayout(InstallationLayout layout)
+    {
+        this.layout = layout;
+    }
+
+
+    public InstallationLayout getLayout()
+    {
+        return layout;
+    }
+
+
+    public void setLibArtifacts(List libArtifacts)
+    {
+        this.libArtifacts = libArtifacts;
+    }
+
+
+    public List getLibArtifacts()
+    {
+        return libArtifacts;
     }
 }
