@@ -19,12 +19,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.directory.mina</groupId>
-      <artifactId>org.apache.mina.asn1</artifactId>
+      <artifactId>mina-filter-codec-asn1</artifactId>
       <version>0.9.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.mina</groupId>
-      <artifactId>org.apache.mina.filter.ssl</artifactId>
+      <artifactId>mina-filter-ssl</artifactId>
       <version>0.9.1-SNAPSHOT</version>
     </dependency>
     <dependency>

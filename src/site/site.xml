@@ -10,7 +10,7 @@
     <links>
     </links>
 
-    <menu name="Apache Directory Server" inherited="top">
+    <menu name="Apache Directory Server" inherit="top">
       <item name="Overview" href="/index.html"/>
       <item name="Features" href="/features.html"/>
       <item name="Roadmap" href="/roadmap.html"/>
@@ -55,7 +55,7 @@
             img="http://apache.org/images/ac2005us_blue_125x125.jpg" />
     </menu>
      -->
-     
+    ${modules}     
  </body>
 
 </project>

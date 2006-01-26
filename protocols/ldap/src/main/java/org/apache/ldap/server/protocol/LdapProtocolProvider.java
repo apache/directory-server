@@ -27,8 +27,8 @@ import java.util.Set;
 
 import javax.naming.Context;
 
-import org.apache.asn1.codec.mina.Asn1CodecDecoder;
-import org.apache.asn1.codec.mina.Asn1CodecEncoder;
+import org.apache.mina.filter.codec.asn1.Asn1CodecDecoder;
+import org.apache.mina.filter.codec.asn1.Asn1CodecEncoder;
 import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.AbandonRequest;
 import org.apache.ldap.common.message.AbandonRequestImpl;
