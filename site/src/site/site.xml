@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <bannerLeft>
+     <src>images/apache-directory-logo.png</src>
+     <href>http://directory.apache.org/</href>
+  </bannerLeft>
+
+  <body>
+    <links>
+       <item name="ApacheDS" href="http://directory.apache.org/newsite/subprojects/apacheds/index.html"/>
+       <item name="Naming" href="http://directory.apache.org/newsite/subprojects/naming/index.html"/>
+       <item name="Network Layer (MINA)" href="http://directory.apache.org/newsite/subprojects/network/index.html"/>
+       <item name="Directory" href="http://directory.apache.org/newsite/index.html"/>
+    </links>
+    <menu name="Apache Directory Server">
+      <item name="Overview" href="/index.html"/>
+      <item name="Features" href="/features.html"/>
+      <item name="Roadmap" href="/roadmap.html"/>
+      <item name="User's Guide" href="/users/index.html" collapse="true">
+        <item name="Building" href="/users/building.html"/>
+        <item name="Authentication" href="/users/authentication.html"/>
+        <item name="Authorization" href="/users/authorization.html"/>
+        <item name="Subentries" href="/users/subentries.html"/>
+        <item name="Collective Attributes" href="/users/collective.html"/>
+        <item name="Configuration" href="/users/configuration.html"/>
+        <item name="Partitions" href="/users/partitions.html"/>
+        <item name="Maven Plugin" href="/users/plugin.html"/>
+      </item>
+      <item name="Developer's Guide" href="/developers/index.html" collapse="true">
+        <item name="Architecture" href="/developers/architecture.html"/>
+        <item name="Components" href="/developers/components.html"/>
+        <item name="Networking" href="/developers/networking.html"/>
+        <item name="Protocol" href="/developers/protocol.html"/>
+        <item name="Backend Subsystem" href="/developers/backend.html"/>
+      </item>
+      <item name="ApacheDS Projects" href="/projects/index.html" collapse="true">
+        <item name="standalone" href="/projects/apacheds-standalone/index.html"/>
+        <item name="core" href="/projects/apacheds-core/index.html"/>
+        <item name="shared" href="/projects/apacheds-shared/index.html"/>
+        <item name="plugin" href="/projects/maven-directory-plugin/index.html"/>
+      </item>
+    </menu>
+    
+    <!-- <menu name="Project Information">
+      <item name="Combined Javadocs" href="/apidocs/index.html"/>
+      <item name="Wiki" href="http://wiki.apache.org/directory"/>
+      <item name="Open Issues" href="http://issues.apache.org/jira/browse/DIREVE"/>
+      <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/directory/apacheds/trunk/?root=Apache-SVN"/>
+      <item name="Mailing Lists" href="/mailing-lists.html"/>
+      <item name="License" href="/license.html"/>
+      <item name="Notices" href="/notices.html"/>
+    </menu> -->
+    
+    <!-- Commented out, still useful as a placeholder for the next event 
+    <menu name="ApacheCon US 2005"> 	 
+      <item name="ApacheCon US 2005" href="http://www.apachecon.com/"
+            img="http://apache.org/images/ac2005us_blue_125x125.jpg" />
+    </menu>
+     -->
+    ${reports}     
+ </body>
+
+</project>

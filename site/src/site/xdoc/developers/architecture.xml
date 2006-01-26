@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    
+  </properties>
+  
+  <body>
+    <section name="High Level Architecture">
+      <subsection name="A picture is worth a thousand words!">
+        <img src="../images/architecture.png"/>
+
+        <p>
+          The server is actually composed of two separable subsystems: the LDAP
+          protocol provider within the SEDA framework and the JNDI provider
+          (a.k.a. the backend subsystem).
+        </p>
+
+        <p>
+          Below we touch breifly on each major subsystem however a more detailed
+          presentation is available describing the server's architecture.  It was an
+          ApacheCon presentation in 04 and is available
+<a href="https://karasulu.homeip.net/svn/akarasulu/apachecon/eve-presentation/eve-intro-long.ppt">here</a>.
+        </p>
+      </subsection>
+
+      <subsection name="LDAP Protocol Provider">
+        <p>
+          The LDAP protocol provider is an implementation of the SEDA protocol
+          provider interface.  SEDA implements a provider architecture where
+          protocols snap into the framework like legos to service protocol
+          requests.  A SEDA provider has no relation to a JNDI provider.  Note
+          it can get confusing when talking about providers for SEDA or for
+          JNDI so we try our best to qualify which we refer to explicitly.
+        </p>
+
+        <p>
+          Other protocol providers may be added to a SEDA instance to service
+          multiple protocols on their respective service ports to share the same
+          plumbing.  In the picture above we show the Kerberos SEDA provider
+          we've implemented along side the LDAP SEDA provider
+        </p>
+
+        <p>
+          The LDAP protocol provider contains request handlers for each LDAP
+          request PDU type.  These handlers translate LDAP requests into
+          operations against an LDAP JNDI provider.  This LDAP JNDI provider by
+          default is the JNDI provider.  However the JNDI provider can be
+          switched using environment properties to use the SUN LDAP JNDI
+          provider.  When using the SUN JNDI Provider the SEDA protocol provider
+          becomes an LDAP proxy server.
+        </p>
+
+        <p>
+          The LDAP protocol provider is extremely simple yet powerful.  It
+          merely acts as an LDAP request PDU to JNDI operation transducer.  On
+          the wire LDAP requests trigger calls against JNDI contexts through
+          handlers.
+        </p>
+      </subsection>
+
+      <subsection name="JNDI Provider">
+        <p>
+          The heart of the server resides within the backend subsystem or the
+          JNDI provider.  The JNDI provider is a JNDI provider for the
+          LDAP namespace.  However this provider does not talk LDAP on the wire,
+          it effects the internal backing stores of the server directly.  Hence
+          the JNDI Provider is really the server side JNDI provider.
+        </p>
+
+        <p>
+          Fundamentally JNDI is used as the facade to the entire backend
+          subsystem.  JNDI interfaces are used to operated upon server backing
+          stores this way.  JNDI also serves as the integration API for
+          embedding the server.  The ServerContextFactory starts up the backend
+          subsystem as well as the networking code when the first initial
+          context is requested.  All other contexts do not incur startup costs.
+          This unique use of JNDI enables code to simply switch JNDI providers
+          to embed the server.  It also makes data access code in stored
+          procedures that uses JNDI capable of running inside and outside of
+          the server which makes testing really easy.
+        </p>
+
+        <p>
+          The directory server's backend subsystem contains most of the guts of
+          the server.  We want functionality like replication or triggers to be
+          present there regardless of whether the server is in standalone mode
+          or embedded within another application.  Hence keeping it within the
+          backend made sense.
+        </p>
+
+        <p>
+          The server contains backing stores to store LDAP entries which really
+          are serialized javax.naming.directory.Attributes objects.  These
+          entries live within database partitions attached to a naming context.
+          All entries within these contexts are contained within the partition
+          assigned to it.  Several partitions can be present within the same
+          directory server instance.  Operations against contexts are routed by
+          a Nexus based on the name (DN) of the entry associated with the
+          operation.
+        </p>
+
+        <p>
+          JNDI contexts hence translate relative operations to distinguished
+          operations against the Nexus which routes these calls to the
+          respective partition to add, delete, modify, search or move around
+          entries.  Between calls from JNDI Contexts to the RootNexus an
+          interceptor framework intervenes to inject services like replication,
+          authorization and more.
+        </p>
+      </subsection>
+
+    </section>
+
+  </body>
+</document>

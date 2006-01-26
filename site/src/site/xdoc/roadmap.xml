@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    
+  </properties>
+  
+  <body>
+    <section name="Server Roadmap">
+      <p>
+        Until we pull this together in a nice format you can get an
+        idea of what is going on using these alternative sources of info:
+      </p>
+
+      <ul>
+        <li>
+          Look at the JIRA
+          <a href="http://issues.apache.org/jira/secure/BrowseProject.jspa">here
+          </a> for specific tasks.
+        </li>
+        <li>
+          Look at the release info in the WIKI
+          <a href="http://wiki.apache.org/directory/ReleasesHowto">here
+          </a> for high level roadmap.
+        </li>
+      </ul>
+    </section>
+
+  </body>
+</document>
