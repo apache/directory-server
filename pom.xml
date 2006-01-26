@@ -43,6 +43,44 @@
         <artifactId>maven-site-plugin</artifactId>
         <version>2.0-SNAPSHOT</version>
       </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <phase>site</phase>
+            <configuration>
+              <tasks>
+                <copy file="src/site/site.xml" todir="protocols/kerberos-common/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/dhcp/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/changepw/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/ntp/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/ldap/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/kerberos/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/dns/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="core/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="core-unit/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="plugin/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/simple/jndi/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/simple/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/simple/unit/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/simple/main/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/simple/ssl/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/daemon/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/installers/plugin/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="standalone/installers/test/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocol-common/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="shared/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="tools/src/site" overwrite="true"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <reporting>
