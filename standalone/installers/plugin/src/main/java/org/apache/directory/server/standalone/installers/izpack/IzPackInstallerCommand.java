@@ -361,10 +361,10 @@ public class IzPackInstallerCommand implements MojoCommand
         // -------------------------------------------------------------------
         
         // optional properties from mojo but should default:
-        filterProperties.put( "app.author" , "Directory Project Team" );
-        filterProperties.put( "app.email" , "dev@directory.apache.org" );
-        filterProperties.put( "app.url" , "http://directory.apache.org" );
-        filterProperties.put( "app.java.version" , "1.4" );
+        filterProperties.put( "app.author" , target.getApplicationAuthor() );
+        filterProperties.put( "app.email" , target.getApplicationEmail() );
+        filterProperties.put( "app.url" , target.getApplicationUrl() );
+        filterProperties.put( "app.java.version" , target.getApplicationJavaVersion() );
         
         // izpack compiler will barf if these files are not present
         // files which are user specified also from mojo

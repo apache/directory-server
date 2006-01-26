@@ -117,29 +117,29 @@ public class ServiceInstallersMojo extends AbstractMojo
     private String applicationVersion;
 
     /**
-     * @parameter 
+     * @parameter expression="${project.description}"
      */
     private String applicationDescription;
     
     /**
      * @parameter 
      */
-    private String applicationEmail;
+    private String applicationEmail = "general@apache.org";
 
     /**
-     * @parameter 
+     * @parameter expression="1.4"
      */
     private String applicationJavaVersion;
 
     /**
      * @parameter 
      */
-    private String applicationAuthor;
+    private String applicationAuthor = "Apache Software Foundation";
 
     /**
-     * @parameter 
+     * @parameter expression="${project.url}"
      */
-    private String applicationUrl;
+    private String applicationUrl = "http://www.apache.org";
 
     /**
      * @parameter expression="src/main/installers/logo.png"
