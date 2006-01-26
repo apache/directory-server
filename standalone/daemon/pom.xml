@@ -5,7 +5,6 @@
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
   <version>0.9.4-SNAPSHOT</version>
   <artifactId>org.apache.directory.server.standalone.daemon</artifactId>
@@ -46,33 +45,6 @@
             </manifest>
           </archive>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>1</id>
-            <phase>package</phase>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifest>
-                  <mainClass>
-                    org.apache.directory.server.standalone.daemon.Bootstrapper
-                  </mainClass>
-                </manifest>
-              </archive>
-              <descriptor>src/main/assembly/bootstrapper.xml</descriptor>
-              <classifier>app</classifier>
-              <appendAssemblyId>false</appendAssemblyId>
-              <finalName>${project.build.finalName}</finalName>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
