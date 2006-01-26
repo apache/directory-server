@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.standalone.installers.inno.InnoTarget;
 import org.apache.directory.server.standalone.installers.izpack.IzPackInstallerCommand;
 import org.apache.directory.server.standalone.installers.izpack.IzPackTarget;
 import org.apache.maven.artifact.Artifact;

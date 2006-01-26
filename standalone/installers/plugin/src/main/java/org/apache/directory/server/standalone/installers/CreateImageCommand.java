@@ -24,8 +24,6 @@ import java.util.Properties;
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Touch;
 import org.codehaus.plexus.util.FileUtils;
 
 
