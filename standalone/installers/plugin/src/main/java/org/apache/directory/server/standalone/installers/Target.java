@@ -58,6 +58,11 @@ public class Target
     private String daemonFramework;
     
     // optional stuff
+    private String applicationAuthor;
+    private String applicationUrl;
+    private String applicationJavaVersion;
+    private String applicationEmail;
+    
     private String minVersion;
     private String maxVersion;
     private String osVersion;
@@ -202,140 +207,50 @@ public class Target
     }
 
 
-//    /**
-//     * Determines if the target OS family matches the given OS family.
-//     * @param family the family to check for
-//     * @return true if the target OS matches
-//     */
-//    public boolean isFamily( String family )
-//    {
-//        return isOs( family, null, null, null );
-//    }
-//
-//    
-//    /**
-//     * Determines if the target OS matches the given OS name.
-//     *
-//     * @param name the OS name to check for
-//     * @return true if the target OS matches
-//     */
-//    public boolean isName( String name )
-//    {
-//        return isOs( null, name, null, null );
-//    }
-//    
-//
-//    /**
-//     * Determines if the target OS matches the given OS architecture.
-//     *
-//     * @param arch the OS architecture to check for
-//     * @return true if the target OS matches
-//     */
-//    public boolean isArch( String arch )
-//    {
-//        return isOs( null, null, arch, null );
-//    }
-//    
-//
-//    /**
-//     * Determines if the target OS matches the given OS version.
-//     *
-//     * @param version the OS version to check for
-//     * @return true if the OS matches
-//     */
-//    public boolean isVersion( String version )
-//    {
-//        return isOs( null, null, null, version );
-//    }
-//
-//    
-//    /**
-//     * Determines if the OS matches the target's OS family, name, architecture and version
-//     *
-//     * @param family   The OS family
-//     * @param name   The OS name
-//     * @param arch   The OS architecture
-//     * @param version   The OS version
-//     * @return true if the OS matches
-//     */
-//    public boolean isOs( String family, String name, String arch, String version )
-//    {
-//        boolean retValue = false;
-//
-//        if ( family != null || name != null || arch != null || version != null )
-//        {
-//            boolean isFamily = true;
-//            boolean isName = true;
-//            boolean isArch = true;
-//            boolean isVersion = true;
-//
-//            if ( family != null )
-//            {
-//                if ( osFamily.equals( family.toLowerCase() ) )
-//                {
-//                    isFamily = osName.indexOf( "windows" ) > -1;
-//                }
-//                else if ( osFamily.equals( "os/2" ) )
-//                {
-//                    isFamily = osName.indexOf( "os/2" ) > -1;
-//                }
-//                else if ( osFamily.equals( "netware" ) )
-//                {
-//                    isFamily = osName.indexOf( "netware" ) > -1;
-//                }
-//                else if ( family.equals( "dos" ) )
-//                {
-//                    isFamily = !isFamily( "netware" );
-//                }
-//                else if ( family.equals( "mac" ) )
-//                {
-//                    isFamily = osName.indexOf( "mac" ) > -1;
-//                }
-//                else if ( family.equals( "tandem" ) )
-//                {
-//                    isFamily = osName.indexOf( "nonstop_kernel" ) > -1;
-//                }
-//                else if ( family.equals( "unix" ) )
-//                {
-//                    isFamily = !isFamily( "openvms" )
-//                        && ( !isFamily( "mac" ) || osName.endsWith( "x" ) );
-//                }
-//                else if ( family.equals( "win9x" ) )
-//                {
-//                    isFamily = isFamily( "windows" )
-//                        && ( osName.indexOf( "95" ) >= 0
-//                        || osName.indexOf( "98" ) >= 0
-//                        || osName.indexOf( "me" ) >= 0
-//                        || osName.indexOf( "ce" ) >= 0 );
-//                }
-//                else if ( family.equals( "z/os" ) )
-//                {
-//                    isFamily = osName.indexOf( "z/os" ) > -1
-//                        || osName.indexOf( "os/390" ) > -1;
-//                }
-//                else if ( family.equals( "os/400" ) )
-//                {
-//                    isFamily = osName.indexOf( "os/400" ) > -1;
-//                }
-//                else if ( family.equals( "openvms" ) )
-//                {
-//                    isFamily = osName.indexOf( "openvms" ) > -1;
-//                }
-//            }
-//            if ( name != null )
-//            {
-//                isName = name.equals( osName );
-//            }
-//            if ( arch != null )
-//            {
-//                isArch = arch.equals( osName );
-//            }
-//            if ( version != null )
-//            {
-//                isVersion = version.equals( osVersion );
-//            }
-//            retValue = isFamily && isName && isArch && isVersion;
-//        }
-//        return retValue;
-//    }
+    public void setApplicationAuthor(String author)
+    {
+        this.applicationAuthor = author;
+    }
+
+
+    public String getApplicationAuthor()
+    {
+        return applicationAuthor;
+    }
+
+
+    public void setApplicationUrl(String url)
+    {
+        this.applicationUrl = url;
+    }
+
+
+    public String getApplicationUrl()
+    {
+        return applicationUrl;
+    }
+
+
+    public void setApplicationJavaVersion(String javaVersion)
+    {
+        this.applicationJavaVersion = javaVersion;
+    }
+
+
+    public String getApplicationJavaVersion()
+    {
+        return applicationJavaVersion;
+    }
+
+
+    public void setApplicationEmail(String email)
+    {
+        this.applicationEmail = email;
+    }
+
+
+    public String getApplicationEmail()
+    {
+        return applicationEmail;
+    }
 }

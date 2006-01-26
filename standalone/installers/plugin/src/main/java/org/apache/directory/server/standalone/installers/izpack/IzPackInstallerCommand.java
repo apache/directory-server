@@ -41,6 +41,13 @@ import com.izforge.izpack.ant.IzPackTask;
  */
 public class IzPackInstallerCommand implements MojoCommand
 {
+    private final static String UNIX_INSTALL = "install_unix.xml";
+    private final static String UNIX_SHORTCUTS = "unix_shortcuts.xml";
+    private final static String WINDOWS_INSTALL = "install_windows.xml";
+    private final static String WINDSOWS_SHORTCUTS = "windows_shortcuts.xml";
+    private final static String USER_INPUT = "user_input.xml";
+    private final static String SHELLLINK_DLL = "ShellLink.dll";
+    
     private final Properties filterProperties = new Properties( System.getProperties() );
     private final ServiceInstallersMojo mymojo;
     private final IzPackTarget target;
@@ -67,7 +74,7 @@ public class IzPackInstallerCommand implements MojoCommand
         izPackUserInput = new File( imageDir, target.getId() + "_izpack_install_user_input.xml" );
         izPackWindowsShortcuts = new File( imageDir, target.getId() + "_izpack_windows_shortcuts.xml" );
         izPackUnixShortcuts = new File( imageDir, target.getId() + "_izpack_unix_shortcuts.xml" );
-        shellLinkDll = new File( imageDir, "ShellLink.dll" );
+        shellLinkDll = new File( imageDir, SHELLLINK_DLL );
         initializeFiltering();
     }
     
@@ -122,19 +129,19 @@ public class IzPackInstallerCommand implements MojoCommand
                 try
                 {
                     MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                        getClass().getResourceAsStream( "izpack_install_windows_template.xml" ), izPackInput, true );
+                        getClass().getResourceAsStream( WINDOWS_INSTALL ), izPackInput, true );
                 }
                 catch ( IOException e )
                 {
                     mymojo.getLog().error( "Failed to copy bundled izpack windows install file "  
-                        + getClass().getResource( "izpack_install_windows_template.xml" )
+                        + getClass().getResource( WINDOWS_INSTALL )
                         + " into position " + izPackInput, e );
                 }
                 
                 if ( mymojo.getLog().isInfoEnabled() )
                 {
                     mymojo.getLog().info( "Using bundled installer configuration file: " 
-                        + getClass().getResource( "izpack_install_windows_template.xml" ) );
+                        + getClass().getResource( WINDOWS_INSTALL ) );
                 }
             }
 
@@ -164,31 +171,31 @@ public class IzPackInstallerCommand implements MojoCommand
                 try
                 {
                     MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                        getClass().getResourceAsStream( "izpack_install_shortcuts_windows.xml" ), izPackWindowsShortcuts, true );
+                        getClass().getResourceAsStream( WINDSOWS_SHORTCUTS ), izPackWindowsShortcuts, true );
                 }
                 catch ( IOException e )
                 {
                     mymojo.getLog().error( "Failed to copy bundled izpack windows shortcuts file "  
-                        + getClass().getResource( "izpack_install_shortcuts_windows.xml" )
+                        + getClass().getResource( WINDSOWS_SHORTCUTS )
                         + " into position " + izPackWindowsShortcuts, e );
                 }
                 
                 if ( mymojo.getLog().isInfoEnabled() )
                 {
                     mymojo.getLog().info( "Using bundled windows shortcuts configuration file: " 
-                        + getClass().getResource( "izpack_install_shortcuts_windows.xml" ) );
+                        + getClass().getResource( WINDSOWS_SHORTCUTS ) );
                 }
             }
             
             // copy the ShellLink creation dll into the images folder
             try
             {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "ShellLink.dll" ), shellLinkDll );
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( SHELLLINK_DLL ), shellLinkDll );
             }
             catch ( IOException e )
             {
                 mymojo.getLog().error( "Failed to copy izpack shellLinkDll file "  
-                    + getClass().getResource( "ShellLink.dll" )
+                    + getClass().getResource( SHELLLINK_DLL )
                     + " into position " + shellLinkDll, e );
             }
         }
@@ -219,19 +226,19 @@ public class IzPackInstallerCommand implements MojoCommand
                 try
                 {
                     MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                        getClass().getResourceAsStream( "izpack_install_unix_template.xml" ), izPackInput, true );
+                        getClass().getResourceAsStream( UNIX_INSTALL ), izPackInput, true );
                 }
                 catch ( IOException e )
                 {
                     mymojo.getLog().error( "Failed to copy bundled izpack input file for unix "  
-                        + getClass().getResource( "izpack_install_unix_template.xml" )
+                        + getClass().getResource( UNIX_INSTALL )
                         + " into position " + izPackInput, e );
                 }
                 
                 if ( mymojo.getLog().isInfoEnabled() )
                 {
                     mymojo.getLog().info( "Using bundled installer configuration file: " 
-                        + getClass().getResource( "izpack_install_unix_template.xml" ) );
+                        + getClass().getResource( UNIX_INSTALL ) );
                 }
             }
 
@@ -260,19 +267,19 @@ public class IzPackInstallerCommand implements MojoCommand
                 try
                 {
                     MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                        getClass().getResourceAsStream( "izpack_install_shortcuts_unix.xml" ), izPackUnixShortcuts, true );
+                        getClass().getResourceAsStream( UNIX_SHORTCUTS ), izPackUnixShortcuts, true );
                 }
                 catch ( IOException e )
                 {
                     mymojo.getLog().error( "Failed to copy bundled izpack unix shortcuts file "  
-                        + getClass().getResource( "izpack_install_shortcuts_unix.xml" )
+                        + getClass().getResource( UNIX_SHORTCUTS )
                         + " into position " + izPackUnixShortcuts, e );
                 }
                 
                 if ( mymojo.getLog().isInfoEnabled() )
                 {
                     mymojo.getLog().info( "Using bundled unix shortcuts configuration file: " 
-                        + getClass().getResource( "izpack_install_shortcuts_unix.xml" ) );
+                        + getClass().getResource( UNIX_SHORTCUTS ) );
                 }
             }
 
@@ -314,12 +321,12 @@ public class IzPackInstallerCommand implements MojoCommand
             try
             {
                 MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
-                    getClass().getResourceAsStream( "izpack_install_user_input.xml" ), izPackUserInput, true );
+                    getClass().getResourceAsStream( USER_INPUT ), izPackUserInput, true );
             }
             catch ( IOException e )
             {
                 mymojo.getLog().error( "Failed to copy bundled izpack input file "  
-                    + getClass().getResource( "izpack_install_user_input.xml" )
+                    + getClass().getResource( USER_INPUT )
                     + " into position " + izPackUserInput, e );
             }
             
@@ -390,9 +397,6 @@ public class IzPackInstallerCommand implements MojoCommand
 
         if ( target.getOsFamily().equals( "mac" )|| target.getOsFamily().equals( "unix" ) )
         {
-            System.out.println( " ***************************************** " );
-            System.out.println( layout.getInitScript().getName() );
-            System.out.println( " ***************************************** " );
             filterProperties.put( "server.init", layout.getInitScript().getName() );
         }
         

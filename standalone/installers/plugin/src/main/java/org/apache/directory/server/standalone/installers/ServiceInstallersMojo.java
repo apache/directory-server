@@ -119,6 +119,26 @@ public class ServiceInstallersMojo extends AbstractMojo
      * @parameter 
      */
     private String applicationDescription;
+    
+    /**
+     * @parameter 
+     */
+    private String applicationEmail;
+
+    /**
+     * @parameter 
+     */
+    private String applicationJavaVersion;
+
+    /**
+     * @parameter 
+     */
+    private String applicationAuthor;
+
+    /**
+     * @parameter 
+     */
+    private String applicationUrl;
 
     /**
      * @parameter expression="src/main/installers/logo.png"
@@ -245,6 +265,22 @@ public class ServiceInstallersMojo extends AbstractMojo
             if ( target.getOsVersion() == null )
             {
                 target.setOsVersion( "*" );
+            }
+            if ( target.getApplicationAuthor() == null )
+            {
+                target.setApplicationAuthor( applicationAuthor );
+            }
+            if ( target.getApplicationEmail() == null )
+            {
+                target.setApplicationEmail( applicationEmail );
+            }
+            if ( target.getApplicationJavaVersion() == null )
+            {
+                target.setApplicationJavaVersion( applicationJavaVersion );
+            }
+            if ( target.getApplicationUrl() == null )
+            {
+                target.setApplicationUrl( applicationUrl );
             }
         }
     }
