@@ -93,6 +93,8 @@ public class InnoInstallerCommand implements MojoCommand
         if ( ! Os.isFamily( "windows" ) ) 
         {
             log.warn( "Inno target " + target.getId() + " cannot be built on a non-windows machine!" );
+            log.warn( "The build will not fail because of this acceptable situation." );
+            return;
         }
         
         if ( ! target.getInnoCompiler().exists() )
