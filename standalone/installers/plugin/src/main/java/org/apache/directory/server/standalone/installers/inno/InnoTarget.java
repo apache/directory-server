@@ -17,6 +17,7 @@
 package org.apache.directory.server.standalone.installers.inno;
 
 import java.io.File;
+import java.util.Calendar;
 
 import org.apache.directory.server.standalone.installers.Target;
 
@@ -31,7 +32,17 @@ public class InnoTarget extends Target
 {
     private File innoCompiler = new File( "C:\\Program Files\\Inno Setup 5\\ISCC.exe" );
     private File innoConfigurationFile;
+    private String companyName = "Apache Software Foundation";
+    private String copyrightYear;
 
+    
+    public InnoTarget()
+    {
+       Calendar cal = Calendar.getInstance();
+       cal.setTimeInMillis( System.currentTimeMillis() );
+       setCopyrightYear( String.valueOf( cal.get( Calendar.YEAR ) ) );
+    }
+    
 
     public void setInnoCompiler(File innoCompiler)
     {
@@ -54,5 +65,29 @@ public class InnoTarget extends Target
     public File getInnoConfigurationFile()
     {
         return innoConfigurationFile;
+    }
+
+
+    public void setCompanyName(String innoCompanyName)
+    {
+        this.companyName = innoCompanyName;
+    }
+
+
+    public String getCompanyName()
+    {
+        return companyName;
+    }
+
+
+    public void setCopyrightYear(String innoCopyrightYear)
+    {
+        this.copyrightYear = innoCopyrightYear;
+    }
+
+
+    public String getCopyrightYear()
+    {
+        return copyrightYear;
     }
 }

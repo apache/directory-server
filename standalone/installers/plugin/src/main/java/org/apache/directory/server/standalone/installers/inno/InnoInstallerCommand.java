@@ -21,23 +21,21 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.directory.server.standalone.installers.MojoCommand;
 import org.apache.directory.server.standalone.installers.MojoHelperUtils;
 import org.apache.directory.server.standalone.installers.ServiceInstallersMojo;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Exec;
-import org.apache.tools.ant.taskdefs.ExecTask;
 import org.apache.tools.ant.taskdefs.Execute;
-import org.apache.tools.ant.taskdefs.ExecuteStreamHandler;
 import org.apache.tools.ant.taskdefs.Touch;
-import org.apache.tools.ant.types.Commandline;
-import org.apache.tools.ant.types.Commandline.Argument;
+
 import org.codehaus.plexus.util.Os;
 
 
@@ -66,7 +64,6 @@ public class InnoInstallerCommand implements MojoCommand
         this.log = mymojo.getLog();
         File imagesDir = target.getLayout().getBaseDirectory().getParentFile();
         innoConfigurationFile = new File( imagesDir, target.getId() + ".iss" );
-        initializeFiltering();
     }
     
     
@@ -82,6 +79,8 @@ public class InnoInstallerCommand implements MojoCommand
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
+        initializeFiltering();
+
         // -------------------------------------------------------------------
         // Step 1 & 4: do some error checking first for compiler and OS
         // -------------------------------------------------------------------
@@ -155,20 +154,25 @@ public class InnoInstallerCommand implements MojoCommand
         task.setCommandline( cmd );
         task.setSpawn( true );
         task.setWorkingDirectory( target.getLayout().getBaseDirectory() );
-        int retval = 0;
         try
         {
-            retval = task.execute();
+            task.execute();
         }
         catch ( IOException e )
         {
             throw new MojoFailureException( "Failed while trying to execute " + innoCompiler.getAbsolutePath() 
                 + ": " + e.getMessage() );
         }
+        
+        if ( task.getExitValue() != 0 )
+        {
+            throw new MojoFailureException( innoCompiler.getAbsolutePath() 
+                + " execution resulted in a non-zero exit value: " + task.getExitValue() );
+        }
     }
 
 
-    private void initializeFiltering() 
+    private void initializeFiltering() throws MojoFailureException 
     {
         filterProperties.putAll( mymojo.getProject().getProperties() );
         filterProperties.put( "app" , mymojo.getApplicationName() );
@@ -181,10 +185,9 @@ public class InnoInstallerCommand implements MojoCommand
         {
             filterProperties.put( "app.version", mymojo.getApplicationVersion() );
         }
-        
-        if ( mymojo.getApplicationDescription() != null )
+        else
         {
-            filterProperties.put( "app.init.message", mymojo.getApplicationDescription() );
+            filterProperties.put( "app.version", "1.0" );
         }
 
         // -------------------------------------------------------------------
@@ -196,6 +199,10 @@ public class InnoInstallerCommand implements MojoCommand
         filterProperties.put( "app.url" , target.getApplicationUrl() );
         filterProperties.put( "app.java.version" , target.getApplicationJavaVersion() );
         filterProperties.put( "app.license" , target.getLayout().getLicenseFile().getPath() );
+        filterProperties.put( "app.license.name" , target.getLayout().getLicenseFile().getName() );
+        filterProperties.put( "app.company.name" , target.getCompanyName() );
+        filterProperties.put( "app.description" , mymojo.getApplicationDescription() ); 
+        filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
 
         if ( ! target.getLayout().getReadmeFile().exists() )
         {
@@ -203,9 +210,31 @@ public class InnoInstallerCommand implements MojoCommand
         }
         filterProperties.put( "app.readme" , target.getLayout().getReadmeFile().getPath() );
         filterProperties.put( "app.icon" , target.getLayout().getLogoIconFile().getPath() );
+        filterProperties.put( "app.icon.name" , target.getLayout().getLogoIconFile().getName() );
         filterProperties.put( "image.basedir", target.getLayout().getBaseDirectory().getPath() );
+        filterProperties.put( "app.lib.jars", getApplicationLibraryJars() );
     }
     
+    
+    private String getApplicationLibraryJars() throws MojoFailureException
+    {
+        StringBuffer buf = new StringBuffer();
+        List artifacts = target.getLibArtifacts();
+        
+        for ( int ii = 0; ii > artifacts.size(); ii++ )
+        {
+            // "Source: {#SourceBase}\lib\${artifact.file.name}; DestDir: {app}; DestName: ${app.file.name}"
+            buf.append( "Source: {#SourceBase}\\lib\\" );
+            File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
+            buf.append( artifact.getName() );
+            buf.append( "; DestDir: {app}; DestName: " );
+            buf.append( artifact.getName() );
+            buf.append( "\n" );
+        }
+        
+        return buf.toString();
+    }
+
     
     static void touchFile( File file )
     {
