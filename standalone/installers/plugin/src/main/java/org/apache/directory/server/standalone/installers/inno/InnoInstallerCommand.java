@@ -20,6 +20,7 @@ package org.apache.directory.server.standalone.installers.inno;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
 import org.apache.directory.server.standalone.installers.MojoCommand;
@@ -30,7 +31,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Exec;
+import org.apache.tools.ant.taskdefs.ExecTask;
+import org.apache.tools.ant.taskdefs.Execute;
+import org.apache.tools.ant.taskdefs.ExecuteStreamHandler;
 import org.apache.tools.ant.taskdefs.Touch;
+import org.apache.tools.ant.types.Commandline;
+import org.apache.tools.ant.types.Commandline.Argument;
 import org.codehaus.plexus.util.Os;
 
 
@@ -49,6 +56,7 @@ public class InnoInstallerCommand implements MojoCommand
     private final Log log;
     
     private File innoCompiler;
+//    private File innoOutputFile;
     
     
     public InnoInstallerCommand( ServiceInstallersMojo mymojo, InnoTarget target )
@@ -68,7 +76,6 @@ public class InnoInstallerCommand implements MojoCommand
      *   <li>Bail if target is not for windows or current machine is not windows (no inno compiler)</li>
      *   <li>Filter and copy project supplied inno file into place if it has been specified and exists</li>
      *   <li>If no inno file exists filter and deposite into place bundled inno template</li>
-     *   <li>Copy over the procrun executables with proper names for the application</li>
      *   <li>Bail if we cannot find the inno compiler executable</li>
      *   <li>Execute inno compiler it on the inno file</li>
      * </ol> 
@@ -76,7 +83,7 @@ public class InnoInstallerCommand implements MojoCommand
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         // -------------------------------------------------------------------
-        // Do some error checking first
+        // Step 1 & 4: do some error checking first for compiler and OS
         // -------------------------------------------------------------------
         
         if ( ! target.getOsFamily().equals( "windows" ) )
@@ -95,20 +102,68 @@ public class InnoInstallerCommand implements MojoCommand
         }
         
         // -------------------------------------------------------------------
-        // Copy over the procrun binaries with new app names
+        // Step 2 & 3: copy inno file and filter 
         // -------------------------------------------------------------------
         
-        File prunsrvFile = new File( target.getLayout().getBinDirectory(), mymojo.getApplicationName() + ".exe" );
-        InputStream prunsrvIn = getClass().getResourceAsStream( "../prunsrv.exe" );
-        
+        // check first to see if the default install.iss file is present in src/main/installers
+        File defaultInnoConfigurationFile = new File( mymojo.getSourceDirectory(), "install.iss" );
+        if ( target.getInnoConfigurationFile() != null && target.getInnoConfigurationFile().exists() )
+        {
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, target.getInnoConfigurationFile(), 
+                    innoConfigurationFile, true );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to filter and copy project provided " 
+                    + target.getInnoConfigurationFile() + " to " + innoConfigurationFile );
+            }
+        }
+        else if ( defaultInnoConfigurationFile.exists() )
+        {
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, defaultInnoConfigurationFile, 
+                    innoConfigurationFile, true );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to filter and copy project provided " 
+                    + defaultInnoConfigurationFile + " to " + innoConfigurationFile );
+            }
+        }
+        else
+        {
+            InputStream in = getClass().getResourceAsStream( "install.iss" );
+            URL resource = getClass().getResource( "install.iss" );
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, in, innoConfigurationFile, true );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to filter and copy bundled " + resource
+                    + " to " + innoConfigurationFile );
+            }
+        }
+
+        Execute task = new Execute();
+        String[] cmd = new String[] {
+            innoCompiler.getAbsolutePath(), innoConfigurationFile.getAbsolutePath()
+        };
+        task.setCommandline( cmd );
+        task.setSpawn( true );
+        task.setWorkingDirectory( target.getLayout().getBaseDirectory() );
+        int retval = 0;
         try
         {
-            MojoHelperUtils.copyBinaryFile( prunsrvIn, prunsrvFile );
+            retval = task.execute();
         }
         catch ( IOException e )
         {
-            throw new MojoFailureException( "Failed to extract bundled prunsrv.exe " + 
-                getClass().getResource( "../prunsrv.exe" ) + " into image destingation " + target.getLayout().getBinDirectory() );
+            throw new MojoFailureException( "Failed while trying to execute " + innoCompiler.getAbsolutePath() 
+                + ": " + e.getMessage() );
         }
     }
 

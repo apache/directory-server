@@ -220,12 +220,12 @@ public class ServiceInstallersMojo extends AbstractMojo
                 izPackCmd.execute();
             }
 
-//            if ( target instanceof InnoTarget )
-//            {
-//                InnoInstallerCommand innoCmd = null;
-//                innoCmd = new InnoInstallerCommand( this, ( InnoTarget ) target );
-//                innoCmd.execute();
-//            }
+            if ( target instanceof InnoTarget )
+            {
+                InnoInstallerCommand innoCmd = null;
+                innoCmd = new InnoInstallerCommand( this, ( InnoTarget ) target );
+                innoCmd.execute();
+            }
         }
     }
     
@@ -457,5 +457,11 @@ public class ServiceInstallersMojo extends AbstractMojo
     public File getLicenseFile()
     {
         return this.licenseFile;
+    }
+    
+    
+    public File getSourceDirectory()
+    {
+        return this.sourceDirectory;
     }
 }

@@ -30,6 +30,7 @@ import org.apache.directory.server.standalone.installers.Target;
 public class InnoTarget extends Target
 {
     private File innoCompiler = new File( "C:\\Program Files\\Inno Setup 5\\ISCC.exe" );
+    private File innoConfigurationFile;
 
 
     public void setInnoCompiler(File innoCompiler)
@@ -41,5 +42,17 @@ public class InnoTarget extends Target
     public File getInnoCompiler()
     {
         return innoCompiler;
+    }
+
+
+    public void setInnoConfigurationFile(File innoConfigurationFile)
+    {
+        this.innoConfigurationFile = innoConfigurationFile;
+    }
+
+
+    public File getInnoConfigurationFile()
+    {
+        return innoConfigurationFile;
     }
 }
