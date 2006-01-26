@@ -323,7 +323,14 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
         super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_VALUE, null );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_VALUE, 
+                new GrammarAction( "Allow pop" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                } );
 
         // AttributeTypeAndValues ::= SEQUENCE {
         //     ...
