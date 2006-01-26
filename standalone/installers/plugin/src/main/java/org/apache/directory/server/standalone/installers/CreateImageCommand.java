@@ -109,10 +109,17 @@ public class CreateImageCommand implements MojoCommand
         }
         else
         {
-            Touch task = new Touch();
-            task.setProject( new Project() );
-            task.setFile( licenseTarget );
-            task.execute();
+            try
+            {
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, 
+                    getClass().getResourceAsStream( "LICENSE.txt" ), licenseTarget, false );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to bundled ASL license file " 
+                    + getClass().getResource( "LICENSE.txt" )
+                    + " into position " + licenseTarget );
+            }
         }
         
         // copy over the license file if present otherwise use the bundled copy
