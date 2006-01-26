@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.standalone.installers.izpack.IzPackInstallerCommand;
+import org.apache.directory.server.standalone.installers.izpack.IzPackTarget;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -119,6 +121,11 @@ public class ServiceInstallersMojo extends AbstractMojo
     private String applicationDescription;
 
     /**
+     * @parameter expression="src/main/installers/logo.png"
+     */
+    private File applicationIcon;
+
+    /**
      * @parameter
      */
     private String encoding;
@@ -127,6 +134,16 @@ public class ServiceInstallersMojo extends AbstractMojo
      * @parameter
      */
     private Set excludes;
+
+    /**
+     * @parameter expression="LICENSE.txt"
+     */
+    private File licenseFile;
+
+    /**
+     * @parameter expression="README.txt"
+     */
+    private File readmeFile;
 
     /** daemon bootstrapper */
     private Artifact bootstrapper;
@@ -374,5 +391,23 @@ public class ServiceInstallersMojo extends AbstractMojo
     public String getApplicationDescription()
     {
         return this.applicationDescription;
+    }
+    
+    
+    public File getApplicationIcon()
+    {
+        return this.applicationIcon;
+    }
+    
+    
+    public File getReadmeFile()
+    {
+        return this.readmeFile;
+    }
+    
+    
+    public File getLicenseFile()
+    {
+        return this.licenseFile;
     }
 }

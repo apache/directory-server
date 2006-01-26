@@ -74,6 +74,64 @@ public class CreateImageCommand implements MojoCommand
         File dir = new File( mymojo.getOutputDirectory(), target.getId() );
         layout = new InstallationLayout( dir );
         layout.mkdirs();
+
+
+        // copy over the read me file if present otherwise use the bundled copy
+        if ( mymojo.getReadmeFile().exists() )
+        {
+            File readmeTarget = layout.getReadmeFile( mymojo.getReadmeFile().getName() );
+            try
+            {
+                FileUtils.copyFile( mymojo.getReadmeFile(), readmeTarget );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy read me file " + mymojo.getReadmeFile()
+                    + " into position " + readmeTarget );
+            }
+        }
+        
+        // copy over the license file if present otherwise use the bundled copy
+        if ( mymojo.getLicenseFile().exists() )
+        {
+            File licenseTarget = layout.getLicenseFile( mymojo.getLicenseFile().getName() );
+            try
+            {
+                FileUtils.copyFile( mymojo.getLicenseFile(), licenseTarget );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy license file " + mymojo.getLicenseFile()
+                    + " into position " + licenseTarget );
+            }
+        }
+        
+        // copy over the license file if present otherwise use the bundled copy
+        File iconTarget = layout.getLogoIconFile( mymojo.getApplicationIcon().getName() );
+        if ( mymojo.getApplicationIcon().exists() )
+        {
+            try
+            {
+                FileUtils.copyFile( mymojo.getApplicationIcon(), iconTarget );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy icon file " + mymojo.getApplicationIcon()
+                    + " into position " + iconTarget );
+            }
+        }
+        else
+        {
+            try
+            {
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "logo.png" ), iconTarget );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy icon file " + getClass().getResource( "logo.png" )
+                    + " into position " + iconTarget );
+            }
+        }
         
         // copy over the REQUIRED bootstrapper.jar file 
         try
@@ -151,6 +209,10 @@ public class CreateImageCommand implements MojoCommand
                     + " into position " + layout.getConfigurationFile(), e );
             }
         }
+        
+        // -------------------------------------------------------------------
+        // Copy OS Specific Files 
+        // -------------------------------------------------------------------
         
         // now copy over the jsvc executable renaming it to the applicationName 
         if ( target.getOsName().equals( "linux" ) && 

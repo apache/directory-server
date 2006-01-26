@@ -18,6 +18,7 @@ package org.apache.directory.server.standalone.installers;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -45,7 +46,7 @@ import org.codehaus.plexus.util.InterpolationFilterReader;
  */
 public class MojoHelperUtils
 {
-    static void copyBinaryFile( InputStream from, File to ) throws IOException
+    public static void copyBinaryFile( InputStream from, File to ) throws IOException
     {
         FileOutputStream out = null;
         try 
@@ -61,7 +62,7 @@ public class MojoHelperUtils
     }
     
     
-    static void copyAsciiFile( ServiceInstallersMojo mymojo, Properties filterProperties, InputStream from, 
+    public static void copyAsciiFile( ServiceInstallersMojo mymojo, Properties filterProperties, InputStream from, 
         File to, boolean filtering ) throws IOException
     {
         // buffer so it isn't reading a byte at a time!
@@ -113,7 +114,14 @@ public class MojoHelperUtils
     }
 
 
-    static void copyDependencies( ServiceInstallersMojo mymojo, InstallationLayout layout ) throws MojoFailureException
+    public static void copyAsciiFile( ServiceInstallersMojo mymojo, Properties filterProperties, File from, 
+        File to, boolean filtering ) throws IOException
+    {
+        copyAsciiFile( mymojo, filterProperties, new FileInputStream( from ), to, filtering );
+    }
+
+
+    public static void copyDependencies( ServiceInstallersMojo mymojo, InstallationLayout layout ) throws MojoFailureException
     {
         Artifact artifact = null;
         Iterator artifacts = mymojo.getProject().getRuntimeArtifacts().iterator();
