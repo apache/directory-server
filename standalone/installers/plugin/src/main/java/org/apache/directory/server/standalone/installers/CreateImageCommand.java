@@ -24,6 +24,8 @@ import java.util.Properties;
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Touch;
 import org.codehaus.plexus.util.FileUtils;
 
 
@@ -92,9 +94,9 @@ public class CreateImageCommand implements MojoCommand
         }
         
         // copy over the license file if present otherwise use the bundled copy
+        File licenseTarget = layout.getLicenseFile( mymojo.getLicenseFile().getName() );
         if ( mymojo.getLicenseFile().exists() )
         {
-            File licenseTarget = layout.getLicenseFile( mymojo.getLicenseFile().getName() );
             try
             {
                 FileUtils.copyFile( mymojo.getLicenseFile(), licenseTarget );
@@ -104,6 +106,13 @@ public class CreateImageCommand implements MojoCommand
                 throw new MojoFailureException( "Failed to copy license file " + mymojo.getLicenseFile()
                     + " into position " + licenseTarget );
             }
+        }
+        else
+        {
+            Touch task = new Touch();
+            task.setProject( new Project() );
+            task.setFile( licenseTarget );
+            task.execute();
         }
         
         // copy over the license file if present otherwise use the bundled copy

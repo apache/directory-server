@@ -105,7 +105,7 @@ public class IzPackInstallerCommand implements MojoCommand
         if ( target.getOsFamily().equals( "windows" ) )
         {
             // handle the installer file
-            if ( target.getIzPackInstallFile().exists() )
+            if ( target.getIzPackInstallFile() != null && target.getIzPackInstallFile().exists() )
             {
                 try
                 {
@@ -146,7 +146,7 @@ public class IzPackInstallerCommand implements MojoCommand
             }
 
             // handle the windows shortcuts file 
-            if ( target.getIzPackShortcutsWindowsFile().exists() )
+            if ( target.getIzPackShortcutsWindowsFile() != null && target.getIzPackShortcutsWindowsFile().exists() )
             {
                 try
                 {
@@ -201,7 +201,7 @@ public class IzPackInstallerCommand implements MojoCommand
         }
         else if ( target.getOsFamily().equals( "unix" ) || target.getOsFamily().equals( "mac" ) )
         {
-            if ( target.getIzPackInstallFile().exists() )
+            if ( target.getIzPackInstallFile() != null && target.getIzPackInstallFile().exists() )
             {
                 try
                 {
@@ -242,7 +242,7 @@ public class IzPackInstallerCommand implements MojoCommand
                 }
             }
 
-            if ( target.getIzPackShortcutsUnixFile().exists() )
+            if ( target.getIzPackShortcutsUnixFile() != null && target.getIzPackShortcutsUnixFile().exists() )
             {
                 try
                 {
@@ -296,7 +296,7 @@ public class IzPackInstallerCommand implements MojoCommand
             }
         }
 
-        if ( target.getIzPackUserInputFile().exists() )
+        if ( target.getIzPackUserInputFile() != null && target.getIzPackUserInputFile().exists() )
         {
             try
             {

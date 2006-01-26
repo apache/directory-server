@@ -168,6 +168,7 @@ case "$1" in
     # Stop ${app}
     #
     echo -n $"Shutting down $prog: "
+    RETVAL=0
 
     $DAEMON_HOME/${app} \
     -stop \
