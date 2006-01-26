@@ -14,7 +14,9 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.server.standalone.installers;
+package org.apache.directory.server.standalone.installers.inno;
+
+import org.apache.directory.server.standalone.installers.Target;
 
 
 /**
