@@ -17,11 +17,13 @@
 package org.apache.ldap.common.codec.del;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.ldap.common.codec.Control;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -145,4 +147,94 @@ public class DelResponseTest extends TestCase {
     	
         fail( "We should not reach this point" );
     }
+
+    /**
+     * Test the decoding of a DelResponse with controls
+     */
+    public void testDecodeDelResponseSuccessWithControls()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x4A );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x48,           // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01,   //         messageID MessageID
+                  0x6B, 0x26,         //        CHOICE { ..., delResponse DelResponse, ...
+                                      // DelResponse ::= [APPLICATION 11] LDAPResult
+                    0x0A, 0x01, 0x21, //   LDAPResult ::= SEQUENCE {
+                                      //      resultCode ENUMERATED {
+                                      //          success (0), ...
+                                      //      },
+                    0x04, 0x1F,       //      matchedDN    LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x04, 0x00,       //      errorMessage LDAPString,
+                                      //      referral     [3] Referral OPTIONAL }
+                                      // }
+                  (byte)0xA0, 0x1B,   // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+                    
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the DelResponse PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        // Check the decoded DelResponse PDU
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        DelResponse delResponse      = message.getDelResponse();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 33, delResponse.getLdapResult().getResultCode() );
+        assertEquals( "uid=akarasulu,dc=example,dc=com", delResponse.getLdapResult().getMatchedDN() );
+        assertEquals( "", delResponse.getLdapResult().getErrorMessage() );
+
+        // Check the length
+        assertEquals(0x4A, message.computeLength());
+        
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+    
 }

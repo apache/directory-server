@@ -17,11 +17,13 @@
 package org.apache.ldap.common.codec.abandon;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.ldap.common.codec.Control;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -43,14 +45,20 @@ public class AbandonRequestTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x08 );
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x25 );
         stream.put(
             new byte[]
             {
-                0x30, 0x06, 		// LDAPMessage ::=SEQUENCE {
-				0x02, 0x01, 0x03, 	//        messageID MessageID
-				0x50, 0x01, 0x02	//        CHOICE { ..., abandonRequest AbandonRequest,...
-									// AbandonRequest ::= [APPLICATION 16] MessageID
+                0x30, 0x23, 		  // LDAPMessage ::=SEQUENCE {
+  				  0x02, 0x01, 0x03,   //        messageID MessageID
+				  0x50, 0x01, 0x02,	  //        CHOICE { ..., abandonRequest AbandonRequest,...
+									  // AbandonRequest ::= [APPLICATION 16] MessageID
+                  (byte)0xA0, 0x1B,   // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -78,8 +86,17 @@ public class AbandonRequestTest extends TestCase {
         assertEquals( 2, abandonRequest.getAbandonedMessageId() );
         
         // Check the length
-        assertEquals(8, message.computeLength());
+        assertEquals( 0x25, message.computeLength());
         
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
         // Check the encoding
         try
         {

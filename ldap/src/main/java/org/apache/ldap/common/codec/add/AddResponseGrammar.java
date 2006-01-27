@@ -117,7 +117,7 @@ public class AddResponseGrammar extends AbstractGrammar implements IGrammar
         // Ok, we have a LDAPResult Tag (0x0A). So we have to switch the grammar.
         super.transitions[LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
                 LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, 
-                new GrammarAction( "Store Ldap Result referral" )
+                new GrammarAction( "Pop allowed" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
                     {

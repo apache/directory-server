@@ -17,11 +17,13 @@
 package org.apache.ldap.common.codec.bind;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.ldap.common.codec.Control;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -170,6 +172,15 @@ public class BindResponseTest extends TestCase {
 
         // Check the length
         assertEquals(0x3C, message.computeLength());
+
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "1.2.840.113556.1.4.319", control.getControlType() );
+        assertEquals( "0x30 0x0B 0x0A 0x01 0x08 0x04 0x03 0x61 0x3D 0x62 0x02 0x01 0x10 ", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
 
         // Check the encoding
         try
