@@ -108,7 +108,15 @@ public class CompareResponseGrammar extends AbstractGrammar implements IGrammar
         // CompareResponse ::= [APPLICATION 15] LDAPResult (Value)
         // Ok, we have a LDAPResult Tag (0x0A). So we have to switch the grammar.
         super.transitions[LdapStatesEnum.COMPARE_RESPONSE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
-                LdapStatesEnum.COMPARE_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, null );
+                LdapStatesEnum.COMPARE_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, 
+                new GrammarAction( "Pop allowed" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                    
+                });
     }
 
     //~ Methods ------------------------------------------------------------------------------------
