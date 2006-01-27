@@ -41,7 +41,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.apache.directory.server.standalone.daemon.Bootstrapper</mainClass>
+              <mainClass>org.apache.directory.server.standalone.daemon.MainBootstrapper</mainClass>
             </manifest>
           </archive>
         </configuration>
