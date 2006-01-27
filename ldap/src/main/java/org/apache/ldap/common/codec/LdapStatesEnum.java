@@ -785,11 +785,11 @@ public class LdapStatesEnum implements IStates
     public static int ADD_REQUEST_ENTRY_VALUE = 3;
 
     // Attributes -------------------------------------------------------------
-    /** Attributes Tag */
-    public static int ADD_REQUEST_ATTRIBUTES_TAG = 4;
+    /** Attribute list Tag */
+    public static int ADD_REQUEST_ATTRIBUTE_LIST_TAG = 4;
 
-    /** Attributes Value */
-    public static int ADD_REQUEST_ATTRIBUTES_VALUE = 5;
+    /** Attribute list Value */
+    public static int ADD_REQUEST_ATTRIBUTE_LIST_VALUE = 5;
 
     // Attribute -------------------------------------------------------------è
     /** Attribute Tag */
@@ -800,27 +800,27 @@ public class LdapStatesEnum implements IStates
 
     // Attribute type ---------------------------------------------------------
     /** Attribute type Tag */
-    public static int ADD_REQUEST_ATTRIBUTES_TYPE_TAG = 8;
+    public static int ADD_REQUEST_ATTRIBUTE_TYPE_TAG = 8;
 
     /** Attribute type Value */
-    public static int ADD_REQUEST_ATTRIBUTES_TYPE_VALUE = 9;
+    public static int ADD_REQUEST_ATTRIBUTE_TYPE_VALUE = 9;
 
     // Attribute vals ---------------------------------------------------------
     /** Attribute vals Tag */
-    public static int ADD_REQUEST_ATTRIBUTES_VALS_TAG = 10;
+    public static int ADD_REQUEST_ATTRIBUTE_VALS_TAG = 10;
 
     /** Attribute vals Value */
-    public static int ADD_REQUEST_ATTRIBUTES_VALS_VALUE = 11;
+    public static int ADD_REQUEST_ATTRIBUTE_VALS_VALUE = 11;
 
     // Attribute val ----------------------------------------------------------
     /** Attribute val Tag */
-    public static int ADD_REQUEST_ATTRIBUTES_VAL_TAG = 10;
+    public static int ADD_REQUEST_ATTRIBUTE_VAL_TAG = 10;
 
     /** Attribute val Value */
-    public static int ADD_REQUEST_ATTRIBUTES_VAL_VALUE = 11;
+    public static int ADD_REQUEST_ATTRIBUTE_VAL_VALUE = 11;
 
     /** Attribute val Loop */
-    public static int ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END = 12;
+    public static int ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END = 12;
 
     /** The last state */
     public static int LAST_ADD_REQUEST_STATE = 13;
@@ -1442,17 +1442,17 @@ public class LdapStatesEnum implements IStates
             "ADD_REQUEST_VALUE",
             "ADD_REQUEST_ENTRY_TAG",
             "ADD_REQUEST_ENTRY_VALUE",
-            "ADD_REQUEST_ATTRIBUTES_TAG",
-            "ADD_REQUEST_ATTRIBUTES_VALUE",
+            "ADD_REQUEST_ATTRIBUTE_LIST_TAG",
+            "ADD_REQUEST_ATTRIBUTE_LIST_VALUE",
             "ADD_REQUEST_ATTRIBUTE_TAG",
             "ADD_REQUEST_ATTRIBUTE_VALUE",
-            "ADD_REQUEST_ATTRIBUTES_TYPE_TAG",
-            "ADD_REQUEST_ATTRIBUTES_TYPE_VALUE",
-            "ADD_REQUEST_ATTRIBUTES_VALS_TAG",
-            "ADD_REQUEST_ATTRIBUTES_VALS_VALUE",
-            "ADD_REQUEST_ATTRIBUTES_VAL_TAG",
-            "ADD_REQUEST_ATTRIBUTES_VAL_VALUE",
-            "ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END"
+            "ADD_REQUEST_ATTRIBUTE_TYPE_TAG",
+            "ADD_REQUEST_ATTRIBUTE_TYPE_VALUE",
+            "ADD_REQUEST_ATTRIBUTE_VALS_TAG",
+            "ADD_REQUEST_ATTRIBUTE_VALS_VALUE",
+            "ADD_REQUEST_ATTRIBUTE_VAL_TAG",
+            "ADD_REQUEST_ATTRIBUTE_VAL_VALUE",
+            "ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END"
         };
 
     /** A string representation of all the ModifyDN request states */

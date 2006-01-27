@@ -122,7 +122,7 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
         //    ...
         // Store the object name.
         super.transitions[LdapStatesEnum.ADD_REQUEST_ENTRY_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ENTRY_VALUE, LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TAG,
+                LdapStatesEnum.ADD_REQUEST_ENTRY_VALUE, LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_LIST_TAG,
                 new GrammarAction( "Store add request object Value" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
@@ -176,19 +176,19 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
         //    attributes      AttributeList }
         // AttributeList ::= *SEQUENCE* OF SEQUENCE { (Tag)
         // Nothing to do
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TAG][UniversalTag.SEQUENCE_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_LIST_TAG][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TAG,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALUE, null );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_LIST_TAG,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_LIST_VALUE, null );
 
         // AddRequest ::= [APPLICATION 8] SEQUENCE {
         //    ...
         //    attributes      AttributeList }
         // AttributeList ::= *SEQUENCE* OF SEQUENCE { (Value)
         // Allocate the attributes ArrayList
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALUE][UniversalTag.SEQUENCE_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_LIST_VALUE][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALUE,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_LIST_VALUE,
                 LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TAG,
                 new GrammarAction( "Init attributes array list" )
                 {
@@ -216,9 +216,9 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
         //     ...
         // Nothing to do
         // This is a loop, when dealing with more than one attribute
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END][UniversalTag.SEQUENCE_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END,
                 LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALUE, null );
 
         // AttributeList ::= SEQUENCE OF *SEQUENCE* { (Value)
@@ -226,25 +226,25 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
         super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALUE][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALUE,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TYPE_TAG, null );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TYPE_TAG, null );
 
         // AttributeList ::= SEQUENCE OF *SEQUENCE* {
         //    type    AttributeDescription, (Tag)
         //    ...
         // Nothing to do
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TYPE_TAG][UniversalTag.OCTET_STRING_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TYPE_TAG][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TYPE_TAG,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TYPE_VALUE, null );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TYPE_TAG,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TYPE_VALUE, null );
 
         // AttributeList ::= SEQUENCE OF *SEQUENCE* {
         //    type    AttributeDescription, (Value)
         //    ...
         // Store the attribute type.
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TYPE_VALUE][UniversalTag.OCTET_STRING_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TYPE_VALUE][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_TYPE_VALUE,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALS_TAG,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_TYPE_VALUE,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALS_TAG,
                 new GrammarAction( "Store attribute type" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
@@ -293,54 +293,48 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
         //     ...
         //     vals    *SET OF* AttributeValue } (Tag)
         // Nothing to do
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALS_TAG][UniversalTag.SET_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALS_TAG][UniversalTag.SET_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALS_TAG,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALS_VALUE, null );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALS_TAG,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALS_VALUE, null );
 
         // AttributeTypeAndValues ::= SEQUENCE {
         //     ...
         //     vals    *SET OF* AttributeValue } (Value)
         // Nothing to do
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALS_VALUE][UniversalTag.SET_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALS_VALUE][UniversalTag.SET_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VALS_VALUE,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_TAG, null );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VALS_VALUE,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_TAG, null );
 
         // AttributeTypeAndValues ::= SEQUENCE {
         //     ...
         //     vals    SET OF *AttributeValue* } (Tag)
         // Nothing to do
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_TAG][UniversalTag.OCTET_STRING_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_TAG][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_TAG,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_VALUE, null );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_TAG,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_VALUE, null );
 
         // AttributeTypeAndValues ::= SEQUENCE {
         //     ...
         //     vals    SET OF *AttributeValue* } (Loop)
         // This is a loop, when dealing with multi-valued attributes
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END][UniversalTag.OCTET_STRING_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_VALUE, 
-                new GrammarAction( "Allow pop" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        container.grammarPopAllowed( true );
-                    }
-                } );
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_VALUE, 
+                null);
 
         // AttributeTypeAndValues ::= SEQUENCE {
         //     ...
         //     vals    SET OF AttributeValue }
         // AttributeValue ::= OCTET STRING (Value)
         // Store a new attribute value.
-        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_VALUE][UniversalTag.OCTET_STRING_TAG] =
+        super.transitions[LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_VALUE][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_VALUE,
-                LdapStatesEnum.ADD_REQUEST_ATTRIBUTES_VAL_OR_ATTRIBUTE_OR_END,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_VALUE,
+                LdapStatesEnum.ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END,
                 new GrammarAction( "Store attribute value" )
                 {
                     public void action( IAsn1Container container )
