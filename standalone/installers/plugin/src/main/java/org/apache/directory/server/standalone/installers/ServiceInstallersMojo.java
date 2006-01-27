@@ -143,7 +143,7 @@ public class ServiceInstallersMojo extends AbstractMojo
     private String applicationUrl = "http://www.apache.org";
 
     /**
-     * @parameter expression="src/main/installers/logo.png"
+     * @parameter expression="src/main/installers/logo.ico"
      */
     private File applicationIcon;
 

@@ -185,7 +185,7 @@ public class InstallationLayout
     
     public File getLogoIconFile()
     {
-        return getLogoIconFile( "logo.png" );
+        return getLogoIconFile( "logo.ico" );
     }
 
     

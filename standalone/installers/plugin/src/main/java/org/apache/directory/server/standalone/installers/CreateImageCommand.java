@@ -121,7 +121,7 @@ public class CreateImageCommand implements MojoCommand
             }
         }
         
-        // copy over the license file if present otherwise use the bundled copy
+        // copy over the icon if present otherwise use the bundled copy
         File iconTarget = layout.getLogoIconFile( mymojo.getApplicationIcon().getName() );
         if ( mymojo.getApplicationIcon().exists() )
         {
@@ -139,11 +139,11 @@ public class CreateImageCommand implements MojoCommand
         {
             try
             {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "logo.png" ), iconTarget );
+                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "logo.ico" ), iconTarget );
             }
             catch ( IOException e )
             {
-                throw new MojoFailureException( "Failed to copy icon file " + getClass().getResource( "logo.png" )
+                throw new MojoFailureException( "Failed to copy icon file " + getClass().getResource( "logo.ico" )
                     + " into position " + iconTarget );
             }
         }
