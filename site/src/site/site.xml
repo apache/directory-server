@@ -9,7 +9,7 @@
   <body>
     <links>
        <item name="ApacheDS" href="http://directory.apache.org/newsite/subprojects/apacheds/index.html"/>
-       <item name="Naming" href="http://directory.apache.org/newsite/subprojects/naming/index.html"/>
+       <item name="Naming" href="http://directory.apache.org/subprojects/naming/index.html"/>
        <item name="Network Layer (MINA)" href="http://directory.apache.org/newsite/subprojects/network/index.html"/>
        <item name="Directory" href="http://directory.apache.org/newsite/index.html"/>
     </links>
@@ -34,12 +34,7 @@
         <item name="Protocol" href="/developers/protocol.html"/>
         <item name="Backend Subsystem" href="/developers/backend.html"/>
       </item>
-      <item name="ApacheDS Projects" href="/projects/index.html" collapse="true">
-        <item name="standalone" href="/projects/apacheds-standalone/index.html"/>
-        <item name="core" href="/projects/apacheds-core/index.html"/>
-        <item name="shared" href="/projects/apacheds-shared/index.html"/>
-        <item name="plugin" href="/projects/maven-directory-plugin/index.html"/>
-      </item>
+      <item name="ApacheDS Projects" href="/projects/index.html"/>
     </menu>
     
     <!-- <menu name="Project Information">

@@ -8,8 +8,8 @@
   <body>
     <section name="Server Projects">
       <p>
-        The server is composed of several Maven projects.  The usually Maven
-        generated project documenation for each of them can be accessed here:
+        The server is composed of several sub-projects.  Here is the list of
+        server sub-projects with brief definitions:
       </p>
       
       <table>
@@ -20,42 +20,146 @@
         
         <tr>
           <td>
-            <a href="../projects/apacheds-main/index.html">main</a>
+            core
           </td>
           <td>
-            Command line server application with <code>main()</code>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <a href="../projects/apacheds-core/index.html">core</a>
-          </td>
-          <td>
-            The core contains the JNDI provider, interceptor
-            framework, interceptor services, the schema subsystem and the
-            database subsystem.  Hence the core is the heart of the server as
-            its name suggests.
+            Explain
           </td>
         </tr>
-
         <tr>
           <td>
-            <a href="../projects/apacheds-shared/index.html">shared</a>
+            shared
           </td>
           <td>
-            Code shared by the core and plugin separated to prevent cyclic deps
+            Explain
           </td>
         </tr>
-
         <tr>
           <td>
-            <a href="../projects/maven-directory-plugin/index.html">plugin</a>
+            tools
           </td>
           <td>
-            A Maven Plugin used to generate code from OpenLDAP schema files.
-            These files are parsed and source is generated to bootstrap schema
-            in the server.
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            standalone/simple/jndi
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            standalone/simple/main
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            standalone/simple/ssl
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            standalone/daemon
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocol-common
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocols/dhcp
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocols/changepw
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocols/ntp
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocols/ldap
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocols/dns
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocols/kerberos
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protocols/kerberos-common
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            core-unit
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            standalone/simple/unit
+          </td>
+          <td>
+            Explain
+          </td>
+        </tr>
+        <tr>
+          <td>
+            site
+          </td>
+          <td>
+            Explain
           </td>
         </tr>
       </table>
