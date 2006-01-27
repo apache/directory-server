@@ -40,6 +40,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
+            <manifestFile>src/main/manifest/MANIFEST.MF</manifestFile>
             <manifest>
               <mainClass>org.apache.directory.server.standalone.daemon.MainBootstrapper</mainClass>
             </manifest>

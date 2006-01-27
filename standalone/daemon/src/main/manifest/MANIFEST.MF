@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Build-Jdk: 1.5.0_06
+Extension-Name: org.apache.directory.server.standalone.daemon
+Implementation-Title: org.apache.directory.server.standalone.daemon
+Implementation-Version: 0.9.4-SNAPSHOT
+Main-Class: org.apache.directory.server.standalone.daemon.MainBootstra
+ pper
+Class-Path: logger.jar daemon.jar bootstrapper.jar
