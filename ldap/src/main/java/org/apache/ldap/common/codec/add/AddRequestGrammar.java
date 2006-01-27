@@ -385,6 +385,9 @@ public class AddRequestGrammar extends AbstractGrammar implements IGrammar
 
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
+
+                        // We can have an POP transition
+                        ldapMessageContainer.grammarPopAllowed( true );
                     }
                 } );
 

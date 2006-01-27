@@ -357,7 +357,7 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                             log.debug( "The error message is : " + ldapResult.getErrorMessage() );
                         }
 
-                        // We cazn pop this grammar
+                        // We can pop this grammar
                         container.grammarPopAllowed( true );
                         
                         return;
@@ -487,7 +487,14 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
         super.transitions[LdapStatesEnum.LDAP_RESULT_REFERRAL_LOOP_TAG][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.LDAP_RESULT_REFERRAL_LOOP_TAG,
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_VALUE, null );
+                LdapStatesEnum.LDAP_RESULT_REFERRAL_VALUE, 
+                new GrammarAction( "Allows pop" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                });
 
     }
 
