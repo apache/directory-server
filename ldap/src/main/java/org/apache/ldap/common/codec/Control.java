@@ -286,7 +286,7 @@ public class Control extends Asn1Object
         StringBuffer sb = new StringBuffer();
         
         sb.append("    Control\n");
-        sb.append("        Control type : '").append( controlType.toString() ).append("'\n");
+        sb.append("        Control type : '").append( controlType != null ? controlType.toString() : "null" ).append("'\n");
         sb.append("        Criticality : '").append( criticality ).append( "'\n") ;
         
         if ( controlValue != null ) 
