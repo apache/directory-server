@@ -137,6 +137,9 @@ public class ExtendedRequestGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
 
+                        // We can have an Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+
                         if ( log.isDebugEnabled() )
                         {
                             log.debug( "OID read : {}", extendedRequest.getRequestName() );
@@ -186,6 +189,9 @@ public class ExtendedRequestGrammar extends AbstractGrammar implements IGrammar
 
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
+
+                        // We can have an Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
 
                         if ( log.isDebugEnabled() )
                         {
