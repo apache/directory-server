@@ -173,6 +173,9 @@ public class BindResponseGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
+                        // We can have an Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+                        
                         if ( log.isDebugEnabled() )
                         {
                             log.debug( "The SASL credentials value is : {}", bindResponseMessage.getServerSaslCreds().toString() );
