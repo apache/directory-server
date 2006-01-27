@@ -125,6 +125,7 @@ public class AbandonRequestGrammar extends AbstractGrammar implements IGrammar
                             }
 
                             ldapMessageContainer.grammarEndAllowed( true );
+                            ldapMessageContainer.grammarPopAllowed( true );
                             return;
                         }
                         catch ( IntegerDecoderException ide )
