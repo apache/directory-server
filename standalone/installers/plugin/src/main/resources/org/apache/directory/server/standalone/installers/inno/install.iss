@@ -56,6 +56,8 @@ Source: {#SourceBase}\conf\bootstrapper.properties; DestDir: {app}\conf; DestNam
 Source: {#SourceBase}\${app.license.name}; DestDir: {app}; DestName: ${app.license.name}
 Source: {#SourceBase}\${app.readme.name}; DestDir: {app}; DestName: ${app.readme.name}
 Source: {#SourceBase}\${app.icon.name}; DestDir: {app}; DestName: ${app.icon.name}
+; empty var directory structure
+Source: {#SourceBase}\var\*; DestDir: "{app}\var\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; lib directory targets
 ${app.lib.jars}
 
@@ -66,10 +68,10 @@ Name: {group}\Tray Monitor; Filename: {app}\bin\${app}w.exe; Parameters: //MS//$
 Name: {group}\Test Service; Filename: {app}\bin\${app}.exe; IconIndex: 0
 
 [Run]
-Filename: {app}\bin\${app}.exe; WorkingDir: {app}\bin; Tasks: ; Languages: ; Parameters: "//IS//${app} --Description=""${app} Service ${app.version} - ${app.url}"" --DisplayName=${app} --Install=""{app}\bin\${app}.exe"" --StartMode=jvm --StopMode=jvm --StartClass=org.apache.directory.server.standalone.daemon.Bootstrapper --StartParams=""{app}#start"" --StopClass=org.apache.directory.server.standalone.daemon.Bootstrapper --StopParams=""{app}#stop"" --Startup=manual --JvmOptions=""-D${app}.home={app}"" --Classpath=""{app}\bin\bootstrapper.jar;{app}\conf;{app}\bin\logger.jar;{app}\bin\daemon.jar"" --LogPath=""{app}\var\log"" --LogPrefix=${app}.log --LogLevel=debug --StdOutput=""{app}\var\log\${app}-stdout.log"" --StdError=""{app}\var\log\${app}-stderr.log"""; Flags: runhidden
-Filename: {app}\bin\${app}w.exe; Parameters: //ES//${app}; WorkingDir: {app}\bin; Flags: postinstall nowait; Description: Runs the configuration manager for the ${app} windows service
+Filename: {app}\bin\${app}.exe; WorkingDir: {app}\bin; Tasks: ; Languages: ; Parameters: "//IS//${app.displayname} --Description=""${app.description} Service ${app.version} - ${app.url}"" --DisplayName=${app.displayname} --Install=""{app}\bin\${app}.exe"" --StartMode=jvm --StopMode=jvm --StartClass=org.apache.directory.server.standalone.daemon.Bootstrapper --StartParams=""{app}#start"" --StopClass=org.apache.directory.server.standalone.daemon.Bootstrapper --StopParams=""{app}#stop"" --Startup=manual --JvmOptions=""-D${app}.home={app}"" --Classpath=""{app}\bin\bootstrapper.jar;{app}\conf;{app}\bin\logger.jar;{app}\bin\daemon.jar"" --LogPath=""{app}\var\log"" --LogPrefix=${app}.log --LogLevel=debug --StdOutput=""{app}\var\log\${app}-stdout.log"" --StdError=""{app}\var\log\${app}-stderr.log"""; Flags: runhidden
+Filename: {app}\bin\${app}w.exe; Parameters: //ES//${app.displayname}; WorkingDir: {app}\bin; Flags: postinstall nowait; Description: Runs the configuration manager for the ${app} windows service
 
 [Registry]
 
 [UninstallRun]
-Filename: {app}\bin\${app}.exe; WorkingDir: {app}\bin; Parameters: //DS//${app}
+Filename: {app}\bin\${app}.exe; WorkingDir: {app}\bin; Parameters: //DS//${app.displayname}
