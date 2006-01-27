@@ -112,8 +112,7 @@ public class ServiceInstallersMojo extends AbstractMojo
     private String applicationClass;
 
     /**
-     * @parameter 
-     * @required
+     * @parameter expression="${project.version}"
      */
     private String applicationVersion;
 
