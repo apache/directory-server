@@ -56,15 +56,25 @@ public class Bootstrapper
     
     public void setInstallationLayout( String installationBase )
     {
+    	log.debug( "Setting layout in Bootstrapper using base: " + installationBase );
         install = new InstallationLayout( installationBase );
-        install.verifyInstallation();
+        
+        try
+        {
+        	install.verifyInstallation();
+        }
+        catch( Throwable t )
+        {
+        	log.error( "Installation verification failure!", t );
+        }
+        
         try
         {
             bootstrapProperties.load( new FileInputStream( install.getBootstrapperConfigurationFile() ) );
         }
         catch ( Exception e )
         {
-            log.error( "", e );
+            log.error( "Failed while loading: " + install.getBootstrapperConfigurationFile(), e );
             System.exit( BOOTSTRAP_PROPLOAD_FAILURE_EXITCODE );
         }
     }
@@ -246,6 +256,13 @@ public class Bootstrapper
         }
         
         callInit( bootstrapProperties.getProperty( BOOTSTRAP_START_CLASS_PROP, null ) );
+
+        // This is only needed for procrun but does not harm jsvc or runs 
+        // Leads me to think that we need to differentiate somehow between
+        // different daemon frameworks.  We can do this via command line args,
+        // system properties or by making them call different methods to start
+        // the process.  However not every framework may support calling 
+        // different methods which may also be somewhat error prone.
         
         while( true )
         {
@@ -257,8 +274,6 @@ public class Bootstrapper
             {
                 e.printStackTrace();
             }
-
-            log.debug( "tick-tock" );
         }
     }
     
@@ -328,9 +343,11 @@ public class Bootstrapper
         {
             if ( instance == null )
             {
+            	log.debug( "main(String[]) initializing Bootstrapper ... )" );
                 instance = new Bootstrapper();
                 instance.setInstallationLayout( args[0] );
                 instance.setParentLoader( Bootstrapper.class.getClassLoader() );
+                log.debug( "Bootstrapper initialized" );
             }
         }
         else
@@ -342,20 +359,7 @@ public class Bootstrapper
             System.exit( 1 );
         }
 
-        String command = null;
-        if ( args.length > 0 )
-        {
-            command = args[args.length - 1];
-        }
-        else
-        {
-            String msg = "No command to start or stop was given?";
-            System.err.println( msg );
-            log.error( msg );
-            printHelp();
-            System.exit( 2 );
-        }
-
+        String command = args[args.length - 1];
         try
         {
             if ( command.equalsIgnoreCase( "start" ) )
@@ -381,6 +385,7 @@ public class Bootstrapper
         }
         catch ( Throwable t )
         {
+        	log.error( "Encountered error while processing command: " + command );
             t.printStackTrace();
             System.exit( 4 );
         }

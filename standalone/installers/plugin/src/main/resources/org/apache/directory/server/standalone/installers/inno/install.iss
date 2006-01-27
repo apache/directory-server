@@ -56,8 +56,9 @@ Source: {#SourceBase}\conf\bootstrapper.properties; DestDir: {app}\conf; DestNam
 Source: {#SourceBase}\${app.license.name}; DestDir: {app}; DestName: ${app.license.name}
 Source: {#SourceBase}\${app.readme.name}; DestDir: {app}; DestName: ${app.readme.name}
 Source: {#SourceBase}\${app.icon.name}; DestDir: {app}; DestName: ${app.icon.name}
-; empty var directory structure
+; empty var & lib\ext directory structure
 Source: {#SourceBase}\var\*; DestDir: "{app}\var\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: {#SourceBase}\lib\ext; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; lib directory targets
 ${app.lib.jars}
 
