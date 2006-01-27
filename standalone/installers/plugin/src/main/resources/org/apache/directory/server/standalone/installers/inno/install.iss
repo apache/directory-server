@@ -23,14 +23,12 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\${app}
 DefaultGroupName={#MyAppName}
-
 LicenseFile={#SourceBase}\${app.license.name}
-OutputDir=${installer.output.directory}
+OutputDir="${installer.output.directory}"
 OutputBaseFilename=${app}-${version}-setup
 SetupIconFile={#SourceBase}\${app.icon.name}
 Compression=lzma
 SolidCompression=true
-VersionInfoVersion={#MyAppVersion}
 VersionInfoCompany={#MyAppCompanyName}
 VersionInfoDescription={#MyAppDescription}
 AppCopyright={#MyAppCopyright}

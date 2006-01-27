@@ -97,9 +97,15 @@ public class InnoInstallerCommand implements MojoCommand
             return;
         }
         
+        // @todo this should really be a parameter taken from the user's settings
+        // because the compiler may be installed in different places and is specific
         if ( ! target.getInnoCompiler().exists() )
         {
             throw new MojoFailureException( "Cannot find Inno compiler: " + target.getInnoCompiler() );
+        }
+        else
+        {
+        	this.innoCompiler = target.getInnoCompiler();
         }
         
         // -------------------------------------------------------------------
@@ -107,7 +113,7 @@ public class InnoInstallerCommand implements MojoCommand
         // -------------------------------------------------------------------
         
         // check first to see if the default install.iss file is present in src/main/installers
-        File defaultInnoConfigurationFile = new File( mymojo.getSourceDirectory(), "install.iss" );
+        File projectInnoFile = new File( mymojo.getSourceDirectory(), "install.iss" );
         if ( target.getInnoConfigurationFile() != null && target.getInnoConfigurationFile().exists() )
         {
             try
@@ -121,17 +127,17 @@ public class InnoInstallerCommand implements MojoCommand
                     + target.getInnoConfigurationFile() + " to " + innoConfigurationFile );
             }
         }
-        else if ( defaultInnoConfigurationFile.exists() )
+        else if ( projectInnoFile.exists() )
         {
             try
             {
-                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, defaultInnoConfigurationFile, 
+                MojoHelperUtils.copyAsciiFile( mymojo, filterProperties, projectInnoFile, 
                     innoConfigurationFile, true );
             }
             catch ( IOException e )
             {
                 throw new MojoFailureException( "Failed to filter and copy project provided " 
-                    + defaultInnoConfigurationFile + " to " + innoConfigurationFile );
+                    + projectInnoFile + " to " + innoConfigurationFile );
             }
         }
         else
@@ -150,6 +156,8 @@ public class InnoInstallerCommand implements MojoCommand
         }
 
         Execute task = new Execute();
+        System.out.println( "innoCompiler = " + innoCompiler );
+        System.out.println( "innoConfigurationFile = " + innoConfigurationFile );
         String[] cmd = new String[] {
             innoCompiler.getAbsolutePath(), innoConfigurationFile.getAbsolutePath()
         };
@@ -211,10 +219,12 @@ public class InnoInstallerCommand implements MojoCommand
             touchFile( target.getLayout().getReadmeFile() );
         }
         filterProperties.put( "app.readme" , target.getLayout().getReadmeFile().getPath() );
+        filterProperties.put( "app.readme.name" , target.getLayout().getReadmeFile().getName() );
         filterProperties.put( "app.icon" , target.getLayout().getLogoIconFile().getPath() );
         filterProperties.put( "app.icon.name" , target.getLayout().getLogoIconFile().getName() );
         filterProperties.put( "image.basedir", target.getLayout().getBaseDirectory().getPath() );
         filterProperties.put( "app.lib.jars", getApplicationLibraryJars() );
+        filterProperties.put( "installer.output.directory", target.getLayout().getBaseDirectory().getParent() );
     }
     
     
@@ -223,7 +233,7 @@ public class InnoInstallerCommand implements MojoCommand
         StringBuffer buf = new StringBuffer();
         List artifacts = target.getLibArtifacts();
         
-        for ( int ii = 0; ii > artifacts.size(); ii++ )
+        for ( int ii = 0; ii < artifacts.size(); ii++ )
         {
             // "Source: {#SourceBase}\lib\${artifact.file.name}; DestDir: {app}; DestName: ${app.file.name}"
             buf.append( "Source: {#SourceBase}\\lib\\" );
