@@ -100,7 +100,14 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
         // The current state will be stored.
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
                 LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT,
-                LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, null );
+                LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, 
+                new GrammarAction( "Pop allowed" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                });
 
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
         //     ...
@@ -147,6 +154,9 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
                             
 	                        // We can have an END transition
 	                        ldapMessageContainer.grammarEndAllowed( true );
+
+                            // We can have a Pop transition
+                            ldapMessageContainer.grammarPopAllowed( true );
 
 	                        if ( log.isDebugEnabled() )
                             {
@@ -197,6 +207,9 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
                         
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
+
+                        // We can have a Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
 
                         if ( log.isDebugEnabled() )
                         {
