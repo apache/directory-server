@@ -55,11 +55,11 @@ public class MainBootstrapper
             }
         }
 
-        BootstrappedApplication application = null;
+        ApplicationLifecycleInvoker application = null;
         if ( args.length > 1 )
         {
-        	log.debug( "main(String[]) creating BootstrappedApplication ... )" );
-            application = new BootstrappedApplication( args[0], Thread.currentThread().getContextClassLoader() );
+        	log.debug( "main(String[]) creating ApplicationLifecycleInvoker ... )" );
+            application = new ApplicationLifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
         }
         else
         {
@@ -79,7 +79,7 @@ public class MainBootstrapper
                 application.callInit();
 
                 log.debug( "calling application.callStart(String[]) from main(String[])" );
-                application.callStart();
+                application.callStart( true );
             }
             else if ( command.equalsIgnoreCase( "stop" ) )
             {

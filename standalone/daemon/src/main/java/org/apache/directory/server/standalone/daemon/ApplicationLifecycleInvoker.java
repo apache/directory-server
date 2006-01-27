@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BootstrappedApplication
+public class ApplicationLifecycleInvoker
 {
-    private static Logger log = LoggerFactory.getLogger( BootstrappedApplication.class );
+    private static Logger log = LoggerFactory.getLogger( ApplicationLifecycleInvoker.class );
     private static final String BOOTSTRAP_START_CLASS_PROP = "bootstrap.start.class";
     private static final String BOOTSTRAP_STOP_CLASS_PROP = "bootstrap.stop.class";
 
@@ -47,7 +47,7 @@ public class BootstrappedApplication
     private final InstallationLayout layout;
 
 
-    public BootstrappedApplication( String installationBase, ClassLoader parent )
+    public ApplicationLifecycleInvoker( String installationBase, ClassLoader parent )
     {
         layout = new InstallationLayout( installationBase );
         
@@ -182,7 +182,7 @@ public class BootstrappedApplication
     }
 
 
-    public void callStart()
+    public void callStart( boolean nowait )
     {
         Thread.currentThread().setContextClassLoader( application );
         Class clazz = startObject.getClass();
@@ -190,7 +190,7 @@ public class BootstrappedApplication
         
         try
         {
-            op = clazz.getMethod( "start", null );
+            op = clazz.getMethod( "start", new Class[] { Boolean.class } );
         }
         catch ( Exception e )
         {
@@ -200,7 +200,7 @@ public class BootstrappedApplication
         
         try
         {
-            op.invoke( startObject, null );
+            op.invoke( startObject, new Object[] { new Boolean( nowait ) } );
         }
         catch ( Exception e )
         {

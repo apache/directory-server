@@ -51,26 +51,14 @@ public class ProcrunBootstrapper
             System.exit( ExitCodes.BAD_ARGUMENTS );
         }
 
-        log.debug( "prunsrvStart(String[]) creating BootstrappedApplication ... )" );
-        BootstrappedApplication application = new BootstrappedApplication( args[0], 
+        log.debug( "prunsrvStart(String[]) creating ApplicationLifecycleInvoker ... )" );
+        ApplicationLifecycleInvoker application = new ApplicationLifecycleInvoker( args[0], 
             Thread.currentThread().getContextClassLoader() );
 
         log.debug( "prunsrvStart(String[]) invoking application.callInit())" );
         application.callInit();
         log.debug( "prunsrvStart(String[]) invoking bootstrapper.callStart())" );
-        application.callStart();
-        
-        while( true )
-        {
-            try
-            {
-                Thread.sleep( 2000 );
-            }
-            catch ( InterruptedException e )
-            {
-                e.printStackTrace();
-            }
-        }
+        application.callStart( false ); // must block on start (let the app decide how)
     }
 
     
@@ -92,8 +80,8 @@ public class ProcrunBootstrapper
             System.exit( ExitCodes.BAD_ARGUMENTS );
         }
 
-        log.debug( "prunsrvStop(String[]) creating BootstrappedApplication ... )" );
-        BootstrappedApplication application = new BootstrappedApplication( args[0], 
+        log.debug( "prunsrvStop(String[]) creating ApplicationLifecycleInvoker ... )" );
+        ApplicationLifecycleInvoker application = new ApplicationLifecycleInvoker( args[0], 
             Thread.currentThread().getContextClassLoader() );
         
         log.debug( "prunsrvStop(String[]) invoking application.callStop())" );

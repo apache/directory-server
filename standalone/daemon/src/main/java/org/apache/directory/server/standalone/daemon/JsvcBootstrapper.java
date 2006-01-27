@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class JsvcBootstrapper implements Daemon
 {
     private final static Logger log = LoggerFactory.getLogger( JsvcBootstrapper.class );
-    private BootstrappedApplication application;
+    private ApplicationLifecycleInvoker application;
     
     
     public void init( DaemonContext arg ) throws Exception
@@ -51,7 +51,7 @@ public class JsvcBootstrapper implements Daemon
 
         if ( application == null )
         {
-            application = new BootstrappedApplication( arg.getArguments()[0], 
+            application = new ApplicationLifecycleInvoker( arg.getArguments()[0], 
                 Thread.currentThread().getContextClassLoader() );
         }
         
@@ -74,7 +74,7 @@ public class JsvcBootstrapper implements Daemon
 
         if ( application == null )
         {
-            application = new BootstrappedApplication( args[0], Thread.currentThread().getContextClassLoader() );
+            application = new ApplicationLifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
         }
         
         application.callInit();
@@ -84,7 +84,7 @@ public class JsvcBootstrapper implements Daemon
     public void start()
     {
         log.debug( "start() called" );
-        application.callStart();
+        application.callStart( true );
     }
 
 
