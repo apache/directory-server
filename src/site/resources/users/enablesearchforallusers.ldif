@@ -1,7 +1,0 @@
-dn: cn=enableSearchForAllUsers,dc=example,dc=com
-objectClass: top
-objectClass: subentry
-objectClass: accessControlSubentry
-cn: enableSearchForAllUsers
-subtreeSpecification: {}
-prescriptiveACI: { identificationTag "enableSearchForAllUsers", precedence 14, authenticationLevel simple,itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions {{protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials{grantRead,grantReturnDN,grantBrowse}}}}}
