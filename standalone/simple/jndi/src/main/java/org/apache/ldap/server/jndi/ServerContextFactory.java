@@ -22,8 +22,10 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -40,13 +42,18 @@ import org.apache.kerberos.store.JndiPrincipalStoreImpl;
 import org.apache.kerberos.store.PrincipalStore;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNamingException;
+import org.apache.ldap.common.message.ResultCodeEnum;
+import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
+import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.common.TransportType;
+import org.apache.mina.common.WriteFuture;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
 import org.apache.ntp.NtpConfiguration;
@@ -90,21 +97,13 @@ public class ServerContextFactory extends CoreContextFactory
         {
             if ( ldapService != null )
             {
-                minaRegistry.unbind( ldapService );
-                if ( log.isInfoEnabled() )
-                {
-                    log.info( "Unbind of LDAP Service complete: " + ldapService );
-                }
+                stopLDAP0( ldapService );
                 ldapService = null;
             }
 
             if ( ldapsService != null )
             {
-                minaRegistry.unbind( ldapsService );
-                if ( log.isInfoEnabled() )
-                {
-                    log.info( "Unbind of LDAPS Service complete: " + ldapService );
-                }
+                stopLDAP0( ldapsService );
                 ldapsService = null;
             }
 
@@ -411,6 +410,9 @@ public class ServerContextFactory extends CoreContextFactory
         
         try
         {
+            // Disable the disconnection of the clients on unbind
+            minaRegistry.getAcceptor( service.getTransportType() ).setDisconnectClientsOnUnbind( false );
+            
             minaRegistry.bind( service, protocolProvider.getHandler(), chainBuilder );
             ldapService = service;
             
@@ -428,8 +430,7 @@ public class ServerContextFactory extends CoreContextFactory
             throw lce;
         }
     }
-
-
+    
     private void startKerberos(ServerStartupConfiguration cfg, Hashtable env) {
         if ( cfg.isEnableKerberos() )
         {
@@ -477,5 +478,50 @@ public class ServerContextFactory extends CoreContextFactory
                 log.error( "Failed to start the NTP service", t );
             }
         }
+    }
+    
+    private void stopLDAP0( Service service )
+    {
+        if ( ldapService != null )
+        {
+            IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
+            try
+            {
+                NoticeOfDisconnect nod = new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE );
+                List sessions = new ArrayList( acceptor.getManagedSessions( service.getAddress() ) );
+                List writeFutures = new ArrayList();
+                
+                // Send Notification of Disconnection messages to all connected clients.
+                if( sessions != null )
+                {
+                    for( Iterator i = sessions.iterator(); i.hasNext(); )
+                    {
+                        IoSession session = ( IoSession ) i.next();
+                        writeFutures.add( session.write( nod ) );
+                    }
+                }
+
+                // And close the connections when the NoDs are sent.
+                Iterator sessionIt = sessions.iterator();
+                for( Iterator i = writeFutures.iterator(); i.hasNext(); )
+                {
+                    WriteFuture future = ( WriteFuture ) i.next();
+                    future.join( 1000 );
+                    ( ( IoSession ) sessionIt.next() ).close();
+                }
+            }
+            catch( Exception e )
+            {
+                log.warn( "Failed to sent NoD.", e );
+            }
+
+            minaRegistry.unbind( service );
+
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of " + service.getName() + " Service complete: " + ldapService );
+            }
+        }
+
     }
 }
