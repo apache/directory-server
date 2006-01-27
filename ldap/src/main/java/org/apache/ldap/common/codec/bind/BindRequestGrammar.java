@@ -298,6 +298,9 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
+                        // We can have an pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+                        
                         if ( log.isDebugEnabled() )
                         {
                             log.debug( "The simple authentication is : {}", authentication.getSimple() );
@@ -429,6 +432,9 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
+                        // We can have an Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+                        
                         if ( log.isDebugEnabled() )
                         {
                             log.debug( "The mechanism is : {}", authentication.getMechanism() );
@@ -501,6 +507,9 @@ public class BindRequestGrammar extends AbstractGrammar implements IGrammar
 
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
+                        
+                        // We can have an Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
                         
                         if ( log.isDebugEnabled() )
                         {
