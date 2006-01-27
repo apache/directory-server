@@ -35,6 +35,7 @@
         <item name="Backend Subsystem" href="/developers/backend.html"/>
       </item>
       <item name="ApacheDS Projects" href="/projects/index.html"/>
+      <item name="Downloads" href="http://cvs.apache.org/dist/directory/apacheds/"/>
     </menu>
     
     <!-- <menu name="Project Information">

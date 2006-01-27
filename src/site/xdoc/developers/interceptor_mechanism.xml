@@ -3,7 +3,7 @@
 <document>
   <properties>
     <author email="akarasulu">akarasulu</author>
-    
+    <title>ApacheDS - Interceptor Mechanism</title>
   </properties>
   <body>
     <section heading="h2" name="What is it?">

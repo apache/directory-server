@@ -3,7 +3,7 @@
 <document>
   <properties>
     <author email="akarasulu">akarasulu</author>
-    
+    <title>ApacheDS - Building</title>    
   </properties>
   <body>
     <section heading="h2" name="Building and Running the Apache Directory Server">

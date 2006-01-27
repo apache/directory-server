@@ -84,6 +84,7 @@
     </developer>
     <developer>
       <id>erodriguez</id>
+      <url>http://directory.apache.org/newsite/community/who/erodriguez.html</url>
     </developer>
     <developer>
       <id>ersiner</id>
@@ -91,15 +92,18 @@
     </developer>
     <developer>
       <id>jmachols</id>
+      <url>http://directory.apache.org/community/who/jmachols.html</url>
     </developer>
     <developer>
       <id>niklas</id>
     </developer>
     <developer>
       <id>noel</id>
+      <url>http://directory.apache.org/community/who/noel.html</url>
     </developer>
     <developer>
       <id>psteitz</id>
+      <url>http://directory.apache.org/community/who/psteitz.html</url>
     </developer>
     <developer>
       <id>szoerner</id>
@@ -111,9 +115,11 @@
     </developer>
     <developer>
       <id>vtence</id>
+      <url>http://directory.apache.org/community/who/vtence.html</url>
     </developer>
     <developer>
       <id>wesmckean</id>
+      <url>http://directory.apache.org/community/who/wesmckean.html</url>
     </developer>
   </developers>
   
