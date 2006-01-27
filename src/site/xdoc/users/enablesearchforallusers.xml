@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <properties>
+    <author email="akarasulu">akarasulu</author>
+    
+  </properties>
+  <body>
+    <section heading="h1" name="Enable Authenticated Users to Browse and Read Entries in a Subtree">
+      <table>
+        <tr>
+          <th>
+            <img src="http://docs.safehaus.org/images/icons/emoticons/warning.png"/>
+          </th>
+          <th>
+            <center>The first time is always the hardest!</center>
+          </th>
+        </tr>
+        <tr>
+          <td/>
+          <td>
+            <p>
+We presume this is your first encounter and so many bases will be covered this
+time around. Every other trail will build on this information.  So expect a
+little less to read as you gain
+momentum.</p>
+          </td>
+        </tr>
+      </table>
+      <p>
+Since the entire directory is locked down for all but the superuser, you're
+going to want to grant read and browse access to users for certain regions of
+the DIT. This will probably be the first thing you'll want to do after turning
+on access
+controls.</p>
+      <subsection heading="h2" name="Check for insufficientAccessRights for Normal Users">
+        <p>
+Just to make sure everything is locked down login as admin and create a new
+non-superuser.  For more information on how to do this
+see
+          <a href="./authentication.html">Authentication</a>
+.  After creating the normal user make sure you cannot bind to dc=example,dc=com
+with access controls enabled.  You should get an error trying to bind with a
+result code of 50 (insufficientAccessRights).  If using JNDI to connect to the
+server you should get a NoPermissionException.  After we apply the following ACI
+you can check
+again.
+        </p>
+      </subsection>
+      <subsection heading="h2" name="Partition and Access Control Area Setup">
+        <p>
+For this example we presume you have setup a partition at the namingContext
+dc=example,dc=com and have turned on access controls.  Now you want to grant
+browse and read access to entries and their
+attributes.</p>
+        <p>
+Before you can add a subentry with the prescriptiveACI you'll need to create an
+administrative area.  For now we'll make the root of the partition the
+adminstrative point (AP). Every entry including this entry and those underneath
+it will be part of the autonous administrative area for managing access
+controls. To do this we must add the administrativeRole operational attribute to
+the AP entry.
+See
+          <a href="./acarea.html">ACArea</a>
+for code and information about creating access control administrative
+areas.
+        </p>
+      </subsection>
+      <subsection heading="h2" name="Adding the Subentry">
+        <p>
+The subentry can be added using an LDIF or via code. We'll show the code but the
+LDIF can be accessed
+here
+          <a href="./enablesearchforallusers.ldif.html">enableSearchForAllUsers.ldif</a>
+:
+        </p>
+        <source>  // Get a DirContext on the dc=example,dc=com entry
+  Hashtable env = new Hashtable();
+  env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+  env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
+  env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+  env.put( "java.naming.security.credentials", "secret" );
+  env.put( "java.naming.security.authentication", "simple" );
+  ctx = new InitialDirContext( env );
+
+  // now add the A/C subentry below dc=example,dc=com
+  Attributes subentry = new BasicAttributes( "cn", "enableSearchForAllUsers", true );
+  Attribute objectClass = new BasicAttribute( "objectClass" );
+  subentry.put( objectClass );
+  objectClass.add( "top" );
+  objectClass.add( "subentry" );
+  objectClass.add( "accessControlSubentry" );
+  subentry.put( "subtreeSpecification", "{}" );
+  subentry.put( "prescriptiveACI", "{ \n" +
+                "  identificationTag \"enableSearchForAllUsers\",\n" +
+                "  precedence 14,\n" +
+                "  authenticationLevel simple,\n" +
+                "  itemOrUserFirst userFirst: \n" +
+                "  { \n" +
+                "    userClasses { allUsers }, \n" +
+                "    userPermissions \n" +
+                "    { \n" +
+                "       {\n" +
+                "         protectedItems {entry, allUserAttributeTypesAndValues}, \n" +
+                "         grantsAndDenials { grantRead, grantReturnDN, grantBrowse } \n" +
+                "       }\n" +
+                "    } \n" +
+                "  } " );
+  ctx.createSubcontext( "cn=enableSearchForAllUsers", subentry );
+</source>
+        <p>
+Before we cover the anatomy of this ACIItem, you might want to add the subentry
+and test access with a normal non-super user to make sure access is now
+granted.</p>
+      </subsection>
+    </section>
+    <section heading="h1" name="ACIItem Description">
+      <p>
+Here's the ACIItem you just added above without all the Java
+clutter:</p>
+      <source>{ 
+  identificationTag "enableSearchForAllUsers",
+  precedence 14,
+  authenticationLevel simple,
+  itemOrUserFirst userFirst: 
+  { 
+    userClasses { allUsers }, 
+    userPermissions 
+    { 
+       {
+         protectedItems {entry, allUserAttributeTypesAndValues}, 
+         grantsAndDenials { grantRead, grantReturnDN, grantBrowse } 
+       }
+    } 
+  } 
+}
+</source>
+      <p>
+There are several parameters to this simple ACIItem.  Here's a breif
+exaplanation of each field and it's meaning or
+significance.</p>
+      <table>
+        <tr>
+          <th>
+Fields</th>
+          <th>
+Description</th>
+        </tr>
+        <tr>
+          <td>
+identificationTag</td>
+          <td>
+Identifies the ACIItem within an
+entry.</td>
+        </tr>
+        <tr>
+          <td>
+precedence</td>
+          <td>
+Determine which ACI to apply with conflicting
+ACIItems.</td>
+        </tr>
+        <tr>
+          <td>
+authenticationLevel</td>
+          <td>
+User's level of trust with values of none, simple,
+strong</td>
+        </tr>
+        <tr>
+          <td>
+itemOrUserFirst</td>
+          <td>
+Determines order of item permissions or user
+permissions.</td>
+        </tr>
+        <tr>
+          <td>
+userClasses</td>
+          <td>
+The set of users the permissions apply
+to.</td>
+        </tr>
+        <tr>
+          <td>
+userPermissions</td>
+          <td>
+Permissions on protected
+items</td>
+        </tr>
+      </table>
+      <subsection heading="h2" name="identificationTag">
+        <p>
+The identificationTag is just that a tag.  It's often used with a subtring
+search filter to lookup a specific ACIItem within an entry.  One or more
+ACIItems may be present within a subentry, zero or more in entries, so this
+serves as a means to address the ACIItem within
+entries.</p>
+      </subsection>
+      <subsection heading="h2" name="precedence">
+        <p>
+Precendence is used to determine the ACI to apply when two or more ACIItem's
+applied to an entry conflict.  The ACIItem with the highest precedence is
+applied over other conflicting
+ACIItems.</p>
+        <table>
+          <tr>
+            <th>
+              <img src="http://docs.safehaus.org/images/icons/emoticons/warning.png"/>
+            </th>
+            <th>
+              <center>Denials Overpower Grants</center>
+            </th>
+          </tr>
+          <tr>
+            <td/>
+            <td>
+              <p>
+When two or more conflicting ACIItems are encountered with the same precedence
+the ACIItems with denials overpower ACIItems with
+grants.</p>
+            </td>
+          </tr>
+        </table>
+        <p>
+Right now the use of this field may not mean too much to you.  We're dealing
+with a very simple situation with a single access control area.  Later as you
+add more subentries their subtreeSpecifications may define collections that
+intersect.  When this happens two or more conflicting ACIItems may apply to the
+same entry.  Precendence is then applied to determine which permissions
+apply.</p>
+        <p>
+Another complex situation requiring precedence is the use of inner areas.  These
+nested inner administrative areas overlap and so do their effects.  The
+authority within an AA may deny some operation to all entries but grant access
+to subentries of inner areas so minor authorities can control access to inner
+areas.  Their grants to users may need to have a higher precedence over denials
+in outer areas. Such situations will arise and precedence will need to be used. 
+In this example we just assign an arbitrary value to the
+precedence.</p>
+      </subsection>
+      <subsection heading="h2" name="authenticationLevel">
+        <p>
+The authenticationLevel is the minimum authentication requirement for requestor
+for the ACI to by applied:  According to
+X.501:</p>
+        <table>
+          <tr>
+            <th>
+              <img src="http://docs.safehaus.org/images/icons/emoticons/information.png"/>
+            </th>
+            <th>
+              <center>18.4.2.3 Authentication Level</center>
+            </th>
+          </tr>
+          <tr>
+            <td/>
+            <td>
+              <p>
+... Strong authentication of the requestor is considered to exceed a requirement
+for simple or no authentication, and simple authentication exceeds a requirement
+for no authentication
+...</p>
+            </td>
+          </tr>
+        </table>
+        <p>
+The authenticationLevel can have three values: none, simple and strong.  It's
+used to be able to associate permissions with the level of trust in users.  For
+none, the identity of the user is anonymous or does not matter.  The user can be
+anyone. The simple authenticationLevel means the user has authenticated but is
+using a simple bind with clear text passwords.  The strong authenticationLevel
+represents users that bind to the directory using strong authentication
+mechanisms via
+SASL.</p>
+        <p>
+SASL can allow annonynous binds as well so there is a distinction here.  Using
+SASL alone does not mean the authenticationLevel is strong.  As we add SASL
+mechanisms to the server, we'll qualify each one with none, simple or strong. 
+This will be reflected in the authenticationLevel property of the principal
+making
+requests.</p>
+      </subsection>
+      <subsection heading="h2" name="itemOrUserFirst">
+        <p>
+This field describes the order of information within the ACI whether protected
+items are described first or user classes and permissions are described first. 
+For simplicity we will only describe the userFirst configuration in this
+tutorial.</p>
+      </subsection>
+      <subsection heading="h2" name="userClasses">
+        <p>
+UserClasses is used to list the sets of users to which this permission applies. 
+Several mechanisms can be used here to define userClasses.  They can be defined
+by name per user, by group membership, or by the superset of all users possible
+and many more.  In our example we have applied the ACI to all users that have
+authenticated by simple or strong
+means.</p>
+        <p>
+For more information
+see
+          <a href="./userclasses.html">UserClasses</a>
+.
+        </p>
+      </subsection>
+      <subsection heading="h2" name="userPermissions">
+        <p>
+These are the permissions granted or denied to those users included by the
+userClasses field.  The grants or denials however are qualified by the protected
+items operated upon.  In our example we grant read, return DN and browse to all
+entries, their attributes and all possible values they may
+have.</p>
+        <p>
+For more information
+see
+          <a href="./userpermissions.html">UserPermissions</a>
+.
+        </p>
+      </subsection>
+    </section>
+  </body>
+</document>

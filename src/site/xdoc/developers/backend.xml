@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    
+  </properties>
+  
+  <body>
+    <section name="Backend Subsystem">
+      <p>
+        The backend subsystem is everything minus the networking layer and the
+        protocol handling layer.  It is composed of several parts in itself: the
+        JNDI provider, interceptor framework, schema subsystem, and database
+        subsystem.  Each sub-subsystem of the backend is described in the
+        sections to follow.
+      </p>
+
+
+      <subsection name="Database Subsystem">
+        <p>
+          The overall design to the database subsystem is described to some
+          degree within the partition documentation which can be found
+          <a href="../users/partition.html">here</a>.  In summary this subsystem
+          is responsible for storing and accessing entries addressed by DN.
+        </p>
+
+        <p>
+          Eventually we intend to delve into the design of the database
+          subsystem by breaking down the search engine, optimizer and default
+          backing store design which uses JDBM BTrees.
+        </p>
+
+        <p>
+          For future reference below the RootNexus is the top level object or
+          facade of the database subsystem.  It contains all context partitions
+          and routes calls to them based on the location of the context within
+          the namespace.
+        </p>
+      </subsection>
+
+
+      <subsection name="JNDI Provider">
+        <p>
+          The JNDI Provider is just an implementation of the
+          InitialContextFactory, Context, and other derived interfaces.  The
+          factory is used to fire up the entire server if it has not been
+          started already to service the JNDI request.  The contexts are simple
+          wrappers around the database subsystem which point to a specific entry
+          withing the namespace.  More will be put here as time progresses ...
+        </p>
+      </subsection>
+
+
+      <subsection name="Interceptor Framework">
+        <p>
+          Calls to the RootNexus are made from within Context implementations
+          of the JNDI provider.  Relative Context positions or names are
+          translated into (absolute) distinguished names and the appropriate
+          call is made on the RootNexus.  The calls are intercepted using a
+          proxy and additional functionality is injected before, after and on
+          exception to calls made on the RootNexus.
+        </p>
+
+        <p>
+          A framework is built around this.  The Context, parameters, return
+          values and any exceptions that may be thrown by the call are
+          encapsulated within an Invocation object.  This object is passed to
+          a chain of interceptors that operate on the values it holds to
+          implement a service.
+        </p>
+
+        <p>
+          There are three separate types or stages of interceptors.
+          Interceptors can operate before a method invocation, after an
+          invocation and when an error results during any point in this process.
+          Separate chains of interceptors have been created for each stage.  The
+          Invocation object is passed through this chain and each interceptor
+          operates upon it.
+        </p>
+
+        <p>
+          Not all interceptor chains are created equally!  The before and after
+          chains are fail fast.  Meaning the processing of an Invocation object
+          shorts the rest of the chain if one interceptor fails while processing
+          the invocation.  This is not the case when processing exceptions in
+          the on error interceptor chain.  Regardless of an interceptor's
+          success downstream, all interceptors are guaranteed a chance to
+          operate on the Invocation object.  This makes the on-error chain an
+          excellent place to put cleanup code or code to handle failures.
+        </p>
+
+        <p>
+          When implementing a cross cutting service with the interceptor
+          framework one or more interceptors may be added to one or more
+          chains.  Keep in mind this framework helps inject new functionality
+          but it can get conjested very quickly.
+        </p>
+      </subsection>
+
+
+      <subsection name="Schema Subsystem">
+        <p>
+          The schema subsystem manages LDAP schema objects.  These objects
+          have a direct effect on how lookups and search operations are
+          conducted on the directory.  The subsystem contains a set of
+          registries for each type of LDAP schema object based on OID.
+        </p>
+
+        <p>
+          Schema objects may reference one another by OID and so the system
+          is designed to dynamically resolve dependent objects by lookups on
+          these registries.
+        </p>
+      </subsection>
+
+
+    </section>
+
+  </body>
+</document>
