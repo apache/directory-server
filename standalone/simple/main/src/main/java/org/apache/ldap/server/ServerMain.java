@@ -41,17 +41,13 @@ public class ServerMain
 
         if ( args.length > 0 )
         {
-            server.init( new InstallationLayout( args[0] ) );
+            server.init( new InstallationLayout( args[0] ), null );
+            server.start( false );
         }
         else
         {
-            server.init( null );
-        }
-
-        while ( true )
-        {
-            Thread.sleep( 20000 );
-            server.synch();
+            server.init( null, null );
+            server.start( false );
         }
     }
 }

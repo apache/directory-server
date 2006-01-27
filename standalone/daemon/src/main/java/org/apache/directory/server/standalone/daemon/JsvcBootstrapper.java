@@ -33,7 +33,8 @@ import org.slf4j.LoggerFactory;
 public class JsvcBootstrapper implements Daemon
 {
     private final static Logger log = LoggerFactory.getLogger( JsvcBootstrapper.class );
-    private ApplicationLifecycleInvoker application;
+    private static final String[] EMPTY_STRARRAY = new String[0];
+    private LifecycleInvoker invoker;
     
     
     public void init( DaemonContext arg ) throws Exception
@@ -49,13 +50,22 @@ public class JsvcBootstrapper implements Daemon
             log.debug( buf.toString() );
         }
 
-        if ( application == null )
+        if ( invoker == null )
         {
-            application = new ApplicationLifecycleInvoker( arg.getArguments()[0], 
+            invoker = new LifecycleInvoker( arg.getArguments()[0], 
                 Thread.currentThread().getContextClassLoader() );
         }
         
-        application.callInit();
+        if ( arg.getArguments().length > 1 )
+        {
+            String[] shifted = new String[arg.getArguments().length-1];
+            System.arraycopy( arg.getArguments(), 1, shifted, 0, shifted.length );
+            invoker.callInit( shifted );
+        }
+        else
+        {
+            invoker.callInit( EMPTY_STRARRAY );
+        }
     }
     
 
@@ -72,32 +82,41 @@ public class JsvcBootstrapper implements Daemon
             log.debug( buf.toString() );
         }
 
-        if ( application == null )
+        if ( invoker == null )
         {
-            application = new ApplicationLifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
+            invoker = new LifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
         }
         
-        application.callInit();
+        if ( args.length > 1 )
+        {
+            String[] shifted = new String[args.length-1];
+            System.arraycopy( args, 1, shifted, 0, shifted.length );
+            invoker.callInit( shifted );
+        }
+        else
+        {
+            invoker.callInit( EMPTY_STRARRAY );
+        }
     }
     
     
     public void start()
     {
         log.debug( "start() called" );
-        application.callStart( true );
+        invoker.callStart( true );
     }
 
 
     public void stop() throws Exception
     {
         log.debug( "stop() called" );
-        application.callStop();
+        invoker.callStop( EMPTY_STRARRAY );
     }
 
 
     public void destroy()
     {
         log.debug( "destroy() called" );
-        application.callDestroy();
+        invoker.callDestroy();
     }
 }

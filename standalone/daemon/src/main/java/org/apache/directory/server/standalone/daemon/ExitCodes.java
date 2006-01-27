@@ -37,4 +37,5 @@ public interface ExitCodes
     int BAD_ARGUMENTS = 10;
     int BAD_COMMAND = 11;
     int UNKNOWN = 12;
+    int INVOCATION = 13;
 }

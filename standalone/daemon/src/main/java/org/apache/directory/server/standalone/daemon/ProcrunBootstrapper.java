@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class ProcrunBootstrapper
 {
     private final static Logger log = LoggerFactory.getLogger( ProcrunBootstrapper.class );
+    private static final String[] EMPTY_STRARRAY = new String[0];
     
 
     public static void prunsrvStart( String[] args )
@@ -51,14 +52,23 @@ public class ProcrunBootstrapper
             System.exit( ExitCodes.BAD_ARGUMENTS );
         }
 
-        log.debug( "prunsrvStart(String[]) creating ApplicationLifecycleInvoker ... )" );
-        ApplicationLifecycleInvoker application = new ApplicationLifecycleInvoker( args[0], 
+        log.debug( "prunsrvStart(String[]) creating LifecycleInvoker ... )" );
+        LifecycleInvoker invoker = new LifecycleInvoker( args[0], 
             Thread.currentThread().getContextClassLoader() );
 
-        log.debug( "prunsrvStart(String[]) invoking application.callInit())" );
-        application.callInit();
+        log.debug( "prunsrvStart(String[]) invoking application.callInit(String[]))" );
+        if ( args.length > 1 )
+        {
+            String[] shifted = new String[args.length-1];
+            System.arraycopy( args, 1, shifted, 0, shifted.length );
+            invoker.callInit( shifted );
+        }
+        else
+        {
+            invoker.callInit( EMPTY_STRARRAY );
+        }
         log.debug( "prunsrvStart(String[]) invoking bootstrapper.callStart())" );
-        application.callStart( false ); // must block on start (let the app decide how)
+        invoker.callStart( false ); // must block on start (let the app decide how)
     }
 
     
@@ -80,12 +90,21 @@ public class ProcrunBootstrapper
             System.exit( ExitCodes.BAD_ARGUMENTS );
         }
 
-        log.debug( "prunsrvStop(String[]) creating ApplicationLifecycleInvoker ... )" );
-        ApplicationLifecycleInvoker application = new ApplicationLifecycleInvoker( args[0], 
+        log.debug( "prunsrvStop(String[]) creating LifecycleInvoker ... )" );
+        LifecycleInvoker application = new LifecycleInvoker( args[0], 
             Thread.currentThread().getContextClassLoader() );
         
-        log.debug( "prunsrvStop(String[]) invoking application.callStop())" );
-        application.callStop();
+        log.debug( "prunsrvStop(String[]) invoking application.callStop(String[]))" );
+        if ( args.length > 1 )
+        {
+            String[] shifted = new String[args.length-1];
+            System.arraycopy( args, 1, shifted, 0, shifted.length );
+            application.callStop( shifted );
+        }
+        else
+        {
+            application.callStop( EMPTY_STRARRAY );
+        }
         log.debug( "prunsrvStop(String[]) invoking application.callDestroy())" );
         application.callDestroy();
     }

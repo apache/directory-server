@@ -22,8 +22,10 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.directory.InitialDirContext;
 
+import org.apache.directory.server.standalone.daemon.DaemonApplication;
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
 import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
+import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.configuration.SyncConfiguration;
 import org.apache.ldap.server.jndi.ServerContextFactory;
 
@@ -40,13 +42,18 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DirectoryServer
+public class DirectoryServer implements DaemonApplication
 {
     private static final Logger log = LoggerFactory.getLogger( DirectoryServer.class );
     private Properties env;
+    private Thread workerThread = null;
+    private SynchWorker worker = new SynchWorker();
+    private boolean startNoWait = false;
+    private boolean initialized = false;
+    private boolean started = false;
 
 
-    public void init( InstallationLayout install ) throws Exception
+    public void init( InstallationLayout install, String[] args ) throws Exception
     {
         long startTime = System.currentTimeMillis();
         MutableServerStartupConfiguration cfg;
@@ -72,6 +79,10 @@ public class DirectoryServer
         env.putAll( cfg.toJndiEnvironment() );
         new InitialDirContext( env );
 
+        workerThread = new Thread( worker, "SynchWorkerThread" );
+        initialized = true;
+
+
         if (log.isInfoEnabled())
         {
             log.info( "server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "");
@@ -86,12 +97,83 @@ public class DirectoryServer
     }
     
 
-    public void stop() throws Exception
+    public void start( boolean nowait ) 
     {
+        startNoWait = nowait;
+        
+        if ( nowait )
+        {
+            workerThread.start();
+            started = true;
+            return;
+        }
+
+        started = true;
+        worker.run();  // - blocks here 
     }
     
 
-    public void start() throws Exception
+    public void stop( String[] args ) throws Exception
     {
+        if ( ! initialized || ! started )
+        {
+            log.warn( "stop(String[]) called without calling init() and start()" );
+            log.info( "Might be a procrun invocation as opposed to jsvc so we'll initiate external shutdown procedure" );
+        }
+        
+        worker.stop = true;
+        synchronized ( worker.lock )
+        {
+            worker.lock.notify();
+        }
+        
+        while ( startNoWait && workerThread.isAlive() )
+        {
+            log.info( "Waiting for SynchWorkerThread to die." );
+            workerThread.join( 500 );
+        }
+        
+        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
+        new InitialDirContext( env );
+    }
+
+
+    public void destroy() 
+    {
+    }
+
+
+    class SynchWorker implements Runnable
+    {
+        Object lock = new Object();
+        boolean stop = false;
+        
+        public void run()
+        {
+            while ( ! stop )
+            {
+                synchronized( lock )
+                {
+                    try
+                    {
+                        lock.wait( 20000 );
+                        log.debug( "[Delete me] Woke up! Time = " + System.currentTimeMillis() );
+                    }
+                    catch ( InterruptedException e )
+                    {
+                        log.error( "SynchWorker failed to wait on lock.", e );
+                    }
+                }
+                
+                try
+                {
+                    synch();
+                }
+                catch ( Exception e )
+                {
+                    log.error( "SynchWorker failed to synch directory.", e );
+                }
+            }
+        }
     }
 }

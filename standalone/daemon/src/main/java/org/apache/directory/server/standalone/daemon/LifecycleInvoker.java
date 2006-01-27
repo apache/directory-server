@@ -18,7 +18,6 @@ package org.apache.directory.server.standalone.daemon;
 
 
 import java.io.FileInputStream;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
@@ -33,21 +32,21 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ApplicationLifecycleInvoker
+public class LifecycleInvoker
 {
-    private static Logger log = LoggerFactory.getLogger( ApplicationLifecycleInvoker.class );
+    private static Logger log = LoggerFactory.getLogger( LifecycleInvoker.class );
     private static final String BOOTSTRAP_START_CLASS_PROP = "bootstrap.start.class";
     private static final String BOOTSTRAP_STOP_CLASS_PROP = "bootstrap.stop.class";
 
-    private Object startObject;
-    private Object stopObject;
+    private DaemonApplication startObject;
+    private DaemonApplication stopObject;
     private String startClassName;
     private String stopClassName;
     private final ClassLoader application;
     private final InstallationLayout layout;
 
 
-    public ApplicationLifecycleInvoker( String installationBase, ClassLoader parent )
+    public LifecycleInvoker( String installationBase, ClassLoader parent )
     {
         layout = new InstallationLayout( installationBase );
         
@@ -134,11 +133,9 @@ public class ApplicationLifecycleInvoker
      * using the application ClassLoader.  The application ClassLoader is set as the 
      * context ClassLoader then the method is invoked.
      */
-    public void callInit()
+    public void callInit( String[] args )
     {
         Class clazz = null;
-        Method op = null;
-        
         Thread.currentThread().setContextClassLoader( application );
         try
         {
@@ -152,32 +149,22 @@ public class ApplicationLifecycleInvoker
         
         try
         {
-            startObject = clazz.newInstance();
+            startObject = ( DaemonApplication ) clazz.newInstance();
         }
         catch ( Exception e )
         {
             log.error( "Could not instantiate " + startClassName, e );
             System.exit( ExitCodes.INSTANTIATION );
         }
-        
+
         try
         {
-            op = clazz.getMethod( "init", new Class[] { InstallationLayout.class } );
+            startObject.init( layout, args );
         }
         catch ( Exception e )
         {
-            log.error( "Could not find init(InstallationLayout) method for " + startClassName, e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( startObject, new Object[] { layout } );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Failed on " + startClassName + ".init(InstallationLayout)", e );
-            System.exit( ExitCodes.INITIALIZATION );
+            log.error( "Could not instantiate " + startClassName, e );
+            System.exit( ExitCodes.INVOCATION );
         }
     }
 
@@ -185,36 +172,14 @@ public class ApplicationLifecycleInvoker
     public void callStart( boolean nowait )
     {
         Thread.currentThread().setContextClassLoader( application );
-        Class clazz = startObject.getClass();
-        Method op = null;
-        
-        try
-        {
-            op = clazz.getMethod( "start", new Class[] { Boolean.class } );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Could not find start() method for " + clazz.getName(), e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( startObject, new Object[] { new Boolean( nowait ) } );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Failed on " + clazz.getName() + ".start()", e );
-            System.exit( ExitCodes.START );
-        }
+        startObject.start( nowait );
     }
     
 
-    public void callStop()
+    public void callStop( String[] args )
     {
         Thread.currentThread().setContextClassLoader( application );
         Class clazz = null;
-        Method op = null;
 
         // Reuse the startObject if it is the same class
         if ( ! startClassName.equals( stopClassName ) )
@@ -231,7 +196,7 @@ public class ApplicationLifecycleInvoker
             
             try
             {
-                stopObject = clazz.newInstance();
+                stopObject = ( DaemonApplication ) clazz.newInstance();
             }
             catch ( Exception e )
             {
@@ -244,25 +209,15 @@ public class ApplicationLifecycleInvoker
             stopObject = startObject;
             clazz = startObject.getClass();
         }
-        
+
         try
         {
-            op = clazz.getMethod( "stop", null );
+            stopObject.stop( args );
         }
         catch ( Exception e )
         {
-            log.error( "Could not find stop() method for " + stopClassName, e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( stopObject, null );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Failed on " + stopClassName + ".stop()", e );
-            System.exit( ExitCodes.STOP );
+            log.error( "Could not instantiate " + startClassName, e );
+            System.exit( ExitCodes.INVOCATION );
         }
     }
 
@@ -270,27 +225,6 @@ public class ApplicationLifecycleInvoker
     public void callDestroy()
     {
         Thread.currentThread().setContextClassLoader( application );
-        Class clazz = stopObject.getClass();
-        Method op = null;
-        
-        try
-        {
-            op = clazz.getMethod( "destroy", null );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Could not find destroy() method for " + clazz.getName(), e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( stopObject, null );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Failed on " + clazz.getName() + ".destroy()", e );
-            System.exit( ExitCodes.DESTROY );
-        }
+        stopObject.destroy();
     }
 }

@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 public class MainBootstrapper
 {
     private static final Logger log = LoggerFactory.getLogger( MainBootstrapper.class );
+    private static final String[] EMPTY_STRARRAY = new String[0];
 
 
     public static void main( String[] args )
@@ -55,11 +56,11 @@ public class MainBootstrapper
             }
         }
 
-        ApplicationLifecycleInvoker application = null;
+        LifecycleInvoker invoker = null;
         if ( args.length > 1 )
         {
-        	log.debug( "main(String[]) creating ApplicationLifecycleInvoker ... )" );
-            application = new ApplicationLifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
+        	log.debug( "main(String[]) creating LifecycleInvoker ... )" );
+            invoker = new LifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
         }
         else
         {
@@ -76,17 +77,35 @@ public class MainBootstrapper
             if ( command.equalsIgnoreCase( "start" ) )
             {
                 log.debug( "calling application.callInit(String[]) from main(String[])" );
-                application.callInit();
+                if ( args.length > 2 )
+                {
+                    String[] shifted = new String[args.length-2];
+                    System.arraycopy( args, 2, shifted, 0, shifted.length );
+                    invoker.callInit( shifted );
+                }
+                else
+                {
+                    invoker.callInit( EMPTY_STRARRAY );
+                }
 
                 log.debug( "calling application.callStart(String[]) from main(String[])" );
-                application.callStart( true );
+                invoker.callStart( true );
             }
             else if ( command.equalsIgnoreCase( "stop" ) )
             {
-                log.debug( "calling application.callStop() from main(String[])" );
-                application.callStop();
+                log.debug( "calling application.callStop(String[]) from main(String[])" );
+                if ( args.length > 2 )
+                {
+                    String[] shifted = new String[args.length-2];
+                    System.arraycopy( args, 2, shifted, 0, shifted.length );
+                    invoker.callStop( shifted );
+                }
+                else
+                {
+                    invoker.callStop( EMPTY_STRARRAY );
+                }
                 log.debug( "calling application.callDestroy() from main(String[])" );
-                application.callDestroy();
+                invoker.callDestroy();
             }
             else
             {
@@ -105,6 +124,6 @@ public class MainBootstrapper
 
     private static void printHelp()
     {
-        System.err.println("java -jar bootstrapper.jar <install.home> [start|stop]");
+        System.err.println("java -jar bootstrapper.jar <install.home> [start|stop] [apparg0 apparg1 ... appargN]");
     }
 }
