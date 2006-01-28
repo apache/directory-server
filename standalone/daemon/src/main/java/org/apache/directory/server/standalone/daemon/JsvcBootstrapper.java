@@ -17,9 +17,6 @@
 package org.apache.directory.server.standalone.daemon;
 
 
-import org.apache.commons.daemon.Daemon;
-import org.apache.commons.daemon.DaemonContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,45 +27,11 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JsvcBootstrapper implements Daemon
+public class JsvcBootstrapper extends Bootstrapper
 {
     private final static Logger log = LoggerFactory.getLogger( JsvcBootstrapper.class );
-    private static final String[] EMPTY_STRARRAY = new String[0];
-    private LifecycleInvoker invoker;
-    
-    
-    public void init( DaemonContext arg ) throws Exception
-    {
-        if ( log.isDebugEnabled() )
-        {
-            StringBuffer buf = new StringBuffer();
-            buf.append( "init(DaemonContext) called with args: \n" );
-            for ( int ii = 0; ii < arg.getArguments().length; ii++ )
-            {
-                buf.append( "\t" ).append( arg.getArguments()[ii] ).append( "\n" );
-            }
-            log.debug( buf.toString() );
-        }
 
-        if ( invoker == null )
-        {
-            invoker = new LifecycleInvoker( arg.getArguments()[0], 
-                Thread.currentThread().getContextClassLoader() );
-        }
-        
-        if ( arg.getArguments().length > 1 )
-        {
-            String[] shifted = new String[arg.getArguments().length-1];
-            System.arraycopy( arg.getArguments(), 1, shifted, 0, shifted.length );
-            invoker.callInit( shifted );
-        }
-        else
-        {
-            invoker.callInit( EMPTY_STRARRAY );
-        }
-    }
     
-
     public void init( String[] args )
     {
         if ( log.isDebugEnabled() )
@@ -82,41 +45,44 @@ public class JsvcBootstrapper implements Daemon
             log.debug( buf.toString() );
         }
 
-        if ( invoker == null )
-        {
-            invoker = new LifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
-        }
-        
-        if ( args.length > 1 )
-        {
-            String[] shifted = new String[args.length-1];
-            System.arraycopy( args, 1, shifted, 0, shifted.length );
-            invoker.callInit( shifted );
-        }
-        else
-        {
-            invoker.callInit( EMPTY_STRARRAY );
-        }
+        setInstallationLayout( args[0] );
+        setParentLoader( Thread.currentThread().getContextClassLoader() );
+        callInit();
+
+//        if ( args.length > 1 )
+//        {
+//            String[] shifted = new String[args.length-1];
+//            System.arraycopy( args, 1, shifted, 0, shifted.length );
+//            setInstallationLayout( args[0] );
+//            setParentLoader( Thread.currentThread().getContextClassLoader() );
+//            callInit();
+//        }
+//        else
+//        {
+//            callInit( EMPTY_STRARRAY );
+//        }
     }
     
     
     public void start()
     {
         log.debug( "start() called" );
-        invoker.callStart( true );
+        callStart();
+//      callStart( true );
     }
 
 
     public void stop() throws Exception
     {
         log.debug( "stop() called" );
-        invoker.callStop( EMPTY_STRARRAY );
+        callStop();
+        //callStop( EMPTY_STRARRAY );
     }
 
 
     public void destroy()
     {
         log.debug( "destroy() called" );
-        invoker.callDestroy();
+        callDestroy();
     }
 }
