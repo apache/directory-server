@@ -339,18 +339,21 @@ public class LdapStatesEnum implements IStates
     /** LdapResult referral sequence Tag */
     public static int LDAP_RESULT_REFERRAL_SEQUENCE_TAG = 6;
 
+    /** LdapResult referral sequence Value */
+    public static int LDAP_RESULT_REFERRAL_SEQUENCE_VALUE = 7;
+
     // LdapResult referral ---------------------------------------------------
     /** LdapResult referral Tag */
-    public static int LDAP_RESULT_REFERRAL_TAG = 7;
+    public static int LDAP_RESULT_REFERRAL_TAG = 8;
 
     /** LdapResult referral Value */
-    public static int LDAP_RESULT_REFERRAL_VALUE = 8;
+    public static int LDAP_RESULT_REFERRAL_VALUE = 9;
 
     /** LdapResult referral Tag loop */
-    public static int LDAP_RESULT_REFERRAL_LOOP_TAG = 9;
+    public static int LDAP_RESULT_REFERRAL_LOOP_TAG = 10;
 
     /** The last state */
-    public static int LAST_LDAP_RESULT_STATE = 10;
+    public static int LAST_LDAP_RESULT_STATE = 11;
 
     //=========================================================================
     // SearchRequest grammar states 
@@ -1197,6 +1200,7 @@ public class LdapStatesEnum implements IStates
             "LDAP_RESULT_ERROR_MESSAGE_TAG",
             "LDAP_RESULT_ERROR_MESSAGE_VALUE",
             "LDAP_RESULT_REFERRAL_SEQUENCE_TAG",
+            "LDAP_RESULT_REFERRAL_SEQUENCE_VALUE",
             "LDAP_RESULT_REFERRAL_TAG",
             "LDAP_RESULT_REFERRAL_VALUE",
             "LDAP_RESULT_REFERRAL_LOOP_TAG"
