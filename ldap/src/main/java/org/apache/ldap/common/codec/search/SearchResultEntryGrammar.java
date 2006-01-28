@@ -192,13 +192,21 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
 
         // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
         //    attributes      PartialAttributeList }
-        // PartialAttributeList ::= *SEQUENCE* OF SEQUENCE { (Tag)
+        // PartialAttributeList ::= *SEQUENCE* OF SEQUENCE { (Value)
         //    ...
         // We may have many attributes. Nothing to do
         super.transitions[LdapStatesEnum.SEARCH_RESULT_ENTRY_ATTRIBUTES_VALUE][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.SEARCH_RESULT_ENTRY_ATTRIBUTES_VALUE,
-                LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_TAG, null );
+                LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_TAG, 
+                new GrammarAction( "Pop and end allowed" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                        container.grammarEndAllowed( true );
+                    }
+                });
 
         // PartialAttributeList ::= SEQUENCE OF *SEQUENCE* { (Tag)
         //    ...
@@ -206,7 +214,14 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
         super.transitions[LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_TAG][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_TAG,
-                LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_VALUE, null );
+                LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_VALUE, 
+                new GrammarAction( "Pop not allowed" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( false );
+                    }
+                } );
 
         // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
         //    attributes      PartialAttributeList }
@@ -224,26 +239,7 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
         super.transitions[LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_VALUE][UniversalTag.SEQUENCE_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_VALUE,
-                LdapStatesEnum.SEARCH_RESULT_ENTRY_TYPE_TAG,
-                new GrammarAction( "Store attributeValue" )
-                {
-                    public void action( IAsn1Container container )
-                    {
-
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-                        SearchResultEntry    searchResultEntry    =
-                            ldapMessage.getSearchResultEntry();
-
-                        searchResultEntry.addPartialAttributeList();
-
-                        // The length could be null, so
-                        // we can have an END transition
-                        ldapMessageContainer.grammarEndAllowed( true );
-                    }
-                } );
+                LdapStatesEnum.SEARCH_RESULT_ENTRY_TYPE_TAG, null );
 
         // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
         //    type    AttributeDescription, (Tag)
@@ -266,7 +262,6 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
                 {
                     public void action( IAsn1Container container ) throws DecoderException
                     {
-
                         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
                             container;
                         LdapMessage          ldapMessage          =
@@ -318,16 +313,15 @@ public class SearchResultEntryGrammar extends AbstractGrammar implements IGramma
         super.transitions[LdapStatesEnum.SEARCH_RESULT_ENTRY_VALS_VALUE][UniversalTag.SET_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.SEARCH_RESULT_ENTRY_VALS_VALUE,
-                LdapStatesEnum.SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_TAG, null );
-
-        // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
-        //    ...
-        //    vals    SET OF *AttributeValue*} (Tag)
-        // Nothing to do
-        super.transitions[LdapStatesEnum.SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_TAG][UniversalTag.OCTET_STRING_TAG] =
-            new GrammarTransition(
-                LdapStatesEnum.SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_TAG,
-                LdapStatesEnum.SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_VALUE, null );
+                LdapStatesEnum.SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_OR_LIST_TAG, 
+                new GrammarAction( "Pop and end allowed" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                        container.grammarEndAllowed( true );
+                    }
+                } );
 
         // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
         //    ...
