@@ -239,7 +239,7 @@ public class InnoInstallerCommand implements MojoCommand
             buf.append( "Source: {#SourceBase}\\lib\\" );
             File artifact = ( ( Artifact ) artifacts.get( ii ) ).getFile();
             buf.append( artifact.getName() );
-            buf.append( "; DestDir: {app}-${app.version}\\lib; DestName: " );
+            buf.append( "; DestDir: {app}\\lib; DestName: " );
             buf.append( artifact.getName() );
             buf.append( "\n" );
         }

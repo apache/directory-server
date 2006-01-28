@@ -42,7 +42,7 @@
           <archive>
             <manifestFile>src/main/manifest/MANIFEST.MF</manifestFile>
             <manifest>
-              <mainClass>org.apache.directory.server.standalone.daemon.MainBootstrapper</mainClass>
+              <mainClass>org.apache.directory.server.standalone.daemon.Bootstrapper</mainClass>
             </manifest>
           </archive>
         </configuration>

@@ -16,8 +16,10 @@
  */
 package org.apache.directory.server.standalone.daemon;
 
-
+    
 import java.io.FileInputStream;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
@@ -37,18 +39,22 @@ public class LifecycleInvoker
     private static Logger log = LoggerFactory.getLogger( LifecycleInvoker.class );
     private static final String BOOTSTRAP_START_CLASS_PROP = "bootstrap.start.class";
     private static final String BOOTSTRAP_STOP_CLASS_PROP = "bootstrap.stop.class";
+	private static final String[] EMPTY_STRARRAY = new String[0];
 
-    private DaemonApplication startObject;
-    private DaemonApplication stopObject;
+    private Object startObject;
+    private Object stopObject;
     private String startClassName;
     private String stopClassName;
+    private Class startObjectClass;
+    private final ClassLoader parent;
     private final ClassLoader application;
     private final InstallationLayout layout;
 
 
     public LifecycleInvoker( String installationBase, ClassLoader parent )
     {
-        layout = new InstallationLayout( installationBase );
+    	this.parent = parent;
+        this.layout = new InstallationLayout( installationBase );
         
         // -------------------------------------------------------------------
         // Verify correct installation layout
@@ -135,11 +141,12 @@ public class LifecycleInvoker
      */
     public void callInit( String[] args )
     {
-        Class clazz = null;
+        Method op = null;
         Thread.currentThread().setContextClassLoader( application );
+        
         try
         {
-            clazz = application.loadClass( startClassName );
+            startObjectClass = application.loadClass( startClassName );
         }
         catch ( ClassNotFoundException e )
         {
@@ -149,7 +156,7 @@ public class LifecycleInvoker
         
         try
         {
-            startObject = ( DaemonApplication ) clazz.newInstance();
+            startObject = startObjectClass.newInstance();
         }
         catch ( Exception e )
         {
@@ -159,44 +166,102 @@ public class LifecycleInvoker
 
         try
         {
-            startObject.init( layout, args );
+        	Method[] methods = startObjectClass.getMethods();
+        	log.debug( "Listing methods in start class " + startObjectClass + ":" );
+        	for ( int ii = 0; ii < methods.length; ii++ )
+        	{
+        		log.debug( "\t" + methods[ii].toString() );
+        		if ( methods[ii].getName().equals( "init" ) )
+        		{
+        			op = methods[ii];
+        			log.info( "Found init method to call: " + op );
+        		}
+        	}
         }
         catch ( Exception e )
         {
-            log.error( "Could not instantiate " + startClassName, e );
+            log.error( "Could not find init(InstallationLayout) method for " + startClassName, e );
+            System.exit( ExitCodes.METHOD_LOOKUP );
+        }
+        
+        try
+        {
+            op.invoke( startObject, new Object[] { layout } ); 
+        }
+        catch ( Exception e )
+        {
+            log.error( "Could not invoke init(InstallationLayout, String[]) on " + startClassName, e );
             System.exit( ExitCodes.INVOCATION );
         }
+        
+        Thread.currentThread().setContextClassLoader( parent );
     }
 
 
     public void callStart( boolean nowait )
     {
-        Thread.currentThread().setContextClassLoader( application );
-        startObject.start( nowait );
+//        Thread.currentThread().setContextClassLoader( application );
+        Method op = null;
+        
+        try
+        {
+        	Method[] methods = startObjectClass.getMethods();
+        	log.debug( "Listing methods in start class " + startObjectClass + ":" );
+        	for ( int ii = 0; ii < methods.length; ii++ )
+        	{
+        		log.debug( "\t" + methods[ii].toString() );
+        		if ( methods[ii].getName().equals( "start" ) )
+        		{
+        			op = methods[ii];
+        			log.info( "Found start method to call: " + op );
+        		}
+        	}
+        }
+        catch ( Exception e )
+        {
+            log.error( "Could not find start(boolean) method for " + startObjectClass.getName(), e );
+            System.exit( ExitCodes.METHOD_LOOKUP );
+        }
+        
+        try
+        {
+            op.invoke( startObject, new Object[] { new Boolean( nowait ) } );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Failed on " + startObjectClass.getName() + ".start()", e );
+            System.exit( ExitCodes.START );
+        }    
     }
     
 
     public void callStop( String[] args )
     {
-        Thread.currentThread().setContextClassLoader( application );
+//        Thread.currentThread().setContextClassLoader( application );
         Class clazz = null;
+        Method op = null;
 
         // Reuse the startObject if it is the same class
         if ( ! startClassName.equals( stopClassName ) )
+        {            
+            clazz = startObjectClass;
+            stopObject = startObject;
+        }
+        else
         {
-            try
+            try 
             {
                 clazz = application.loadClass( stopClassName );
-            }
-            catch ( ClassNotFoundException e )
+            } 
+            catch ( ClassNotFoundException e ) 
             {
                 log.error( "Could not find " + stopClassName, e );
                 System.exit( ExitCodes.CLASS_LOOKUP );
             }
-            
+        
             try
             {
-                stopObject = ( DaemonApplication ) clazz.newInstance();
+                stopObject = clazz.newInstance();
             }
             catch ( Exception e )
             {
@@ -204,27 +269,53 @@ public class LifecycleInvoker
                 System.exit( ExitCodes.INSTANTIATION );
             }
         }
-        else
+
+        try
         {
-            stopObject = startObject;
-            clazz = startObject.getClass();
+            op = clazz.getMethod( "stop", null );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Could not find stop() method for " + stopClassName, e );
+            System.exit( ExitCodes.METHOD_LOOKUP );
         }
 
         try
         {
-            stopObject.stop( args );
+            op.invoke( stopObject, null );
         }
         catch ( Exception e )
         {
-            log.error( "Could not instantiate " + startClassName, e );
-            System.exit( ExitCodes.INVOCATION );
-        }
+            log.error( "Failed on " + stopClassName + ".stop()", e );
+            System.exit( ExitCodes.STOP );
+        }    
     }
 
     
     public void callDestroy()
     {
-        Thread.currentThread().setContextClassLoader( application );
-        stopObject.destroy();
+//        Thread.currentThread().setContextClassLoader( application );
+        Class clazz = stopObject.getClass();
+        Method op = null;
+        
+        try
+        {
+            op = clazz.getMethod( "destroy", null );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Could not find destroy() method for " + clazz.getName(), e );
+            System.exit( ExitCodes.METHOD_LOOKUP );
+        }
+        
+        try
+        {
+            op.invoke( stopObject, null );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Failed on " + clazz.getName() + ".destroy()", e );
+            System.exit( ExitCodes.DESTROY );
+        }
     }
 }

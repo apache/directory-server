@@ -21,7 +21,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\${app}
+DefaultDirName={pf}\${app}-${app.version}
 DefaultGroupName={#MyAppName}
 LicenseFile={#SourceBase}\${app.license.name}
 OutputDir="${installer.output.directory}"
@@ -43,36 +43,36 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 
 [Files]
 ; bin directory targets
-Source: {#SourceBase}\bin\${app}w.exe; DestDir: {app}-${app.version}\bin; Tasks: ; Languages: 
-Source: {#SourceBase}\bin\${app}.exe; DestDir: {app}-${app.version}\bin
-Source: {#SourceBase}\bin\bootstrapper.jar; DestDir: {app}-${app.version}\bin; DestName: bootstrapper.jar
-Source: {#SourceBase}\bin\logger.jar; DestDir: {app}-${app.version}\bin; DestName: logger.jar
-Source: {#SourceBase}\bin\daemon.jar; DestDir: {app}-${app.version}\bin; DestName: daemon.jar
+Source: {#SourceBase}\bin\${app}w.exe; DestDir: {app}\bin; Tasks: ; Languages: 
+Source: {#SourceBase}\bin\${app}.exe; DestDir: {app}\bin
+Source: {#SourceBase}\bin\bootstrapper.jar; DestDir: {app}\bin; DestName: bootstrapper.jar
+Source: {#SourceBase}\bin\logger.jar; DestDir: {app}\bin; DestName: logger.jar
+Source: {#SourceBase}\bin\daemon.jar; DestDir: {app}\bin; DestName: daemon.jar
 ; conf directory targets
-Source: {#SourceBase}\conf\log4j.properties; DestDir: {app}-${app.version}\conf; DestName: log4j.properties
-Source: {#SourceBase}\conf\server.xml; DestDir: {app}-${app.version}\conf; DestName: server.xml
-Source: {#SourceBase}\conf\bootstrapper.properties; DestDir: {app}-${app.version}\conf; DestName: bootstrapper.properties
+Source: {#SourceBase}\conf\log4j.properties; DestDir: {app}\conf; DestName: log4j.properties
+Source: {#SourceBase}\conf\server.xml; DestDir: {app}\conf; DestName: server.xml
+Source: {#SourceBase}\conf\bootstrapper.properties; DestDir: {app}\conf; DestName: bootstrapper.properties
 ; top level directory targets 
-Source: {#SourceBase}\${app.license.name}; DestDir: {app}-${app.version}; DestName: ${app.license.name}
-Source: {#SourceBase}\${app.readme.name}; DestDir: {app}-${app.version}; DestName: ${app.readme.name}
-Source: {#SourceBase}\${app.icon.name}; DestDir: {app}-${app.version}; DestName: ${app.icon.name}
+Source: {#SourceBase}\${app.license.name}; DestDir: {app}; DestName: ${app.license.name}
+Source: {#SourceBase}\${app.readme.name}; DestDir: {app}; DestName: ${app.readme.name}
+Source: {#SourceBase}\${app.icon.name}; DestDir: {app}; DestName: ${app.icon.name}
 ; empty var & lib\ext directory structure
-Source: {#SourceBase}\var\*; DestDir: "{app}-${app.version}\var\"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: {#SourceBase}\lib\ext; DestDir: "{app}-${app.version}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: {#SourceBase}\var\*; DestDir: "{app}\var\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: {#SourceBase}\lib\ext; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; lib directory targets
 ${app.lib.jars}
 
 [Icons]
-Name: {group}\Service Settings; Filename: {app}-${app.version}\bin\${app}w.exe; Parameters: //ES//${app}; IconIndex: 0
-Name: {userdesktop}\{#MyAppName}; Filename: {app}-${app.version}\bin\${app}w.exe; Tasks: desktopicon; Parameters: //ES//${app}; IconIndex: 0; Languages: 
-Name: {group}\Tray Monitor; Filename: {app}-${app.version}\bin\${app}w.exe; Parameters: //MS//${app}; IconIndex: 0
-Name: {group}\Test Service; Filename: {app}-${app.version}\bin\${app}.exe; IconIndex: 0
+Name: {group}\Service Settings; Filename: {app}\bin\${app}w.exe; Parameters: //ES//${app}; IconIndex: 0
+Name: {userdesktop}\{#MyAppName}; Filename: {app}\bin\${app}w.exe; Tasks: desktopicon; Parameters: //ES//${app}; IconIndex: 0; Languages: 
+Name: {group}\Tray Monitor; Filename: {app}\bin\${app}w.exe; Parameters: //MS//${app}; IconIndex: 0
+Name: {group}\Test Service; Filename: {app}\bin\${app}.exe; IconIndex: 0
 
 [Run]
-Filename: {app}-${app.version}\bin\${app}.exe; WorkingDir: {app}-${app.version}\bin; Tasks: ; Languages: ; Parameters: "//IS//${app.displayname} --Description=""${app.description} Service ${app.version} - ${app.url}"" --DisplayName=${app.displayname} --Install=""{app}-${app.version}\bin\${app}.exe"" --StartMode=jvm --StopMode=jvm --StartClass=org.apache.directory.server.standalone.daemon.ProcrunBootstrapper --StartMethod prunsrvStart --StartParams=""{app}"" --StopClass=org.apache.directory.server.standalone.daemon.ProcrunBootstrapper --StopMethod prunsrvStop --StopParams=""{app}"" --Startup=manual --JvmOptions=""-D${app}.home={app}-${app.version}"" --Classpath=""{app}-${app.version}\bin\bootstrapper.jar;{app}-${app.version}\conf;{app}-${app.version}\bin\logger.jar;{app}-${app.version}\bin\daemon.jar"" --LogPath=""{app}-${app.version}\var\log"" --LogPrefix=${app}.log --LogLevel=debug --StdOutput=""{app}-${app.version}\var\log\${app}-stdout.log"" --StdError=""{app}-${app.version}\var\log\${app}-stderr.log"""; Flags: runhidden
-Filename: {app}-${app.version}\bin\${app}w.exe; Parameters: //ES//${app.displayname}; WorkingDir: {app}-${app.version}\bin; Flags: postinstall nowait; Description: Runs the configuration manager for the ${app} windows service
+Filename: {app}\bin\${app}.exe; WorkingDir: {app}\bin; Tasks: ; Languages: ; Parameters: "//IS//${app.displayname} --Description=""${app.description} Service ${app.version} - ${app.url}"" --DisplayName=${app.displayname} --Install=""{app}\bin\${app}.exe"" --StartMode=jvm --StopMode=jvm --StartClass=org.apache.directory.server.standalone.daemon.Bootstrapper --StartMethod prunsrvStart --StartParams=""{app}"" --StopClass=org.apache.directory.server.standalone.daemon.Bootstrapper --StopMethod prunsrvStop --StopParams=""{app}"" --Startup=manual --JvmOptions=""-D${app}.home={app}"" --Classpath=""{app}\bin\bootstrapper.jar;{app}\conf;{app}\bin\logger.jar;{app}\bin\daemon.jar"" --LogPath=""{app}\var\log"" --LogPrefix=${app}.log --LogLevel=debug --StdOutput=""{app}\var\log\${app}-stdout.log"" --StdError=""{app}\var\log\${app}-stderr.log"""; Flags: runhidden
+Filename: {app}\bin\${app}w.exe; Parameters: //ES//${app.displayname}; WorkingDir: {app}\bin; Flags: postinstall nowait; Description: Runs the configuration manager for the ${app} windows service
 
 [Registry]
 
 [UninstallRun]
-Filename: {app}-${app.version}\bin\${app}.exe; WorkingDir: {app}-${app.version}\bin; Parameters: //DS//${app.displayname}
+Filename: {app}\bin\${app}.exe; WorkingDir: {app}\bin; Parameters: //DS//${app.displayname}

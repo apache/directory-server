@@ -36,6 +36,8 @@ public class ProcrunBootstrapper
 
     public static void prunsrvStart( String[] args )
     {
+    	ClassLoader system = Thread.currentThread().getContextClassLoader();
+    	
         if ( log.isDebugEnabled() )
         {
             StringBuffer buf = new StringBuffer();
@@ -53,22 +55,36 @@ public class ProcrunBootstrapper
         }
 
         log.debug( "prunsrvStart(String[]) creating LifecycleInvoker ... )" );
-        LifecycleInvoker invoker = new LifecycleInvoker( args[0], 
-            Thread.currentThread().getContextClassLoader() );
+        LifecycleInvoker invoker = new LifecycleInvoker( args[0], system );
 
         log.debug( "prunsrvStart(String[]) invoking application.callInit(String[]))" );
-        if ( args.length > 1 )
+        try
         {
-            String[] shifted = new String[args.length-1];
-            System.arraycopy( args, 1, shifted, 0, shifted.length );
-            invoker.callInit( shifted );
+	        if ( args.length > 1 )
+	        {
+	            String[] shifted = new String[args.length-1];
+	            System.arraycopy( args, 1, shifted, 0, shifted.length );
+	            invoker.callInit( shifted );
+	        }
+	        else
+	        {
+	            invoker.callInit( EMPTY_STRARRAY );
+	        }
         }
-        else
+        catch ( Throwable t )
         {
-            invoker.callInit( EMPTY_STRARRAY );
+        	log.error( "Failed while calling invoker.callInit(String[])", t );
         }
+        
         log.debug( "prunsrvStart(String[]) invoking bootstrapper.callStart())" );
-        invoker.callStart( false ); // must block on start (let the app decide how)
+        try
+        {
+        	invoker.callStart( false ); // must block on start (let the app decide how)
+        }
+        catch( Throwable t )
+        {
+        	log.error( "Failed while calling invoker.callStart(String[])", t );
+        }
     }
 
     

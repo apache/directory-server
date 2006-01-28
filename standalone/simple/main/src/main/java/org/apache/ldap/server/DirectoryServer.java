@@ -22,7 +22,6 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.directory.server.standalone.daemon.DaemonApplication;
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
 import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
@@ -42,7 +41,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DirectoryServer implements DaemonApplication
+public class DirectoryServer 
 {
     private static final Logger log = LoggerFactory.getLogger( DirectoryServer.class );
     private Properties env;
@@ -53,7 +52,7 @@ public class DirectoryServer implements DaemonApplication
     private boolean started = false;
 
 
-    public void init( InstallationLayout install, String[] args ) throws Exception
+    public void init( InstallationLayout install ) throws Exception
     {
         long startTime = System.currentTimeMillis();
         MutableServerStartupConfiguration cfg;
@@ -97,11 +96,11 @@ public class DirectoryServer implements DaemonApplication
     }
     
 
-    public void start( boolean nowait ) 
+    public void start() 
     {
-        startNoWait = nowait;
+        startNoWait = false;
         
-        if ( nowait )
+        if ( false )
         {
             workerThread.start();
             started = true;
@@ -119,6 +118,9 @@ public class DirectoryServer implements DaemonApplication
         {
             log.warn( "stop(String[]) called without calling init() and start()" );
             log.info( "Might be a procrun invocation as opposed to jsvc so we'll initiate external shutdown procedure" );
+            
+            // real shutdown sequence goes here.
+            return;
         }
         
         worker.stop = true;
