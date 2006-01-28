@@ -18,6 +18,7 @@ package org.apache.ldap.common.codec.search;
 
 import java.nio.ByteBuffer;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -28,6 +29,7 @@ import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.ldap.common.codec.Control;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -511,49 +513,6 @@ public class SearchResultEntryTest extends TestCase {
                     0x30, 0x00 
             } );
 
-        stream.flip();
-
-        // Allocate a BindRequest Container
-        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
-
-        try
-        {
-            ldapDecoder.decode( stream, ldapMessageContainer );
-        }
-        catch ( DecoderException de )
-        {
-            System.out.println( de.getMessage() );
-            assertTrue( true );
-            return;
-        }
-        
-        fail( "We should not reach this point" );
-    }    
-
-    /**
-     * Test the decoding of an SearchResultEntry with an empty attributes list
-     */
-    public void testDecodeSearchResultEntryEmptyAttributeList() throws NamingException
-    {
-        Asn1Decoder ldapDecoder = new LdapDecoder();
-
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x28 );
-        
-        stream.put(
-            new byte[]
-            {
-                0x30, 0x26,         // LDAPMessage ::=SEQUENCE {
-                  0x02, 0x01, 0x01, //     messageID MessageID
-                  0x64, 0x21,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
-                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
-                                    //     objectName      LDAPDN,
-                    0x04, 0x1B, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
-                                    //     attributes      PartialAttributeList }
-                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
-                    0x30, 0x02,
-                      0x30, 0x00
-            } );
-        
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
@@ -581,7 +540,7 @@ public class SearchResultEntryTest extends TestCase {
         assertEquals( 0, partialAttributesList.size() );
         
         // Check the length
-        assertEquals(0x28, message.computeLength());
+        assertEquals(0x26, message.computeLength());
 
         // Check the encoding
         try
@@ -598,4 +557,662 @@ public class SearchResultEntryTest extends TestCase {
             fail( ee.getMessage() );
         }
     }    
+
+    /**
+     * Test the decoding of an SearchResultEntry with an empty attributes list
+     */
+    public void testDecodeSearchResultEntryEmptyAttributeList() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x28 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x26,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x21,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1B, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x02,
+                      0x30, 0x00
+            } );
+        
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "We should not reach this point" );
+    }    
+
+    /**
+     * Test the decoding of an SearchResultEntry with an empty attributes list
+     * with controls
+     */
+    public void testDecodeSearchResultEntryEmptyAttributeListWithControls() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x45 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x43,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x21,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1B, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x02,
+                      0x30, 0x00,
+                  (byte)0xA0, 0x1B, // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+            } );
+        
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "We should not reach this point" );
+    }    
+
+    /**
+     * Test the decoding of a SearchResultEntry with an empty type
+     */
+    public void testDecodeSearchResultEntryEmptyType() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x2A );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x28,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x23,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1b, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x04, 
+                      0x30, 0x02, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x00
+            } );
+
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a SearchResultEntry with a type alone 
+     */
+    public void testDecodeSearchResultEntryTypeAlone() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x35 );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x33,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x2E,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1b, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x0F, 
+                      0x30, 0x0D, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x0b, 'o', 'b', 'j', 'e', 'c', 't', 'c', 'l', 'a', 's', 's'
+            } );
+
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "We should not reach this point" );
+    }
+
+    /**
+     * Test the decoding of a SearchResultEntry with an empty vals 
+     */
+    public void testDecodeSearchResultEntryEmptyVals() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x37 );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x35,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x30,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1b, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x11, 
+                      0x30, 0x0F, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x0b, 'o', 'b', 'j', 'e', 'c', 't', 'c', 'l', 'a', 's', 's',
+                        0x31, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+
+        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        
+        assertEquals( 1, partialAttributesList.size() );
+        
+        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        {
+            BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( "objectclass" );
+            
+            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            
+            NamingEnumeration values = attributeValue.getAll();
+            
+            assertFalse( values.hasMore() );
+        }
+        
+        // Check the length
+        assertEquals(0x37, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a SearchResultEntry with two empty vals 
+     */
+    public void testDecodeSearchResultEntryEmptyVals2() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x48 );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x46,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x41,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1b, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x22, 
+                      0x30, 0x0F, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x0b, 'o', 'b', 'j', 'e', 'c', 't', 'c', 'l', 'a', 's', 's',
+                        0x31, 0x00,
+                      0x30, 0x0F, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x0b, 'o', 'b', 'j', 'e', 'c', 't', 'c', 'l', 'a', 'z', 'z',
+                          0x31, 0x00
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+
+        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        
+        assertEquals( 2, partialAttributesList.size() );
+        
+        BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( "objectclass" );
+        assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+        NamingEnumeration values = attributeValue.getAll();
+        assertFalse( values.hasMore() );
+        
+        attributeValue = (BasicAttribute)partialAttributesList.get( "objectclazz" );
+        assertEquals( "objectClazz".toLowerCase(), attributeValue.getID().toLowerCase() );
+        values = attributeValue.getAll();
+        assertFalse( values.hasMore() );
+
+        // Check the length
+        assertEquals(0x48, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals( encodedPdu.length() , decodedPdu.length() );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a SearchResultEntry with an empty vals with controls
+     */
+    public void testDecodeSearchResultEntryEmptyValsWithControls() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x54 );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x52,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x30,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1b, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x11, 
+                      0x30, 0x0F, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x0b, 'o', 'b', 'j', 'e', 'c', 't', 'c', 'l', 'a', 's', 's',
+                        0x31, 0x00,
+                  (byte)0xA0, 0x1B,   // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+
+        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        
+        assertEquals( 1, partialAttributesList.size() );
+        
+        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        {
+            BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( "objectclass" );
+            
+            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            
+            NamingEnumeration values = attributeValue.getAll();
+            
+            assertFalse( values.hasMore() );
+        }
+        
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
+        // Check the length
+        assertEquals(0x54, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a SearchResultEntry with an empty attribute value
+     */
+    public void testDecodeSearchResultEntryEmptyAttributeValue() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x39 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x37,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x32,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1b, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x13, 
+                      0x30, 0x11, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x0b, 'o', 'b', 'j', 'e', 'c', 't', 'c', 'l', 'a', 's', 's',
+                                    //     vals    SET OF AttributeValue }
+                        0x31, 0x02, 
+                                    // AttributeValue ::= OCTET STRING
+                          0x04, 0x00, 
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+
+        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        
+        assertEquals( 1, partialAttributesList.size() );
+        
+        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        {
+            BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( "objectclass" );
+            
+            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            
+            NamingEnumeration values = attributeValue.getAll();
+
+            while ( values.hasMore() )
+            {
+                Object value = values.next();
+                
+                assertEquals( "", value.toString() );
+            }
+        }
+        
+        // Check the length
+        assertEquals(0x39, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a SearchResultEntry with an empty attribute value
+     * with controls
+     */
+    public void testDecodeSearchResultEntryEmptyAttributeValueWithControls() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x56 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x54,         // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x64, 0x32,       //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
+                                    // SearchResultEntry ::= [APPLICATION 4] SEQUENCE {
+                                    //     objectName      LDAPDN,
+                    0x04, 0x1b, 'o', 'u', '=', 'c', 'o', 'n', 't', 'a', 'c', 't', 's', ',', 'd', 'c', '=', 'i', 'k', 't', 'e', 'k', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                                    //     attributes      PartialAttributeList }
+                                    // PartialAttributeList ::= SEQUENCE OF SEQUENCE {
+                    0x30, 0x13, 
+                      0x30, 0x11, 
+                                    //     type    AttributeDescription,
+                        0x04, 0x0b, 'o', 'b', 'j', 'e', 'c', 't', 'c', 'l', 'a', 's', 's',
+                                    //     vals    SET OF AttributeValue }
+                        0x31, 0x02, 
+                                    // AttributeValue ::= OCTET STRING
+                          0x04, 0x00, 
+                  (byte)0xA0, 0x1B, // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchResultEntry searchResultEntry      = message.getSearchResultEntry();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName() );
+
+        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        
+        assertEquals( 1, partialAttributesList.size() );
+        
+        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        {
+            BasicAttribute attributeValue = (BasicAttribute)partialAttributesList.get( "objectclass" );
+            
+            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            
+            NamingEnumeration values = attributeValue.getAll();
+
+            while ( values.hasMore() )
+            {
+                Object value = values.next();
+                
+                assertEquals( "", value.toString() );
+            }
+        }
+        
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
+        // Check the length
+        assertEquals(0x56, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
 }
