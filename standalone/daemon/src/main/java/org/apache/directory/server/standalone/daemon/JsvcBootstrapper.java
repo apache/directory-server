@@ -54,7 +54,7 @@ public class JsvcBootstrapper extends Bootstrapper
     public void start()
     {
         log.debug( "start() called" );
-        callStart( true );
+        callStart();
     }
 
 

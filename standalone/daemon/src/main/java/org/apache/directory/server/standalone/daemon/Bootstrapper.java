@@ -156,12 +156,12 @@ public class Bootstrapper
     }
 
     
-    public void callStart( boolean nowait )
+    public void callStart()
     {
         Thread.currentThread().setContextClassLoader( application );
         try
         {
-            start.start( nowait );
+            start.start();
         }
         catch ( Exception e )
         {
@@ -260,6 +260,13 @@ public class Bootstrapper
                 BufferedReader in = new BufferedReader( new FileReader( shutdownPortFile ) );
                 shutdownPort = Integer.parseInt( in.readLine() );
                 in.close();
+            }
+            else
+            {
+                String msg = "The server does not seem to be running!  The shutdown port file\n";
+                msg += shutdownPortFile + " does not exist!";
+                log.error( msg );
+                throw new IllegalStateException( msg );
             }
         }
         

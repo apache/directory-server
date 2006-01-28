@@ -62,7 +62,7 @@ public class ProcrunBootstrapper extends Bootstrapper
             log.debug( "prunsrvStart(String[]) calling callInit()" );
             instance.callInit( shift( args, 1 ) );
             log.debug( "prunsrvStart(String[]) calling callStart()" );
-            instance.callStart( false );
+            instance.callStart();
 
             log.debug( "prunsrvStart(String[]) block waitForShutdown()" );
             instance.waitForShutdown();

@@ -42,12 +42,12 @@ public class ServerMain
         if ( args.length > 0 )
         {
             server.init( new InstallationLayout( args[0] ), null );
-            server.start( true );
+            server.start();
         }
         else
         {
             server.init( null, null );
-            server.start( true );
+            server.start();
         }
     }
 }

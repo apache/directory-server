@@ -35,13 +35,9 @@ public interface DaemonApplication
     void init( InstallationLayout layout, String[] args ) throws Exception;
     
     /**
-     * Start threads and bind sockets here.  If nowait is toggled this method 
-     * should not return until the server is ready to be shutdown.
-     * 
-     * @param nowait true if this method should return control immediately, false
-     * if it should block until it is ready to be shutdown
+     * Start threads and bind sockets here.
      */
-    void start( boolean nowait );
+    void start();
     
     /**
      * Stop threads and close sockets opened in start() here.

@@ -42,15 +42,13 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DirectoryServer implements DaemonApplication
+public class DirectoryServer implements DaemonApplication 
 {
     private static final Logger log = LoggerFactory.getLogger( DirectoryServer.class );
     private Properties env;
     private Thread workerThread = null;
     private SynchWorker worker = new SynchWorker();
     private boolean startNoWait = false;
-    private boolean initialized = false;
-    private boolean started = false;
 
 
     public void init( InstallationLayout install, String[] args ) throws Exception
@@ -80,8 +78,6 @@ public class DirectoryServer implements DaemonApplication
         new InitialDirContext( env );
 
         workerThread = new Thread( worker, "SynchWorkerThread" );
-        initialized = true;
-
 
         if (log.isInfoEnabled())
         {
@@ -97,35 +93,15 @@ public class DirectoryServer implements DaemonApplication
     }
     
 
-    // @todo don't think this nowait is needed here if the procrun bootstrapper
-    // handles the creation of the socket and the blocking.
-    public void start( boolean nowait ) 
+    public void start()
     {
-        startNoWait = nowait;
-        
-        if ( nowait )
-        {
-            workerThread.start();
-            started = true;
-            return;
-        }
-
-        started = true;
-//        worker.run();  // - blocks here 
+        workerThread.start();
+        return;
     }
     
 
     public void stop( String[] args ) throws Exception
     {
-        if ( ! initialized || ! started )
-        {
-            log.warn( "stop(String[]) called without calling init() and start()" );
-            log.info( "Might be a procrun invocation as opposed to jsvc so we'll initiate external shutdown procedure" );
-            
-            // real shutdown sequence goes here.
-            return;
-        }
-        
         worker.stop = true;
         synchronized ( worker.lock )
         {
