@@ -40,9 +40,9 @@ public class Bootstrapper
     private static final String START_CLASS_PROP = "bootstrap.start.class";
     private static final String STOP_CLASS_PROP = "bootstrap.stop.class";
     
-    private InstallationLayout install;
-    private ClassLoader appLoader;
-    private ClassLoader parentLoader;
+    private InstallationLayout layout;
+    private ClassLoader application;
+    private ClassLoader parent;
     private String startClassName;
     private String stopClassName;
     private Class startObjectClass;
@@ -53,11 +53,11 @@ public class Bootstrapper
     public void setInstallationLayout( String installationBase )
     {
         log.debug( "Setting layout in Bootstrapper using base: " + installationBase );
-        install = new InstallationLayout( installationBase );
+        layout = new InstallationLayout( installationBase );
         
         try
         {
-            install.verifyInstallation();
+            layout.verifyInstallation();
         }
         catch( Throwable t )
         {
@@ -67,13 +67,13 @@ public class Bootstrapper
         try
         {
             Properties props = new Properties();
-            props.load( new FileInputStream( install.getBootstrapperConfigurationFile() ) );
+            props.load( new FileInputStream( layout.getBootstrapperConfigurationFile() ) );
             startClassName = props.getProperty( START_CLASS_PROP );
             stopClassName = props.getProperty( STOP_CLASS_PROP );
         }
         catch ( Exception e )
         {
-            log.error( "Failed while loading: " + install.getBootstrapperConfigurationFile(), e );
+            log.error( "Failed while loading: " + layout.getBootstrapperConfigurationFile(), e );
             System.exit( ExitCodes.PROPLOAD );
         }
     }
@@ -81,14 +81,14 @@ public class Bootstrapper
     
     public void setParentLoader( ClassLoader parentLoader )
     {
-        this.parentLoader = parentLoader;
-        URL[] jars = install.getAllJars();
-        this.appLoader = new URLClassLoader( jars, parentLoader );
+        this.parent = parentLoader;
+        URL[] jars = layout.getAllJars();
+        this.application = new URLClassLoader( jars, parentLoader );
         
         if ( log.isDebugEnabled() )
         {
             StringBuffer buf = new StringBuffer();
-            buf.append( "urls in app loader: \n" );
+            buf.append( "Dependencies loaded by the application ClassLoader: \n" );
             for ( int ii = 0; ii < jars.length; ii++ )
             {
                 buf.append( "\t" ).append( jars[ii] ).append( "\n" );
@@ -100,12 +100,12 @@ public class Bootstrapper
 
     public void callInit()
     {
+        Thread.currentThread().setContextClassLoader( application );
         Method op = null;
         
-        Thread.currentThread().setContextClassLoader( appLoader );
         try
         {
-            startObjectClass = appLoader.loadClass( startClassName );
+            startObjectClass = application.loadClass( startClassName );
         }
         catch ( ClassNotFoundException e )
         {
@@ -135,13 +135,15 @@ public class Bootstrapper
         
         try
         {
-            op.invoke( startObject, new Object[] { this.install } );
+            op.invoke( startObject, new Object[] { this.layout } );
         }
         catch ( Exception e )
         {
             log.error( "Failed on " + startClassName + ".init(InstallationLayout)", e );
             System.exit( ExitCodes.INITIALIZATION );
         }
+        
+        Thread.currentThread().setContextClassLoader( parent );
     }
 
     
@@ -185,7 +187,7 @@ public class Bootstrapper
         {
             try
             {
-                clazz = appLoader.loadClass( stopClassName );
+                clazz = application.loadClass( stopClassName );
             }
             catch ( ClassNotFoundException e )
             {
@@ -267,22 +269,16 @@ public class Bootstrapper
             log.debug( buf.toString() );
         }
 
-        if ( install == null )
+        if ( layout == null )
         {
             log.debug( "install was null: initializing it using first argument" );
             setInstallationLayout( args[0] );
-            log.debug( "install initialized" );
-        }
-        else
-        {
-            log.debug( "install was not null" );
         }
 
-        if ( parentLoader == null )
+        if ( parent == null )
         {
-            log.info( "Trying to get handle on system classloader as the parent" );
+            log.debug( "parent ClassLoader was null: initializing it" );
             setParentLoader( Thread.currentThread().getContextClassLoader() );
-            log.info( "parentLoader = " + parentLoader );
         }
         
         callInit();
@@ -311,7 +307,7 @@ public class Bootstrapper
     public void start()
     {
         log.debug( "start() called" );
-        Thread.currentThread().setContextClassLoader( parentLoader );
+        Thread.currentThread().setContextClassLoader( parent );
         callStart();
     }
 
@@ -319,9 +315,9 @@ public class Bootstrapper
     public void start( String[] args )
     {
         log.debug( "start(String[]) called" );
-        Thread.currentThread().setContextClassLoader( this.parentLoader );
+        Thread.currentThread().setContextClassLoader( this.parent );
         
-        if ( install == null && args.length > 0 )
+        if ( layout == null && args.length > 0 )
         {
             setInstallationLayout( args[0] );
             setParentLoader( Thread.currentThread().getContextClassLoader() );
