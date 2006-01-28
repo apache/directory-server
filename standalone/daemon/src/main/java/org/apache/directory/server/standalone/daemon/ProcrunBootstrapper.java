@@ -58,11 +58,24 @@ public class ProcrunBootstrapper extends Bootstrapper
             instance.setInstallationLayout( args[0] );
             instance.setParentLoader( Bootstrapper.class.getClassLoader() );
 
-            log.debug( "prunsrvStart(String[]) calling init(String[])" );
-            instance.init( args );
+            log.debug( "prunsrvStart(String[]) calling callInit()" );
+            instance.callInit();
 
-            log.debug( "prunsrvStart(String[]) calling start()" );
-            instance.start();
+            log.debug( "prunsrvStart(String[]) calling callStart()" );
+            instance.callStart();
+
+            // This is only needed for procrun 
+            while( true )
+            {
+                try
+                {
+                    Thread.sleep( 2000 );
+                }
+                catch ( InterruptedException e )
+                {
+                    e.printStackTrace();
+                }
+            }
         }
         catch ( Throwable t )
         {
@@ -91,10 +104,10 @@ public class ProcrunBootstrapper extends Bootstrapper
             instance.setInstallationLayout( args[0] );
             instance.setParentLoader( Bootstrapper.class.getClassLoader() );
 
-            log.debug( "prunsrvStop(String[]) calling stop()" );
-            instance.stop();
-            log.debug( "prunsrvStop(String[]) calling destroy()" );
-            instance.destroy();
+            log.debug( "prunsrvStop(String[]) calling callStop()" );
+            instance.callStop();
+            log.debug( "prunsrvStop(String[]) calling callDestroy()" );
+            instance.callDestroy();
         }
         catch ( Throwable t )
         {

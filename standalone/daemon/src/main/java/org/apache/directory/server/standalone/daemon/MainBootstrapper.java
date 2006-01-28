@@ -73,17 +73,18 @@ public class MainBootstrapper extends Bootstrapper
         {
             if ( command.equalsIgnoreCase( "start" ) )
             {
-                log.debug( "calling init(String[]) from main(String[])" );
-                instance.init( args );
+                log.debug( "calling callInit(String[]) from main(String[])" );
+                instance.callInit();
 
-                log.debug( "calling start() from main(String[])" );
-                instance.start();
+                log.debug( "calling callStart() from main(String[])" );
+                instance.callStart();
             }
             else if ( command.equalsIgnoreCase( "stop" ) )
             {
-                log.debug( "calling stop() from main(String[])" );
-                instance.stop();
-                instance.destroy();
+                log.debug( "calling callStop() from main(String[])" );
+                instance.callStop();
+                log.debug( "calling callDestroy() from main(String[])" );
+                instance.callDestroy();
             }
             else
             {
@@ -96,7 +97,7 @@ public class MainBootstrapper extends Bootstrapper
         {
             log.error( "Encountered error while processing command: " + command );
             t.printStackTrace();
-            System.exit( 4 );
+            System.exit( ExitCodes.UNKNOWN );
         }
     }
 

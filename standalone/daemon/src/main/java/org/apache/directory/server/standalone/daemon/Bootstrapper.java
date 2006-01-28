@@ -149,6 +149,7 @@ public class Bootstrapper
     
     public void callStart()
     {
+        Thread.currentThread().setContextClassLoader( application );
         Method op = null;
         
         try
@@ -170,11 +171,14 @@ public class Bootstrapper
             log.error( "Failed on " + startObjectClass.getName() + ".start()", e );
             System.exit( ExitCodes.START );
         }
+        
+        Thread.currentThread().setContextClassLoader( parent );
     }
     
 
     public void callStop()
     {
+        Thread.currentThread().setContextClassLoader( application );
         Class clazz = null;
         Method op = null;
         
@@ -225,11 +229,14 @@ public class Bootstrapper
             log.error( "Failed on " + stopClassName + ".stop()", e );
             System.exit( ExitCodes.STOP );
         }
+        
+        Thread.currentThread().setContextClassLoader( parent );
     }
 
     
     public void callDestroy()
     {
+        Thread.currentThread().setContextClassLoader( application );
         Method op = null;
         try
         {
@@ -250,78 +257,7 @@ public class Bootstrapper
             log.error( "Failed on " + stopClassName + ".destroy()", e );
             System.exit( ExitCodes.STOP );
         }
-    }
-
-    
-    // -----------------------------------------------------------------------
-    
-    
-    public void init( String[] args )
-    {
-        if ( log.isDebugEnabled() )
-        {
-            StringBuffer buf = new StringBuffer();
-            buf.append( "init(String[]) called with args: \n" );
-            for ( int ii = 0; ii < args.length; ii++ )
-            {
-                buf.append( "\t" ).append( args[ii] ).append( "\n" );
-            }
-            log.debug( buf.toString() );
-        }
-
-        if ( layout == null )
-        {
-            log.debug( "install was null: initializing it using first argument" );
-            setInstallationLayout( args[0] );
-        }
-
-        if ( parent == null )
-        {
-            log.debug( "parent ClassLoader was null: initializing it" );
-            setParentLoader( Thread.currentThread().getContextClassLoader() );
-        }
         
-        callInit();
-
-        // This is only needed for procrun but does not harm jsvc or runs 
-        // Leads me to think that we need to differentiate somehow between
-        // different daemon frameworks.  We can do this via command line args,
-        // system properties or by making them call different methods to start
-        // the process.  However not every framework may support calling 
-        // different methods which may also be somewhat error prone.
-        
-        while( true )
-        {
-            try
-            {
-                Thread.sleep( 2000 );
-            }
-            catch ( InterruptedException e )
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    
-    public void start()
-    {
-        log.debug( "start() called" );
         Thread.currentThread().setContextClassLoader( parent );
-        callStart();
-    }
-
-
-    public void stop() throws Exception
-    {
-        log.debug( "stop() called" );
-        callStop();
-    }
-
-
-    public void destroy()
-    {
-        log.debug( "destroy() called" );
-        callDestroy();
     }
 }
