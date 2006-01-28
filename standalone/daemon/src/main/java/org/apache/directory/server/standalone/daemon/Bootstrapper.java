@@ -35,8 +35,9 @@ import org.slf4j.Logger;
  */
 public class Bootstrapper
 {
+    public static final String[] EMPTY_STRARRAY = new String[0];
+    
     private static final Logger log = LoggerFactory.getLogger( Bootstrapper.class );
-    private static final String[] EMPTY_STRARRY = new String[0];
     private static final String START_CLASS_PROP = "bootstrap.start.class";
     private static final String STOP_CLASS_PROP = "bootstrap.stop.class";
     
@@ -98,7 +99,7 @@ public class Bootstrapper
     }
 
 
-    public void callInit()
+    public void callInit( String[] args )
     {
         Thread.currentThread().setContextClassLoader( application );
         Method op = null;
@@ -125,7 +126,8 @@ public class Bootstrapper
         
         try
         {
-            op = startObjectClass.getMethod( "init", new Class[] { InstallationLayout.class } );
+            op = startObjectClass.getMethod( "init", 
+                new Class[] { InstallationLayout.class, EMPTY_STRARRAY.getClass() } );
         }
         catch ( Exception e )
         {
@@ -135,7 +137,7 @@ public class Bootstrapper
         
         try
         {
-            op.invoke( startObject, new Object[] { this.layout } );
+            op.invoke( startObject, new Object[] { this.layout, args } );
         }
         catch ( Exception e )
         {
@@ -147,14 +149,22 @@ public class Bootstrapper
     }
 
     
-    public void callStart()
+    public void callStart( boolean nowait )
     {
         Thread.currentThread().setContextClassLoader( application );
         Method op = null;
         
         try
         {
-            op = startObjectClass.getMethod( "start", null );
+            Method[] methods = startObjectClass.getMethods();
+            for ( int ii = 0; ii < methods.length; ii++ )
+            {
+                if ( methods[ii].getName().equals( "start" ) )
+                {
+                    op = methods[ii];
+                    break;
+                }
+            }
         }
         catch ( Exception e )
         {
@@ -164,7 +174,7 @@ public class Bootstrapper
         
         try
         {
-            op.invoke( startObject, null );
+            op.invoke( startObject, new Object[] { new Boolean( nowait ) } );
         }
         catch ( Exception e )
         {
@@ -176,7 +186,7 @@ public class Bootstrapper
     }
     
 
-    public void callStop()
+    public void callStop( String[] args )
     {
         Thread.currentThread().setContextClassLoader( application );
         Class clazz = null;
@@ -212,7 +222,7 @@ public class Bootstrapper
         
         try
         {
-            op = clazz.getMethod( "stop", new Class[] { EMPTY_STRARRY.getClass() } );
+            op = clazz.getMethod( "stop", new Class[] { EMPTY_STRARRAY.getClass() } );
         }
         catch ( Exception e )
         {
@@ -222,7 +232,7 @@ public class Bootstrapper
         
         try
         {
-            op.invoke( stopObject, new Object[] { EMPTY_STRARRY } );
+            op.invoke( stopObject, new Object[] { args } );
         }
         catch ( Exception e )
         {
@@ -259,5 +269,18 @@ public class Bootstrapper
         }
         
         Thread.currentThread().setContextClassLoader( parent );
+    }
+    
+    
+    public static String[] shift( String[]args, int amount )
+    {
+        if ( args.length > amount )
+        {
+            String[] shifted = new String[args.length-1];
+            System.arraycopy( args, 1, shifted, 0, shifted.length );
+            return shifted;
+        }
+        
+        return EMPTY_STRARRAY;
     }
 }

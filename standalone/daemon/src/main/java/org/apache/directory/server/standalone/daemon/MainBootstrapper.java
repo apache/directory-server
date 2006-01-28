@@ -74,15 +74,14 @@ public class MainBootstrapper extends Bootstrapper
             if ( command.equalsIgnoreCase( "start" ) )
             {
                 log.debug( "calling callInit(String[]) from main(String[])" );
-                instance.callInit();
-
+                instance.callInit( shift( args, 2 ) );
                 log.debug( "calling callStart() from main(String[])" );
-                instance.callStart();
+                instance.callStart( true );
             }
             else if ( command.equalsIgnoreCase( "stop" ) )
             {
                 log.debug( "calling callStop() from main(String[])" );
-                instance.callStop();
+                instance.callStop( shift( args, 2 ) );
                 log.debug( "calling callDestroy() from main(String[])" );
                 instance.callDestroy();
             }

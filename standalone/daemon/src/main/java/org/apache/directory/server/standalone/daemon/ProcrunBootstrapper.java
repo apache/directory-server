@@ -59,10 +59,9 @@ public class ProcrunBootstrapper extends Bootstrapper
             instance.setParentLoader( Bootstrapper.class.getClassLoader() );
 
             log.debug( "prunsrvStart(String[]) calling callInit()" );
-            instance.callInit();
-
+            instance.callInit( shift( args, 1 ) );
             log.debug( "prunsrvStart(String[]) calling callStart()" );
-            instance.callStart();
+            instance.callStart( false );
 
             // This is only needed for procrun 
             while( true )
@@ -105,7 +104,7 @@ public class ProcrunBootstrapper extends Bootstrapper
             instance.setParentLoader( Bootstrapper.class.getClassLoader() );
 
             log.debug( "prunsrvStop(String[]) calling callStop()" );
-            instance.callStop();
+            instance.callStop( shift( args, 1 ) );
             log.debug( "prunsrvStop(String[]) calling callDestroy()" );
             instance.callDestroy();
         }

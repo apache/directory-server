@@ -41,13 +41,13 @@ public class ServerMain
 
         if ( args.length > 0 )
         {
-            server.init( new InstallationLayout( args[0] ) );
-            server.start();
+            server.init( new InstallationLayout( args[0] ), null );
+            server.start( true );
         }
         else
         {
-            server.init( null );
-            server.start();
+            server.init( null, null );
+            server.start( true );
         }
     }
 }

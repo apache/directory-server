@@ -174,7 +174,7 @@ case "$1" in
     -stop \
     -pidfile $PID_FILE \
     -Dlog4j.configuration=file://$SERVER_HOME/conf/log4j.properties\
-    org.apache.directory.server.standalone.daemon.JsvcBootstrapper 
+    org.apache.directory.server.standalone.daemon.JsvcBootstrapper stop
 
     if [ `uname` = "Darwin" ] ; then
         [ "$RETVAL" -eq 0 ] && echo successful ${app} server shutdown || \

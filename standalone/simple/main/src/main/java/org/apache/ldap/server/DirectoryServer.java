@@ -41,7 +41,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DirectoryServer 
+public class DirectoryServer
 {
     private static final Logger log = LoggerFactory.getLogger( DirectoryServer.class );
     private Properties env;
@@ -52,7 +52,7 @@ public class DirectoryServer
     private boolean started = false;
 
 
-    public void init( InstallationLayout install ) throws Exception
+    public void init( InstallationLayout install, String[] args ) throws Exception
     {
         long startTime = System.currentTimeMillis();
         MutableServerStartupConfiguration cfg;
@@ -96,11 +96,11 @@ public class DirectoryServer
     }
     
 
-    public void start() 
+    public void start( boolean nowait ) 
     {
-        startNoWait = false;
+        startNoWait = nowait;
         
-        if ( false )
+        if ( nowait )
         {
             workerThread.start();
             started = true;

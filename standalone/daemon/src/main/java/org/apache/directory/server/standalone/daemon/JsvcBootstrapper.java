@@ -47,36 +47,21 @@ public class JsvcBootstrapper extends Bootstrapper
 
         setInstallationLayout( args[0] );
         setParentLoader( Thread.currentThread().getContextClassLoader() );
-        callInit();
-
-//        if ( args.length > 1 )
-//        {
-//            String[] shifted = new String[args.length-1];
-//            System.arraycopy( args, 1, shifted, 0, shifted.length );
-//            setInstallationLayout( args[0] );
-//            setParentLoader( Thread.currentThread().getContextClassLoader() );
-//            callInit();
-//        }
-//        else
-//        {
-//            callInit( EMPTY_STRARRAY );
-//        }
+        callInit( shift( args, 1 ) );
     }
     
     
     public void start()
     {
         log.debug( "start() called" );
-        callStart();
-//      callStart( true );
+        callStart( true );
     }
 
 
     public void stop() throws Exception
     {
         log.debug( "stop() called" );
-        callStop();
-        //callStop( EMPTY_STRARRAY );
+        callStop( EMPTY_STRARRAY );
     }
 
 
