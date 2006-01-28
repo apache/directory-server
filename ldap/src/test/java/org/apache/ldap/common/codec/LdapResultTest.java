@@ -25,6 +25,8 @@ import org.apache.asn1.ber.IAsn1Container;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessageContainer;
 import org.apache.ldap.common.codec.add.AddResponse;
+import org.apache.ldap.common.codec.util.LdapResultEnum;
+import org.apache.ldap.common.codec.util.LdapURL;
 import org.apache.ldap.common.util.StringTools;
 
 import java.nio.ByteBuffer;
@@ -301,5 +303,274 @@ public class LdapResultTest extends TestCase
             ee.printStackTrace();
             fail( ee.getMessage() );
         }
+    }
+
+    /**
+     * Test the decoding of a AddResponse with a valid LdapResult with referral
+     */
+    public void testDecodeAddResponseEmptyResultCodeOKReferral()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x1A );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x18,           // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01,   //         messageID MessageID
+                  0x69, 0x13,         //        CHOICE { ..., addResponse AddResponse, ...
+                    0x0A, 0x01, 0x0A, // resultCode success (Referral)
+                    0x04, 0x00,       // Empty matched DN 
+                    0x04, 0x00,       // Empty errorMessage
+                    (byte)0xA3, 0x0A,
+                      0x04, 0x08, 'l', 'd', 'a', 'p', ':', '/', '/', '/'
+            });
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the AddResponse PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        // Check the decoded AddResponse
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddResponse addResponse      = message.getAddResponse();
+        
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( LdapResultEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
+        assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
+        assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
+        
+        assertEquals( 1, addResponse.getLdapResult().getReferrals().size() );
+        
+        LdapURL referral = (LdapURL)addResponse.getLdapResult().getReferrals().get( 0 );
+        
+        assertEquals( "ldap:///", referral.toString() );
+
+        // Check the length
+        assertEquals(0x1A, message.computeLength());
+        
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a AddResponse with a valid LdapResult with referrals
+     */
+    public void testDecodeAddResponseEmptyResultCodeOKReferrals()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x24 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x22,           // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01,   //         messageID MessageID
+                  0x69, 0x1D,         //        CHOICE { ..., addResponse AddResponse, ...
+                    0x0A, 0x01, 0x0A, // resultCode success (Referral)
+                    0x04, 0x00,       // Empty matched DN 
+                    0x04, 0x00,       // Empty errorMessage
+                    (byte)0xA3, 0x14,
+                      0x04, 0x08, 'l', 'd', 'a', 'p', ':', '/', '/', '/',
+                      0x04, 0x08, 'l', 'd', 'a', 'p', ':', '/', '/', '/'
+            });
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the AddResponse PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        // Check the decoded AddResponse
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddResponse addResponse      = message.getAddResponse();
+        
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( LdapResultEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
+        assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
+        assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
+        
+        assertEquals( 2, addResponse.getLdapResult().getReferrals().size() );
+        
+        LdapURL referral = (LdapURL)addResponse.getLdapResult().getReferrals().get( 0 );
+        
+        assertEquals( "ldap:///", referral.toString() );
+
+        referral = (LdapURL)addResponse.getLdapResult().getReferrals().get( 1 );
+        
+        assertEquals( "ldap:///", referral.toString() );
+        
+        // Check the length
+        assertEquals(0x24, message.computeLength());
+        
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a AddResponse with a valid LdapResult with referrals
+     * and an empty referral
+     */
+    public void testDecodeAddResponseEmptyResultCodeEmptyReferral()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x1C );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x1A,           // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01,   //         messageID MessageID
+                  0x69, 0x15,         //        CHOICE { ..., addResponse AddResponse, ...
+                    0x0A, 0x01, 0x0A, // resultCode success (Referral)
+                    0x04, 0x00,       // Empty matched DN 
+                    0x04, 0x00,       // Empty errorMessage
+                    (byte)0xA3, 0x0C,
+                      0x04, 0x08, 'l', 'd', 'a', 'p', ':', '/', '/', '/',
+                      0x04, 0x00
+            });
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the AddResponse PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        // Check the decoded AddResponse
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddResponse addResponse      = message.getAddResponse();
+        
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( LdapResultEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
+        assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
+        assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
+        
+        assertEquals( 2, addResponse.getLdapResult().getReferrals().size() );
+        
+        LdapURL referral = (LdapURL)addResponse.getLdapResult().getReferrals().get( 0 );
+        
+        assertEquals( "ldap:///", referral.toString() );
+
+        referral = (LdapURL)addResponse.getLdapResult().getReferrals().get( 1 );
+        
+        assertEquals( "ldap:///", referral.toString() );
+        
+        // Check the length
+        assertEquals(0x1C, message.computeLength());
+        
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a AddResponse with a valid LdapResult
+     * and an invalid transition after the referral sequence
+     */
+    public void testDecodeAddResponseEmptyResultCodeEmptyReferrals()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x10 );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x0E,           // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01,   //         messageID MessageID
+                  0x69, 0x09,         //        CHOICE { ..., addResponse AddResponse, ...
+                    0x0A, 0x01, 0x0A, // resultCode success (Referral)
+                    0x04, 0x00,       // Empty matched DN 
+                    0x04, 0x00,       // Empty errorMessage
+                    (byte)0xA3, 0x00,
+            });
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the AddResponse PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "We should not reach this point" );
     }
 }
