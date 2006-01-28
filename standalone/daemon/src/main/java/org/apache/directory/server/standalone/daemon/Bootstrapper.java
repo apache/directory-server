@@ -37,15 +37,16 @@ public class Bootstrapper
 {
     private static final Logger log = LoggerFactory.getLogger( Bootstrapper.class );
     private static final String[] EMPTY_STRARRY = new String[0];
-    private static final String BOOTSTRAP_START_CLASS_PROP = "bootstrap.start.class";
-    private static final String BOOTSTRAP_STOP_CLASS_PROP = "bootstrap.stop.class";
+    private static final String START_CLASS_PROP = "bootstrap.start.class";
+    private static final String STOP_CLASS_PROP = "bootstrap.stop.class";
 
     protected static Bootstrapper instance;
     
-    private final Properties bootstrapProperties = new Properties();
     private InstallationLayout install;
     private ClassLoader appLoader;
     private ClassLoader parentLoader;
+    private String startClassName;
+    private String stopClassName;
     private Object bootstrapped;
 
     
@@ -65,7 +66,10 @@ public class Bootstrapper
         
         try
         {
-            bootstrapProperties.load( new FileInputStream( install.getBootstrapperConfigurationFile() ) );
+            Properties props = new Properties();
+            props.load( new FileInputStream( install.getBootstrapperConfigurationFile() ) );
+            startClassName = props.getProperty( START_CLASS_PROP );
+            stopClassName = props.getProperty( STOP_CLASS_PROP );
         }
         catch ( Exception e )
         {
@@ -250,7 +254,7 @@ public class Bootstrapper
             log.info( "parentLoader = " + parentLoader );
         }
         
-        callInit( bootstrapProperties.getProperty( BOOTSTRAP_START_CLASS_PROP, null ) );
+        callInit( startClassName );
 
         // This is only needed for procrun but does not harm jsvc or runs 
         // Leads me to think that we need to differentiate somehow between
@@ -276,7 +280,7 @@ public class Bootstrapper
     public void stop() throws Exception
     {
         log.debug( "stop() called" );
-        callStop( bootstrapProperties.getProperty( BOOTSTRAP_STOP_CLASS_PROP, null )  );
+        callStop( stopClassName  );
     }
 
 
