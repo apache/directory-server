@@ -94,6 +94,7 @@ public class SearchResultEntry extends LdapMessage
     public SearchResultEntry()
     {
         super( );
+        partialAttributeList = new BasicAttributes( true );
     }
 
     //~ Methods ------------------------------------------------------------------------------------
@@ -146,20 +147,6 @@ public class SearchResultEntry extends LdapMessage
     {
 
         this.partialAttributeList = (Attributes)partialAttributeList;
-    }
-
-    /**
-     * Initialize the partial Attribute list if needed, otherwise add the current
-     * Attribute Value to the list.
-     *
-     */
-    public void addPartialAttributeList()
-    {
-
-        if ( currentAttributeValue == null )
-        {
-            partialAttributeList = new BasicAttributes( true );
-        }
     }
 
     /**
@@ -308,11 +295,6 @@ public class SearchResultEntry extends LdapMessage
                 valsLength.add( new Integer( localValuesLength ) );
             }
         }
-        else
-        {
-            // We do not have any attributes, so the SEQUENCE is empty : 0x30 0x00 
-            attributesLength = 1 + 1;
-        }
         
         searchResultEntryLength += 1 + Length.getNbBytes( attributesLength ) + attributesLength;
 
@@ -421,12 +403,6 @@ public class SearchResultEntry extends LdapMessage
                     // Go to the next attribute number;
                     attributeNumber++;
                 }
-            }
-            else
-            {
-                // The empty partial attribute list sequence
-                buffer.put( UniversalTag.SEQUENCE_TAG );
-                buffer.put( (byte)0x00 );
             }
         }
         catch ( BufferOverflowException boe )
