@@ -47,7 +47,10 @@ public class Bootstrapper
     private ClassLoader parentLoader;
     private String startClassName;
     private String stopClassName;
-    private Object bootstrapped;
+    private Class startObjectClass;
+    private Class stopObjectClass;
+    private Object startObject;
+    private Object stopObject;
 
     
     public void setInstallationLayout( String installationBase )
@@ -98,49 +101,48 @@ public class Bootstrapper
     }
 
 
-    public void callInit( String className )
+    public void callInit()
     {
-        Class clazz = null;
         Method op = null;
         
         Thread.currentThread().setContextClassLoader( appLoader );
         try
         {
-            clazz = appLoader.loadClass( className );
+            startObjectClass = appLoader.loadClass( startClassName );
         }
         catch ( ClassNotFoundException e )
         {
-            log.error( "Could not find " + className, e );
+            log.error( "Could not find " + startClassName, e );
             System.exit( ExitCodes.CLASS_LOOKUP );
         }
         
         try
         {
-            bootstrapped = clazz.newInstance();
+            startObject = startObjectClass.newInstance();
         }
         catch ( Exception e )
         {
-            log.error( "Could not instantiate " + className, e );
+            log.error( "Could not instantiate " + startClassName, e );
             System.exit( ExitCodes.INSTANTIATION );
         }
         
         try
         {
-            op = clazz.getMethod( "init", new Class[] { InstallationLayout.class } );
+            op = startObjectClass.getMethod( "init", new Class[] { InstallationLayout.class } );
         }
         catch ( Exception e )
         {
-            log.error( "Could not find init(InstallationLayout) method for " + className, e );
+            log.error( "Could not find init(InstallationLayout) method for " + startClassName, e );
             System.exit( ExitCodes.METHOD_LOOKUP );
         }
         
         try
         {
-            op.invoke( bootstrapped, new Object[] { this.install } );
+            op.invoke( startObject, new Object[] { this.install } );
         }
         catch ( Exception e )
         {
-            log.error( "Failed on " + className + ".init(InstallationLayout)", e );
+            log.error( "Failed on " + startClassName + ".init(InstallationLayout)", e );
             System.exit( ExitCodes.INITIALIZATION );
         }
     }
@@ -148,54 +150,61 @@ public class Bootstrapper
     
     public void callStart()
     {
-        Class clazz = bootstrapped.getClass();
         Method op = null;
         
         try
         {
-            op = clazz.getMethod( "start", null );
+            op = startObjectClass.getMethod( "start", null );
         }
         catch ( Exception e )
         {
-            log.error( "Could not find start() method for " + clazz.getName(), e );
+            log.error( "Could not find start() method for " + startObjectClass.getName(), e );
             System.exit( ExitCodes.METHOD_LOOKUP );
         }
         
         try
         {
-            op.invoke( bootstrapped, null );
+            op.invoke( startObject, null );
         }
         catch ( Exception e )
         {
-            log.error( "Failed on " + clazz.getName() + ".start()", e );
+            log.error( "Failed on " + startObjectClass.getName() + ".start()", e );
             System.exit( ExitCodes.START );
         }
     }
     
 
-    public void callStop( String className )
+    public void callStop()
     {
         Class clazz = null;
         Method op = null;
         
-        try
+        if ( startClassName.equals( stopClassName ) && startObject != null )
         {
-            clazz = appLoader.loadClass( className );
+            clazz = startObjectClass;
+            stopObject = startObject;
         }
-        catch ( ClassNotFoundException e )
+        else
         {
-            log.error( "Could not find " + className, e );
-            System.exit( ExitCodes.CLASS_LOOKUP );
-        }
-        
-        try
-        {
-            bootstrapped = clazz.newInstance();
-        }
-        catch ( Exception e )
-        {
-            log.error( "Could not instantiate " + className, e );
-            System.exit( ExitCodes.INSTANTIATION );
+            try
+            {
+                clazz = appLoader.loadClass( stopClassName );
+            }
+            catch ( ClassNotFoundException e )
+            {
+                log.error( "Could not find " + stopClassName, e );
+                System.exit( ExitCodes.CLASS_LOOKUP );
+            }
+            
+            try
+            {
+                stopObject = clazz.newInstance();
+            }
+            catch ( Exception e )
+            {
+                log.error( "Could not instantiate " + stopClassName, e );
+                System.exit( ExitCodes.INSTANTIATION );
+            }
         }
         
         try
@@ -204,17 +213,42 @@ public class Bootstrapper
         }
         catch ( Exception e )
         {
-            log.error( "Could not find stop() method for " + className, e );
+            log.error( "Could not find stop() method for " + stopClassName, e );
             System.exit( ExitCodes.METHOD_LOOKUP );
         }
         
         try
         {
-            op.invoke( bootstrapped, new Object[] { EMPTY_STRARRY } );
+            op.invoke( stopObject, new Object[] { EMPTY_STRARRY } );
         }
         catch ( Exception e )
         {
-            log.error( "Failed on " + className + ".stop()", e );
+            log.error( "Failed on " + stopClassName + ".stop()", e );
+            System.exit( ExitCodes.STOP );
+        }
+    }
+
+    
+    public void callDestroy()
+    {
+        Method op = null;
+        try
+        {
+            op = stopObject.getClass().getMethod( "destroy", null );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Could not find destroy() method for " + stopClassName, e );
+            System.exit( ExitCodes.METHOD_LOOKUP );
+        }
+        
+        try
+        {
+            op.invoke( stopObject, null );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Failed on " + stopClassName + ".destroy()", e );
             System.exit( ExitCodes.STOP );
         }
     }
@@ -254,7 +288,7 @@ public class Bootstrapper
             log.info( "parentLoader = " + parentLoader );
         }
         
-        callInit( startClassName );
+        callInit();
 
         // This is only needed for procrun but does not harm jsvc or runs 
         // Leads me to think that we need to differentiate somehow between
@@ -277,19 +311,6 @@ public class Bootstrapper
     }
     
     
-    public void stop() throws Exception
-    {
-        log.debug( "stop() called" );
-        callStop( stopClassName  );
-    }
-
-
-    public void destroy()
-    {
-        log.debug( "destroy() called" );
-    }
-
-
     public void start()
     {
         log.debug( "start() called" );
@@ -308,5 +329,19 @@ public class Bootstrapper
             setInstallationLayout( args[0] );
             setParentLoader( Thread.currentThread().getContextClassLoader() );
         }
+    }
+
+    
+    public void stop() throws Exception
+    {
+        log.debug( "stop() called" );
+        callStop();
+    }
+
+
+    public void destroy()
+    {
+        log.debug( "destroy() called" );
+        callDestroy();
     }
 }
