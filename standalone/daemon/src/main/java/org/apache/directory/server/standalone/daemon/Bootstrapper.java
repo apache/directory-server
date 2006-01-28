@@ -312,19 +312,6 @@ public class Bootstrapper
     }
 
 
-    public void start( String[] args )
-    {
-        log.debug( "start(String[]) called" );
-        Thread.currentThread().setContextClassLoader( this.parent );
-        
-        if ( layout == null && args.length > 0 )
-        {
-            setInstallationLayout( args[0] );
-            setParentLoader( Thread.currentThread().getContextClassLoader() );
-        }
-    }
-
-    
     public void stop() throws Exception
     {
         log.debug( "stop() called" );

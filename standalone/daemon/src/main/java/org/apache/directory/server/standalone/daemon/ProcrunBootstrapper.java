@@ -61,8 +61,8 @@ public class ProcrunBootstrapper extends Bootstrapper
             log.debug( "prunsrvStart(String[]) calling init(String[])" );
             instance.init( args );
 
-            log.debug( "prunsrvStart(String[]) calling start(String[])" );
-            instance.start( args );
+            log.debug( "prunsrvStart(String[]) calling start()" );
+            instance.start();
         }
         catch ( Throwable t )
         {

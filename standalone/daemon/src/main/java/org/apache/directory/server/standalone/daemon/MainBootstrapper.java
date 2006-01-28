@@ -76,8 +76,8 @@ public class MainBootstrapper extends Bootstrapper
                 log.debug( "calling init(String[]) from main(String[])" );
                 instance.init( args );
 
-                log.debug( "calling start(String[]) from main(String[])" );
-                instance.start( args );
+                log.debug( "calling start() from main(String[])" );
+                instance.start();
             }
             else if ( command.equalsIgnoreCase( "stop" ) )
             {
