@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
  * The bootstrapper used for procrun services on windows platforms.  This
  * class contains static methods invoked by the prunsrv service manager.
  * 
+ * @todo explain procrun behavoir
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -63,23 +64,19 @@ public class ProcrunBootstrapper extends Bootstrapper
             log.debug( "prunsrvStart(String[]) calling callStart()" );
             instance.callStart( false );
 
-            // This is only needed for procrun 
-            while( true )
-            {
-                try
-                {
-                    Thread.sleep( 2000 );
-                }
-                catch ( InterruptedException e )
-                {
-                    e.printStackTrace();
-                }
-            }
+            log.debug( "prunsrvStart(String[]) block waitForShutdown()" );
+            instance.waitForShutdown();
+            log.debug( "prunsrvStart(String[]) returned from waitForShutdown()" );
+
+            log.debug( "prunsrvStart(String[]) calling callStop()" );
+            instance.callStop( shift( args, 1 ) );
+            log.debug( "prunsrvStart(String[]) calling callDestroy()" );
+            instance.callDestroy();
         }
         catch ( Throwable t )
         {
             log.error( "Encountered error in prunsrvStart(String[])", t );
-            System.exit( 4 );
+            System.exit( ExitCodes.UNKNOWN );
         }
     }
 
@@ -102,16 +99,12 @@ public class ProcrunBootstrapper extends Bootstrapper
             ProcrunBootstrapper instance = new ProcrunBootstrapper();
             instance.setInstallationLayout( args[0] );
             instance.setParentLoader( Bootstrapper.class.getClassLoader() );
-
-            log.debug( "prunsrvStop(String[]) calling callStop()" );
-            instance.callStop( shift( args, 1 ) );
-            log.debug( "prunsrvStop(String[]) calling callDestroy()" );
-            instance.callDestroy();
+            instance.sendShutdownCommand();
         }
         catch ( Throwable t )
         {
             log.error( "Encountered error in prunsrvStop(String[])", t );
-            System.exit( 4 );
+            System.exit( ExitCodes.UNKNOWN );
         }
     }
 }

@@ -97,6 +97,8 @@ public class DirectoryServer implements DaemonApplication
     }
     
 
+    // @todo don't think this nowait is needed here if the procrun bootstrapper
+    // handles the creation of the socket and the blocking.
     public void start( boolean nowait ) 
     {
         startNoWait = nowait;
@@ -109,7 +111,7 @@ public class DirectoryServer implements DaemonApplication
         }
 
         started = true;
-        worker.run();  // - blocks here 
+//        worker.run();  // - blocks here 
     }
     
 
