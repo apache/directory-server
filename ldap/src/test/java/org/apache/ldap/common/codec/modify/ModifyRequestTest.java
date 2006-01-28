@@ -18,6 +18,7 @@ package org.apache.ldap.common.codec.modify;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
@@ -27,6 +28,7 @@ import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.ldap.common.codec.Control;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -417,6 +419,116 @@ public class ModifyRequestTest extends TestCase {
         }
     }
 
+    /**
+     * Test the decoding of a ModifyRequest
+     */
+    public void testDecodeModifyRequest2Attrs3valsSuccess() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x5C );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x5A,         // LDAPMessage ::= SEQUENCE {
+                  0x02, 0x01, 0x01, //     messageID MessageID
+                  0x66, 0x55,       //     CHOICE { ..., modifyRequest   ModifyRequest, ...
+                                    // ModifyRequest ::= [APPLICATION 6] SEQUENCE {
+                                    //     object          LDAPDN,
+                    0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                    0x30, 0x31,     //     modification    SEQUENCE OF SEQUENCE {
+                      0x30, 0x19,
+                        0x0A, 0x01, 0x02,   //         operation       ENUMERATED {
+                                    //             add     (0),
+                                    //             delete  (1),
+                                    //             replace (2) },
+                                    //         modification    AttributeTypeAndValues } }
+                        0x30, 0x14,         // AttributeTypeAndValues ::= SEQUENCE {
+                          0x04, 0x01, 'l',  //     type    AttributeDescription,
+                          0x31, 0x0F,       //     vals    SET OF AttributeValue }
+                            0x04, 0x05, 'P', 'a', 'r', 'i', 's',
+                            0x04, 0x06, 'L', 'o', 'n', 'd', 'o', 'n',
+                      0x30, 0x14,           //      modification    SEQUENCE OF *SEQUENCE* {
+                        0x0A, 0x01, 0x00,   //         operation       ENUMERATED {
+                                            //             add     (0),
+                                            //             delete  (1),
+                                            //             replace (2) },
+                                            //         modification    AttributeTypeAndValues } }
+                        0x30, 0x0f,         // AttributeTypeAndValues ::= SEQUENCE {
+                          0x04, 0x05, 'a', 't', 't', 'r', 's', //     type    AttributeDescription,
+                          0x31, 0x06,       //     vals    SET OF AttributeValue }
+                            0x04, 0x04, 't', 'e', 's', 't'
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a ModifyRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        // Check the decoded PDU
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequest modifyRequest      = message.getModifyRequest();
+        
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject() );
+
+        ArrayList modifications = modifyRequest.getModifications();
+        
+        assertEquals( 2, modifications.size() );
+        
+        ModificationItem modification = (ModificationItem)modifications.get( 0 );
+        BasicAttribute attributeValue = (BasicAttribute)modification.getAttribute();
+            
+        assertEquals( "l", attributeValue.getID().toLowerCase() );
+            
+        String attrValue = (String)attributeValue.get( 0 );
+        assertEquals( "Paris", attrValue );
+
+        attrValue = (String)attributeValue.get( 1 );
+        assertEquals( "London", attrValue );
+
+        modification = (ModificationItem)modifications.get( 1 );
+        attributeValue = (BasicAttribute)modification.getAttribute();
+            
+        assertEquals( "attrs", attributeValue.getID().toLowerCase() );
+            
+        attrValue = (String)attributeValue.get( 0 );
+        assertEquals( "test", attrValue );
+
+        // Check the length
+        assertEquals(0x5C, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
     // Defensive tests
 
     /**
@@ -457,6 +569,41 @@ public class ModifyRequestTest extends TestCase {
      * Test the decoding of a ModifyRequest with an empty object
      */
     public void testDecodeModifyRequestEmptyObject() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x09 );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x07,   // LdapMessage
+                      0x02, 0x01, 0x31, // Message ID : 49
+                      0x66, 0x02,        // ModifyRequest
+                        0x04, 0x00
+            } );
+
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a ModifyRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+            fail("We should never reach this point !!!");
+        }
+        catch ( DecoderException de )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the decoding of a ModifyRequest with an object and nothing else
+     */
+    public void testDecodeModifyRequestObjectAlone() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -858,6 +1005,99 @@ public class ModifyRequestTest extends TestCase {
 
         // Check the length
         assertEquals(0x37, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a ModifyRequest with an add operation, and a
+     * modification with a type and an empty vals wuth controls
+     */
+    public void testDecodeModifyRequestAddOperationModificationTypeEmptyValsWithControls() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x54 );
+        
+        stream.put(
+            new byte[]
+            {
+                    0x30, 0x52,   // LdapMessage
+                      0x02, 0x01, 0x31, // Message ID : 49
+                      0x66, 0x30,        // ModifyRequest
+                        0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                        0x30, 0x0C,
+                          0x30, 0x0A,
+                            0x0A, 0x01, 0x00,
+                            0x30, 0x05,
+                              0x04, 0x01, 'l',
+                              0x31, 0x00,
+                      (byte)0xA0, 0x1B,   // A control 
+                        0x30, 0x19, 
+                          0x04, 0x17, 
+                            0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                              0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                              0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a ModifyRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        // Check the decoded PDU
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequest modifyRequest      = message.getModifyRequest();
+        
+        assertEquals( 49, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject() );
+
+        ArrayList modifications = modifyRequest.getModifications();
+        
+        assertEquals( 1, modifications.size() );
+        
+        ModificationItem modification = (ModificationItem)modifications.get( 0 );
+        BasicAttribute attributeValue = (BasicAttribute)modification.getAttribute();
+            
+        assertEquals( "l", attributeValue.getID().toLowerCase() );
+        assertEquals( 0, attributeValue.size() );
+
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
+        // Check the length
+        assertEquals(0x54, message.computeLength());
 
         // Check the encoding
         try
