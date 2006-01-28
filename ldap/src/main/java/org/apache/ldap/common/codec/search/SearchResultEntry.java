@@ -240,7 +240,7 @@ public class SearchResultEntry extends LdapMessage
             while ( attributes.hasMoreElements() )
             {
                 Attribute attribute = (Attribute)attributes.nextElement();
-                if ( attribute.size() == 0 ) continue;
+                
                 int localAttributeLength = 0;
                 int localValuesLength = 0;
                 
@@ -248,49 +248,57 @@ public class SearchResultEntry extends LdapMessage
                 int idLength = attribute.getID().getBytes().length;
                 localAttributeLength = 1 + Length.getNbBytes( idLength ) + idLength;
                 
-                // The values
-                try
+                if ( attribute.size() != 0 ) 
                 {
-	                NamingEnumeration values = attribute.getAll();
-	                
-	                if ( values.hasMoreElements() )
-	                {
-                        localValuesLength = 0;
-	                    
-		                while ( values.hasMoreElements() )
-		                {
-		                    Object value = (Object)values.next();
-		                    
-		                    if ( value instanceof String )
-		                    {
-		                    	String stringValue = (String)value;
-                                
-                                int stringLength = StringTools.getBytesUtf8( stringValue ).length;
-                                localValuesLength += 1 + Length.getNbBytes( stringLength ) + stringLength;
-		                    }
-		                    else
-		                    {
-		                    	byte[] binaryValue = (byte[])value;
-	                            localValuesLength += 1 + Length.getNbBytes( binaryValue.length ) + binaryValue.length;
-		                    }
-		                    
-		                }
-
-                        localAttributeLength += 1 + Length.getNbBytes( localValuesLength ) + localValuesLength; 
-	                }
-	                else
-	                {
-	                	// We have to deal with the special wase where
-	                	// we don't have a value.
-	                	// It will be encoded as an empty OCTETSTRING,
-	                	// so it will be two byte slong (0x04 0x00)
-	                	localAttributeLength += 1 + 1;
-	                }
-	                
+                    // The values
+                    try
+                    {
+    	                NamingEnumeration values = attribute.getAll();
+    	                
+    	                if ( values.hasMoreElements() )
+    	                {
+                            localValuesLength = 0;
+    	                    
+    		                while ( values.hasMoreElements() )
+    		                {
+    		                    Object value = (Object)values.next();
+    		                    
+    		                    if ( value instanceof String )
+    		                    {
+    		                    	String stringValue = (String)value;
+                                    
+                                    int stringLength = StringTools.getBytesUtf8( stringValue ).length;
+                                    localValuesLength += 1 + Length.getNbBytes( stringLength ) + stringLength;
+    		                    }
+    		                    else
+    		                    {
+    		                    	byte[] binaryValue = (byte[])value;
+    	                            localValuesLength += 1 + Length.getNbBytes( binaryValue.length ) + binaryValue.length;
+    		                    }
+    		                    
+    		                }
+    
+                            localAttributeLength += 1 + Length.getNbBytes( localValuesLength ) + localValuesLength; 
+    	                }
+    	                else
+    	                {
+    	                	// We have to deal with the special wase where
+    	                	// we don't have a value.
+    	                	// It will be encoded as an empty OCTETSTRING,
+    	                	// so it will be two byte slong (0x04 0x00)
+    	                	localAttributeLength += 1 + 1;
+    	                }
+    	                
+                    }
+                    catch (NamingException ne)
+                    {
+                        return 0;
+                    }
                 }
-                catch (NamingException ne)
+                else
                 {
-                    return 0;
+                    // We have no values. We will just have an empty SET OF : 0x31 0x00
+                    localAttributeLength += 1 + 1;
                 }
                 
                 // add the attribute length to the attributes length
@@ -299,6 +307,11 @@ public class SearchResultEntry extends LdapMessage
                 attributeLength.add( new Integer( localAttributeLength ) );
                 valsLength.add( new Integer( localValuesLength ) );
             }
+        }
+        else
+        {
+            // We do not have any attributes, so the SEQUENCE is empty : 0x30 0x00 
+            attributesLength = 1 + 1;
         }
         
         searchResultEntryLength += 1 + Length.getNbBytes( attributesLength ) + attributesLength;
@@ -362,7 +375,6 @@ public class SearchResultEntry extends LdapMessage
                 while ( attributes.hasMoreElements() )
                 {
                     Attribute attribute = (Attribute)attributes.nextElement();
-                    if ( attribute.size() == 0 ) continue;
                     
                     // The partial attribute list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -376,36 +388,45 @@ public class SearchResultEntry extends LdapMessage
                     buffer.put( UniversalTag.SET_TAG );
                     int localValuesLength = ( (Integer)valsLength.get( attributeNumber ) ).intValue();
                     buffer.put( Length.getBytes( localValuesLength ) );
-                    
-                    try
+
+                    if ( attribute.size() != 0 )
                     {
-                        NamingEnumeration values = attribute.getAll();
-                        
-                        if ( values.hasMoreElements() )
+                        try
                         {
-                            while ( values.hasMoreElements() )
+                            NamingEnumeration values = attribute.getAll();
+                            
+                            if ( values.hasMoreElements() )
                             {
-                                Object value = values.next();
-                                
-                                if ( value instanceof String )
+                                while ( values.hasMoreElements() )
                                 {
-                                	Value.encode( buffer, (String)value );
-                                }
-                                else
-                                {
-                                	Value.encode( buffer, (byte[])value );
+                                    Object value = values.next();
+                                    
+                                    if ( value instanceof String )
+                                    {
+                                    	Value.encode( buffer, (String)value );
+                                    }
+                                    else
+                                    {
+                                    	Value.encode( buffer, (byte[])value );
+                                    }
                                 }
                             }
                         }
-                    }
-                    catch (NamingException ne)
-                    {
-                        throw new EncoderException("Cannot enumerate the values");
+                        catch (NamingException ne)
+                        {
+                            throw new EncoderException("Cannot enumerate the values");
+                        }
                     }
                     
                     // Go to the next attribute number;
                     attributeNumber++;
                 }
+            }
+            else
+            {
+                // The empty partial attribute list sequence
+                buffer.put( UniversalTag.SEQUENCE_TAG );
+                buffer.put( (byte)0x00 );
             }
         }
         catch ( BufferOverflowException boe )
