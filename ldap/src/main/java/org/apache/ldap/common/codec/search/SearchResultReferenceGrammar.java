@@ -153,6 +153,9 @@ public class SearchResultReferenceGrammar extends AbstractGrammar implements IGr
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
+                        // We can have a Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+                        
                         return;
                     }
                 } );
