@@ -2,10 +2,12 @@
 
 <project>
   <bannerLeft>
-     <src>images/apache-directory-logo.png</src>
-     <href>http://directory.apache.org/</href>
+    <src>images/apache-directory-logo.png</src>
+    <href>http://directory.apache.org/</href>
   </bannerLeft>
-
+  <bannerRight>
+    <name>ApacheDS</name>
+  </bannerRight>
   <body>
     <links>
        <item name="ApacheDS" href="http://directory.apache.org/newsite/subprojects/apacheds/index.html"/>

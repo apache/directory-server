@@ -2,14 +2,14 @@
 <document>
   <properties>
     <author email="akarasulu@apache.org">Alex Karasulu</author>
-    
+    <title>ApacheDS - Projects</title> 
   </properties>
   
   <body>
     <section name="Server Projects">
       <p>
         The server is composed of several sub-projects.  Here is the list of
-        server sub-projects with brief definitions:
+        server sub-projects with brief descriptions:
       </p>
       
       <table>
@@ -23,7 +23,7 @@
             core
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -31,7 +31,7 @@
             shared
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -39,7 +39,7 @@
             tools
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -47,7 +47,7 @@
             standalone/simple/jndi
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -55,7 +55,7 @@
             standalone/simple/main
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -63,7 +63,7 @@
             standalone/simple/ssl
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -71,7 +71,7 @@
             standalone/daemon
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -79,7 +79,7 @@
             protocol-common
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -87,7 +87,7 @@
             protocols/dhcp
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -95,7 +95,7 @@
             protocols/changepw
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -103,7 +103,7 @@
             protocols/ntp
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -111,7 +111,7 @@
             protocols/ldap
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -119,7 +119,7 @@
             protocols/dns
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -127,7 +127,7 @@
             protocols/kerberos
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -135,7 +135,7 @@
             protocols/kerberos-common
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -143,7 +143,7 @@
             core-unit
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -151,7 +151,7 @@
             standalone/simple/unit
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
         <tr>
@@ -159,7 +159,7 @@
             site
           </td>
           <td>
-            Explain
+            To be described...
           </td>
         </tr>
       </table>
