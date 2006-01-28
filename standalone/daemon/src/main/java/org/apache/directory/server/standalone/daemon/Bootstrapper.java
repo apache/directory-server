@@ -18,7 +18,6 @@ package org.apache.directory.server.standalone.daemon;
 
 
 import java.io.FileInputStream;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
@@ -46,9 +45,9 @@ public class Bootstrapper
     private ClassLoader parent;
     private String startClassName;
     private String stopClassName;
-    private Class startObjectClass;
-    private Object startObject;
-    private Object stopObject;
+    private Class startClass;
+    private DaemonApplication start;
+    private DaemonApplication stop;
 
     
     public void setInstallationLayout( String installationBase )
@@ -102,11 +101,9 @@ public class Bootstrapper
     public void callInit( String[] args )
     {
         Thread.currentThread().setContextClassLoader( application );
-        Method op = null;
-        
         try
         {
-            startObjectClass = application.loadClass( startClassName );
+            startClass = application.loadClass( startClassName );
         }
         catch ( ClassNotFoundException e )
         {
@@ -116,7 +113,7 @@ public class Bootstrapper
         
         try
         {
-            startObject = startObjectClass.newInstance();
+            start = ( DaemonApplication ) startClass.newInstance();
         }
         catch ( Exception e )
         {
@@ -126,25 +123,13 @@ public class Bootstrapper
         
         try
         {
-            op = startObjectClass.getMethod( "init", 
-                new Class[] { InstallationLayout.class, EMPTY_STRARRAY.getClass() } );
+            start.init( this.layout, args );
         }
         catch ( Exception e )
         {
-            log.error( "Could not find init(InstallationLayout) method for " + startClassName, e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( startObject, new Object[] { this.layout, args } );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Failed on " + startClassName + ".init(InstallationLayout)", e );
+            log.error( "Failed on " + startClassName + ".init(InstallationLayout, String[])", e );
             System.exit( ExitCodes.INITIALIZATION );
         }
-        
         Thread.currentThread().setContextClassLoader( parent );
     }
 
@@ -152,36 +137,15 @@ public class Bootstrapper
     public void callStart( boolean nowait )
     {
         Thread.currentThread().setContextClassLoader( application );
-        Method op = null;
-        
         try
         {
-            Method[] methods = startObjectClass.getMethods();
-            for ( int ii = 0; ii < methods.length; ii++ )
-            {
-                if ( methods[ii].getName().equals( "start" ) )
-                {
-                    op = methods[ii];
-                    break;
-                }
-            }
+            start.start( nowait );
         }
         catch ( Exception e )
         {
-            log.error( "Could not find start() method for " + startObjectClass.getName(), e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( startObject, new Object[] { new Boolean( nowait ) } );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Failed on " + startObjectClass.getName() + ".start()", e );
+            log.error( "Failed on " + startClass.getName() + ".start()", e );
             System.exit( ExitCodes.START );
         }
-        
         Thread.currentThread().setContextClassLoader( parent );
     }
     
@@ -190,12 +154,11 @@ public class Bootstrapper
     {
         Thread.currentThread().setContextClassLoader( application );
         Class clazz = null;
-        Method op = null;
         
-        if ( startClassName.equals( stopClassName ) && startObject != null )
+        if ( startClassName.equals( stopClassName ) && start != null )
         {
-            clazz = startObjectClass;
-            stopObject = startObject;
+            clazz = startClass;
+            stop = start;
         }
         else
         {
@@ -211,7 +174,7 @@ public class Bootstrapper
             
             try
             {
-                stopObject = clazz.newInstance();
+                stop = ( DaemonApplication ) clazz.newInstance();
             }
             catch ( Exception e )
             {
@@ -222,24 +185,13 @@ public class Bootstrapper
         
         try
         {
-            op = clazz.getMethod( "stop", new Class[] { EMPTY_STRARRAY.getClass() } );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Could not find stop() method for " + stopClassName, e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( stopObject, new Object[] { args } );
+            stop.stop( args );
         }
         catch ( Exception e )
         {
             log.error( "Failed on " + stopClassName + ".stop()", e );
             System.exit( ExitCodes.STOP );
         }
-        
         Thread.currentThread().setContextClassLoader( parent );
     }
 
@@ -247,27 +199,15 @@ public class Bootstrapper
     public void callDestroy()
     {
         Thread.currentThread().setContextClassLoader( application );
-        Method op = null;
         try
         {
-            op = stopObject.getClass().getMethod( "destroy", null );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Could not find destroy() method for " + stopClassName, e );
-            System.exit( ExitCodes.METHOD_LOOKUP );
-        }
-        
-        try
-        {
-            op.invoke( stopObject, null );
+            stop.destroy();
         }
         catch ( Exception e )
         {
             log.error( "Failed on " + stopClassName + ".destroy()", e );
             System.exit( ExitCodes.STOP );
         }
-        
         Thread.currentThread().setContextClassLoader( parent );
     }
     

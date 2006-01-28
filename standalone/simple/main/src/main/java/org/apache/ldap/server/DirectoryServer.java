@@ -22,6 +22,7 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.directory.InitialDirContext;
 
+import org.apache.directory.server.standalone.daemon.DaemonApplication;
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
 import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
@@ -41,7 +42,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DirectoryServer
+public class DirectoryServer implements DaemonApplication
 {
     private static final Logger log = LoggerFactory.getLogger( DirectoryServer.class );
     private Properties env;
