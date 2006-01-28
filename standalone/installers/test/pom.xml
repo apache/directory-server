@@ -106,6 +106,7 @@
               <daemonFramework>procrun</daemonFramework>
             </innoTarget>
           </innoTargets>
+<!--
           <izPackTargets>
             <izPackTarget>
               <id>linux-jsvc</id>
@@ -114,7 +115,6 @@
               <osArch>i386</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
-            <!-- 
             <izPackTarget>
               <id>macosx-jsvc</id>
               <osName>macosx</osName>
@@ -122,7 +122,6 @@
               <osArch>ppc</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
-             -->
             <izPackTarget>
               <id>solaris-jsvc</id>
               <osName>sunos</osName>
@@ -132,6 +131,7 @@
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
           </izPackTargets>
+-->
         </configuration>
         <executions>
           <execution>

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 
 
 /**
+ * The main bootstrapper used when invoked as an application.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -39,7 +40,7 @@ public class Bootstrapper
     private static final String BOOTSTRAP_START_CLASS_PROP = "bootstrap.start.class";
     private static final String BOOTSTRAP_STOP_CLASS_PROP = "bootstrap.stop.class";
 
-    private static Bootstrapper instance;
+    protected static Bootstrapper instance;
     
     private final Properties bootstrapProperties = new Properties();
     private InstallationLayout install;
@@ -50,16 +51,16 @@ public class Bootstrapper
     
     public void setInstallationLayout( String installationBase )
     {
-    	log.debug( "Setting layout in Bootstrapper using base: " + installationBase );
+        log.debug( "Setting layout in Bootstrapper using base: " + installationBase );
         install = new InstallationLayout( installationBase );
         
         try
         {
-        	install.verifyInstallation();
+            install.verifyInstallation();
         }
         catch( Throwable t )
         {
-        	log.error( "Installation verification failure!", t );
+            log.error( "Installation verification failure!", t );
         }
         
         try
@@ -303,162 +304,5 @@ public class Bootstrapper
             setInstallationLayout( args[0] );
             setParentLoader( Thread.currentThread().getContextClassLoader() );
         }
-    }
-
-
-    // ------------------------------------------------------------------------
-    // The main()
-    // ------------------------------------------------------------------------
-
-
-    public static void prunsrvStart( String[] args )
-    {
-        log.debug( "prunsrvStart(String[]) called" );
-        
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "prunsrvStart(String[]) recieved args:" );
-            for ( int ii = 0; ii < args.length; ii++ )
-            {
-                log.debug( "args[" + ii + "] = " + args[ii] );
-            }
-        }
-
-        try
-        {
-        	log.debug( "prunsrvStart(String[]) initializing Bootstrapper ... )" );
-            instance = new Bootstrapper();
-            instance.setInstallationLayout( args[0] );
-            instance.setParentLoader( Bootstrapper.class.getClassLoader() );
-
-            log.debug( "prunsrvStart(String[]) calling init(String[])" );
-            instance.init( args );
-
-            log.debug( "prunsrvStart(String[]) calling start(String[])" );
-            instance.start( args );
-        }
-        catch ( Throwable t )
-        {
-        	log.error( "Encountered error in prunsrvStart(String[])", t );
-            System.exit( 4 );
-        }
-    }
-
-
-    public static void prunsrvStop( String[] args )
-    {
-        log.debug( "prunsrvStop(String[]) called" );
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "prunsrvStop(String[]) recieved args:" );
-            for ( int ii = 0; ii < args.length; ii++ )
-            {
-                log.debug( "args[" + ii + "] = " + args[ii] );
-            }
-        }
-
-        try
-        {
-        	log.debug( "prunsrvStop(String[]) initializing Bootstrapper ... )" );
-            instance = new Bootstrapper();
-            instance.setInstallationLayout( args[0] );
-            instance.setParentLoader( Bootstrapper.class.getClassLoader() );
-
-            log.debug( "prunsrvStop(String[]) calling stop()" );
-            instance.stop();
-            log.debug( "prunsrvStop(String[]) calling destroy()" );
-            instance.destroy();
-        }
-        catch ( Throwable t )
-        {
-        	log.error( "Encountered error in prunsrvStop(String[])", t );
-            System.exit( 4 );
-        }
-    }
-
-
-    // ------------------------------------------------------------------------
-    // The main()
-    // ------------------------------------------------------------------------
-
-
-    public static void main( String[] args )
-    {
-        log.debug( "main(String[]) called" );
-        
-        // Noticed that some starts with jar2exe.exe pass in a null arguement list
-        if ( args == null )
-        {
-            System.err.println( "Arguements are null - how come?" );
-            log.error( "main() args were null shutting down!" );
-            printHelp();
-            System.exit( 1 );
-        }
-
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "main() recieved args:" );
-            for ( int ii = 0; ii < args.length; ii++ )
-            {
-                log.debug( "args[" + ii + "] = " + args[ii] );
-            }
-        }
-
-        if ( args.length > 1 )
-        {
-            if ( instance == null )
-            {
-            	log.debug( "main(String[]) initializing Bootstrapper ... )" );
-                instance = new Bootstrapper();
-                instance.setInstallationLayout( args[0] );
-                instance.setParentLoader( Bootstrapper.class.getClassLoader() );
-                log.debug( "Bootstrapper initialized" );
-            }
-        }
-        else
-        {
-            String msg = "Server exiting without required installation.home or command.name.";
-            System.err.println( msg );
-            log.error( msg );
-            printHelp();
-            System.exit( 1 );
-        }
-
-        String command = args[args.length - 1];
-        try
-        {
-            if ( command.equalsIgnoreCase( "start" ) )
-            {
-                log.debug( "calling init(String[]) from main(String[])" );
-                instance.init( args );
-
-                log.debug( "calling start(String[]) from main(String[])" );
-                instance.start( args );
-            }
-            else if ( command.equalsIgnoreCase( "stop" ) )
-            {
-                log.debug( "calling stop() from main(String[])" );
-                instance.stop();
-                instance.destroy();
-            }
-            else
-            {
-                log.error( "Unrecognized command " + command );
-                printHelp();
-                System.exit( 3 );
-            }
-        }
-        catch ( Throwable t )
-        {
-        	log.error( "Encountered error while processing command: " + command );
-            t.printStackTrace();
-            System.exit( 4 );
-        }
-    }
-
-
-    private static void printHelp()
-    {
-        System.err.println("java -jar bootstrap.jar <app.home> <command.name>");
     }
 }

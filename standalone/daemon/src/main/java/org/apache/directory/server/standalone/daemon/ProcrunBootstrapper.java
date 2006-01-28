@@ -28,100 +28,78 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ProcrunBootstrapper
+public class ProcrunBootstrapper extends Bootstrapper
 {
     private final static Logger log = LoggerFactory.getLogger( ProcrunBootstrapper.class );
-    private static final String[] EMPTY_STRARRAY = new String[0];
-    
 
+    
+    // -----------------------------------------------------------------------
+    // Procrun Entry Points
+    // -----------------------------------------------------------------------
+    
+    
     public static void prunsrvStart( String[] args )
     {
-    	ClassLoader system = Thread.currentThread().getContextClassLoader();
-    	
+        log.debug( "prunsrvStart(String[]) called" );
+        
         if ( log.isDebugEnabled() )
         {
-            StringBuffer buf = new StringBuffer();
-            buf.append( "ENTERING ==> prunsrvStart(String[]):\n" );
+            log.debug( "prunsrvStart(String[]) recieved args:" );
             for ( int ii = 0; ii < args.length; ii++ )
             {
-                buf.append( "\targs[" ).append( ii ).append( "] = " ).append( args[ii] ).append( "\n" );
+                log.debug( "args[" + ii + "] = " + args[ii] );
             }
         }
 
-        if ( args == null || args.length < 1 )
-        {
-            log.error( "Args were null or less than 1: need home directory.  Shutting down!" );
-            System.exit( ExitCodes.BAD_ARGUMENTS );
-        }
-
-        log.debug( "prunsrvStart(String[]) creating LifecycleInvoker ... )" );
-        LifecycleInvoker invoker = new LifecycleInvoker( args[0], system );
-
-        log.debug( "prunsrvStart(String[]) invoking application.callInit(String[]))" );
         try
         {
-	        if ( args.length > 1 )
-	        {
-	            String[] shifted = new String[args.length-1];
-	            System.arraycopy( args, 1, shifted, 0, shifted.length );
-	            invoker.callInit( shifted );
-	        }
-	        else
-	        {
-	            invoker.callInit( EMPTY_STRARRAY );
-	        }
+            log.debug( "prunsrvStart(String[]) initializing Bootstrapper ... )" );
+            instance = new Bootstrapper();
+            instance.setInstallationLayout( args[0] );
+            instance.setParentLoader( Bootstrapper.class.getClassLoader() );
+
+            log.debug( "prunsrvStart(String[]) calling init(String[])" );
+            instance.init( args );
+
+            log.debug( "prunsrvStart(String[]) calling start(String[])" );
+            instance.start( args );
         }
         catch ( Throwable t )
         {
-        	log.error( "Failed while calling invoker.callInit(String[])", t );
-        }
-        
-        log.debug( "prunsrvStart(String[]) invoking bootstrapper.callStart())" );
-        try
-        {
-        	invoker.callStart( false ); // must block on start (let the app decide how)
-        }
-        catch( Throwable t )
-        {
-        	log.error( "Failed while calling invoker.callStart(String[])", t );
+            log.error( "Encountered error in prunsrvStart(String[])", t );
+            System.exit( 4 );
         }
     }
 
-    
+
     public static void prunsrvStop( String[] args )
     {
+        log.debug( "prunsrvStop(String[]) called" );
         if ( log.isDebugEnabled() )
         {
-            StringBuffer buf = new StringBuffer();
-            buf.append( "ENTERING ==> prunsrvStop(String[]):\n" );
+            log.debug( "prunsrvStop(String[]) recieved args:" );
             for ( int ii = 0; ii < args.length; ii++ )
             {
-                buf.append( "\targs[" ).append( ii ).append( "] = " ).append( args[ii] ).append( "\n" );
+                log.debug( "args[" + ii + "] = " + args[ii] );
             }
         }
-        
-        if ( args == null || args.length < 1 )
-        {
-            log.error( "Args were null or less than 1: need home directory.  Shutting down!" );
-            System.exit( ExitCodes.BAD_ARGUMENTS );
-        }
 
-        log.debug( "prunsrvStop(String[]) creating LifecycleInvoker ... )" );
-        LifecycleInvoker application = new LifecycleInvoker( args[0], 
-            Thread.currentThread().getContextClassLoader() );
-        
-        log.debug( "prunsrvStop(String[]) invoking application.callStop(String[]))" );
-        if ( args.length > 1 )
+        try
         {
-            String[] shifted = new String[args.length-1];
-            System.arraycopy( args, 1, shifted, 0, shifted.length );
-            application.callStop( shifted );
+            log.debug( "prunsrvStop(String[]) initializing Bootstrapper ... )" );
+            instance = new Bootstrapper();
+            instance.setInstallationLayout( args[0] );
+            instance.setParentLoader( Bootstrapper.class.getClassLoader() );
+
+            log.debug( "prunsrvStop(String[]) calling stop()" );
+            instance.stop();
+            log.debug( "prunsrvStop(String[]) calling destroy()" );
+            instance.destroy();
         }
-        else
+        catch ( Throwable t )
         {
-            application.callStop( EMPTY_STRARRAY );
+            log.error( "Encountered error in prunsrvStop(String[])", t );
+            System.exit( 4 );
         }
-        log.debug( "prunsrvStop(String[]) invoking application.callDestroy())" );
-        application.callDestroy();
     }
 }

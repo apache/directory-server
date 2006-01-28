@@ -28,12 +28,16 @@ import org.slf4j.Logger;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MainBootstrapper
+public class MainBootstrapper extends Bootstrapper
 {
     private static final Logger log = LoggerFactory.getLogger( MainBootstrapper.class );
-    private static final String[] EMPTY_STRARRAY = new String[0];
 
 
+    // ------------------------------------------------------------------------
+    // Java application main() entry point
+    // ------------------------------------------------------------------------
+
+    
     public static void main( String[] args )
     {
         log.debug( "main(String[]) called" );
@@ -44,7 +48,7 @@ public class MainBootstrapper
             System.err.println( "Arguements are null - how come?" );
             log.error( "main() args were null shutting down!" );
             printHelp();
-            System.exit( ExitCodes.BAD_ARGUMENTS );
+            System.exit( 1 );
         }
 
         if ( log.isDebugEnabled() )
@@ -52,15 +56,20 @@ public class MainBootstrapper
             log.debug( "main() recieved args:" );
             for ( int ii = 0; ii < args.length; ii++ )
             {
-                log.debug( "\targs[" + ii + "] = " + args[ii] );
+                log.debug( "args[" + ii + "] = " + args[ii] );
             }
         }
 
-        LifecycleInvoker invoker = null;
         if ( args.length > 1 )
         {
-        	log.debug( "main(String[]) creating LifecycleInvoker ... )" );
-            invoker = new LifecycleInvoker( args[0], Thread.currentThread().getContextClassLoader() );
+            if ( instance == null )
+            {
+                log.debug( "main(String[]) initializing Bootstrapper ... )" );
+                instance = new Bootstrapper();
+                instance.setInstallationLayout( args[0] );
+                instance.setParentLoader( Bootstrapper.class.getClassLoader() );
+                log.debug( "Bootstrapper initialized" );
+            }
         }
         else
         {
@@ -76,54 +85,36 @@ public class MainBootstrapper
         {
             if ( command.equalsIgnoreCase( "start" ) )
             {
-                log.debug( "calling application.callInit(String[]) from main(String[])" );
-                if ( args.length > 2 )
-                {
-                    String[] shifted = new String[args.length-2];
-                    System.arraycopy( args, 2, shifted, 0, shifted.length );
-                    invoker.callInit( shifted );
-                }
-                else
-                {
-                    invoker.callInit( EMPTY_STRARRAY );
-                }
+                log.debug( "calling init(String[]) from main(String[])" );
+                instance.init( args );
 
-                log.debug( "calling application.callStart(String[]) from main(String[])" );
-                invoker.callStart( true );
+                log.debug( "calling start(String[]) from main(String[])" );
+                instance.start( args );
             }
             else if ( command.equalsIgnoreCase( "stop" ) )
             {
-                log.debug( "calling application.callStop(String[]) from main(String[])" );
-                if ( args.length > 2 )
-                {
-                    String[] shifted = new String[args.length-2];
-                    System.arraycopy( args, 2, shifted, 0, shifted.length );
-                    invoker.callStop( shifted );
-                }
-                else
-                {
-                    invoker.callStop( EMPTY_STRARRAY );
-                }
-                log.debug( "calling application.callDestroy() from main(String[])" );
-                invoker.callDestroy();
+                log.debug( "calling stop() from main(String[])" );
+                instance.stop();
+                instance.destroy();
             }
             else
             {
                 log.error( "Unrecognized command " + command );
                 printHelp();
-                System.exit( ExitCodes.BAD_COMMAND );
+                System.exit( 3 );
             }
         }
         catch ( Throwable t )
         {
-        	log.error( "Encountered error while processing command: " + command, t );
-            System.exit( ExitCodes.UNKNOWN );
+            log.error( "Encountered error while processing command: " + command );
+            t.printStackTrace();
+            System.exit( 4 );
         }
     }
 
 
     private static void printHelp()
     {
-        System.err.println("java -jar bootstrapper.jar <install.home> [start|stop] [apparg0 apparg1 ... appargN]");
+        System.err.println("java -jar bootstrap.jar <app.home> <command.name>");
     }
 }
