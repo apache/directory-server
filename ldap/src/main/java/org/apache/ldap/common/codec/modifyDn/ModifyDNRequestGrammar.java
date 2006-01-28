@@ -302,6 +302,9 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
+                        // We can have a Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+                        
                         if ( log.isDebugEnabled() )
                         {
                             if ( modifyDNRequest.isDeleteOldRDN() )
@@ -394,6 +397,9 @@ public class ModifyDNRequestGrammar extends AbstractGrammar implements IGrammar
 
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
+                        
+                        // We can have a Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
                         
                         if ( log.isDebugEnabled() )
                         {

@@ -17,6 +17,7 @@
 package org.apache.ldap.common.codec.modifyDn;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import javax.naming.NamingException;
 
@@ -24,6 +25,7 @@ import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.ldap.common.codec.Control;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -110,6 +112,92 @@ public class ModifyDNRequestTest extends TestCase {
     }
 
     /**
+     * Test the decoding of a full ModifyDNRequest with controls
+     */
+    public void testDecodeModifyDNRequestSuccessWithControls() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x65 );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x63,           // LDAPMessage ::= SEQUENCE {
+                  0x02, 0x01, 0x01,   //     messageID MessageID
+                  0x6C, 0x41,         //     CHOICE { ..., modifyDNRequest   ModifyDNRequest, ...
+                                      // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                      //     entry           LDAPDN,
+                    0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                      //     newrdn          RelativeLDAPDN,
+                    0x04, 0x0F, 'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y',
+                    0x01, 0x01, 0x00, //     deleteoldrdn    BOOLEAN,
+                                      // newSuperior     [0] LDAPDN OPTIONAL }
+                    (byte)0x80, 0x09, 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                  (byte)0xA0, 0x1B,   // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a ModifyRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyDNRequest modifyDNRequest      = message.getModifyDNRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry() );
+        assertEquals( false, modifyDNRequest.isDeleteOldRDN() );
+        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN() );
+        assertEquals( "ou=system", modifyDNRequest.getNewSuperior() );
+
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
+        // Check the length
+        assertEquals(0x65, message.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
      * Test the decoding of a ModifyDNRequest without a superior
      */
     public void testDecodeModifyDNRequestWithoutSuperior() throws NamingException
@@ -161,6 +249,90 @@ public class ModifyDNRequestTest extends TestCase {
         
         // Check the length
         assertEquals(0x3D, message.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a ModifyDNRequest without a superior with controls
+     */
+    public void testDecodeModifyDNRequestWithoutSuperiorWithControls() throws NamingException
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x5A );
+        
+        stream.put(
+            new byte[]
+            {
+                 
+                
+                0x30, 0x58,           // LDAPMessage ::= SEQUENCE {
+                  0x02, 0x01, 0x01,   //     messageID MessageID
+                  0x6C, 0x36,         //     CHOICE { ..., modifyDNRequest   ModifyDNRequest, ...
+                                      // ModifyDNRequest ::= [APPLICATION 12] SEQUENCE {
+                                      //     entry           LDAPDN,
+                    0x04, 0x20, 'c', 'n', '=', 't', 'e', 's', 't', 'M', 'o', 'd', 'i', 'f', 'y', ',', 'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm',
+                                      //     newrdn          RelativeLDAPDN,
+                    0x04, 0x0F, 'c', 'n', '=', 't', 'e', 's', 't', 'D', 'N', 'M', 'o', 'd', 'i', 'f', 'y',
+                    0x01, 0x01, 0x00, //     deleteoldrdn    BOOLEAN,
+                                      // newSuperior     [0] LDAPDN OPTIONAL }
+                  (byte)0xA0, 0x1B,   // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a ModifyRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyDNRequest modifyDNRequest      = message.getModifyDNRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "cn=testModify,ou=users,ou=system", modifyDNRequest.getEntry() );
+        assertEquals( false, modifyDNRequest.isDeleteOldRDN() );
+        assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN() );
+        
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
+        // Check the length
+        assertEquals(0x5A, message.computeLength());
         
         // Check the encoding
         try
