@@ -352,14 +352,14 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
+                        // We can pop this grammar
+                        container.grammarPopAllowed( true );
+                        
                         if ( log.isDebugEnabled() )
                         {
                             log.debug( "The error message is : " + ldapResult.getErrorMessage() );
                         }
 
-                        // We can pop this grammar
-                        container.grammarPopAllowed( true );
-                        
                         return;
                     }
                 } );
@@ -376,17 +376,24 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
         // We don't deal with all of this values, we just have to treat the 0x83, because
         // referral is a part of the LdapResult grammar. In all other cases, we just quit
         // the grammar.
-        // As referral is optionnal, we may transoit from a error message state
+        // As referral is optionnal, we may transit from a error message state
 
-        // This is a referral.
+        // This is a referral sequence.
         super.transitions[LdapStatesEnum.LDAP_RESULT_REFERRAL_SEQUENCE_TAG][LdapConstants.LDAP_RESULT_REFERRAL_SEQUENCE_TAG] =
             new GrammarTransition( LdapStatesEnum.LDAP_RESULT_REFERRAL_SEQUENCE_TAG,
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG, null);
+                LdapStatesEnum.LDAP_RESULT_REFERRAL_SEQUENCE_VALUE, null);
 
-        // In case we are coming from a error message state
-        super.transitions[LdapStatesEnum.LDAP_RESULT_ERROR_MESSAGE_VALUE][LdapConstants.LDAP_RESULT_REFERRAL_SEQUENCE_TAG] =
-            new GrammarTransition( LdapStatesEnum.LDAP_RESULT_ERROR_MESSAGE_VALUE,
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG, null);
+        // Nothing to do with the value, except that we can't pop the gramar here.
+        super.transitions[LdapStatesEnum.LDAP_RESULT_REFERRAL_SEQUENCE_VALUE][LdapConstants.LDAP_RESULT_REFERRAL_SEQUENCE_TAG] =
+            new GrammarTransition( LdapStatesEnum.LDAP_RESULT_REFERRAL_SEQUENCE_VALUE,
+                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG, 
+                new GrammarAction( "Pop not allowed" )
+                {
+                    public void action( IAsn1Container container ) 
+                    {
+                        container.grammarPopAllowed( false );
+                    }
+                });
 
         // Referral ::= SEQUENCE OF LDAPURL (Tag)
         // This is a SEQUENCE, we will have at least one referral, but may be many.
@@ -406,7 +413,7 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
         super.transitions[LdapStatesEnum.LDAP_RESULT_REFERRAL_VALUE][UniversalTag.OCTET_STRING_TAG] =
             new GrammarTransition(
                 LdapStatesEnum.LDAP_RESULT_REFERRAL_VALUE,
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_LOOP_TAG,
+                LdapStatesEnum.LDAP_RESULT_REFERRAL_TAG,
                 new GrammarAction( "Store Ldap Result referral" )
                 {
                     public void action( IAsn1Container container ) throws DecoderException
@@ -451,6 +458,9 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                         // We can have an END transition
                         ldapMessageContainer.grammarEndAllowed( true );
                         
+                        // We can have a Pop transition
+                        ldapMessageContainer.grammarPopAllowed( true );
+                        
                         if ( log.isDebugEnabled() )
                         {
                             Iterator urls = ldapResult.getReferrals().iterator();
@@ -476,25 +486,6 @@ public class LdapResultGrammar extends AbstractGrammar implements IGrammar
                         }
                     }
                 } );
-
-        // Referral ::= SEQUENCE OF LDAPURL (Tag)
-        // We may have another referral, but we could also have something else :
-        //  - 0x04 : a referral, in a LdapResult.
-        //  - GRAMMAR_END : this is implicitly deducted by the fact that we don't have any more valid byte...
-        // Those different cases are handled here.
-
-        // This is a referral. We have to transit to its Length state
-        super.transitions[LdapStatesEnum.LDAP_RESULT_REFERRAL_LOOP_TAG][UniversalTag.OCTET_STRING_TAG] =
-            new GrammarTransition(
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_LOOP_TAG,
-                LdapStatesEnum.LDAP_RESULT_REFERRAL_VALUE, 
-                new GrammarAction( "Allows pop" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        container.grammarPopAllowed( true );
-                    }
-                });
 
     }
 
