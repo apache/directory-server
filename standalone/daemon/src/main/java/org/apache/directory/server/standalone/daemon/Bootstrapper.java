@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 
 
 /**
- * The main bootstrapper used when invoked as an application.
+ * The base bootstrapper extended by all frameworks and java applications.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -39,8 +39,6 @@ public class Bootstrapper
     private static final String[] EMPTY_STRARRY = new String[0];
     private static final String START_CLASS_PROP = "bootstrap.start.class";
     private static final String STOP_CLASS_PROP = "bootstrap.stop.class";
-
-    protected static Bootstrapper instance;
     
     private InstallationLayout install;
     private ClassLoader appLoader;
@@ -48,7 +46,6 @@ public class Bootstrapper
     private String startClassName;
     private String stopClassName;
     private Class startObjectClass;
-    private Class stopObjectClass;
     private Object startObject;
     private Object stopObject;
 

@@ -42,15 +42,6 @@ public class MainBootstrapper extends Bootstrapper
     {
         log.debug( "main(String[]) called" );
         
-        // Noticed that some starts with jar2exe.exe pass in a null arguement list
-        if ( args == null )
-        {
-            System.err.println( "Arguements are null - how come?" );
-            log.error( "main() args were null shutting down!" );
-            printHelp();
-            System.exit( 1 );
-        }
-
         if ( log.isDebugEnabled() )
         {
             log.debug( "main() recieved args:" );
@@ -60,16 +51,13 @@ public class MainBootstrapper extends Bootstrapper
             }
         }
 
+        MainBootstrapper instance = new MainBootstrapper();
         if ( args.length > 1 )
         {
-            if ( instance == null )
-            {
-                log.debug( "main(String[]) initializing Bootstrapper ... )" );
-                instance = new Bootstrapper();
-                instance.setInstallationLayout( args[0] );
-                instance.setParentLoader( Bootstrapper.class.getClassLoader() );
-                log.debug( "Bootstrapper initialized" );
-            }
+            log.debug( "main(String[]) initializing Bootstrapper ... )" );
+            instance.setInstallationLayout( args[0] );
+            instance.setParentLoader( Bootstrapper.class.getClassLoader() );
+            log.debug( "Bootstrapper initialized" );
         }
         else
         {

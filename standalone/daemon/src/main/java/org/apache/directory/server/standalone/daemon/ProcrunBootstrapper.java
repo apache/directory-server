@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class ProcrunBootstrapper extends Bootstrapper
 {
     private final static Logger log = LoggerFactory.getLogger( ProcrunBootstrapper.class );
-
+    
     
     // -----------------------------------------------------------------------
     // Procrun Entry Points
@@ -54,7 +54,7 @@ public class ProcrunBootstrapper extends Bootstrapper
         try
         {
             log.debug( "prunsrvStart(String[]) initializing Bootstrapper ... )" );
-            instance = new Bootstrapper();
+            ProcrunBootstrapper instance = new ProcrunBootstrapper();
             instance.setInstallationLayout( args[0] );
             instance.setParentLoader( Bootstrapper.class.getClassLoader() );
 
@@ -87,7 +87,7 @@ public class ProcrunBootstrapper extends Bootstrapper
         try
         {
             log.debug( "prunsrvStop(String[]) initializing Bootstrapper ... )" );
-            instance = new Bootstrapper();
+            ProcrunBootstrapper instance = new ProcrunBootstrapper();
             instance.setInstallationLayout( args[0] );
             instance.setParentLoader( Bootstrapper.class.getClassLoader() );
 
