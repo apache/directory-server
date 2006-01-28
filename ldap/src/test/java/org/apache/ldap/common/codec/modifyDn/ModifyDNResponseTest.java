@@ -17,11 +17,13 @@
 package org.apache.ldap.common.codec.modifyDn;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
+import org.apache.ldap.common.codec.Control;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -107,6 +109,92 @@ public class ModifyDNResponseTest extends TestCase {
         }
     }
     
+    /**
+     * Test the decoding of a ModifyDNResponse with controls
+     */
+    public void testDecodeModifyResponseSuccessWithControls()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x2B );
+        
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x29,           // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01,   //         messageID MessageID
+                  0x6D, 0x07,         //        CHOICE { ..., modifyDNResponse ModifyDNResponse, ...
+                                      // ModifyDNResponse ::= [APPLICATION 13] LDAPResult
+                    0x0A, 0x01, 0x00, //   LDAPResult ::= SEQUENCE {
+                                      //      resultCode ENUMERATED {
+                                      //          success (0), ...
+                                      //      },
+                    0x04, 0x00,       //      matchedDN    LDAPDN,
+                    0x04, 0x00,       //      errorMessage LDAPString,
+                                      //      referral     [3] Referral OPTIONAL }
+                                      // }
+                  (byte)0xA0, 0x1B,   // A control 
+                    0x30, 0x19, 
+                      0x04, 0x17, 
+                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
+                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
+                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the ModifyDNResponse PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        // Check the decoded ModifyDNResponse PDU
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyDNResponse modifyDNResponse      = message.getModifyDNResponse();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 0, modifyDNResponse.getLdapResult().getResultCode() );
+        assertEquals( "", modifyDNResponse.getLdapResult().getMatchedDN() );
+        assertEquals( "", modifyDNResponse.getLdapResult().getErrorMessage() );
+        
+        // Check the Control
+        List controls = message.getControls();
+        
+        assertEquals( 1, controls.size() );
+        
+        Control control = message.getControls( 0 );
+        assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
+        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+
+        // Check the length
+        assertEquals(0x2B, message.computeLength());
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
     /**
      * Test the decoding of a ModifyDNResponse with no LdapResult
      */
