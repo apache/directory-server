@@ -22,6 +22,7 @@ import org.apache.asn1.ber.grammar.AbstractGrammar;
 import org.apache.asn1.ber.grammar.GrammarAction;
 import org.apache.asn1.ber.IAsn1Container;
 import org.apache.asn1.ber.tlv.UniversalTag;
+import org.apache.asn1.codec.DecoderException;
 import org.apache.ldap.common.codec.LdapConstants;
 import org.apache.ldap.common.codec.LdapMessage;
 import org.apache.ldap.common.codec.LdapMessageContainer;
@@ -95,7 +96,14 @@ public class SearchResultDoneGrammar extends AbstractGrammar implements IGrammar
         // SearchResultDone ::= [APPLICATION 5] LDAPResult (Value)
         // Ok, we have a LDAPResult Tag (0x0A). So we have to switch the grammar.
         super.transitions[LdapStatesEnum.SEARCH_RESULT_DONE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
-                LdapStatesEnum.SEARCH_RESULT_DONE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, null );
+                LdapStatesEnum.SEARCH_RESULT_DONE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, 
+                new GrammarAction( "Pop allowed" )
+                {
+                    public void action( IAsn1Container container ) throws DecoderException
+                    {
+                        container.grammarPopAllowed( true );
+                    }
+                } );
     }
 
     //~ Methods ------------------------------------------------------------------------------------
