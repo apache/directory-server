@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -46,11 +47,11 @@ import org.slf4j.Logger;
  */
 public class Bootstrapper
 {
-    public static final String[] EMPTY_STRARRAY = new String[0];
+    static final String[] EMPTY_STRARRAY = new String[0];
+    public static final String START_CLASS_PROP = "bootstrap.start.class";
+    public static final String STOP_CLASS_PROP = "bootstrap.stop.class";
     
     private static final Logger log = LoggerFactory.getLogger( Bootstrapper.class );
-    private static final String START_CLASS_PROP = "bootstrap.start.class";
-    private static final String STOP_CLASS_PROP = "bootstrap.stop.class";
 
     /** Shutdown command to use for await() */
     private static final String SHUTDOWN = "SHUTDOWN";
@@ -302,14 +303,13 @@ public class Bootstrapper
             if ( shutdownPortFile.exists() )
             {
                 String msg = "Shutdown port file " + shutdownPortFile + " exists. ";
-                msg += "\nEither the server is already running or a previous run existed abruptly.";
-                msg += "\nIf the server is not running remove this file and try again.";
-                log.error( msg );
-                throw new IllegalStateException( msg );
+                msg += "\nEither an instance is already running or a previous run existed abruptly.";
+                log.warn( msg );
             }
-            FileWriter writer = new FileWriter( shutdownPortFile );
-            writer.write( shutdownPort + "\n" );
-            writer.close();
+            PrintWriter out = new PrintWriter( new FileWriter( shutdownPortFile ) );
+            out.println( shutdownPort );
+            out.flush();
+            out.close();
         }
         catch ( IOException e )
         {

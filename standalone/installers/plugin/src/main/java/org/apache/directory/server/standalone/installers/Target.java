@@ -58,17 +58,8 @@ public class Target
     private String osName;
     private String osArch;
     private String osFamily;
-    private String daemonFramework;
-    
-    // optional stuff
-    private List applicationAuthors;
-    private String applicationUrl;
-    private String applicationJavaVersion;
-    private String applicationEmail;
-    
-    private String minVersion;
-    private String maxVersion;
     private String osVersion;
+    private String daemonFramework;
     private File loggerConfigurationFile;
     private File serverConfigurationFile;
     private File bootstrapperConfiguraitonFile;
@@ -125,30 +116,6 @@ public class Target
     public String getDaemonFramework()
     {
         return daemonFramework;
-    }
-
-
-    public void setMaxVersion(String maxVersion)
-    {
-        this.maxVersion = maxVersion.toLowerCase( Locale.US );
-    }
-
-
-    public String getMaxVersion()
-    {
-        return maxVersion;
-    }
-
-
-    public void setMinVersion(String minVersion)
-    {
-        this.minVersion = minVersion.toLowerCase( Locale.US );
-    }
-
-
-    public String getMinVersion()
-    {
-        return minVersion.toLowerCase( Locale.US );
     }
 
 
@@ -227,55 +194,7 @@ public class Target
         return osFamily;
     }
 
-
-    public void setApplicationAuthors(List authors)
-    {
-        this.applicationAuthors = authors;
-    }
-
-
-    public List getApplicationAuthors()
-    {
-        return applicationAuthors;
-    }
-
-
-    public void setApplicationUrl(String url)
-    {
-        this.applicationUrl = url;
-    }
-
-
-    public String getApplicationUrl()
-    {
-        return applicationUrl;
-    }
-
-
-    public void setApplicationJavaVersion(String javaVersion)
-    {
-        this.applicationJavaVersion = javaVersion;
-    }
-
-
-    public String getApplicationJavaVersion()
-    {
-        return applicationJavaVersion;
-    }
-
-
-    public void setApplicationEmail(String email)
-    {
-        this.applicationEmail = email;
-    }
-
-
-    public String getApplicationEmail()
-    {
-        return applicationEmail;
-    }
-
-
+    
     public void setLayout(InstallationLayout layout)
     {
         this.layout = layout;

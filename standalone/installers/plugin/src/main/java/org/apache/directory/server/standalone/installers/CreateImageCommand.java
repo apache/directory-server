@@ -18,9 +18,12 @@ package org.apache.directory.server.standalone.installers;
 
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Properties;
 
+import org.apache.directory.server.standalone.daemon.Bootstrapper;
 import org.apache.directory.server.standalone.daemon.InstallationLayout;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -181,16 +184,37 @@ public class CreateImageCommand implements MojoCommand
                 + " into position " + layout.getDaemon() );
         }
         
-        // copy over the REQUIRED bootstrapper configuration file
-        try
+        // copy over the optional bootstrapper configuration file
+        if ( target.getBootstrapperConfiguraitonFile() == null || ! target.getBootstrapperConfiguraitonFile().exists() )
         {
-            FileUtils.copyFile( target.getBootstrapperConfiguraitonFile(), layout.getBootstrapperConfigurationFile() );
+            File dest = target.getBootstrapperConfiguraitonFile();
+            try
+            {
+                PrintWriter out = new PrintWriter( new FileWriter( dest ) );
+                out.println( Bootstrapper.START_CLASS_PROP + "=" + mymojo.getApplicationClass() );
+                out.println( Bootstrapper.STOP_CLASS_PROP + "=" + mymojo.getApplicationClass() );
+                out.flush();
+                out.close();
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy project bootstrapper configuration file "  
+                    + target.getBootstrapperConfiguraitonFile() 
+                    + " into position " + layout.getBootstrapperConfigurationFile() );
+            }
         }
-        catch ( IOException e )
+        else
         {
-            throw new MojoFailureException( "Failed to copy bootstrapper configuration file "  
-                + target.getBootstrapperConfiguraitonFile() 
-                + " into position " + layout.getBootstrapperConfigurationFile() );
+            try
+            {
+                FileUtils.copyFile( target.getBootstrapperConfiguraitonFile(), layout.getBootstrapperConfigurationFile() );
+            }
+            catch ( IOException e )
+            {
+                throw new MojoFailureException( "Failed to copy project bootstrapper configuration file "  
+                    + target.getBootstrapperConfiguraitonFile() 
+                    + " into position " + layout.getBootstrapperConfigurationFile() );
+            }
         }
         
         // copy over the optional logging configuration file
@@ -248,21 +272,37 @@ public class CreateImageCommand implements MojoCommand
         
         // now copy over the jsvc executable renaming it to the mymojo.getApplicationName() 
         if ( target.getOsName().equals( "sunos" ) && 
-             target.getOsArch().equals( "sparc" ) )
-        {
-            File executable = new File ( layout.getBinDirectory(), target.getApplication().getName() );
-            try
-            {
-                MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_sparc" ), executable );
-            }
-            catch ( IOException e )
-            {
-                throw new MojoFailureException( "Failed to copy jsvc executable file "  
-                    + getClass().getResource( "jsvc_solaris_sparc" )
-                    + " into position " + executable.getAbsolutePath() );
-            }
-        }
-        
+            target.getOsArch().equals( "sparc" ) )
+       {
+           File executable = new File ( layout.getBinDirectory(), target.getApplication().getName() );
+           try
+           {
+               MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_sparc" ), executable );
+           }
+           catch ( IOException e )
+           {
+               throw new MojoFailureException( "Failed to copy jsvc executable file "  
+                   + getClass().getResource( "jsvc_solaris_sparc" )
+                   + " into position " + executable.getAbsolutePath() );
+           }
+       }
+       
+        if ( target.getOsName().equals( "sunos" ) && 
+            target.getOsArch().equals( "i386" ) )
+       {
+           File executable = new File ( layout.getBinDirectory(), target.getApplication().getName() );
+           try
+           {
+               MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_i386" ), executable );
+           }
+           catch ( IOException e )
+           {
+               throw new MojoFailureException( "Failed to copy jsvc executable file "  
+                   + getClass().getResource( "jsvc_solaris_i386" )
+                   + " into position " + executable.getAbsolutePath() );
+           }
+       }
+       
         // now copy over the jsvc executable renaming it to the mymojo.getApplicationName() 
         if ( target.getOsName().equals( "macosx" ) && target.getOsArch().equals( "ppc" ) )
         {

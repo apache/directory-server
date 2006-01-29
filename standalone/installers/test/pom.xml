@@ -119,6 +119,13 @@
               <osArch>i386</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
+            <izPackTarget>
+              <id>solaris-jsvc</id>
+              <osName>Solaris</osName>
+              <osFamily>unix</osFamily>
+              <osArch>i386</osArch>
+              <daemonFramework>jsvc</daemonFramework>
+            </izPackTarget>
 <!--
             <izPackTarget>
               <id>macosx-jsvc</id>

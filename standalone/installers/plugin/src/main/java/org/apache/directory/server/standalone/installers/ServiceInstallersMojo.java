@@ -346,22 +346,6 @@ public class ServiceInstallersMojo extends AbstractMojo
             {
                 target.setOsVersion( "*" );
             }
-            if ( target.getApplicationAuthors() == null )
-            {
-                target.setApplicationAuthors( application.getAuthors() );
-            }
-            if ( target.getApplicationEmail() == null )
-            {
-                target.setApplicationEmail( application.getEmail() );
-            }
-            if ( target.getApplicationJavaVersion() == null )
-            {
-                target.setApplicationJavaVersion( application.getMinimumJavaVersion() );
-            }
-            if ( target.getApplicationUrl() == null )
-            {
-                target.setApplicationUrl( application.getUrl() );
-            }
         }
     }
     
