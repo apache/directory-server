@@ -120,8 +120,8 @@
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
             <izPackTarget>
-              <id>solaris-jsvc</id>
-              <osName>Solaris</osName>
+              <id>solaris-jsvc-i386</id>
+              <osName>sunos</osName>
               <osFamily>unix</osFamily>
               <osArch>i386</osArch>
               <daemonFramework>jsvc</daemonFramework>
@@ -136,10 +136,9 @@
             </izPackTarget>
 -->
             <izPackTarget>
-              <id>solaris-jsvc</id>
+              <id>solaris-jsvc-sparc</id>
               <osName>sunos</osName>
               <osFamily>unix</osFamily>
-              <minVersion>5.6</minVersion>
               <osArch>sparc</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
