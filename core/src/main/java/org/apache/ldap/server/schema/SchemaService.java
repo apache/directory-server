@@ -727,4 +727,26 @@ public class SchemaService extends BaseInterceptor
             return true;
         }
     }
+
+    /**
+     * Check that all the attributes exist in the schema for this entry.
+     */
+    public void add( NextInterceptor next, String upName, Name normName, Attributes attrs ) throws NamingException
+    {
+        AttributeTypeRegistry atRegistry = this.globalRegistries.getAttributeTypeRegistry();
+
+        NamingEnumeration attrEnum = attrs.getIDs();
+        
+        while ( attrEnum.hasMoreElements())
+        {
+            String name = (String)attrEnum.nextElement();
+
+            if ( ! atRegistry.hasAttributeType( name ) )
+            {
+                throw new LdapInvalidAttributeIdentifierException();
+            }
+        }
+
+        next.add( upName, normName, attrs );
+    }
 }
