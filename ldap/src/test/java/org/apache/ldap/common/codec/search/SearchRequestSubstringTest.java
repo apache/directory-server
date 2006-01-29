@@ -1617,4 +1617,108 @@ public class SearchRequestSubstringTest extends TestCase {
 
         fail( "We should not reach this point" );
     }    
+
+    /**
+     * Test the decoding of a SearchRequest with a Substring filter
+     * Two initials
+     */
+    public void testDecodeSearchRequestSubstringFilterTwoInitials() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x49, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x44, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x01,
+                    0x0A, 0x01, 0x03,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0xA4, 0x0E,
+                      0x04, 0x04, 't', 'e', 's', 't',
+                      0x30, 0x06,
+                        (byte)0x80, 0x01, 'a',
+                        (byte)0x80, 0x01, 'b',
+                    0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                      0x04, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }    
+
+    /**
+     * Test the decoding of a SearchRequest with a Substring filter
+     * Two finals
+     */
+    public void testDecodeSearchRequestSubstringFilterTwoFinals() 
+    {
+        byte[] asn1BER = new byte[] 
+        { 
+                0x30, 0x49, 
+                  0x02, 0x01, 0x04, // messageID
+                  0x63, 0x44, 
+                    0x04, 0x1F,                   //    baseObject LDAPDN,
+                      'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=',
+                      'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm',
+                    0x0A, 0x01, 0x01,
+                    0x0A, 0x01, 0x03,
+                    0x02, 0x01, 0x00,
+                    0x02, 0x01, 0x00,
+                    0x01, 0x01, (byte)0xFF,
+                    (byte)0xA4, 0x0E,
+                      0x04, 0x04, 't', 'e', 's', 't',
+                      0x30, 0x06,
+                        (byte)0x82, 0x01, 'a',
+                        (byte)0x82, 0x01, 'b',
+                    0x30, 0x02,                     // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+                      0x04, 0x00
+        };
+
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( asn1BER.length );
+        stream.put( asn1BER );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode a SearchRequest message
+        try 
+        {
+            ldapDecoder.decode(stream, ldapMessageContainer);
+        } 
+        catch ( DecoderException de ) 
+        {
+            System.out.println( de.getMessage() );
+            assertTrue( true );
+            return;
+        }
+
+        fail( "We should not reach this point" );
+    }    
 }
