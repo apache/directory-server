@@ -140,4 +140,9 @@ public class MutableServerStartupConfiguration extends
     {
         super.setLdapsCertificatePassword( ldapsCertificatePassword );
     }
+    
+    public void setShutdownHookEnabled( boolean shutdownHookEnabled )
+    {
+        super.setShutdownHookEnabled( shutdownHookEnabled );
+    }
 }

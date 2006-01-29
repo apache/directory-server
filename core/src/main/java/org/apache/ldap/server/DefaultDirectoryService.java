@@ -104,6 +104,7 @@ class DefaultDirectoryService extends DirectoryService
     // Constructor
     // ------------------------------------------------------------------------
 
+    
     /**
      * Creates a new instance.
      */
@@ -113,27 +114,10 @@ class DefaultDirectoryService extends DirectoryService
         {
             throw new NullPointerException( "instanceId" );
         }
-        
         this.instanceId = instanceId;
-        
-        // Register shutdown hook.
-        Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
-            public void run()
-            {
-                try
-                {
-                    shutdown();
-                }
-                catch( NamingException e )
-                {
-                    log.warn(
-                            "Failed to shut down the directory service: " +
-                            DefaultDirectoryService.this.instanceId, e );
-                }
-            }
-        }, "ApacheDS Shutdown Hook (" + instanceId + ')' ) );
     }
 
+    
     // ------------------------------------------------------------------------
     // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
@@ -191,6 +175,33 @@ class DefaultDirectoryService extends DirectoryService
         Hashtable envCopy = ( Hashtable ) env.clone();
 
         StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
+
+        if ( cfg.isShutdownHookEnabled() )
+        {
+            Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
+                public void run()
+                {
+                    try
+                    {
+                        shutdown();
+                    }
+                    catch( NamingException e )
+                    {
+                        log.warn(
+                                "Failed to shut down the directory service: " +
+                                DefaultDirectoryService.this.instanceId, e );
+                    }
+                }
+            }, "ApacheDS Shutdown Hook (" + instanceId + ')' ) );
+            
+            log.info( "ApacheDS shutdown hook has been registered with the runtime." );
+        }
+        else if ( log.isWarnEnabled() )
+        {
+            log.warn( "ApacheDS shutdown hook has NOT been registered with the runtime." + 
+                "  This default setting for standalone operation has been overriden." );
+        }
+
         envCopy.put( Context.PROVIDER_URL, "" );
         
         try

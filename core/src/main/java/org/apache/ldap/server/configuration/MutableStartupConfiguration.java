@@ -18,15 +18,17 @@
  */
 package org.apache.ldap.server.configuration;
 
+
 import java.io.File;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.ldap.server.DirectoryService;
 
+
 /**
  * A mutable version of {@link StartupConfiguration}.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -34,64 +36,81 @@ public class MutableStartupConfiguration extends StartupConfiguration
 {
     private static final long serialVersionUID = -987437370955222007L;
 
+
     /**
      * Creates a new instance.
      */
     public MutableStartupConfiguration()
     {
     }
-    
+
+
     /**
-     * Creates a new instance that operates on the {@link DirectoryService}
-     * with the specified ID.
+     * Creates a new instance that operates on the {@link DirectoryService} with
+     * the specified ID.
      */
-    public MutableStartupConfiguration( String instanceId )
+    public MutableStartupConfiguration(String instanceId)
     {
         super( instanceId );
     }
 
-    public void setInstanceId( String instanceId )
+
+    public void setInstanceId(String instanceId)
     {
         super.setInstanceId( instanceId );
     }
 
-    public void setAuthenticatorConfigurations( Set authenticators )
+
+    public void setAuthenticatorConfigurations(Set authenticators)
     {
         super.setAuthenticatorConfigurations( authenticators );
     }
 
-    public void setBootstrapSchemas( Set bootstrapSchemas )
+
+    public void setBootstrapSchemas(Set bootstrapSchemas)
     {
         super.setBootstrapSchemas( bootstrapSchemas );
     }
 
-    public void setContextPartitionConfigurations( Set contextParitionConfigurations )
+
+    public void setContextPartitionConfigurations(Set contextParitionConfigurations)
     {
         super.setContextPartitionConfigurations( contextParitionConfigurations );
     }
 
-    public void setAccessControlEnabled( boolean accessControlEnabled )
+
+    public void setAccessControlEnabled(boolean accessControlEnabled)
     {
         super.setAccessControlEnabled( accessControlEnabled );
     }
 
-    public void setAllowAnonymousAccess( boolean enableAnonymousAccess )
+
+    public void setAllowAnonymousAccess(boolean enableAnonymousAccess)
     {
         super.setAllowAnonymousAccess( enableAnonymousAccess );
     }
 
-    public void setInterceptorConfigurations( List interceptorConfigurations )
+
+    public void setInterceptorConfigurations(List interceptorConfigurations)
     {
         super.setInterceptorConfigurations( interceptorConfigurations );
     }
 
-    public void setTestEntries( List testEntries )
+
+    public void setTestEntries(List testEntries)
     {
         super.setTestEntries( testEntries );
     }
 
-    public void setWorkingDirectory( File workingDirectory )
+
+    public void setWorkingDirectory(File workingDirectory)
     {
         super.setWorkingDirectory( workingDirectory );
+    }
+
+
+    public void setShutdownHookEnabled(boolean shutdownHookEnabled)
+    {
+        super.setShutdownHookEnabled( shutdownHookEnabled );
     }
 }

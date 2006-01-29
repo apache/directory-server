@@ -54,6 +54,7 @@ public class StartupConfiguration extends Configuration
     private static final long serialVersionUID = 4826762196566871677L;
 
     private File workingDirectory = new File( "server-work" );
+    private boolean shutdownHookEnabled = true; // allow by default
     private boolean allowAnonymousAccess = true; // allow by default
     private boolean accessControlEnabled = false; // turn off by default
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
@@ -391,5 +392,17 @@ public class StartupConfiguration extends Configuration
     public void validate()
     {
         setWorkingDirectory( workingDirectory );
+    }
+
+    
+    protected void setShutdownHookEnabled( boolean shutdownHookEnabled )
+    {
+        this.shutdownHookEnabled = shutdownHookEnabled;
+    }
+    
+    
+    public boolean isShutdownHookEnabled()
+    {
+        return shutdownHookEnabled;
     }
 }
