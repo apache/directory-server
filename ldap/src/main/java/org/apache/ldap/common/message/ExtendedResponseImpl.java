@@ -33,7 +33,7 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
     /** Object identifier for the extended response */
     private String oid ;
     /** Values encoded in the extended response payload */
-    private byte [] value ;
+    protected byte [] value ;
 
 
     // ------------------------------------------------------------------------

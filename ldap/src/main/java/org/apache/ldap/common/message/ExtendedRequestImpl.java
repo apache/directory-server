@@ -36,8 +36,8 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
     /** Extended request's Object Identifier or <b>requestName</b> */
     private String oid;
     /** Extended request's payload or <b>requestValue</b> */
-    private byte [] payload;
-    private ResultResponse response;
+    protected byte [] payload;
+    protected ResultResponse response;
 
 
     // -----------------------------------------------------------------------
