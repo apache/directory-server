@@ -24,6 +24,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
@@ -253,5 +254,64 @@ public class ModifyAddTest extends AbstractServerTest
         // Check, whether attribute description is still not present
         Attributes attrs = ctx.getAttributes(RDN);
         assertEquals( 1, attrs.get("description").size() );
+    }
+    
+    /**
+     * Create an entry with a bad attribute : this should fail.
+     * 
+     * @throws NamingException
+     */
+    public void testAddUnexistingAttribute() throws NamingException
+    {
+        Hashtable env = new Hashtable();
+        env.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put("java.naming.provider.url", "ldap://localhost:" + port + "/ou=system");
+        env.put("java.naming.security.principal", "uid=admin,ou=system");
+        env.put("java.naming.security.credentials", "secret");
+        env.put("java.naming.security.authentication", "simple");
+
+        ctx = new InitialLdapContext(env, null);
+        assertNotNull(ctx);
+    
+        // Create a third person with a voice attribute
+        Attributes attributes = this.getPersonAttributes("Jackson", "Michael Jackson");
+        attributes.put("voice", "He is bad ...");
+        
+        try
+        {
+        ctx.createSubcontext( "cn=Mickael Jackson", attributes);
+        }
+        catch ( InvalidAttributeIdentifierException iaie)
+        {
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "Should never reach this point" );
+    }
+
+    /**
+     * Modu=ify the entry with a bad attribute : this should fail 
+     * 
+     * @throws NamingException
+     */
+    public void testSearchBadAttribute() throws NamingException
+    {
+        // Add a not existing attribute
+        String newValue = "unbelievable";
+        Attributes attrs = new BasicAttributes( "voice", newValue );
+        
+        try
+        {
+            ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+        }
+        catch (InvalidAttributeIdentifierException iaie )
+        {
+            // We have a failure : the attribute is unknown in the schema
+            assertTrue( true );
+            return;
+        }
+        
+        fail( "Cannot reach this point" );
     }
 }
