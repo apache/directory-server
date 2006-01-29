@@ -185,15 +185,15 @@ public class InnoInstallerCommand implements MojoCommand
     private void initializeFiltering() throws MojoFailureException 
     {
         filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app" , mymojo.getApplicationName() );
+        filterProperties.put( "app" , target.getApplication().getName() );
         
-        char firstChar = mymojo.getApplicationName().charAt( 0 );
+        char firstChar = target.getApplication().getName().charAt( 0 );
         firstChar = Character.toUpperCase( firstChar );
-        filterProperties.put( "app.displayname", firstChar + mymojo.getApplicationName().substring( 1 ) );
+        filterProperties.put( "app.displayname", firstChar + target.getApplication().getName().substring( 1 ) );
 
-        if ( mymojo.getApplicationVersion() != null )
+        if ( target.getApplication().getVersion() != null )
         {
-            filterProperties.put( "app.version", mymojo.getApplicationVersion() );
+            filterProperties.put( "app.version", target.getApplication().getVersion() );
         }
         else
         {
@@ -203,15 +203,24 @@ public class InnoInstallerCommand implements MojoCommand
         // -------------------------------------------------------------------
         // WARNING: hard code values just to for testing
         // -------------------------------------------------------------------
+
+        // @todo use the list of committers and add multiple authors to inno
+        if ( target.getApplication().getAuthors().isEmpty() )
+        {
+            filterProperties.put( "app.author" , "Apache Software Foundation" );
+        }
+        else
+        {
+            filterProperties.put( "app.author", target.getApplication().getAuthors().get( 0 ) );
+        }
         
-        filterProperties.put( "app.author" , target.getApplicationAuthor() );
-        filterProperties.put( "app.email" , target.getApplicationEmail() );
-        filterProperties.put( "app.url" , target.getApplicationUrl() );
-        filterProperties.put( "app.java.version" , target.getApplicationJavaVersion() );
+        filterProperties.put( "app.email" , target.getApplication().getEmail() );
+        filterProperties.put( "app.url" , target.getApplication().getUrl() );
+        filterProperties.put( "app.java.version" , target.getApplication().getMinimumJavaVersion() );
         filterProperties.put( "app.license" , target.getLayout().getLicenseFile().getPath() );
         filterProperties.put( "app.license.name" , target.getLayout().getLicenseFile().getName() );
         filterProperties.put( "app.company.name" , target.getCompanyName() );
-        filterProperties.put( "app.description" , mymojo.getApplicationDescription() ); 
+        filterProperties.put( "app.description" , target.getApplication().getDescription() ); 
         filterProperties.put( "app.copyright.year", target.getCopyrightYear() );
 
         if ( ! target.getLayout().getReadmeFile().exists() )

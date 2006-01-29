@@ -69,7 +69,7 @@ public class IzPackInstallerCommand implements MojoCommand
         this.mymojo = mymojo;
         File imageDir = layout.getBaseDirectory().getParentFile();
         izPackBase = new File( imageDir, target.getId() );
-        izPackOutput = new File( imageDir, target.getId() + "_izpack_installer.jar" );
+        izPackOutput = new File( imageDir, target.getId() + "-" + target.getOsArch() + "_izpack_installer.jar" );
         izPackInput = new File( imageDir, target.getId() + "_izpack_install.xml" );
         izPackUserInput = new File( imageDir, target.getId() + "_izpack_install_user_input.xml" );
         izPackWindowsShortcuts = new File( imageDir, target.getId() + "_izpack_windows_shortcuts.xml" );
@@ -342,18 +342,18 @@ public class IzPackInstallerCommand implements MojoCommand
     private void initializeFiltering() 
     {
         filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app" , mymojo.getApplicationName() );
-        filterProperties.put( "app.caps" , mymojo.getApplicationName().toUpperCase() );
+        filterProperties.put( "app" , target.getApplication().getName() );
+        filterProperties.put( "app.caps" , target.getApplication().getName().toUpperCase() );
         filterProperties.put( "app.server.class", mymojo.getApplicationClass() );
 
-        if ( mymojo.getApplicationVersion() != null )
+        if ( target.getApplication().getVersion() != null )
         {
-            filterProperties.put( "app.version", mymojo.getApplicationVersion() );
+            filterProperties.put( "app.version", target.getApplication().getVersion() );
         }
         
-        if ( mymojo.getApplicationDescription() != null )
+        if ( target.getApplication().getDescription() != null )
         {
-            filterProperties.put( "app.init.message", mymojo.getApplicationDescription() );
+            filterProperties.put( "app.init.message", target.getApplication().getDescription() );
         }
 
         // -------------------------------------------------------------------
@@ -361,10 +361,21 @@ public class IzPackInstallerCommand implements MojoCommand
         // -------------------------------------------------------------------
         
         // optional properties from mojo but should default:
-        filterProperties.put( "app.author" , target.getApplicationAuthor() );
-        filterProperties.put( "app.email" , target.getApplicationEmail() );
-        filterProperties.put( "app.url" , target.getApplicationUrl() );
-        filterProperties.put( "app.java.version" , target.getApplicationJavaVersion() );
+
+        // @todo use the list of committers and add all of them by adding 
+        // additional izpack author tags
+        if ( target.getApplication().getAuthors().isEmpty() )
+        {
+            filterProperties.put( "app.author" , "Apache Software Foundation" );
+        }
+        else
+        {
+            filterProperties.put( "app.author" , target.getApplication().getAuthors().get( 0 ) );
+        }
+        
+        filterProperties.put( "app.email" , target.getApplication().getEmail() );
+        filterProperties.put( "app.url" , target.getApplication().getUrl() );
+        filterProperties.put( "app.java.version" , target.getApplication().getMinimumJavaVersion() );
         
         // izpack compiler will barf if these files are not present
         // files which are user specified also from mojo

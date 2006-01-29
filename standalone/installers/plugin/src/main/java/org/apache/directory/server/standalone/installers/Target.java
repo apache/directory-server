@@ -61,7 +61,7 @@ public class Target
     private String daemonFramework;
     
     // optional stuff
-    private String applicationAuthor;
+    private List applicationAuthors;
     private String applicationUrl;
     private String applicationJavaVersion;
     private String applicationEmail;
@@ -75,6 +75,22 @@ public class Target
     
     private InstallationLayout layout;
     private List libArtifacts;
+    
+    
+    private Application application;
+    
+    
+    public void setApplication( Application application )
+    {
+        this.application = application;
+    }
+    
+    
+    public Application getApplication()
+    {
+        return application;
+    }
+    
     
     public void setOsName( String osName )
     {
@@ -212,15 +228,15 @@ public class Target
     }
 
 
-    public void setApplicationAuthor(String author)
+    public void setApplicationAuthors(List authors)
     {
-        this.applicationAuthor = author;
+        this.applicationAuthors = authors;
     }
 
 
-    public String getApplicationAuthor()
+    public List getApplicationAuthors()
     {
-        return applicationAuthor;
+        return applicationAuthors;
     }
 
 

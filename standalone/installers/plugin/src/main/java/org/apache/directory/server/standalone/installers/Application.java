@@ -8,69 +8,21 @@ import java.util.List;
 
 public class Application
 {
-    /**
-     * @parameter 
-     * @required
-     */
     private String name;
-    
-    /** 
-     * @parameter
-     */
     private String description;
-
-    /** 
-     * @parameter
-     */
     private String company;
-
-    /** 
-     * @parameter
-     */
     private String email;
-
-    /**
-     * @parameter expression="${project.url}"
-     */
     private String url;
-    
-    /**
-     * @parameter expression="${project.version}"
-     */
     private String version;
-
-    /** 
-     * @parameter
-     */
     private String minimumJavaVersion;
-
-    /** 
-     * @parameter
-     */
     private String copyrightYear;
-
-    /** 
-     * @parameter
-     */
     private List authors;
-    
-    /**
-     * @parameter expression="src/main/installers/logo.ico"
-     */
     private File icon;
-
-    /**
-     * @parameter expression="README.txt"
-     */
     private File readme;
-    
-    /**
-     * @parameter expression="LICENSE.txt"
-     */
     private File license;
     
 
-    Application()
+    public Application()
     {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis( System.currentTimeMillis() );

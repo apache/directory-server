@@ -137,13 +137,12 @@ case "$1" in
     -home $JAVA_HOME \
     -Djava.io.tmpdir=$TMP_DIR \
     -Dlog4j.configuration=file://$SERVER_HOME/conf/log4j.properties\
-    -wait 10 \
     -pidfile $PID_FILE \
     -outfile $SERVER_HOME/var/log/${app}-stdout.log \
     -errfile $SERVER_HOME/var/log/${app}-stderr.log \
     -cp $CLASSPATH \
     org.apache.directory.server.standalone.daemon.JsvcBootstrapper \
-    $_${app.caps}_HOME
+    $_${app.caps}_HOME start
 
     if [ `uname` = "Darwin" ] ; then
         [ "$RETVAL" -eq 0 ] && echo successful ${app} server startup || \

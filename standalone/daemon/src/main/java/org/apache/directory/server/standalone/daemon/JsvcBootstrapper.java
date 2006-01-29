@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 public class JsvcBootstrapper extends Bootstrapper
 {
     private final static Logger log = LoggerFactory.getLogger( JsvcBootstrapper.class );
+    private boolean isListenerShuttingDown = false;
+    private boolean isDaemonShuttingDown = false;
+    private Thread thread;
 
     
     public void init( String[] args )
@@ -48,6 +51,7 @@ public class JsvcBootstrapper extends Bootstrapper
         setInstallationLayout( args[0] );
         setParentLoader( Thread.currentThread().getContextClassLoader() );
         callInit( shift( args, 1 ) );
+        thread = new Thread( new ShutdownListener(), "ShutdownListenerThread" );
     }
     
     
@@ -55,13 +59,28 @@ public class JsvcBootstrapper extends Bootstrapper
     {
         log.debug( "start() called" );
         callStart();
+        thread.start();
     }
 
 
     public void stop() throws Exception
     {
-        log.debug( "stop() called" );
-        callStop( EMPTY_STRARRAY );
+        log.debug( "stop() called using regular shutdown with signals" );
+        
+        // Bad construct here since there is no synchronization but there is
+        // no really good way to do this with the way threads are setup.  So
+        // both the listener thread and the daemon thread may try to shutdown
+        // the server.  It's possible that both will try at the same time in
+        // which case there may be issues.  However the chances of this are 
+        // very small.  For all practical purposes this will work just fine.
+        // And so what if they try to shutdown at the same time.  One thread
+        // will just get an exception due to a DeadContext.
+        
+        if ( ! isListenerShuttingDown )
+        {
+            isDaemonShuttingDown = true;
+            callStop( EMPTY_STRARRAY );
+        }
     }
 
 
@@ -69,5 +88,25 @@ public class JsvcBootstrapper extends Bootstrapper
     {
         log.debug( "destroy() called" );
         callDestroy();
+    }
+    
+    
+    class ShutdownListener implements Runnable
+    {
+        public void run()
+        {
+            waitForShutdown();
+            log.debug( "ShutdownListener came out of waitForShutdown" );
+            if ( ! isDaemonShuttingDown )
+            {
+                isListenerShuttingDown = true;
+                log.debug( "ShutdownListener will invoke callStop(String[])." );
+                callStop( EMPTY_STRARRAY );
+                log.debug( "ShutdownListener will invoke callDestroy()." );
+                callDestroy();
+                log.debug( "ShutdownListener will exit the system." );
+                System.exit( 0 );
+            }
+        }
     }
 }

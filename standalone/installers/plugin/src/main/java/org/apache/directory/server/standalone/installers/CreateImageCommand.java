@@ -52,18 +52,18 @@ public class CreateImageCommand implements MojoCommand
     private void initializeFiltering() 
     {
         filterProperties.putAll( mymojo.getProject().getProperties() );
-        filterProperties.put( "app" , mymojo.getApplicationName() );
-        filterProperties.put( "app.caps" , mymojo.getApplicationName().toUpperCase() );
+        filterProperties.put( "app" , target.getApplication().getName() );
+        filterProperties.put( "app.caps" , target.getApplication().getName().toUpperCase() );
         filterProperties.put( "app.server.class", mymojo.getApplicationClass() );
 
-        if ( mymojo.getApplicationVersion() != null )
+        if ( target.getApplication().getVersion() != null )
         {
-            filterProperties.put( "app.version", mymojo.getApplicationVersion() );
+            filterProperties.put( "app.version", target.getApplication().getVersion() );
         }
         
-        if ( mymojo.getApplicationDescription() != null )
+        if ( target.getApplication().getDescription() != null )
         {
-            filterProperties.put( "app.init.message", mymojo.getApplicationDescription() );
+            filterProperties.put( "app.init.message", target.getApplication().getDescription() );
         }
     }
 
@@ -78,31 +78,31 @@ public class CreateImageCommand implements MojoCommand
 
 
         // copy over the read me file if present otherwise use the bundled copy
-        if ( mymojo.getReadmeFile().exists() )
+        if ( target.getApplication().getReadme() != null && target.getApplication().getReadme().exists() )
         {
-            File readmeTarget = layout.getReadmeFile( mymojo.getReadmeFile().getName() );
+            File readmeTarget = layout.getReadmeFile( target.getApplication().getReadme().getName() );
             try
             {
-                FileUtils.copyFile( mymojo.getReadmeFile(), readmeTarget );
+                FileUtils.copyFile( target.getApplication().getReadme(), readmeTarget );
             }
             catch ( IOException e )
             {
-                throw new MojoFailureException( "Failed to copy read me file " + mymojo.getReadmeFile()
+                throw new MojoFailureException( "Failed to copy read me file " + target.getApplication().getReadme()
                     + " into position " + readmeTarget );
             }
         }
         
         // copy over the license file if present otherwise use the bundled copy
-        File licenseTarget = layout.getLicenseFile( mymojo.getLicenseFile().getName() );
-        if ( mymojo.getLicenseFile().exists() )
+        File licenseTarget = layout.getLicenseFile( target.getApplication().getLicense().getName() );
+        if ( target.getApplication().getLicense().exists() )
         {
             try
             {
-                FileUtils.copyFile( mymojo.getLicenseFile(), licenseTarget );
+                FileUtils.copyFile( target.getApplication().getLicense(), licenseTarget );
             }
             catch ( IOException e )
             {
-                throw new MojoFailureException( "Failed to copy license file " + mymojo.getLicenseFile()
+                throw new MojoFailureException( "Failed to copy license file " + target.getApplication().getLicense()
                     + " into position " + licenseTarget );
             }
         }
@@ -122,16 +122,16 @@ public class CreateImageCommand implements MojoCommand
         }
         
         // copy over the icon if present otherwise use the bundled copy
-        File iconTarget = layout.getLogoIconFile( mymojo.getApplicationIcon().getName() );
-        if ( mymojo.getApplicationIcon().exists() )
+        File iconTarget = layout.getLogoIconFile( target.getApplication().getIcon().getName() );
+        if ( target.getApplication().getIcon().exists() )
         {
             try
             {
-                FileUtils.copyFile( mymojo.getApplicationIcon(), iconTarget );
+                FileUtils.copyFile( target.getApplication().getIcon(), iconTarget );
             }
             catch ( IOException e )
             {
-                throw new MojoFailureException( "Failed to copy icon file " + mymojo.getApplicationIcon()
+                throw new MojoFailureException( "Failed to copy icon file " + target.getApplication().getIcon()
                     + " into position " + iconTarget );
             }
         }
@@ -233,7 +233,7 @@ public class CreateImageCommand implements MojoCommand
         if ( target.getOsName().equals( "linux" ) && 
              target.getOsArch().equals( "i386" ) )
         {
-            File executable = new File ( layout.getBinDirectory(), mymojo.getApplicationName() );
+            File executable = new File ( layout.getBinDirectory(), target.getApplication().getName() );
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_linux_i386" ), executable );
@@ -250,7 +250,7 @@ public class CreateImageCommand implements MojoCommand
         if ( target.getOsName().equals( "sunos" ) && 
              target.getOsArch().equals( "sparc" ) )
         {
-            File executable = new File ( layout.getBinDirectory(), mymojo.getApplicationName() );
+            File executable = new File ( layout.getBinDirectory(), target.getApplication().getName() );
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_solaris_sparc" ), executable );
@@ -266,7 +266,7 @@ public class CreateImageCommand implements MojoCommand
         // now copy over the jsvc executable renaming it to the mymojo.getApplicationName() 
         if ( target.getOsName().equals( "macosx" ) && target.getOsArch().equals( "ppc" ) )
         {
-            File executable = new File ( layout.getBinDirectory(), mymojo.getApplicationName() );
+            File executable = new File ( layout.getBinDirectory(), target.getApplication().getName() );
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "jsvc_macosx_ppc" ), executable );
@@ -282,7 +282,7 @@ public class CreateImageCommand implements MojoCommand
         // now copy over the Prunsrv and Prunmgr executables renaming them to the mymojo.getApplicationName() + w for mgr
         if ( target.getOsFamily().equals( "windows" ) &&  target.getOsArch().equals( "x86" ) )
         {
-            File executable = new File ( layout.getBinDirectory(), mymojo.getApplicationName() + ".exe" );
+            File executable = new File ( layout.getBinDirectory(), target.getApplication().getName() + ".exe" );
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "prunsrv.exe" ), executable );
@@ -294,7 +294,7 @@ public class CreateImageCommand implements MojoCommand
                     + " into position " + executable.getAbsolutePath() );
             }
 
-            executable = new File ( layout.getBinDirectory(), mymojo.getApplicationName() + "w.exe" );
+            executable = new File ( layout.getBinDirectory(), target.getApplication().getName() + "w.exe" );
             try
             {
                 MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "prunmgr.exe" ), executable );

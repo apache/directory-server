@@ -27,11 +27,15 @@ import org.apache.directory.server.standalone.installers.inno.InnoInstallerComma
 import org.apache.directory.server.standalone.installers.inno.InnoTarget;
 import org.apache.directory.server.standalone.installers.izpack.IzPackInstallerCommand;
 import org.apache.directory.server.standalone.installers.izpack.IzPackTarget;
+
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Developer;
+import org.apache.maven.model.MailingList;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.apache.tools.ant.util.JavaEnvUtils;
 
 
 /**
@@ -103,48 +107,13 @@ public class ServiceInstallersMojo extends AbstractMojo
      * @parameter 
      * @required
      */
-    private String applicationName;
+    private Application application;
     
     /**
      * @parameter 
      * @required
      */
     private String applicationClass;
-
-    /**
-     * @parameter expression="${project.version}"
-     */
-    private String applicationVersion;
-
-    /**
-     * @parameter expression="${project.description}"
-     */
-    private String applicationDescription;
-    
-    /**
-     * @parameter 
-     */
-    private String applicationEmail = "general@apache.org";
-
-    /**
-     * @parameter expression="1.4"
-     */
-    private String applicationJavaVersion;
-
-    /**
-     * @parameter 
-     */
-    private String applicationAuthor = "Apache Software Foundation";
-
-    /**
-     * @parameter expression="${project.url}"
-     */
-    private String applicationUrl = "http://www.apache.org";
-
-    /**
-     * @parameter expression="src/main/installers/logo.ico"
-     */
-    private File applicationIcon;
 
     /**
      * @parameter
@@ -155,16 +124,6 @@ public class ServiceInstallersMojo extends AbstractMojo
      * @parameter
      */
     private Set excludes;
-
-    /**
-     * @parameter expression="LICENSE.txt"
-     */
-    private File licenseFile;
-
-    /**
-     * @parameter expression="README.txt"
-     */
-    private File readmeFile;
 
     /** daemon bootstrapper */
     private Artifact bootstrapper;
@@ -250,16 +209,126 @@ public class ServiceInstallersMojo extends AbstractMojo
     }
     
     
-    private void setDefaults()
+    private void setDefaults() throws MojoFailureException
     {
         if ( allTargets == null )
         {
             return;
         }
+
+        if ( application.getName() == null )
+        {
+            throw new MojoFailureException( "Installed application name cannot be null." );
+        }
+        
+        if ( application.getCompany() == null )
+        {
+            if ( project.getOrganization() != null )
+            {
+                application.setCompany( project.getOrganization().getName() );
+            }
+            else
+            {
+                application.setCompany( "Apache Software Foundation" );
+            }
+        }
+        
+        if ( application.getDescription() == null )
+        {
+            if ( project.getDescription() != null )
+            {
+                application.setDescription( project.getDescription() );
+            }
+            else
+            {
+                application.setDescription( "No description of this application is available." );
+            }
+        }
+        
+        if ( project.getInceptionYear() != null )
+        {
+            application.setCopyrightYear( project.getInceptionYear() );
+        }
+        
+        if ( application.getUrl() == null )
+        {
+            if ( project.getUrl() != null )
+            {
+                application.setUrl( project.getUrl() );
+            }
+            else if ( project.getOrganization() != null )
+            {
+                application.setUrl( project.getOrganization().getUrl() );
+            }
+            else
+            {
+                application.setUrl( "http://www.apache.org" );
+            }
+        }
+        
+        if ( application.getVersion() == null )
+        {
+            application.setVersion( project.getVersion() );
+        }
+        
+        if ( application.getMinimumJavaVersion() == null )
+        {
+            application.setMinimumJavaVersion( JavaEnvUtils.getJavaVersion() );
+        }
+        
+        if ( application.getAuthors() == null )
+        {
+            List authors = new ArrayList();
+            List developers = project.getDevelopers();
+            for ( int ii = 0; ii < developers.size(); ii++ )
+            {
+                Developer developer = ( Developer ) developers.get( ii );
+                if ( developer.getEmail() != null )
+                {
+                    authors.add( developer.getEmail() );
+                }
+                else 
+                {
+                    authors.add( developer.getName() );
+                }
+            }
+            
+            application.setAuthors( authors );
+        }
+        
+        if ( application.getEmail() == null )
+        {
+            if ( ! project.getMailingLists().isEmpty() )
+            {
+                application.setEmail( ( ( MailingList ) project.getMailingLists().get( 0 ) ).getPost() );
+            }
+            
+            application.setEmail( "general@apache.org" );
+        }
+        
+        if ( application.getIcon() == null )
+        {
+            application.setIcon( new File( "src/main/installers/logo.ico" ) );
+        }
+        
+        if ( application.getReadme() == null )
+        {
+            application.setReadme( new File( "README.txt" ) );
+        }
+        
+        if ( application.getLicense() == null )
+        {
+            application.setLicense( new File( "LICENSE.txt" ) );
+        }
         
         for ( int ii = 0; ii < allTargets.size(); ii++ )
         {
             Target target = ( Target ) allTargets.get( ii );
+            
+            if ( target.getApplication() == null)
+            {
+                target.setApplication( this.application );
+            }
 
             if ( target.getLoggerConfigurationFile() == null )
             {
@@ -277,21 +346,21 @@ public class ServiceInstallersMojo extends AbstractMojo
             {
                 target.setOsVersion( "*" );
             }
-            if ( target.getApplicationAuthor() == null )
+            if ( target.getApplicationAuthors() == null )
             {
-                target.setApplicationAuthor( applicationAuthor );
+                target.setApplicationAuthors( application.getAuthors() );
             }
             if ( target.getApplicationEmail() == null )
             {
-                target.setApplicationEmail( applicationEmail );
+                target.setApplicationEmail( application.getEmail() );
             }
             if ( target.getApplicationJavaVersion() == null )
             {
-                target.setApplicationJavaVersion( applicationJavaVersion );
+                target.setApplicationJavaVersion( application.getMinimumJavaVersion() );
             }
             if ( target.getApplicationUrl() == null )
             {
-                target.setApplicationUrl( applicationUrl );
+                target.setApplicationUrl( application.getUrl() );
             }
         }
     }
@@ -343,7 +412,7 @@ public class ServiceInstallersMojo extends AbstractMojo
     {
         getLog().info( "===================================================================" );
         getLog().info( "[installers:create]" );
-        getLog().info( "applicationName = " + applicationName );
+        getLog().info( "applicationName = " + application.getName() );
         getLog().info( "sourceDirectory = " + sourceDirectory );
         getLog().info( "outputDirectory = " + outputDirectory );
         getLog().info( "----------------------------- allTargets -----------------------------" );
@@ -398,13 +467,6 @@ public class ServiceInstallersMojo extends AbstractMojo
         return logger;
     }
 
-
-    public String getApplicationName()
-    {
-        return applicationName;
-    }
-
-
     public String getEncoding()
     {
         return this.encoding;
@@ -423,42 +485,12 @@ public class ServiceInstallersMojo extends AbstractMojo
     }
 
 
-    public String getApplicationVersion()
-    {
-        return this.applicationVersion;
-    }
-
-
     public String getApplicationClass()
     {
         return this.applicationClass;
     }
 
 
-    public String getApplicationDescription()
-    {
-        return this.applicationDescription;
-    }
-    
-    
-    public File getApplicationIcon()
-    {
-        return this.applicationIcon;
-    }
-    
-    
-    public File getReadmeFile()
-    {
-        return this.readmeFile;
-    }
-    
-    
-    public File getLicenseFile()
-    {
-        return this.licenseFile;
-    }
-    
-    
     public File getSourceDirectory()
     {
         return this.sourceDirectory;
