@@ -713,6 +713,10 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     public void removeNamingListener( EventContext ctx, NamingListener namingListener ) throws NamingException
     {
         InterceptorChain chain = this.configuration.getInterceptorChain();
+        if ( chain == null )
+        {
+            return;
+        }
         EventService interceptor = ( EventService ) chain.get( "eventService" );
         interceptor.removeNamingListener( ctx, namingListener );
     }

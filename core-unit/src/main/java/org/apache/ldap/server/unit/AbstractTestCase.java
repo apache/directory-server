@@ -208,6 +208,7 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         configuration.setTestEntries( testEntries );
+        configuration.setShutdownHookEnabled( false );
         doDelete( configuration.getWorkingDirectory() );
         setSysRoot( username, password, configuration );
     }
