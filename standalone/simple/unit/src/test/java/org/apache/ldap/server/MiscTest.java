@@ -120,14 +120,26 @@ public class MiscTest extends AbstractServerTest
     public void testDisableAnonymousBinds() throws Exception
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
-
+        InitialDirContext ic = null;
         final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
-        InitialDirContext ic = new InitialDirContext( env );
+        boolean connected = false;
+        while( ! connected )
+        {
+            try
+            {
+                ic = new InitialDirContext( env );
+                connected = true;
+            }
+            catch( Exception e )
+            {
+            }
+        }
+        
         try
         {
             ic.search( "", "(objectClass=*)", new SearchControls() );

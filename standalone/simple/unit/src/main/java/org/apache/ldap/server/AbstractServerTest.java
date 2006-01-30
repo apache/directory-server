@@ -76,6 +76,7 @@ public abstract class AbstractServerTest extends TestCase
         doDelete( configuration.getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
         configuration.setLdapPort( port );
+        configuration.setShutdownHookEnabled( false );
 
         setSysRoot( "uid=admin,ou=system", "secret" );
     }
