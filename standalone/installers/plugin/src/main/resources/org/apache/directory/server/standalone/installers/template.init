@@ -7,8 +7,8 @@
 # If you want to change ${app} service settings please modify the server.xml
 # file.
 
-DISPLAY=localhost:1.0
-export DISPLAY
+# DISPLAY=:0.0
+# export DISPLAY
 
 # Source function library.
 if [ -f /etc/init.d/functions ] ; then
