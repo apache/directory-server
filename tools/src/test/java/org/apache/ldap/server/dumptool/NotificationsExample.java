@@ -99,6 +99,8 @@ public class NotificationsExample implements UnsolicitedNotificationListener
         else 
         {
             System.out.println( "Unknown event recieved with OID: " + evt.getNotification().getID() );
+            System.out.println( "Process shutting down." );
+            System.exit( 1 );
         }
     }
 
