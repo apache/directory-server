@@ -112,12 +112,14 @@ public class GracefulDisconnectTest extends TestCase {
     public void testDecodeGracefulDisconnectTimeOffline() throws NamingException
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
             {
                 0x30, 0x03,                 // GracefulDisconnect ::= SEQUENCE {
                   0x02, 0x01, 0x01          //     timeOffline INTEGER (0..720) DEFAULT 0,
             } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
@@ -136,6 +138,24 @@ public class GracefulDisconnectTest extends TestCase {
         assertEquals( 1, gracefulDisconnect.getTimeOffline() );
         assertEquals( 0, gracefulDisconnect.getDelay() );
         assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
+
+        // Check the length
+        assertEquals( 0x05, gracefulDisconnect.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulDisconnect.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
     }
 
     /**
@@ -144,12 +164,14 @@ public class GracefulDisconnectTest extends TestCase {
     public void testDecodeGracefulDisconnectDelay() throws NamingException
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
             {
                 0x30, 0x03,                 // GracefulDisconnect ::= SEQUENCE {
                   (byte)0x80, 0x01, 0x01          //     delay INTEGER (0..86400) DEFAULT 0
             } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
@@ -168,6 +190,24 @@ public class GracefulDisconnectTest extends TestCase {
         assertEquals( 0, gracefulDisconnect.getTimeOffline() );
         assertEquals( 1, gracefulDisconnect.getDelay() );
         assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
+        
+        // Check the length
+        assertEquals( 0x05, gracefulDisconnect.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulDisconnect.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
     }
 
     /**
@@ -251,6 +291,7 @@ public class GracefulDisconnectTest extends TestCase {
                       '0', '4', ')'
                                             // }
             } );
+        
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
@@ -298,11 +339,13 @@ public class GracefulDisconnectTest extends TestCase {
     public void testDecodeGracefulDisconnectEmpty() throws NamingException
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x02 );
         bb.put( new byte[]
             {
                 0x30, 0x00                 // GracefulDisconnect ::= SEQUENCE {
             } );
+        
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
@@ -321,6 +364,24 @@ public class GracefulDisconnectTest extends TestCase {
         assertEquals( 0, gracefulDisconnect.getTimeOffline() );
         assertEquals( 0, gracefulDisconnect.getDelay() );
         assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
+
+        // Check the length
+        assertEquals( 0x02, gracefulDisconnect.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulDisconnect.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
     }
     
     // Defensive tests

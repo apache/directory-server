@@ -21,8 +21,10 @@ import java.nio.ByteBuffer;
 import javax.naming.NamingException;
 
 import org.apache.asn1.codec.DecoderException;
+import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.ldap.common.codec.LdapDecoder;
+import org.apache.ldap.common.util.StringTools;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -39,7 +41,7 @@ public class GracefulShutdownTest extends TestCase {
     public void testDecodeGracefulShutdownSuccess() throws NamingException
     {
         Asn1Decoder decoder = new LdapDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x08 );
         bb.put( new byte[]
             {
                 0x30, 0x06, 		        // GracefulShutdown ::= SEQUENCE {
@@ -47,6 +49,8 @@ public class GracefulShutdownTest extends TestCase {
 				  (byte)0x80, 0x01, 0x01	//     delay INTEGER (0..86400) DEFAULT 0
                                             // }
             } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulShutdownContainer container = new GracefulShutdownContainer();
@@ -64,6 +68,24 @@ public class GracefulShutdownTest extends TestCase {
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
         assertEquals( 1, gracefulShutdown.getTimeOffline() );
         assertEquals( 1, gracefulShutdown.getDelay() );
+
+        // Check the length
+        assertEquals( 0x08, gracefulShutdown.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulShutdown.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
     }
 
     /**
@@ -72,12 +94,14 @@ public class GracefulShutdownTest extends TestCase {
     public void testDecodeGracefulShutdownTimeOffline() throws NamingException
     {
         Asn1Decoder decoder = new LdapDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
             {
                 0x30, 0x03,                 // GracefulShutdown ::= SEQUENCE {
                   0x02, 0x01, 0x01          //     timeOffline INTEGER (0..720) DEFAULT 0,
             } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulShutdownContainer container = new GracefulShutdownContainer();
@@ -95,6 +119,24 @@ public class GracefulShutdownTest extends TestCase {
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
         assertEquals( 1, gracefulShutdown.getTimeOffline() );
         assertEquals( 0, gracefulShutdown.getDelay() );
+
+        // Check the length
+        assertEquals( 0x05, gracefulShutdown.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulShutdown.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
     }
 
     /**
@@ -103,12 +145,14 @@ public class GracefulShutdownTest extends TestCase {
     public void testDecodeGracefulShutdownDelay() throws NamingException
     {
         Asn1Decoder decoder = new LdapDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
             {
                 0x30, 0x03,                 // GracefulShutdown ::= SEQUENCE {
                   (byte)0x80, 0x01, 0x01          //     delay INTEGER (0..86400) DEFAULT 0
             } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulShutdownContainer container = new GracefulShutdownContainer();
@@ -126,6 +170,24 @@ public class GracefulShutdownTest extends TestCase {
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
         assertEquals( 0, gracefulShutdown.getTimeOffline() );
         assertEquals( 1, gracefulShutdown.getDelay() );
+
+        // Check the length
+        assertEquals( 0x05, gracefulShutdown.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulShutdown.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
     }
 
     /**
@@ -134,11 +196,13 @@ public class GracefulShutdownTest extends TestCase {
     public void testDecodeGracefulShutdownEmpty() throws NamingException
     {
         Asn1Decoder decoder = new LdapDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x02 );
         bb.put( new byte[]
             {
                 0x30, 0x00                 // GracefulShutdown ::= SEQUENCE {
             } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulShutdownContainer container = new GracefulShutdownContainer();
@@ -156,8 +220,179 @@ public class GracefulShutdownTest extends TestCase {
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
         assertEquals( 0, gracefulShutdown.getTimeOffline() );
         assertEquals( 0, gracefulShutdown.getDelay() );
+
+        // Check the length
+        assertEquals( 0x02, gracefulShutdown.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulShutdown.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
     }
     
+    /**
+     * Test the decoding of a GracefulShutdown with a delay above 128
+     */
+    public void testDecodeGracefulShutdownDelayHigh() throws NamingException
+    {
+        Asn1Decoder decoder = new LdapDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x06 );
+        bb.put( new byte[]
+            {
+                0x30, 0x04,                     // GracefulShutdown ::= SEQUENCE {
+                  (byte)0x80, 0x02, 0x01, (byte)0xF4 //     delay INTEGER (0..86400) DEFAULT 0
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
+        bb.flip();
+
+        GracefulShutdownContainer container = new GracefulShutdownContainer();
+        
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            Assert.fail( de.getMessage() );
+        }
+        
+        GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
+        assertEquals( 0, gracefulShutdown.getTimeOffline() );
+        assertEquals( 500, gracefulShutdown.getDelay() );
+
+        // Check the length
+        assertEquals( 0x06, gracefulShutdown.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulShutdown.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a GracefulShutdown with a delay equals 32767
+     */
+    public void testDecodeGracefulShutdownDelay32767() throws NamingException
+    {
+        Asn1Decoder decoder = new LdapDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x06 );
+        bb.put( new byte[]
+            {
+                0x30, 0x04,                     // GracefulShutdown ::= SEQUENCE {
+                  (byte)0x80, 0x02, 0x7F, (byte)0xFF //     delay INTEGER (0..86400) DEFAULT 0
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
+        bb.flip();
+
+        GracefulShutdownContainer container = new GracefulShutdownContainer();
+        
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            Assert.fail( de.getMessage() );
+        }
+        
+        GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
+        assertEquals( 0, gracefulShutdown.getTimeOffline() );
+        assertEquals( 32767, gracefulShutdown.getDelay() );
+
+        // Check the length
+        assertEquals( 0x06, gracefulShutdown.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulShutdown.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
+     * Test the decoding of a GracefulShutdown with a delay above 32768
+     */
+    public void testDecodeGracefulShutdownDelay32768() throws NamingException
+    {
+        Asn1Decoder decoder = new LdapDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x07 );
+        bb.put( new byte[]
+            {
+                0x30, 0x05,                     // GracefulShutdown ::= SEQUENCE {
+                  (byte)0x80, 0x03, 0x00, (byte)0x80, (byte)0x00 //     delay INTEGER (0..86400) DEFAULT 0
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
+        bb.flip();
+
+        GracefulShutdownContainer container = new GracefulShutdownContainer();
+        
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            Assert.fail( de.getMessage() );
+        }
+        
+        GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
+        assertEquals( 0, gracefulShutdown.getTimeOffline() );
+        assertEquals( 32768, gracefulShutdown.getDelay() );
+
+        // Check the length
+        assertEquals( 0x07, gracefulShutdown.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb1 = gracefulShutdown.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
+            
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
     // Defensive tests
 
     /**
@@ -166,7 +401,7 @@ public class GracefulShutdownTest extends TestCase {
     public void testDecodeGracefulShutdownTimeOfflineOffLimit() throws NamingException
     {
         Asn1Decoder decoder = new LdapDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 0x0b );
+        ByteBuffer bb = ByteBuffer.allocate( 0x06 );
         bb.put( new byte[]
             {
                 0x30, 0x04,                     // GracefulShutdown ::= SEQUENCE {
