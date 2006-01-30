@@ -18,10 +18,10 @@ import javax.swing.JMenuItem;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 import org.apache.ldap.server.protocol.SessionRegistry;
 import org.apache.mina.common.IoSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -405,7 +405,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed(java.awt.event.ActionEvent e)
                 {
-                    selected.write( new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE ) ); 
+                    selected.write( NoticeOfDisconnect.UNAVAILABLE ); 
                     try
                     {
                         Thread.sleep( 250 );
@@ -437,7 +437,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed(java.awt.event.ActionEvent e)
                 {
-                    selected.write( new NoticeOfDisconnect( ResultCodeEnum.PROTOCOLERROR ) ); 
+                    selected.write( NoticeOfDisconnect.PROTOCOLERROR ); 
                     try
                     {
                         Thread.sleep( 250 );
@@ -469,7 +469,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed(java.awt.event.ActionEvent e)
                 {
-                    selected.write( new NoticeOfDisconnect( ResultCodeEnum.STRONGAUTHREQUIRED ) ); 
+                    selected.write( NoticeOfDisconnect.STRONGAUTHREQUIRED ); 
                     try
                     {
                         Thread.sleep( 250 );

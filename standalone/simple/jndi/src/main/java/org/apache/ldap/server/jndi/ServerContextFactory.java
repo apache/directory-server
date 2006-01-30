@@ -42,12 +42,12 @@ import org.apache.kerberos.store.JndiPrincipalStoreImpl;
 import org.apache.kerberos.store.PrincipalStore;
 import org.apache.ldap.common.exception.LdapConfigurationException;
 import org.apache.ldap.common.exception.LdapNamingException;
-import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
+import org.apache.ldap.server.protocol.support.extended.GracefulShutdownHandler;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
@@ -406,6 +406,13 @@ public class ServerContextFactory extends CoreContextFactory
             ExtendedOperationHandler h = ( ExtendedOperationHandler ) i.next();
             protocolProvider.addExtendedOperationHandler( h );
             log.info( "Added Extended Request Handler: " + h.getOid() );
+            
+            if ( h instanceof GracefulShutdownHandler )
+            {
+                GracefulShutdownHandler gsh = ( GracefulShutdownHandler ) h;
+                gsh.setLdapService( service );
+                gsh.setServiceRegistry( minaRegistry );
+            }
         }
         
         try
@@ -484,12 +491,20 @@ public class ServerContextFactory extends CoreContextFactory
     {
         if ( ldapService != null )
         {
-            IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
+            
             try
             {
-                NoticeOfDisconnect nod = new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE );
-                List sessions = new ArrayList( acceptor.getManagedSessions( service.getAddress() ) );
+                // We should unbind the service before we begin sending the notice 
+                // of disconnect so new connections are not formed while we process
                 List writeFutures = new ArrayList();
+                IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
+                List sessions = new ArrayList( acceptor.getManagedSessions( service.getAddress() ) );
+                minaRegistry.unbind( service );
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Unbind of " + service.getName() + " Service complete: " + ldapService );
+                    log.info( "Sending notice of disconnect to existing clients sessions." );
+                }
                 
                 // Send Notification of Disconnection messages to all connected clients.
                 if( sessions != null )
@@ -497,7 +512,7 @@ public class ServerContextFactory extends CoreContextFactory
                     for( Iterator i = sessions.iterator(); i.hasNext(); )
                     {
                         IoSession session = ( IoSession ) i.next();
-                        writeFutures.add( session.write( nod ) );
+                        writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
                     }
                 }
 
@@ -513,13 +528,6 @@ public class ServerContextFactory extends CoreContextFactory
             catch( Exception e )
             {
                 log.warn( "Failed to sent NoD.", e );
-            }
-
-            minaRegistry.unbind( service );
-
-            if ( log.isInfoEnabled() )
-            {
-                log.info( "Unbind of " + service.getName() + " Service complete: " + ldapService );
             }
         }
 

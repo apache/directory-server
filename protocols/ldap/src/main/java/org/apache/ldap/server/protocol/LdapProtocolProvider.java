@@ -72,7 +72,6 @@ import org.apache.ldap.server.protocol.support.ModifyDnHandler;
 import org.apache.ldap.server.protocol.support.ModifyHandler;
 import org.apache.ldap.server.protocol.support.SearchHandler;
 import org.apache.ldap.server.protocol.support.UnbindHandler;
-import org.apache.ldap.server.protocol.support.extended.LaunchDiagnosticUiHandler;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
@@ -85,6 +84,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.util.SessionLog;
+
 
 /**
  * An LDAP protocol provider implementation which dynamically associates
@@ -224,7 +224,6 @@ public class LdapProtocolProvider
         }
 
         this.codecFactory = new ProtocolCodecFactoryImpl( copy );
-        addExtendedOperationHandler( new LaunchDiagnosticUiHandler() );
     }
 
     /**
@@ -437,7 +436,7 @@ public class LdapProtocolProvider
         {
             SessionLog.warn( session, 
                 "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
-            session.write( new NoticeOfDisconnect( ResultCodeEnum.PROTOCOLERROR ) );
+            session.write( NoticeOfDisconnect.PROTOCOLERROR );
             SessionRegistry.getSingleton().remove( session );
             session.close();
         }

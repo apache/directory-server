@@ -71,9 +71,7 @@ public class ModifyRdnTest extends AbstractServerTest
         env.put("java.naming.security.principal", "uid=admin,ou=system" ); 
         env.put("java.naming.security.credentials", "secret" );
         env.put("java.naming.security.authentication", "simple");
-
         ctx = new InitialLdapContext(env, null);
-
         assertNotNull(ctx);
     }
 

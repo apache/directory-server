@@ -81,6 +81,13 @@
       </set>
     </property>
     
+    <property name="extendedOperationHandlers">
+      <list>
+        <bean class="org.apache.ldap.server.protocol.support.extended.GracefulShutdownHandler"/>
+        <bean class="org.apache.ldap.server.protocol.support.extended.LaunchDiagnosticUiHandler"/>
+      </list>
+    </property>
+    
     <property name="interceptorConfigurations">
       <list>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">

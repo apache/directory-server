@@ -113,4 +113,10 @@ public class MutableStartupConfiguration extends StartupConfiguration
     {
         super.setShutdownHookEnabled( shutdownHookEnabled );
     }
+
+
+    public void setExitVmOnShutdown( boolean exitVmOnShutdown )
+    {
+        super.setExitVmOnShutdown( exitVmOnShutdown );
+    }
 }

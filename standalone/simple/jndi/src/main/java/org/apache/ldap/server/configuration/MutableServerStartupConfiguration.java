@@ -145,4 +145,9 @@ public class MutableServerStartupConfiguration extends
     {
         super.setShutdownHookEnabled( shutdownHookEnabled );
     }
+
+    public void setExitVmOnShutdown( boolean exitVmOnShutdown )
+    {
+        super.setExitVmOnShutdown( exitVmOnShutdown );
+    }
 }
