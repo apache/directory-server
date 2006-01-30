@@ -114,12 +114,12 @@ public class GracefulDisconnect extends GracefulAction
         
         if ( timeOffline != 0 )
         {
-            gracefulDisconnectSequenceLength += 1 + 1 + Length.getNbBytes( timeOffline );
+            gracefulDisconnectSequenceLength += 1 + 1 + Value.getNbBytes( timeOffline );
         }
 
         if ( delay != 0 )
         {
-            gracefulDisconnectSequenceLength += 1 + 1 + Length.getNbBytes( delay );
+            gracefulDisconnectSequenceLength += 1 + 1 + Value.getNbBytes( delay );
         }
 
         if ( replicatedContexts.size() > 0 )
