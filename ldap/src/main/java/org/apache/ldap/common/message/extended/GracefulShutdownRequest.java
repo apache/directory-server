@@ -43,7 +43,7 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
 {
     private static final Logger log = LoggerFactory.getLogger( GracefulShutdownRequest.class );
     private static final long serialVersionUID = -4682291068700593492L;
-    public static final String OID = "1.2.6.1.4.1.18060.1.1.1.100.3";
+    public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.3";
 
     /** Undetermined value used for timeOffline */
     public static final int UNDETERMINED = 0;
@@ -67,7 +67,7 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
     public GracefulShutdownRequest( int messageId, int timeOffline, int delay )
     {
         super( messageId );
-        setOid( OID );
+        setOid( EXTENSION_OID );
         this.timeOffline = timeOffline;
         this.delay = delay;
     }

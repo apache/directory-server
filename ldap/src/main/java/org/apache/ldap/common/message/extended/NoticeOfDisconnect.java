@@ -102,8 +102,12 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
     public static final String OID = "1.3.6.1.4.1.1466.20036";
     private static final byte[] EMPTY_RESPONSE = new byte[0];
     
+    public static NoticeOfDisconnect UNAVAILABLE = new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE );
+    public static NoticeOfDisconnect PROTOCOLERROR = new NoticeOfDisconnect( ResultCodeEnum.PROTOCOLERROR );
+    public static NoticeOfDisconnect STRONGAUTHREQUIRED = new NoticeOfDisconnect( ResultCodeEnum.STRONGAUTHREQUIRED );
     
-    public NoticeOfDisconnect( ResultCodeEnum rcode )
+    
+    private NoticeOfDisconnect( ResultCodeEnum rcode )
     {
         super( 0 );
         
