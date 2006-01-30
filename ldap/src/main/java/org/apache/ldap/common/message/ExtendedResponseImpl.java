@@ -31,7 +31,7 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
 {
     static final long serialVersionUID = -6646752766410531060L;
     /** Object identifier for the extended response */
-    private String oid ;
+    protected String oid ;
     /** Values encoded in the extended response payload */
     protected byte [] value ;
 

@@ -74,6 +74,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     public GracefulDisconnect( int timeOffline, int delay )
     {
         super( 0 );
+        super.oid = OID;
         this.timeOffline = timeOffline;
         this.delay = delay;
         
@@ -84,6 +85,8 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         super.getLdapResult().setErrorMessage( buf.toString() );
         super.getLdapResult().setMatchedDn( "" );
         super.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE );
+        
+        encodeResponse();
     }
     
     
