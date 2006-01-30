@@ -19,10 +19,12 @@ package org.apache.ldap.common.codec;
 import junit.framework.TestCase;
 
 import org.apache.asn1.codec.DecoderException;
+import org.apache.asn1.codec.EncoderException;
 import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.ber.IAsn1Container;
 import org.apache.ldap.common.codec.LdapDecoder;
 import org.apache.ldap.common.codec.LdapMessageContainer;
+import org.apache.ldap.common.util.StringTools;
 
 import java.nio.ByteBuffer;
 
@@ -259,4 +261,61 @@ public class LdapMessageTest extends TestCase
 
         assertTrue( true );
     }
+    
+    /**
+     * Test the decoding of a LdapMessage with a large MessageId
+     */
+    public void testDecodeUnBindRequestNoControls()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer  stream      = ByteBuffer.allocate( 0x08 );
+        stream.put(
+            new byte[]
+            {
+                0x30, 0x06,                     // LDAPMessage ::=SEQUENCE {
+                0x02, 0x02, 0x01, (byte)0xF4,   //         messageID MessageID (500)
+                0x42, 0x00,                     //        CHOICE { ..., unbindRequest UnbindRequest,...
+                                                // UnbindRequest ::= [APPLICATION 2] NULL
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+
+        assertEquals( 500, message.getMessageId() );
+        
+        // Check the length
+        assertEquals(8, message.computeLength());
+
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    
 }
