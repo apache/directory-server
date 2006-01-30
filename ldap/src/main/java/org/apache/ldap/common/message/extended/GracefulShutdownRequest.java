@@ -20,8 +20,10 @@ package org.apache.ldap.common.message.extended;
 import javax.naming.NamingException;
 import javax.naming.ldap.ExtendedResponse;
 
+import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.ldap.common.codec.extended.operations.GracefulShutdown;
+import org.apache.ldap.common.codec.extended.operations.GracefulShutdownDecoder;
 import org.apache.ldap.common.message.ExtendedRequestImpl;
 import org.apache.ldap.common.message.ResultResponse;
 
@@ -71,8 +73,8 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
         this.timeOffline = timeOffline;
         this.delay = delay;
     }
-    
-    
+
+
     private void encodePayload() throws EncoderException
     {
         GracefulShutdown gs = new GracefulShutdown();
@@ -81,7 +83,24 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
         payload = gs.encode( null ).array();
     }
 
-
+    
+    public void setPayload( byte[] payload )
+    {
+        GracefulShutdownDecoder decoder = new GracefulShutdownDecoder();
+        try
+        {
+            GracefulShutdown gs = ( GracefulShutdown ) decoder.decode( payload );
+            this.payload = payload;
+            this.timeOffline = gs.getTimeOffline();
+            this.delay = gs.getDelay();
+        }
+        catch ( DecoderException e )
+        {
+            log.error( "failed to decode payload" );
+        }
+    }
+    
+    
     public ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length)
         throws NamingException
     {
@@ -117,7 +136,8 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
     {
         if ( response == null )
         {
-            response = new GracefulShutdownResponse( getMessageId() );
+            GracefulShutdownResponse gsr = new GracefulShutdownResponse( getMessageId() );
+            response = gsr;
         }
         
         return response;

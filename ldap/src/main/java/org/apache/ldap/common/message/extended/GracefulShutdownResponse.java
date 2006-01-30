@@ -90,7 +90,7 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
      */
     public void setResponse( byte [] value )
     {
-        throw new UnsupportedOperationException( "the response is hardcoded as zero length array" );
+        // do nothing here instead
     }
 
 

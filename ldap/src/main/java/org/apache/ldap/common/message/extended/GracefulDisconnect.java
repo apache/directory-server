@@ -25,6 +25,7 @@ import org.apache.asn1.ber.Asn1Decoder;
 import org.apache.asn1.codec.DecoderException;
 import org.apache.asn1.codec.EncoderException;
 import org.apache.ldap.common.codec.extended.operations.GracefulDisconnectContainer;
+import org.apache.ldap.common.codec.extended.operations.GracefulDisconnectDecoder;
 import org.apache.ldap.common.codec.util.LdapURL;
 import org.apache.ldap.common.codec.util.LdapURLEncodingException;
 import org.apache.ldap.common.message.ExtendedResponseImpl;
@@ -62,6 +63,14 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     private Referral replicatedContexts = new ReferralImpl();
 
 
+    public GracefulDisconnect( byte[] value )
+    {
+        super( 0 );
+        this.value = value;
+        decodeValue();
+    }
+    
+    
     public GracefulDisconnect( int timeOffline, int delay )
     {
         super( 0 );
@@ -77,6 +86,28 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         super.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE );
     }
     
+    
+    private void decodeValue()
+    {
+        GracefulDisconnectDecoder decoder = new GracefulDisconnectDecoder();
+        org.apache.ldap.common.codec.extended.operations.GracefulDisconnect codec = null; 
+        try
+        {
+            codec = ( org.apache.ldap.common.codec.extended.operations.GracefulDisconnect ) decoder.decode( value );
+            this.timeOffline = codec.getTimeOffline();
+            this.delay = codec.getDelay();
+            super.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+            List contexts = codec.getReplicatedContexts();
+            for ( int ii = 0; ii < contexts.size(); ii++ )
+            {
+                replicatedContexts.addLdapUrl( contexts.get( ii ).toString() );
+            }
+        }
+        catch ( DecoderException e )
+        {
+            log.error( "Failed to decode response value", e );
+        }
+    }
     
     private void encodeResponse()
     {

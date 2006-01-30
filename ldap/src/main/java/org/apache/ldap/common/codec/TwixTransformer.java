@@ -104,6 +104,7 @@ import org.apache.ldap.common.message.SearchResponseDoneImpl;
 import org.apache.ldap.common.message.SearchResponseEntryImpl;
 import org.apache.ldap.common.message.SearchResponseReferenceImpl;
 import org.apache.ldap.common.message.UnbindRequestImpl;
+import org.apache.ldap.common.message.extended.GracefulShutdownRequest;
 import org.apache.ldap.common.message.spi.Provider;
 import org.apache.ldap.common.message.spi.TransformerSpi;
 import org.apache.ldap.common.name.LdapDN;
@@ -275,8 +276,17 @@ public class TwixTransformer implements TransformerSpi
      */
     private Message transformExtendedRequest(LdapMessage twixMessage, int messageId)
     {
-    	ExtendedRequestImpl snickersMessage = new ExtendedRequestImpl( messageId );
-    	ExtendedRequest extendedRequest = twixMessage.getExtendedRequest();
+        ExtendedRequest extendedRequest = twixMessage.getExtendedRequest();
+    	ExtendedRequestImpl snickersMessage = null;
+        
+        if ( extendedRequest.getRequestName().equals( GracefulShutdownRequest.EXTENSION_OID ) )
+        {
+            snickersMessage = new GracefulShutdownRequest( messageId );
+        }
+        else
+        {
+            snickersMessage = new ExtendedRequestImpl( messageId );
+        }
 
     	// Twix : OID requestName -> Snickers : String oid
     	snickersMessage.setOid( extendedRequest.getRequestName() );
