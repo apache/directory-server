@@ -369,6 +369,19 @@ public class SubstringFilterGrammar extends AbstractGrammar implements IGrammar
         // SubstringFilter ::= SEQUENCE {
         //     ...
         //     -- at least one must be present
+        //     substrings      SEQUENCE OF CHOICE { 
+        //          (void),
+        //          (void), 
+        //          final     [2] LDAPString, (Tag)
+        //     }
+        //
+        // We have only a final falue. Nothing to do.
+        super.transitions[LdapStatesEnum.SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_OR_ANY_OR_FINAL_TAG][LdapConstants.SUBSTRINGS_FILTER_FINAL_TAG] = new GrammarTransition(
+                LdapStatesEnum.SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_OR_ANY_OR_FINAL_TAG, LdapStatesEnum.SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_VALUE, null);
+
+        // SubstringFilter ::= SEQUENCE {
+        //     ...
+        //     -- at least one must be present
         //     substrings      SEQUENCE OF CHOICE {
         //          ...
         //          final     [2] LDAPString, (Value)
