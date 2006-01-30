@@ -118,6 +118,8 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // handle the body of this operation below here
         // -------------------------------------------------------------------
         
+        IoAcceptor acceptor = serviceRegistry.getAcceptor( ldapService.getTransportType() );
+        List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
         StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
         GracefulShutdownRequest gsreq = ( GracefulShutdownRequest ) req;
 
@@ -133,7 +135,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 //        }
 
         // send (synch) the GracefulDisconnect to each client before unbinding
-        sendGracefulDisconnect( notice, requestor );
+        sendGracefulDisconnect( sessions, notice, requestor );
 
         // wait for the specified delay before we unbind the service 
         if ( gsreq.getDelay() > 0 )
@@ -169,7 +171,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // after sending the NoD the client is disconnected if still connected
         // -------------------------------------------------------------------
 
-        sendNoticeOfDisconnect( requestor );
+        sendNoticeOfDisconnect( sessions, requestor );
 
         // -------------------------------------------------------------------
         // respond back to the client that requested the graceful shutdown w/
@@ -211,10 +213,8 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
      * @param msg the graceful disconnec extended request to send
      * @param requestor the session of the graceful shutdown requestor
      */
-    private void sendGracefulDisconnect( GracefulDisconnect msg, IoSession requestor )
+    private void sendGracefulDisconnect( List sessions, GracefulDisconnect msg, IoSession requestor )
     {
-        IoAcceptor acceptor = serviceRegistry.getAcceptor( ldapService.getTransportType() );
-        List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
         List writeFutures = new ArrayList();
         
         // asynchronously send GracefulDisconnection messages to all connected
@@ -268,10 +268,8 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
      * 
      * @param requestor the session of the graceful shutdown requestor
      */
-    private void sendNoticeOfDisconnect( IoSession requestor )
+    private void sendNoticeOfDisconnect( List sessions, IoSession requestor )
     {
-        IoAcceptor acceptor = serviceRegistry.getAcceptor( ldapService.getTransportType() );
-        List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
         List writeFutures = new ArrayList();
         
         // Send Notification of Disconnection messages to all connected clients.

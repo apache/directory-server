@@ -494,11 +494,26 @@ public class ServerContextFactory extends CoreContextFactory
             
             try
             {
-                // We should unbind the service before we begin sending the notice 
+                // we should unbind the service before we begin sending the notice 
                 // of disconnect so new connections are not formed while we process
                 List writeFutures = new ArrayList();
                 IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
-                List sessions = new ArrayList( acceptor.getManagedSessions( service.getAddress() ) );
+                
+                // If the socket has already been unbound as with a successful 
+                // GracefulShutdownRequest then this will complain that the service
+                // is not bound - this is ok because the GracefulShutdown has already
+                // sent notices to to the existing active sessions
+                List sessions = null;
+                try
+                {
+                    sessions = new ArrayList( acceptor.getManagedSessions( service.getAddress() ) );
+                }
+                catch( IllegalArgumentException e )
+                {
+                    log.warn( "Seems like the LDAP service " + service + " has already been unbound." );
+                    return;
+                }
+                
                 minaRegistry.unbind( service );
                 if ( log.isInfoEnabled() )
                 {
