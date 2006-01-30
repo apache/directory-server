@@ -171,6 +171,59 @@ public class GracefulDisconnectTest extends TestCase {
     }
 
     /**
+     * Test the decoding of a GracefulDisconnect with a timeOffline and a delay
+     */
+    public void testDecodeGracefulDisconnectTimeOfflineDelay() throws NamingException
+    {
+        Asn1Decoder decoder = new GracefulDisconnectDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x08 );
+        bb.put( new byte[]
+            {
+                0x30, 0x06,                 // GracefulDisconnect ::= SEQUENCE {
+                  0x02, 0x01, 0x01,          //     timeOffline INTEGER (0..720) DEFAULT 0,
+                  (byte)0x80, 0x01, 0x01,          //     timeOffline INTEGER (0..720) DEFAULT 0,
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
+        bb.flip();
+
+        GracefulDisconnectContainer container = new GracefulDisconnectContainer();
+        
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            Assert.fail( de.getMessage() );
+        }
+        
+        GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
+        assertEquals( 1, gracefulDisconnect.getTimeOffline() );
+        assertEquals( 1, gracefulDisconnect.getDelay() );
+        assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
+
+        // Check the length
+        assertEquals(0x08, gracefulDisconnect.computeLength());
+        
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb2 = gracefulDisconnect.encode( null );
+            
+            String encodedPdu = StringTools.dumpBytes( bb2.array() ); 
+            
+            assertEquals(encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+    /**
      * Test the decoding of a GracefulDisconnect with replicatedContexts only
      */
     public void testDecodeGracefulDisconnectReplicatedContextsOnly() throws NamingException

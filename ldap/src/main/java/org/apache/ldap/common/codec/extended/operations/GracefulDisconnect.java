@@ -134,13 +134,9 @@ public class GracefulDisconnect extends GracefulAction
                 int ldapUrlLength = ((LdapURL)replicatedContextIterator.next()).getNbBytes();
                 replicatedContextsLength += 1 + Length.getNbBytes( ldapUrlLength ) + ldapUrlLength;
             }
+
+            gracefulDisconnectSequenceLength += 1 + Length.getNbBytes( replicatedContextsLength ) + replicatedContextsLength; 
         }
-        else
-        {
-            replicatedContextsLength = 1 + 1;
-        }
-        
-        gracefulDisconnectSequenceLength += 1 + Length.getNbBytes( replicatedContextsLength ) + replicatedContextsLength; 
 
         return 1 + Length.getNbBytes( gracefulDisconnectSequenceLength ) + gracefulDisconnectSequenceLength;
     }
