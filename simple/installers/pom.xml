@@ -2,14 +2,12 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <version>0.9.4-SNAPSHOT</version>
-  <artifactId>plugin-test</artifactId>
-  <groupId>org.apache.directory.server.standalone.installers.plugin</groupId>
-  <name>installers-plugin-test</name>
+  <artifactId>apacheds-installers</artifactId>
+  <name>Apache Directory Server Installers</name>
   <packaging>jar</packaging>
   <description>
   </description>
@@ -25,8 +23,8 @@
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>
-      <groupId>org.apache.directory.server.standalone.daemon</groupId>
-      <artifactId>org.apache.directory.server.standalone.daemon</artifactId>
+      <groupId>org.apache.directory.daemon</groupId>
+      <artifactId>daemon-bootstrappers</artifactId>
       <version>0.9.4-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>  
@@ -70,8 +68,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.directory.server.standalone.installers.plugin</groupId>
-        <artifactId>plugin</artifactId>
+        <groupId>org.apache.directory.daemon</groupId>
+        <artifactId>daemon-plugin</artifactId>
         <configuration>
           <excludes>
             <exclude>ant:ant</exclude>
