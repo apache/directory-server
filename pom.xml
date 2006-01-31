@@ -52,6 +52,7 @@
 
   <modules>
     <module>core</module>
+    <module>tools</module>
     <module>shared</module>
     <module>plugin</module>
     <module>core-unit</module>

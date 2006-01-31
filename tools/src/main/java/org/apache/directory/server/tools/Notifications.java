@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.dumptool;
+package org.apache.directory.server.tools;
 
 
 import java.util.Hashtable;
@@ -39,7 +39,7 @@ import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NotificationsExample implements UnsolicitedNotificationListener
+public class Notifications implements UnsolicitedNotificationListener
 {
     UnsolicitedNotification notification;
     boolean canceled = false;
@@ -56,7 +56,7 @@ public class NotificationsExample implements UnsolicitedNotificationListener
         
         LdapContext ctx = new InitialLdapContext( env, null );
         ctx = ctx.newInstance( null );
-        UnsolicitedNotificationListener listener = new NotificationsExample();
+        UnsolicitedNotificationListener listener = new Notifications();
         ( ( EventContext ) ctx ).addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
         
         System.out.println( "Listening for notifications." );

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.dumptool;
+package org.apache.directory.server.tools;
 
 
 import java.util.Hashtable;
@@ -22,7 +22,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.ldap.common.message.extended.LaunchDiagnosticUiRequest;
+import org.apache.ldap.common.message.extended.GracefulShutdownRequest;
 
 
 /**
@@ -30,7 +30,7 @@ import org.apache.ldap.common.message.extended.LaunchDiagnosticUiRequest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LaunchDiagnosticUi
+public class GracefulShutdown
 {
     private int port = 10389;
     private String host = "localhost";
@@ -47,14 +47,14 @@ public class LaunchDiagnosticUi
         env.put( "java.naming.security.authentication", "simple" );
 
         LdapContext ctx = new InitialLdapContext( env, null );
-        ctx.extendedOperation( new LaunchDiagnosticUiRequest( 3 ) );
+        ctx.extendedOperation( new GracefulShutdownRequest( 0, 10, 10 ) );
         ctx.close();
     }
 
 
     public static void main( String[] args ) throws Exception
     {
-        LaunchDiagnosticUi command = new LaunchDiagnosticUi();
+        GracefulShutdown command = new GracefulShutdown();
         command.execute();
     }
 }

@@ -1,4 +1,4 @@
-package org.apache.ldap.server.dumptool;
+package org.apache.directory.server.tools;
 
 
 import java.io.File;
