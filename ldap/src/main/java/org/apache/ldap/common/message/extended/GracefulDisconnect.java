@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class GracefulDisconnect extends ExtendedResponseImpl
 {
     private static final long serialVersionUID = -4682291068700593492L;
-    public static final String OID = "1.2.6.1.4.1.18060.1.1.1.100.5";
+    public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.5";
     private static final Logger log = LoggerFactory.getLogger( GracefulDisconnect.class );
     
     /** offline Time after disconnection */
@@ -74,7 +74,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     public GracefulDisconnect( int timeOffline, int delay )
     {
         super( 0 );
-        super.oid = OID;
+        super.oid = EXTENSION_OID;
         this.timeOffline = timeOffline;
         this.delay = delay;
         
@@ -209,7 +209,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
      */
     public String getResponseName()
     {
-        return OID;
+        return EXTENSION_OID;
     }
 
 
@@ -221,7 +221,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
      */
     public void setResponseName( String oid )
     {
-        throw new UnsupportedOperationException( "the OID is fixed: " + OID );
+        throw new UnsupportedOperationException( "the OID is fixed: " + EXTENSION_OID );
     }
 
 

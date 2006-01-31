@@ -99,7 +99,7 @@ import org.apache.ldap.common.message.ResultCodeEnum;
 public class NoticeOfDisconnect extends ExtendedResponseImpl
 {
     private static final long serialVersionUID = -4682291068700593492L;
-    public static final String OID = "1.3.6.1.4.1.1466.20036";
+    public static final String EXTENSION_OID = "1.3.6.1.4.1.1466.20036";
     private static final byte[] EMPTY_RESPONSE = new byte[0];
     
     public static NoticeOfDisconnect UNAVAILABLE = new NoticeOfDisconnect( ResultCodeEnum.UNAVAILABLE );
@@ -166,7 +166,7 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
      */
     public String getResponseName()
     {
-        return OID;
+        return EXTENSION_OID;
     }
 
 
@@ -178,7 +178,7 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
      */
     public void setResponseName( String oid )
     {
-        throw new UnsupportedOperationException( "the OID is fixed: " + OID );
+        throw new UnsupportedOperationException( "the OID is fixed: " + EXTENSION_OID );
     }
 
 
