@@ -42,6 +42,7 @@ import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 public class NotificationsExample implements UnsolicitedNotificationListener
 {
     UnsolicitedNotification notification;
+    boolean canceled = false;
 
     
     public static void main( String[] args ) throws Exception
@@ -72,8 +73,9 @@ public class NotificationsExample implements UnsolicitedNotificationListener
         
         if ( notification.getID().equals( NoticeOfDisconnect.OID ) )
         {
-            System.out.println( "Recieved NoticeOfDisconnect: " + NoticeOfDisconnect.OID );
+            System.out.println( "\nRecieved NoticeOfDisconnect: " + NoticeOfDisconnect.OID );
             System.out.println( "Expect to loose this connection without further information." );
+            canceled = true;
         }
         else if ( notification.getID().equals( GracefulDisconnect.OID ) )
         {
@@ -84,16 +86,8 @@ public class NotificationsExample implements UnsolicitedNotificationListener
             
             if ( gd.getDelay() > 0 )
             {
-                System.out.println( "Starting countdown until server shutdown:" );
-                System.out.print( "[" ); 
-                long delayMillis = gd.getDelay() * 1000;
-                long startTime = System.currentTimeMillis();
-                while ( System.currentTimeMillis() - startTime < delayMillis )
-                {
-                    try{ Thread.sleep( 990 ); }catch ( InterruptedException e ){}
-                    System.out.print( "." );
-                }
-                System.out.println( "]" );
+                Thread t = new Thread( new Counter( gd.getDelay() ) );
+                t.start();
             }
         }
         else 
@@ -105,8 +99,44 @@ public class NotificationsExample implements UnsolicitedNotificationListener
 
     public void namingExceptionThrown( NamingExceptionEvent evt )
     {
+        canceled = true;
         System.out.println( "Got an excption event: " + evt.getException().getMessage() );
-        System.out.println( "Process shutting down." );
+        System.out.println( "Process shutting down abruptly." );
         System.exit( 1 );
+    }
+    
+    
+    class Counter implements Runnable
+    {
+        int delay;
+        
+        Counter( int delay )
+        {
+            this.delay = delay;
+        }
+        
+        public void run()
+        {
+            System.out.println( "Starting countdown until server shutdown:" );
+            System.out.print( "[" ); 
+            long delayMillis = delay * 1000 - 1000; // 1000 is for setup costs
+            long startTime = System.currentTimeMillis();
+            while ( System.currentTimeMillis() - startTime < delayMillis && !canceled )
+            {
+                try{ Thread.sleep( 1000 ); }catch ( InterruptedException e ){}
+                System.out.print( "." );
+            }
+            
+            if ( canceled )
+            {
+                System.out.println( " -- countdown canceled -- " );
+            }
+            else
+            {
+                System.out.println( "]" );
+                System.out.println( "Client shutting down gracefully." );
+                System.exit( 0 );
+            }
+        }
     }
 }
