@@ -22,8 +22,8 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.directory.server.standalone.daemon.DaemonApplication;
-import org.apache.directory.server.standalone.daemon.InstallationLayout;
+import org.apache.directory.daemon.DaemonApplication;
+import org.apache.directory.daemon.InstallationLayout;
 import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.configuration.SyncConfiguration;

@@ -17,7 +17,7 @@
 package org.apache.ldap.server;
 
 
-import org.apache.directory.server.standalone.daemon.InstallationLayout;
+import org.apache.directory.daemon.InstallationLayout;
 
 
 /**
