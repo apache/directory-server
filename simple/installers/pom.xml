@@ -2,10 +2,11 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server</groupId>
+    <groupId>org.apache.directory.server.standalone.simple</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
+  <version>1.0-RC1-SNAPSHOT</version>
   <artifactId>apacheds-installers</artifactId>
   <name>Apache Directory Server Installers</name>
   <packaging>jar</packaging>
@@ -62,7 +63,7 @@
   <distributionManagement>
     <site>
       <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-standalone/</url>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/</url>
     </site>
   </distributionManagement>
   <build>
@@ -92,16 +93,32 @@
             <exclude>jasperreports:jasperreports</exclude>
           </excludes>
           <application>
-            <name>test</name>
+            <name>apacheds</name>
             <version>${pom.version}</version>
+            <copyrightYear>2006</copyrightYear>
+            <minimumJavaVersion>1.4</minimumJavaVersion>
+            <url>http://directory.apache.org/subprojects/apacheds</url>
+            <email>users@directory.apache.org</email>
+            <description>Apache Directory Server</description>
             <authors>
+              <author>Apache Directory Team</author>
               <author>akarasulu@apache.org</author>
+              <author>elecharny@apache.org</author>
+              <author>ersiner@apache.org</author>
+              <author>trustin@apache.org</author>
+              <author>erodriguez@apache.org</author>
+              <author>szoerner@apache.org</author>
             </authors>
           </application>
-          <applicationClass>org.apache.ldap.server.DirectoryServer</applicationClass>
+          <applicationClass>
+            org.apache.ldap.server.DirectoryServer
+          </applicationClass>
           <innoTargets>
             <innoTarget>
               <id>windows-xp-procrun</id>
+              <finalName>
+                apacheds-${pom.version}-win32-setup.exe
+              </finalName>
               <osName>Windows XP</osName>
               <osFamily>windows</osFamily>
               <osVersion>5.1</osVersion>
@@ -112,6 +129,9 @@
           <izPackTargets>
             <izPackTarget>
               <id>linux-jsvc</id>
+              <finalName>
+                apacheds-${pom.version}-linux-i386-setup.jar
+              </finalName>
               <osName>Linux</osName>
               <osFamily>unix</osFamily>
               <osArch>i386</osArch>
@@ -119,6 +139,9 @@
             </izPackTarget>
             <izPackTarget>
               <id>solaris-jsvc-i386</id>
+              <finalName>
+                apacheds-${pom.version}-solaris-i386-setup.jar
+              </finalName>
               <osName>sunos</osName>
               <osFamily>unix</osFamily>
               <osArch>i386</osArch>
@@ -127,6 +150,9 @@
 <!--
             <izPackTarget>
               <id>macosx-jsvc</id>
+              <finalName>
+                apacheds-${pom.version}-macosx-ppc-setup.jar
+              </finalName>
               <osName>macosx</osName>
               <osFamily>unix</osFamily>
               <osArch>ppc</osArch>
@@ -134,6 +160,9 @@
             </izPackTarget>
 -->
             <izPackTarget>
+              <finalName>
+                apacheds-${pom.version}-solaris-sparc-setup.jar
+              </finalName>
               <id>solaris-jsvc-sparc</id>
               <osName>sunos</osName>
               <osFamily>unix</osFamily>
