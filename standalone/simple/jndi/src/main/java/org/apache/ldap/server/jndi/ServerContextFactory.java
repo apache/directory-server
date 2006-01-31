@@ -45,10 +45,9 @@ import org.apache.ldap.common.exception.LdapNamingException;
 import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.ServerStartupConfiguration;
+import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
-import org.apache.ldap.server.protocol.support.extended.GracefulShutdownHandler;
-import org.apache.ldap.server.protocol.support.extended.LaunchDiagnosticUiHandler;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
@@ -84,8 +83,15 @@ public class ServerContextFactory extends CoreContextFactory
     private static ChangePasswordServer changePasswordServer;
     private static NtpServer ntpServer;
     private static ServiceRegistry minaRegistry;
+    private DirectoryService directoryService;
 
 
+    public void beforeStartup( DirectoryService service )
+    {
+        this.directoryService = service;
+    }
+    
+    
     protected ServiceRegistry getMinaRegistry()
     {
         return minaRegistry;
@@ -407,20 +413,11 @@ public class ServerContextFactory extends CoreContextFactory
             ExtendedOperationHandler h = ( ExtendedOperationHandler ) i.next();
             protocolProvider.addExtendedOperationHandler( h );
             log.info( "Added Extended Request Handler: " + h.getOid() );
-            
-            if ( h instanceof GracefulShutdownHandler )
-            {
-                GracefulShutdownHandler graceful = ( GracefulShutdownHandler ) h;
-                graceful.setLdapService( service );
-                graceful.setServiceRegistry( minaRegistry );
-            }
-            else if ( h instanceof LaunchDiagnosticUiHandler )
-            {
-                LaunchDiagnosticUiHandler diagnostic = ( LaunchDiagnosticUiHandler ) h;
-                diagnostic.setLdapService( service );
-                diagnostic.setServiceRegistry( minaRegistry );
-                diagnostic.setLdapProvider( protocolProvider );
-            }
+            h.setLdapService( service );
+            h.setServiceRegistry( minaRegistry );
+            h.setLdapProvider( protocolProvider );
+            DirectoryPartitionNexus nexus = directoryService.getConfiguration().getPartitionNexus();
+            nexus.registerSupportedExtensions( h.getExtensionOids() );
         }
         
         try

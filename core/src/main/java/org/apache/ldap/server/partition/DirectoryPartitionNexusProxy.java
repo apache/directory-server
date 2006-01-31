@@ -690,6 +690,12 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
+    public void registerSupportedExtensions( Set extensionOids )
+    {
+        configuration.getPartitionNexus().registerSupportedExtensions( extensionOids );
+    }
+
+    
     // -----------------------------------------------------------------------
     // EventContext and EventDirContext notification methods
     // -----------------------------------------------------------------------

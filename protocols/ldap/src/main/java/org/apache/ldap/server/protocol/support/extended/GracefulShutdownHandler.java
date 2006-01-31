@@ -18,8 +18,11 @@ package org.apache.ldap.server.protocol.support.extended;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -36,6 +39,7 @@ import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
+import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.ldap.server.protocol.SessionRegistry;
 
 import org.apache.mina.common.IoAcceptor;
@@ -51,22 +55,20 @@ import org.slf4j.LoggerFactory;
 public class GracefulShutdownHandler implements ExtendedOperationHandler
 {
     private static final Logger log = LoggerFactory.getLogger( GracefulShutdownHandler.class );
+    public static final Set EXTENSION_OIDS;
+    
+    static
+    {
+        Set set = new HashSet( 3 );
+        set.add( GracefulShutdownRequest.EXTENSION_OID );
+        set.add( GracefulShutdownResponse.EXTENSION_OID );
+        set.add( GracefulDisconnect.EXTENSION_OID );
+        EXTENSION_OIDS = Collections.unmodifiableSet( set );
+    }
     
     private ServiceRegistry serviceRegistry;
     private Service ldapService;
     
-    
-    public void setLdapService( Service ldapService )
-    {
-        this.ldapService = ldapService;
-    }
-
-
-    public void setServiceRegistry( ServiceRegistry registry )
-    {
-        this.serviceRegistry = registry;
-    }
-
 
     public String getOid()
     {
@@ -338,5 +340,28 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
                 }
             }
         }
+    }
+
+
+    public Set getExtensionOids()
+    {
+        return EXTENSION_OIDS;
+    }
+
+
+    public void setLdapProvider( LdapProtocolProvider provider )
+    {
+    }
+
+
+    public void setServiceRegistry( ServiceRegistry registry )
+    {
+        this.serviceRegistry = registry;
+    }
+
+
+    public void setLdapService( Service service )
+    {
+        this.ldapService = service;
     }
 }

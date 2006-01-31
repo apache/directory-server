@@ -71,15 +71,15 @@ public class NotificationsExample implements UnsolicitedNotificationListener
     {
         notification = evt.getNotification();
         
-        if ( notification.getID().equals( NoticeOfDisconnect.OID ) )
+        if ( notification.getID().equals( NoticeOfDisconnect.EXTENSION_OID ) )
         {
-            System.out.println( "\nRecieved NoticeOfDisconnect: " + NoticeOfDisconnect.OID );
+            System.out.println( "\nRecieved NoticeOfDisconnect: " + NoticeOfDisconnect.EXTENSION_OID );
             System.out.println( "Expect to loose this connection without further information." );
             canceled = true;
         }
-        else if ( notification.getID().equals( GracefulDisconnect.OID ) )
+        else if ( notification.getID().equals( GracefulDisconnect.EXTENSION_OID ) )
         {
-            System.out.println( "Recieved GracefulDisconnect: " + GracefulDisconnect.OID );
+            System.out.println( "Recieved GracefulDisconnect: " + GracefulDisconnect.EXTENSION_OID );
             GracefulDisconnect gd = new GracefulDisconnect( notification.getEncodedValue() );
             System.out.println( "LDAP server will shutdown in " + gd.getDelay() + " seconds." );
             System.out.println( "LDAP server will be back online in " + gd.getTimeOffline() + " minutes." );

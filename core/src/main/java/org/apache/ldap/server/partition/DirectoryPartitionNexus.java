@@ -18,6 +18,7 @@ package org.apache.ldap.server.partition;
 
 
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -205,4 +206,12 @@ public abstract class DirectoryPartitionNexus implements DirectoryPartition
      * @throws NamingException if there are any problems
      */
     public abstract Iterator listSuffixes( boolean normalized ) throws NamingException;
+
+    /**
+     * Adds a set of supportedExtension (OID Strings) to the RootDSE.
+     * 
+     * @param extensionOids a set of OID strings to add to the supportedExtension 
+     * attribute in the RootDSE
+     */
+    public abstract void registerSupportedExtensions( Set extensionOids );
 }

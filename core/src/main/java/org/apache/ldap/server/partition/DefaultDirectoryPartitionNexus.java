@@ -56,8 +56,7 @@ import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ManageDsaITControl;
 import org.apache.ldap.common.message.PersistentSearchControl;
 import org.apache.ldap.common.message.SubentriesControl;
-import org.apache.ldap.common.message.extended.LaunchDiagnosticUiRequest;
-import org.apache.ldap.common.message.extended.LaunchDiagnosticUiResponse;
+import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 import org.apache.ldap.common.name.LdapName;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.NamespaceTools;
@@ -68,6 +67,7 @@ import org.apache.ldap.server.configuration.DirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmDirectoryPartition;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,8 +136,7 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
         attr = new LockableAttributeImpl( "supportedExtension" );
         rootDSE.put( attr );
-        attr.add( LaunchDiagnosticUiRequest.EXTENSION_OID );
-        attr.add( LaunchDiagnosticUiResponse.EXTENSION_OID );
+        attr.add( NoticeOfDisconnect.EXTENSION_OID );
 
         attr = new LockableAttributeImpl( "supportedControl" );
         rootDSE.put( attr );
@@ -789,5 +788,20 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
     public DirectoryPartition getPartition( Name dn ) throws NamingException
     {
         return getBackend( dn );
+    }
+
+
+    public void registerSupportedExtensions( Set extensionOids )
+    {
+        Attribute supportedExtension = rootDSE.get( "supportedExtension" );
+        if ( supportedExtension == null )
+        {
+            supportedExtension = new LockableAttributeImpl( "supportedExtension" );
+            rootDSE.put( supportedExtension );
+        }
+        for ( Iterator oids = extensionOids.iterator(); oids.hasNext(); )
+        {
+            supportedExtension.add( ( String ) oids.next() );
+        }
     }
 }

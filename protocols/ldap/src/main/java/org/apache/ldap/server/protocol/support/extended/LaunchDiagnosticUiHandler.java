@@ -20,7 +20,10 @@ package org.apache.ldap.server.protocol.support.extended;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -48,6 +51,16 @@ import org.apache.mina.registry.ServiceRegistry;
 
 public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 {
+    public static final Set EXTENSION_OIDS;
+    
+    static
+    {
+        Set set = new HashSet( 3 );
+        set.add( LaunchDiagnosticUiRequest.EXTENSION_OID );
+        set.add( LaunchDiagnosticUiResponse.EXTENSION_OID );
+        EXTENSION_OIDS = Collections.unmodifiableSet( set );
+    }
+    
     private Service ldapService;
     private ServiceRegistry minaRegistry;
     private LdapProtocolProvider ldapProvider;
@@ -135,32 +148,26 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapService( Service ldapService )
+    public Set getExtensionOids()
     {
-        this.ldapService = ldapService;
+        return EXTENSION_OIDS;
     }
 
 
-    public Service getLdapService()
+    public void setLdapProvider( LdapProtocolProvider provider )
     {
-        return ldapService;
+        this.ldapProvider = provider;
     }
 
 
-    public void setServiceRegistry( ServiceRegistry minaRegistry )
+    public void setLdapService( Service service )
     {
-        this.minaRegistry = minaRegistry;
+        this.ldapService = service;
     }
 
 
-    public ServiceRegistry getMinaRegistry()
+    public void setServiceRegistry( ServiceRegistry registry )
     {
-        return minaRegistry;
-    }
-
-
-    public void setLdapProvider( LdapProtocolProvider ldapProvider )
-    {
-        this.ldapProvider = ldapProvider;
+        this.minaRegistry = registry;
     }
 }

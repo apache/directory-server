@@ -82,7 +82,7 @@ public class ExtendedHandler implements MessageHandler
         {
             // As long as no extended operations are implemented, send appropriate
             // error back to the client.
-            String msg = "Unrecognized extended operation OID: " + req.getOid();
+            String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getOid();
             LdapResult result = req.getResultResponse().getLdapResult();        
             result.setResultCode( ResultCodeEnum.PROTOCOLERROR );
             result.setErrorMessage( msg );
@@ -99,7 +99,7 @@ public class ExtendedHandler implements MessageHandler
                 LdapResult result = req.getResultResponse().getLdapResult();
                 result.setResultCode( ResultCodeEnum.UNAVAILABLE );
                 result.setErrorMessage(
-                        "Extended operation handler for the specified OID (" +
+                        "Extended operation handler for the specified EXTENSION_OID (" +
                         req.getOid() + ") has failed to process your request:\n" +
                         ExceptionUtils.getStackTrace( e ) );
                 ( ( ExtendedResponse ) req.getResultResponse() ).setResponse( new byte[ 0 ] );
