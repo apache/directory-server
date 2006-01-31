@@ -305,11 +305,26 @@ public class Bootstrapper
                 String msg = "Shutdown port file " + shutdownPortFile + " exists. ";
                 msg += "\nEither an instance is already running or a previous run existed abruptly.";
                 log.warn( msg );
+                shutdownPortFile.delete();
             }
             PrintWriter out = new PrintWriter( new FileWriter( shutdownPortFile ) );
             out.println( shutdownPort );
             out.flush();
             out.close();
+
+            // register shutdown hook in case we get shutdown abruptly without 
+            // cleaning up the shutdown file containing the shutdown port
+            Runtime.getRuntime().addShutdownHook( new Thread( "Bootstrapper cleanup" ) {
+                public void run()
+                {
+                    File shutdownPortFile = new File( layout.getRunDirectory(), SHUTDOWN_FILE );
+                    if ( shutdownPortFile.exists() )
+                    {
+                        shutdownPortFile.delete();
+                        log.info( "Deleted shutdown port file: " + shutdownPort );
+                    }
+                }
+            } );
         }
         catch ( IOException e )
         {

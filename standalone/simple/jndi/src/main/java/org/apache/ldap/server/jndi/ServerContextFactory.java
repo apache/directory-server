@@ -48,6 +48,7 @@ import org.apache.ldap.server.configuration.ServerStartupConfiguration;
 import org.apache.ldap.server.protocol.ExtendedOperationHandler;
 import org.apache.ldap.server.protocol.LdapProtocolProvider;
 import org.apache.ldap.server.protocol.support.extended.GracefulShutdownHandler;
+import org.apache.ldap.server.protocol.support.extended.LaunchDiagnosticUiHandler;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
@@ -409,9 +410,16 @@ public class ServerContextFactory extends CoreContextFactory
             
             if ( h instanceof GracefulShutdownHandler )
             {
-                GracefulShutdownHandler gsh = ( GracefulShutdownHandler ) h;
-                gsh.setLdapService( service );
-                gsh.setServiceRegistry( minaRegistry );
+                GracefulShutdownHandler graceful = ( GracefulShutdownHandler ) h;
+                graceful.setLdapService( service );
+                graceful.setServiceRegistry( minaRegistry );
+            }
+            else if ( h instanceof LaunchDiagnosticUiHandler )
+            {
+                LaunchDiagnosticUiHandler diagnostic = ( LaunchDiagnosticUiHandler ) h;
+                diagnostic.setLdapService( service );
+                diagnostic.setServiceRegistry( minaRegistry );
+                diagnostic.setLdapProvider( protocolProvider );
             }
         }
         

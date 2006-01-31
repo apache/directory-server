@@ -124,53 +124,30 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         GracefulShutdownRequest gsreq = ( GracefulShutdownRequest ) req;
 
         // build the graceful disconnect message with replicationContexts
-        GracefulDisconnect notice = new GracefulDisconnect( gsreq.getTimeOffline(), gsreq.getDelay() );
-        // @todo add the referral objects for replication contexts using setup code below
-//        DirectoryPartitionNexus nexus = service.getConfiguration().getPartitionNexus();
-//        Iterator list = nexus.listSuffixes( true );
-//        while ( list.hasNext() )
-//        {
-//            LdapName dn = new LdapName( ( String ) list.next() );
-//            DirectoryPartition partition = nexus.getPartition( dn );
-//        }
+        DirectoryPartitionNexus nexus = service.getConfiguration().getPartitionNexus();
+        GracefulDisconnect notice = getGracefulDisconnect( gsreq.getTimeOffline(), gsreq.getDelay(), nexus );
 
         // send (synch) the GracefulDisconnect to each client before unbinding
         sendGracefulDisconnect( sessions, notice, requestor );
 
         // wait for the specified delay before we unbind the service 
-        if ( gsreq.getDelay() > 0 )
-        {
-            // delay is in seconds
-            long delay = gsreq.getDelay() * 1000;
-            long startTime = System.currentTimeMillis();
-            
-            while ( ( System.currentTimeMillis() - startTime ) < delay )
-            {
-                try
-                {
-                    Thread.sleep( 250 );
-                }
-                catch ( InterruptedException e )
-                {
-                    log.warn( "Got interrupted while waiting for delay before shutdown", e );
-                }
-            }
-        }
+        waitForDelay( gsreq.getDelay() );
         
+        // -------------------------------------------------------------------
         // unbind the server socket for the LDAP service here so no new 
         // connections are accepted while we process this shutdown request
         // note that the following must be issued before binding the ldap
         // service in order to prevent client disconnects on service unbind:
         // 
-        // minaRegistry.getAcceptor( service.getTransportType() ).setDisconnectClientsOnUnbind( false );
-        //
+        // minaRegistry.getAcceptor( service.getTransportType() )
+        //                       .setDisconnectClientsOnUnbind( false );
+        // -------------------------------------------------------------------
         serviceRegistry.unbind( ldapService );
         
         // -------------------------------------------------------------------
         // synchronously send a NoD to clients that are not aware of this resp
         // after sending the NoD the client is disconnected if still connected
         // -------------------------------------------------------------------
-
         sendNoticeOfDisconnect( sessions, requestor );
 
         // -------------------------------------------------------------------
@@ -180,8 +157,26 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // preventing new connections; after recieving this response the 
         // requestor should disconnect and stop using the connection
         // -------------------------------------------------------------------
+        sendShutdownResponse( requestor, req.getMessageId() );
 
-        GracefulShutdownResponse msg = new GracefulShutdownResponse( req.getMessageId(), ResultCodeEnum.SUCCESS );
+        if ( cfg.isExitVmOnShutdown() )
+        {
+            System.exit( 0 );
+        }
+        
+        return;
+    }
+    
+    
+    /**
+     * Sends a successful response.
+     * 
+     * @param requestor
+     * @param messageId
+     */
+    public static void sendShutdownResponse( IoSession requestor, int messageId )
+    {
+        GracefulShutdownResponse msg = new GracefulShutdownResponse( messageId, ResultCodeEnum.SUCCESS );
         WriteFuture future = requestor.write( msg );
         future.join();
         if ( future.isWritten() )
@@ -196,13 +191,6 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
             log.error( "Failed to write GracefulShutdownResponse to client: " + requestor.getRemoteAddress() );
         }
         requestor.close();
-
-        if ( cfg.isExitVmOnShutdown() )
-        {
-            System.exit( 0 );
-        }
-        
-        return;
     }
     
     
@@ -213,7 +201,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
      * @param msg the graceful disconnec extended request to send
      * @param requestor the session of the graceful shutdown requestor
      */
-    private void sendGracefulDisconnect( List sessions, GracefulDisconnect msg, IoSession requestor )
+    public static void sendGracefulDisconnect( List sessions, GracefulDisconnect msg, IoSession requestor )
     {
         List writeFutures = new ArrayList();
         
@@ -268,7 +256,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
      * 
      * @param requestor the session of the graceful shutdown requestor
      */
-    private void sendNoticeOfDisconnect( List sessions, IoSession requestor )
+    public static void sendNoticeOfDisconnect( List sessions, IoSession requestor )
     {
         List writeFutures = new ArrayList();
         
@@ -310,6 +298,44 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
             catch( Exception e )
             {
                 log.warn( "Failed to sent NoD.", e );
+            }
+        }
+    }
+
+
+    public static GracefulDisconnect getGracefulDisconnect( int timeOffline, int delay, DirectoryPartitionNexus nexus )
+    {
+        // build the graceful disconnect message with replicationContexts
+        GracefulDisconnect notice = new GracefulDisconnect( timeOffline, delay );
+        // @todo add the referral objects for replication contexts using setup code below
+//        Iterator list = nexus.listSuffixes( true );
+//        while ( list.hasNext() )
+//        {
+//            LdapName dn = new LdapName( ( String ) list.next() );
+//            DirectoryPartition partition = nexus.getPartition( dn );
+//        }
+        return notice;
+    }
+
+
+    public static void waitForDelay( int delay )
+    {
+        if ( delay > 0 )
+        {
+            // delay is in seconds
+            long delayMillis = delay * 1000;
+            long startTime = System.currentTimeMillis();
+            
+            while ( ( System.currentTimeMillis() - startTime ) < delayMillis )
+            {
+                try
+                {
+                    Thread.sleep( 250 );
+                }
+                catch ( InterruptedException e )
+                {
+                    log.warn( "Got interrupted while waiting for delay before shutdown", e );
+                }
             }
         }
     }

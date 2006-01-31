@@ -47,7 +47,7 @@ public class GracefulShutdown
         env.put( "java.naming.security.authentication", "simple" );
 
         LdapContext ctx = new InitialLdapContext( env, null );
-        ctx.extendedOperation( new GracefulShutdownRequest( 0, 10, 5 ) );
+        ctx.extendedOperation( new GracefulShutdownRequest( 0, 10, 10 ) );
         ctx.close();
     }
 

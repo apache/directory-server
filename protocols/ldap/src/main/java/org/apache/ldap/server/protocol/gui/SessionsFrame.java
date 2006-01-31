@@ -2,9 +2,17 @@ package org.apache.ldap.server.protocol.gui;
 
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -18,9 +26,17 @@ import javax.swing.JMenuItem;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.ldap.common.message.extended.GracefulDisconnect;
 import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
 import org.apache.ldap.server.protocol.SessionRegistry;
+import org.apache.ldap.server.protocol.support.extended.GracefulShutdownHandler;
+import org.apache.mina.common.CloseFuture;
+import org.apache.mina.common.IoAcceptor;
+import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.common.WriteFuture;
+import org.apache.mina.registry.Service;
+import org.apache.mina.registry.ServiceRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +47,13 @@ public class SessionsFrame extends JFrame
 {
     private static final Logger log = LoggerFactory.getLogger( SessionsFrame.class );
     private static final long serialVersionUID = -863445561454536133L;
+    private static final String REFRESH_COMMAND = "Refresh";
+
+    boolean isServiceBound = true;
+    private IoSession requestor;
+    private ServiceRegistry minaRegistry;
+    private Service ldapService;
+    private IoHandler ldapProvider;
     private JPanel jContentPane = null;
     private JPanel mainPanel = null;
     private JScrollPane sessionsPane = null;
@@ -60,8 +83,8 @@ public class SessionsFrame extends JFrame
     
     
     private IoSession selected;
-    
-    
+    private JMenuItem unbindItem = null;
+    private JMenuItem bindItem = null;
     /**
      * This is the default constructor
      */
@@ -333,6 +356,8 @@ public class SessionsFrame extends JFrame
             menuSession.add(getMenuSendNoD());
             menuSendNoD.setEnabled( false );
             menuSession.add(getShowRequests());
+            menuSession.add(getUnbindItem());
+            menuSession.add(getBindItem());
             showRequests.setEnabled( false );
         }
         return menuSession;
@@ -469,12 +494,14 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed(java.awt.event.ActionEvent e)
                 {
-                    selected.write( NoticeOfDisconnect.STRONGAUTHREQUIRED ); 
+                    WriteFuture future = selected.write( NoticeOfDisconnect.STRONGAUTHREQUIRED ); 
                     try
                     {
-                        Thread.sleep( 250 );
+                        future.join( 1000 );
+                        CloseFuture cfuture = selected.close();
+                        cfuture.join( 1000 );
                     }
-                    catch ( InterruptedException e1 )
+                    catch ( Exception e1 )
                     {
                         log.error( "", e1 );
                     }
@@ -649,8 +676,6 @@ public class SessionsFrame extends JFrame
 //        return jMenuItem4;
 //    }
 
-
-    private static final String REFRESH_COMMAND = "Refresh";
     /**
      * This method initializes jButton2	
      * 	
@@ -684,5 +709,201 @@ public class SessionsFrame extends JFrame
         closeItem.setEnabled( false );
         menuSendNoD.setEnabled( false );
         showRequests.setEnabled( false );
+        unbindItem.setEnabled( isServiceBound );
+        bindItem.setEnabled( ! isServiceBound );
+    }
+
+
+    public void setMinaRegistry( ServiceRegistry minaRegistry )
+    {
+        this.minaRegistry = minaRegistry;
+    }
+
+
+    public void setLdapService( Service ldapService )
+    {
+        this.ldapService = ldapService;
+    }
+    
+    
+    public void setRequestor( IoSession requestor )
+    {
+        this.requestor = requestor;
+    }
+
+
+    /**
+     * This method initializes jMenuItem	
+     * 	
+     * @return javax.swing.JMenuItem	
+     */
+    private JMenuItem getUnbindItem()
+    {
+        if ( unbindItem == null )
+        {
+            unbindItem = new JMenuItem();
+            unbindItem.setText("Unbind Service");
+            unbindItem.setEnabled( isServiceBound );
+            unbindItem.addActionListener( new java.awt.event.ActionListener()
+            {
+                public void actionPerformed( java.awt.event.ActionEvent e )
+                {
+                    int input = JOptionPane.showConfirmDialog( SessionsFrame.this, 
+                        "Selecting no will send a notice of disconnect ONLY.  " +
+                        "\nSelecting yes will send both.  Cancel will abort unbind.", 
+                        "Send graceful disconnect before disconnect notice?", 
+                        JOptionPane.YES_NO_CANCEL_OPTION );
+                    IoAcceptor acceptor = minaRegistry.getAcceptor( ldapService.getTransportType() );
+                    List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
+//                    ServerLdapContext ctx;
+//                    try
+//                    {
+//                        ctx = ( ServerLdapContext ) SessionRegistry.getSingleton()
+//                            .getLdapContext( requestor, null, false );
+//                    }
+//                    catch ( NamingException ne )
+//                    {
+//                        JOptionPane.showInternalMessageDialog( SessionsFrame.this, 
+//                            ne.getMessage(), "Encountered an Error", JOptionPane.ERROR_MESSAGE );
+//                        log.warn( "Could not access requestor's context.", ne );
+//                        return;
+//                    }
+//                    DirectoryService service = ctx.getService();
+//                    StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
+                    // might add an exit vm feature using the default from the 
+                    // configuration property
+                    
+                    if ( input == JOptionPane.CANCEL_OPTION )
+                    {
+                        return;
+                    }
+                    else if ( input == JOptionPane.NO_OPTION )
+                    {
+                        GracefulShutdownHandler.sendNoticeOfDisconnect( sessions, requestor );
+                        minaRegistry.unbind( ldapService );
+                        isServiceBound = false;
+                        unbindItem.setEnabled( isServiceBound );
+                        bindItem.setEnabled( ! isServiceBound );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for " + 
+                            ldapService.getAddress() + " has been successfully unbound.", 
+                            "Success!", JOptionPane.INFORMATION_MESSAGE );
+                        refresh();
+                        return;
+                    }
+                    else
+                    {
+                        ShutdownParamDialog dialog = new ShutdownParamDialog();
+                        setCenteredPosition( SessionsFrame.this, dialog );
+                        dialog.setModal( true );
+                        dialog.setVisible( true );
+                        
+
+                        if ( dialog.isSendCanceled() )
+                        {
+                            log.debug( "GracefulShutdown was canceled." );
+                            JOptionPane.showMessageDialog( SessionsFrame.this, "Shutdown has been canceled.", 
+                                "Graceful Shutdown Aborted", JOptionPane.OK_OPTION );
+                            return;
+                        }
+                        
+                        log.debug( "GracefulShutdown parameters captured." );
+                        int timeOffline = dialog.getTimeOffline();
+                        int delay = dialog.getDelay();
+                        GracefulDisconnect graceful = new GracefulDisconnect( timeOffline, delay );
+                        GracefulShutdownHandler.sendGracefulDisconnect( sessions, graceful, requestor );
+                        minaRegistry.unbind( ldapService );
+                        isServiceBound = false;
+                        unbindItem.setEnabled( isServiceBound );
+                        bindItem.setEnabled( ! isServiceBound ); 
+                        
+                        // do progress dialog with bypass button to wait for delay time
+                        if ( delay > 0 )
+                        {
+                            ShutdownProgress progress = new ShutdownProgress();
+                            setCenteredPosition( SessionsFrame.this, progress );
+                            progress.setModal( true );
+                            progress.setTime( delay * 1000 );
+                            Thread t = new Thread( progress );
+                            t.start();
+                            progress.setVisible( true );
+                        }
+                        
+                        // now send the notice of disconnect
+                        GracefulShutdownHandler.sendNoticeOfDisconnect( sessions, requestor );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for " + 
+                            ldapService.getAddress() + " has been successfully unbound.", 
+                            "Success!", JOptionPane.OK_OPTION );
+                        refresh();
+                    }
+                }
+            } );
+        }
+        return unbindItem;
+    }
+
+    
+    private void setCenteredPosition( JFrame frame, Component comp )
+    {
+        Point pt = new Point();
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        Dimension screenSize = tk.getScreenSize();
+        pt.x = ( screenSize.width - frame.getWidth() ) / 2;
+        pt.y = ( screenSize.height - frame.getHeight() ) / 2;
+        
+        pt.x += ( frame.getWidth() - comp.getWidth() )/2;
+        pt.y += ( frame.getHeight() - comp.getHeight() )/2;
+        comp.setLocation( pt );
+    }
+
+
+    /**
+     * This method initializes jMenuItem	
+     * 	
+     * @return javax.swing.JMenuItem	
+     */
+    private JMenuItem getBindItem()
+    {
+        if ( bindItem == null )
+        {
+            bindItem = new JMenuItem();
+            bindItem.setText("Bind Service");
+            unbindItem.setEnabled( !isServiceBound );
+            bindItem.addActionListener( new java.awt.event.ActionListener()
+                {
+                    public void actionPerformed( java.awt.event.ActionEvent e )
+                    {
+                        try
+                        {
+                            minaRegistry.bind( ldapService, getLdapProvider() );
+                            JOptionPane.showMessageDialog( SessionsFrame.this, 
+                                "Ldap service " + ldapService.getAddress() + " has been successfully bound.\n"
+                                + " Clients may now connect to the server once again.", 
+                                "Success!", JOptionPane.INFORMATION_MESSAGE );  
+                            isServiceBound = true;
+                            unbindItem.setEnabled( isServiceBound );
+                            bindItem.setEnabled( ! isServiceBound );
+                        }
+                        catch ( IOException e1 )
+                        {
+                            log.error( "failed to rebind ldap service", e1 );
+                            JOptionPane.showMessageDialog( SessionsFrame.this, e1.getMessage(), "Error encountered!", 
+                                JOptionPane.ERROR_MESSAGE );
+                        }
+                    }
+                });
+        }
+        return bindItem;
+    }
+
+
+    public void setLdapProvider( IoHandler ldapProvider )
+    {
+        this.ldapProvider = ldapProvider;
+    }
+
+
+    public IoHandler getLdapProvider()
+    {
+        return ldapProvider;
     }
 }  //  @jve:decl-index=0:visual-constraint="10,10"
