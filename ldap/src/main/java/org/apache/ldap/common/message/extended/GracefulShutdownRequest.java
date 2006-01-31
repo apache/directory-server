@@ -96,7 +96,8 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
         }
         catch ( DecoderException e )
         {
-            log.error( "failed to decode payload" );
+            log.error( "failed to decode payload", e );
+            throw new RuntimeException( e );
         }
     }
     
@@ -125,6 +126,7 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
             catch ( EncoderException e )
             {
                 log.error( "Failed to encode payload GracefulShutdownRequest", e );
+                throw new RuntimeException( e );
             }
         }
         

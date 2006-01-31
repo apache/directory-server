@@ -109,6 +109,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         catch ( DecoderException e )
         {
             log.error( "Failed to decode response value", e );
+            throw new RuntimeException( e );
         }
     }
     
@@ -142,6 +143,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         catch ( EncoderException e )
         {
             log.error( "Failed to encode message value.", e );
+            throw new RuntimeException( e );
         }
     }
     
