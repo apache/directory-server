@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: org.apache.directory.server.standalone.daemon.MainBootstrapper
-Class-Path: logger.jar daemon.jar
-Specification-Title: ApacheDS
-Specification-Version: 1.0
-
