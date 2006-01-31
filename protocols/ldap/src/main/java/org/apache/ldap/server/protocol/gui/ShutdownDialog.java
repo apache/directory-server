@@ -12,7 +12,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 
 
-public class ShutdownParamDialog extends JDialog
+public class ShutdownDialog extends JDialog
 {
     private static final long serialVersionUID = -6681747075037789868L;
 
@@ -33,7 +33,7 @@ public class ShutdownParamDialog extends JDialog
     /**
      * This is the default constructor
      */
-    public ShutdownParamDialog()
+    public ShutdownDialog()
     {
         super();
         initialize();
@@ -152,7 +152,7 @@ public class ShutdownParamDialog extends JDialog
                         timeOffline = Integer.parseInt( timeOfflineField.getText() );
                         if ( timeOffline > 720 || timeOffline < 0 )
                         {
-                            JOptionPane.showMessageDialog( ShutdownParamDialog.this,
+                            JOptionPane.showMessageDialog( ShutdownDialog.this,
                                 "Time Offline is out of range: 0 ... 720", "Range Problem", JOptionPane.ERROR_MESSAGE );
                             timeOfflineField.setText( "" );
                             return;
@@ -160,7 +160,7 @@ public class ShutdownParamDialog extends JDialog
                     }
                     catch( NumberFormatException nfe )
                     {
-                        JOptionPane.showMessageDialog( ShutdownParamDialog.this,
+                        JOptionPane.showMessageDialog( ShutdownDialog.this,
                             "The value for Time Offline is not a number", "Not a Number", JOptionPane.ERROR_MESSAGE );
                         timeOfflineField.setText( "" );
                         return;
@@ -171,7 +171,7 @@ public class ShutdownParamDialog extends JDialog
                         delay = Integer.parseInt( delayField.getText() );
                         if ( delay > 86400 || delay < 0 )
                         {
-                            JOptionPane.showMessageDialog( ShutdownParamDialog.this,
+                            JOptionPane.showMessageDialog( ShutdownDialog.this,
                                 "Delay is out of range: 0 ... 86400", "Range Problem", JOptionPane.ERROR_MESSAGE );
                             delayField.setText( "" );
                             return;
@@ -179,7 +179,7 @@ public class ShutdownParamDialog extends JDialog
                     }
                     catch( NumberFormatException nfe )
                     {
-                        JOptionPane.showMessageDialog( ShutdownParamDialog.this,
+                        JOptionPane.showMessageDialog( ShutdownDialog.this,
                             "Delay is not a number", "Not a Number", JOptionPane.ERROR_MESSAGE );
                         delayField.setText( "" );
                         return;

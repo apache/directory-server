@@ -792,7 +792,7 @@ public class SessionsFrame extends JFrame
                     }
                     else
                     {
-                        ShutdownParamDialog dialog = new ShutdownParamDialog();
+                        ShutdownDialog dialog = new ShutdownDialog();
                         setCenteredPosition( SessionsFrame.this, dialog );
                         dialog.setModal( true );
                         dialog.setVisible( true );
