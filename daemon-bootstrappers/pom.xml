@@ -2,21 +2,21 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server</groupId>
+    <groupId>org.apache.directory.daemon</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
   <version>0.9.4-SNAPSHOT</version>
-  <artifactId>org.apache.directory.server.standalone.daemon</artifactId>
-  <groupId>org.apache.directory.server.standalone.daemon</groupId>
-  <name>standalone-daemon</name>
+  <artifactId>daemon-bootstrappers</artifactId>
+  <groupId>org.apache.directory.daemon</groupId>
+  <name>Apache Directory Daemon Bootstrappers</name>
   <packaging>jar</packaging>
   <description></description>
   <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>
-        scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-standalone/
+        scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/daemon
       </url>
     </site>
   </distributionManagement>
@@ -42,7 +42,7 @@
           <archive>
             <manifestFile>src/main/manifest/MANIFEST.MF</manifestFile>
             <manifest>
-              <mainClass>org.apache.directory.server.standalone.daemon.MainBootstrapper</mainClass>
+              <mainClass>org.apache.directory.daemon.MainBootstrapper</mainClass>
             </manifest>
           </archive>
         </configuration>
