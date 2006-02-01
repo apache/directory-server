@@ -67,8 +67,8 @@
 
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.0-rc5</version>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.19</version>
       <scope>provided</scope>
     </dependency>
 
