@@ -73,7 +73,6 @@ public class LdapResultTest extends TestCase
         }
         catch ( DecoderException de )
         {
-        	System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -111,7 +110,6 @@ public class LdapResultTest extends TestCase
         }
         catch ( DecoderException de )
         {
-        	System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -194,7 +192,6 @@ public class LdapResultTest extends TestCase
         }
         catch ( DecoderException de )
         {
-        	System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -233,8 +230,7 @@ public class LdapResultTest extends TestCase
         }
         catch ( DecoderException de )
         {
-        	System.out.println( de.getMessage() );
-            assertTrue( true );
+        	assertTrue( true );
             return;
         }
     	
@@ -566,7 +562,6 @@ public class LdapResultTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }

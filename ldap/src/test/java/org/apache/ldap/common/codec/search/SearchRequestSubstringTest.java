@@ -1267,7 +1267,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1316,7 +1315,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1365,7 +1363,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1415,7 +1412,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1466,7 +1462,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1517,7 +1512,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1568,7 +1562,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1620,7 +1613,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1672,7 +1664,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1724,7 +1715,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1776,7 +1766,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -1828,7 +1817,6 @@ public class SearchRequestSubstringTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }

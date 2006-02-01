@@ -190,7 +190,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -239,7 +238,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -288,7 +286,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -414,7 +411,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -463,7 +459,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -512,7 +507,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
@@ -561,7 +555,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase {
         } 
         catch ( DecoderException de ) 
         {
-            System.out.println( de.getMessage() );
             assertTrue( true );
             return;
         }
