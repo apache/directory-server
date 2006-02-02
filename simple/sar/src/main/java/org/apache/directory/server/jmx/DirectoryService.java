@@ -61,17 +61,17 @@ import javax.naming.directory.ModificationItem;
 
 /**
  * JBoss 3.x Mbean for embedded and remote directory server support
- *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory
- *         Project</a>
- * @version $Rev:  $, $Date:  $
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev: $, $Date: $
  */
-public class DirectoryService extends ServiceMBeanSupport
-    implements DirectoryServiceMBean, MBeanRegistration
+public class DirectoryService extends ServiceMBeanSupport implements DirectoryServiceMBean, MBeanRegistration
 {
-    //~ Static fields/initializers ---------------------------------------------
+    // ~ Static fields/initializers
+    // ---------------------------------------------
 
     private static final Logger LOG = LoggerFactory.getLogger( DirectoryService.class );
+
     private static final ServiceRegistry DEFAULT_MINA_REGISTRY = new SimpleServiceRegistry();
 
     /** Default LDAP Listen Port */
@@ -80,39 +80,61 @@ public class DirectoryService extends ServiceMBeanSupport
     /** Default LDAPS (SSL) Port */
     public static final int DEFAULT_LDAPS_PORT = 636;
 
-    //~ Instance fields --------------------------------------------------------
+    // ~ Instance fields
+    // --------------------------------------------------------
 
     private boolean embeddedServerEnabled = true;
+
     private String wkDir = ".";
+
     private String ldifDir = "./ldif";
+
     private int ldapPort = DEFAULT_LDAP_PORT;
+
     private int ldapsPort = DEFAULT_LDAPS_PORT;
+
     private String customRootPartitionName = "com";
+
     private String contextProviderURL = "uid=admin,ou=system";
+
     private String securityAuthentication = "simple";
+
     private String securityCredentials = "secret";
+
     private String securityPrincipal = "uid=admin,ou=system";
+
     private boolean anonymousAccess = false;
+
     private boolean ldapNetworkingSupport = false;
-    private String contextFactory = ServerContextFactory.class.getName(  );
+
+    private String contextFactory = ServerContextFactory.class.getName();
+
     private Element additionalEnv = null;
+
     private Element customSchema = null;
+
     private Element ldifFilters = null;
+
     private boolean accessControlEnabled = false;
+
     private boolean enableNtp = false;
+
     private boolean enableKerberos = false;
+
     private boolean enableChangePassword = false;
 
-    //~ Methods ----------------------------------------------------------------
 
-    protected void startService(  ) throws Exception
+    // ~ Methods
+    // ----------------------------------------------------------------
+
+    protected void startService() throws Exception
     {
         // Build the properties from bean attributes
-        Hashtable env = createContextEnv(  );
+        Hashtable env = createContextEnv();
 
         if ( embeddedServerEnabled )
         {
-            if ( LOG.isInfoEnabled(  ) )
+            if ( LOG.isInfoEnabled() )
             {
                 LOG.info( "Starting Embedded Directory Server..." );
             }
@@ -120,7 +142,10 @@ public class DirectoryService extends ServiceMBeanSupport
             // Create the baseline configuration
             MutableServerStartupConfiguration cfg = new MutableServerStartupConfiguration();
 
-            /* *************** Update the baseline configuration ***************** */
+            /*
+             * *************** Update the baseline configuration
+             * *****************
+             */
             // Access Control
             cfg.setAccessControlEnabled( this.accessControlEnabled );
             cfg.setAllowAnonymousAccess( this.anonymousAccess );
@@ -139,76 +164,74 @@ public class DirectoryService extends ServiceMBeanSupport
             // Work folder
             cfg.setWorkingDirectory( new File( this.wkDir ) );
 
-            // LDIF import 
+            // LDIF import
             cfg.setLdifDirectory( new File( this.ldifDir ) );
-            cfg.setLdifFilters( addCustomLdifFilters(  ) );
+            cfg.setLdifFilters( addCustomLdifFilters() );
 
-            // Addditional bootstrap schema 
-            cfg.setBootstrapSchemas( addCustomBootstrapSchema( 
-                    cfg.getBootstrapSchemas(  ) ) );
+            // Addditional bootstrap schema
+            cfg.setBootstrapSchemas( addCustomBootstrapSchema( cfg.getBootstrapSchemas() ) );
 
             // Single custom partition
-            if ( ( null != this.customRootPartitionName ) &&
-                    ( this.customRootPartitionName.length(  ) > 0 ) )
+            if ( ( null != this.customRootPartitionName ) && ( this.customRootPartitionName.length() > 0 ) )
             {
-                if ( LOG.isDebugEnabled(  ) )
+                if ( LOG.isDebugEnabled() )
                 {
-                    LOG.debug( "Adding custom root partition name: " +
-                        this.customRootPartitionName );
+                    LOG.debug( "Adding custom root partition name: " + this.customRootPartitionName );
                 }
 
-                Set pcfgs = addCustomPartition(  );
+                Set pcfgs = addCustomPartition();
                 cfg.setContextPartitionConfigurations( pcfgs );
             }
 
             // Put the configuration instruction to the environment variable.
-            env.putAll( cfg.toJndiEnvironment(  ) );
+            env.putAll( cfg.toJndiEnvironment() );
 
             new InitialDirContext( env );
         }
         else
         {
-            if ( LOG.isWarnEnabled(  ) )
+            if ( LOG.isWarnEnabled() )
             {
-                LOG.warn( 
-                    "No Embedded directory server requested.  All directory access will be via remote LDAP interface." );
+                LOG
+                    .warn( "No Embedded directory server requested.  All directory access will be via remote LDAP interface." );
             }
         }
 
-        if ( LOG.isDebugEnabled(  ) )
+        if ( LOG.isDebugEnabled() )
         {
             LOG.debug( "Directory Environment:" );
 
-            Enumeration en = env.keys(  );
+            Enumeration en = env.keys();
 
-            while ( en.hasMoreElements(  ) )
+            while ( en.hasMoreElements() )
             {
-                Object key = en.nextElement(  );
+                Object key = en.nextElement();
                 LOG.debug( "    " + key + ":" + env.get( key ) );
             }
         }
     }
 
-    private List addCustomLdifFilters(  )
+
+    private List addCustomLdifFilters()
     {
-        List filters = new ArrayList(  );
+        List filters = new ArrayList();
 
         Hashtable ht = getPropertiesFromElement( ldifFilters );
-        Enumeration en = ht.elements(  );
+        Enumeration en = ht.elements();
         Class clazz = null;
 
-        while ( en.hasMoreElements(  ) )
+        while ( en.hasMoreElements() )
         {
             try
             {
-                clazz = Class.forName( ( String ) en.nextElement(  ) );
-                filters.add( clazz.newInstance(  ) );
+                clazz = Class.forName( ( String ) en.nextElement() );
+                filters.add( clazz.newInstance() );
             }
             catch ( Exception e )
             {
-                if ( LOG.isErrorEnabled(  ) )
+                if ( LOG.isErrorEnabled() )
                 {
-                    LOG.error( e.toString(  ) );
+                    LOG.error( e.toString() );
                 }
             }
         }
@@ -216,24 +239,25 @@ public class DirectoryService extends ServiceMBeanSupport
         return filters;
     }
 
+
     private Set addCustomBootstrapSchema( Set schema )
     {
         Hashtable ht = getPropertiesFromElement( customSchema );
-        Enumeration en = ht.elements(  );
+        Enumeration en = ht.elements();
         Class clazz = null;
 
-        while ( en.hasMoreElements(  ) )
+        while ( en.hasMoreElements() )
         {
             try
             {
-                clazz = Class.forName( ( String ) en.nextElement(  ) );
-                schema.add( clazz.newInstance(  ) );
+                clazz = Class.forName( ( String ) en.nextElement() );
+                schema.add( clazz.newInstance() );
             }
             catch ( Exception e )
             {
-                if ( LOG.isErrorEnabled(  ) )
+                if ( LOG.isErrorEnabled() )
                 {
-                    LOG.error( e.toString(  ) );
+                    LOG.error( e.toString() );
                 }
             }
         }
@@ -241,22 +265,24 @@ public class DirectoryService extends ServiceMBeanSupport
         return schema;
     }
 
+
     private void addAdditionalEnv( Hashtable env )
     {
         Hashtable ht = getPropertiesFromElement( additionalEnv );
-        Enumeration en = ht.keys(  );
+        Enumeration en = ht.keys();
         String key = null;
 
-        while ( en.hasMoreElements(  ) )
+        while ( en.hasMoreElements() )
         {
-            key = ( String ) en.nextElement(  );
+            key = ( String ) en.nextElement();
             env.put( key, ( String ) ht.get( key ) );
         }
     }
 
-    private Hashtable createContextEnv(  )
+
+    private Hashtable createContextEnv()
     {
-        Hashtable env = new Properties(  );
+        Hashtable env = new Properties();
 
         addAdditionalEnv( env );
 
@@ -267,28 +293,30 @@ public class DirectoryService extends ServiceMBeanSupport
         env.put( Context.SECURITY_PRINCIPAL, this.securityPrincipal );
         env.put( Context.SECURITY_CREDENTIALS, this.securityCredentials );
 
-        if ( this.isEmbeddedServerEnabled(  ) )
+        if ( this.isEmbeddedServerEnabled() )
         {
-            // This is bug-or-wierdness workaround for in-VM access to the DirContext of ApacheDS
-            env.put( Configuration.JNDI_KEY, new SyncConfiguration(  ) );
+            // This is bug-or-wierdness workaround for in-VM access to the
+            // DirContext of ApacheDS
+            env.put( Configuration.JNDI_KEY, new SyncConfiguration() );
         }
 
         return env;
     }
 
-    private Set addCustomPartition(  )
+
+    private Set addCustomPartition()
     {
         BasicAttributes attrs;
         Set indexedAttrs;
         BasicAttribute attr;
-        Set pcfgs = new HashSet(  );
+        Set pcfgs = new HashSet();
         MutableDirectoryPartitionConfiguration pcfg;
-        pcfg = new MutableDirectoryPartitionConfiguration(  );
+        pcfg = new MutableDirectoryPartitionConfiguration();
 
         pcfg.setName( this.customRootPartitionName );
         pcfg.setSuffix( "dc=" + this.customRootPartitionName );
 
-        indexedAttrs = new HashSet(  );
+        indexedAttrs = new HashSet();
         indexedAttrs.add( "ou" );
         indexedAttrs.add( "dc" );
         indexedAttrs.add( "objectClass" );
@@ -313,135 +341,178 @@ public class DirectoryService extends ServiceMBeanSupport
         return pcfgs;
     }
 
-    protected void stopService(  ) throws Exception
+
+    protected void stopService() throws Exception
     {
         if ( embeddedServerEnabled )
         {
-            if ( LOG.isInfoEnabled(  ) )
+            if ( LOG.isInfoEnabled() )
             {
                 LOG.info( "Stopping Embedded Directory Server..." );
             }
 
             // Create a configuration instruction.
-            ShutdownConfiguration cfg = new ShutdownConfiguration(  );
+            ShutdownConfiguration cfg = new ShutdownConfiguration();
 
             // Build the properties from bean attributes
-            Hashtable env = createContextEnv(  );
+            Hashtable env = createContextEnv();
 
             // Put the configuration instruction to the environment variable.
-            env.putAll( cfg.toJndiEnvironment(  ) );
+            env.putAll( cfg.toJndiEnvironment() );
 
             new InitialDirContext( env );
         }
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getContextProviderURL()
      */
-    public String getContextProviderURL(  )
+    public String getContextProviderURL()
     {
         return this.contextProviderURL;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getContextSecurityAuthentication()
      */
-    public String getContextSecurityAuthentication(  )
+    public String getContextSecurityAuthentication()
     {
         return this.securityAuthentication;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getContextSecurityCredentials()
      */
-    public String getContextSecurityCredentials(  )
+    public String getContextSecurityCredentials()
     {
         return this.securityCredentials;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getContextSecurityPrincipal()
      */
-    public String getContextSecurityPrincipal(  )
+    public String getContextSecurityPrincipal()
     {
         return this.securityPrincipal;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedCustomRootPartitionName()
      */
-    public String getEmbeddedCustomRootPartitionName(  )
+    public String getEmbeddedCustomRootPartitionName()
     {
         return this.customRootPartitionName;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedLDAPPort()
      */
-    public int getEmbeddedLDAPPort(  )
+    public int getEmbeddedLDAPPort()
     {
         return this.ldapPort;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedLDAPSPort()
      */
-    public int getEmbeddedLDAPSPort(  )
+    public int getEmbeddedLDAPSPort()
     {
         return this.ldapsPort;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedLDIFdir()
      */
-    public String getEmbeddedLDIFdir(  )
+    public String getEmbeddedLDIFdir()
     {
         return this.ldifDir;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedWkdir()
      */
-    public String getEmbeddedWkdir(  )
+    public String getEmbeddedWkdir()
     {
         return this.wkDir;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#isEmbeddedAnonymousAccess()
      */
-    public boolean isEmbeddedAnonymousAccess(  )
+    public boolean isEmbeddedAnonymousAccess()
     {
         return this.anonymousAccess;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#isEmbeddedLDAPNetworkingSupport()
      */
-    public boolean isEmbeddedLDAPNetworkingSupport(  )
+    public boolean isEmbeddedLDAPNetworkingSupport()
     {
         return this.ldapNetworkingSupport;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#isEmbeddedServerEnabled()
      */
-    public boolean isEmbeddedServerEnabled(  )
+    public boolean isEmbeddedServerEnabled()
     {
         return this.embeddedServerEnabled;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#openDirContext()
      */
-    public DirContext openDirContext(  ) throws NamingException
+    public DirContext openDirContext() throws NamingException
     {
-        Hashtable env = createContextEnv(  );
+        Hashtable env = createContextEnv();
 
         return new InitialDirContext( env );
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setContextProviderURL(java.lang.String)
      */
     public void setContextProviderURL( String providerURL )
@@ -449,7 +520,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.contextProviderURL = providerURL;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setContextSecurityAuthentication(java.lang.String)
      */
     public void setContextSecurityAuthentication( String securityAuthentication )
@@ -457,7 +531,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.securityAuthentication = securityAuthentication;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setContextSecurityCredentials(java.lang.String)
      */
     public void setContextSecurityCredentials( String securityCredentials )
@@ -465,7 +542,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.securityCredentials = securityCredentials;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setContextSecurityprincipal(java.lang.String)
      */
     public void setContextSecurityPrincipal( String securityPrincipal )
@@ -473,7 +553,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.securityPrincipal = securityPrincipal;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedAnonymousAccess(boolean)
      */
     public void setEmbeddedAnonymousAccess( boolean anonymousAccess )
@@ -481,7 +564,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.anonymousAccess = anonymousAccess;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedCustomRootPartitionName(java.lang.String)
      */
     public void setEmbeddedCustomRootPartitionName( String rootPartitianName )
@@ -489,7 +575,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.customRootPartitionName = rootPartitianName;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedLDAPNetworkingSupport(boolean)
      */
     public void setEmbeddedLDAPNetworkingSupport( boolean ldapNetworkingSupport )
@@ -497,7 +586,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.ldapNetworkingSupport = ldapNetworkingSupport;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedLDAPPort(int)
      */
     public void setEmbeddedLDAPPort( int ldapPort )
@@ -505,7 +597,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.ldapPort = ldapPort;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedLDAPSPort(int)
      */
     public void setEmbeddedLDAPSPort( int ldapsPort )
@@ -513,7 +608,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.ldapsPort = ldapsPort;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedLDIFdir(java.lang.String)
      */
     public void setEmbeddedLDIFdir( String LDIFdir )
@@ -521,7 +619,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.ldifDir = LDIFdir;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedServerEnabled(boolean)
      */
     public void setEmbeddedServerEnabled( boolean enabled )
@@ -529,7 +630,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.embeddedServerEnabled = enabled;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedWkdir(java.lang.String)
      */
     public void setEmbeddedWkdir( String wkdir )
@@ -537,15 +641,21 @@ public class DirectoryService extends ServiceMBeanSupport
         this.wkDir = wkdir;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getContextFactory()
      */
-    public String getContextFactory(  )
+    public String getContextFactory()
     {
         return this.contextFactory;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setContextFactory(java.lang.String)
      */
     public void setContextFactory( String factoryClass )
@@ -553,35 +663,35 @@ public class DirectoryService extends ServiceMBeanSupport
         this.contextFactory = factoryClass;
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#changedEmbeddedAdminPassword(java.lang.String, java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#changedEmbeddedAdminPassword(java.lang.String,
+     *      java.lang.String)
      */
-    public String changedEmbeddedAdminPassword( String oldPassword,
-        String newPassword )
+    public String changedEmbeddedAdminPassword( String oldPassword, String newPassword )
     {
         if ( embeddedServerEnabled )
         {
             if ( this.securityCredentials.equals( oldPassword ) )
             {
-                ModificationItem[] mods = new ModificationItem[ 1 ];
-                Attribute password = new BasicAttribute( "userpassword",
-                        newPassword );
-                mods[ 0 ] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE,
-                        password );
+                ModificationItem[] mods = new ModificationItem[1];
+                Attribute password = new BasicAttribute( "userpassword", newPassword );
+                mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, password );
 
                 try
                 {
-                    DirContext dc = openDirContext(  );
+                    DirContext dc = openDirContext();
 
                     dc.modifyAttributes( "", mods );
-                    dc.close(  );
+                    dc.close();
                 }
                 catch ( NamingException e )
                 {
-                    String msg = "Failed modifying directory password attribute: " +
-                        e;
+                    String msg = "Failed modifying directory password attribute: " + e;
 
-                    if ( LOG.isErrorEnabled(  ) )
+                    if ( LOG.isErrorEnabled() )
                     {
                         LOG.error( msg );
                     }
@@ -602,7 +712,7 @@ public class DirectoryService extends ServiceMBeanSupport
         {
             String msg = "Unable to change password as embedded server is not enabled.";
 
-            if ( LOG.isWarnEnabled(  ) )
+            if ( LOG.isWarnEnabled() )
             {
                 LOG.warn( msg );
             }
@@ -611,38 +721,42 @@ public class DirectoryService extends ServiceMBeanSupport
         }
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#flushEmbeddedServerData()
      */
-    public boolean flushEmbeddedServerData(  )
+    public boolean flushEmbeddedServerData()
     {
         if ( embeddedServerEnabled )
         {
             try
             {
-                if ( LOG.isInfoEnabled(  ) )
+                if ( LOG.isInfoEnabled() )
                 {
                     LOG.info( "Syncing Embedded Directory Server..." );
                 }
 
                 // Create a configuration instruction.
-                SyncConfiguration cfg = new SyncConfiguration(  );
+                SyncConfiguration cfg = new SyncConfiguration();
 
                 // Build the properties from bean attributes
-                Hashtable env = createContextEnv(  );
+                Hashtable env = createContextEnv();
 
-                // Put the configuration instruction to the environment variable.
-                env.putAll( cfg.toJndiEnvironment(  ) );
+                // Put the configuration instruction to the environment
+                // variable.
+                env.putAll( cfg.toJndiEnvironment() );
 
-                if ( LOG.isDebugEnabled(  ) )
+                if ( LOG.isDebugEnabled() )
                 {
                     LOG.info( "Directory Properties:" );
 
-                    Enumeration en = env.keys(  );
+                    Enumeration en = env.keys();
 
-                    while ( en.hasMoreElements(  ) )
+                    while ( en.hasMoreElements() )
                     {
-                        Object key = en.nextElement(  );
+                        Object key = en.nextElement();
                         LOG.debug( "    " + key + ":" + env.get( key ) );
                     }
                 }
@@ -653,15 +767,15 @@ public class DirectoryService extends ServiceMBeanSupport
             }
             catch ( NamingException e )
             {
-                if ( LOG.isErrorEnabled(  ) )
+                if ( LOG.isErrorEnabled() )
                 {
-                    LOG.error( e.toString(  ) );
+                    LOG.error( e.toString() );
                 }
             }
         }
         else
         {
-            if ( LOG.isWarnEnabled(  ) )
+            if ( LOG.isWarnEnabled() )
             {
                 LOG.warn( "Unable to flush as embedded server is not enabled." );
             }
@@ -670,23 +784,32 @@ public class DirectoryService extends ServiceMBeanSupport
         return false;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedAdditionalEnvProperties()
      */
-    public Element getEmbeddedAdditionalEnvProperties(  )
+    public Element getEmbeddedAdditionalEnvProperties()
     {
         return this.additionalEnv;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedCustomBootstrapSchemas()
      */
-    public Element getEmbeddedCustomBootstrapSchema(  )
+    public Element getEmbeddedCustomBootstrapSchema()
     {
         return this.customSchema;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedAdditionalEnvProperties(java.util.Properties)
      */
     public void setEmbeddedAdditionalEnvProperties( Element env )
@@ -694,7 +817,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.additionalEnv = env;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedCustomBootstrapSchemas(java.util.Properties)
      */
     public void setEmbeddedCustomBootstrapSchema( Element cfg )
@@ -702,39 +828,54 @@ public class DirectoryService extends ServiceMBeanSupport
         this.customSchema = cfg;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#isEmbeddedAccessControlEnabled()
      */
-    public boolean isEmbeddedAccessControlEnabled(  )
+    public boolean isEmbeddedAccessControlEnabled()
     {
         return this.accessControlEnabled;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#isEmbeddedEnableChangePassword()
      */
-    public boolean isEmbeddedEnableChangePassword(  )
+    public boolean isEmbeddedEnableChangePassword()
     {
         return this.enableChangePassword;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#isEmbeddedEnableKerberos()
      */
-    public boolean isEmbeddedEnableKerberos(  )
+    public boolean isEmbeddedEnableKerberos()
     {
         return this.enableKerberos;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#isEmbeddedEnableNtp()
      */
-    public boolean isEmbeddedEnableNtp(  )
+    public boolean isEmbeddedEnableNtp()
     {
         return this.enableNtp;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedAccessControlEnabled(boolean)
      */
     public void setEmbeddedAccessControlEnabled( boolean enabled )
@@ -742,7 +883,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.accessControlEnabled = enabled;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedEnableChangePassword(boolean)
      */
     public void setEmbeddedEnableChangePassword( boolean enabled )
@@ -750,7 +894,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.enableChangePassword = enabled;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedEnableKerberos(boolean)
      */
     public void setEmbeddedEnableKerberos( boolean enabled )
@@ -758,7 +905,10 @@ public class DirectoryService extends ServiceMBeanSupport
         this.enableKerberos = enabled;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedEnableNtp(boolean)
      */
     public void setEmbeddedEnableNtp( boolean enabled )
@@ -766,15 +916,21 @@ public class DirectoryService extends ServiceMBeanSupport
         this.enableNtp = enabled;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#getEmbeddedLDIFFilters()
      */
-    public Element getEmbeddedLDIFFilters(  )
+    public Element getEmbeddedLDIFFilters()
     {
         return this.ldifFilters;
     }
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.server.jmx.DirectoryServiceMBean#setEmbeddedLDIFFilters(org.w3c.dom.Element)
      */
     public void setEmbeddedLDIFFilters( Element fil )
@@ -782,43 +938,44 @@ public class DirectoryService extends ServiceMBeanSupport
         this.ldifFilters = fil;
     }
 
-    // Embedded lists inside the Mbean service definition are made available as DOM elements
+
+    // Embedded lists inside the Mbean service definition are made available as
+    // DOM elements
     // and are parsed into a java collection before use
     private Hashtable getPropertiesFromElement( Element element )
     {
-        Hashtable ht = new Hashtable(  );
+        Hashtable ht = new Hashtable();
 
         if ( null != element )
         {
-            if ( LOG.isInfoEnabled(  ) )
+            if ( LOG.isInfoEnabled() )
             {
                 LOG.info( "Adding custom configuration elements:" );
             }
 
-            NodeList nl = element.getChildNodes(  );
+            NodeList nl = element.getChildNodes();
             Node el = null;
 
-            for ( int ii = 0; ii < nl.getLength(  ); ii++ )
+            for ( int ii = 0; ii < nl.getLength(); ii++ )
             {
                 el = nl.item( ii );
 
                 String val = null;
                 String name = null;
 
-                if ( el.getNodeType(  ) == Node.ELEMENT_NODE )
+                if ( el.getNodeType() == Node.ELEMENT_NODE )
                 {
-                    name = el.getAttributes(  ).getNamedItem( "name" )
-                             .getNodeValue(  );
+                    name = el.getAttributes().getNamedItem( "name" ).getNodeValue();
 
-                    NodeList vnl = el.getChildNodes(  );
+                    NodeList vnl = el.getChildNodes();
 
-                    for ( int jj = 0; jj < vnl.getLength(  ); jj++ )
+                    for ( int jj = 0; jj < vnl.getLength(); jj++ )
                     {
                         el = vnl.item( jj );
 
-                        if ( el.getNodeType(  ) == Node.TEXT_NODE )
+                        if ( el.getNodeType() == Node.TEXT_NODE )
                         {
-                            val = el.getNodeValue(  );
+                            val = el.getNodeValue();
 
                             break;
                         }
@@ -826,7 +983,7 @@ public class DirectoryService extends ServiceMBeanSupport
 
                     if ( ( null != name ) && ( null != val ) )
                     {
-                        if ( LOG.isInfoEnabled(  ) )
+                        if ( LOG.isInfoEnabled() )
                         {
                             LOG.info( "    " + name + ": " + val );
                         }
