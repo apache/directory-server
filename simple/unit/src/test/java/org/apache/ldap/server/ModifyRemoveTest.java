@@ -91,10 +91,7 @@ public class ModifyRemoveTest extends AbstractServerTest
     {
         ctx.unbind(RDN);
         ctx.close();
-
-        ctx.close();
         ctx = null;
-
         super.tearDown();
     }
 
