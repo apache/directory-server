@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server.standalone.simple</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-sar</artifactId>
+  <name>Apache Directory Server Sar for JBoss 3.x</name>
+  <packaging>sar</packaging>  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.server.standalone.simple</groupId>
+      <artifactId>org.apache.ldap.server.standalone.simple.jndi</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.daemon</groupId>
+      <artifactId>daemon-bootstrappers</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-system</artifactId>
+      <version>3.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.19</version>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <id>mojo.snapshots</id>
+      <name>Codehaus Snapshot Repository</name>
+      <url>http://snapshots.maven.codehaus.org/maven2</url>
+    </repository>
+  </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <extensions>true</extensions>
+        <groupId>org.codehaus.mojo</groupId>
+      	<artifactId>jboss-sar-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>
+aopalliance:aopalliance
+            </exclude>
+            <exclude>
+jasperreports:jasperreports
+            </exclude>
+            <exclude>
+asm:asm-util
+            </exclude>
+            <exclude>
+freemarker:freemarker
+            </exclude>
+            <exclude>
+asm:asm
+            </exclude>
+            <exclude>
+com.jamonapi:jamon
+            </exclude>
+            <exclude>
+velocity:velocity-dep
+            </exclude>
+            <exclude>
+commons-attributes:commons-attributes-compiler
+            </exclude>
+            <exclude>
+commons-attributes:commons-attributes-api
+            </exclude>
+            <exclude>
+cglib:cglib
+            </exclude>
+            <exclude>
+qdox:qdox
+            </exclude>
+            <exclude>
+org.springframework:spring-aop
+            </exclude>
+            <exclude>
+velocity:velocity
+            </exclude>
+            <exclude>
+aspectwerkz:aspectwerkz-core
+            </exclude>
+            <exclude>
+xml-apis:xml-apis
+            </exclude>
+            <exclude>
+commons-pool:commons-pool
+            </exclude>
+            <exclude>
+xerces:xerces
+            </exclude>
+            <exclude>
+ant:ant
+            </exclude>
+            <exclude>
+jboss:jboss-system
+            </exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

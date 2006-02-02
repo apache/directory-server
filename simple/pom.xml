@@ -66,6 +66,7 @@
         <module>main</module>
         <module>ssl</module>
         <module>unit</module>
+        <module>sar</module>
         <module>installers</module>
       </modules>
     </profile>
@@ -79,6 +80,7 @@
         <module>jndi</module>
         <module>main</module>
         <module>unit</module>
+        <module>sar</module>
         <module>installers</module>
       </modules>
       <build>
