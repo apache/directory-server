@@ -54,6 +54,7 @@ public class DirectoryServer implements DaemonApplication
 
     public void init( InstallationLayout install, String[] args ) throws Exception
     {
+        printBanner();
         long startTime = System.currentTimeMillis();
         MutableServerStartupConfiguration cfg;
 
@@ -170,5 +171,19 @@ public class DirectoryServer implements DaemonApplication
                 }
             }
         }
+    }
+    
+    
+    public static final String BANNER = 
+        "           _                     _          ____  ____   \n" +
+        "          / \\   _ __   __ _  ___| |__   ___|  _ \\/ ___|  \n" +
+        "         / _ \\ | '_ \\ / _` |/ __| '_ \\ / _ \\ | | \\___ \\   \n" +
+        "        / ___ \\| |_) | (_| | (__| | | |  __/ |_| |___) |  \n" +
+        "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|____/   \n" +
+        "               |_|                                                               \n";
+
+    public static void printBanner()
+    {
+        System.out.println( BANNER );
     }
 }
