@@ -17,7 +17,11 @@
 package org.apache.ldap.server;
 
 
+import java.io.File;
+
 import org.apache.directory.daemon.InstallationLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,6 +33,8 @@ import org.apache.directory.daemon.InstallationLayout;
  */
 public class ServerMain
 {
+    private static final Logger log = LoggerFactory.getLogger( "main" );
+
     /**
      * Takes a single argument, the path to the installation home, which contains 
      * the configuration to load with server startup settings.
@@ -37,11 +43,21 @@ public class ServerMain
      */
     public static void main( String[] args ) throws Exception
     {
+        if ( log.isInfoEnabled() )
+        {
+            printBanner();
+        }
+        
         DirectoryServer server = new DirectoryServer();
 
-        if ( args.length > 0 )
+        if ( args.length > 0 && new File( args[0] ).isDirectory() )
         {
             server.init( new InstallationLayout( args[0] ), null );
+            server.start();
+        }
+        else if ( args.length > 0 && new File( args[0] ).isFile() )
+        {
+            server.init( null, args );
             server.start();
         }
         else
@@ -49,5 +65,18 @@ public class ServerMain
             server.init( null, null );
             server.start();
         }
+    }
+    
+    public static final String BANNER = 
+        "           _                     _          ____  ____   \n" +
+        "          / \\   _ __   __ _  ___| |__   ___|  _ \\/ ___|  \n" +
+        "         / _ \\ | '_ \\ / _` |/ __| '_ \\ / _ \\ | | \\___ \\   \n" +
+        "        / ___ \\| |_) | (_| | (__| | | |  __/ |_| |___) |  \n" +
+        "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|____/   \n" +
+        "               |_|                                                               \n";
+
+    public static void printBanner()
+    {
+        System.out.println( BANNER );
     }
 }

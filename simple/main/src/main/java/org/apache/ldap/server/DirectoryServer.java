@@ -17,6 +17,7 @@
 package org.apache.ldap.server;
 
 
+import java.io.File;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -58,12 +59,20 @@ public class DirectoryServer implements DaemonApplication
 
         if ( install != null )
         {
-            log.info( "server: loading settings from {}", install.getConfigurationFile() );
+            log.info( "server: loading settings from ", install.getConfigurationFile() );
             ApplicationContext factory = null;
             factory = new FileSystemXmlApplicationContext( install.getConfigurationFile().toURL().toString() );
             cfg = ( MutableServerStartupConfiguration ) factory.getBean( "configuration" );
             env = ( Properties ) factory.getBean( "environment" );
         }
+        else if ( args.length > 0 && new File( args[0] ).exists() )  // hack that takes server.xml file argument
+        {
+            log.info( "server: loading settings from ", args[0] );
+            ApplicationContext factory = null;
+            factory = new FileSystemXmlApplicationContext( new File( args[0] ).toURL().toString() );
+            cfg = ( MutableServerStartupConfiguration ) factory.getBean( "configuration" );
+            env = ( Properties ) factory.getBean( "environment" );
+            }
         else
         {
             log.info( "server: using default settings ..." );
@@ -73,7 +82,12 @@ public class DirectoryServer implements DaemonApplication
 
         env.setProperty( Context.PROVIDER_URL, "ou=system" );
         env.setProperty( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
-        cfg.setWorkingDirectory( install.getPartitionsDirectory() );
+        
+        if ( install != null )
+        {
+            cfg.setWorkingDirectory( install.getPartitionsDirectory() );
+        }
+        
         env.putAll( cfg.toJndiEnvironment() );
         new InitialDirContext( env );
 

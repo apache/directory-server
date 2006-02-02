@@ -19,7 +19,6 @@
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
       <version>0.9.4-SNAPSHOT</version>
-      <scope>provided</scope>
     </dependency>  
     <dependency>
       <groupId>org.slf4j</groupId>
