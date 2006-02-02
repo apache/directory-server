@@ -128,6 +128,20 @@
           <applicationClass>
             org.apache.ldap.server.DirectoryServer
           </applicationClass>
+          <rpmTargets>
+            <rpmTarget>
+              <!--  doSudo>true</doSudo -->
+              <id>linux-jsvc</id>
+              <finalName>
+                apacheds-${pom.version}-linux-i386.rpm
+              </finalName>
+              <osName>Linux</osName>
+              <osFamily>unix</osFamily>
+              <osArch>i386</osArch>
+              <daemonFramework>jsvc</daemonFramework>
+            </rpmTarget>
+          </rpmTargets>
+<!-- 
           <innoTargets>
             <innoTarget>
               <id>windows-xp-procrun</id>
@@ -153,6 +167,16 @@
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
             <izPackTarget>
+              <finalName>
+                apacheds-${pom.version}-solaris-sparc-setup.jar
+              </finalName>
+              <id>solaris-jsvc-sparc</id>
+              <osName>sunos</osName>
+              <osFamily>unix</osFamily>
+              <osArch>sparc</osArch>
+              <daemonFramework>jsvc</daemonFramework>
+            </izPackTarget>
+            <izPackTarget>
               <id>solaris-jsvc-i386</id>
               <finalName>
                 apacheds-${pom.version}-solaris-i386-setup.jar
@@ -162,7 +186,6 @@
               <osArch>i386</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
-<!--
             <izPackTarget>
               <id>macosx-jsvc</id>
               <finalName>
@@ -173,18 +196,8 @@
               <osArch>ppc</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
--->
-            <izPackTarget>
-              <finalName>
-                apacheds-${pom.version}-solaris-sparc-setup.jar
-              </finalName>
-              <id>solaris-jsvc-sparc</id>
-              <osName>sunos</osName>
-              <osFamily>unix</osFamily>
-              <osArch>sparc</osArch>
-              <daemonFramework>jsvc</daemonFramework>
-            </izPackTarget>
           </izPackTargets>
+-->
         </configuration>
         <executions>
           <execution>
