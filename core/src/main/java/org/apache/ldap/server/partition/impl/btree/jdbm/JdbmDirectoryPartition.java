@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Name;
@@ -38,6 +39,7 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
+import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.exception.LdapNameNotFoundException;
 import org.apache.ldap.common.exception.LdapSchemaViolationException;
 import org.apache.ldap.common.message.LockableAttributeImpl;
@@ -1566,6 +1568,22 @@ public class JdbmDirectoryPartition extends BTreeDirectoryPartition
             
             subAliasIdx.drop( ancestorId, targetId );
         }    
+    }
+
+    
+    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    {
+        // does nothing
+        throw new LdapAuthenticationNotSupportedException( 
+            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n" +
+            "Check to see if you have correctly configured authenticators for the server.",
+            ResultCodeEnum.AUTHMETHODNOTSUPPORTED );
+    }
+
+    
+    public void unbind( Name bindDn ) throws NamingException
+    {
+        // does nothing
     }
 }
 

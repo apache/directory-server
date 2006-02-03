@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.ConfigurationException;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
@@ -114,34 +113,16 @@ public abstract class ServerContext implements EventContext
         this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );
         
         DirectoryServiceConfiguration cfg = service.getConfiguration();
-        
         this.env = ( Hashtable ) cfg.getEnvironment().clone();
         this.env.putAll( env );
+        LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
+        dn = props.getProviderDn();
 
-        /* --------------------------------------------------------------------
-         * check for the provider URL property and make sure it exists
-         * as a valid value or else we need to throw a configuration error
-         * ------------------------------------------------------------------ */
-        if ( ! env.containsKey( Context.PROVIDER_URL ) )
-        {
-            String msg = "Expected property " + Context.PROVIDER_URL;
-            msg += " but could not find it in env!";
+        // need to issue a bind operation here
+        this.nexusProxy.bind( props.getBindDn(), props.getCredentials(), 
+            props.getAuthenticationMechanisms(), props.getSaslAuthId() );
 
-            throw new ConfigurationException( msg );
-        }
-
-        String url = ( String ) env.get( Context.PROVIDER_URL );
-
-        if ( url == null )
-        {
-            String msg = "Expected value for property " + Context.PROVIDER_URL;
-            msg += " but it was set to null in env!";
-
-            throw new ConfigurationException( msg );
-        }
-
-        dn = new LdapName( url );
-
+        if ( dn.size() == 0 ) return;
         if ( ! nexusProxy.hasEntry( dn ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
@@ -159,11 +140,12 @@ public abstract class ServerContext implements EventContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    protected ServerContext( DirectoryService service, LdapPrincipal principal, Name dn )
+    protected ServerContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
     {
         this.service = service;
         this.dn = ( LdapName ) dn.clone();
-        this.env = ( Hashtable ) service.getConfiguration().getEnvironment();
+
+        this.env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.nexusProxy = new DirectoryPartitionNexusProxy( this, service );;
         this.principal = principal;

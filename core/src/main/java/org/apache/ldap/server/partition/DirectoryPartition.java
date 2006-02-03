@@ -17,6 +17,7 @@
 package org.apache.ldap.server.partition;
 
 
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -261,4 +262,28 @@ public interface DirectoryPartition
      */
     void move( Name oldName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
+    
+    /**
+     * Represents a bind operation issued to authenticate a client.  Partitions
+     * need not support this operation.  This operation is here to enable those
+     * interested in implementing virtual directories with ApacheDS.
+     * 
+     * @param bindDn the normalized dn of the principal 
+     * @param credentials the credentials of the principal
+     * @param mechanisms the mechanisms requested by the JNDI caller or a single
+     * mechanism representing the SASL bind mechanism used by a networked client (Strings)
+     * @param saslAuthId the SASL authentication (may be null)
+     * @throws NamingException if something goes wrong
+     */
+    void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException;
+
+    /**
+     * Represents an unbind operation issued by an authenticated client.  Partitions
+     * need not support this operation.  This operation is here to enable those
+     * interested in implementing virtual directories with ApacheDS.
+     * 
+     * @param bindDn the normalized dn of the principal attempting to unbind
+     * @throws NamingException if something goes wrong
+     */
+    void unbind( Name bindDn ) throws NamingException;
 }

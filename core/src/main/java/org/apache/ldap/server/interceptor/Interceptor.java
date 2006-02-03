@@ -18,6 +18,7 @@ package org.apache.ldap.server.interceptor;
 
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Name;
@@ -212,4 +213,15 @@ public interface Interceptor
      */
     void move( NextInterceptor next, Name oldName, Name newParentName, String newRn,
                boolean deleteOldRn ) throws NamingException;
+
+    /**
+     * Filters {@link DirectoryPartition#bind(Name, byte[], List, String)} call.
+     */
+    void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+        throws NamingException;
+
+    /**
+     * Filters {@link DirectoryPartition#unbind(Name)} call.
+     */
+    void unbind( NextInterceptor next, Name bindDn ) throws NamingException;
 }

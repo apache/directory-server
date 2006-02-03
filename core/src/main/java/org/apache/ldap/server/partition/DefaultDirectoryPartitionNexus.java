@@ -539,9 +539,23 @@ public class DefaultDirectoryPartitionNexus extends DirectoryPartitionNexus
 
 
     // ------------------------------------------------------------------------
-    // Backend Interface Method Implementations
+    // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
     
+    
+    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    {
+        DirectoryPartition partition = getBackend( bindDn );
+        partition.bind( bindDn, credentials, mechanisms, saslAuthId );
+    }
+
+
+    public void unbind( Name bindDn ) throws NamingException
+    {
+        DirectoryPartition partition = getBackend( bindDn );
+        partition.unbind( bindDn );
+    }
+
     
     /**
      * @see DirectoryPartition#delete(javax.naming.Name)

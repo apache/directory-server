@@ -184,6 +184,18 @@ public class InterceptorChain
         {
             nexus.removeContextPartition( suffix );
         }
+
+
+        public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+        {
+            nexus.bind( bindDn, credentials, mechanisms, saslAuthId );
+        }
+
+
+        public void unbind( NextInterceptor next, Name bindDn ) throws NamingException
+        {
+            nexus.unbind( bindDn );
+        }
     };
 
     private final Map name2entry = new HashMap();
@@ -681,6 +693,46 @@ public class InterceptorChain
     }
 
 
+    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    {
+        Entry node = getStartingEntry();
+        Interceptor head = node.configuration.getInterceptor();
+        NextInterceptor next = node.nextInterceptor;
+        try
+        {
+            head.bind( next, bindDn, credentials, mechanisms, saslAuthId );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+    
+    public void unbind( Name bindDn ) throws NamingException
+    {
+        Entry node = getStartingEntry();
+        Interceptor head = node.configuration.getInterceptor();
+        NextInterceptor next = node.nextInterceptor;
+        try
+        {
+            head.unbind( next, bindDn );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+    
     public void modify( Name name, int modOp, Attributes mods ) throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -1314,6 +1366,45 @@ public class InterceptorChain
                     try
                     {
                         interceptor.move( next.nextInterceptor, oriChildName, newParentName, newRn, deleteOldRn );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+
+                public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+                {
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.bind( next.nextInterceptor, bindDn, credentials, mechanisms, saslAuthId );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+                public void unbind( Name bindDn ) throws NamingException
+                {
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.unbind( next.nextInterceptor, bindDn );
                     }
                     catch ( NamingException ne )
                     {

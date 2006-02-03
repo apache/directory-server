@@ -615,6 +615,53 @@ public class DirectoryPartitionNexusProxy extends DirectoryPartitionNexus
     }
 
 
+    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId, Collection bypass ) 
+        throws NamingException
+    {
+        ensureStarted();
+        InvocationStack stack = InvocationStack.getInstance();
+        Object[] args = new Object[] { bindDn, credentials, mechanisms, saslAuthId };
+        stack.push( new Invocation( this, caller, "bind", args, bypass ) );
+        try
+        {
+            this.configuration.getInterceptorChain().bind( bindDn, credentials, mechanisms, saslAuthId );
+        }
+        finally
+        {
+            stack.pop();
+        }
+    }
+
+
+    public void unbind( Name bindDn, Collection bypass ) throws NamingException
+    {
+        ensureStarted();
+        InvocationStack stack = InvocationStack.getInstance();
+        Object[] args = new Object[] { bindDn };
+        stack.push( new Invocation( this, caller, "unbind", args, bypass ) );
+        try
+        {
+            this.configuration.getInterceptorChain().unbind( bindDn );
+        }
+        finally
+        {
+            stack.pop();
+        }
+    }
+
+    
+    public void bind( Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    {
+        bind( bindDn, credentials, mechanisms, saslAuthId, null );
+    }
+
+
+    public void unbind( Name bindDn ) throws NamingException
+    {
+        unbind( bindDn, null );
+    }
+
+    
     public Attributes getRootDSE() throws NamingException
     {
         return getRootDSE( null );

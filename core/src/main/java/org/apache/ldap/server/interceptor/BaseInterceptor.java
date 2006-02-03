@@ -18,6 +18,7 @@ package org.apache.ldap.server.interceptor;
 
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -208,5 +209,16 @@ public abstract class BaseInterceptor implements Interceptor
     public boolean compare( NextInterceptor next, Name name, String oid, Object value ) throws NamingException
     {
         return next.compare( name, oid, value );
+    }
+    
+    public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId )
+        throws NamingException
+    {
+        next.bind( bindDn, credentials, mechanisms, saslAuthId );
+    }
+    
+    public void unbind( NextInterceptor next, Name bindDn ) throws NamingException
+    {
+        next.unbind( bindDn );
     }
 }

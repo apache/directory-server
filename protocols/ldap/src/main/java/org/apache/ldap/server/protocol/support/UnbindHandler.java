@@ -20,6 +20,7 @@ package org.apache.ldap.server.protocol.support;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.protocol.SessionRegistry;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
@@ -46,9 +47,14 @@ public class UnbindHandler implements MessageHandler
 
         try
         {
-            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, false );
+            LdapContext ctx = ( LdapContext ) SessionRegistry.getSingleton().getLdapContext( session, null, false );
+            
             if ( ctx != null )
             {
+                if ( ctx instanceof ServerLdapContext && ( ( ServerLdapContext ) ctx ).getService().isStarted() )
+                {
+                    ( ( ServerLdapContext ) ctx ).ldapUnbind();
+                }
                 ctx.close();
             }
             registry.terminateSession( session );

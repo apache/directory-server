@@ -416,6 +416,20 @@ public class InterceptorChainTest extends TestCase
             interceptors.add( this );
             next.move( oldName, newParentName, newRn, deleteOldRn );
         }
+
+
+        public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+        {
+            interceptors.add( this );
+            next.bind( bindDn, credentials, mechanisms, saslAuthId );
+        }
+
+
+        public void unbind( NextInterceptor next, Name bindDn ) throws NamingException
+        {
+            interceptors.add( this );
+            next.unbind( bindDn );
+        }
     }
 
 

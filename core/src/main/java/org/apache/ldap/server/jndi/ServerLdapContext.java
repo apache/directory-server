@@ -19,6 +19,7 @@ package org.apache.ldap.server.jndi;
 
 import java.util.Hashtable;
 
+import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.Control;
@@ -30,6 +31,8 @@ import org.apache.ldap.common.NotImplementedException;
 import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.authn.LdapPrincipal;
 import org.apache.ldap.server.referral.ReferralService;
+
+import com.sun.jndi.ldap.LdapName;
 
 
 /**
@@ -68,7 +71,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the environment properties used by this context
      * @param dn the distinguished name of this context
      */
-    ServerLdapContext( DirectoryService service, LdapPrincipal principal, Name dn )
+    ServerLdapContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
     {
         super( service, principal, dn );
     }
@@ -164,6 +167,21 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public boolean compare( Name name, String oid, Object value ) throws NamingException
     {
        return super.getNexusProxy().compare( name, oid, value );
+    }
+    
+    
+    /**
+     * Calling this method tunnels an unbind call down into the partition holding 
+     * the bindDn.  The bind() counter part is not exposed because it is automatically
+     * called when you create a new initial context for a new connection (on wire) or 
+     * (programatic) caller.
+     * 
+     * @throws NamingException
+     */
+    public void ldapUnbind() throws NamingException
+    {
+        String bindDn = ( String ) getEnvironment().get( Context.SECURITY_PRINCIPAL );
+        super.getNexusProxy().unbind( new LdapName( bindDn ) );
     }
     
     

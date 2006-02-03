@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -32,11 +33,8 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 
 import org.apache.ldap.common.exception.LdapAuthenticationException;
-import org.apache.ldap.common.exception.LdapAuthenticationNotSupportedException;
 import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.util.AttributeUtils;
-import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.server.DirectoryServiceConfiguration;
 import org.apache.ldap.server.configuration.AuthenticatorConfiguration;
 import org.apache.ldap.server.configuration.InterceptorConfiguration;
@@ -44,6 +42,7 @@ import org.apache.ldap.server.interceptor.BaseInterceptor;
 import org.apache.ldap.server.interceptor.Interceptor;
 import org.apache.ldap.server.interceptor.NextInterceptor;
 import org.apache.ldap.server.invocation.InvocationStack;
+import org.apache.ldap.server.jndi.LdapJndiProperties;
 import org.apache.ldap.server.jndi.ServerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +183,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"  + upName + "'" );
     	}
     	
-        authenticate();
+        checkAuthenticated();
         next.add( upName, normName, entry );
     }
 
@@ -196,7 +195,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Deleting name = '" + name.toString() + "'" );
     	}
     	
-        authenticate();
+        checkAuthenticated();
         next.delete( name );
     }
 
@@ -208,7 +207,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Matching name = '" + dn.toString() + "'" );
     	}
 
-    	authenticate();
+    	checkAuthenticated();
         return next.getMatchedName( dn, normalized );
     }
 
@@ -220,7 +219,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Getting root DSE" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.getRootDSE();
     }
 
@@ -232,7 +231,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.getSuffix( dn, normalized );
     }
 
@@ -244,7 +243,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Testing if entry name = '" + name.toString() + "' exists");
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.hasEntry( name );
     }
 
@@ -256,7 +255,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Testing suffix for name = '" + name.toString() + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.isSuffix( name );
     }
 
@@ -268,7 +267,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Listing base = '" + base.toString() + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.list( base );
     }
 
@@ -280,7 +279,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Listing suffixes" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.listSuffixes( normalized );
     }
 
@@ -292,7 +291,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.lookup( dn, attrIds );
     }
 
@@ -304,7 +303,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Lookup name = '" + name.toString() + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.lookup( name );
     }
 
@@ -316,7 +315,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
     	}
 
-        authenticate();
+        checkAuthenticated();
         next.modify( name, modOp, mods );
     }
 
@@ -328,7 +327,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Modifying name = '" + name.toString() + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         next.modify( name, mods );
     }
 
@@ -340,7 +339,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         next.modifyRn( name, newRn, deleteOldRn );
     }
 
@@ -352,7 +351,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '" + newRn + "', oldRDN = '" + deleteOldRn + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         next.move( oriChildName, newParentName, newRn, deleteOldRn );
     }
 
@@ -364,7 +363,7 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         next.move( oriChildName, newParentName );
     }
 
@@ -376,12 +375,30 @@ public class AuthenticationService extends BaseInterceptor
     		log.debug( "Search for base = '" + base.toString() + "'" );
     	}
 
-        authenticate();
+        checkAuthenticated();
         return next.search( base, env, filter, searchCtls );
     }
 
 
-    private void authenticate() throws NamingException
+    private void checkAuthenticated() throws NamingException
+    {
+        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
+
+        if ( ctx.getPrincipal() != null )
+        {
+            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
+            {
+                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+            }
+            return;
+        }
+
+        throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
+    }
+    
+    
+    public void bind( NextInterceptor next, Name bindDn, byte[] credentials, List mechanisms, String saslAuthId ) 
+        throws NamingException
     {
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
@@ -397,36 +414,11 @@ public class AuthenticationService extends BaseInterceptor
             return;
         }
 
-        String authList = ( String ) ctx.getEnvironment().get( Context.SECURITY_AUTHENTICATION );
-
-        if ( authList == null )
-        {
-            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
-            {
-                // authentication type is simple here
-
-                authList = "simple";
-            }
-            else
-            {
-                // authentication type is anonymous
-
-                authList = "none";
-            }
-
-        }
-
-        authList = StringTools.deepTrim( authList );
-
-        String[] auth = authList.split( " " );
-
-        Collection authenticators = null;
-
         // pick the first matching authenticator type
-
-        for ( int i=0; i<auth.length; i++)
+        Collection authenticators = null;
+        for ( int ii = 0; ii < mechanisms.size(); ii++)
         {
-            authenticators = getAuthenticators( auth[i] );
+            authenticators = getAuthenticators( ( String ) mechanisms.get( ii ) );
 
             if ( authenticators != null )
             {
@@ -436,26 +428,28 @@ public class AuthenticationService extends BaseInterceptor
 
         if ( authenticators == null )
         {
-            ctx.getEnvironment(); // shut's up idea's yellow light
-
-            ResultCodeEnum rc = ResultCodeEnum.AUTHMETHODNOTSUPPORTED;
-
-            throw new LdapAuthenticationNotSupportedException( rc );
+            log.debug( "No authenticators found, delegating bind to the nexus." );
+            // as a last resort try binding via the nexus
+            next.bind( bindDn, credentials, mechanisms, saslAuthId );
+            log.debug( "Nexus succeeded on bind operation." );
+            // bind succeeded if we got this far 
+            ctx.setPrincipal( new TrustedPrincipalWrapper( 
+                new LdapPrincipal( bindDn, LdapJndiProperties.getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
+            // remove creds so there is no security risk
+            ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+            return;
         }
 
         // try each authenticators
         for ( Iterator i = authenticators.iterator(); i.hasNext(); )
         {
             Authenticator authenticator = ( Authenticator ) i.next();
-
             try
             {
                 // perform the authentication
                 LdapPrincipal authorizationId = authenticator.authenticate( ctx );
-
                 // authentication was successful
                 ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
-
                 // remove creds so there is no security risk
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
                 return;
@@ -463,11 +457,18 @@ public class AuthenticationService extends BaseInterceptor
             catch( LdapAuthenticationException e )
             {
                 // authentication failed, try the next authenticator
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Authenticator "+authenticator.getClass()+" failed to authenticate " + bindDn );
+                }
             }
             catch( Exception e )
             {
                 // Log other exceptions than LdapAuthenticationException
-                log.warn( "Unexpected exception from " + authenticator.getClass(), e );
+                if ( log.isWarnEnabled() )
+                {
+                    log.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindDn, e );
+                }
             }
         }
 
