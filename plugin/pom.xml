@@ -13,12 +13,12 @@
     A collection of tools as plugins to manage various tasks associated with 
     the directory server.
   </description>
-  <distributionManagement>
+  <!-- <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/maven-directory-plugin/</url>
     </site>
-  </distributionManagement> 
+  </distributionManagement> -->
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>

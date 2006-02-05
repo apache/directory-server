@@ -56,7 +56,7 @@
             img="http://apache.org/images/ac2005us_blue_125x125.jpg" />
     </menu>
      -->
-    ${reports}     
+    ${reports}
  </body>
 
 </project>

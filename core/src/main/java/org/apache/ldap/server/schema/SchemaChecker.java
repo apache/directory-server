@@ -39,7 +39,7 @@ import java.util.HashSet;
 /**
  * Performs schema checks on behalf of the SchemaService.
  *
- * @todo we really need to refactor this code since there's much duplication
+ * TODO: we really need to refactor this code since there's much duplication
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

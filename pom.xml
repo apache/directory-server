@@ -15,7 +15,7 @@
   <distributionManagement>
     <site>
       <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/</url>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/projects/apacheds/</url>
     </site>
   </distributionManagement>
 
@@ -151,7 +151,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-site-plugin</artifactId>
-        <version>2.0-beta-4</version>
+        <version>2.0-SNAPSHOT</version>
       </plugin>
       <!-- The following plugin can be enabled for recursive site generations -->
       <!-- <plugin>
@@ -162,28 +162,26 @@
             <phase>site</phase>
             <configuration>
               <tasks>
-                <copy file="src/site/site.xml" todir="protocols/kerberos-common/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocols/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocols/dhcp/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocols/changepw/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocols/ntp/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocols/ldap/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocols/kerberos/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocols/dns/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="core/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="core-unit/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="plugin/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/simple/jndi/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/simple/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/simple/unit/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/simple/main/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/simple/ssl/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/daemon/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/installers/plugin/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="standalone/installers/test/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="protocol-common/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="shared/src/site" overwrite="true"/>
-                <copy file="src/site/site.xml" todir="tools/src/site" overwrite="true"/>
+                <copy file="src/site/site.xml" todir="protocols/kerberos-common/src/site"/>
+                <copy file="src/site/site.xml" todir="protocols/src/site"/>
+                <copy file="src/site/site.xml" todir="protocols/dhcp/src/site"/>
+                <copy file="src/site/site.xml" todir="protocols/changepw/src/site"/>
+                <copy file="src/site/site.xml" todir="protocols/ntp/src/site"/>
+                <copy file="src/site/site.xml" todir="protocols/ldap/src/site"/>
+                <copy file="src/site/site.xml" todir="protocols/kerberos/src/site"/>
+                <copy file="src/site/site.xml" todir="protocols/dns/src/site"/>
+                <copy file="src/site/site.xml" todir="simple/jndi/src/site"/>
+                <copy file="src/site/site.xml" todir="simple/src/site"/>
+                <copy file="src/site/site.xml" todir="simple/unit/src/site"/>
+                <copy file="src/site/site.xml" todir="simple/main/src/site"/>
+                <copy file="src/site/site.xml" todir="simple/ssl/src/site"/>
+                <copy file="src/site/site.xml" todir="simple/installers/src/site"/>
+                <copy file="src/site/site.xml" todir="core/src/site"/>
+                <copy file="src/site/site.xml" todir="core-unit/src/site"/>
+                <copy file="src/site/site.xml" todir="plugin/src/site"/>
+                <copy file="src/site/site.xml" todir="protocol-common/src/site"/>
+                <copy file="src/site/site.xml" todir="shared/src/site"/>
+                <copy file="src/site/site.xml" todir="tools/src/site"/>
               </tasks>
             </configuration>
             <goals>
@@ -205,14 +203,18 @@
           <reportSet>
             <reports>
               <report>project-team</report>
-              <report>mailing-list</report>
+              <!-- <report>mailing-list</report>
               <report>issue-tracking</report>
               <report>license</report>
-              <report>scm</report>
+              <report>scm</report> -->
             </reports>
           </reportSet>
         </reportSets>
       </plugin>
+      <!-- <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin> -->
     </plugins>
   </reporting>
 

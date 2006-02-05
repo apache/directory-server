@@ -15,12 +15,12 @@
     A single executable server jar containing all dependencies. This jar 
     can be used as the JNDI provider or to fire up the standalone directory server.
   </description>
-  <distributionManagement>
+  <!-- <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-standalone/</url>
     </site>
-  </distributionManagement>
+  </distributionManagement> -->
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>

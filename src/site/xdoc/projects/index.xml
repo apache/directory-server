@@ -1,169 +1,35 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <document>
-  <properties>
-    <author email="akarasulu@apache.org">Alex Karasulu</author>
-    <title>ApacheDS - Projects</title> 
-  </properties>
-  
-  <body>
-    <section name="Server Projects">
-      <p>
-        The server is composed of several sub-projects.  Here is the list of
-        server sub-projects with brief descriptions:
-      </p>
-      
-      <table>
-        <tr>
-          <th>Project</th>
-          <th>Description</th>
-        </tr>
-        
-        <tr>
-          <td>
-            core
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            shared
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            tools
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            standalone/simple/jndi
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            standalone/simple/main
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            standalone/simple/ssl
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            standalone/daemon
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocol-common
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocols/dhcp
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocols/changepw
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocols/ntp
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocols/ldap
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocols/dns
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocols/kerberos
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            protocols/kerberos-common
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            core-unit
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <tr>
-          <td>
-            standalone/simple/unit
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr>
-        <!-- <tr>
-          <td>
-            site
-          </td>
-          <td>
-            To be described...
-          </td>
-        </tr> -->
-      </table>
-
-    </section>
-  </body>
+ <properties>
+  <title>Apache Directory Server - Subprojects</title>
+ </properties>
+ <body>
+  <section name="Apache Directory Server Subprojects">
+   <p>Apache Directory Server is composed of several subprojects. Here is the list of them with brief descriptions:</p>
+   <table>
+    <tr><td>Project</td><td>Description</td></tr>
+     <tr><td>kerberos-common</td><td>To be described...</td></tr>
+     <tr><td>protocols-build</td><td>To be described...</td></tr>
+     <tr><td>dhcp-protocol</td><td>To be described...</td></tr>
+     <tr><td>changepw-protocol</td><td>To be described...</td></tr>
+     <tr><td>ntp-protocol</td><td>To be described...</td></tr>
+     <tr><td>ldap-protocol</td><td>To be described...</td></tr>
+     <tr><td>kerberos-protocol</td><td>To be described...</td></tr>
+     <tr><td>dns-protocol</td><td>To be described...</td></tr>
+     <tr><td>standalone-simple-jndi</td><td>To be described...</td></tr>
+     <tr><td>simple-build</td><td> A single executable server jar containing all dependencies. This jar can be used as the JNDI provider or to fire up the standalone directory server. </td></tr>
+     <tr><td>Apache Directory Server Sar for JBoss 3.x</td><td>To be described...</td></tr>
+     <tr><td>standalone-simple-unit</td><td>To be described...</td></tr>
+     <tr><td>standalone-simple-main</td><td>To be described...</td></tr>
+     <tr><td>standalone-simple-ssl</td><td>To be described...</td></tr>
+     <tr><td>Apache Directory Server Installers</td><td>To be described...</td></tr>
+     <tr><td>apacheds-core</td><td> Server's core contains all backend subsystems. It depends on protocol and uses it with seda to service LDAP requests. The core contains the JNDI provider, interceptor framework, interceptor services, the schema subsystem and the database subsystem. Hence the core is the heart of the server. </td></tr>
+     <tr><td>apacheds-core-unit</td><td>To be described...</td></tr>
+     <tr><td>apacheds-plugin</td><td> A collection of tools as plugins to manage various tasks associated with the directory server. </td></tr>
+     <tr><td>protocol-common</td><td>To be described...</td></tr>
+     <tr><td>apacheds-shared</td><td> Created to eliminate cyclic project dependencies between the core and the maven plugin. Any code shared across modules in general can go here so long as it does not depend on other modules. </td></tr>
+     <tr><td>Apache Directory Server Tools</td><td> Contained within this executable jar are various commandline utilities for apacheds. </td></tr>
+   </table>
+  </section>
+ </body>
 </document>

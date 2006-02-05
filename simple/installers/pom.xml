@@ -75,12 +75,12 @@
       <version>1.2.1</version>
     </dependency>
   </dependencies>
-  <distributionManagement>
+  <!-- <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/</url>
     </site>
-  </distributionManagement>
+  </distributionManagement> -->
   <build>
     <plugins>
       <plugin>

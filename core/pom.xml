@@ -15,12 +15,12 @@
      JNDI provider, interceptor framework, interceptor services, the schema 
      subsystem and the database subsystem. Hence the core is the heart of the server.
   </description>
-  <distributionManagement>
+  <!-- <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-core/</url>
     </site>
-  </distributionManagement> 
+  </distributionManagement> -->
   <dependencies>
     <dependency>
       <groupId>commons-io</groupId>

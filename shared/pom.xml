@@ -14,11 +14,11 @@
      and the maven plugin. Any code shared across modules in general 
      can go here so long as it does not depend on other modules. 
   </description>
-  <distributionManagement>
+  <!-- <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/apacheds/projects/apacheds-shared/</url>
     </site>
-  </distributionManagement>
+  </distributionManagement> -->
 </project>
 
