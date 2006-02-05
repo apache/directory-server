@@ -10,10 +10,10 @@
   </bannerRight>
   <body>
     <links>
-       <item name="ApacheDS" href="http://directory.apache.org/newsite/subprojects/apacheds/index.html"/>
-       <item name="Naming" href="http://directory.apache.org/subprojects/naming/index.html"/>
-       <item name="Network Layer (MINA)" href="http://directory.apache.org/newsite/subprojects/network/index.html"/>
-       <item name="Directory" href="http://directory.apache.org/newsite/index.html"/>
+       <item name="ApacheDS" href="/projects/apacheds/index.html"/>
+       <item name="Naming" href="/projects/naming/index.html"/>
+       <item name="Network Layer (MINA)" href="/projects/network/index.html"/>
+       <item name="Directory" href="/index.html"/>
     </links>
     <menu name="Apache Directory Server">
       <item name="Overview" href="/index.html"/>
@@ -36,7 +36,7 @@
         <item name="Protocol" href="/developers/protocol.html"/>
         <item name="Backend Subsystem" href="/developers/backend.html"/>
       </item>
-      <item name="ApacheDS Projects" href="/projects/index.html"/>
+      <item name="ApacheDS Projects" href="/subprojects/index.html"/>
       <item name="Downloads" href="http://cvs.apache.org/dist/directory/apacheds/"/>
     </menu>
     
