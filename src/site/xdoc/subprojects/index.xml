@@ -7,28 +7,28 @@
   <section name="Apache Directory Server Subprojects">
    <p>Apache Directory Server is composed of several subprojects. Here is the list of them with brief descriptions:</p>
    <table>
-    <tr><td>Project</td><td>Description</td></tr>
-     <tr><td>kerberos-common</td><td>To be described...</td></tr>
-     <tr><td>protocols-build</td><td>To be described...</td></tr>
-     <tr><td>dhcp-protocol</td><td>To be described...</td></tr>
-     <tr><td>changepw-protocol</td><td>To be described...</td></tr>
-     <tr><td>ntp-protocol</td><td>To be described...</td></tr>
-     <tr><td>ldap-protocol</td><td>To be described...</td></tr>
-     <tr><td>kerberos-protocol</td><td>To be described...</td></tr>
-     <tr><td>dns-protocol</td><td>To be described...</td></tr>
-     <tr><td>standalone-simple-jndi</td><td>To be described...</td></tr>
-     <tr><td>simple-build</td><td> A single executable server jar containing all dependencies. This jar can be used as the JNDI provider or to fire up the standalone directory server. </td></tr>
-     <tr><td>Apache Directory Server Sar for JBoss 3.x</td><td>To be described...</td></tr>
-     <tr><td>standalone-simple-unit</td><td>To be described...</td></tr>
-     <tr><td>standalone-simple-main</td><td>To be described...</td></tr>
-     <tr><td>standalone-simple-ssl</td><td>To be described...</td></tr>
-     <tr><td>Apache Directory Server Installers</td><td>To be described...</td></tr>
-     <tr><td>apacheds-core</td><td> Server's core contains all backend subsystems. It depends on protocol and uses it with seda to service LDAP requests. The core contains the JNDI provider, interceptor framework, interceptor services, the schema subsystem and the database subsystem. Hence the core is the heart of the server. </td></tr>
-     <tr><td>apacheds-core-unit</td><td>To be described...</td></tr>
-     <tr><td>apacheds-plugin</td><td> A collection of tools as plugins to manage various tasks associated with the directory server. </td></tr>
-     <tr><td>protocol-common</td><td>To be described...</td></tr>
-     <tr><td>apacheds-shared</td><td> Created to eliminate cyclic project dependencies between the core and the maven plugin. Any code shared across modules in general can go here so long as it does not depend on other modules. </td></tr>
-     <tr><td>Apache Directory Server Tools</td><td> Contained within this executable jar are various commandline utilities for apacheds. </td></tr>
+    <tr><th>Name</th><th>Description</th><th>Module Folder</th><th>Id</th><th>Apidocs</th><th>Source Xref</th></tr>
+    <tr> <td>kerberos-common</td> <td width="30%">To be described...</td> <td>protocols/kerberos-common</td> <td>org.apache.directory.kerberos.common</td> <td><a href="org.apache.directory.kerberos.common/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>protocols-build</td> <td width="30%">To be described...</td> <td>protocols</td> <td>build</td> <td><a href="build/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>dhcp-protocol</td> <td width="30%">To be described...</td> <td>protocols/dhcp</td> <td>org.apache.directory.protocol.dhcp</td> <td><a href="org.apache.directory.protocol.dhcp/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>changepw-protocol</td> <td width="30%">To be described...</td> <td>protocols/changepw</td> <td>org.apache.directory.protocol.changepw</td> <td><a href="org.apache.directory.protocol.changepw/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>ntp-protocol</td> <td width="30%">To be described...</td> <td>protocols/ntp</td> <td>org.apache.directory.protocol.ntp</td> <td><a href="org.apache.directory.protocol.ntp/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>ldap-protocol</td> <td width="30%">To be described...</td> <td>protocols/ldap</td> <td>org.apache.directory.protocol.ldap</td> <td><a href="org.apache.directory.protocol.ldap/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>kerberos-protocol</td> <td width="30%">To be described...</td> <td>protocols/kerberos</td> <td>org.apache.directory.protocol.kerberos</td> <td><a href="org.apache.directory.protocol.kerberos/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>dns-protocol</td> <td width="30%">To be described...</td> <td>protocols/dns</td> <td>org.apache.directory.protocol.dns</td> <td><a href="org.apache.directory.protocol.dns/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>standalone-simple-jndi</td> <td width="30%">To be described...</td> <td>simple/jndi</td> <td>org.apache.ldap.server.standalone.simple.jndi</td> <td><a href="org.apache.ldap.server.standalone.simple.jndi/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>simple-build</td> <td width="30%"> A single executable server jar containing all dependencies. This jar can be used as the JNDI provider or to fire up the standalone directory server. </td> <td>simple</td> <td>build</td> <td><a href="build/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>Apache Directory Server Sar for JBoss 3.x</td> <td width="30%">To be described...</td> <td>simple/sar</td> <td>apacheds-sar</td> <td><a href="apacheds-sar/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>standalone-simple-unit</td> <td width="30%">To be described...</td> <td>simple/unit</td> <td>org.apache.ldap.server.standalone.simple.unit</td> <td><a href="org.apache.ldap.server.standalone.simple.unit/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>standalone-simple-main</td> <td width="30%">To be described...</td> <td>simple/main</td> <td>org.apache.ldap.server.standalone.simple.main</td> <td><a href="org.apache.ldap.server.standalone.simple.main/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>standalone-simple-ssl</td> <td width="30%">To be described...</td> <td>simple/ssl</td> <td>org.apache.ldap.server.standalone.simple.ssl</td> <td><a href="org.apache.ldap.server.standalone.simple.ssl/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>Apache Directory Server Installers</td> <td width="30%">To be described...</td> <td>simple/installers</td> <td>apacheds-installers</td> <td><a href="apacheds-installers/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>apacheds-core</td> <td width="30%"> Server's core contains all backend subsystems. It depends on protocol and uses it with seda to service LDAP requests. The core contains the JNDI provider, interceptor framework, interceptor services, the schema subsystem and the database subsystem. Hence the core is the heart of the server. </td> <td>core</td> <td>org.apache.ldap.server.core</td> <td><a href="org.apache.ldap.server.core/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>apacheds-core-unit</td> <td width="30%">To be described...</td> <td>core-unit</td> <td>org.apache.ldap.server.core.unit</td> <td><a href="org.apache.ldap.server.core.unit/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>apacheds-plugin</td> <td width="30%"> A collection of tools as plugins to manage various tasks associated with the directory server. </td> <td>plugin</td> <td>org.apache.ldap.server.plugin</td> <td><a href="org.apache.ldap.server.plugin/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>protocol-common</td> <td width="30%">To be described...</td> <td>protocol-common</td> <td>org.apache.directory.protocol.common</td> <td><a href="org.apache.directory.protocol.common/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>apacheds-shared</td> <td width="30%"> Created to eliminate cyclic project dependencies between the core and the maven plugin. Any code shared across modules in general can go here so long as it does not depend on other modules. </td> <td>shared</td> <td>org.apache.ldap.server.shared</td> <td><a href="org.apache.ldap.server.shared/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
+    <tr> <td>Apache Directory Server Tools</td> <td width="30%"> Contained within this executable jar are various commandline utilities for apacheds. </td> <td>tools</td> <td>apacheds-tools</td> <td><a href="apacheds-tools/apidocs/index.html"> >>> </a></td> <td> >>> </td> </tr>
    </table>
   </section>
  </body>
