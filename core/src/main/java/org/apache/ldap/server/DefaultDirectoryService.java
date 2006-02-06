@@ -37,9 +37,7 @@ import org.apache.ldap.common.message.LockableAttributeImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.message.ResultCodeEnum;
 import org.apache.ldap.common.name.DnOidContainer;
-import org.apache.ldap.common.name.DnParser;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.common.name.NameComponentNormalizer;
 import org.apache.ldap.common.util.DateUtils;
 import org.apache.ldap.common.util.StringTools;
 import org.apache.ldap.common.schema.AttributeType;
@@ -50,15 +48,16 @@ import org.apache.ldap.server.configuration.Configuration;
 import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.interceptor.InterceptorChain;
+import org.apache.ldap.server.jndi.AbstractContextFactory;
 import org.apache.ldap.server.jndi.DeadContext;
 import org.apache.ldap.server.jndi.ServerLdapContext;
 import org.apache.ldap.server.partition.DefaultDirectoryPartitionNexus;
 import org.apache.ldap.server.partition.DirectoryPartitionNexus;
 import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.ldap.server.schema.GlobalRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
 import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,9 +222,12 @@ class DefaultDirectoryService extends DirectoryService
         initialize();
         firstStart = createBootstrapEntries();
         showSecurityWarnings();
-        createTestEntries();
         this.serviceListener = listener;
         started = true;
+        if ( ! startupConfiguration.getTestEntries().isEmpty() )
+        {
+            createTestEntries( env );
+        }
         listener.afterStartup( this );
     }
 
@@ -640,28 +642,28 @@ class DefaultDirectoryService extends DirectoryService
         }
     }
     
-    private void createTestEntries() throws NamingException
+    private void createTestEntries( Hashtable env ) throws NamingException
     {
-        /*
-         * Unfortunately to test non-root user startup of the core and make sure
-         * all the appropriate functionality is there we need to load more user
-         * entries at startup due to a chicken and egg like problem.  The value
-         * of this property is a list of attributes to be added.
-         */
+        String principal = AbstractContextFactory.getPrincipal( env );
+        byte[] credential = AbstractContextFactory.getCredential( env );
+        String authentication = AbstractContextFactory.getAuthentication( env );
+        ServerLdapContext ctx = ( ServerLdapContext ) getJndiContext( principal, credential, 
+            authentication, "" );
+        
         Iterator i = startupConfiguration.getTestEntries().iterator();
         while( i.hasNext() )
         {
-            Attributes entry = ( Attributes ) i.next();
-            entry.put( "creatorsName", DirectoryPartitionNexus.ADMIN_PRINCIPAL );
-            entry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+            Attributes entry = ( Attributes ) ( ( Attributes ) i.next() ).clone();
+            String dn = ( String ) entry.remove( "dn" ).get();
             
-            Attribute dn = ( Attribute ) entry.get( "dn" ).clone();
-            AttributeTypeRegistry registry = globalRegistries.getAttributeTypeRegistry();
-            NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( registry );
-            DnParser parser = new DnParser( ncn );
-            Name ndn = parser.parse( ( String ) dn.get() );
-            
-            partitionNexus.add( ( String ) dn.get(), ndn, entry );
+            try
+            {
+                ctx.createSubcontext( dn, entry );
+            }
+            catch ( Exception e )
+            {
+                log.warn( dn + " test entry already exists.", e );
+            }
         }
     }
 

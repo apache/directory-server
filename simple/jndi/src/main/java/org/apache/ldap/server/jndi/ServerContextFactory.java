@@ -56,6 +56,7 @@ import org.apache.mina.common.TransportType;
 import org.apache.mina.common.WriteFuture;
 import org.apache.mina.registry.Service;
 import org.apache.mina.registry.ServiceRegistry;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.ntp.NtpConfiguration;
 import org.apache.ntp.NtpServer;
 import org.apache.protocol.common.LoadStrategy;
@@ -423,7 +424,9 @@ public class ServerContextFactory extends CoreContextFactory
         try
         {
             // Disable the disconnection of the clients on unbind
-            minaRegistry.getAcceptor( service.getTransportType() ).setDisconnectClientsOnUnbind( false );
+            IoAcceptor acceptor = minaRegistry.getAcceptor( service.getTransportType() );
+            acceptor.setDisconnectClientsOnUnbind( false );
+            ( ( SocketAcceptor ) acceptor ).setReuseAddress( true );
             
             minaRegistry.bind( service, protocolProvider.getHandler(), chainBuilder );
             ldapService = service;

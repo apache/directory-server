@@ -898,7 +898,6 @@ public class ReferralTest extends AbstractAdminTestCase
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult) list.next();
-            System.out.println( "name = " + result.getName() + " results .. " + result );
             results.put ( result.getName(), result );
         }
         
@@ -917,7 +916,6 @@ public class ReferralTest extends AbstractAdminTestCase
             while ( list.hasMore() )
             {
                 SearchResult result = ( SearchResult ) list.next();
-                System.out.println( "name = " + result.getName() + " results .. " + result );
                 results.put ( result.getName(), result );
             }
         }
@@ -944,7 +942,6 @@ public class ReferralTest extends AbstractAdminTestCase
             while ( list.hasMore() )
             {
                 SearchResult result = ( SearchResult ) list.next();
-                System.out.println( "name = " + result.getName() + " results .. " + result );
                 results.put ( result.getName(), result );
             }
         }

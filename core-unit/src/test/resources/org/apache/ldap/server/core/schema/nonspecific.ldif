@@ -1,0 +1,15 @@
+
+dn: cn=person0,ou=system
+objectClass: person
+cn: cn_person0
+sn: sn_person0
+
+dn: cn=person1,ou=system
+objectClass: organizationalPerson
+cn: cn_person1
+sn: sn_person1
+
+dn: cn=person2,ou=system
+objectClass: inetOrgPerson
+cn: cn_person2
+sn: sn_person2

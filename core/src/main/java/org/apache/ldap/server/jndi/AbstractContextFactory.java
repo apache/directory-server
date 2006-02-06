@@ -121,7 +121,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         return service.getJndiContext( principal, credential, authentication, providerUrl );
     }
 
-    private String getProviderUrl( Hashtable env )
+    public static String getProviderUrl( Hashtable env )
     {
         String providerUrl;
         Object value;
@@ -137,7 +137,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         return providerUrl;
     }
 
-    private String getAuthentication( Hashtable env )
+    public static String getAuthentication( Hashtable env )
     {
         String authentication;
         Object value = env.get( Context.SECURITY_AUTHENTICATION );
@@ -155,7 +155,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         return authentication;
     }
 
-    private byte[] getCredential( Hashtable env ) throws ConfigurationException
+    public static byte[] getCredential( Hashtable env ) throws ConfigurationException
     {
         byte[] credential;
         Object value = env.get( Context.SECURITY_CREDENTIALS );
@@ -184,7 +184,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         return credential;
     }
 
-    private String getPrincipal( Hashtable env )
+    public static String getPrincipal( Hashtable env )
     {
         String principal;
         Object value = env.get( Context.SECURITY_PRINCIPAL );

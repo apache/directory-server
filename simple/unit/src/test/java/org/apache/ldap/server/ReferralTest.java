@@ -82,6 +82,7 @@ public class ReferralTest extends AbstractServerTest
         if ( td.refCtx != null )
         {
             td.refCtx.close();
+            td.rootCtx.close();
         }
         
         super.tearDown();

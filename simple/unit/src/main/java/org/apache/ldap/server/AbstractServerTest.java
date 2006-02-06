@@ -77,7 +77,6 @@ public abstract class AbstractServerTest extends TestCase
         port = AvailablePortFinder.getNextAvailable( 1024 );
         configuration.setLdapPort( port );
         configuration.setShutdownHookEnabled( false );
-
         setSysRoot( "uid=admin,ou=system", "secret" );
     }
 
@@ -114,11 +113,9 @@ public abstract class AbstractServerTest extends TestCase
     protected LdapContext setSysRoot( String user, String passwd ) throws NamingException
     {
         Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
-
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-
         return setSysRoot( env );
     }
 
@@ -137,7 +134,6 @@ public abstract class AbstractServerTest extends TestCase
         Hashtable envFinal = new Hashtable( env );
         envFinal.put( Context.PROVIDER_URL, "ou=system" );
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
-
         return sysRoot = new InitialLdapContext( envFinal, null );
     }
 
@@ -150,19 +146,12 @@ public abstract class AbstractServerTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
-
         Hashtable env = new Hashtable();
-
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
-
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
-
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
         try { new InitialContext( env ); } catch( Exception e ) {}
 
         sysRoot = null;
@@ -183,40 +172,28 @@ public abstract class AbstractServerTest extends TestCase
     protected void importLdif( InputStream in ) throws NamingException
     {
         Hashtable env = new Hashtable();
-
         env.putAll( sysRoot.getEnvironment() );
-
         LdapContext ctx = new InitialLdapContext( env, null );
-
         LdifParser parser = new LdifParserImpl();
 
         try
         {
             LdifIterator iterator = new LdifIterator( in );
-
             while ( iterator.hasNext() )
             {
                 Attributes attributes = new LockableAttributesImpl();
-
                 String ldif = ( String ) iterator.next();
-
                 parser.parse( attributes, ldif );
-
                 Name dn = new LdapName( ( String ) attributes.remove( "dn" ).get() );
-
                 dn.remove( 0 );
-
                 ctx.createSubcontext( dn, attributes );
             }
         }
         catch ( Exception e )
         {
             String msg = "failed while trying to parse system ldif file";
-
             NamingException ne = new LdapConfigurationException( msg );
-
             ne.setRootCause( e );
-
             throw ne;
         }
     }
