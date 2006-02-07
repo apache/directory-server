@@ -19,7 +19,6 @@ package org.apache.ldap.server;
 import java.util.Hashtable;
 
 import javax.naming.AuthenticationException;
-import javax.naming.InvalidNameException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
