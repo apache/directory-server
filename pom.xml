@@ -58,21 +58,83 @@
     </dependency>
   </dependencies>
 
-  <modules>
-    <module>core</module>
-    <module>tools</module>
-    <module>shared</module>
-    <module>plugin</module>
-    <module>core-unit</module>
-    <module>protocol-common</module>
-    <module>protocols</module>
-    <module>simple</module>
-    <module>server-sar</module>
-    <module>server-unit</module>
-    <module>server-main</module>
-    <module>server-jndi</module>
-    <module>server-installers</module>
-  </modules>
+  <profiles>
+    <profile>
+      <id>jdk1.5</id>
+      <activation>
+        <jdk>1.5</jdk>
+      </activation>
+      <modules>
+        <module>core</module>
+        <module>tools</module>
+        <module>shared</module>
+        <module>plugin</module>
+        <module>core-unit</module>
+        <module>protocol-common</module>
+        <module>protocols</module>
+        <module>simple</module>
+        <module>server-sar</module>
+        <module>server-unit</module>
+        <module>server-main</module>
+        <module>server-jndi</module>
+        <module>server-installers</module>
+        <module>server-ssl</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>jdk1.4</id>
+      <activation>
+        <jdk>1.4</jdk>
+      </activation>
+      <modules>
+        <module>core</module>
+        <module>tools</module>
+        <module>shared</module>
+        <module>plugin</module>
+        <module>core-unit</module>
+        <module>protocol-common</module>
+        <module>protocols</module>
+        <module>simple</module>
+        <module>server-sar</module>
+        <module>server-unit</module>
+        <module>server-main</module>
+        <module>server-jndi</module>
+        <module>server-installers</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+====================================================================
+                       W A R N I N G
+                       -------------
+
+Build with 1.4 jvm will not include modules:
+
+ o server-ssl
+
+Use JDK 1.5 to make sure these modules build.
+====================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <developers>
     <developer>
