@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>1.0-RC1-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-server-ssl</artifactId>
   <name>ApacheDS Server SSL</name>
@@ -19,12 +19,12 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-unit</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

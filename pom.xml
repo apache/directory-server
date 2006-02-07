@@ -7,7 +7,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.directory.server</groupId>
-  <version>0.9.4-SNAPSHOT</version>
+  <version>1.0-RC1-SNAPSHOT</version>
   <artifactId>build</artifactId>
   <name>Apache Directory Server</name>
   <packaging>pom</packaging>

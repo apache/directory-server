@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>1.0-RC1-SNAPSHOT</version>
   </parent>
   <version>0.5-SNAPSHOT</version>
   <artifactId>apacheds-protocol-ntp</artifactId>

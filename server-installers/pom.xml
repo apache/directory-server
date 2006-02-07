@@ -4,9 +4,8 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>1.0-RC1-SNAPSHOT</version>
   </parent>
-  <version>1.0-RC1-SNAPSHOT</version>
   <artifactId>apacheds-server-installers</artifactId>
   <name>ApacheDS Server Installers</name>
   <packaging>jar</packaging>
@@ -16,12 +15,12 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-main</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.daemon</groupId>
@@ -32,7 +31,7 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-tools</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>  
     <dependency>
       <groupId>org.slf4j</groupId>
