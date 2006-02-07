@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.ldap.server.core.schema;
+package org.apache.ldap.server.schema;
 
 
 import java.util.HashMap;

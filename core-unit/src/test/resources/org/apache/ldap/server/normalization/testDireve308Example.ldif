@@ -1,0 +1,7 @@
+dn: ou=direct report view,ou=system
+objectClass: organizationalUnit
+ou: direct report view
+
+dn: ou=corporate category\, operations,ou=direct report view,ou=system
+objectClass: organizationalUnit
+ou: corporate category\, operations

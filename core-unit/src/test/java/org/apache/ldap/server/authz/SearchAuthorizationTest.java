@@ -384,6 +384,36 @@ public class SearchAuthorizationTest extends AbstractAuthorizationTest
 
 
     /**
+     * Checks to make sure name based userClass works for search operations
+     * when we vary the case of the DN.
+     *
+     * @throws javax.naming.NamingException if the test encounters an error
+     */
+    public void testGrantSearchByNameUserDnCase() throws NamingException
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try an add operation which should fail without any ACI
+        assertFalse( checkCanSearchAs( "BillyD", "billyd" ) );
+
+        // now add a subentry that enables user billyd to add an entry below ou=system
+        createAccessControlSubentry( "billydSearch", "{ " +
+                "identificationTag \"searchAci\", " +
+                "precedence 14, " +
+                "authenticationLevel none, " +
+                "itemOrUserFirst userFirst: { " +
+                "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
+                "userPermissions { { " +
+                "protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // should work now that billyd is authorized by name
+        assertTrue( checkCanSearchAs( "BillyD", "billyd" ) );
+    }
+
+
+    /**
      * Checks to make sure subtree based userClass works for search operations.
      *
      * @throws javax.naming.NamingException if the test encounters an error

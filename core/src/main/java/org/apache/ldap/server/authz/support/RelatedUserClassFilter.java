@@ -43,7 +43,7 @@ import org.apache.ldap.server.partition.DirectoryPartitionNexusProxy;
  */
 public class RelatedUserClassFilter implements ACITupleFilter
 {
-    private static final LdapName ROOTDSE_NAME = new LdapName();
+    private static final LdapName ROOTDSE_NAME = LdapName.EMPTY_LDAP_NAME;
 
     private final SubtreeEvaluator subtreeEvaluator;
 

@@ -104,6 +104,7 @@ public abstract class AbstractTestCase extends TestCase
         this.username = username;
         this.password = password;
     }
+    
 
     /**
      * Sets the LDIF path as a relative resource path to use with the
@@ -115,7 +116,6 @@ public abstract class AbstractTestCase extends TestCase
     protected void setLdifPath( String ldifPath, Class loadClass )
     {
         this.loadClass = loadClass;
-
         this.ldifPath = ldifPath;
     }
 
@@ -147,9 +147,7 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         Attributes attributes = new LockableAttributesImpl();
-
         LdifParserImpl parser = new LdifParserImpl();
-
         try
         {
             parser.parse( attributes, LDIF );
@@ -158,7 +156,6 @@ public abstract class AbstractTestCase extends TestCase
         {
             throw new NestableRuntimeException( e );
         }
-
         testEntries.add( attributes );
 
         // -------------------------------------------------------------------
@@ -166,11 +163,13 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         InputStream in = null;
-
-        if ( loadClass == null && ldifPath != null )
+        if ( loadClass != null && ldifPath == null )
+        {
+            in = loadClass.getResourceAsStream( getName() + ".ldif" );
+        }
+        else if ( loadClass == null && ldifPath != null )
         {
             File ldifFile = new File( ldifPath );
-
             if ( ldifFile.exists() )
             {
                 in = new FileInputStream( ldifPath );
@@ -179,7 +178,6 @@ public abstract class AbstractTestCase extends TestCase
             {
                 in = getClass().getResourceAsStream( ldifPath );
             }
-
             throw new FileNotFoundException( ldifPath );
         }
         else if ( loadClass != null && ldifPath != null )
@@ -190,15 +188,11 @@ public abstract class AbstractTestCase extends TestCase
         if ( in != null )
         {
             LdifIterator list = new LdifIterator( in );
-
             while ( list.hasNext() )
             {
                 String ldif = ( String ) list.next();
-
                 attributes = new LockableAttributesImpl();
-
                 parser.parse( attributes, ldif );
-
                 testEntries.add( attributes );
             }
         }
@@ -319,21 +313,19 @@ public abstract class AbstractTestCase extends TestCase
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
         try { new InitialContext( env ); } catch( Exception e ) {}
-
         sysRoot = null;
-
         Runtime.getRuntime().gc();
-
         testEntries.clear();
-
         ldifPath = null;
-
         loadClass = null;
-        
         overrides.clear();
-        
         configuration = new MutableStartupConfiguration();
-        
         doDelete( configuration.getWorkingDirectory() );
+    }
+
+
+    protected void setLoadClass( Class loadClass )
+    {
+        this.loadClass = loadClass;
     }
 }
