@@ -8,7 +8,7 @@
   </parent>
   <version>0.9.4-SNAPSHOT</version>
   <artifactId>apacheds-protocol-ldap</artifactId>
-  <name>ApacheDS Ldap Protocol</name>
+  <name>ApacheDS Protocol Ldap</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>

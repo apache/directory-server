@@ -8,7 +8,7 @@
   </parent>
   <version>0.1-SNAPSHOT</version>
   <artifactId>apacheds-protocol-dhcp</artifactId>
-  <name>ApacheDS Dhcp Protocol</name>
+  <name>ApacheDS Protocol Dhcp</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>

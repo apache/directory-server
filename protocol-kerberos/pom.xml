@@ -8,7 +8,7 @@
   </parent>
   <version>0.7-SNAPSHOT</version>
   <artifactId>apacheds-protocol-kerberos</artifactId>
-  <name>ApacheDS Kerberos Protocol</name>
+  <name>ApacheDS Protocol Kerberos</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>

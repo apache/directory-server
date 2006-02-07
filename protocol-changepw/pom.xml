@@ -8,7 +8,7 @@
   </parent>
   <version>0.7-SNAPSHOT</version>
   <artifactId>apacheds-protocol-changepw</artifactId>
-  <name>ApacheDS Change Password Protocol</name>
+  <name>ApacheDS Protocol Change Password</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>

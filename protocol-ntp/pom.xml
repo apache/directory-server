@@ -8,7 +8,7 @@
   </parent>
   <version>0.5-SNAPSHOT</version>
   <artifactId>apacheds-protocol-ntp</artifactId>
-  <name>ApacheDS Ntp Protocol</name>
+  <name>ApacheDS Protocol Ntp</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
