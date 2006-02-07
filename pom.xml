@@ -12,6 +12,14 @@
   <name>Apache Directory Server</name>
   <packaging>pom</packaging>
 
+  <pluginRepositories>
+    <pluginRepository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Plugins</name>
+      <url>http://cvs.apache.org/maven-snapshot-repository</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <distributionManagement>
     <site>
       <id>apache.websites</id>
