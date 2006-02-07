@@ -24,12 +24,12 @@
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.jndi</artifactId>
+      <artifactId>apacheds-server-jndi</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.core.unit</artifactId>
+      <artifactId>apacheds-core-unit</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
   </dependencies>

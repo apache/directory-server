@@ -66,13 +66,12 @@
       </activation>
       <modules>
         <module>core</module>
-        <module>tools</module>
-        <module>shared</module>
-        <module>plugin</module>
+        <module>core-shared</module>
+        <module>core-plugin</module>
         <module>core-unit</module>
-        <module>protocol-common</module>
+        <module>protocol-shared</module>
         <module>protocols</module>
-        <module>simple</module>
+        <module>server-tools</module>
         <module>server-sar</module>
         <module>server-unit</module>
         <module>server-main</module>
@@ -89,13 +88,12 @@
       </activation>
       <modules>
         <module>core</module>
-        <module>tools</module>
-        <module>shared</module>
-        <module>plugin</module>
+        <module>core-shared</module>
+        <module>core-plugin</module>
         <module>core-unit</module>
-        <module>protocol-common</module>
+        <module>protocol-shared</module>
         <module>protocols</module>
-        <module>simple</module>
+        <module>server-tools</module>
         <module>server-sar</module>
         <module>server-unit</module>
         <module>server-main</module>

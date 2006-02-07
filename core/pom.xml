@@ -6,8 +6,8 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.core</artifactId>
-  <name>apacheds-core</name>
+  <artifactId>apacheds-core</artifactId>
+  <name>ApacheDS Core</name>
   <packaging>jar</packaging>
   <description>
      Server's core contains all backend subsystems. It depends on protocol 
@@ -54,7 +54,7 @@
     <plugins>
       <plugin>
         <groupId>org.apache.directory.server</groupId>
-        <artifactId>org.apache.ldap.server.plugin</artifactId>
+        <artifactId>apacheds-core-plugin</artifactId>
         <configuration>
           <schemaSourcesDir>src/main/schema</schemaSourcesDir>
           <schemas>

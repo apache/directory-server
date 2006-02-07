@@ -6,8 +6,8 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.plugin</artifactId>
-  <name>apacheds-plugin</name>
+  <artifactId>apacheds-core-plugin</artifactId>
+  <name>ApacheDS Core Plugin (Maven 2)</name>
   <packaging>maven-plugin</packaging>
   <description>
     A collection of tools as plugins to manage various tasks associated with 
@@ -37,7 +37,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.shared</artifactId>
+      <artifactId>apacheds-core-shared</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
     <dependency>

@@ -6,8 +6,8 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.shared</artifactId>
-  <name>apacheds-shared</name>
+  <artifactId>apacheds-core-shared</artifactId>
+  <name>ApacheDS Core Shared</name>
   <packaging>jar</packaging>
   <description>
      Created to eliminate cyclic project dependencies between the core 

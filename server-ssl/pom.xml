@@ -18,12 +18,12 @@
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.jndi</artifactId>
+      <artifactId>apacheds-server-jndi</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.unit</artifactId>
+      <artifactId>apacheds-server-unit</artifactId>
       <version>0.9.4-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
