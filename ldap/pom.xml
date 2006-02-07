@@ -2,14 +2,13 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.common</groupId>
+    <groupId>org.apache.directory.shared</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory.common</groupId>
-  <artifactId>org.apache.ldap.common</artifactId>
+  <artifactId>ldap-shared</artifactId>
   <version>0.9.4-SNAPSHOT</version>
-  <name>ldap-common</name>
+  <name>Apache Directory Protocol Ldap Shared Library</name>
   <inceptionYear>2004</inceptionYear>
 
   <issueManagement>

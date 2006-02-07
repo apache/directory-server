@@ -6,9 +6,9 @@
     <artifactId>build</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.directory.common</groupId>
+  <groupId>org.apache.directory.shared</groupId>
   <artifactId>build</artifactId>
-  <name>common-build</name>
+  <name>Apache Directory Shared Build</name>
   <packaging>pom</packaging>  
   <version>0.9.4-SNAPSHOT</version>
   <modules>
