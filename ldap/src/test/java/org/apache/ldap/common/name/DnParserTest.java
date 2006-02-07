@@ -25,6 +25,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.ldap.common.schema.DnNormalizer;
+import org.apache.ldap.common.schema.Normalizer;
 
 
 /**
@@ -318,6 +319,25 @@ public class DnParserTest extends TestCase
         
         assertEquals( cn, result.toString() );
 
+    }
+    
+    public void testDireve308Example() throws Exception
+    {
+        // seems to work without normalizers 
+        String dn = "ou=Corporate Category\\, Operations,ou=direct report view";
+        DnParser parser = new DnParser();
+        String result = parser.parse( dn ).toString();
+        assertEquals( dn, result );
+        
+        // now we try with normalization: simple as is normalizer
+        parser = new DnParser( new SimpleNameComponentNormalizer( new Normalizer() {
+            public Object normalize( Object value ) throws NamingException
+            {
+                return ( ( String ) value ).toLowerCase();
+            }
+        } ) );
+        result = parser.parse( dn ).toString();
+        assertEquals( dn.toLowerCase(), result.toString() );
     }
 
 }  // end class DnParserTest
