@@ -6,8 +6,8 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-tools</artifactId>
-  <name>Apache Directory Server Tools</name>
+  <artifactId>apacheds-server-tools</artifactId>
+  <name>ApacheDS Server Tools</name>
   <description>
     Contained within this executable jar are various commandline utilities
     for apacheds.
@@ -15,8 +15,8 @@
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server.standalone.simple</groupId>
-      <artifactId>org.apache.ldap.server.standalone.simple.main</artifactId>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-main</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
     <dependency>

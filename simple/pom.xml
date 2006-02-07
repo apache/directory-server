@@ -62,11 +62,7 @@
         <jdk>1.5</jdk>
       </activation>
       <modules>
-        <module>jndi</module>
-        <module>main</module>
         <module>ssl</module>
-        <module>unit</module>
-        <module>sar</module>
       </modules>
     </profile>
 
@@ -76,10 +72,6 @@
         <jdk>1.4</jdk>
       </activation>
       <modules>
-        <module>jndi</module>
-        <module>main</module>
-        <module>unit</module>
-        <module>sar</module>
       </modules>
       <build>
         <plugins>

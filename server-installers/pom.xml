@@ -7,20 +7,20 @@
     <version>0.9.4-SNAPSHOT</version>
   </parent>
   <version>1.0-RC1-SNAPSHOT</version>
-  <artifactId>apacheds-installers</artifactId>
-  <name>Apache Directory Server Installers</name>
+  <artifactId>apacheds-server-installers</artifactId>
+  <name>ApacheDS Server Installers</name>
   <packaging>jar</packaging>
   <description>
   </description>
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server.standalone.simple</groupId>
-      <artifactId>org.apache.ldap.server.standalone.simple.jndi</artifactId>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-jndi</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>
-      <groupId>org.apache.directory.server.standalone.simple</groupId>
-      <artifactId>org.apache.ldap.server.standalone.simple.main</artifactId>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-main</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>
@@ -31,7 +31,7 @@
     </dependency>  
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-tools</artifactId>
+      <artifactId>apacheds-server-tools</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>

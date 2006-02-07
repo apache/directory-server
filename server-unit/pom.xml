@@ -2,12 +2,12 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server.standalone.simple</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.standalone.simple.unit</artifactId>
-  <name>standalone-simple-unit</name>
+  <artifactId>apacheds-server-unit</artifactId>
+  <name>ApacheDS Server Unit</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
@@ -17,8 +17,14 @@
       <scope>provided</scope>
     </dependency>  
     <dependency>
-      <groupId>org.apache.directory.server.standalone.simple</groupId>
-      <artifactId>org.apache.ldap.server.standalone.simple.jndi</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.19</version>
+      <scope>provided</scope>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.jndi</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>

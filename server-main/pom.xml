@@ -2,17 +2,17 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server.standalone.simple</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.standalone.simple.main</artifactId>
-  <name>standalone-simple-main</name>
+  <artifactId>apacheds-server-main</artifactId>
+  <name>ApacheDS Server Main</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.server.standalone.simple</groupId>
-      <artifactId>org.apache.ldap.server.standalone.simple.jndi</artifactId>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-jndi</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>  
     <dependency>

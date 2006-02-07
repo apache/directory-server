@@ -2,12 +2,12 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server.standalone.simple</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.standalone.simple.jndi</artifactId>
-  <name>standalone-simple-jndi</name>
+  <artifactId>apacheds-server-jndi</artifactId>
+  <name>ApacheDS Server JNDI</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
@@ -15,6 +15,31 @@
       <artifactId>nlog4j</artifactId>
       <version>1.2.19</version>
       <scope>provided</scope>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.changepw</artifactId>
+      <version>0.7-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.ntp</artifactId>
+      <version>0.5-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.kerberos</artifactId>
+      <version>0.7-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server.protocols</groupId>
+      <artifactId>org.apache.directory.protocol.ldap</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
     </dependency>  
   </dependencies>
 </project>

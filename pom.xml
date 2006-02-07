@@ -67,6 +67,10 @@
     <module>protocol-common</module>
     <module>protocols</module>
     <module>simple</module>
+    <module>server-sar</module>
+    <module>server-unit</module>
+    <module>server-main</module>
+    <module>server-jndi</module>
     <module>server-installers</module>
   </modules>
 

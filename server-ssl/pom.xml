@@ -2,12 +2,12 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server.standalone.simple</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>org.apache.ldap.server.standalone.simple.ssl</artifactId>
-  <name>standalone-simple-ssl</name>
+  <artifactId>apacheds-server-ssl</artifactId>
+  <name>ApacheDS Server SSL</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
@@ -17,13 +17,13 @@
       <scope>provided</scope>
     </dependency>  
     <dependency>
-      <groupId>org.apache.directory.server.standalone.simple</groupId>
-      <artifactId>org.apache.ldap.server.standalone.simple.jndi</artifactId>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.jndi</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.directory.server.standalone.simple</groupId>
-      <artifactId>org.apache.ldap.server.standalone.simple.unit</artifactId>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.unit</artifactId>
       <version>0.9.4-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
