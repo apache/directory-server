@@ -2,7 +2,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server.standalone.simple</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
