@@ -52,8 +52,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.common</groupId>
-      <artifactId>org.apache.ldap.common</artifactId>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>ldap-shared</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
