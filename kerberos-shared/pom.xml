@@ -2,19 +2,29 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server.protocols</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
   <version>0.7-SNAPSHOT</version>
-  <artifactId>org.apache.directory.kerberos.common</artifactId>
-  <name>kerberos-common</name>
+  <artifactId>apacheds-kerberos-shared</artifactId>
+  <name>ApacheDS Kerberos Shared Library</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>lcrypto-jdk14</artifactId>
       <version>131</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.mina</groupId>
+      <artifactId>mina-core</artifactId>
+      <version>0.9.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-shared</artifactId>
+      <version>0.7.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

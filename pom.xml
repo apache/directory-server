@@ -70,14 +70,24 @@
         <module>core-plugin</module>
         <module>core-unit</module>
         <module>protocol-shared</module>
-        <module>protocols</module>
+        <module>protocol-ntp</module>
+        <module>protocol-ldap</module>
+        <module>protocol-kerberos</module>
+        <module>protocol-dhcp</module>
+        <module>protocol-dns</module>
+        <module>protocol-changepw</module>
         <module>server-tools</module>
         <module>server-sar</module>
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
         <module>server-installers</module>
+        <module>kerberos-shared</module>
+
+        <!-- extra for jdk 1.5 -->
         <module>server-ssl</module>
+        <!-- extra for jdk 1.5 -->
+
       </modules>
     </profile>
 
@@ -92,13 +102,19 @@
         <module>core-plugin</module>
         <module>core-unit</module>
         <module>protocol-shared</module>
-        <module>protocols</module>
+        <module>protocol-ntp</module>
+        <module>protocol-ldap</module>
+        <module>protocol-kerberos</module>
+        <module>protocol-dhcp</module>
+        <module>protocol-dns</module>
+        <module>protocol-changepw</module>
         <module>server-tools</module>
         <module>server-sar</module>
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
         <module>server-installers</module>
+        <module>kerberos-shared</module>
       </modules>
       <build>
         <plugins>

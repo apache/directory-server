@@ -2,13 +2,13 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory.server.protocols</groupId>
+    <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
   <version>0.3-SNAPSHOT</version>
-  <artifactId>org.apache.directory.protocol.dns</artifactId>
-  <name>dns-protocol</name>
+  <artifactId>apacheds-protocol-dns</artifactId>
+  <name>ApacheDS Dns Protocol</name>
   <packaging>jar</packaging>  
   <dependencies>
     <dependency>
@@ -16,6 +16,16 @@
       <artifactId>nlog4j</artifactId>
       <version>1.2.19</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.mina</groupId>
+      <artifactId>mina-core</artifactId>
+      <version>0.9.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-shared</artifactId>
+      <version>0.7.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
