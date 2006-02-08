@@ -48,4 +48,3 @@ configuration would generally look as follows (for UNIX):
 To deploy the site to remote server execute
 
 	mvn site-deploy --non-recursive
-
