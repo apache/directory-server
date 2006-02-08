@@ -6,7 +6,7 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>ldap-shared</artifactId>
+  <artifactId>shared-ldap</artifactId>
   <version>0.9.4-SNAPSHOT</version>
   <name>Apache Directory Protocol Ldap Shared</name>
   <inceptionYear>2004</inceptionYear>
@@ -85,7 +85,7 @@
 
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>asn1-shared</artifactId>
+      <artifactId>shared-asn1</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
 

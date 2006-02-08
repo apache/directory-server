@@ -6,7 +6,7 @@
     <artifactId>build</artifactId>
     <version>0.9.4-SNAPSHOT</version>
   </parent>
-  <artifactId>asn1-shared</artifactId>
+  <artifactId>shared-asn1</artifactId>
   <name>Apache Directory ASN.1 Shared</name>
   <packaging>jar</packaging>  
   <distributionManagement>
