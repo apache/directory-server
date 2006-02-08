@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Apache Directory Project">
+  <bannerLeft>
+    <name>Apache Diretory Project</name>
+    <src>images/apache-directory-logo.png</src>
+    <href>http://directory.apache.org/</href>
+  </bannerLeft>
+
+ <body>
+
+    <links>
+      <item name="Directory" href="../../index.html"/>
+      <item name="ApacheDS" href="../apacheds/index.html"/>
+      <item name="LDAP" href="../ldap.html"/>
+      <item name="Naming" href="../naming/index.html"/>
+      <item name="ASN.1" href="../asn1/index.html"/>
+      <item name="Kerberos" href="../kerberos.html"/>
+      <item name="AuthX" href="../authx/index.html"/>
+      <item name="MINA" href="../network/index.html"/>
+      <item name="Protocols" href="../providers.html"/>
+    </links>
+
+    <menu name="Apache ASN.1">
+      <item name="Overview" href="/index.html"/>
+      <item name="ASN.1 Codecs" href="/asn1-codec/index.html"/>
+      <item name="BER Runtime" href="/asn1-ber/index.html"/>
+      <item name="DER Runtime" href="/asn1-der/index.html"/>
+      <item name="Stub Compiler" href="/stub-compiler/index.html"/>
+    </menu>
+    
+    <menu name="Project Information">
+      <item name="Combined javadocs" href="/apidocs/index.html"/>
+      <item name="Wiki" href="http://wiki.apache.org/directory"/>
+      <item name="Open Issues" href="http://issues.apache.org/jira/browse/DIRSNICKERS"/>
+      <item name="Source Repositories" href="http://svn.apache.org/viewcvs.cgi/directory/asn1/trunk/?root=Apache-SVN"/>
+    </menu>
+
+    <menu name="ApacheCon Europe 2005"> 	 
+      <item name="ApacheCon Europe 2005" href="http://www.apachecon.com/"
+            img="http://apache.org/images/ac2005eu_135x50.gif" />
+    </menu>
+ </body>
+
+</project>

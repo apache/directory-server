@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.shared</groupId>
+    <artifactId>build</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
+  </parent>
+  <artifactId>asn1-shared</artifactId>
+  <name>Apache Directory ASN.1 Shared</name>
+  <packaging>jar</packaging>  
+  <distributionManagement>
+    <site>
+      <id>apacheds.websites</id>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/asn1/</url>
+    </site>
+  </distributionManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.0-rc5</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
