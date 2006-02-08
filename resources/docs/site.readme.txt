@@ -12,7 +12,7 @@ The site will be generated at
 API documentation does not get generated automatically during
 maven's site phase. To achieve it you need to execute
 
-	./apidocs.sh
+	./resources/sh-scripts/apidocs.sh
 
 API documentation will be generated at
 
@@ -22,7 +22,7 @@ If you want to customize api documentation generation have a
 look at the script (especially for setting packages to be
 excluded) by executing
 
-	vi ./apidocs.sh
+	vi ./resources/sh-scripts/apidocs.sh
 
 For deploying the site to the remote server you need to
 configure the Apache Web Server access parameters
