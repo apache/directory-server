@@ -14,70 +14,76 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.asn1.codec.stateful ;
-
-
+package org.apache.directory.shared.asn1.codec.stateful;
 
 
 /**
- * A do nothing decoder monitor adapter.  At a bare minimum warning, error and
- * fatal exceptions are reported to the console when using this adapter to 
+ * A do nothing decoder monitor adapter. At a bare minimum warning, error and
+ * fatal exceptions are reported to the console when using this adapter to
  * prevent exceptions from being completely ignored.
- *
+ * 
  * @author Apache Software Foundation
  * @version $Rev$
  */
 public class DecoderMonitorAdapter implements DecoderMonitor
 {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.asn1.codec.stateful.DecoderMonitor#error(
-     * org.apache.asn1.codec.stateful.StatefulDecoder, java.lang.Exception)
+     *      org.apache.asn1.codec.stateful.StatefulDecoder, java.lang.Exception)
      */
     public void error( StatefulDecoder decoder, Exception exception )
     {
-        System.err.println( "ERROR: " + exception.getMessage() ) ;
+        System.err.println( "ERROR: " + exception.getMessage() );
     }
 
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.asn1.codec.stateful.DecoderMonitor#fatalError(
-     * org.apache.asn1.codec.stateful.StatefulDecoder, java.lang.Exception)
+     *      org.apache.asn1.codec.stateful.StatefulDecoder, java.lang.Exception)
      */
     public void fatalError( StatefulDecoder decoder, Exception exception )
     {
-        System.err.println( "FATAL: " + exception.getMessage() ) ;
+        System.err.println( "FATAL: " + exception.getMessage() );
     }
 
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.asn1.codec.stateful.DecoderMonitor#warning(
-     * org.apache.asn1.codec.stateful.StatefulDecoder, java.lang.Exception)
+     *      org.apache.asn1.codec.stateful.StatefulDecoder, java.lang.Exception)
      */
     public void warning( StatefulDecoder decoder, Exception exception )
     {
-        System.err.println( "WARN: " + exception.getMessage() ) ;
+        System.err.println( "WARN: " + exception.getMessage() );
     }
 
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.asn1.codec.stateful.DecoderMonitor#callbackOccured(
-     * org.apache.asn1.codec.stateful.StatefulDecoder,
-     * org.apache.asn1.codec.stateful.DecoderCallback, java.lang.Object)
+     *      org.apache.asn1.codec.stateful.StatefulDecoder,
+     *      org.apache.asn1.codec.stateful.DecoderCallback, java.lang.Object)
      */
-    public void callbackOccured( StatefulDecoder decoder, DecoderCallback cb,
-								 Object decoded )
+    public void callbackOccured( StatefulDecoder decoder, DecoderCallback cb, Object decoded )
     {
     }
 
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.asn1.codec.stateful.DecoderMonitor#callbackSet(
-     * org.apache.asn1.codec.stateful.StatefulDecoder,
-     * org.apache.asn1.codec.stateful.DecoderCallback,
-     * org.apache.asn1.codec.stateful.DecoderCallback)
+     *      org.apache.asn1.codec.stateful.StatefulDecoder,
+     *      org.apache.asn1.codec.stateful.DecoderCallback,
+     *      org.apache.asn1.codec.stateful.DecoderCallback)
      */
-    public void callbackSet( StatefulDecoder decoder, DecoderCallback oldcb,
-							 DecoderCallback newcb )
+    public void callbackSet( StatefulDecoder decoder, DecoderCallback oldcb, DecoderCallback newcb )
     {
     }
 }

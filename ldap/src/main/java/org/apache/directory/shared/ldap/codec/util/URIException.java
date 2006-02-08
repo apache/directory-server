@@ -29,24 +29,29 @@
 
 package org.apache.directory.shared.ldap.codec.util;
 
+
 /**
  * The URI parsing and escape encoding exception.
- *
+ * 
  * @author <a href="mailto:jericho at apache.org">Sung-Gu</a>
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * @version $Revision: 155418 $ $Date: 2002/03/14 15:14:01 
+ * @version $Revision: 155418 $ $Date: 2002/03/14 15:14:01
  */
-public class URIException extends Exception {
-	final static long serialVersionUID = 1L;
+public class URIException extends Exception
+{
+    final static long serialVersionUID = 1L;
+
 
     // ----------------------------------------------------------- constructors
     /**
      * The constructor with a reason string argument.
-     *
-     * @param reason the reason
+     * 
+     * @param reason
+     *            the reason
      */
-    public URIException(String reason) {
-        super(reason); // for backward compatibility of Throwable
+    public URIException(String reason)
+    {
+        super( reason ); // for backward compatibility of Throwable
         this.reason = reason;
         this.reasonCode = UNKNOWN;
     }
@@ -58,52 +63,46 @@ public class URIException extends Exception {
      */
     public static final int UNKNOWN = 0;
 
-
     /**
      * The URI parsing error.
      */
-    //public static final int PARSING = 1;
-
+    // public static final int PARSING = 1;
 
     /**
      * The unsupported character encoding.
      */
-    //public static final int UNSUPPORTED_ENCODING = 2;
-
+    // public static final int UNSUPPORTED_ENCODING = 2;
 
     /**
      * The URI escape encoding and decoding error.
      */
-    //public static final int ESCAPING = 3;
-
+    // public static final int ESCAPING = 3;
 
     /**
      * The DNS punycode encoding or decoding error.
      */
-    //public static final int PUNYCODE = 4;
-
+    // public static final int PUNYCODE = 4;
     // ------------------------------------------------------------- properties
-
     /**
      * The reason code.
      */
     protected int reasonCode;
-
 
     /**
      * The reason message.
      */
     protected String reason;
 
+
     // ---------------------------------------------------------------- methods
 
     /**
      * Get the reason code.
-     *
+     * 
      * @return the reason code
      */
-    public int getReasonCode() {
+    public int getReasonCode()
+    {
         return reasonCode;
     }
 }
-

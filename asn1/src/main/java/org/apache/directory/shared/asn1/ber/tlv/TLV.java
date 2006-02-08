@@ -23,15 +23,16 @@ import org.apache.directory.shared.asn1.ber.tlv.Tag;
 
 /**
  * This class is used to store Tag, Length and Value decoded from a PDU.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class TLV
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
-
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The current Tag being processed */
     private Tag tag;
@@ -42,31 +43,38 @@ public class TLV
     /** The current Value being processed */
     private Value value;
 
-    /** Reference the TLV which contains the current TLV, if any.
-     * As the enclosing TLV of a PDU does not have parent, it can be 
-     * null in this case. Otherwise, it must point to a constructed TLV */
+    /**
+     * Reference the TLV which contains the current TLV, if any. As the
+     * enclosing TLV of a PDU does not have parent, it can be null in this case.
+     * Otherwise, it must point to a constructed TLV
+     */
     private TLV parent;
 
-    /** The expected length of the TLV's elements, if the current TLV is
-     * a constructed TLV.
+    /**
+     * The expected length of the TLV's elements, if the current TLV is a
+     * constructed TLV.
      */
     private int expectedLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new TLV object.
      */
     public TLV()
     {
-        tag      = new Tag();
-        length   = new Length();
-        value    = new Value();
+        tag = new Tag();
+        length = new Length();
+        value = new Value();
 
         expectedLength = 0;
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Reset the TLV, so it can be reused for the next PDU decoding.
@@ -80,6 +88,7 @@ public class TLV
         expectedLength = 0;
     }
 
+
     /**
      * @return Returns the length.
      */
@@ -88,10 +97,12 @@ public class TLV
         return length;
     }
 
+
     /**
      * Add the TLV Length part
-     *
-     * @param length The length to set.
+     * 
+     * @param length
+     *            The length to set.
      */
     public void setLength( Length length )
     {
@@ -100,13 +111,15 @@ public class TLV
         expectedLength = length.getLength();
     }
 
+
     /**
-     *  @return Returns the tag.
+     * @return Returns the tag.
      */
     public Tag getTag()
     {
         return tag;
     }
+
 
     /**
      * @return Returns the value.
@@ -116,9 +129,10 @@ public class TLV
         return value;
     }
 
+
     /**
      * Get a String representation of the TLV
-     *
+     * 
      * @return A String
      */
     public String toString()
@@ -135,15 +149,18 @@ public class TLV
         return sb.toString();
     }
 
+
     /**
-     * The TLV size is calculated by adding the Tag's size, the Length's
-     * size and the Value's length, if any.
+     * The TLV size is calculated by adding the Tag's size, the Length's size
+     * and the Value's length, if any.
      * 
      * @return Returns the size of the TLV.
      */
-    public int getSize() {
+    public int getSize()
+    {
         return tag.getSize() + length.getSize() + length.getLength();
     }
+
 
     /**
      * @return Returns the parent.
@@ -153,13 +170,16 @@ public class TLV
         return parent;
     }
 
+
     /**
-     * @param parent The parent to set.
+     * @param parent
+     *            The parent to set.
      */
-    public void setParent(TLV parent)
+    public void setParent( TLV parent )
     {
         this.parent = parent;
     }
+
 
     /**
      * Get the TLV expected length.
@@ -171,11 +191,14 @@ public class TLV
         return expectedLength;
     }
 
+
     /**
      * Set the new expected length of the current TLV.
-     * @param expectedLength The expectedLength to set.
+     * 
+     * @param expectedLength
+     *            The expectedLength to set.
      */
-    public void setExpectedLength(int expectedLength)
+    public void setExpectedLength( int expectedLength )
     {
         this.expectedLength = expectedLength;
     }

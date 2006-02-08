@@ -22,7 +22,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * The response sent back from the server with a LaunchDiagnosticUiRequest 
+ * The response sent back from the server with a LaunchDiagnosticUiRequest
  * extended operation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -31,52 +31,51 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
 {
     private static final long serialVersionUID = -3824715470944544189L;
+
     public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.2";
+
     private static final byte[] EMPTY_RESPONSE = new byte[0];
-    
-    
-    public LaunchDiagnosticUiResponse( int messageId, ResultCodeEnum rcode )
+
+
+    public LaunchDiagnosticUiResponse(int messageId, ResultCodeEnum rcode)
     {
         super( messageId );
-        
+
         switch ( rcode.getValue() )
         {
-            case( ResultCodeEnum.SUCCESS_VAL ):
+            case ( ResultCodeEnum.SUCCESS_VAL  ):
                 break;
-            case( ResultCodeEnum.OPERATIONSERROR_VAL ):
+            case ( ResultCodeEnum.OPERATIONSERROR_VAL  ):
                 break;
-            case( ResultCodeEnum.INSUFFICIENTACCESSRIGHTS_VAL ):
+            case ( ResultCodeEnum.INSUFFICIENTACCESSRIGHTS_VAL  ):
                 break;
             default:
-                throw new IllegalArgumentException( "The result code can only be one of: " + 
-                    ResultCodeEnum.SUCCESS + ", " + 
-                    ResultCodeEnum.OPERATIONSERROR + ", " + 
-                    ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
+                throw new IllegalArgumentException( "The result code can only be one of: " + ResultCodeEnum.SUCCESS
+                    + ", " + ResultCodeEnum.OPERATIONSERROR + ", " + ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
         }
         super.getLdapResult().setMatchedDn( "" );
         super.getLdapResult().setResultCode( rcode );
     }
-    
-    
-    public LaunchDiagnosticUiResponse( int messageId )
+
+
+    public LaunchDiagnosticUiResponse(int messageId)
     {
         super( messageId );
         super.getLdapResult().setMatchedDn( "" );
         super.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // ExtendedResponse Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the reponse OID specific encoded response values.
-     *
+     * 
      * @return the response specific encoded response values.
      */
-    public byte [] getResponse()
+    public byte[] getResponse()
     {
         return EMPTY_RESPONSE;
     }
@@ -84,10 +83,11 @@ public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
 
     /**
      * Sets the reponse OID specific encoded response values.
-     *
-     * @param value the response specific encoded response values.
+     * 
+     * @param value
+     *            the response specific encoded response values.
      */
-    public void setResponse( byte [] value )
+    public void setResponse( byte[] value )
     {
         throw new UnsupportedOperationException( "the response is hardcoded as zero length array" );
     }
@@ -96,7 +96,7 @@ public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
     /**
      * Gets the OID uniquely identifying this extended response (a.k.a. its
      * name).
-     *
+     * 
      * @return the OID of the extended response type.
      */
     public String getResponseName()
@@ -108,8 +108,9 @@ public class LaunchDiagnosticUiResponse extends ExtendedResponseImpl
     /**
      * Sets the OID uniquely identifying this extended response (a.k.a. its
      * name).
-     *
-     * @param oid the OID of the extended response type.
+     * 
+     * @param oid
+     *            the OID of the extended response type.
      */
     public void setResponseName( String oid )
     {

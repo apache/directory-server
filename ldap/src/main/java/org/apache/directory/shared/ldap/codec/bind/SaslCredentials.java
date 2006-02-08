@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.bind;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -35,33 +36,33 @@ import org.slf4j.LoggerFactory;
  */
 public class SaslCredentials extends LdapAuthentication
 {
-	/** The logger */
+    /** The logger */
     private static Logger log = LoggerFactory.getLogger( SimpleAuthentication.class );
 
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
-    /** Any mechanism defined in RFC 2222 :
-     * KERBEROS_V4,
-     * GSSAPI,
-     * SKEY,
-     * EXTERNAL
-     **/
+    /**
+     * Any mechanism defined in RFC 2222 : KERBEROS_V4, GSSAPI, SKEY, EXTERNAL
+     */
     private LdapString mechanism;
 
     /** optional credentials of the user */
     private byte[] credentials;
-    
+
     /** The mechanism length */
     private transient int mechanismLength;
 
     /** The credentials length */
     private transient int credentialsLength;
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the credentials
-     *
+     * 
      * @return The credentials
      */
     public byte[] getCredentials()
@@ -69,19 +70,22 @@ public class SaslCredentials extends LdapAuthentication
         return credentials;
     }
 
+
     /**
      * Set the credentials
-     *
-     * @param credentials The credentials
+     * 
+     * @param credentials
+     *            The credentials
      */
     public void setCredentials( byte[] credentials )
     {
         this.credentials = credentials;
     }
 
+
     /**
      * Get the mechanism
-     *
+     * 
      * @return The mechanism
      */
     public String getMechanism()
@@ -90,82 +94,73 @@ public class SaslCredentials extends LdapAuthentication
         return ( ( mechanism == null ) ? null : mechanism.getString() );
     }
 
+
     /**
      * Set the mechanism
-     *
-     * @param mechanism The mechanism
+     * 
+     * @param mechanism
+     *            The mechanism
      */
     public void setMechanism( LdapString mechanism )
     {
         this.mechanism = mechanism;
     }
 
+
     /**
-     * Compute the Sasl authentication length
-     * 
-     * Sasl authentication :
-     * 
-     * 0xA3 L1 
-     *   0x04 L2 mechanism
-     *   [0x04 L3 credentials]
-     * 
-     * L2 = Length(mechanism)
-     * L3 = Length(credentials)
-     * L1 = L2 + L3
-     * 
-     * Length(Sasl authentication) = Length(0xA3) + Length(L1) + 
-     *                               Length(0x04) + Length(L2) + Length(mechanism)
-     *                               [+ Length(0x04) + Length(L3) + Length(credentials)]
+     * Compute the Sasl authentication length Sasl authentication : 0xA3 L1 0x04
+     * L2 mechanism [0x04 L3 credentials] L2 = Length(mechanism) L3 =
+     * Length(credentials) L1 = L2 + L3 Length(Sasl authentication) =
+     * Length(0xA3) + Length(L1) + Length(0x04) + Length(L2) + Length(mechanism) [+
+     * Length(0x04) + Length(L3) + Length(credentials)]
      */
     public int computeLength()
     {
-    	mechanismLength = 1 + Length.getNbBytes( mechanism.getNbBytes() ) + mechanism.getNbBytes();
-    	credentialsLength = 0;
-        
-        if (credentials != null)
+        mechanismLength = 1 + Length.getNbBytes( mechanism.getNbBytes() ) + mechanism.getNbBytes();
+        credentialsLength = 0;
+
+        if ( credentials != null )
         {
             credentialsLength = 1 + Length.getNbBytes( credentials.length ) + credentials.length;
         }
 
-        int saslLength = 1 + Length.getNbBytes( mechanismLength + credentialsLength) + mechanismLength + credentialsLength;
+        int saslLength = 1 + Length.getNbBytes( mechanismLength + credentialsLength ) + mechanismLength
+            + credentialsLength;
 
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "SASL Authentication length : {}", new Integer( saslLength ) );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "SASL Authentication length : {}", new Integer( saslLength ) );
+        }
 
-    	return saslLength;
+        return saslLength;
     }
-    
+
+
     /**
-     * Encode the sasl authentication to a PDU.
+     * Encode the sasl authentication to a PDU. SimpleAuthentication : 0xA3 L1
+     * 0x04 L2 mechanism [0x04 L3 credentials]
      * 
-     * SimpleAuthentication :
-     * 
-     * 0xA3 L1 
-     *   0x04 L2 mechanism
-     *   [0x04 L3 credentials]
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )
         {
-        	log.error( "Cannot put a PDU in a null buffer !" );
+            log.error( "Cannot put a PDU in a null buffer !" );
             throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
-        try 
+        try
         {
             // The saslAuthentication Tag
-            buffer.put( (byte) LdapConstants.BIND_REQUEST_SASL_TAG );
-            
-          	buffer.put( Length.getBytes( mechanismLength + credentialsLength ) ) ;
+            buffer.put( ( byte ) LdapConstants.BIND_REQUEST_SASL_TAG );
+
+            buffer.put( Length.getBytes( mechanismLength + credentialsLength ) );
 
             Value.encode( buffer, mechanism.toString() );
-            
+
             if ( credentials != null )
             {
                 Value.encode( buffer, credentials );
@@ -173,17 +168,18 @@ public class SaslCredentials extends LdapAuthentication
         }
         catch ( BufferOverflowException boe )
         {
-        	log.error( "The PDU buffer size is too small !" );
-            throw new EncoderException("The PDU buffer size is too small !"); 
+            log.error( "The PDU buffer size is too small !" );
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         return buffer;
     }
 
+
     /**
      * Get a String representation of a SaslCredential
-     *
-     * @return A SaslCredential String 
+     * 
+     * @return A SaslCredential String
      */
     public String toString()
     {
@@ -195,8 +191,7 @@ public class SaslCredentials extends LdapAuthentication
 
         if ( credentials != null )
         {
-            sb.append( "            Credentials :'" ).append( credentials.toString() ).append(
-                "'\n" );
+            sb.append( "            Credentials :'" ).append( credentials.toString() ).append( "'\n" );
         }
 
         return sb.toString();

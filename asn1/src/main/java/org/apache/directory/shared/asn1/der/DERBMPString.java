@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER BMPString object.
  */
@@ -25,10 +26,11 @@ public class DERBMPString extends DERString
     /**
      * Basic DERObject constructor.
      */
-    public DERBMPString( byte[] value )
+    public DERBMPString(byte[] value)
     {
-    	super( BMP_STRING, value );
+        super( BMP_STRING, value );
     }
+
 
     /**
      * Static factory method, type-conversion operator.
@@ -38,9 +40,9 @@ public class DERBMPString extends DERString
         return new DERBMPString( stringToByteArray( string ) );
     }
 
+
     public String getString()
     {
         return byteArrayToString( value );
     }
 }
-

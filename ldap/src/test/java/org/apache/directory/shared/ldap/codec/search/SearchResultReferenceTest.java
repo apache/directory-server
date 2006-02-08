@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,12 +39,14 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
 
+
 /**
  * Test the SearchResultReference codec
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SearchResultReferenceTest extends TestCase {
+public class SearchResultReferenceTest extends TestCase
+{
     /**
      * Test the decoding of a SearchResultReference
      */
@@ -51,58 +54,49 @@ public class SearchResultReferenceTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x3d8 );
-        
-        String[] ldapUrls = new String[] 
-                                       {
-                                       	"ldap:///",
-                       			        "ldap://directory.apache.org:80/",
-                       			        "ldap://d-a.org:80/",
-                       			        "ldap://1.2.3.4/",
-                       			        "ldap://1.2.3.4:80/",
-                       			        "ldap://1.1.1.100000.a/",
-                       			        "ldap://directory.apache.org:389/dc=example,dc=org/",
-                       			        "ldap://directory.apache.org:389/dc=example",
-                       			        "ldap://directory.apache.org:389/dc=example%202,dc=org",
-                       			        "ldap://directory.apache.org:389/dc=example,dc=org?ou",
-                       			        "ldap://directory.apache.org:389/dc=example,dc=org?ou,objectclass,dc",
-                       			        "ldap://directory.apache.org:389/dc=example,dc=org?ou,dc,ou",
-                       			        "ldap:///o=University%20of%20Michigan,c=US",
-                       			        "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US",
-                       			        "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US?postalAddress",
-                       			        "ldap://host.com:6666/o=University%20of%20Michigan,c=US??sub?(cn=Babs%20Jensen)",
-                       			        "ldap://ldap.itd.umich.edu/c=GB?objectClass?one",
-                       			        "ldap://ldap.question.com/o=Question%3f,c=US?mail",
-                       			        "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)",
-                       			        "ldap:///??sub??bindname=cn=Manager%2co=Foo",
-                       			        "ldap:///??sub??!bindname=cn=Manager%2co=Foo"
-                       			    };
+        ByteBuffer stream = ByteBuffer.allocate( 0x3d8 );
 
-        stream.put(
-            new byte[]
+        String[] ldapUrls = new String[]
+            { "ldap:///", "ldap://directory.apache.org:80/", "ldap://d-a.org:80/", "ldap://1.2.3.4/",
+                "ldap://1.2.3.4:80/", "ldap://1.1.1.100000.a/", "ldap://directory.apache.org:389/dc=example,dc=org/",
+                "ldap://directory.apache.org:389/dc=example", "ldap://directory.apache.org:389/dc=example%202,dc=org",
+                "ldap://directory.apache.org:389/dc=example,dc=org?ou",
+                "ldap://directory.apache.org:389/dc=example,dc=org?ou,objectclass,dc",
+                "ldap://directory.apache.org:389/dc=example,dc=org?ou,dc,ou",
+                "ldap:///o=University%20of%20Michigan,c=US",
+                "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US",
+                "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US?postalAddress",
+                "ldap://host.com:6666/o=University%20of%20Michigan,c=US??sub?(cn=Babs%20Jensen)",
+                "ldap://ldap.itd.umich.edu/c=GB?objectClass?one", "ldap://ldap.question.com/o=Question%3f,c=US?mail",
+                "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)",
+                "ldap:///??sub??bindname=cn=Manager%2co=Foo", "ldap:///??sub??!bindname=cn=Manager%2co=Foo" };
+
+        stream.put( new byte[]
             {
-                 
-                
-                0x30, (byte)0x82, 0x03, (byte)0xd4,	// LDAPMessage ::=SEQUENCE {
-				0x02, 0x01, 0x01, 					//     messageID MessageID
-				0x73, (byte)0x82, 0x03, (byte)0xcd, //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
-                        							// SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
+
+            0x30, ( byte ) 0x82, 0x03, ( byte ) 0xd4, // LDAPMessage
+                                                        // ::=SEQUENCE {
+                0x02, 0x01, 0x01, // messageID MessageID
+                0x73, ( byte ) 0x82, 0x03, ( byte ) 0xcd, // CHOICE { ...,
+                                                            // searchResEntry
+                                                            // SearchResultEntry,
+                                                            // ...
+            // SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
             } );
 
-        
-        for (int i = 0; i < ldapUrls.length; i++)
+        for ( int i = 0; i < ldapUrls.length; i++ )
         {
-            stream.put((byte)0x04);
-            stream.put((byte)ldapUrls[i].getBytes().length);
-            
+            stream.put( ( byte ) 0x04 );
+            stream.put( ( byte ) ldapUrls[i].getBytes().length );
+
             byte[] bytes = ldapUrls[i].getBytes();
-            
-            for (int j=0; j < bytes.length; j++)
+
+            for ( int j = 0; j < bytes.length; j++ )
             {
-                stream.put(bytes[j]);
+                stream.put( bytes[j] );
             }
         }
-        
+
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
@@ -118,53 +112,55 @@ public class SearchResultReferenceTest extends TestCase {
             de.printStackTrace();
             fail( de.getMessage() );
         }
-    	
+
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchResultReference searchResultReference      = message.getSearchResultReference();
+        SearchResultReference searchResultReference = message.getSearchResultReference();
 
         assertEquals( 1, message.getMessageId() );
-        
+
         HashSet ldapUrlsSet = new HashSet();
-        
-        try {
-	        for (int i = 0; i < ldapUrls.length; i++)
-	        {
-	            ldapUrlsSet.add( new LdapURL( ldapUrls[i].getBytes() ).toString() );
-	        }
-        } catch ( LdapURLEncodingException luee)
+
+        try
+        {
+            for ( int i = 0; i < ldapUrls.length; i++ )
+            {
+                ldapUrlsSet.add( new LdapURL( ldapUrls[i].getBytes() ).toString() );
+            }
+        }
+        catch ( LdapURLEncodingException luee )
         {
             fail();
         }
-        
+
         Iterator iter = searchResultReference.getSearchResultReferences().iterator();
-        
-        while (iter.hasNext())
+
+        while ( iter.hasNext() )
         {
-            LdapURL ldapUrl = (LdapURL)iter.next();
-            
-            if (ldapUrlsSet.contains( ldapUrl.toString()) )
+            LdapURL ldapUrl = ( LdapURL ) iter.next();
+
+            if ( ldapUrlsSet.contains( ldapUrl.toString() ) )
             {
                 ldapUrlsSet.remove( ldapUrl.toString() );
             }
             else
             {
-                fail(ldapUrl.toString() + " is not present");
+                fail( ldapUrl.toString() + " is not present" );
             }
         }
-        
+
         assertTrue( ldapUrlsSet.size() == 0 );
-        
+
         // Check the length
-        assertEquals(0x3D8, message.computeLength());
-        
+        assertEquals( 0x3D8, message.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb = message.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
-            
-            assertEquals(encodedPdu, decodedPdu );
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
+            assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
@@ -172,6 +168,7 @@ public class SearchResultReferenceTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
+
 
     /**
      * Test the decoding of a SearchResultReference with controls
@@ -180,72 +177,59 @@ public class SearchResultReferenceTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x3F5 );
-        
-        String[] ldapUrls = new String[] 
-                                       {
-                                        "ldap:///",
-                                        "ldap://directory.apache.org:80/",
-                                        "ldap://d-a.org:80/",
-                                        "ldap://1.2.3.4/",
-                                        "ldap://1.2.3.4:80/",
-                                        "ldap://1.1.1.100000.a/",
-                                        "ldap://directory.apache.org:389/dc=example,dc=org/",
-                                        "ldap://directory.apache.org:389/dc=example",
-                                        "ldap://directory.apache.org:389/dc=example%202,dc=org",
-                                        "ldap://directory.apache.org:389/dc=example,dc=org?ou",
-                                        "ldap://directory.apache.org:389/dc=example,dc=org?ou,objectclass,dc",
-                                        "ldap://directory.apache.org:389/dc=example,dc=org?ou,dc,ou",
-                                        "ldap:///o=University%20of%20Michigan,c=US",
-                                        "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US",
-                                        "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US?postalAddress",
-                                        "ldap://host.com:6666/o=University%20of%20Michigan,c=US??sub?(cn=Babs%20Jensen)",
-                                        "ldap://ldap.itd.umich.edu/c=GB?objectClass?one",
-                                        "ldap://ldap.question.com/o=Question%3f,c=US?mail",
-                                        "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)",
-                                        "ldap:///??sub??bindname=cn=Manager%2co=Foo",
-                                        "ldap:///??sub??!bindname=cn=Manager%2co=Foo"
-                                    };
+        ByteBuffer stream = ByteBuffer.allocate( 0x3F5 );
 
-        stream.put(
-            new byte[]
+        String[] ldapUrls = new String[]
+            { "ldap:///", "ldap://directory.apache.org:80/", "ldap://d-a.org:80/", "ldap://1.2.3.4/",
+                "ldap://1.2.3.4:80/", "ldap://1.1.1.100000.a/", "ldap://directory.apache.org:389/dc=example,dc=org/",
+                "ldap://directory.apache.org:389/dc=example", "ldap://directory.apache.org:389/dc=example%202,dc=org",
+                "ldap://directory.apache.org:389/dc=example,dc=org?ou",
+                "ldap://directory.apache.org:389/dc=example,dc=org?ou,objectclass,dc",
+                "ldap://directory.apache.org:389/dc=example,dc=org?ou,dc,ou",
+                "ldap:///o=University%20of%20Michigan,c=US",
+                "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US",
+                "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US?postalAddress",
+                "ldap://host.com:6666/o=University%20of%20Michigan,c=US??sub?(cn=Babs%20Jensen)",
+                "ldap://ldap.itd.umich.edu/c=GB?objectClass?one", "ldap://ldap.question.com/o=Question%3f,c=US?mail",
+                "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)",
+                "ldap:///??sub??bindname=cn=Manager%2co=Foo", "ldap:///??sub??!bindname=cn=Manager%2co=Foo" };
+
+        stream.put( new byte[]
             {
-                 
-                
-                0x30, (byte)0x82, 0x03, (byte)0xF1,   // LDAPMessage ::=SEQUENCE {
-                  0x02, 0x01, 0x01,                   //     messageID MessageID
-                  0x73, (byte)0x82, 0x03, (byte)0xcd, //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
-                                                      // SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
+
+            0x30, ( byte ) 0x82, 0x03, ( byte ) 0xF1, // LDAPMessage
+                                                        // ::=SEQUENCE {
+                0x02, 0x01, 0x01, // messageID MessageID
+                0x73, ( byte ) 0x82, 0x03, ( byte ) 0xcd, // CHOICE { ...,
+                                                            // searchResEntry
+                                                            // SearchResultEntry,
+                                                            // ...
+            // SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
             } );
 
-        
-        for (int i = 0; i < ldapUrls.length; i++)
+        for ( int i = 0; i < ldapUrls.length; i++ )
         {
-            stream.put((byte)0x04);
-            stream.put((byte)ldapUrls[i].getBytes().length);
-            
+            stream.put( ( byte ) 0x04 );
+            stream.put( ( byte ) ldapUrls[i].getBytes().length );
+
             byte[] bytes = ldapUrls[i].getBytes();
-            
-            for (int j=0; j < bytes.length; j++)
+
+            for ( int j = 0; j < bytes.length; j++ )
             {
-                stream.put(bytes[j]);
+                stream.put( bytes[j] );
             }
         }
-        
-        byte[] controlBytes = new byte[] { 
-                (byte)0xA0, 0x1B,   // A control 
-                  0x30, 0x19, 
-                    0x04, 0x17, 
-                      0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
-                      0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
-                      0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
-        };
 
-        for (int i = 0; i < controlBytes.length; i++)
+        byte[] controlBytes = new byte[]
+            { ( byte ) 0xA0, 0x1B, // A control
+                0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
+                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 };
+
+        for ( int i = 0; i < controlBytes.length; i++ )
         {
             stream.put( controlBytes[i] );
         }
-        
+
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
@@ -261,62 +245,64 @@ public class SearchResultReferenceTest extends TestCase {
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        
+
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchResultReference searchResultReference      = message.getSearchResultReference();
+        SearchResultReference searchResultReference = message.getSearchResultReference();
 
         assertEquals( 1, message.getMessageId() );
-        
+
         HashSet ldapUrlsSet = new HashSet();
-        
-        try {
-            for (int i = 0; i < ldapUrls.length; i++)
+
+        try
+        {
+            for ( int i = 0; i < ldapUrls.length; i++ )
             {
                 ldapUrlsSet.add( new LdapURL( ldapUrls[i].getBytes() ).toString() );
             }
-        } catch ( LdapURLEncodingException luee)
+        }
+        catch ( LdapURLEncodingException luee )
         {
             fail();
         }
-        
+
         Iterator iter = searchResultReference.getSearchResultReferences().iterator();
-        
-        while (iter.hasNext())
+
+        while ( iter.hasNext() )
         {
-            LdapURL ldapUrl = (LdapURL)iter.next();
-            
-            if (ldapUrlsSet.contains( ldapUrl.toString()) )
+            LdapURL ldapUrl = ( LdapURL ) iter.next();
+
+            if ( ldapUrlsSet.contains( ldapUrl.toString() ) )
             {
                 ldapUrlsSet.remove( ldapUrl.toString() );
             }
             else
             {
-                fail(ldapUrl.toString() + " is not present");
+                fail( ldapUrl.toString() + " is not present" );
             }
         }
-        
+
         assertTrue( ldapUrlsSet.size() == 0 );
-        
+
         // Check the Control
         List controls = message.getControls();
-        
+
         assertEquals( 1, controls.size() );
-        
+
         Control control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
-        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+        assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
         // Check the length
-        assertEquals(0x3F5, message.computeLength());
-        
+        assertEquals( 0x3F5, message.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb = message.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
-            
-            assertEquals(encodedPdu, decodedPdu );
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
+            assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
@@ -325,6 +311,7 @@ public class SearchResultReferenceTest extends TestCase {
         }
     }
 
+
     /**
      * Test the decoding of a SearchResultReference with no reference
      */
@@ -332,18 +319,16 @@ public class SearchResultReferenceTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x07 );
-        
+        ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
-        stream.put(
-            new byte[]
+        stream.put( new byte[]
             {
-                 
-                
-                0x30, 0x05,         // LDAPMessage ::=SEQUENCE {
-                  0x02, 0x01, 0x01, //     messageID MessageID
-                  0x73, 0x00        //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
-                                    // SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
+
+            0x30, 0x05, // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01, // messageID MessageID
+                0x73, 0x00 // CHOICE { ..., searchResEntry SearchResultEntry,
+                            // ...
+            // SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
             } );
 
         stream.flip();
@@ -361,9 +346,10 @@ public class SearchResultReferenceTest extends TestCase {
             assertTrue( true );
             return;
         }
-        
+
         fail( "We should not reach this point" );
     }
+
 
     /**
      * Test the decoding of a SearchResultReference with one reference
@@ -372,18 +358,22 @@ public class SearchResultReferenceTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x11 );
-        
+        ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
-        stream.put(
-            new byte[]
+        stream.put( new byte[]
             {
-                 
-                
-                0x30, 0x0F,         // LDAPMessage ::=SEQUENCE {
-                  0x02, 0x01, 0x01, //     messageID MessageID
-                  0x73, 0x0A,        //     CHOICE { ..., searchResEntry  SearchResultEntry, ...
-                    0x04, 0x08, 'l', 'd', 'a', 'p', ':', '/', '/', '/'  // SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
+
+            0x30, 0x0F, // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01, // messageID MessageID
+                0x73, 0x0A, // CHOICE { ..., searchResEntry SearchResultEntry,
+                            // ...
+                0x04, 0x08, 'l', 'd', 'a', 'p', ':', '/', '/', '/' // SearchResultReference
+                                                                    // ::=
+                                                                    // [APPLICATION
+                                                                    // 19]
+                                                                    // SEQUENCE
+                                                                    // OF
+                                                                    // LDAPURL
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -401,27 +391,27 @@ public class SearchResultReferenceTest extends TestCase {
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        
+
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchResultReference searchResultReference      = message.getSearchResultReference();
+        SearchResultReference searchResultReference = message.getSearchResultReference();
 
         assertEquals( 1, message.getMessageId() );
-        
-        LdapURL ldapUrl = (LdapURL)searchResultReference.getSearchResultReferences().get( 0 );
-        
+
+        LdapURL ldapUrl = ( LdapURL ) searchResultReference.getSearchResultReferences().get( 0 );
+
         assertEquals( "ldap:///", ldapUrl.toString() );
-        
+
         // Check the length
-        assertEquals(0x11, message.computeLength());
-        
+        assertEquals( 0x11, message.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb = message.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
-            
-            assertEquals(encodedPdu, decodedPdu );
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
+            assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {

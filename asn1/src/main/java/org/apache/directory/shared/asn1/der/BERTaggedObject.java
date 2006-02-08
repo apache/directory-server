@@ -17,8 +17,10 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.IOException;
 import java.util.Enumeration;
+
 
 /**
  * BER TaggedObject
@@ -26,26 +28,32 @@ import java.util.Enumeration;
 public class BERTaggedObject extends DERTaggedObject
 {
     /**
-     * @param tag the tag number for this object.
-     * @param obj the tagged object.
+     * @param tag
+     *            the tag number for this object.
+     * @param obj
+     *            the tagged object.
      */
-    public BERTaggedObject( int tag, DEREncodable obj )
+    public BERTaggedObject(int tag, DEREncodable obj)
     {
         super( tag, obj );
     }
 
+
     /**
-     * @param true if an explicitly tagged object.
-     * @param tag the tag number for this object.
-     * @param obj the tagged object.
+     * @param true
+     *            if an explicitly tagged object.
+     * @param tag
+     *            the tag number for this object.
+     * @param obj
+     *            the tagged object.
      */
-    public BERTaggedObject( boolean explicit, int tag, DEREncodable obj )
+    public BERTaggedObject(boolean explicit, int tag, DEREncodable obj)
     {
         super( explicit, tag, obj );
     }
-    
-    public void encode( ASN1OutputStream out )
-        throws IOException
+
+
+    public void encode( ASN1OutputStream out ) throws IOException
     {
         out.write( DERObject.CONSTRUCTED | DERObject.TAGGED | tag );
         out.write( DERObject.TAGGED );
@@ -60,11 +68,11 @@ public class BERTaggedObject extends DERTaggedObject
 
                     if ( obj instanceof BERConstructedOctetString )
                     {
-                        e = ( (BERConstructedOctetString)obj ).getObjects();
+                        e = ( ( BERConstructedOctetString ) obj ).getObjects();
                     }
                     else
                     {
-                    	DEROctetString            octs = (DEROctetString)obj;
+                        DEROctetString octs = ( DEROctetString ) obj;
                         BERConstructedOctetString berO = new BERConstructedOctetString( octs.getOctets() );
 
                         e = berO.getObjects();
@@ -77,7 +85,7 @@ public class BERTaggedObject extends DERTaggedObject
                 }
                 else if ( obj instanceof DERSequence )
                 {
-                    Enumeration  e = ( (DERSequence)obj ).getObjects();
+                    Enumeration e = ( ( DERSequence ) obj ).getObjects();
 
                     while ( e.hasMoreElements() )
                     {
@@ -99,4 +107,3 @@ public class BERTaggedObject extends DERTaggedObject
         out.write( DERObject.TERMINATOR );
     }
 }
-

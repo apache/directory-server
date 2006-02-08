@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.extended;
 
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
@@ -35,16 +36,17 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class implements the ExtendedResponse LDAP message. All the actions are declared in this
- * class. As it is a singleton, these declaration are only done once.
- * 
- * If an action is to be added or modified, this is where the work is to be done !
+ * This class implements the ExtendedResponse LDAP message. All the actions are
+ * declared in this class. As it is a singleton, these declaration are only done
+ * once. If an action is to be added or modified, this is where the work is to
+ * be done !
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ExtendedResponseGrammar.class );
@@ -52,179 +54,178 @@ public class ExtendedResponseGrammar extends AbstractGrammar implements IGrammar
     /** The instance of grammar. ExtendedResponseGrammar is a singleton */
     private static IGrammar instance = new ExtendedResponseGrammar();
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new ExtendedResponseGrammar object.
      */
     private ExtendedResponseGrammar()
     {
-        name              = ExtendedResponseGrammar.class.getName();
-        statesEnum        = LdapStatesEnum.getInstance();
+        name = ExtendedResponseGrammar.class.getName();
+        statesEnum = LdapStatesEnum.getInstance();
 
         // Create the transitions table
         super.transitions = new GrammarTransition[LdapStatesEnum.LAST_EXTENDED_RESPONSE_STATE][256];
 
-        //============================================================================================
+        // ============================================================================================
         // ExtendedResponse
-        //============================================================================================
+        // ============================================================================================
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE { (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_TAG][LdapConstants.EXTENDED_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.EXTENDED_RESPONSE_TAG,
-                LdapStatesEnum.EXTENDED_RESPONSE_VALUE, null );
+            LdapStatesEnum.EXTENDED_RESPONSE_TAG, LdapStatesEnum.EXTENDED_RESPONSE_VALUE, null );
 
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE { (Value)
         // Initialize the compare request pojo
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_VALUE][LdapConstants.EXTENDED_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.EXTENDED_RESPONSE_VALUE, LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT,
-                new GrammarAction( "Init Extended Reponse" )
+            LdapStatesEnum.EXTENDED_RESPONSE_VALUE, LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT, new GrammarAction(
+                "Init Extended Reponse" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
 
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
 
-                        // We can allocate the ExtendedResponse Object
-                        ldapMessage.setProtocolOP( new ExtendedResponse() );
-                    }
-                } );
+                    // We can allocate the ExtendedResponse Object
+                    ldapMessage.setProtocolOP( new ExtendedResponse() );
+                }
+            } );
 
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
-        //     COMPONENTS OF LDAPResult, (Tag)
-        //     ...
-        // The Tag will be the LDAPResult Tag (0x0A). So we have to switch the grammar.
+        // COMPONENTS OF LDAPResult, (Tag)
+        // ...
+        // The Tag will be the LDAPResult Tag (0x0A). So we have to switch the
+        // grammar.
         // The current state will be stored.
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
-                LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT,
-                LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, 
-                new GrammarAction( "Pop allowed" )
+            LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, new GrammarAction(
+                "Pop allowed" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        container.grammarPopAllowed( true );
-                    }
-                });
+                    container.grammarPopAllowed( true );
+                }
+            } );
 
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
-        //     ...
-        //     responseName     [10] LDAPOID OPTIONAL, (Tag)
-        //     ...
+        // ...
+        // responseName [10] LDAPOID OPTIONAL, (Tag)
+        // ...
         // Nothing to do.
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT][LdapConstants.EXTENDED_RESPONSE_RESPONSE_NAME_TAG] = new GrammarTransition(
-                LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT, LdapStatesEnum.EXTENDED_RESPONSE_NAME_VALUE, null
-                 );
-        
+            LdapStatesEnum.EXTENDED_RESPONSE_LDAP_RESULT, LdapStatesEnum.EXTENDED_RESPONSE_NAME_VALUE, null );
+
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
-        //     ...
-        //     responseName     [10] LDAPOID OPTIONAL, (Value)
-        //     ...
+        // ...
+        // responseName [10] LDAPOID OPTIONAL, (Value)
+        // ...
         // Store the response name.
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_NAME_VALUE][LdapConstants.EXTENDED_RESPONSE_RESPONSE_NAME_TAG] = new GrammarTransition(
-                LdapStatesEnum.EXTENDED_RESPONSE_NAME_VALUE, LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_TAG,
-			        new GrammarAction( "Store name" )
-			        {
-			            public void action( IAsn1Container container ) throws DecoderException
-			            {
-			
-			                LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-			                    container;
-			                LdapMessage          ldapMessage          =
-			                    ldapMessageContainer.getLdapMessage();
-			
-			                // We can allocate the ExtendedResponse Object
-			                ExtendedResponse extendedResponse = ldapMessage.getExtendedResponse();
-			
-			                // Get the Value and store it in the ExtendedResponse
-			                TLV tlv = ldapMessageContainer.getCurrentTLV();
-			
-			                // We have to handle the special case of a 0 length matched OID
-			                if ( tlv.getLength().getLength() == 0 )
-			                {
-                                log.error( "The name must not be null" );
-			                    throw new DecoderException( "The name must not be null" );
-			                }
-			                else
-			                {
-			                    extendedResponse.setResponseName( new OID( StringTools.utf8ToString( tlv.getValue().getData() ) ) );
-			                }
-                            
-	                        // We can have an END transition
-	                        ldapMessageContainer.grammarEndAllowed( true );
+            LdapStatesEnum.EXTENDED_RESPONSE_NAME_VALUE, LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_TAG,
+            new GrammarAction( "Store name" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
+                {
 
-                            // We can have a Pop transition
-                            ldapMessageContainer.grammarPopAllowed( true );
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
 
-	                        if ( log.isDebugEnabled() )
-                            {
-                                log.debug( "OID read : {}", extendedResponse.getResponseName() );
-                            }
-			            }
-			        } );
+                    // We can allocate the ExtendedResponse Object
+                    ExtendedResponse extendedResponse = ldapMessage.getExtendedResponse();
+
+                    // Get the Value and store it in the ExtendedResponse
+                    TLV tlv = ldapMessageContainer.getCurrentTLV();
+
+                    // We have to handle the special case of a 0 length matched
+                    // OID
+                    if ( tlv.getLength().getLength() == 0 )
+                    {
+                        log.error( "The name must not be null" );
+                        throw new DecoderException( "The name must not be null" );
+                    }
+                    else
+                    {
+                        extendedResponse
+                            .setResponseName( new OID( StringTools.utf8ToString( tlv.getValue().getData() ) ) );
+                    }
+
+                    // We can have an END transition
+                    ldapMessageContainer.grammarEndAllowed( true );
+
+                    // We can have a Pop transition
+                    ldapMessageContainer.grammarPopAllowed( true );
+
+                    if ( log.isDebugEnabled() )
+                    {
+                        log.debug( "OID read : {}", extendedResponse.getResponseName() );
+                    }
+                }
+            } );
 
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
-        //     ...
-        //     response         [11] OCTET STRING OPTIONAL } (Tag)
+        // ...
+        // response [11] OCTET STRING OPTIONAL } (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_TAG][LdapConstants.EXTENDED_RESPONSE_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_TAG,
-                LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_VALUE, null );
+            LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_TAG, LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_VALUE, null );
 
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
-        //     ...
-        //     response         [11] OCTET STRING OPTIONAL } (Value)
+        // ...
+        // response [11] OCTET STRING OPTIONAL } (Value)
         // Store the response
         super.transitions[LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_VALUE][LdapConstants.EXTENDED_RESPONSE_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_VALUE, LdapStatesEnum.END_STATE,
-                new GrammarAction( "Store response" )
+            LdapStatesEnum.EXTENDED_RESPONSE_RESPONSE_VALUE, LdapStatesEnum.END_STATE, new GrammarAction(
+                "Store response" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
+
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+
+                    // We can allocate the ExtendedResponse Object
+                    ExtendedResponse extendedResponse = ldapMessage.getExtendedResponse();
+
+                    // Get the Value and store it in the ExtendedResponse
+                    TLV tlv = ldapMessageContainer.getCurrentTLV();
+
+                    // We have to handle the special case of a 0 length matched
+                    // OID
+                    if ( tlv.getLength().getLength() == 0 )
                     {
-
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-
-                        // We can allocate the ExtendedResponse Object
-                        ExtendedResponse extendedResponse = ldapMessage.getExtendedResponse();
-
-                        // Get the Value and store it in the ExtendedResponse
-                        TLV tlv = ldapMessageContainer.getCurrentTLV();
-
-                        // We have to handle the special case of a 0 length matched OID
-                        if ( tlv.getLength().getLength() == 0 )
-                        {
-                            extendedResponse.setResponse( new byte[]{} );
-                        }
-                        else
-                        {
-                            extendedResponse.setResponse( tlv.getValue().getData() );
-                        }
-                        
-                        // We can have an END transition
-                        ldapMessageContainer.grammarEndAllowed( true );
-
-                        // We can have a Pop transition
-                        ldapMessageContainer.grammarPopAllowed( true );
-
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Extended value : {}", extendedResponse.getResponse() );
-                        }
+                        extendedResponse.setResponse( new byte[]
+                            {} );
                     }
-                } );
+                    else
+                    {
+                        extendedResponse.setResponse( tlv.getValue().getData() );
+                    }
+
+                    // We can have an END transition
+                    ldapMessageContainer.grammarEndAllowed( true );
+
+                    // We can have a Pop transition
+                    ldapMessageContainer.grammarPopAllowed( true );
+
+                    if ( log.isDebugEnabled() )
+                    {
+                        log.debug( "Extended value : {}", extendedResponse.getResponse() );
+                    }
+                }
+            } );
 
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * This class is a singleton.
-     *
+     * 
      * @return An instance on this grammar
      */
     public static IGrammar getInstance()

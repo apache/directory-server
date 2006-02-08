@@ -17,28 +17,35 @@
 
 package org.apache.directory.shared.asn1.util;
 
+
 /**
- * Thrown when a IntegerDecoder has encountered a failure condition during a decode. 
+ * Thrown when a IntegerDecoder has encountered a failure condition during a
+ * decode.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IntegerDecoderException extends Exception {
+public class IntegerDecoderException extends Exception
+{
 
     /**
      * Declares the Serial Version Uid.
      * 
-     * @see <a href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always Declare Serial Version Uid</a>
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
      */
     private static final long serialVersionUID = 1L;
+
 
     /**
      * Creates a IntegerDecoderException
      * 
-     * @param pMessage A message with meaning to a human
+     * @param pMessage
+     *            A message with meaning to a human
      */
-    public IntegerDecoderException(String pMessage) {
-        super(pMessage);
+    public IntegerDecoderException(String pMessage)
+    {
+        super( pMessage );
     }
 
-}  
-
+}

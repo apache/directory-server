@@ -18,21 +18,21 @@
 /*
  $Id: NotImplementedException.java,v 1.4 2003/07/29 21:17:34 akarasulu Exp $
 
-   -- (c) LDAPd Group                                                    --
-   -- Please refer to the LICENSE.txt file in the root directory of      --
-   -- any LDAPd project for copyright and distribution information.      --
+ -- (c) LDAPd Group                                                    --
+ -- Please refer to the LICENSE.txt file in the root directory of      --
+ -- any LDAPd project for copyright and distribution information.      --
 
-*/
+ */
 
-package org.apache.directory.shared.ldap ;
+package org.apache.directory.shared.ldap;
 
 
 /**
  * This exception is thrown when a Backend operation is either temporarily
- * unsupported or perminantly unsupported as part of its implementation.  Write
- * operations on a backend set to readonly throw a type of unsupported
- * exception called ReadOnlyException.
- *
+ * unsupported or perminantly unsupported as part of its implementation. Write
+ * operations on a backend set to readonly throw a type of unsupported exception
+ * called ReadOnlyException.
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
  * @version $Revision$
@@ -47,18 +47,18 @@ public class NotImplementedException extends RuntimeException
      */
     public NotImplementedException()
     {
-        super( "N O T   I M P L E M E N T E D   Y E T !" ) ;
+        super( "N O T   I M P L E M E N T E D   Y E T !" );
     }
 
 
     /**
      * Constructs an Exception with a detailed message.
      * 
-     * @param a_msg The message associated with the exception.
+     * @param a_msg
+     *            The message associated with the exception.
      */
-    public NotImplementedException( String a_msg )
+    public NotImplementedException(String a_msg)
     {
-        super( "N O T   I M P L E M E N T E D   Y E T !\n" + a_msg ) ;
+        super( "N O T   I M P L E M E N T E D   Y E T !\n" + a_msg );
     }
 }
-

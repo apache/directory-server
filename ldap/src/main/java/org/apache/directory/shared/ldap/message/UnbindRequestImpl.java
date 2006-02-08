@@ -20,31 +20,34 @@ package org.apache.directory.shared.ldap.message;
 /**
  * Lockable UnbindRequest implementation.
  * 
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  */
 public class UnbindRequestImpl extends AbstractRequest implements UnbindRequest
 {
     static final long serialVersionUID = -6217184085100410116L;
 
+
     /**
-     * Creates an UnbindRequest which takes no parameter other than those in
-     * the outer envelope to disconnect and end a client session on the server
+     * Creates an UnbindRequest which takes no parameter other than those in the
+     * outer envelope to disconnect and end a client session on the server
      * without producing any response.
-     *
-     * @param id the sequential message identifier.
+     * 
+     * @param id
+     *            the sequential message identifier.
      */
-    public UnbindRequestImpl( final int id )
+    public UnbindRequestImpl(final int id)
     {
         super( id, TYPE, false );
     }
-    
-    
+
+
     /**
-     * RFC 2251 [Section 4.11]: Abandon, Bind, Unbind, and StartTLS operations cannot be abandoned. 
+     * RFC 2251 [Section 4.11]: Abandon, Bind, Unbind, and StartTLS operations
+     * cannot be abandoned.
      */
     public void abandon()
     {
-        throw new UnsupportedOperationException( "RFC 2251 [Section 4.11]: Abandon, Bind, Unbind, and StartTLS operations cannot be abandoned. " );
+        throw new UnsupportedOperationException(
+            "RFC 2251 [Section 4.11]: Abandon, Bind, Unbind, and StartTLS operations cannot be abandoned. " );
     }
 }

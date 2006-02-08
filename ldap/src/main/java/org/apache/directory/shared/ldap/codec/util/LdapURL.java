@@ -16,12 +16,12 @@
  */
 package org.apache.directory.shared.ldap.codec.util;
 
+
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,30 +39,22 @@ import javax.naming.directory.SearchControls;
 
 
 /**
- * Decodes a LdapUrl, and checks that it complies with
- * the RFC 2255. The grammar is the following :
- * ldapurl    = scheme "://" [hostport] ["/"
- *                   [dn ["?" [attributes] ["?" [scope]
- *                   ["?" [filter] ["?" extensions]]]]]]
- * scheme     = "ldap"
- * attributes = attrdesc *("," attrdesc)
- * scope      = "base" / "one" / "sub"
- * dn         = LdapDN
- * hostport   = hostport from Section 5 of RFC 1738
- * attrdesc   = AttributeDescription from Section 4.1.5 of RFC 2251
- * filter     = filter from Section 4 of RFC 2254
- * extensions = extension *("," extension)
- * extension  = ["!"] extype ["=" exvalue]
- * extype     = token / xtoken
- * exvalue    = LDAPString
- * token      = oid from section 4.1 of RFC 2252
- * xtoken     = ("X-" / "x-") token
+ * Decodes a LdapUrl, and checks that it complies with the RFC 2255. The grammar
+ * is the following : ldapurl = scheme "://" [hostport] ["/" [dn ["?"
+ * [attributes] ["?" [scope] ["?" [filter] ["?" extensions]]]]]] scheme = "ldap"
+ * attributes = attrdesc *("," attrdesc) scope = "base" / "one" / "sub" dn =
+ * LdapDN hostport = hostport from Section 5 of RFC 1738 attrdesc =
+ * AttributeDescription from Section 4.1.5 of RFC 2251 filter = filter from
+ * Section 4 of RFC 2254 extensions = extension *("," extension) extension =
+ * ["!"] extype ["=" exvalue] extype = token / xtoken exvalue = LDAPString token =
+ * oid from section 4.1 of RFC 2252 xtoken = ("X-" / "x-") token
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdapURL extends LdapString
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** A null LdapURL */
     public static final transient LdapURL EMPTY_URL = new LdapURL();
@@ -70,11 +62,12 @@ public class LdapURL extends LdapString
     /** The filter parser */
     private static FilterParserImpl filterParser = new FilterParserImpl();
 
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The scheme */
     private String scheme;
-    
+
     /** The host */
     private String host;
 
@@ -90,7 +83,7 @@ public class LdapURL extends LdapString
     /** The scope */
     private int scope;
 
-    /** The filter as a string*/
+    /** The filter as a string */
     private String filter;
 
     /** The extensions */
@@ -99,34 +92,36 @@ public class LdapURL extends LdapString
     /** The criticals extensions */
     private HashMap criticalExtensions;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Construct an empty LdapURL
-     *
      */
     public LdapURL()
     {
         super();
-        host               = null;
-        port               = -1;
-        dn                 = null;
-        attributes         = new ArrayList();
-        scope              = SearchControls.OBJECT_SCOPE;
-        filter             = null;
-        extensions         = new HashMap();
+        host = null;
+        port = -1;
+        dn = null;
+        attributes = new ArrayList();
+        scope = SearchControls.OBJECT_SCOPE;
+        filter = null;
+        extensions = new HashMap();
         criticalExtensions = new HashMap();
     }
-    
-    public void parse( char[] chars) throws LdapURLEncodingException
+
+
+    public void parse( char[] chars ) throws LdapURLEncodingException
     {
-        host               = null;
-        port               = -1;
-        dn                 = null;
-        attributes         = new ArrayList();
-        scope              = SearchControls.OBJECT_SCOPE;
-        filter             = null;
-        extensions         = new HashMap();
+        host = null;
+        port = -1;
+        dn = null;
+        attributes = new ArrayList();
+        scope = SearchControls.OBJECT_SCOPE;
+        filter = null;
+        extensions = new HashMap();
         criticalExtensions = new HashMap();
 
         if ( ( chars == null ) || ( chars.length == 0 ) )
@@ -135,16 +130,16 @@ public class LdapURL extends LdapString
             return;
         }
 
-        // ldapurl    = scheme "://" [hostport] ["/"
-        //                 [dn ["?" [attributes] ["?" [scope]
-        //                 ["?" [filter] ["?" extensions]]]]]]
-        // scheme     = "ldap"
+        // ldapurl = scheme "://" [hostport] ["/"
+        // [dn ["?" [attributes] ["?" [scope]
+        // ["?" [filter] ["?" extensions]]]]]]
+        // scheme = "ldap"
 
         int pos = 0;
 
         // The scheme
         if ( ( ( pos = StringTools.areEquals( chars, 0, "ldap://" ) ) == StringTools.NOT_EQUAL )
-             && ( ( pos = StringTools.areEquals( chars, 0, "ldaps://" ) ) == StringTools.NOT_EQUAL ) )
+            && ( ( pos = StringTools.areEquals( chars, 0, "ldaps://" ) ) == StringTools.NOT_EQUAL ) )
         {
             throw new LdapURLEncodingException( "A LdapUrl must start with \"ldap://\" or \"ldaps://\"" );
         }
@@ -167,8 +162,8 @@ public class LdapURL extends LdapString
         // An optional '/'
         if ( StringTools.isCharASCII( chars, pos, '/' ) == false )
         {
-            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos] +
-                "', '/' expected" );
+            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
+                + "', '/' expected" );
         }
 
         pos++;
@@ -192,8 +187,8 @@ public class LdapURL extends LdapString
         // Optionals attributes
         if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
         {
-            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos] +
-                "', '?' expected" );
+            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
+                + "', '?' expected" );
         }
 
         pos++;
@@ -211,8 +206,8 @@ public class LdapURL extends LdapString
         // Optional scope
         if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
         {
-            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos] +
-                "', '?' expected" );
+            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
+                + "', '?' expected" );
         }
 
         pos++;
@@ -230,8 +225,8 @@ public class LdapURL extends LdapString
         // Optional filter
         if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
         {
-            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos] +
-                "', '?' expected" );
+            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
+                + "', '?' expected" );
         }
 
         pos++;
@@ -254,8 +249,8 @@ public class LdapURL extends LdapString
         // Optional extensions
         if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
         {
-            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos] +
-                "', '?' expected" );
+            throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
+                + "', '?' expected" );
         }
 
         pos++;
@@ -275,25 +270,27 @@ public class LdapURL extends LdapString
         }
     }
 
+
     /**
      * Create a new LdapURL from a String after having parsed it.
      * 
-     * @param string TheString that contains the LDAPURL
+     * @param string
+     *            TheString that contains the LDAPURL
      * @return A MutableString containing the LDAPURL
-     * 
-     * @throws DecoderException If the String does not comply with RFC 2255
+     * @throws DecoderException
+     *             If the String does not comply with RFC 2255
      */
-    public LdapURL( String string ) throws LdapURLEncodingException
+    public LdapURL(String string) throws LdapURLEncodingException
     {
         if ( string == null )
         {
             throw new LdapURLEncodingException( "The string is empty : this is not a valid LdapURL." );
         }
-        
-        try 
+
+        try
         {
             bytes = string.getBytes( "UTF-8" );
-            this.string = string; 
+            this.string = string;
             parse( string.toCharArray() );
         }
         catch ( UnsupportedEncodingException uee )
@@ -301,22 +298,24 @@ public class LdapURL extends LdapString
             throw new LdapURLEncodingException( "Bad Ldap URL : " + string );
         }
     }
-    
+
+
     /**
      * Create a new LdapURL after having parsed it.
      * 
-     * @param bytes The byte buffer that contains the LDAPURL
+     * @param bytes
+     *            The byte buffer that contains the LDAPURL
      * @return A MutableString containing the LDAPURL
-     * 
-     * @throws DecoderException If the byte array does not comply with RFC 2255
+     * @throws DecoderException
+     *             If the byte array does not comply with RFC 2255
      */
-    public LdapURL(  byte[] bytes ) throws LdapURLEncodingException
+    public LdapURL(byte[] bytes) throws LdapURLEncodingException
     {
         if ( ( bytes == null ) || ( bytes.length == 0 ) )
         {
             throw new LdapURLEncodingException( "The byte array is empty : this is not a valid LdapURL." );
         }
-        
+
         try
         {
             string = new String( bytes, "UTF-8" );
@@ -324,40 +323,48 @@ public class LdapURL extends LdapString
         }
         catch ( UnsupportedEncodingException uee )
         {
-            throw new LdapURLEncodingException( "The byte array is not an UTF-8 encoded Unicode String : " + uee.getMessage() );
+            throw new LdapURLEncodingException( "The byte array is not an UTF-8 encoded Unicode String : "
+                + uee.getMessage() );
         }
-        
+
         parse( string.toCharArray() );
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Parse this rule : <br>
      * <p>
      * &lt;host&gt; ::= &lt;hostname&gt; ':' &lt;hostnumber&gt;<br>
-     * &lt;hostname&gt;     ::= *[ &lt;domainlabel&gt; "." ] &lt;toplabel&gt;<br>
-     * &lt;domainlabel&gt;  ::= &lt;alphadigit&gt; | &lt;alphadigit&gt; *[ &lt;alphadigit&gt; | "-" ] &lt;alphadigit&gt;<br>
-     * &lt;toplabel&gt;     ::= &lt;alpha&gt; | &lt;alpha&gt; *[ &lt;alphadigit&gt; | "-" ] &lt;alphadigit&gt;<br>
-     * &lt;hostnumber&gt;   ::= &lt;digits&gt; "." &lt;digits&gt; "." &lt;digits&gt; "." &lt;digits&gt;
+     * &lt;hostname&gt; ::= *[ &lt;domainlabel&gt; "." ] &lt;toplabel&gt;<br>
+     * &lt;domainlabel&gt; ::= &lt;alphadigit&gt; | &lt;alphadigit&gt; *[
+     * &lt;alphadigit&gt; | "-" ] &lt;alphadigit&gt;<br>
+     * &lt;toplabel&gt; ::= &lt;alpha&gt; | &lt;alpha&gt; *[ &lt;alphadigit&gt; |
+     * "-" ] &lt;alphadigit&gt;<br>
+     * &lt;hostnumber&gt; ::= &lt;digits&gt; "." &lt;digits&gt; "."
+     * &lt;digits&gt; "." &lt;digits&gt;
      * </p>
      * 
-     * @param chars The buffer to parse
-     * @param pos The current position in the byte buffer
-     * @return The new position in the byte buffer, or -1 if the rule does not apply to the byte buffer
-     * 
-     * TODO check that the topLabel is valid (it must start with an alpha)
+     * @param chars
+     *            The buffer to parse
+     * @param pos
+     *            The current position in the byte buffer
+     * @return The new position in the byte buffer, or -1 if the rule does not
+     *         apply to the byte buffer TODO check that the topLabel is valid
+     *         (it must start with an alpha)
      */
     private int parseHost( char[] chars, int pos )
     {
 
-        int     start        = pos;
-        boolean hadDot       = false;
-        boolean hadMinus     = false;
+        int start = pos;
+        boolean hadDot = false;
+        boolean hadMinus = false;
         boolean isHostNumber = true;
-        boolean invalidIp    = false;
-        int     nbDots       = 0;
-        int[]   ipElem       = new int[4];
+        boolean invalidIp = false;
+        int nbDots = 0;
+        int[] ipElem = new int[4];
 
         // The host will be followed by a '/' or a ':', or by nothing if it's
         // the end.
@@ -483,24 +490,27 @@ public class LdapURL extends LdapString
         }
 
         host = new String( chars, start, pos - start );
-        
+
         return pos;
     }
+
 
     /**
      * Parse this rule : <br>
      * <p>
      * &lt;port&gt; ::= &lt;digits&gt;<br>
-     * &lt;digits&gt; ::= &lt;digit&gt; &lt;digits-or-null&gt;<br> 
+     * &lt;digits&gt; ::= &lt;digit&gt; &lt;digits-or-null&gt;<br>
      * &lt;digits-or-null&gt; ::= &lt;digit&gt; &lt;digits-or-null&gt; | e<br>
-     * &lt;digit&gt; ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 
+     * &lt;digit&gt; ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
      * </p>
-     * 
      * The port must be between 0 and 65535.
      * 
-     * @param chars The buffer to parse
-     * @param pos The current position in the byte buffer
-     * @return The new position in the byte buffer, or -1 if the rule does not apply to the byte buffer
+     * @param chars
+     *            The buffer to parse
+     * @param pos
+     *            The current position in the byte buffer
+     * @return The new position in the byte buffer, or -1 if the rule does not
+     *         apply to the byte buffer
      */
     private int parsePort( char[] chars, int pos )
     {
@@ -529,15 +539,19 @@ public class LdapURL extends LdapString
         return pos;
     }
 
+
     /**
      * Parse this rule : <br>
      * <p>
      * &lt;hostport&gt; ::= &lt;host&gt; ':' &lt;port&gt;
      * </p>
      * 
-     * @param chars The char array to parse
-     * @param pos The current position in the byte buffer
-     * @return The new position in the byte buffer, or -1 if the rule does not apply to the byte buffer
+     * @param chars
+     *            The char array to parse
+     * @param pos
+     *            The current position in the byte buffer
+     * @return The new position in the byte buffer, or -1 if the rule does not
+     *         apply to the byte buffer
      */
     private int parseHostPort( char[] chars, int pos )
     {
@@ -566,178 +580,182 @@ public class LdapURL extends LdapString
         return pos;
     }
 
+
     /**
-     * From commons-httpclients.
+     * From commons-httpclients. Converts the byte array of HTTP content
+     * characters to a string. If the specified charset is not supported,
+     * default system encoding is used.
      * 
-     * Converts the byte array of HTTP content characters to a string. If
-     * the specified charset is not supported, default system encoding
-     * is used.
-     *
-     * @param data the byte array to be encoded
-     * @param offset the index of the first byte to encode
-     * @param length the number of bytes to encode 
-     * @param charset the desired character encoding
+     * @param data
+     *            the byte array to be encoded
+     * @param offset
+     *            the index of the first byte to encode
+     * @param length
+     *            the number of bytes to encode
+     * @param charset
+     *            the desired character encoding
      * @return The result of the conversion.
-     * 
      * @since 3.0
      */
-    public static String getString( final byte[] data, int offset, int length, String charset ) 
+    public static String getString( final byte[] data, int offset, int length, String charset )
     {
-        if (data == null) 
+        if ( data == null )
         {
-            throw new IllegalArgumentException("Parameter may not be null");
+            throw new IllegalArgumentException( "Parameter may not be null" );
         }
 
-        if (charset == null || charset.length() == 0) 
+        if ( charset == null || charset.length() == 0 )
         {
-            throw new IllegalArgumentException("charset may not be null or empty");
+            throw new IllegalArgumentException( "charset may not be null or empty" );
         }
 
-        try 
+        try
         {
-            return new String(data, offset, length, charset);
-        } 
-        catch (UnsupportedEncodingException e) 
+            return new String( data, offset, length, charset );
+        }
+        catch ( UnsupportedEncodingException e )
         {
-            return new String(data, offset, length);
+            return new String( data, offset, length );
         }
     }
 
 
     /**
-     * From commons-httpclients.
+     * From commons-httpclients. Converts the byte array of HTTP content
+     * characters to a string. If the specified charset is not supported,
+     * default system encoding is used.
      * 
-     * Converts the byte array of HTTP content characters to a string. If
-     * the specified charset is not supported, default system encoding
-     * is used.
-     *
-     * @param data the byte array to be encoded
-     * @param charset the desired character encoding
+     * @param data
+     *            the byte array to be encoded
+     * @param charset
+     *            the desired character encoding
      * @return The result of the conversion.
-     * 
      * @since 3.0
      */
-    public static String getString(final byte[] data, String charset) 
+    public static String getString( final byte[] data, String charset )
     {
-        return getString(data, 0, data.length, charset);
+        return getString( data, 0, data.length, charset );
     }
+
 
     /**
      * Converts the specified string to byte array of ASCII characters.
-     *
-     * @param data the string to be encoded
-     * @return The string as a byte array.
      * 
+     * @param data
+     *            the string to be encoded
+     * @return The string as a byte array.
      * @since 3.0
      */
-    public static byte[] getAsciiBytes(final String data) 
+    public static byte[] getAsciiBytes( final String data )
     {
 
-        if (data == null) 
+        if ( data == null )
         {
-            throw new IllegalArgumentException("Parameter may not be null");
+            throw new IllegalArgumentException( "Parameter may not be null" );
         }
 
-        try 
+        try
         {
-            return data.getBytes("US-ASCII");
-        } 
-        catch (UnsupportedEncodingException e) 
+            return data.getBytes( "US-ASCII" );
+        }
+        catch ( UnsupportedEncodingException e )
         {
-            throw new HttpClientError("HttpClient requires ASCII support");
+            throw new HttpClientError( "HttpClient requires ASCII support" );
         }
     }
 
+
     /**
-     * From commons-codec.
-     * 
-     * Decodes an array of URL safe 7-bit characters into an array of 
-     * original bytes. Escaped characters are converted back to their 
+     * From commons-codec. Decodes an array of URL safe 7-bit characters into an
+     * array of original bytes. Escaped characters are converted back to their
      * original representation.
-     *
-     * @param bytes array of URL safe characters
-     * @return array of original bytes 
-     * @throws DecoderException Thrown if URL decoding is unsuccessful
+     * 
+     * @param bytes
+     *            array of URL safe characters
+     * @return array of original bytes
+     * @throws DecoderException
+     *             Thrown if URL decoding is unsuccessful
      */
-    private static final byte[] decodeUrl(byte[] bytes) 
-         throws UrlDecoderException
+    private static final byte[] decodeUrl( byte[] bytes ) throws UrlDecoderException
     {
-        if (bytes == null) 
+        if ( bytes == null )
         {
             return null;
         }
-        
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(); 
-        
-        for (int i = 0; i < bytes.length; i++) 
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        for ( int i = 0; i < bytes.length; i++ )
         {
             int b = bytes[i];
-            
-            if (b == '+') 
+
+            if ( b == '+' )
             {
-                buffer.write(' ');
-            } 
-            else if (b == '%') 
+                buffer.write( ' ' );
+            }
+            else if ( b == '%' )
             {
-                try 
+                try
                 {
-                    int u = Character.digit((char)bytes[++i], 16);
-                    int l = Character.digit((char)bytes[++i], 16);
-                    
-                    if (u == -1 || l == -1) 
+                    int u = Character.digit( ( char ) bytes[++i], 16 );
+                    int l = Character.digit( ( char ) bytes[++i], 16 );
+
+                    if ( u == -1 || l == -1 )
                     {
-                        throw new UrlDecoderException("Invalid URL encoding");
+                        throw new UrlDecoderException( "Invalid URL encoding" );
                     }
-                    
-                    buffer.write((char)((u << 4) + l));
-                } 
-                catch(ArrayIndexOutOfBoundsException e) 
-                {
-                    throw new UrlDecoderException("Invalid URL encoding");
+
+                    buffer.write( ( char ) ( ( u << 4 ) + l ) );
                 }
-            } 
-            else 
+                catch ( ArrayIndexOutOfBoundsException e )
+                {
+                    throw new UrlDecoderException( "Invalid URL encoding" );
+                }
+            }
+            else
             {
-                buffer.write(b);
+                buffer.write( b );
             }
         }
-        
-        return buffer.toByteArray(); 
+
+        return buffer.toByteArray();
     }
 
+
     /**
-     * From commons-httpclients.
+     * From commons-httpclients. Unescape and decode a given string regarded as
+     * an escaped string with the default protocol charset.
      * 
-     * Unescape and decode a given string regarded as an escaped string with the
-     * default protocol charset.
-     *
-     * @param escaped a string
+     * @param escaped
+     *            a string
      * @return the unescaped string
-     * 
-     * @throws URIException if the string cannot be decoded (invalid)
-     * 
+     * @throws URIException
+     *             if the string cannot be decoded (invalid)
      * @see URI#getDefaultProtocolCharset
      */
-    private static String decode(String escaped) throws URIException 
+    private static String decode( String escaped ) throws URIException
     {
-        try 
+        try
         {
-            byte[] rawdata = decodeUrl(getAsciiBytes(escaped));
+            byte[] rawdata = decodeUrl( getAsciiBytes( escaped ) );
             return getString( rawdata, "UTF-8" );
-        } 
-        catch (UrlDecoderException e) 
+        }
+        catch ( UrlDecoderException e )
         {
-            throw new URIException(e.getMessage());
+            throw new URIException( e.getMessage() );
         }
     }
 
+
     /**
-     * Parse a string and check that it complies with RFC 2253.
-     * Here, we will just call the LdapDN parser to do the job.
+     * Parse a string and check that it complies with RFC 2253. Here, we will
+     * just call the LdapDN parser to do the job.
      * 
-     * @param chars The char array to be checked
-     * @param pos the starting position
-     * @return -1 if the char array does not contains a DN 
+     * @param chars
+     *            The char array to be checked
+     * @param pos
+     *            the starting position
+     * @return -1 if the char array does not contains a DN
      */
     private int parseDN( char[] chars, int pos )
     {
@@ -757,7 +775,7 @@ public class LdapURL extends LdapString
         {
             return -1;
         }
-        catch (InvalidNameException de )
+        catch ( InvalidNameException de )
         {
             return -1;
         }
@@ -765,20 +783,23 @@ public class LdapURL extends LdapString
         return end;
     }
 
+
     /**
      * Parse the attributes part
      * 
-     * @param chars The char array to be checked
-     * @param pos the starting position
-     * @return -1 if the char array does not contains attributes 
+     * @param chars
+     *            The char array to be checked
+     * @param pos
+     *            the starting position
+     * @return -1 if the char array does not contains attributes
      */
     private int parseAttributes( char[] chars, int pos )
     {
 
-        int     start       = pos;
-        int     end         = pos;
+        int start = pos;
+        int end = pos;
         HashSet hAttributes = new HashSet();
-        boolean hadComma    = false;
+        boolean hadComma = false;
 
         try
         {
@@ -802,7 +823,6 @@ public class LdapURL extends LdapString
 
                         // get the attribute. It must not be blank
                         attribute = new String( chars, start, end - start ).trim();
-                        
 
                         if ( attribute.length() == 0 )
                         {
@@ -810,7 +830,6 @@ public class LdapURL extends LdapString
                         }
 
                         String decodedAttr = decode( attribute );
-
 
                         if ( hAttributes.contains( decodedAttr ) == false )
                         {
@@ -832,7 +851,8 @@ public class LdapURL extends LdapString
             if ( hadComma )
             {
 
-                // We are not allowed to have a comma at the end of the attributes
+                // We are not allowed to have a comma at the end of the
+                // attributes
                 return -1;
             }
             else
@@ -858,7 +878,6 @@ public class LdapURL extends LdapString
 
                 String decodedAttr = decode( attribute );
 
-
                 if ( hAttributes.contains( decodedAttr ) == false )
                 {
                     attributes.add( decodedAttr );
@@ -874,12 +893,15 @@ public class LdapURL extends LdapString
         }
     }
 
+
     /**
      * Parse the filter part. We will use the FilterParserImpl class
      * 
-     * @param chars The char array to be checked
-     * @param pos the starting position
-     * @return -1 if the char array does not contains a filter 
+     * @param chars
+     *            The char array to be checked
+     * @param pos
+     *            the starting position
+     * @return -1 if the char array does not contains a filter
      */
     private int parseFilter( char[] chars, int pos )
     {
@@ -893,7 +915,7 @@ public class LdapURL extends LdapString
 
         try
         {
-            filter       = decode( new String( chars, pos, end - pos ) );
+            filter = decode( new String( chars, pos, end - pos ) );
             filterParser.parse( filter );
         }
         catch ( URIException ue )
@@ -912,33 +934,32 @@ public class LdapURL extends LdapString
         return end;
     }
 
+
     /**
      * Parse the scope part.
      * 
-     * @param chars The char array to be checked
-     * @param pos the starting position
-     * @return -1 if the char array does not contains a scope 
+     * @param chars
+     *            The char array to be checked
+     * @param pos
+     *            the starting position
+     * @return -1 if the char array does not contains a scope
      */
     private int parseScope( char[] chars, int pos )
     {
 
-        if ( StringTools.isCharASCII( chars, pos, 'b' ) ||
-                StringTools.isCharASCII( chars, pos, 'B' ) )
+        if ( StringTools.isCharASCII( chars, pos, 'b' ) || StringTools.isCharASCII( chars, pos, 'B' ) )
         {
             pos++;
 
-            if ( StringTools.isCharASCII( chars, pos, 'a' ) ||
-                    StringTools.isCharASCII( chars, pos, 'A' ) )
+            if ( StringTools.isCharASCII( chars, pos, 'a' ) || StringTools.isCharASCII( chars, pos, 'A' ) )
             {
                 pos++;
 
-                if ( StringTools.isCharASCII( chars, pos, 's' ) ||
-                        StringTools.isCharASCII( chars, pos, 'S' ) )
+                if ( StringTools.isCharASCII( chars, pos, 's' ) || StringTools.isCharASCII( chars, pos, 'S' ) )
                 {
                     pos++;
 
-                    if ( StringTools.isCharASCII( chars, pos, 'e' ) ||
-                            StringTools.isCharASCII( chars, pos, 'E' ) )
+                    if ( StringTools.isCharASCII( chars, pos, 'e' ) || StringTools.isCharASCII( chars, pos, 'E' ) )
                     {
                         pos++;
                         scope = SearchControls.OBJECT_SCOPE;
@@ -947,18 +968,15 @@ public class LdapURL extends LdapString
                 }
             }
         }
-        else if ( StringTools.isCharASCII( chars, pos, 'o' ) ||
-                StringTools.isCharASCII( chars, pos, 'O' ) )
+        else if ( StringTools.isCharASCII( chars, pos, 'o' ) || StringTools.isCharASCII( chars, pos, 'O' ) )
         {
             pos++;
 
-            if ( StringTools.isCharASCII( chars, pos, 'n' ) ||
-                    StringTools.isCharASCII( chars, pos, 'N' ) )
+            if ( StringTools.isCharASCII( chars, pos, 'n' ) || StringTools.isCharASCII( chars, pos, 'N' ) )
             {
                 pos++;
 
-                if ( StringTools.isCharASCII( chars, pos, 'e' ) ||
-                        StringTools.isCharASCII( chars, pos, 'E' ) )
+                if ( StringTools.isCharASCII( chars, pos, 'e' ) || StringTools.isCharASCII( chars, pos, 'E' ) )
                 {
                     pos++;
 
@@ -967,18 +985,15 @@ public class LdapURL extends LdapString
                 }
             }
         }
-        else if ( StringTools.isCharASCII( chars, pos, 's' ) ||
-                StringTools.isCharASCII( chars, pos, 'S' ) )
+        else if ( StringTools.isCharASCII( chars, pos, 's' ) || StringTools.isCharASCII( chars, pos, 'S' ) )
         {
             pos++;
 
-            if ( StringTools.isCharASCII( chars, pos, 'u' ) ||
-                    StringTools.isCharASCII( chars, pos, 'U' ) )
+            if ( StringTools.isCharASCII( chars, pos, 'u' ) || StringTools.isCharASCII( chars, pos, 'U' ) )
             {
                 pos++;
 
-                if ( StringTools.isCharASCII( chars, pos, 'b' ) ||
-                        StringTools.isCharASCII( chars, pos, 'B' ) )
+                if ( StringTools.isCharASCII( chars, pos, 'b' ) || StringTools.isCharASCII( chars, pos, 'B' ) )
                 {
                     pos++;
 
@@ -998,26 +1013,28 @@ public class LdapURL extends LdapString
         return -1;
     }
 
+
     /**
-     * Parse extensions and critical extensions. 
+     * Parse extensions and critical extensions. The grammar is : extensions ::=
+     * extension [ ',' extension ]* extension ::= [ '!' ] ( token | ( 'x-' |
+     * 'X-' ) token ) ) [ '=' exvalue ]
      * 
-     * The grammar is :
-     * 
-     * extensions ::= extension [ ',' extension ]*
-     * extension  ::= [ '!' ] ( token | ( 'x-' | 'X-' ) token ) ) [ '=' exvalue ]  
-     * @param char The char array to be checked
-     * @param pos the starting position
-     * @return -1 if the char array does not contains valid extensions or critical extensions 
+     * @param char
+     *            The char array to be checked
+     * @param pos
+     *            the starting position
+     * @return -1 if the char array does not contains valid extensions or
+     *         critical extensions
      */
     private int parseExtensions( char[] chars, int pos )
     {
 
-        int     start          = pos;
-        boolean isCritical     = false;
+        int start = pos;
+        boolean isCritical = false;
         boolean isNewExtension = true;
-        boolean hasValue       = false;
-        String  extension      = null;
-        String  value          = null;
+        boolean hasValue = false;
+        String extension = null;
+        String value = null;
 
         if ( pos == chars.length )
         {
@@ -1059,11 +1076,11 @@ public class LdapURL extends LdapString
                         }
 
                         isNewExtension = true;
-                        hasValue       = false;
-                        isCritical     = false;
-                        start          = i + 1;
-                        extension      = null;
-                        value          = null;
+                        hasValue = false;
+                        isCritical = false;
+                        start = i + 1;
+                        extension = null;
+                        value = null;
                     }
                 }
                 else if ( StringTools.isCharASCII( chars, i, '=' ) )
@@ -1077,8 +1094,7 @@ public class LdapURL extends LdapString
                     }
 
                     // An optionnal value
-                    extension = new String( decode( new String( chars, start, i - start ) ) )
-                            .trim();
+                    extension = new String( decode( new String( chars, start, i - start ) ) ).trim();
 
                     if ( extension.length() == 0 )
                     {
@@ -1088,8 +1104,8 @@ public class LdapURL extends LdapString
                     }
 
                     isNewExtension = false;
-                    hasValue       = true;
-                    start          = i + 1;
+                    hasValue = true;
+                    start = i + 1;
                 }
                 else if ( StringTools.isCharASCII( chars, i, '!' ) )
                 {
@@ -1108,13 +1124,11 @@ public class LdapURL extends LdapString
 
             if ( extension == null )
             {
-                extension = new String( decode(
-                            new String( chars, start, chars.length - start ) ) ).trim();
+                extension = new String( decode( new String( chars, start, chars.length - start ) ) ).trim();
             }
             else
             {
-                value = new String( decode(
-                            new String( chars, start, chars.length - start ) ) ).trim();
+                value = new String( decode( new String( chars, start, chars.length - start ) ) ).trim();
             }
 
             if ( isCritical )
@@ -1134,61 +1148,64 @@ public class LdapURL extends LdapString
         }
     }
 
+
     /**
-     * Encode a String to avoid special characters
-     * 
-     * *NOTE* : this is an ugly function, just needed because the
-     * RFC 2255 is VERY unclear about the way LDAP searches are
-     * to be encoded. Some references to RFC 1738 are made,
+     * Encode a String to avoid special characters *NOTE* : this is an ugly
+     * function, just needed because the RFC 2255 is VERY unclear about the way
+     * LDAP searches are to be encoded. Some references to RFC 1738 are made,
      * but they are really useless and inadequat.
-     *   
-     * @param string The String to encode
-     * @param doubleEncode Set if we need to encode the comma
+     * 
+     * @param string
+     *            The String to encode
+     * @param doubleEncode
+     *            Set if we need to encode the comma
      * @return An encoded string
      */
-    private String urlEncode( String string, boolean doubleEncode)
+    private String urlEncode( String string, boolean doubleEncode )
     {
         StringBuffer sb = new StringBuffer();
-        
-        for (int i = 0; i < string.length(); i++)
+
+        for ( int i = 0; i < string.length(); i++ )
         {
-            char c = string.charAt(i);
-            
-            switch (c)
+            char c = string.charAt( i );
+
+            switch ( c )
             {
-	            case ' ' :
-	                sb.append("%20");
-	                break;
-	                
-	            case '?' :
-	                sb.append("%3f");
-	                break;
-	                
-	            case '\\' :
-	                sb.append("%5c");
-	                break;
-	                
-	            case ',' :
-	                if (doubleEncode)
-	                {
-	                    sb.append("%2c");
-	                }
-	                else
-	                {
-	                    sb.append( c );
-	                }
-	                break;
-	                
-	            default :
-	                sb.append( c );
+                case ' ':
+                    sb.append( "%20" );
+                    break;
+
+                case '?':
+                    sb.append( "%3f" );
+                    break;
+
+                case '\\':
+                    sb.append( "%5c" );
+                    break;
+
+                case ',':
+                    if ( doubleEncode )
+                    {
+                        sb.append( "%2c" );
+                    }
+                    else
+                    {
+                        sb.append( c );
+                    }
+                    break;
+
+                default:
+                    sb.append( c );
             }
         }
-        
+
         return sb.toString();
     }
-    
+
+
     /**
      * Get a string representation of a LdapURL.
+     * 
      * @return A LdapURL string
      */
     public String toString()
@@ -1205,13 +1222,11 @@ public class LdapURL extends LdapString
 
         if ( dn != null )
         {
-            sb.append( '/' ).append( urlEncode(dn.toString(), false ) );
+            sb.append( '/' ).append( urlEncode( dn.toString(), false ) );
 
-            if ( ( attributes.size() != 0 ) ||
-                    ( ( scope != SearchControls.OBJECT_SCOPE ) ||
-                        ( filter != null ) ||
-                        ( extensions.size() != 0 ) ||
-                        ( criticalExtensions.size() != 0 ) ) )
+            if ( ( attributes.size() != 0 )
+                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 ) || ( criticalExtensions
+                    .size() != 0 ) ) )
             {
                 sb.append( '?' );
 
@@ -1223,37 +1238,33 @@ public class LdapURL extends LdapString
                         sb.append( ',' );
                     }
 
-                    sb.append( urlEncode((String)attributes.get( i ), false ) );
+                    sb.append( urlEncode( ( String ) attributes.get( i ), false ) );
                 }
             }
 
-            if ( ( scope != SearchControls.OBJECT_SCOPE ) ||
-                    ( filter != null ) ||
-                    ( extensions.size() != 0 ) ||
-                    ( criticalExtensions.size() != 0 ) )
+            if ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 )
+                || ( criticalExtensions.size() != 0 ) )
             {
                 sb.append( '?' );
 
                 switch ( scope )
                 {
 
-                    case SearchControls.OBJECT_SCOPE :
+                    case SearchControls.OBJECT_SCOPE:
 
                         // This is the default value.
                         break;
 
-                    case SearchControls.ONELEVEL_SCOPE :
+                    case SearchControls.ONELEVEL_SCOPE:
                         sb.append( "one" );
                         break;
 
-                    case SearchControls.SUBTREE_SCOPE :
+                    case SearchControls.SUBTREE_SCOPE:
                         sb.append( "sub" );
                         break;
                 }
 
-                if ( ( filter != null ) ||
-                        ( ( extensions.size() != 0 ) ||
-                            ( criticalExtensions.size() != 0 ) ) )
+                if ( ( filter != null ) || ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
                 {
                     sb.append( "?" );
 
@@ -1287,7 +1298,8 @@ public class LdapURL extends LdapString
 
                                 String key = ( String ) keys.next();
 
-                                sb.append( urlEncode( key, false ) ).append( '=' ).append( urlEncode( (String)extensions.get( key ), true ) );
+                                sb.append( urlEncode( key, false ) ).append( '=' ).append(
+                                    urlEncode( ( String ) extensions.get( key ), true ) );
                             }
                         }
 
@@ -1313,7 +1325,8 @@ public class LdapURL extends LdapString
 
                                 String key = ( String ) keys.next();
 
-                                sb.append( urlEncode( key, false ) ).append( '=' ).append( urlEncode( (String)criticalExtensions.get( key ), true ) );
+                                sb.append( urlEncode( key, false ) ).append( '=' ).append(
+                                    urlEncode( ( String ) criticalExtensions.get( key ), true ) );
                             }
                         }
                     }
@@ -1328,6 +1341,7 @@ public class LdapURL extends LdapString
         return sb.toString();
     }
 
+
     /**
      * @return Returns the attributes.
      */
@@ -1335,6 +1349,7 @@ public class LdapURL extends LdapString
     {
         return attributes;
     }
+
 
     /**
      * @return Returns the criticalExtensions.
@@ -1344,6 +1359,7 @@ public class LdapURL extends LdapString
         return criticalExtensions;
     }
 
+
     /**
      * @return Returns the dn.
      */
@@ -1351,6 +1367,7 @@ public class LdapURL extends LdapString
     {
         return dn;
     }
+
 
     /**
      * @return Returns the extensions.
@@ -1360,6 +1377,7 @@ public class LdapURL extends LdapString
         return extensions;
     }
 
+
     /**
      * @return Returns the filter.
      */
@@ -1367,6 +1385,7 @@ public class LdapURL extends LdapString
     {
         return filter;
     }
+
 
     /**
      * @return Returns the host.
@@ -1376,6 +1395,7 @@ public class LdapURL extends LdapString
         return host;
     }
 
+
     /**
      * @return Returns the port.
      */
@@ -1384,6 +1404,7 @@ public class LdapURL extends LdapString
         return port;
     }
 
+
     /**
      * @return Returns the scope.
      */
@@ -1391,6 +1412,7 @@ public class LdapURL extends LdapString
     {
         return scope;
     }
+
 
     /**
      * @return Returns the scheme.

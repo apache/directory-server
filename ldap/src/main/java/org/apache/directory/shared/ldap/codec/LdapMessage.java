@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
@@ -48,6 +49,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+
 /**
  * The main ldapObject : every Ldap Message are encapsulated in it. It contains
  * a message Id, a operation (protocolOp) and one ore more Controls.
@@ -56,7 +58,8 @@ import java.util.Iterator;
  */
 public class LdapMessage extends Asn1Object
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The message ID */
     private int messageId;
@@ -79,7 +82,9 @@ public class LdapMessage extends Asn1Object
     /** The controls sequence length */
     private transient int controlsSequenceLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new LdapMessage object.
@@ -89,23 +94,26 @@ public class LdapMessage extends Asn1Object
         // We should not create this kind of object directly
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
-     * Get the Control Object at a specific index 
-     *
-     * @param i The index of the Control Object to get
-     *
+     * Get the Control Object at a specific index
+     * 
+     * @param i
+     *            The index of the Control Object to get
      * @return The selected Control Object
      */
     public Control getControls( int i )
     {
-        return (Control)controls.get( i );
+        return ( Control ) controls.get( i );
     }
 
+
     /**
-     * Get the Control Objects 
-     *
+     * Get the Control Objects
+     * 
      * @return The Control Objects
      */
     public ArrayList getControls()
@@ -113,9 +121,10 @@ public class LdapMessage extends Asn1Object
         return controls;
     }
 
+
     /**
-     * Get the current Control Object 
-     *
+     * Get the current Control Object
+     * 
      * @return The current Control Object
      */
     public Control getCurrentControl()
@@ -123,10 +132,12 @@ public class LdapMessage extends Asn1Object
         return currentControl;
     }
 
+
     /**
      * Add a control to the Controls array
-     *
-     * @param control The Control to add
+     * 
+     * @param control
+     *            The Control to add
      */
     public void addControl( Control control )
     {
@@ -138,17 +149,19 @@ public class LdapMessage extends Asn1Object
         this.controls.add( control );
     }
 
+
     /**
      * Init the controls array
      */
-    public void initControl(  )
+    public void initControl()
     {
         controls = new ArrayList();
     }
 
+
     /**
      * Get the message ID
-     *
+     * 
      * @return The message ID
      */
     public int getMessageId()
@@ -156,73 +169,100 @@ public class LdapMessage extends Asn1Object
         return messageId;
     }
 
+
     /**
      * Set the message ID
-     *
-     * @param messageId The message ID
+     * 
+     * @param messageId
+     *            The message ID
      */
     public void setMessageId( int messageId )
     {
         this.messageId = messageId;
     }
 
+
     /**
      * Get the message type
-     *
+     * 
      * @return The message type
      */
     public int getMessageType()
     {
-    	return ( (LdapMessage)protocolOp) .getMessageType();
+        return ( ( LdapMessage ) protocolOp ).getMessageType();
     }
+
 
     /**
      * Get the message type Name
-     *
+     * 
      * @return The message type name
      */
     public String getMessageTypeName()
     {
-    	switch ( ( (LdapMessage)protocolOp) .getMessageType() )
-    	{
-    	    case LdapConstants.ABANDON_REQUEST         : return "ABANDON_REQUEST";
-    	    case LdapConstants.ADD_REQUEST             : return "ADD_REQUEST";
-    	    case LdapConstants.ADD_RESPONSE            : return "ADD_RESPONSE";
-    	    case LdapConstants.BIND_REQUEST            : return "BIND_REQUEST";
-    	    case LdapConstants.BIND_RESPONSE           : return "BIND_RESPONSE";
-    	    case LdapConstants.COMPARE_REQUEST         : return "COMPARE_REQUEST";
-    	    case LdapConstants.COMPARE_RESPONSE        : return "COMPARE_REQUEST";
-    	    case LdapConstants.DEL_REQUEST             : return "DEL_REQUEST";
-    	    case LdapConstants.DEL_RESPONSE            : return "DEL_RESPONSE";
-    	    case LdapConstants.EXTENDED_REQUEST        : return "EXTENDED_REQUEST";
-    	    case LdapConstants.EXTENDED_RESPONSE       : return "EXTENDED_RESPONSE";
-    	    case LdapConstants.MODIFYDN_REQUEST        : return "MODIFYDN_REQUEST";
-    	    case LdapConstants.MODIFYDN_RESPONSE       : return "MODIFYDN_RESPONSE";
-    	    case LdapConstants.MODIFY_REQUEST          : return "MODIFY_REQUEST";
-    	    case LdapConstants.MODIFY_RESPONSE         : return "MODIFY_RESPONSE";
-    	    case LdapConstants.SEARCH_REQUEST          : return "SEARCH_REQUEST";
-    	    case LdapConstants.SEARCH_RESULT_DONE      : return "SEARCH_RESULT_DONE";
-    	    case LdapConstants.SEARCH_RESULT_ENTRY     : return "SEARCH_RESULT_ENTRY";
-    	    case LdapConstants.SEARCH_RESULT_REFERENCE : return "SEARCH_RESULT_REFERENCE";
-    	    case LdapConstants.UNBIND_REQUEST          : return "UNBIND_REQUEST";
-    	    default                      			   : return "UNKNOWN";
-    	}
+        switch ( ( ( LdapMessage ) protocolOp ).getMessageType() )
+        {
+            case LdapConstants.ABANDON_REQUEST:
+                return "ABANDON_REQUEST";
+            case LdapConstants.ADD_REQUEST:
+                return "ADD_REQUEST";
+            case LdapConstants.ADD_RESPONSE:
+                return "ADD_RESPONSE";
+            case LdapConstants.BIND_REQUEST:
+                return "BIND_REQUEST";
+            case LdapConstants.BIND_RESPONSE:
+                return "BIND_RESPONSE";
+            case LdapConstants.COMPARE_REQUEST:
+                return "COMPARE_REQUEST";
+            case LdapConstants.COMPARE_RESPONSE:
+                return "COMPARE_REQUEST";
+            case LdapConstants.DEL_REQUEST:
+                return "DEL_REQUEST";
+            case LdapConstants.DEL_RESPONSE:
+                return "DEL_RESPONSE";
+            case LdapConstants.EXTENDED_REQUEST:
+                return "EXTENDED_REQUEST";
+            case LdapConstants.EXTENDED_RESPONSE:
+                return "EXTENDED_RESPONSE";
+            case LdapConstants.MODIFYDN_REQUEST:
+                return "MODIFYDN_REQUEST";
+            case LdapConstants.MODIFYDN_RESPONSE:
+                return "MODIFYDN_RESPONSE";
+            case LdapConstants.MODIFY_REQUEST:
+                return "MODIFY_REQUEST";
+            case LdapConstants.MODIFY_RESPONSE:
+                return "MODIFY_RESPONSE";
+            case LdapConstants.SEARCH_REQUEST:
+                return "SEARCH_REQUEST";
+            case LdapConstants.SEARCH_RESULT_DONE:
+                return "SEARCH_RESULT_DONE";
+            case LdapConstants.SEARCH_RESULT_ENTRY:
+                return "SEARCH_RESULT_ENTRY";
+            case LdapConstants.SEARCH_RESULT_REFERENCE:
+                return "SEARCH_RESULT_REFERENCE";
+            case LdapConstants.UNBIND_REQUEST:
+                return "UNBIND_REQUEST";
+            default:
+                return "UNKNOWN";
+        }
     }
+
 
     /**
      * Get the encapsulated Ldap response.
-     *
+     * 
      * @return Returns the Ldap response.
      */
     public LdapResponse getLdapResponse()
     {
-        return ( LdapResponse )protocolOp;
+        return ( LdapResponse ) protocolOp;
     }
 
+
     /**
-     * Get a AbandonRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a AbandonRequest ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the AbandonRequest ldapObject.
      */
     public AbandonRequest getAbandonRequest()
@@ -230,10 +270,11 @@ public class LdapMessage extends Asn1Object
         return ( AbandonRequest ) protocolOp;
     }
 
+
     /**
-     * Get a AddRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a AddRequest ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the AddRequest ldapObject.
      */
     public AddRequest getAddRequest()
@@ -241,10 +282,11 @@ public class LdapMessage extends Asn1Object
         return ( AddRequest ) protocolOp;
     }
 
+
     /**
-     * Get a AddResponse ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a AddResponse ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the AddResponse ldapObject.
      */
     public AddResponse getAddResponse()
@@ -252,10 +294,11 @@ public class LdapMessage extends Asn1Object
         return ( AddResponse ) protocolOp;
     }
 
+
     /**
-     * Get a BindRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a BindRequest ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the BindRequest ldapObject.
      */
     public BindRequest getBindRequest()
@@ -263,10 +306,11 @@ public class LdapMessage extends Asn1Object
         return ( BindRequest ) protocolOp;
     }
 
+
     /**
-     * Get a BindResponse ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a BindResponse ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the BindResponse ldapObject.
      */
     public BindResponse getBindResponse()
@@ -274,10 +318,11 @@ public class LdapMessage extends Asn1Object
         return ( BindResponse ) protocolOp;
     }
 
+
     /**
-     * Get a CompareRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a CompareRequest ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the CompareRequest ldapObject.
      */
     public CompareRequest getCompareRequest()
@@ -285,10 +330,11 @@ public class LdapMessage extends Asn1Object
         return ( CompareRequest ) protocolOp;
     }
 
+
     /**
-     * Get a CompareResponse ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a CompareResponse ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the CompareResponse ldapObject.
      */
     public CompareResponse getCompareResponse()
@@ -296,10 +342,11 @@ public class LdapMessage extends Asn1Object
         return ( CompareResponse ) protocolOp;
     }
 
+
     /**
-     * Get a DelRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a DelRequest ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the DelRequest ldapObject.
      */
     public DelRequest getDelRequest()
@@ -307,10 +354,11 @@ public class LdapMessage extends Asn1Object
         return ( DelRequest ) protocolOp;
     }
 
+
     /**
-     * Get a DelResponse ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a DelResponse ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the DelResponse ldapObject.
      */
     public DelResponse getDelResponse()
@@ -318,10 +366,11 @@ public class LdapMessage extends Asn1Object
         return ( DelResponse ) protocolOp;
     }
 
+
     /**
-     * Get a ExtendedRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a ExtendedRequest ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the ExtendedRequest ldapObject.
      */
     public ExtendedRequest getExtendedRequest()
@@ -329,10 +378,11 @@ public class LdapMessage extends Asn1Object
         return ( ExtendedRequest ) protocolOp;
     }
 
+
     /**
-     * Get a ExtendedResponse ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a ExtendedResponse ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the ExtendedResponse ldapObject.
      */
     public ExtendedResponse getExtendedResponse()
@@ -340,10 +390,11 @@ public class LdapMessage extends Asn1Object
         return ( ExtendedResponse ) protocolOp;
     }
 
+
     /**
-     * Get a ModifyDNRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a ModifyDNRequest ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the ModifyDNRequest ldapObject.
      */
     public ModifyDNRequest getModifyDNRequest()
@@ -351,10 +402,11 @@ public class LdapMessage extends Asn1Object
         return ( ModifyDNRequest ) protocolOp;
     }
 
+
     /**
-     * Get a ModifyDNResponse ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a ModifyDNResponse ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the ModifyDNResponse ldapObject.
      */
     public ModifyDNResponse getModifyDNResponse()
@@ -362,10 +414,11 @@ public class LdapMessage extends Asn1Object
         return ( ModifyDNResponse ) protocolOp;
     }
 
+
     /**
-     * Get a ModifyRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a ModifyRequest ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the ModifyRequest ldapObject.
      */
     public ModifyRequest getModifyRequest()
@@ -373,10 +426,11 @@ public class LdapMessage extends Asn1Object
         return ( ModifyRequest ) protocolOp;
     }
 
+
     /**
-     * Get a ModifyResponse ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a ModifyResponse ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the ModifyResponse ldapObject.
      */
     public ModifyResponse getModifyResponse()
@@ -384,10 +438,11 @@ public class LdapMessage extends Asn1Object
         return ( ModifyResponse ) protocolOp;
     }
 
+
     /**
-     * Get a SearchRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a SearchRequest ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the SearchRequest ldapObject.
      */
     public SearchRequest getSearchRequest()
@@ -395,10 +450,11 @@ public class LdapMessage extends Asn1Object
         return ( SearchRequest ) protocolOp;
     }
 
+
     /**
-     * Get a SearchResultDone ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a SearchResultDone ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
      * @return Returns the SearchRequestDone ldapObject.
      */
     public SearchResultDone getSearchResultDone()
@@ -406,10 +462,11 @@ public class LdapMessage extends Asn1Object
         return ( SearchResultDone ) protocolOp;
     }
 
+
     /**
      * Get a SearchResultEntry ldapObject, assuming that the caller knows that
      * it is the LdapMessage exact type.
-     *
+     * 
      * @return Returns the SearchResultEntry ldapObject.
      */
     public SearchResultEntry getSearchResultEntry()
@@ -417,10 +474,11 @@ public class LdapMessage extends Asn1Object
         return ( SearchResultEntry ) protocolOp;
     }
 
+
     /**
-     * Get a SearchResultReference ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a SearchResultReference ldapObject, assuming that the caller knows
+     * that it is the LdapMessage exact type.
+     * 
      * @return Returns the SearchResultReference ldapObject.
      */
     public SearchResultReference getSearchResultReference()
@@ -428,10 +486,11 @@ public class LdapMessage extends Asn1Object
         return ( SearchResultReference ) protocolOp;
     }
 
+
     /**
-     * Get a UnBindRequest ldapObject, assuming that the caller knows that
-     * it is the LdapMessage exact type.
-     *
+     * Get a UnBindRequest ldapObject, assuming that the caller knows that it is
+     * the LdapMessage exact type.
+     * 
      * @return Returns the UnBindRequest ldapObject.
      */
     public UnBindRequest getUnBindRequest()
@@ -439,30 +498,25 @@ public class LdapMessage extends Asn1Object
         return ( UnBindRequest ) protocolOp;
     }
 
+
     /**
      * Set the ProtocolOP
-     *
-     * @param protocolOp The protocolOp to set.
+     * 
+     * @param protocolOp
+     *            The protocolOp to set.
      */
     public void setProtocolOP( Asn1Object protocolOp )
     {
         this.protocolOp = protocolOp;
     }
 
+
     /**
-     * Compute the LdapMessage length
-     * 
-     * LdapMessage :
-     * 
-     * 0x30 L1
-     *  |
-     *  +--> 0x02 0x0(1-4) [0..2^31-1] (MessageId)
-     *  +--> protocolOp
-     * [+--> Controls]
-     * 
-     * MessageId length = Length(0x02) + length(MessageId) + MessageId.length
-     * L1 = length(ProtocolOp)
-     * LdapMessage length = Length(0x30) + Length(L1) + MessageId length + L1
+     * Compute the LdapMessage length LdapMessage : 0x30 L1 | +--> 0x02 0x0(1-4)
+     * [0..2^31-1] (MessageId) +--> protocolOp [+--> Controls] MessageId length =
+     * Length(0x02) + length(MessageId) + MessageId.length L1 =
+     * length(ProtocolOp) LdapMessage length = Length(0x30) + Length(L1) +
+     * MessageId length + L1
      */
     public int computeLength()
     {
@@ -470,7 +524,7 @@ public class LdapMessage extends Asn1Object
         // - the tag (0x02), 1 byte
         // - the length of the Id length, 1 byte
         // - the Id length, 1 to 4 bytes
-        ldapMessageLength = 1 + 1 + Value.getNbBytes(messageId);
+        ldapMessageLength = 1 + 1 + Value.getNbBytes( messageId );
 
         // Get the protocolOp length
         int protocolOpLength = protocolOp.computeLength();
@@ -479,39 +533,43 @@ public class LdapMessage extends Asn1Object
         ldapMessageLength += protocolOpLength;
 
         // Do the same thing for Controls, if any.
-        if (controls != null)
+        if ( controls != null )
         {
             // Controls :
             // 0xA0 L3
-            //  |
-            //  +--> 0x30 L4
-            //  +--> 0x30 L5
-            //  +--> ...
-            //  +--> 0x30 Li
-            //  +--> ...
-            //  +--> 0x30 Ln
+            // |
+            // +--> 0x30 L4
+            // +--> 0x30 L5
+            // +--> ...
+            // +--> 0x30 Li
+            // +--> ...
+            // +--> 0x30 Ln
             //
             // L3 = Length(0x30) + Length(L5) + L5
-            //      + Length(0x30) + Length(L6) + L6
-            //      + ...
-            //      + Length(0x30) + Length(Li) + Li
-            //      + ...
-            //      + Length(0x30) + Length(Ln) + Ln
+            // + Length(0x30) + Length(L6) + L6
+            // + ...
+            // + Length(0x30) + Length(Li) + Li
+            // + ...
+            // + Length(0x30) + Length(Ln) + Ln
             //
-            // LdapMessageLength = LdapMessageLength + Length(0x90) 
-            //                     + Length(L3) + L3 
+            // LdapMessageLength = LdapMessageLength + Length(0x90)
+            // + Length(L3) + L3
             controlsSequenceLength = 0;
 
             Iterator controlIterator = controls.iterator();
 
             // We may have more than one control. ControlsLength is L4.
-            while (controlIterator.hasNext())
+            while ( controlIterator.hasNext() )
             {
-                controlsSequenceLength += ((Control)controlIterator.next()).computeLength();
+                controlsSequenceLength += ( ( Control ) controlIterator.next() ).computeLength();
             }
 
             // Computes the controls length
-            controlsLength = controlsSequenceLength; //1 + Length.getNbBytes( controlsSequenceLength ) + controlsSequenceLength; 
+            controlsLength = controlsSequenceLength; // 1 +
+                                                        // Length.getNbBytes(
+                                                        // controlsSequenceLength
+                                                        // ) +
+                                                        // controlsSequenceLength;
 
             // Now, add the tag and the length of the controls length
             ldapMessageLength += 1 + Length.getNbBytes( controlsSequenceLength ) + controlsSequenceLength;
@@ -520,31 +578,23 @@ public class LdapMessage extends Asn1Object
         // finally, calculate the global message size :
         // length(Tag) + Length(length) + length
 
-        return 1 + ldapMessageLength + Length.getNbBytes(ldapMessageLength);
+        return 1 + ldapMessageLength + Length.getNbBytes( ldapMessageLength );
     }
 
+
     /**
-     * Generate the PDU which contains the encoded object.
-     * 
-     * The generation is done in two phases :
-     * - first, we compute the length of each part and the
-     *   global PDU length
-     * - second, we produce the PDU.
-     * 
-     * 0x30 L1
-     *   |
-     *   +--> 0x02 L2 MessageId (L2 = Length(MessageId)
-     *   +--> ProtocolOp
-     *   +--> Controls
-     *   
-     * L1 = Length(0x02) + Length(L2) + L2 
-     *      + Length(ProtocolOp) + Length(Controls)
-     * 
+     * Generate the PDU which contains the encoded object. The generation is
+     * done in two phases : - first, we compute the length of each part and the
+     * global PDU length - second, we produce the PDU. 0x30 L1 | +--> 0x02 L2
+     * MessageId (L2 = Length(MessageId) +--> ProtocolOp +--> Controls L1 =
+     * Length(0x02) + Length(L2) + L2 + Length(ProtocolOp) + Length(Controls)
      * LdapMessageLength = Length(0x30) + Length(L1) + L1
-     *   
-     * @param buffer The encoded PDU
+     * 
+     * @param buffer
+     *            The encoded PDU
      * @return A ByteBuffer that contaons the PDU
-     * @throws EncoderException If anything goes wrong.
+     * @throws EncoderException
+     *             If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
@@ -561,42 +611,43 @@ public class LdapMessage extends Asn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         // The message Id
-        Value.encode( bb, messageId);
+        Value.encode( bb, messageId );
 
         // Add the protocolOp part
-        protocolOp.encode(bb);
+        protocolOp.encode( bb );
 
         // Do the same thing for Controls, if any.
-        if (controls != null)
+        if ( controls != null )
         {
             // Encode the controls
-            bb.put( (byte)LdapConstants.CONTROLS_TAG );
+            bb.put( ( byte ) LdapConstants.CONTROLS_TAG );
             bb.put( Length.getBytes( controlsLength ) );
 
             // Encode the control's sequence
-            //bb.put( UniversalTag.SEQUENCE_TAG );
-            //bb.put( Length.getBytes( controlsSequenceLength ) );
+            // bb.put( UniversalTag.SEQUENCE_TAG );
+            // bb.put( Length.getBytes( controlsSequenceLength ) );
 
             // Encode each control
             Iterator controlIterator = controls.iterator();
 
-            while (controlIterator.hasNext())
+            while ( controlIterator.hasNext() )
             {
-                ((Control)controlIterator.next()).encode( bb );
+                ( ( Control ) controlIterator.next() ).encode( bb );
             }
         }
 
         return bb;
     }
 
+
     /**
      * Get a String representation of a LdapMessage
-     *
-     * @return A LdapMessage String 
+     * 
+     * @return A LdapMessage String
      */
     public String toString()
     {
@@ -608,10 +659,10 @@ public class LdapMessage extends Asn1Object
 
         if ( controls != null )
         {
-	        for ( int i = 0; i < controls.size(); i++ )
-	        {
-	            sb.append( ( ( Control ) controls.get( i ) ).toString() );
-	        }
+            for ( int i = 0; i < controls.size(); i++ )
+            {
+                sb.append( ( ( Control ) controls.get( i ) ).toString() );
+            }
         }
 
         return sb.toString();

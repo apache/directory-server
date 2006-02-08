@@ -22,18 +22,19 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 
 
 /**
- * This class store the PSearchControl's grammar constants.
- * It is also used for debugging purposes.
- *
+ * This class store the PSearchControl's grammar constants. It is also used for
+ * debugging purposes.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class PSearchControlStatesEnum implements IStates
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
-    //=========================================================================
-    // Persistent search control grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Persistent search control grammar states
+    // =========================================================================
 
     /** Sequence Tag */
     public static int PSEARCH_SEQUENCE_TAG = 0;
@@ -58,13 +59,13 @@ public class PSearchControlStatesEnum implements IStates
 
     /** returnECs Value */
     public static int RETURN_ECS_VALUE = 7;
-    
+
     /** terminal state */
     public static int LAST_PSEARCH_STATE = 8;
 
-    //=========================================================================
+    // =========================================================================
     // Grammars declaration.
-    //=========================================================================
+    // =========================================================================
     /** PSsearch grammar */
     public static final int PSEARCH_GRAMMAR_SWITCH = 0x0100;
 
@@ -74,49 +75,42 @@ public class PSearchControlStatesEnum implements IStates
     /** The total number of grammars used */
     public static final int NB_GRAMMARS = 1;
 
-    //=========================================================================
-    // Grammar switches debug strings 
-    //=========================================================================
+    // =========================================================================
+    // Grammar switches debug strings
+    // =========================================================================
     /** A string representation of grammars */
-    private static String[] GrammarSwitchString =
-        new String[]
-        {
-            "PSEARCH_GRAMMAR_SWITCH"
-        };
+    private static String[] GrammarSwitchString = new String[]
+        { "PSEARCH_GRAMMAR_SWITCH" };
 
-    //=========================================================================
-    // States debug strings 
-    //=========================================================================
+    // =========================================================================
+    // States debug strings
+    // =========================================================================
     /** A string representation of all the states */
     private static String[] PSearchString = new String[]
-    {
-        "PSEARCH_SEQUENCE_TAG",
-        "PSEARCH_SEQUENCE_VALUE",
-        "CHANGE_TYPES_TAG",
-        "CHANGE_TYPES_VALUE",
-        "CHANGES_ONLY_TAG",
-        "CHANGES_ONLY_VALUE",
-        "RETURN_ECS_TAG",
-        "RETURN_ECS_VALUE"
-    };
+        { "PSEARCH_SEQUENCE_TAG", "PSEARCH_SEQUENCE_VALUE", "CHANGE_TYPES_TAG", "CHANGE_TYPES_VALUE",
+            "CHANGES_ONLY_TAG", "CHANGES_ONLY_VALUE", "RETURN_ECS_TAG", "RETURN_ECS_VALUE" };
 
     /** The instance */
     private static PSearchControlStatesEnum instance = new PSearchControlStatesEnum();
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * This is a private constructor. This class is a singleton
-     *
      */
     private PSearchControlStatesEnum()
     {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get an instance of this class
+     * 
      * @return An instance on this class
      */
     public static IStates getInstance()
@@ -124,23 +118,31 @@ public class PSearchControlStatesEnum implements IStates
         return instance;
     }
 
+
     /**
      * Get the grammar name
-     * @param grammar The grammar code
+     * 
+     * @param grammar
+     *            The grammar code
      * @return The grammar name
      */
     public String getGrammarName( int grammar )
     {
         switch ( grammar )
         {
-            case PSEARCH_GRAMMAR: return "PSEARCH_GRAMMAR";
-            default: return "UNKNOWN";
+            case PSEARCH_GRAMMAR:
+                return "PSEARCH_GRAMMAR";
+            default:
+                return "UNKNOWN";
         }
     }
 
+
     /**
      * Get the grammar name
-     * @param grammar The grammar class
+     * 
+     * @param grammar
+     *            The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -149,15 +151,18 @@ public class PSearchControlStatesEnum implements IStates
         {
             return "PSEARCH_GRAMMAR";
         }
-        
+
         return "UNKNOWN GRAMMAR";
     }
+
 
     /**
      * Get the string representing the state
      * 
-     * @param grammar The current grammar being used
-     * @param state The state number
+     * @param grammar
+     *            The current grammar being used
+     * @param state
+     *            The state number
      * @return The String representing the state
      */
     public String getState( int grammar, int state )
@@ -174,10 +179,10 @@ public class PSearchControlStatesEnum implements IStates
             switch ( grammar )
             {
 
-                case PSEARCH_GRAMMAR :
+                case PSEARCH_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "PSEARCH_END_STATE" : PSearchString[state] );
 
-                default :
+                default:
                     return "UNKNOWN";
             }
         }

@@ -12,30 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 
 package org.apache.directory.shared.asn1.codec.binary;
+
 
 import org.apache.directory.shared.asn1.codec.BinaryDecoder;
 import org.apache.directory.shared.asn1.codec.BinaryEncoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 
+
 /**
  * Translates between byte arrays and strings of "0"s and "1"s.
  * 
- * @todo may want to add more bit vector functions like and/or/xor/nand 
- * @todo also might be good to generate boolean[]
- * from byte[] et. cetera.
- * 
+ * @todo may want to add more bit vector functions like and/or/xor/nand
+ * @todo also might be good to generate boolean[] from byte[] et. cetera.
  * @author Apache Software Foundation
  * @since 1.3
  * @version $Id $
  */
-public class BinaryCodec implements BinaryDecoder, BinaryEncoder {
+public class BinaryCodec implements BinaryDecoder, BinaryEncoder
+{
     /*
-     * tried to avoid using ArrayUtils to minimize dependencies while using these empty arrays - dep is just not worth
-     * it.
+     * tried to avoid using ArrayUtils to minimize dependencies while using
+     * these empty arrays - dep is just not worth it.
      */
     /** Empty char array. */
     private static final char[] EMPTY_CHAR_ARRAY = new char[0];
@@ -67,89 +68,113 @@ public class BinaryCodec implements BinaryDecoder, BinaryEncoder {
     /** Mask for bit 7 of a byte. */
     private static final int BIT_7 = 0x80;
 
-    private static final int[] BITS = {BIT_0, BIT_1, BIT_2, BIT_3, BIT_4, BIT_5, BIT_6, BIT_7};
+    private static final int[] BITS =
+        { BIT_0, BIT_1, BIT_2, BIT_3, BIT_4, BIT_5, BIT_6, BIT_7 };
+
 
     /**
-     * Converts an array of raw binary data into an array of ascii 0 and 1 characters.
+     * Converts an array of raw binary data into an array of ascii 0 and 1
+     * characters.
      * 
      * @param raw
-     *                  the raw binary data to convert
+     *            the raw binary data to convert
      * @return 0 and 1 ascii character bytes one for each bit of the argument
      * @see org.apache.directory.shared.asn1.codec.BinaryEncoder#encode(byte[])
      */
-    public byte[] encode(byte[] raw) {
-        return toAsciiBytes(raw);
+    public byte[] encode( byte[] raw )
+    {
+        return toAsciiBytes( raw );
     }
 
+
     /**
-     * Converts an array of raw binary data into an array of ascii 0 and 1 chars.
+     * Converts an array of raw binary data into an array of ascii 0 and 1
+     * chars.
      * 
      * @param raw
-     *                  the raw binary data to convert
+     *            the raw binary data to convert
      * @return 0 and 1 ascii character chars one for each bit of the argument
      * @throws EncoderException
-     *                  if the argument is not a byte[]
+     *             if the argument is not a byte[]
      * @see org.apache.directory.shared.asn1.codec.Encoder#encode(java.lang.Object)
      */
-    public Object encode(Object raw) throws EncoderException {
-        if (!(raw instanceof byte[])) {
-            throw new EncoderException("argument not a byte array");
+    public Object encode( Object raw ) throws EncoderException
+    {
+        if ( !( raw instanceof byte[] ) )
+        {
+            throw new EncoderException( "argument not a byte array" );
         }
-        return toAsciiChars((byte[]) raw);
+        return toAsciiChars( ( byte[] ) raw );
     }
+
 
     /**
      * Decodes a byte array where each byte represents an ascii '0' or '1'.
      * 
      * @param ascii
-     *                  each byte represents an ascii '0' or '1'
-     * @return the raw encoded binary where each bit corresponds to a byte in the byte array argument
+     *            each byte represents an ascii '0' or '1'
+     * @return the raw encoded binary where each bit corresponds to a byte in
+     *         the byte array argument
      * @throws DecoderException
-     *                  if argument is not a byte[], char[] or String
+     *             if argument is not a byte[], char[] or String
      * @see org.apache.directory.shared.asn1.codec.Decoder#decode(java.lang.Object)
      */
-    public Object decode(Object ascii) throws DecoderException {
-        if (ascii == null) {
+    public Object decode( Object ascii ) throws DecoderException
+    {
+        if ( ascii == null )
+        {
             return EMPTY_BYTE_ARRAY;
         }
-        if (ascii instanceof byte[]) {
-            return fromAscii((byte[]) ascii);
+        if ( ascii instanceof byte[] )
+        {
+            return fromAscii( ( byte[] ) ascii );
         }
-        if (ascii instanceof char[]) {
-            return fromAscii((char[]) ascii);
+        if ( ascii instanceof char[] )
+        {
+            return fromAscii( ( char[] ) ascii );
         }
-        if (ascii instanceof String) {
-            return fromAscii(((String) ascii).toCharArray());
+        if ( ascii instanceof String )
+        {
+            return fromAscii( ( ( String ) ascii ).toCharArray() );
         }
-        throw new DecoderException("argument not a byte array");
+        throw new DecoderException( "argument not a byte array" );
     }
+
 
     /**
      * Decodes a byte array where each byte represents an ascii '0' or '1'.
      * 
      * @param ascii
-     *                  each byte represents an ascii '0' or '1'
-     * @return the raw encoded binary where each bit corresponds to a byte in the byte array argument
+     *            each byte represents an ascii '0' or '1'
+     * @return the raw encoded binary where each bit corresponds to a byte in
+     *         the byte array argument
      * @see org.apache.directory.shared.asn1.codec.Decoder#decode(Object)
      */
-    public byte[] decode(byte[] ascii) {
-        return fromAscii(ascii);
+    public byte[] decode( byte[] ascii )
+    {
+        return fromAscii( ascii );
     }
 
+
     /**
-     * Decodes a String where each char of the String represents an ascii '0' or '1'.
+     * Decodes a String where each char of the String represents an ascii '0' or
+     * '1'.
      * 
      * @param ascii
-     *                  String of '0' and '1' characters
-     * @return the raw encoded binary where each bit corresponds to a byte in the byte array argument
+     *            String of '0' and '1' characters
+     * @return the raw encoded binary where each bit corresponds to a byte in
+     *         the byte array argument
      * @see org.apache.directory.shared.asn1.codec.Decoder#decode(Object)
      */
-    public byte[] toByteArray(String ascii) {
-        if (ascii == null) {
+    public byte[] toByteArray( String ascii )
+    {
+        if ( ascii == null )
+        {
             return EMPTY_BYTE_ARRAY;
         }
-        return fromAscii(ascii.toCharArray());
+        return fromAscii( ascii.toCharArray() );
     }
+
 
     // ------------------------------------------------------------------------
     //
@@ -160,49 +185,62 @@ public class BinaryCodec implements BinaryDecoder, BinaryEncoder {
      * Decodes a byte array where each char represents an ascii '0' or '1'.
      * 
      * @param ascii
-     *                  each char represents an ascii '0' or '1'
-     * @return the raw encoded binary where each bit corresponds to a char in the char array argument
+     *            each char represents an ascii '0' or '1'
+     * @return the raw encoded binary where each bit corresponds to a char in
+     *         the char array argument
      */
-    public static byte[] fromAscii(char[] ascii) {
-        if (ascii == null || ascii.length == 0) {
+    public static byte[] fromAscii( char[] ascii )
+    {
+        if ( ascii == null || ascii.length == 0 )
+        {
             return EMPTY_BYTE_ARRAY;
         }
         // get length/8 times bytes with 3 bit shifts to the right of the length
         byte[] l_raw = new byte[ascii.length >> 3];
         /*
-         * We decr index jj by 8 as we go along to not recompute indices using multiplication every time inside the
-         * loop.
+         * We decr index jj by 8 as we go along to not recompute indices using
+         * multiplication every time inside the loop.
          */
-        for (int ii = 0, jj = ascii.length - 1; ii < l_raw.length; ii++, jj -= 8) {
-            for (int bits = 0; bits < BITS.length; ++bits) {
-                if (ascii[jj - bits] == '1') {
+        for ( int ii = 0, jj = ascii.length - 1; ii < l_raw.length; ii++, jj -= 8 )
+        {
+            for ( int bits = 0; bits < BITS.length; ++bits )
+            {
+                if ( ascii[jj - bits] == '1' )
+                {
                     l_raw[ii] |= BITS[bits];
                 }
             }
         }
         return l_raw;
     }
+
 
     /**
      * Decodes a byte array where each byte represents an ascii '0' or '1'.
      * 
      * @param ascii
-     *                  each byte represents an ascii '0' or '1'
-     * @return the raw encoded binary where each bit corresponds to a byte in the byte array argument
+     *            each byte represents an ascii '0' or '1'
+     * @return the raw encoded binary where each bit corresponds to a byte in
+     *         the byte array argument
      */
-    public static byte[] fromAscii(byte[] ascii) {
-        if (ascii == null || ascii.length == 0) {
+    public static byte[] fromAscii( byte[] ascii )
+    {
+        if ( ascii == null || ascii.length == 0 )
+        {
             return EMPTY_BYTE_ARRAY;
         }
         // get length/8 times bytes with 3 bit shifts to the right of the length
         byte[] l_raw = new byte[ascii.length >> 3];
         /*
-         * We decr index jj by 8 as we go along to not recompute indices using multiplication every time inside the
-         * loop.
+         * We decr index jj by 8 as we go along to not recompute indices using
+         * multiplication every time inside the loop.
          */
-        for (int ii = 0, jj = ascii.length - 1; ii < l_raw.length; ii++, jj -= 8) {
-            for (int bits = 0; bits < BITS.length; ++bits) {
-                if (ascii[jj - bits] == '1') {
+        for ( int ii = 0, jj = ascii.length - 1; ii < l_raw.length; ii++, jj -= 8 )
+        {
+            for ( int bits = 0; bits < BITS.length; ++bits )
+            {
+                if ( ascii[jj - bits] == '1' )
+                {
                     l_raw[ii] |= BITS[bits];
                 }
             }
@@ -210,30 +248,38 @@ public class BinaryCodec implements BinaryDecoder, BinaryEncoder {
         return l_raw;
     }
 
+
     /**
-     * Converts an array of raw binary data into an array of ascii 0 and 1 character bytes - each byte is a truncated
-     * char.
+     * Converts an array of raw binary data into an array of ascii 0 and 1
+     * character bytes - each byte is a truncated char.
      * 
      * @param raw
-     *                  the raw binary data to convert
+     *            the raw binary data to convert
      * @return an array of 0 and 1 character bytes for each bit of the argument
      * @see org.apache.directory.shared.asn1.codec.BinaryEncoder#encode(byte[])
      */
-    public static byte[] toAsciiBytes(byte[] raw) {
-        if (raw == null || raw.length == 0) {
+    public static byte[] toAsciiBytes( byte[] raw )
+    {
+        if ( raw == null || raw.length == 0 )
+        {
             return EMPTY_BYTE_ARRAY;
         }
         // get 8 times the bytes with 3 bit shifts to the left of the length
         byte[] l_ascii = new byte[raw.length << 3];
         /*
-         * We decr index jj by 8 as we go along to not recompute indices using multiplication every time inside the
-         * loop.
+         * We decr index jj by 8 as we go along to not recompute indices using
+         * multiplication every time inside the loop.
          */
-        for (int ii = 0, jj = l_ascii.length - 1; ii < raw.length; ii++, jj -= 8) {
-            for (int bits = 0; bits < BITS.length; ++bits) {
-                if ((raw[ii] & BITS[bits]) == 0) {
+        for ( int ii = 0, jj = l_ascii.length - 1; ii < raw.length; ii++, jj -= 8 )
+        {
+            for ( int bits = 0; bits < BITS.length; ++bits )
+            {
+                if ( ( raw[ii] & BITS[bits] ) == 0 )
+                {
                     l_ascii[jj - bits] = '0';
-                } else {
+                }
+                else
+                {
                     l_ascii[jj - bits] = '1';
                 }
             }
@@ -241,29 +287,38 @@ public class BinaryCodec implements BinaryDecoder, BinaryEncoder {
         return l_ascii;
     }
 
+
     /**
-     * Converts an array of raw binary data into an array of ascii 0 and 1 characters.
+     * Converts an array of raw binary data into an array of ascii 0 and 1
+     * characters.
      * 
      * @param raw
-     *                  the raw binary data to convert
+     *            the raw binary data to convert
      * @return an array of 0 and 1 characters for each bit of the argument
      * @see org.apache.directory.shared.asn1.codec.BinaryEncoder#encode(byte[])
      */
-    public static char[] toAsciiChars(byte[] raw) {
-        if (raw == null || raw.length == 0) {
+    public static char[] toAsciiChars( byte[] raw )
+    {
+        if ( raw == null || raw.length == 0 )
+        {
             return EMPTY_CHAR_ARRAY;
         }
         // get 8 times the bytes with 3 bit shifts to the left of the length
         char[] l_ascii = new char[raw.length << 3];
         /*
-         * We decr index jj by 8 as we go along to not recompute indices using multiplication every time inside the
-         * loop.
+         * We decr index jj by 8 as we go along to not recompute indices using
+         * multiplication every time inside the loop.
          */
-        for (int ii = 0, jj = l_ascii.length - 1; ii < raw.length; ii++, jj -= 8) {
-            for (int bits = 0; bits < BITS.length; ++bits) {
-                if ((raw[ii] & BITS[bits]) == 0) {
+        for ( int ii = 0, jj = l_ascii.length - 1; ii < raw.length; ii++, jj -= 8 )
+        {
+            for ( int bits = 0; bits < BITS.length; ++bits )
+            {
+                if ( ( raw[ii] & BITS[bits] ) == 0 )
+                {
                     l_ascii[jj - bits] = '0';
-                } else {
+                }
+                else
+                {
                     l_ascii[jj - bits] = '1';
                 }
             }
@@ -271,15 +326,18 @@ public class BinaryCodec implements BinaryDecoder, BinaryEncoder {
         return l_ascii;
     }
 
+
     /**
-     * Converts an array of raw binary data into a String of ascii 0 and 1 characters.
+     * Converts an array of raw binary data into a String of ascii 0 and 1
+     * characters.
      * 
      * @param raw
-     *                  the raw binary data to convert
+     *            the raw binary data to convert
      * @return a String of 0 and 1 characters representing the binary data
      * @see org.apache.directory.shared.asn1.codec.BinaryEncoder#encode(byte[])
      */
-    public static String toAsciiString(byte[] raw) {
-        return new String(toAsciiChars(raw));
+    public static String toAsciiString( byte[] raw )
+    {
+        return new String( toAsciiChars( raw ) );
     }
 }

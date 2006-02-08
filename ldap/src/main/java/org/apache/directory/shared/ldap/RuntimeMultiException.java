@@ -15,21 +15,20 @@
  *
  */
 
-package org.apache.directory.shared.ldap ;
+package org.apache.directory.shared.ldap;
 
 
-import java.util.ArrayList ;
-import java.util.Iterator ;
-import java.util.Collection ;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Collection;
 
-import java.io.PrintWriter ;
-import java.io.PrintStream ;
-
+import java.io.PrintWriter;
+import java.io.PrintStream;
 
 
 /**
  * This exception is thrown when Base class for nested exceptions.
- *
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
  * @version $Revision$
@@ -37,104 +36,106 @@ import java.io.PrintStream ;
 public class RuntimeMultiException extends RuntimeException
 {
     static final long serialVersionUID = 8582253398936366771L;
-    
+
     /** Collection of nested exceptions. */
-    private Collection m_nestedExceptions = new ArrayList() ;
+    private Collection m_nestedExceptions = new ArrayList();
+
 
     /**
      * Constructs an Exception without a message.
      */
     public RuntimeMultiException()
     {
-        super() ;
+        super();
     }
 
 
     /**
      * Constructs an Exception with a detailed message.
-     * @param a_message The message associated with the exception.
+     * 
+     * @param a_message
+     *            The message associated with the exception.
      */
-    public RuntimeMultiException( String a_message )
+    public RuntimeMultiException(String a_message)
     {
-        super( a_message ) ;
+        super( a_message );
     }
 
 
     /**
      * Lists the nested exceptions that this Exception encapsulates.
-     *
+     * 
      * @return an Iterator over the nested exceptions.
      */
     public Iterator listNestedExceptions()
     {
-        return m_nestedExceptions.iterator() ;
+        return m_nestedExceptions.iterator();
     }
 
 
     /**
      * Gets the size (number of) exceptions nested within this exception.
-     *
+     * 
      * @return the size of this nested exception.
      */
     public int size()
     {
-        return m_nestedExceptions.size() ;
+        return m_nestedExceptions.size();
     }
 
 
     /**
      * Tests to see if exceptions are nested within this exception.
-     *
+     * 
      * @return true if an exception is nested, false otherwise
      */
     public boolean isEmpty()
     {
-        return m_nestedExceptions.isEmpty() ;
+        return m_nestedExceptions.isEmpty();
     }
 
 
     /**
      * Add an exeception to this multiexception.
-     *
-     * @param a_nested exception to add to this MultiException.
+     * 
+     * @param a_nested
+     *            exception to add to this MultiException.
      */
     public void addThrowable( Throwable a_nested )
     {
-        this.m_nestedExceptions.add( a_nested ) ;
+        this.m_nestedExceptions.add( a_nested );
     }
 
 
-    /////////////////////////////////////////////
+    // ///////////////////////////////////////////
     // Overriden Throwable Stack Trace Methods //
-    /////////////////////////////////////////////
-
+    // ///////////////////////////////////////////
 
     /**
      * Beside printing out the standard stack trace this method prints out the
      * stack traces of all the nested exceptions.
-     *
-     * @param an_out PrintWriter to write the nested stack trace to.
+     * 
+     * @param an_out
+     *            PrintWriter to write the nested stack trace to.
      */
     public void printStackTrace( PrintWriter an_out )
     {
-        super.printStackTrace( an_out ) ;
+        super.printStackTrace( an_out );
 
-        an_out.println( "Nested exceptions to follow:\n" ) ;
-        Iterator l_list = listNestedExceptions() ;
-        Throwable l_throwable = null ;
-        while ( l_list.hasNext() ) 
+        an_out.println( "Nested exceptions to follow:\n" );
+        Iterator l_list = listNestedExceptions();
+        Throwable l_throwable = null;
+        while ( l_list.hasNext() )
         {
-            l_throwable = ( Throwable ) l_list.next() ;
-            l_throwable.printStackTrace() ;
-            if ( l_list.hasNext() ) 
+            l_throwable = ( Throwable ) l_list.next();
+            l_throwable.printStackTrace();
+            if ( l_list.hasNext() )
             {
-                an_out.println( "\n\t<<========= Next Nested Exception" 
-                    + " ========>>\n" ) ;
-            } 
-            else 
+                an_out.println( "\n\t<<========= Next Nested Exception" + " ========>>\n" );
+            }
+            else
             {
-                an_out.println( "\n\t<<========= Last Nested Exception" 
-                    + " ========>>\n" ) ;
+                an_out.println( "\n\t<<========= Last Nested Exception" + " ========>>\n" );
             }
         }
     }
@@ -143,29 +144,28 @@ public class RuntimeMultiException extends RuntimeException
     /**
      * Beside printing out the standard stack trace this method prints out the
      * stack traces of all the nested exceptions.
-     *
-     * @param an_out PrintStream to write the nested stack trace to.
+     * 
+     * @param an_out
+     *            PrintStream to write the nested stack trace to.
      */
     public void printStackTrace( PrintStream an_out )
     {
-        super.printStackTrace( an_out ) ;
+        super.printStackTrace( an_out );
 
-        an_out.println( "Nested exceptions to follow:\n" ) ;
-        Iterator l_list = listNestedExceptions() ;
-        Throwable l_throwable = null ;
-        while ( l_list.hasNext() ) 
+        an_out.println( "Nested exceptions to follow:\n" );
+        Iterator l_list = listNestedExceptions();
+        Throwable l_throwable = null;
+        while ( l_list.hasNext() )
         {
-            l_throwable = ( Throwable ) l_list.next() ;
-            l_throwable.printStackTrace() ;
-            if ( l_list.hasNext() ) 
+            l_throwable = ( Throwable ) l_list.next();
+            l_throwable.printStackTrace();
+            if ( l_list.hasNext() )
             {
-                an_out.println( "\n\t<<========= Next Nested Exception" 
-                    + " ========>>\n" ) ;
-            } 
-            else 
+                an_out.println( "\n\t<<========= Next Nested Exception" + " ========>>\n" );
+            }
+            else
             {
-                an_out.println( "\n\t<<========= Last Nested Exception" 
-                    + " ========>>\n" ) ;
+                an_out.println( "\n\t<<========= Last Nested Exception" + " ========>>\n" );
             }
         }
     }
@@ -177,6 +177,6 @@ public class RuntimeMultiException extends RuntimeException
      */
     public void printStackTrace()
     {
-        this.printStackTrace( System.err ) ;
+        this.printStackTrace( System.err );
     }
 }

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
@@ -26,95 +26,99 @@ package org.apache.directory.shared.ldap.message ;
 public abstract class ControlImpl implements Control
 {
     /** Unique object identifier for this control */
-    private String oid ;
+    private String oid;
+
     /** Control ASN.1 encoded parameters */
-    private byte [] value ;
+    private byte[] value;
+
     /** Flag for control criticality */
-    private boolean isCritical ;
+    private boolean isCritical;
 
 
     // ------------------------------------------------------------------------
     // Control Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Determines whether or not this control is critical for the correct
-     * operation of a request or response message.  The default for this value
+     * operation of a request or response message. The default for this value
      * should be false.
-     *
+     * 
      * @return true if the control is critical false otherwise.
      */
     public boolean isCritical()
     {
-        return this.isCritical ;
+        return this.isCritical;
     }
 
 
     /**
      * Sets the criticil flag which determines whether or not this control is
-     * critical for the correct operation of a request or response message.  The
+     * critical for the correct operation of a request or response message. The
      * default for this value should be false.
-     *
-     * @param isCritical true if the control is critical false otherwise.
+     * 
+     * @param isCritical
+     *            true if the control is critical false otherwise.
      */
     public void setCritical( boolean isCritical )
     {
-        this.isCritical = isCritical ;
+        this.isCritical = isCritical;
     }
 
 
     /**
      * Gets the OID of the Control to identify the control type.
-     *
+     * 
      * @return the OID of this Control.
      */
     public String getType()
     {
-        return this.oid ;
+        return this.oid;
     }
 
 
     /**
      * Sets the OID of the Control to identify the control type.
-     *
-     * @param oid the OID of this Control.
+     * 
+     * @param oid
+     *            the OID of this Control.
      */
     public void setType( String oid )
     {
-        this.oid = oid ;
+        this.oid = oid;
     }
 
 
     /**
      * Gets the ASN.1 BER encoded value of the control which would have its own
      * custom ASN.1 defined structure based on the nature of the control.
-     *
+     * 
      * @return ASN.1 BER encoded value as binary data.
      */
-    public byte [] getValue()
+    public byte[] getValue()
     {
-        return this.value ;
+        return this.value;
     }
 
 
     /**
      * Sets the ASN.1 BER encoded value of the control which would have its own
      * custom ASN.1 defined structure based on the nature of the control.
-     *
-     * @param value ASN.1 BER encoded value as binary data.
+     * 
+     * @param value
+     *            ASN.1 BER encoded value as binary data.
      */
-    public void setValue( byte [] value )
+    public void setValue( byte[] value )
     {
-        this.value = value ;
+        this.value = value;
     }
 
 
     /**
-      * Retrieves the object identifier assigned for the LDAP control.
-      *
-      * @return The non-null object identifier string.
-      */
+     * Retrieves the object identifier assigned for the LDAP control.
+     * 
+     * @return The non-null object identifier string.
+     */
     public String getID()
     {
         return this.oid;

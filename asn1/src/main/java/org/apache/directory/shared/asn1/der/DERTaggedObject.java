@@ -17,8 +17,10 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
 
 /**
  * DER TaggedObject
@@ -26,44 +28,56 @@ import java.io.IOException;
 public class DERTaggedObject implements DEREncodable
 {
     protected int tag;
+
     protected boolean empty = false;
+
     protected boolean explicit = true;
+
     protected DEREncodable obj;
+
     private byte[] bytes;
 
+
     /**
-     * create an implicitly tagged object that contains a zero
-     * length sequence.
+     * create an implicitly tagged object that contains a zero length sequence.
      */
-    public DERTaggedObject( int tag )
+    public DERTaggedObject(int tag)
     {
         this( false, tag, new DERSequence() );
     }
 
+
     /**
-     * @param tag the tag number for this object.
-     * @param obj the tagged object.
+     * @param tag
+     *            the tag number for this object.
+     * @param obj
+     *            the tagged object.
      */
-    public DERTaggedObject( int tag, DEREncodable obj )
+    public DERTaggedObject(int tag, DEREncodable obj)
     {
         this.explicit = true;
         this.tag = tag;
         this.obj = obj;
     }
 
+
     /**
-     * @param explicit true if an explicitly tagged object.
-     * @param tag the tag number for this object.
-     * @param obj the tagged object.
+     * @param explicit
+     *            true if an explicitly tagged object.
+     * @param tag
+     *            the tag number for this object.
+     * @param obj
+     *            the tagged object.
      */
-    public DERTaggedObject( boolean explicit, int tag, DEREncodable obj )
+    public DERTaggedObject(boolean explicit, int tag, DEREncodable obj)
     {
         this.explicit = explicit;
         this.tag = tag;
         this.obj = obj;
     }
 
-    public DERTaggedObject( boolean explicit, int tag, DEREncodable obj, byte[] bytes )
+
+    public DERTaggedObject(boolean explicit, int tag, DEREncodable obj, byte[] bytes)
     {
         this.explicit = explicit;
         this.tag = tag;
@@ -71,22 +85,25 @@ public class DERTaggedObject implements DEREncodable
         this.bytes = bytes;
     }
 
+
     public byte[] getOctets()
     {
         return bytes;
     }
+
 
     public int getTagNo()
     {
         return tag;
     }
 
+
     /**
      * return whatever was following the tag.
      * <p>
-     * Note: tagged objects are generally context dependent if you're
-     * trying to extract a tagged object you should be going via the
-     * appropriate getInstance method.
+     * Note: tagged objects are generally context dependent if you're trying to
+     * extract a tagged object you should be going via the appropriate
+     * getInstance method.
      */
     public DEREncodable getObject()
     {
@@ -97,6 +114,7 @@ public class DERTaggedObject implements DEREncodable
 
         return null;
     }
+
 
     public void encode( ASN1OutputStream out ) throws IOException
     {
@@ -117,13 +135,13 @@ public class DERTaggedObject implements DEREncodable
             else
             {
                 // need to mark constructed types
-                if ( ( bytes[ 0 ] & DERObject.CONSTRUCTED ) != 0 )
+                if ( ( bytes[0] & DERObject.CONSTRUCTED ) != 0 )
                 {
-                    bytes[ 0 ] = (byte) ( DERObject.CONSTRUCTED | DERObject.TAGGED | tag );
+                    bytes[0] = ( byte ) ( DERObject.CONSTRUCTED | DERObject.TAGGED | tag );
                 }
                 else
                 {
-                    bytes[ 0 ] = (byte) ( DERObject.TAGGED | tag );
+                    bytes[0] = ( byte ) ( DERObject.TAGGED | tag );
                 }
 
                 out.write( bytes );
@@ -131,7 +149,7 @@ public class DERTaggedObject implements DEREncodable
         }
         else
         {
-            out.writeEncoded( DERObject.CONSTRUCTED | DERObject.TAGGED | tag, new byte[ 0 ] );
+            out.writeEncoded( DERObject.CONSTRUCTED | DERObject.TAGGED | tag, new byte[0] );
         }
     }
 }

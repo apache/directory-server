@@ -16,15 +16,15 @@
  */
 package org.apache.directory.shared.asn1.primitives;
 
+
 import java.io.Serializable;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
 
 /**
- * Implement the Bit String primitive type.
- * 
- * A BitString is internally stored as an array of int. 
+ * Implement the Bit String primitive type. A BitString is internally stored as
+ * an array of int.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -32,19 +32,24 @@ public class BitString implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** A null MutableString */
     public static final BitString EMPTY_STRING = new BitString();
 
-    /** A flag to mark the OctetString as Streamed (for OctetString larger than 1024 chars) */
+    /**
+     * A flag to mark the OctetString as Streamed (for OctetString larger than
+     * 1024 chars)
+     */
     // TODO implement the streaming...
     public static final boolean STREAMED = true;
 
     /** The default length of an BitString */
     private static final int DEFAULT_LENGTH = 8;
 
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The number of unused ints */
     private int nbUnusedBits;
@@ -61,32 +66,36 @@ public class BitString implements Serializable
     /** Actual length of the bit string */
     private int nbBits;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a BitString, with a default length.
      */
     public BitString()
     {
-        bytes        = new byte[DEFAULT_LENGTH];
-        nbBytes      = 0;
-        isStreamed   = false;
+        bytes = new byte[DEFAULT_LENGTH];
+        nbBytes = 0;
+        isStreamed = false;
         nbUnusedBits = 0;
-        nbBits       = 0;
+        nbBits = 0;
     }
 
+
     /**
-     * Creates a BitString with a specific length (length is the number
-     * of bytes).
-     *
-     * @param length The BitString length (it's a number of bits)
-    */
-    public BitString(  int length )
+     * Creates a BitString with a specific length (length is the number of
+     * bytes).
+     * 
+     * @param length
+     *            The BitString length (it's a number of bits)
+     */
+    public BitString(int length)
     {
         nbBits = length;
 
         // As we store values in bytes, we must divide the length by 8
-        nbBytes      = ( length / 8 ) + ( ( ( length % 8 ) != 0 ) ? 1 : 0 );
+        nbBytes = ( length / 8 ) + ( ( ( length % 8 ) != 0 ) ? 1 : 0 );
 
         nbUnusedBits = length % 8;
 
@@ -95,30 +104,32 @@ public class BitString implements Serializable
 
             // TODO : implement the streaming
             isStreamed = true;
-            bytes      = new byte[nbBytes];
+            bytes = new byte[nbBytes];
         }
         else
         {
             isStreamed = false;
-            bytes      = new byte[nbBytes];
+            bytes = new byte[nbBytes];
         }
     }
 
-    /**
-     * Creates a streamed BitString with a specific length.
-     * Actually, it's just a simple BitString.
-     * TODO Implement streaming.
-     * 
-     * @param length The BitString length, in number of bits 
-     * @param isStreamed Tells if the BitString must be streamed or not 
-    */
-    public BitString(  int length, boolean isStreamed )
-    {
-        nbBits          = length;
-        this.isStreamed = isStreamed;
-        nbBytes         = ( length / 8 ) + ( ( ( length % 8 ) != 0 ) ? 1 : 0 );
 
-        nbUnusedBits    = length % 8;
+    /**
+     * Creates a streamed BitString with a specific length. Actually, it's just
+     * a simple BitString. TODO Implement streaming.
+     * 
+     * @param length
+     *            The BitString length, in number of bits
+     * @param isStreamed
+     *            Tells if the BitString must be streamed or not
+     */
+    public BitString(int length, boolean isStreamed)
+    {
+        nbBits = length;
+        this.isStreamed = isStreamed;
+        nbBytes = ( length / 8 ) + ( ( ( length % 8 ) != 0 ) ? 1 : 0 );
+
+        nbUnusedBits = length % 8;
 
         if ( isStreamed )
         {
@@ -132,13 +143,15 @@ public class BitString implements Serializable
         }
     }
 
+
     /**
-     * Creates a BitString with a value.  
+     * Creates a BitString with a value.
      * 
-     * @param bytes The value to store. The first byte contains the number 
-     * of unused bits
+     * @param bytes
+     *            The value to store. The first byte contains the number of
+     *            unused bits
      */
-    public BitString(  byte[] bytes )
+    public BitString(byte[] bytes)
     {
         nbBytes = bytes.length - 1;
 
@@ -154,25 +167,30 @@ public class BitString implements Serializable
         {
             isStreamed = false;
 
-            bytes      = new byte[nbBytes];
+            bytes = new byte[nbBytes];
         }
 
         setBytes( bytes, nbBytes );
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Set the value into the bytes.
-     * @param bytes The bytes to copy
-     * @param nbBytes Number of bytes to copy
-    */
+     * 
+     * @param bytes
+     *            The bytes to copy
+     * @param nbBytes
+     *            Number of bytes to copy
+     */
     private void setBytes( byte[] bytes, int nbBytes )
     {
 
         // The first byte contains the number of unused ints
         nbUnusedBits = bytes[0] & 0x07;
-        nbBits       = ( nbBytes * 8 ) - nbUnusedBits;
+        nbBits = ( nbBytes * 8 ) - nbUnusedBits;
 
         // We have to transfer the data from bytes to ints
         for ( int i = 0; i < nbBytes; i++ )
@@ -181,11 +199,13 @@ public class BitString implements Serializable
         }
     }
 
+
     /**
      * Set a new BitString in the BitString. It will replace the old BitString,
      * and reset the current length with the new one.
      * 
-     * @param bytes The string to store
+     * @param bytes
+     *            The string to store
      */
     public void setData( byte[] bytes )
     {
@@ -209,9 +229,11 @@ public class BitString implements Serializable
 
         setBytes( bytes, nbBytes );
     }
-    
+
+
     /**
      * Get the representation of a BitString
+     * 
      * @return A byte array which represent the BitString
      */
     public byte[] getData()
@@ -219,49 +241,52 @@ public class BitString implements Serializable
         return bytes;
     }
 
+
     /**
-     * Get the number of unused bits 
+     * Get the number of unused bits
+     * 
      * @return A byte which represent the number of unused bits
      */
     public byte getUnusedBits()
     {
-        return (byte)nbUnusedBits;
+        return ( byte ) nbUnusedBits;
     }
 
+
     /**
-     * Get the bit stored into the BitString at a specific position? The position start at 0,
-     * which is on the left :
-     * With '1001 000x', where x is an unused bit, 
-     *       ^ ^    ^^ 
-     *       | |    ||
-     *       | |    |+---- getBit(7) -> DecoderException
-     *       | |    +----- getBit(6) = 0
-     *       | +---------- getBit(2) = 0
-     *       +------------ getBit(0) = 1 
-     * @param pos The position of the requested bit.
-     * @return <code>true</code> if the bit is set, <code>false</code> otherwise
+     * Get the bit stored into the BitString at a specific position? The
+     * position start at 0, which is on the left : With '1001 000x', where x is
+     * an unused bit, ^ ^ ^^ | | || | | |+---- getBit(7) -> DecoderException | |
+     * +----- getBit(6) = 0 | +---------- getBit(2) = 0 +------------ getBit(0) =
+     * 1
+     * 
+     * @param pos
+     *            The position of the requested bit.
+     * @return <code>true</code> if the bit is set, <code>false</code>
+     *         otherwise
      */
     public boolean getBit( int pos ) throws DecoderException
     {
 
         if ( pos > nbBits )
         {
-            throw new DecoderException(
-                "Cannot get a bit at position " + pos + " when the BitString contains only " +
-                nbBits + " ints" );
+            throw new DecoderException( "Cannot get a bit at position " + pos + " when the BitString contains only "
+                + nbBits + " ints" );
         }
 
-        int posInt    = pos / 8;
+        int posInt = pos / 8;
 
         int bitNumber = 7 - ( pos % 8 );
-        int res       = bytes[posInt] & ( 1 << bitNumber );
+        int res = bytes[posInt] & ( 1 << bitNumber );
         return res != 0;
     }
 
+
     /**
      * Return a native String representation of the BitString.
+     * 
      * @return A String representing the BitString
-    */
+     */
     public String toString()
     {
 
@@ -291,8 +316,10 @@ public class BitString implements Serializable
         return sb.toString();
     }
 
+
     /**
      * Tells if the OctetString is streamed or not
+     * 
      * @return <code>true</code> if the OctetString is streamed.
      */
     public boolean isStreamed()

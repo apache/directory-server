@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.asn1.codec.stateful ;
+package org.apache.directory.shared.asn1.codec.stateful;
 
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -23,17 +23,17 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 /**
  * The StatefulEncoder interface.
  * 
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public interface StatefulEncoder
 {
-    public void encode( Object obj ) throws EncoderException ;
+    public void encode( Object obj ) throws EncoderException;
 
 
-    public void setCallback( EncoderCallback cb ) ;
+    public void setCallback( EncoderCallback cb );
 
 
-    public void setEncoderMonitor( EncoderMonitor monitor ) ;
+    public void setEncoderMonitor( EncoderMonitor monitor );
 
 }

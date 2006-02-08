@@ -25,9 +25,10 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A subclass of AttributeInUseException which holds the LDAP resultCode
  * associated with the exception.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -48,7 +49,7 @@ public class LdapAttributeInUseException extends AttributeInUseException impleme
     /**
      * @see AttributeInUseException#AttributeInUseException(String)
      */
-    public LdapAttributeInUseException( String explanation )
+    public LdapAttributeInUseException(String explanation)
     {
         super( explanation );
     }

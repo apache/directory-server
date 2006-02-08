@@ -29,29 +29,38 @@
 
 package org.apache.directory.shared.ldap.codec.util;
 
+
 /**
  * Signals that an error has occurred.
  * 
  * @author Ortwin Gl?ck
- * @version $Revision: 155418 $ $Date: 2005-02-26 08:01:52 -0500 (Sat, 26 Feb 2005) $
+ * @version $Revision: 155418 $ $Date: 2005-02-26 08:01:52 -0500 (Sat, 26 Feb
+ *          2005) $
  * @since 3.0
  */
-public class HttpClientError extends Error {
-	final static long serialVersionUID = 1L;
+public class HttpClientError extends Error
+{
+    final static long serialVersionUID = 1L;
+
 
     /**
      * Creates a new HttpClientError with a <tt>null</tt> detail message.
      */
-    public HttpClientError() {
+    public HttpClientError()
+    {
         super();
     }
 
+
     /**
      * Creates a new HttpClientError with the specified detail message.
-     * @param message The error message
+     * 
+     * @param message
+     *            The error message
      */
-    public HttpClientError(String message) {
-        super(message);
+    public HttpClientError(String message)
+    {
+        super( message );
     }
 
 }

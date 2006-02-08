@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER VisibleString object.
  */
@@ -25,11 +26,12 @@ public class DERVisibleString extends DERString
     /**
      * Basic DERObject constructor.
      */
-    public DERVisibleString( byte[] value )
+    public DERVisibleString(byte[] value)
     {
-    	super( VISIBLE_STRING, value );
+        super( VISIBLE_STRING, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -38,4 +40,3 @@ public class DERVisibleString extends DERString
         return new DERVisibleString( stringToByteArray( string ) );
     }
 }
-

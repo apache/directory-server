@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.unbind;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -25,32 +26,34 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 
 
 /**
- * A UnBindRequest ldapObject. Its syntax is :
- * 	UnbindRequest ::= [APPLICATION 2] NULL
- * 
- * This ldapObject is empty.
+ * A UnBindRequest ldapObject. Its syntax is : UnbindRequest ::= [APPLICATION 2]
+ * NULL This ldapObject is empty.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class UnBindRequest extends LdapMessage
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
-    //~ Constructors -------------------------------------------------------------------------------
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new BindRequest object.
      */
     public UnBindRequest()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -58,51 +61,51 @@ public class UnBindRequest extends LdapMessage
         return LdapConstants.UNBIND_REQUEST;
     }
 
+
     /**
-     * Compute the UnBindRequest length
-     * 
-     * UnBindRequest :
-     * 
-     * 0x42 00
+     * Compute the UnBindRequest length UnBindRequest : 0x42 00
      */
     public int computeLength()
     {
         return 2; // Always 2
     }
 
+
     /**
      * Encode the UnbindRequest message to a PDU.
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer )  throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
         {
             // The tag
-            buffer.put(LdapConstants.UNBIND_REQUEST_TAG);
+            buffer.put( LdapConstants.UNBIND_REQUEST_TAG );
 
             // The length is always null.
-            buffer.put( (byte)0 );
+            buffer.put( ( byte ) 0 );
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         return buffer;
     }
 
+
     /**
      * Get a String representation of a UnBindRequest
-     *
-     * @return A UnBindRequest String 
+     * 
+     * @return A UnBindRequest String
      */
     public String toString()
     {

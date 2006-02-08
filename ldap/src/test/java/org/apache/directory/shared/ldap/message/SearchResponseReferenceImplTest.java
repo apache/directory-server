@@ -33,9 +33,8 @@ import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 
 /**
  * TestCase for the SearchResponseReferenceImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public class SearchResponseReferenceImplTest extends TestCase
@@ -43,8 +42,9 @@ public class SearchResponseReferenceImplTest extends TestCase
     /**
      * Creates a baseline referral to test with and adds it to the supplied
      * response object.
-     *
-     * @param resp the parent lockable
+     * 
+     * @param resp
+     *            the parent lockable
      * @return the newly created referral for testing
      */
     public Referral getReferral( SearchResponseReference resp )
@@ -56,6 +56,7 @@ public class SearchResponseReferenceImplTest extends TestCase
         ref.addLdapUrl( "http://abc.com???" );
         return ref;
     }
+
 
     /**
      * Tests for equality when the same object referrence is used.
@@ -95,37 +96,45 @@ public class SearchResponseReferenceImplTest extends TestCase
                 return SearchResponseReferenceImplTest.this.getReferral( this );
             }
 
+
             public void setReferral( Referral a_referral )
             {
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.SEARCHRESREF;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control control ) throws MessageException
             {
             }
 
+
             public void remove( Control control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 5;
             }
 
+
             public Object get( Object key )
             {
                 return null;
             }
+
 
             public Object put( Object key, Object value )
             {
@@ -133,14 +142,11 @@ public class SearchResponseReferenceImplTest extends TestCase
             }
         };
 
-        SearchResponseReferenceImpl resp1 =
-                new SearchResponseReferenceImpl( 5 );
+        SearchResponseReferenceImpl resp1 = new SearchResponseReferenceImpl( 5 );
         getReferral( resp1 );
 
-        assertFalse( "using Object.equal() should NOT be equal",
-                resp0.equals( resp1 ) );
-        assertTrue( "same but different implementations should be equal",
-                resp1.equals( resp0 ) );
+        assertFalse( "using Object.equal() should NOT be equal", resp0.equals( resp1 ) );
+        assertTrue( "same but different implementations should be equal", resp1.equals( resp0 ) );
     }
 
 
@@ -149,18 +155,14 @@ public class SearchResponseReferenceImplTest extends TestCase
      */
     public void testNotEqualDiffUrls()
     {
-        SearchResponseReferenceImpl resp0 =
-                new SearchResponseReferenceImpl( 5 );
+        SearchResponseReferenceImpl resp0 = new SearchResponseReferenceImpl( 5 );
         getReferral( resp0 );
-        SearchResponseReferenceImpl resp1 =
-                new SearchResponseReferenceImpl( 5 );
+        SearchResponseReferenceImpl resp1 = new SearchResponseReferenceImpl( 5 );
         getReferral( resp1 );
         resp1.getReferral().addLdapUrl( "ldap://asdf.com???" );
 
-        assertFalse( "different urls should not be equal",
-                resp1.equals( resp0 ) );
-        assertFalse( "different urls should not be equal",
-                resp0.equals( resp1 ) );
+        assertFalse( "different urls should not be equal", resp1.equals( resp0 ) );
+        assertFalse( "different urls should not be equal", resp0.equals( resp1 ) );
     }
 
 }

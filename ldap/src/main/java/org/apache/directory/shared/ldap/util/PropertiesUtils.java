@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 /**
  * A utility class used for accessing, finding, merging and macro expanding
  * properties, on disk, via URLS or as resources.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -49,31 +49,33 @@ public class PropertiesUtils
     // Utilities for discovering Properties
     // ------------------------------------------------------------------------
 
-
-   /**
-    * Loads a properties object in a properties file if it exists relative to
-    * the filename ${user.home}.  If the file ${user.home}/[filename] does not
-    * exist then one last attempt to find the file is made if filename does not
-    * have a .properties extension.  If so and ${user.home}/[filename].properties
-    * exists then it is loaded.
-    *
-    * @param filename the properties file name with or without an extension
-    * @return the user properties object
-    */
+    /**
+     * Loads a properties object in a properties file if it exists relative to
+     * the filename ${user.home}. If the file ${user.home}/[filename] does not
+     * exist then one last attempt to find the file is made if filename does not
+     * have a .properties extension. If so and
+     * ${user.home}/[filename].properties exists then it is loaded.
+     * 
+     * @param filename
+     *            the properties file name with or without an extension
+     * @return the user properties object
+     */
     public static Properties findUserProperties( String filename )
     {
-        return findProperties( new File( System.getProperty( "user.home" ) ), filename ) ;
+        return findProperties( new File( System.getProperty( "user.home" ) ), filename );
     }
 
 
-   /**
-    * Create a new properties object and load the properties file if it exists
-    * relative to [dir]/[filename] or [dir]/[filename].properties.
-    *
-    * @param dir the base directory
-    * @param filename the full fine name or the base name w/o the extension
-    * @return the loaded properties object
-    */
+    /**
+     * Create a new properties object and load the properties file if it exists
+     * relative to [dir]/[filename] or [dir]/[filename].properties.
+     * 
+     * @param dir
+     *            the base directory
+     * @param filename
+     *            the full fine name or the base name w/o the extension
+     * @return the loaded properties object
+     */
     public static Properties findProperties( File dir, String filename )
     {
         final File asis = new File( dir, filename );
@@ -86,9 +88,9 @@ public class PropertiesUtils
         if ( filename.endsWith( DOTPROPERTIES ) )
         {
             String noExt = filename.substring( 0, filename.length() - 11 );
-            if ( new File( dir, noExt).exists() )
+            if ( new File( dir, noExt ).exists() )
             {
-                return getProperties( new File( dir, noExt) );
+                return getProperties( new File( dir, noExt ) );
             }
 
             return new Properties();
@@ -105,22 +107,23 @@ public class PropertiesUtils
 
 
     /**
-     * Load a properties from a resource relative to a supplied class.  First
-     * an attempt is made to locate a property file colocated with the class
-     * with the name [class].properties.  If this cannot be found or errors
-     * result an empty Properties file is returned.
-     *
-     * @param ref a class to use for relative path references
+     * Load a properties from a resource relative to a supplied class. First an
+     * attempt is made to locate a property file colocated with the class with
+     * the name [class].properties. If this cannot be found or errors result an
+     * empty Properties file is returned.
+     * 
+     * @param ref
+     *            a class to use for relative path references
      * @return the static properties
      */
     public static Properties getStaticProperties( Class ref )
     {
         final Properties properties = new Properties();
-        final String address = ref.toString().replace( '.','/' );
+        final String address = ref.toString().replace( '.', '/' );
         final String path = address + ".properties";
         InputStream input = ref.getResourceAsStream( path );
 
-        if( null != input )
+        if ( null != input )
         {
             try
             {
@@ -138,9 +141,11 @@ public class PropertiesUtils
 
     /**
      * Load properties from a resource relative to a supplied class and path.
-     *
-     * @param ref a class to use for relative path references
-     * @param path the relative path to the resoruce
+     * 
+     * @param ref
+     *            a class to use for relative path references
+     * @param path
+     *            the relative path to the resoruce
      * @return the static properties
      */
     public static Properties getStaticProperties( Class ref, String path )
@@ -148,7 +153,7 @@ public class PropertiesUtils
         Properties properties = new Properties();
         InputStream input = ref.getResourceAsStream( path );
 
-        if( input == null )
+        if ( input == null )
         {
             return properties;
         }
@@ -166,23 +171,24 @@ public class PropertiesUtils
     }
 
 
-   /**
-    * Creates a properties object and loads the properties in the file otherwise
-    * and empty property object will be returned.
-    *
-    * @param file the properties file
-    * @return the properties object
-    */
+    /**
+     * Creates a properties object and loads the properties in the file
+     * otherwise and empty property object will be returned.
+     * 
+     * @param file
+     *            the properties file
+     * @return the properties object
+     */
     public static Properties getProperties( File file )
     {
         Properties properties = new Properties();
 
-        if( null == file )
+        if ( null == file )
         {
             return properties;
         }
 
-        if( file.exists() )
+        if ( file.exists() )
         {
             try
             {
@@ -201,9 +207,11 @@ public class PropertiesUtils
     /**
      * Loads a properties file as a CL resource if it exists and returns an
      * empty Properties object otherwise.
-     *
-     * @param classloader the loader to use for the resources
-     * @param path the path to the resource
+     * 
+     * @param classloader
+     *            the loader to use for the resources
+     * @param path
+     *            the path to the resource
      * @return the loaded or new Properties
      */
     public static Properties getProperties( ClassLoader classloader, String path )
@@ -211,7 +219,7 @@ public class PropertiesUtils
         Properties properties = new Properties();
         InputStream input = classloader.getResourceAsStream( path );
 
-        if( input != null )
+        if ( input != null )
         {
             try
             {
@@ -230,9 +238,11 @@ public class PropertiesUtils
     /**
      * Loads a properties file as a class resource if it exists and returns an
      * empty Properties object otherwise.
-     *
-     * @param clazz the class to use for resolving the resources
-     * @param path the relative path to the resource
+     * 
+     * @param clazz
+     *            the class to use for resolving the resources
+     * @param path
+     *            the relative path to the resource
      * @return the loaded or new Properties
      */
     public static Properties getProperties( Class clazz, String path )
@@ -240,7 +250,7 @@ public class PropertiesUtils
         Properties properties = new Properties();
         InputStream input = clazz.getResourceAsStream( path );
 
-        if( input != null )
+        if ( input != null )
         {
             try
             {
@@ -260,37 +270,34 @@ public class PropertiesUtils
     // Utilities for operating on or setting Properties values
     // ------------------------------------------------------------------------
 
-
     /**
      * Expands out a set of property key macros in the following format
-     * ${foo.bar} where foo.bar is a property key, by dereferencing the value
-     * of the key using the original source Properties and other optional
-     * Properties.
-     *
-     * If the original expanded Properties contain the value for the macro key,
-     * foo.bar, then dereferencing stops by using the value in the expanded
-     * Properties: the other optional Properties are NOT used at all.
-     *
+     * ${foo.bar} where foo.bar is a property key, by dereferencing the value of
+     * the key using the original source Properties and other optional
+     * Properties. If the original expanded Properties contain the value for the
+     * macro key, foo.bar, then dereferencing stops by using the value in the
+     * expanded Properties: the other optional Properties are NOT used at all.
      * If the original expanded Properties do NOT contain the value for the
-     * macro key, then the optional Properties are used in order.  The first of
+     * macro key, then the optional Properties are used in order. The first of
      * the optionals to contain the value for the macro key (foo.bar) shorts the
-     * search.  Hence the first optional Properties in the array to contain a
-     * value for the macro key (foo.bar) is used to set the expanded value.
-     *
-     * If a macro cannot be expanded because it's key was not defined within the
+     * search. Hence the first optional Properties in the array to contain a
+     * value for the macro key (foo.bar) is used to set the expanded value. If a
+     * macro cannot be expanded because it's key was not defined within the
      * expanded Properties or one of the optional Properties then it is left as
      * is.
-     *
-     * @param expanded the Properties to perform the macro expansion upon
-     * @param optionals null or an optional set of Properties to use for
-     * dereferencing macro keys (foo.bar)
+     * 
+     * @param expanded
+     *            the Properties to perform the macro expansion upon
+     * @param optionals
+     *            null or an optional set of Properties to use for dereferencing
+     *            macro keys (foo.bar)
      */
-    public static void macroExpand( Properties expanded, Properties [] optionals )
+    public static void macroExpand( Properties expanded, Properties[] optionals )
     {
         // Handle null optionals
         if ( null == optionals )
         {
-            optionals = new Properties [ 0 ];
+            optionals = new Properties[0];
         }
 
         Enumeration list = expanded.propertyNames();
@@ -300,24 +307,24 @@ public class PropertiesUtils
             String macro = expanded.getProperty( key );
 
             int n = macro.indexOf( "${" );
-            if( n < 0 )
+            if ( n < 0 )
             {
                 continue;
             }
 
-            int m = macro.indexOf( "}", n+2 );
-            if( m < 0 )
+            int m = macro.indexOf( "}", n + 2 );
+            if ( m < 0 )
             {
                 continue;
             }
 
-            final String symbol = macro.substring( n+2, m );
+            final String symbol = macro.substring( n + 2, m );
 
             if ( expanded.containsKey( symbol ) )
             {
                 final String value = expanded.getProperty( symbol );
                 final String head = macro.substring( 0, n );
-                final String tail = macro.substring( m+1 );
+                final String tail = macro.substring( m + 1 );
                 final String resolved = head + value + tail;
                 expanded.put( key, resolved );
                 continue;
@@ -325,8 +332,8 @@ public class PropertiesUtils
 
             /*
              * Check if the macro key exists within the array of optional
-             * Properties.  Set expanded value to first Properties with the
-             * key and break out of the loop.
+             * Properties. Set expanded value to first Properties with the key
+             * and break out of the loop.
              */
             for ( int ii = 0; ii < optionals.length; ii++ )
             {
@@ -334,7 +341,7 @@ public class PropertiesUtils
                 {
                     final String value = optionals[ii].getProperty( symbol );
                     final String head = macro.substring( 0, n );
-                    final String tail = macro.substring( m+1 );
+                    final String tail = macro.substring( m + 1 );
                     final String resolved = head + value + tail;
                     expanded.put( key, resolved );
                     break;
@@ -348,18 +355,20 @@ public class PropertiesUtils
      * Discovers a value within a set of Properties either halting on the first
      * time the property is discovered or continuing on to take the last value
      * found for the property key.
-     *
-     * @param key a property key
-     * @param sources a set of source Properties
-     * @param haltOnDiscovery true if we stop on finding a value, false
-     * otherwise
+     * 
+     * @param key
+     *            a property key
+     * @param sources
+     *            a set of source Properties
+     * @param haltOnDiscovery
+     *            true if we stop on finding a value, false otherwise
      * @return the value found or null
      */
     public static String discover( String key, Properties[] sources, boolean haltOnDiscovery )
     {
         String retval = null;
 
-        for( int ii = 0; ii < sources.length; ii++ )
+        for ( int ii = 0; ii < sources.length; ii++ )
         {
             if ( sources[ii].containsKey( key ) )
             {
@@ -378,20 +387,25 @@ public class PropertiesUtils
 
     /**
      * Merges a set of properties from source Properties into a target
-     * properties instance containing keys.  This method does not allow null
+     * properties instance containing keys. This method does not allow null
      * overrides.
-     *
-     * @param keys the keys to discover values for
-     * @param sources the sources to search
-     * @param haltOnDiscovery true to halt on first find or false to continue
-     * to last find
+     * 
+     * @param keys
+     *            the keys to discover values for
+     * @param sources
+     *            the sources to search
+     * @param haltOnDiscovery
+     *            true to halt on first find or false to continue to last find
      */
     public static void discover( Properties keys, Properties[] sources, boolean haltOnDiscovery )
     {
-        if ( null == sources || null == keys ) { return; }
+        if ( null == sources || null == keys )
+        {
+            return;
+        }
 
         /*
-         * H A N D L E   S I N G L E   V A L U E D   K E Y S
+         * H A N D L E S I N G L E V A L U E D K E Y S
          */
         Iterator list = keys.keySet().iterator();
         while ( list.hasNext() )
@@ -412,20 +426,23 @@ public class PropertiesUtils
     // ------------------------------------------------------------------------
 
     /**
-     * Gets a String property as a boolean returning a defualt if the key is
-     * not present.  In any case, true, on, 1 and yes strings return true and
+     * Gets a String property as a boolean returning a defualt if the key is not
+     * present. In any case, true, on, 1 and yes strings return true and
      * everything else returns
-     *
-     * @param props the properties to get the value from
-     * @param key the property key
-     * @param defaultValue the default value to return if key is not present
-     * @return true defaultValue if property does not exist, else return true
-     * if the String value is one of 'true', 'on', '1', 'yes', otherwise false
-     * is returned
+     * 
+     * @param props
+     *            the properties to get the value from
+     * @param key
+     *            the property key
+     * @param defaultValue
+     *            the default value to return if key is not present
+     * @return true defaultValue if property does not exist, else return true if
+     *         the String value is one of 'true', 'on', '1', 'yes', otherwise
+     *         false is returned
      */
     public static boolean get( Properties props, String key, boolean defaultValue )
     {
-        if ( props == null || ! props.containsKey( key ) || props.getProperty( key ) == null )
+        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
         {
             return defaultValue;
         }
@@ -438,16 +455,19 @@ public class PropertiesUtils
     /**
      * Gets a property or entry value from a hashtable and tries to transform
      * whatever the value may be to an primitive integer.
-     *
-     * @param ht the hashtable to access for the value
-     * @param key the key to use when accessing the ht
-     * @param defval the default value to use if the key is not contained in ht
-     * or if the value cannot be represented as a primitive integer.
+     * 
+     * @param ht
+     *            the hashtable to access for the value
+     * @param key
+     *            the key to use when accessing the ht
+     * @param defval
+     *            the default value to use if the key is not contained in ht or
+     *            if the value cannot be represented as a primitive integer.
      * @return the primitive integer representation of a hashtable value
      */
     public static int get( Hashtable ht, Object key, int defval )
     {
-        if ( ht == null || ! ht.containsKey( key ) || ht.get( key ) == null )
+        if ( ht == null || !ht.containsKey( key ) || ht.get( key ) == null )
         {
             return defval;
         }
@@ -476,7 +496,7 @@ public class PropertiesUtils
             {
                 return Integer.parseInt( ( String ) obj );
             }
-            catch( NumberFormatException ne )
+            catch ( NumberFormatException ne )
             {
                 ne.printStackTrace();
                 return defval;
@@ -489,7 +509,7 @@ public class PropertiesUtils
 
     public static long get( Properties props, String key, long defaultValue )
     {
-        if ( props == null || ! props.containsKey( key ) || props.getProperty( key ) == null )
+        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
         {
             return defaultValue;
         }
@@ -500,7 +520,7 @@ public class PropertiesUtils
 
     public static byte get( Properties props, String key, byte defaultValue )
     {
-        if ( props == null || ! props.containsKey( key ) || props.getProperty( key ) == null )
+        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
         {
             return defaultValue;
         }
@@ -511,7 +531,7 @@ public class PropertiesUtils
 
     public static char get( Properties props, String key, char defaultValue )
     {
-        if ( props == null || ! props.containsKey( key ) || props.getProperty( key ) == null )
+        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
         {
             return defaultValue;
         }
@@ -521,85 +541,115 @@ public class PropertiesUtils
 
 
     /**
-     * Fills a set with the space delimited values of a property.  If values is
+     * Fills a set with the space delimited values of a property. If values is
      * null a new Set is created and returned.
-     *
-     * @param props the properties to get the property values from
-     * @param key the key of the multivalued property
-     * @param values the values to populate
+     * 
+     * @param props
+     *            the properties to get the property values from
+     * @param key
+     *            the key of the multivalued property
+     * @param values
+     *            the values to populate
      * @return the values set so it can be filled then used
      */
     public static Set fill( Properties props, String key, Set values )
     {
-        if ( values == null ) { values = new HashSet(); }
+        if ( values == null )
+        {
+            values = new HashSet();
+        }
         return ( Set ) fillCollection( props, key, values, " " );
     }
 
 
     /**
-     * Fills a set with the delimited values of a property.  If values is
-     * null a new Set is created and returned.
-     *
-     * @param props the properties to get the property values from
-     * @param key the key of the multivalued property
-     * @param values the values to populate
-     * @param delimiter the delimiter string to split the property with
+     * Fills a set with the delimited values of a property. If values is null a
+     * new Set is created and returned.
+     * 
+     * @param props
+     *            the properties to get the property values from
+     * @param key
+     *            the key of the multivalued property
+     * @param values
+     *            the values to populate
+     * @param delimiter
+     *            the delimiter string to split the property with
      * @return the values set so it can be filled then used
      */
     public static Set fill( Properties props, String key, Set values, String delimiter )
     {
-        if ( values == null ) { values = new HashSet(); }
+        if ( values == null )
+        {
+            values = new HashSet();
+        }
         return ( Set ) fillCollection( props, key, values, delimiter );
     }
 
 
     /**
-     * Fills a list with the space delimited values of a property.  The list
-     * maintains the order of values in the multivalued property.  If values is
+     * Fills a list with the space delimited values of a property. The list
+     * maintains the order of values in the multivalued property. If values is
      * null a new List is created and returned.
-     *
-     * @param props the properties to get the property values from
-     * @param key the key of the multivalued property
-     * @param values the values to populate
+     * 
+     * @param props
+     *            the properties to get the property values from
+     * @param key
+     *            the key of the multivalued property
+     * @param values
+     *            the values to populate
      * @return the values list so it can be filled then used
      */
     public static List fill( Properties props, String key, List values )
     {
-        if ( values == null ) { values = new ArrayList(); }
+        if ( values == null )
+        {
+            values = new ArrayList();
+        }
         return ( List ) fillCollection( props, key, values, " " );
     }
 
 
     /**
-     * Fills a list with the space delimited values of a property.  The list
-     * maintains the order of values in the multivalued property.  If values is
+     * Fills a list with the space delimited values of a property. The list
+     * maintains the order of values in the multivalued property. If values is
      * null a new List is created and returned.
-     *
-     * @param props the properties to get the property values from
-     * @param key the key of the multivalued property
-     * @param values the values to populate
-     * @param delimiter the delimiter string to split the property with
+     * 
+     * @param props
+     *            the properties to get the property values from
+     * @param key
+     *            the key of the multivalued property
+     * @param values
+     *            the values to populate
+     * @param delimiter
+     *            the delimiter string to split the property with
      * @return the values list so it can be filled then used
      */
     public static List fill( Properties props, String key, List values, String delimiter )
     {
-        if ( values == null ) { values = new ArrayList(); }
+        if ( values == null )
+        {
+            values = new ArrayList();
+        }
         return ( List ) fillCollection( props, key, values, delimiter );
     }
 
 
     /**
      * Fills a collection with the delimited values of a property.
-     *
-     * @param props the properties to get the property values from
-     * @param key the key of the multivalued property
-     * @param values the values to populate
-     * @param delimiter the delimiter string to split the property with
+     * 
+     * @param props
+     *            the properties to get the property values from
+     * @param key
+     *            the key of the multivalued property
+     * @param values
+     *            the values to populate
+     * @param delimiter
+     *            the delimiter string to split the property with
      * @return the values collection so it can be filled then used
      */
     public static Collection fillCollection( Properties props, String key, Collection values, String delimiter )
     {
-        if ( props == null || ! props.containsKey( key ) || props.getProperty( key ) == null )
+        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
         {
             return values;
         }
@@ -616,18 +666,20 @@ public class PropertiesUtils
 
     /**
      * Creates, fills and returns an Attributes instance using the LDIF encoded
-     * within the property value.  The LDIF should use '*' (asterisk) characters
-     * as line delimiters within the property value.  These are replaced with
-     * newlines and fed to the LDIF parser.  Also note that the LdifParser
+     * within the property value. The LDIF should use '*' (asterisk) characters
+     * as line delimiters within the property value. These are replaced with
+     * newlines and fed to the LDIF parser. Also note that the LdifParser
      * deposites the DN as a property within the attributes object.
-     *
-     * @param props the properties to get the ldif property from
-     * @param key the key for the LDIF property
+     * 
+     * @param props
+     *            the properties to get the ldif property from
+     * @param key
+     *            the key for the LDIF property
      * @return the attributes for the encoded LDIF entry
      */
     public static Attributes fillAttributes( Properties props, String key, Attributes values ) throws NamingException
     {
-        if ( props == null || ! props.containsKey( key ) || props.getProperty( key ) == null )
+        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
         {
             if ( values == null )
             {

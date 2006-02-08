@@ -20,7 +20,7 @@ package org.apache.directory.shared.ldap.message;
 /**
  * Delete protocol response message used to confirm the results of a delete
  * request message.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */

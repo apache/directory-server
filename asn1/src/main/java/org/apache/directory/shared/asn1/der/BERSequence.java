@@ -17,25 +17,25 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.IOException;
 import java.util.Enumeration;
 
+
 public class BERSequence extends DERSequence
 {
-    public void encode( ASN1OutputStream out )
-        throws IOException
+    public void encode( ASN1OutputStream out ) throws IOException
     {
-        out.write( DERObject.SEQUENCE | DERObject.CONSTRUCTED);
+        out.write( DERObject.SEQUENCE | DERObject.CONSTRUCTED );
         out.write( DERObject.TAGGED );
-        
+
         Enumeration e = getObjects();
         while ( e.hasMoreElements() )
         {
             out.writeObject( e.nextElement() );
         }
-    
+
         out.write( DERObject.TERMINATOR );
         out.write( DERObject.TERMINATOR );
     }
 }
-

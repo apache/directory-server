@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 /**
  * TestCase for the ExtendedResponseImpl class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -43,7 +43,7 @@ public class ExtendedResponseImplTest extends TestCase
 {
     /**
      * Creates and populates a ExtendedResponseImpl stub for testing purposes.
-     *
+     * 
      * @return a populated ExtendedResponseImpl stub
      */
     private ExtendedResponseImpl createStub()
@@ -96,23 +96,28 @@ public class ExtendedResponseImplTest extends TestCase
         {
             private static final long serialVersionUID = 5297000474419901408L;
 
+
             public String getResponseName()
             {
                 return "1.1.1.1";
             }
 
+
             public void setResponseName( String a_oid )
             {
             }
+
 
             public byte[] getResponse()
             {
                 return "Hello World!".getBytes();
             }
 
+
             public void setResponse( byte[] a_value )
             {
             }
+
 
             public LdapResult getLdapResult()
             {
@@ -128,43 +133,52 @@ public class ExtendedResponseImplTest extends TestCase
                 return result;
             }
 
+
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.EXTENDEDRESP;
             }
+
 
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control a_control ) throws MessageException
             {
             }
 
+
             public void remove( Control a_control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 45;
             }
 
+
             public Object get( Object a_key )
             {
                 return null;
             }
+
 
             public Object put( Object a_key, Object a_value )
             {
                 return null;
             }
 
+
             public String getID()
             {
                 return "1.1.1.1";
             }
+
 
             public byte[] getEncodedValue()
             {

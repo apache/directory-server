@@ -35,15 +35,15 @@ import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 
 /**
  * TestCases for the SearchResponseImpl class methods.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class SearchResponseDoneImplTest extends TestCase
 {
     /**
      * Creates and populates a SearchResponseDoneImpl stub for testing purposes.
-     *
+     * 
      * @return a populated SearchResponseDoneImpl stub
      */
     private SearchResponseDoneImpl createStub()
@@ -106,33 +106,40 @@ public class SearchResponseDoneImplTest extends TestCase
                 return result;
             }
 
+
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.SEARCHRESDONE;
             }
+
 
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control a_control ) throws MessageException
             {
             }
 
+
             public void remove( Control a_control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 45;
             }
 
+
             public Object get( Object a_key )
             {
                 return null;
             }
+
 
             public Object put( Object a_key, Object a_value )
             {

@@ -23,7 +23,7 @@ import java.util.Properties;
 
 /**
  * A Provider monitor's callback interface.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -32,24 +32,35 @@ public interface ProviderMonitor
     /** A do nothing monitor to use if none is provided */
     public static ProviderMonitor NOOP_MONITOR = new ProviderMonitor()
     {
-        public final void propsFound( final String msg, final Properties props ) {}
-        public final void usingDefaults( final String msg, final Properties props ) {}
+        public final void propsFound( final String msg, final Properties props )
+        {
+        }
+
+
+        public final void usingDefaults( final String msg, final Properties props )
+        {
+        }
     };
 
 
     /**
      * Callback used to monitor the discovered properties for the provider.
-     *
-     * @param msg a message about where the properties were found or null
-     * @param props the properties discovered
+     * 
+     * @param msg
+     *            a message about where the properties were found or null
+     * @param props
+     *            the properties discovered
      */
     void propsFound( String msg, Properties props );
 
+
     /**
      * Callback used to monitor if and what set of defaults are being used.
-     *
-     * @param msg a descriptive message about this event or null
-     * @param props the properties that constitute the defaults
+     * 
+     * @param msg
+     *            a descriptive message about this event or null
+     * @param props
+     *            the properties that constitute the defaults
      */
     void usingDefaults( String msg, Properties props );
 }

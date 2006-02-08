@@ -14,13 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Extended protocol response message used to confirm the results of a extended
  * request message.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
@@ -29,32 +29,39 @@ public interface ExtendedResponse extends ResultResponse, javax.naming.ldap.Exte
     /** Extended response message type enumeration value */
     MessageTypeEnum TYPE = MessageTypeEnum.EXTENDEDRESP;
 
+
     /**
      * Gets the OID uniquely identifying this extended response (a.k.a. its
      * name).
-     *
+     * 
      * @return the OID of the extended response type.
      */
     String getResponseName();
 
+
     /**
-     * Sets the OID uniquely identifying this extended response (a.k.a. its name).
-     *
-     * @param oid the OID of the extended response type.
+     * Sets the OID uniquely identifying this extended response (a.k.a. its
+     * name).
+     * 
+     * @param oid
+     *            the OID of the extended response type.
      */
     void setResponseName( String oid );
 
+
     /**
      * Gets the reponse OID specific encoded response values.
-     *
+     * 
      * @return the response specific encoded response values.
      */
-    byte [] getResponse();
+    byte[] getResponse();
+
 
     /**
      * Sets the reponse OID specific encoded response values.
-     *
-     * @param value the response specific encoded response values.
+     * 
+     * @param value
+     *            the response specific encoded response values.
      */
-    void setResponse( byte [] value );
+    void setResponse( byte[] value );
 }

@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- */                                                            
+ */
 package org.apache.directory.shared.ldap.exception;
 
 
@@ -24,12 +24,11 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 /**
  * A ContextNotEmptyException which contains an LDAP result code.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapContextNotEmptyException extends ContextNotEmptyException
-        implements LdapException
+public class LdapContextNotEmptyException extends ContextNotEmptyException implements LdapException
 {
     static final long serialVersionUID = -2320797162018226278L;
 
@@ -40,15 +39,15 @@ public class LdapContextNotEmptyException extends ContextNotEmptyException
     }
 
 
-    public LdapContextNotEmptyException( String explanation )
+    public LdapContextNotEmptyException(String explanation)
     {
-        super(explanation);
+        super( explanation );
     }
 
 
     /**
      * Gets the LDAP ResultCode for this exception type.
-     *
+     * 
      * @return {@link ResultCodeEnum#NOTALLOWEDONNONLEAF} always
      */
     public ResultCodeEnum getResultCode()

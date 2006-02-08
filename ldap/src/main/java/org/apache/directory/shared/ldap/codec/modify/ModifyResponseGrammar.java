@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.modify;
 
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
@@ -32,14 +33,16 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class implements the ModifyResponse LDAP message. All the actions are declared in this
- * class. As it is a singleton, these declaration are only done once.
+ * This class implements the ModifyResponse LDAP message. All the actions are
+ * declared in this class. As it is a singleton, these declaration are only done
+ * once.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ModifyResponseGrammar extends AbstractGrammar implements IGrammar
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ModifyResponseGrammar.class );
@@ -47,7 +50,9 @@ public class ModifyResponseGrammar extends AbstractGrammar implements IGrammar
     /** The instance of grammar. ModifyResponseGrammar is a singleton */
     private static IGrammar instance = new ModifyResponseGrammar();
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new ModifyResponseGrammar object.
@@ -60,57 +65,58 @@ public class ModifyResponseGrammar extends AbstractGrammar implements IGrammar
         // Create the transitions table
         super.transitions = new GrammarTransition[LdapStatesEnum.LAST_MODIFY_RESPONSE_STATE][256];
 
-        //============================================================================================
+        // ============================================================================================
         // ModifyResponse Message
-        //============================================================================================
+        // ============================================================================================
         // LdapMessage ::= ... ModifyResponse ...
         // ModifyResponse ::= [APPLICATION 7] LDAPResult (Tag)
         // Nothing to do.
         super.transitions[LdapStatesEnum.MODIFY_RESPONSE_TAG][LdapConstants.MODIFY_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.MODIFY_RESPONSE_TAG, LdapStatesEnum.MODIFY_RESPONSE_VALUE, null );
+            LdapStatesEnum.MODIFY_RESPONSE_TAG, LdapStatesEnum.MODIFY_RESPONSE_VALUE, null );
 
         // LdapMessage ::= ... ModifyResponse ...
         // ModifyResponse ::= [APPLICATION 7] LDAPResult (Value)
         // The next Tag will be the LDAPResult Tag (0x0A).
         // We will switch the grammar then.
         super.transitions[LdapStatesEnum.MODIFY_RESPONSE_VALUE][LdapConstants.MODIFY_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.MODIFY_RESPONSE_VALUE, LdapStatesEnum.MODIFY_RESPONSE_LDAP_RESULT, 
-                new GrammarAction( "Init ModifyResponse" )
+            LdapStatesEnum.MODIFY_RESPONSE_VALUE, LdapStatesEnum.MODIFY_RESPONSE_LDAP_RESULT, new GrammarAction(
+                "Init ModifyResponse" )
+            {
+                public void action( IAsn1Container container )
                 {
-                    public void action( IAsn1Container container )
-                    {
 
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage      ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
 
-                        // We associate it to the ldapMessage Object
-                        ldapMessage.setProtocolOP( new ModifyResponse() );
-                        
-                        log.debug( "Modify response" );
-                    }
-                } );
+                    // We associate it to the ldapMessage Object
+                    ldapMessage.setProtocolOP( new ModifyResponse() );
+
+                    log.debug( "Modify response" );
+                }
+            } );
 
         // LdapMessage ::= ... ModifyResponse ...
         // ModifyResponse ::= [APPLICATION 7] LDAPResult (Value)
-        // Ok, we have a LDAPResult Tag (0x0A). So we have to switch the grammar.
+        // Ok, we have a LDAPResult Tag (0x0A). So we have to switch the
+        // grammar.
         super.transitions[LdapStatesEnum.MODIFY_RESPONSE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
-                LdapStatesEnum.MODIFY_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, 
-                new GrammarAction( "Pop allowed" )
+            LdapStatesEnum.MODIFY_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, new GrammarAction(
+                "Pop allowed" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        container.grammarPopAllowed( true );
-                    }
-                });
+                    container.grammarPopAllowed( true );
+                }
+            } );
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the instance of this grammar
-     *
+     * 
      * @return An instance on the LdapMessage Grammar
      */
     public static IGrammar getInstance()

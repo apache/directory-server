@@ -18,13 +18,13 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 
 /**
- * Graceful Disconnect and Shutdown extended operation constants  
+ * Graceful Disconnect and Shutdown extended operation constants
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class GracefulActionConstants
 {
-    /** This is the TAG used for the delay. It's a contextual primitive Tag */ 
+    /** This is the TAG used for the delay. It's a contextual primitive Tag */
     public static final int GRACEFUL_ACTION_DELAY_TAG = 0x80;
 }

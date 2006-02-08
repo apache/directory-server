@@ -17,10 +17,12 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
+
 
 /**
  * A DER encoded set object
@@ -28,33 +30,37 @@ import java.util.Vector;
 public class DERSet implements DEREncodable
 {
     protected Vector set = new Vector();
-    
+
+
     public Enumeration getObjects()
     {
         return set.elements();
     }
 
+
     public DEREncodable getObjectAt( int index )
     {
-        return (DEREncodable)set.elementAt( index );
+        return ( DEREncodable ) set.elementAt( index );
     }
+
 
     public int size()
     {
         return set.size();
     }
-    
+
+
     public void add( DEREncodable obj )
     {
         set.addElement( obj );
     }
-	
-    public void encode( ASN1OutputStream out )
-        throws IOException
+
+
+    public void encode( ASN1OutputStream out ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASN1OutputStream      aos  = new ASN1OutputStream( baos );
-        
+        ASN1OutputStream aos = new ASN1OutputStream( baos );
+
         Enumeration e = getObjects();
 
         while ( e.hasMoreElements() )
@@ -69,4 +75,3 @@ public class DERSet implements DEREncodable
         out.writeEncoded( DERObject.SET | DERObject.CONSTRUCTED, bytes );
     }
 }
-

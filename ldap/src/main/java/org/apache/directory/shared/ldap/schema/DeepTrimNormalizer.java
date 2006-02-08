@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * Normalizer which trims down whitespace replacing multiple whitespace
  * characters on the edges and within the string with a single space character
  * thereby preserving tokenization order.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -38,14 +38,14 @@ public class DeepTrimNormalizer implements Normalizer
         {
             return null;
         }
-        
+
         if ( value instanceof byte[] )
         {
-            return StringTools.deepTrim( StringTools.utf8ToString( (byte[])value ) );
+            return StringTools.deepTrim( StringTools.utf8ToString( ( byte[] ) value ) );
         }
         else
         {
-            return StringTools.deepTrim( (String)value );
+            return StringTools.deepTrim( ( String ) value );
         }
     }
 }

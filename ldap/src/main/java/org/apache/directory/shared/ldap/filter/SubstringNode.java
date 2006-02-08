@@ -23,10 +23,10 @@
  * -- any LDAPd project for copyright and distribution information.      --
  *
  */
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
 
 
-import java.util.ArrayList ;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * Filter expression tree node used to represent a substring assertion.
- *
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $author$
  * @version $Revision$
@@ -47,108 +47,114 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class SubstringNode extends LeafNode
 {
     /** The initial fragment before any wildcards */
-    private final String initialPattern ;
+    private final String initialPattern;
 
     /** The end fragment after wildcards */
-    private final String finalPattern ;
+    private final String finalPattern;
 
     /** List of fragments between wildcards */
-    private final List anyPattern ;
+    private final List anyPattern;
 
     /** Generated regular expression from substring assertion expression */
-    private transient Pattern regex = null ;
+    private transient Pattern regex = null;
 
 
     /**
      * Creates a new SubstringNode object with only one wildcard and no internal
      * any fragments between wildcards.
-     *
-     * @param a_attribute the name of the attribute to substring assert
-     * @param a_initial the initial fragment
-     * @param a_final the final fragment
+     * 
+     * @param a_attribute
+     *            the name of the attribute to substring assert
+     * @param a_initial
+     *            the initial fragment
+     * @param a_final
+     *            the final fragment
      */
-    public SubstringNode( String attribute, String initialPattern, String finalPattern )
+    public SubstringNode(String attribute, String initialPattern, String finalPattern)
     {
-        super( attribute, SUBSTRING ) ;
+        super( attribute, SUBSTRING );
 
-        anyPattern = new ArrayList( 2 ) ;
-        this.finalPattern = finalPattern ;
-        this.initialPattern = initialPattern ;
+        anyPattern = new ArrayList( 2 );
+        this.finalPattern = finalPattern;
+        this.initialPattern = initialPattern;
     }
 
 
     /**
-     * Creates a new SubstringNode object more than one wildcard and an any 
+     * Creates a new SubstringNode object more than one wildcard and an any
      * list.
-     *
-     * @param a_anyList list of internal fragments between wildcards
-     * @param a_attribute the name of the attribute to substring assert
-     * @param a_initial the initial fragment
-     * @param a_final the final fragment
+     * 
+     * @param a_anyList
+     *            list of internal fragments between wildcards
+     * @param a_attribute
+     *            the name of the attribute to substring assert
+     * @param a_initial
+     *            the initial fragment
+     * @param a_final
+     *            the final fragment
      */
-    public SubstringNode( ArrayList anyPattern, String attribute,
-        String initialPattern, String finalPattern )
+    public SubstringNode(ArrayList anyPattern, String attribute, String initialPattern, String finalPattern)
     {
-        super( attribute, SUBSTRING ) ;
+        super( attribute, SUBSTRING );
 
-        this.anyPattern = anyPattern ;
-        this.finalPattern = finalPattern ;
-        this.initialPattern = initialPattern ;
+        this.anyPattern = anyPattern;
+        this.finalPattern = finalPattern;
+        this.initialPattern = initialPattern;
     }
 
 
     /**
      * Gets the initial fragment.
-     *
+     * 
      * @return the initial prefix
      */
     public final String getInitial()
     {
-        return initialPattern ;
+        return initialPattern;
     }
 
 
     /**
      * Gets the final fragment or suffix.
-     *
+     * 
      * @return the suffix
      */
     public final String getFinal()
     {
-        return finalPattern ;
+        return finalPattern;
     }
 
 
     /**
      * Gets the list of wildcard surrounded any fragments.
-     *
+     * 
      * @return the any fragments
      */
     public final List getAny()
     {
-        return anyPattern ;
+        return anyPattern;
     }
 
 
     /**
      * Gets the compiled regular expression for the substring expression.
-     *
+     * 
      * @return the equivalent compiled regular expression
-     * @throws RESyntaxException if the regular expression is invalid
+     * @throws RESyntaxException
+     *             if the regular expression is invalid
      */
-    public final Pattern getRegex( Normalizer normalizer )
-            throws PatternSyntaxException, NamingException
+    public final Pattern getRegex( Normalizer normalizer ) throws PatternSyntaxException, NamingException
     {
         if ( regex != null )
         {
-            return regex ;
+            return regex;
         }
 
         if ( anyPattern.size() > 0 )
         {
-            String[] any = new String[anyPattern.size()] ;
+            String[] any = new String[anyPattern.size()];
 
-            for ( int i = 0 ; i < any.length ; i++ )
+            for ( int i = 0; i < any.length; i++ )
             {
                 any[i] = ( String ) normalizer.normalize( anyPattern.get( i ) );
                 if ( any[i].length() == 0 )
@@ -158,14 +164,14 @@ public class SubstringNode extends LeafNode
             }
 
             String initialStr = null;
-            
+
             if ( initialPattern != null )
             {
                 initialStr = ( String ) normalizer.normalize( initialPattern );
             }
 
             String finalStr = null;
-            
+
             if ( finalPattern != null )
             {
                 finalStr = ( String ) normalizer.normalize( finalPattern );
@@ -175,14 +181,14 @@ public class SubstringNode extends LeafNode
         }
 
         String initialStr = null;
-        
+
         if ( initialPattern != null )
         {
             initialStr = ( String ) normalizer.normalize( initialPattern );
         }
 
         String finalStr = null;
-        
+
         if ( finalPattern != null )
         {
             finalStr = ( String ) normalizer.normalize( finalPattern );
@@ -197,10 +203,10 @@ public class SubstringNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer() ;
-        printToBuffer( buf ) ;
+        StringBuffer buf = new StringBuffer();
+        printToBuffer( buf );
 
-        return ( buf.toString() ) ;
+        return ( buf.toString() );
     }
 
 
@@ -209,58 +215,54 @@ public class SubstringNode extends LeafNode
      */
     public StringBuffer printToBuffer( StringBuffer buf )
     {
-        buf.append( '(' ).append( getAttribute() ).append( '=' ) ;
+        buf.append( '(' ).append( getAttribute() ).append( '=' );
 
         if ( null != initialPattern )
         {
-            buf.append( initialPattern ).append( '*' ) ;
+            buf.append( initialPattern ).append( '*' );
         }
         else
         {
-            buf.append( '*' ) ;
+            buf.append( '*' );
         }
 
-
-        for ( int i = 0 ; i < anyPattern.size() ; i++ )
+        for ( int i = 0; i < anyPattern.size(); i++ )
         {
-            buf.append( anyPattern.get( i ).toString() ) ;
-            buf.append( '*' ) ;
+            buf.append( anyPattern.get( i ).toString() );
+            buf.append( '*' );
         }
-
 
         if ( null != finalPattern )
         {
-            buf.append( finalPattern ) ;
+            buf.append( finalPattern );
         }
 
+        buf.append( ')' );
 
-        buf.append( ')' ) ;
-
-        if ( ( null != getAnnotations() )
-                && getAnnotations().containsKey( "count" ) )
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
-            buf.append( '[' ) ;
-            buf.append( getAnnotations().get( "count" ).toString() ) ;
-            buf.append( "] " ) ;
+            buf.append( '[' );
+            buf.append( getAnnotations().get( "count" ).toString() );
+            buf.append( "] " );
         }
         else
         {
-            buf.append( ' ' ) ;
+            buf.append( ' ' );
         }
-        
+
         return buf;
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     * org.apache.directory.shared.ldap.filter.FilterVisitor)
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
     public void accept( FilterVisitor a_visitor )
     {
-        if ( a_visitor.canVisit( this ) ) 
+        if ( a_visitor.canVisit( this ) )
         {
-            a_visitor.visit( this ) ;
+            a_visitor.visit( this );
         }
     }
 }

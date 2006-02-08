@@ -23,21 +23,21 @@ import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
- *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubEntryControlContainer extends AbstractContainer implements IAsn1Container 
+public class SubEntryControlContainer extends AbstractContainer implements IAsn1Container
 {
     /** PSearchControl */
     private SubEntryControl control;
 
+
     /**
-     * Creates a new SubEntryControlContainer object.
-     * We will store one grammar, it's enough ...
+     * Creates a new SubEntryControlContainer object. We will store one grammar,
+     * it's enough ...
      */
     public SubEntryControlContainer()
     {
-        super( );
+        super();
         currentGrammar = 0;
         grammars = new IGrammar[SubEntryControlStatesEnum.NB_GRAMMARS];
         grammarStack = new IGrammar[1];
@@ -59,19 +59,20 @@ public class SubEntryControlContainer extends AbstractContainer implements IAsn1
         return control;
     }
 
-    
+
     /**
-     * Set a SubEntryControl Object into the container. It will be completed
-     * by the ldapDecoder.
-     *
-     * @param control the SubEntryControl to set.
+     * Set a SubEntryControl Object into the container. It will be completed by
+     * the ldapDecoder.
+     * 
+     * @param control
+     *            the SubEntryControl to set.
      */
     public void setSubEntryControl( SubEntryControl control )
     {
         this.control = control;
     }
 
-    
+
     public void clean()
     {
         super.clean();

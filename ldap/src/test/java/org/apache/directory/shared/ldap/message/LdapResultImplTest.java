@@ -28,8 +28,9 @@ import junit.framework.TestCase;
 
 /**
  * Tests the methods of the LdapResultImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ *         $Rev$
  */
 public class LdapResultImplTest extends TestCase
 {
@@ -65,10 +66,8 @@ public class LdapResultImplTest extends TestCase
         LdapResultImpl r0 = new LdapResultImpl();
         LdapResultImpl r1 = new LdapResultImpl();
 
-        assertTrue( "default copy with different lockable parents " +
-                "should be equal", r0.equals( r1 ) );
-        assertTrue( "default copy with different lockable parents " +
-                "should be equal", r1.equals( r0 ) );
+        assertTrue( "default copy with different lockable parents " + "should be equal", r0.equals( r1 ) );
+        assertTrue( "default copy with different lockable parents " + "should be equal", r1.equals( r0 ) );
     }
 
 
@@ -85,47 +84,53 @@ public class LdapResultImplTest extends TestCase
                 return ResultCodeEnum.SUCCESS;
             }
 
+
             public void setResultCode( ResultCodeEnum a_resultCode )
             {
             }
+
 
             public String getMatchedDn()
             {
                 return null;
             }
 
+
             public void setMatchedDn( String a_dn )
             {
             }
+
 
             public String getErrorMessage()
             {
                 return null;
             }
 
+
             public void setErrorMessage( String a_errorMessage )
             {
             }
+
 
             public boolean isReferral()
             {
                 return false;
             }
 
+
             public Referral getReferral()
             {
                 return null;
             }
+
 
             public void setReferral( Referral a_referral )
             {
             }
         };
 
-        assertTrue( "r0 equals should see other impl r1 as equal",
-                r0.equals( r1 ) );
-        assertFalse( "r1 impl uses Object.equals() so it should not see " +
-                "r0 as the same object", r1.equals( r0 ) );
+        assertTrue( "r0 equals should see other impl r1 as equal", r0.equals( r1 ) );
+        assertFalse( "r1 impl uses Object.equals() so it should not see " + "r0 as the same object", r1.equals( r0 ) );
     }
 
 
@@ -184,10 +189,8 @@ public class LdapResultImplTest extends TestCase
         refs1.addLdapUrl( "ldap://someserver.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
-        assertFalse( "results with different error messages should " +
-                "not be equal", r0.equals( r1 ) );
-        assertFalse( "results with different error messages should " +
-                "not be equal", r1.equals( r0 ) );
+        assertFalse( "results with different error messages should " + "not be equal", r0.equals( r1 ) );
+        assertFalse( "results with different error messages should " + "not be equal", r1.equals( r0 ) );
     }
 
 
@@ -216,10 +219,8 @@ public class LdapResultImplTest extends TestCase
         refs1.addLdapUrl( "ldap://someserver.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
-        assertFalse( "results with different matchedDn properties " +
-                "should not be equal", r0.equals( r1 ) );
-        assertFalse( "results with different matchedDn properties " +
-                "should not be equal", r1.equals( r0 ) );
+        assertFalse( "results with different matchedDn properties " + "should not be equal", r0.equals( r1 ) );
+        assertFalse( "results with different matchedDn properties " + "should not be equal", r1.equals( r0 ) );
     }
 
 
@@ -248,10 +249,8 @@ public class LdapResultImplTest extends TestCase
         refs1.addLdapUrl( "ldap://someserver.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
-        assertFalse( "results with different result codes should not be equal",
-                r0.equals( r1 ) );
-        assertFalse( "results with different result codes should not be equal",
-                r1.equals( r0 ) );
+        assertFalse( "results with different result codes should not be equal", r0.equals( r1 ) );
+        assertFalse( "results with different result codes should not be equal", r1.equals( r0 ) );
     }
 
 
@@ -282,9 +281,7 @@ public class LdapResultImplTest extends TestCase
         refs1.addLdapUrl( "ldap://abc.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
-        assertFalse( "results with different referrals should not be equal",
-                r0.equals( r1 ) );
-        assertFalse( "results with different referrals should not be equal",
-                r1.equals( r0 ) );
+        assertFalse( "results with different referrals should not be equal", r0.equals( r1 ) );
+        assertFalse( "results with different referrals should not be equal", r1.equals( r0 ) );
     }
 }

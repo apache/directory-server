@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.directory.shared.ldap.ldif ;
+package org.apache.directory.shared.ldap.ldif;
 
 
-import javax.naming.NamingException ;
-import javax.naming.directory.Attributes ;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 
 /**
@@ -25,11 +25,11 @@ import javax.naming.directory.Attributes ;
  * key/value pairs with potential more than one attribute value per attribute.
  * This parser populates the MultiMap or Attributes instance with all attributes
  * within the LDIF including control attributes like the 'dn' and the
- * 'changeType'.  These attributes are not usually part of the entry proper
- * but are a cue to the processing application.  These control attributes should
- * be accessed and removed from the MultiMap or Attributes instance if need be
+ * 'changeType'. These attributes are not usually part of the entry proper but
+ * are a cue to the processing application. These control attributes should be
+ * accessed and removed from the MultiMap or Attributes instance if need be
  * according to the specific context in which this parser is used.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -38,24 +38,27 @@ public interface LdifParser
     /**
      * Parses an String representing an entry in LDAP Data Interchange Format
      * (LDIF) storing its attributes in the supplied Attributes instance.
-     *
-     * @param attributes the Attributes instance to populate with LDIF
-     * attributes including the DN of the entry represented by the LDIF.
-     * @param ldif the entry in LDAP Data Interchange Format
-     * @throws NamingException if a naming exception results while the LDIF is
-     * being parsed
+     * 
+     * @param attributes
+     *            the Attributes instance to populate with LDIF attributes
+     *            including the DN of the entry represented by the LDIF.
+     * @param ldif
+     *            the entry in LDAP Data Interchange Format
+     * @throws NamingException
+     *             if a naming exception results while the LDIF is being parsed
      */
-    void parse( Attributes attributes, String ldif ) throws NamingException ;
+    void parse( Attributes attributes, String ldif ) throws NamingException;
+
 
     /**
      * Parses an LDIF into a special LdifEntry structure that tracks control
      * attributes within an LDIF.
-     *
-     * @param ldif the LDIF to parse
-     * @return the LdifEntry parsed 
-     * @throws NamingException if a naming exception results while the LDIF is
-     * being parsed
+     * 
+     * @param ldif
+     *            the LDIF to parse
+     * @return the LdifEntry parsed
+     * @throws NamingException
+     *             if a naming exception results while the LDIF is being parsed
      */
-    LdifEntry parse( String ldif ) throws NamingException ;
+    LdifEntry parse( String ldif ) throws NamingException;
 }
-

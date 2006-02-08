@@ -26,10 +26,12 @@ import javax.naming.Name;
 
 
 /**
- * SubtreeSpecification contains no setters so they must be built by a modifiable
- * object containing all the necessary parameters to build the base object.
- *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * SubtreeSpecification contains no setters so they must be built by a
+ * modifiable object containing all the necessary parameters to build the base
+ * object.
+ * 
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory
+ *         Project</a>
  * @version $Rev$
  */
 public class SubtreeSpecificationModifier
@@ -49,27 +51,28 @@ public class SubtreeSpecificationModifier
     /** the maximum distance from base past which entries are excluded */
     private int maxBaseDistance = SubtreeSpecification.UNBOUNDED_MAX;
 
-    /** a filter using only assertions on objectClass attributes for subtree refinement */
+    /**
+     * a filter using only assertions on objectClass attributes for subtree
+     * refinement
+     */
     private ExprNode refinement = null;
 
 
     // -----------------------------------------------------------------------
-    // F A C T O R Y   M E T H O D
+    // F A C T O R Y M E T H O D
     // -----------------------------------------------------------------------
 
-
     /**
-     * Creates a SubtreeSpecification using any of the default paramters that may
-     * have been modified from their defaults.
-     *
+     * Creates a SubtreeSpecification using any of the default paramters that
+     * may have been modified from their defaults.
+     * 
      * @return the newly created subtree specification
      */
     public SubtreeSpecification getSubtreeSpecification()
     {
 
-        return new BaseSubtreeSpecification( this.base, this.minBaseDistance,
-                                              this.maxBaseDistance, this.chopAfter,
-                                              this.chopBefore, this.refinement );
+        return new BaseSubtreeSpecification( this.base, this.minBaseDistance, this.maxBaseDistance, this.chopAfter,
+            this.chopBefore, this.refinement );
     }
 
 
@@ -77,11 +80,11 @@ public class SubtreeSpecificationModifier
     // M U T A T O R S
     // -----------------------------------------------------------------------
 
-
     /**
      * Sets the subtree base relative to the administration point.
-     *
-     * @param base subtree base relative to the administration point
+     * 
+     * @param base
+     *            subtree base relative to the administration point
      */
     public void setBase( Name base )
     {
@@ -91,8 +94,10 @@ public class SubtreeSpecificationModifier
 
     /**
      * Sets the set of subordinates entries and their subordinates to exclude.
-     *
-     * @param chopBefore the set of subordinates entries and their subordinates to exclude
+     * 
+     * @param chopBefore
+     *            the set of subordinates entries and their subordinates to
+     *            exclude
      */
     public void setChopBeforeExclusions( Set chopBefore )
     {
@@ -101,9 +106,12 @@ public class SubtreeSpecificationModifier
 
 
     /**
-     * Sets the set of subordinates entries whose subordinates are to be excluded.
-     *
-     * @param chopAfter the set of subordinates entries whose subordinates are to be excluded
+     * Sets the set of subordinates entries whose subordinates are to be
+     * excluded.
+     * 
+     * @param chopAfter
+     *            the set of subordinates entries whose subordinates are to be
+     *            excluded
      */
     public void setChopAfterExclusions( Set chopAfter )
     {
@@ -113,8 +121,9 @@ public class SubtreeSpecificationModifier
 
     /**
      * Sets the minimum distance below base to start including entries.
-     *
-     * @param minBaseDistance the minimum distance below base to start including entries
+     * 
+     * @param minBaseDistance
+     *            the minimum distance below base to start including entries
      */
     public void setMinBaseDistance( int minBaseDistance )
     {
@@ -129,8 +138,9 @@ public class SubtreeSpecificationModifier
 
     /**
      * Sets the maximum distance from base past which entries are excluded.
-     *
-     * @param maxBaseDistance the maximum distance from base past which entries are excluded
+     * 
+     * @param maxBaseDistance
+     *            the maximum distance from base past which entries are excluded
      */
     public void setMaxBaseDistance( int maxBaseDistance )
     {
@@ -146,9 +156,12 @@ public class SubtreeSpecificationModifier
 
 
     /**
-     * Sets a filter using only assertions on objectClass attributes for subtree refinement.
-     *
-     * @param refinement a filter using only assertions on objectClass attributes for subtree refinement
+     * Sets a filter using only assertions on objectClass attributes for subtree
+     * refinement.
+     * 
+     * @param refinement
+     *            a filter using only assertions on objectClass attributes for
+     *            subtree refinement
      */
     public void setRefinement( ExprNode refinement )
     {

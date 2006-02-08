@@ -17,17 +17,17 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.IOException;
+
 
 /**
  * A BER NULL object.
  */
 public class BERNull extends DERNull
 {
-    public void encode( ASN1OutputStream out )
-        throws IOException
+    public void encode( ASN1OutputStream out ) throws IOException
     {
         out.write( NULL );
     }
 }
-

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.util;
 
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -23,35 +24,43 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
+
 /**
  * Test the NameToolsTest class
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NamespaceToolsTest extends TestCase {
+public class NamespaceToolsTest extends TestCase
+{
     public void testNullRealm()
     {
-        Assert.assertEquals("", NamespaceTools.inferLdapName(null));
+        Assert.assertEquals( "", NamespaceTools.inferLdapName( null ) );
     }
+
 
     public void testEmptyRealm()
     {
-        Assert.assertEquals("", NamespaceTools.inferLdapName(""));
+        Assert.assertEquals( "", NamespaceTools.inferLdapName( "" ) );
     }
+
 
     public void testSingleElemRealm()
     {
-        Assert.assertEquals("dc=test", NamespaceTools.inferLdapName("test"));
+        Assert.assertEquals( "dc=test", NamespaceTools.inferLdapName( "test" ) );
     }
+
 
     public void testTwoElemsRealm()
     {
-        Assert.assertEquals("dc=test,dc=com", NamespaceTools.inferLdapName("test.com"));
+        Assert.assertEquals( "dc=test,dc=com", NamespaceTools.inferLdapName( "test.com" ) );
     }
+
 
     public void testFullRealm()
     {
-        Assert.assertEquals("dc=CS,dc=UCL,dc=AC,dc=UK", NamespaceTools.inferLdapName("CS.UCL.AC.UK"));
+        Assert.assertEquals( "dc=CS,dc=UCL,dc=AC,dc=UK", NamespaceTools.inferLdapName( "CS.UCL.AC.UK" ) );
     }
+
 
     public void testHasCompositeComponents() throws NamingException
     {
@@ -60,6 +69,7 @@ public class NamespaceToolsTest extends TestCase {
         assertFalse( NamespaceTools.hasCompositeComponents( "cn=One\\+Two" ) );
         assertFalse( NamespaceTools.hasCompositeComponents( "cn=Alex" ) );
     }
+
 
     public void testGetCompositeComponents() throws NamingException
     {

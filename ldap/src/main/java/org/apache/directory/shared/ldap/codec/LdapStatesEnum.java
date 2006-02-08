@@ -45,19 +45,19 @@ import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestGrammar;
 
 
 /**
- * This class store the Ldap grammar's constants.
- * It is also used for debugging purpose
+ * This class store the Ldap grammar's constants. It is also used for debugging
+ * purpose
  * 
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdapStatesEnum implements IStates
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
-    //=========================================================================
+    // =========================================================================
     // LdapMessage
-    //=========================================================================
+    // =========================================================================
     /** LDAPMessage Tag */
     public static int LDAP_MESSAGE_TAG = 0;
 
@@ -71,21 +71,21 @@ public class LdapStatesEnum implements IStates
     /** MessageID Value */
     public static int LDAP_MESSAGE_ID_VALUE = 3;
 
-    //=========================================================================
+    // =========================================================================
     // ProtocolOp
-    //=========================================================================
+    // =========================================================================
     /** protocolOp CHOICE Tag */
     public static int PROTOCOL_OP_TAG = 4;
 
     /** protocolOp CHOICE Value */
-    public static int PROTOCOL_OP_VALUE       = 5;
+    public static int PROTOCOL_OP_VALUE = 5;
 
     /** The Ldap Message last state */
     public static int LAST_LDAP_MESSAGE_STATE = 6;
 
-    //=========================================================================
-    // BindRequest 
-    //=========================================================================
+    // =========================================================================
+    // BindRequest
+    // =========================================================================
     /** The BindRequest Tag */
     public static int BIND_REQUEST_TAG = 0;
 
@@ -134,9 +134,9 @@ public class LdapStatesEnum implements IStates
     /** The bind request last state */
     public static int LAST_BIND_REQUEST_STATE = 13;
 
-    //=========================================================================
-    // UnBindRequest 
-    //=========================================================================
+    // =========================================================================
+    // UnBindRequest
+    // =========================================================================
     /** The UnBindRequest Tag */
     public static int UNBIND_REQUEST_TAG = 0;
 
@@ -146,9 +146,9 @@ public class LdapStatesEnum implements IStates
     /** The unbind request last state */
     public static int LAST_UNBIND_REQUEST_STATE = 2;
 
-    //=========================================================================
-    // AbandonRequest 
-    //=========================================================================
+    // =========================================================================
+    // AbandonRequest
+    // =========================================================================
     /** The abandon request Tag */
     public static int ABANDON_REQUEST_MESSAGE_ID_TAG = 0;
 
@@ -158,9 +158,9 @@ public class LdapStatesEnum implements IStates
     /** The abandon request last state */
     public static int LAST_ABANDON_REQUEST_STATE = 2;
 
-    //=========================================================================
-    // Control 
-    //=========================================================================
+    // =========================================================================
+    // Control
+    // =========================================================================
     /** Control Tag */
     public static int CONTROLS_TAG = 0;
 
@@ -201,16 +201,16 @@ public class LdapStatesEnum implements IStates
     /** Control last state */
     public static int LAST_CONTROL_STATE = 11;
 
-    //=========================================================================
+    // =========================================================================
     // BindResponse
-    //=========================================================================
-    /**  Bind Response Tag */
+    // =========================================================================
+    /** Bind Response Tag */
     public static int BIND_RESPONSE_TAG = 0;
 
-    /**  Bind Response Value */
+    /** Bind Response Value */
     public static int BIND_RESPONSE_VALUE = 1;
 
-    /**  Bind Response Ldap Result (we will switch the grammar here) */
+    /** Bind Response Ldap Result (we will switch the grammar here) */
     public static int BIND_RESPONSE_LDAP_RESULT = 2;
 
     /** serverSaslCreds Tag */
@@ -222,99 +222,99 @@ public class LdapStatesEnum implements IStates
     /** Last state */
     public static int LAST_BIND_RESPONSE_STATE = 5;
 
-    //=========================================================================
-    // AddResponse 
-    //=========================================================================
-    /**  Add Response Tag */
+    // =========================================================================
+    // AddResponse
+    // =========================================================================
+    /** Add Response Tag */
     public static int ADD_RESPONSE_TAG = 0;
 
-    /**  Add Response Value */
+    /** Add Response Value */
     public static int ADD_RESPONSE_VALUE = 1;
 
-    /**  Add Response Ldap Result (we will switch the grammar here) */
+    /** Add Response Ldap Result (we will switch the grammar here) */
     public static int ADD_RESPONSE_LDAP_RESULT = 2;
 
     /** Last state */
     public static int LAST_ADD_RESPONSE_STATE = 3;
 
-    //=========================================================================
-    // CompareResponse 
-    //=========================================================================
-    /**  Compare Response Tag */
+    // =========================================================================
+    // CompareResponse
+    // =========================================================================
+    /** Compare Response Tag */
     public static int COMPARE_RESPONSE_TAG = 0;
 
-    /**  Compare Response Value */
+    /** Compare Response Value */
     public static int COMPARE_RESPONSE_VALUE = 1;
 
-    /**  Compare Response Ldap Result (we will switch the grammar here) */
+    /** Compare Response Ldap Result (we will switch the grammar here) */
     public static int COMPARE_RESPONSE_LDAP_RESULT = 2;
 
     /** Last state */
     public static int LAST_COMPARE_RESPONSE_STATE = 3;
 
-    //=========================================================================
-    // DelResponse 
-    //=========================================================================
-    /**  Del Response Tag */
+    // =========================================================================
+    // DelResponse
+    // =========================================================================
+    /** Del Response Tag */
     public static int DEL_RESPONSE_TAG = 0;
 
-    /**  Del Response Value */
+    /** Del Response Value */
     public static int DEL_RESPONSE_VALUE = 1;
 
-    /**  Del Response Ldap Result (we will switch the grammar here) */
+    /** Del Response Ldap Result (we will switch the grammar here) */
     public static int DEL_RESPONSE_LDAP_RESULT = 2;
 
     /** Last state */
     public static int LAST_DEL_RESPONSE_STATE = 3;
 
-    //=========================================================================
-    // ModifyResponse 
-    //=========================================================================
-    /**  Modify Response Tag */
+    // =========================================================================
+    // ModifyResponse
+    // =========================================================================
+    /** Modify Response Tag */
     public static int MODIFY_RESPONSE_TAG = 0;
 
-    /**  Modify Response Value */
+    /** Modify Response Value */
     public static int MODIFY_RESPONSE_VALUE = 1;
 
-    /**  Modify Response Ldap Result (we will switch the grammar here) */
+    /** Modify Response Ldap Result (we will switch the grammar here) */
     public static int MODIFY_RESPONSE_LDAP_RESULT = 2;
 
     /** Last state */
     public static int LAST_MODIFY_RESPONSE_STATE = 3;
 
-    //=========================================================================
-    // ModifyDNResponse 
-    //=========================================================================
-    /**  Modify DN Response Tag */
+    // =========================================================================
+    // ModifyDNResponse
+    // =========================================================================
+    /** Modify DN Response Tag */
     public static int MODIFY_DN_RESPONSE_TAG = 0;
 
-    /**  Modify DN Response Value */
+    /** Modify DN Response Value */
     public static int MODIFY_DN_RESPONSE_VALUE = 1;
 
-    /**  Modify DN Response Ldap Result (we will switch the grammar here) */
+    /** Modify DN Response Ldap Result (we will switch the grammar here) */
     public static int MODIFY_DN_RESPONSE_LDAP_RESULT = 2;
 
     /** Last state */
     public static int LAST_MODIFY_DN_RESPONSE_STATE = 3;
 
-    //=========================================================================
+    // =========================================================================
     // SearchResultDone
-    //=========================================================================
-    /**  SearchResultDone Tag */
+    // =========================================================================
+    /** SearchResultDone Tag */
     public static int SEARCH_RESULT_DONE_TAG = 0;
 
-    /**  SearchResultDone Value */
+    /** SearchResultDone Value */
     public static int SEARCH_RESULT_DONE_VALUE = 1;
 
-    /**  SearchResultDone Ldap Result (we will switch the grammar here) */
+    /** SearchResultDone Ldap Result (we will switch the grammar here) */
     public static int SEARCH_RESULT_DONE_LDAP_RESULT = 2;
 
     /** Last state */
     public static int LAST_SEARCH_RESULT_DONE_STATE = 3;
 
-    //=========================================================================
-    // LdapResult grammar states 
-    //=========================================================================
+    // =========================================================================
+    // LdapResult grammar states
+    // =========================================================================
     /** LdapResult Code Tag */
     public static int LDAP_RESULT_CODE_TAG = 0;
 
@@ -355,9 +355,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_LDAP_RESULT_STATE = 11;
 
-    //=========================================================================
-    // SearchRequest grammar states 
-    //=========================================================================
+    // =========================================================================
+    // SearchRequest grammar states
+    // =========================================================================
     // SearchRequest ----------------------------------------------------------
     /** SearchRequest Tag */
     public static int SEARCH_REQUEST_TAG = 0;
@@ -431,9 +431,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_SEARCH_REQUEST_STATE = 20;
 
-    //=========================================================================
-    // Filter grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Filter grammar states
+    // =========================================================================
     /** Filter Tag */
     public static int FILTER_TAG = 0;
 
@@ -518,7 +518,7 @@ public class LdapStatesEnum implements IStates
     /** Filter Value */
     public static int FILTER_ATTRIBUTE_DESC_VALUE = 23;
 
-    // Filter Assertion Value  ------------------------------------------------
+    // Filter Assertion Value ------------------------------------------------
     /** Filter Assertion Value Tag */
     public static int FILTER_ASSERTION_VALUE_TAG = 24;
 
@@ -528,9 +528,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_FILTER_STATE = 26;
 
-    //=========================================================================
-    // SubSstrings Filter grammar states 
-    //=========================================================================
+    // =========================================================================
+    // SubSstrings Filter grammar states
+    // =========================================================================
     /** Substrings Filter Tag */
     public static int SUBSTRINGS_FILTER_TAG = 0;
 
@@ -544,7 +544,8 @@ public class LdapStatesEnum implements IStates
     /** Substrings Filter Type Value */
     public static int SUBSTRINGS_FILTER_TYPE_VALUE = 3;
 
-    // Substrings Filter sequence Substrings -------------------------------------------
+    // Substrings Filter sequence Substrings
+    // -------------------------------------------
     /** Substrings Filter Substrings sequence Tag */
     public static int SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_TAG = 4;
 
@@ -558,14 +559,16 @@ public class LdapStatesEnum implements IStates
     /** Substrings Filter Substrings Initial Value */
     public static int SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_VALUE = 7;
 
-    // Substrings Filter Substrings Substrings Any ---------------------------------------
+    // Substrings Filter Substrings Substrings Any
+    // ---------------------------------------
     /** Substrings Filter Substrings Substrings Any Tag */
     public static int SUBSTRINGS_FILTER_SUBSTRINGS_ANY_OR_FINAL_TAG = 8;
 
     /** Substrings Filter Substrings Substrings Any Value */
     public static int SUBSTRINGS_FILTER_SUBSTRINGS_ANY_VALUE = 9;
 
-    // Substrings Filter Substrings Substrings Final -------------------------------------
+    // Substrings Filter Substrings Substrings Final
+    // -------------------------------------
     /** Substrings Filter Substrings Substrings Final Tag */
     public static int SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_TAG = 10;
 
@@ -575,9 +578,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_SUBSTRING_FILTER_STATE = 12;
 
-    //=========================================================================
-    // Matching rule assertion Filter grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Matching rule assertion Filter grammar states
+    // =========================================================================
     // Matching rule assertion -----------------------------------------
     /** Matching rule assertion Tag */
     public static int MATCHING_RULE_ASSERTION_TAG = 0;
@@ -585,40 +588,44 @@ public class LdapStatesEnum implements IStates
     /** Matching rule assertion Value */
     public static int MATCHING_RULE_ASSERTION_VALUE = 1;
 
-    // Matching rule assertion Matching rule ---------------------------------------------------
+    // Matching rule assertion Matching rule
+    // ---------------------------------------------------
     /** Matching rule assertion matching rule assertion rule Tag */
     public static int MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG = 2;
 
     /** Matching rule assertion matching rule Value */
     public static int MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE = 3;
 
-    // Matching rule assertion type ---------------------------------------------------
+    // Matching rule assertion type
+    // ---------------------------------------------------
     /** Matching rule assertion type Tag */
     public static int MATCHING_RULE_ASSERTION_TYPE_OR_MATCH_VALUE_TAG = 4;
 
     /** Matching rule assertion type Value */
     public static int MATCHING_RULE_ASSERTION_TYPE_VALUE = 5;
 
-    // Matching rule assertion matchValue ---------------------------------------------
+    // Matching rule assertion matchValue
+    // ---------------------------------------------
     /** Matching rule assertion matchValue Tag */
     public static int MATCHING_RULE_ASSERTION_MATCH_VALUE_TAG = 6;
 
-    /** Matching rule assertion  matchValue Value */
+    /** Matching rule assertion matchValue Value */
     public static int MATCHING_RULE_ASSERTION_MATCH_VALUE_VALUE = 7;
 
-    // Matching rule assertion  dnAttributes -------------------------------------------
-    /** Matching rule assertion  dnAttributes Tag */
+    // Matching rule assertion dnAttributes
+    // -------------------------------------------
+    /** Matching rule assertion dnAttributes Tag */
     public static int MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_TAG = 8;
 
-    /** Matching rule assertion  dnAttributes Value */
+    /** Matching rule assertion dnAttributes Value */
     public static int MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_VALUE = 9;
 
     /** The last state */
     public static int LAST_MATCHING_RULE_ASSERTION_STATE = 10;
 
-    //=========================================================================
-    // Search Result Entry grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Search Result Entry grammar states
+    // =========================================================================
     // Search Result Entry ----------------------------------------------------
     /** Search Result Entry Tag */
     public static int SEARCH_RESULT_ENTRY_TAG = 0;
@@ -654,7 +661,7 @@ public class LdapStatesEnum implements IStates
     /** Type Value */
     public static int SEARCH_RESULT_ENTRY_TYPE_VALUE = 9;
 
-    // Vals  ------------------------------------------------------------------
+    // Vals ------------------------------------------------------------------
     /** Attribute vals Tag */
     public static int SEARCH_RESULT_ENTRY_VALS_TAG = 10;
 
@@ -675,9 +682,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_SEARCH_RESULT_ENTRY_STATE = 15;
 
-    //=========================================================================
-    // Modify Request grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Modify Request grammar states
+    // =========================================================================
     // Modify Request ---------------------------------------------------------
     /** Modify Request Tag */
     public static int MODIFY_REQUEST_TAG = 0;
@@ -713,7 +720,7 @@ public class LdapStatesEnum implements IStates
     /** Operation Value */
     public static int MODIFY_REQUEST_OPERATION_VALUE = 9;
 
-    // Modification  ----------------------------------------------------------
+    // Modification ----------------------------------------------------------
     /** Modification Tag */
     public static int MODIFY_REQUEST_MODIFICATION_TAG = 10;
 
@@ -738,7 +745,7 @@ public class LdapStatesEnum implements IStates
     /** Attribute value Tag */
     public static int MODIFY_REQUEST_ATTRIBUTE_VALUE_TAG = 16;
 
-    /** Attribute value Value*/
+    /** Attribute value Value */
     public static int MODIFY_REQUEST_ATTRIBUTE_VALUE_VALUE = 17;
 
     /** The loop */
@@ -747,9 +754,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_MODIFY_REQUEST_STATE = 19;
 
-    //=========================================================================
-    // Search Result Reference grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Search Result Reference grammar states
+    // =========================================================================
     // Search Result Reference ------------------------------------------------
     /** Search Result Reference Tag */
     public static int SEARCH_RESULT_REFERENCE_TAG = 0;
@@ -770,9 +777,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_SEARCH_RESULT_REFERENCE_STATE_STATE = 5;
 
-    //=========================================================================
-    // Add Request grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Add Request grammar states
+    // =========================================================================
     // Add Request ------------------------------------------------------------
     /** Add Request Tag */
     public static int ADD_REQUEST_TAG = 0;
@@ -828,9 +835,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_ADD_REQUEST_STATE = 13;
 
-    //=========================================================================
-    // Modify DN Request grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Modify DN Request grammar states
+    // =========================================================================
     // Modify DN Request ------------------------------------------------------
     /** Modify DN Tag */
     public static int MODIFY_DN_REQUEST_TAG = 0;
@@ -869,9 +876,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_MODIFY_DN_REQUEST_STATE = 10;
 
-    //=========================================================================
-    // Del Request grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Del Request grammar states
+    // =========================================================================
     // Del Request ------------------------------------------------------------
     /** Del Tag */
     public static int DEL_REQUEST_TAG = 0;
@@ -882,9 +889,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_DEL_REQUEST_STATE = 2;
 
-    //=========================================================================
-    // Compare Request grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Compare Request grammar states
+    // =========================================================================
     // Compare Request --------------------------------------------------------
     /** Compare Tag */
     public static int COMPARE_REQUEST_TAG = 0;
@@ -923,9 +930,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_COMPARE_REQUEST_STATE = 10;
 
-    //=========================================================================
-    // Extended Request grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Extended Request grammar states
+    // =========================================================================
     // Extended Request -------------------------------------------------------
     /** Extended Tag */
     public static int EXTENDED_REQUEST_TAG = 0;
@@ -950,9 +957,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_EXTENDED_REQUEST_STATE = 6;
 
-    //=========================================================================
-    // Extended Response grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Extended Response grammar states
+    // =========================================================================
     // Extended Response ------------------------------------------------------
     /** Extended Response Tag */
     public static int EXTENDED_RESPONSE_TAG = 0;
@@ -967,7 +974,8 @@ public class LdapStatesEnum implements IStates
     /** Name Value */
     public static int EXTENDED_RESPONSE_NAME_VALUE = 4;
 
-    // Response ------------------------------------------------------------------
+    // Response
+    // ------------------------------------------------------------------
     /** Response Tag */
     public static int EXTENDED_RESPONSE_RESPONSE_TAG = 5;
 
@@ -977,9 +985,9 @@ public class LdapStatesEnum implements IStates
     /** The last state */
     public static int LAST_EXTENDED_RESPONSE_STATE = 7;
 
-    //=========================================================================
+    // =========================================================================
     // Grammars declaration.
-    //=========================================================================
+    // =========================================================================
     /** Ldap Message Grammar */
     public static final int LDAP_MESSAGE_GRAMMAR_SWITCH = 0x0100;
 
@@ -998,7 +1006,7 @@ public class LdapStatesEnum implements IStates
     /** LdapControl grammar number */
     public static final int LDAP_CONTROL_GRAMMAR = 2;
 
-    /** Bind Request  Grammar */
+    /** Bind Request Grammar */
     public static final int BIND_REQUEST_GRAMMAR_SWITCH = 0x0400;
 
     /** BindRequest grammar number */
@@ -1123,458 +1131,225 @@ public class LdapStatesEnum implements IStates
 
     /** ExtendedResponse number */
     public static final int EXTENDED_RESPONSE_GRAMMAR = 23;
-    
+
     /** SubstringFilter grammar */
     public static final int SUBSTRING_FILTER_GRAMMAR_SWITCH = 0x1900;
 
     /** SubstringFilter number */
     public static final int SUBSTRING_FILTER_GRAMMAR = 24;
-    
+
     /** MatchingRuleAssertion grammar */
     public static final int MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH = 0x1A00;
 
     /** MatchingRuleAssertion number */
     public static final int MATCHING_RULE_ASSERTION_GRAMMAR = 25;
-    
+
     /** The total number of grammars used */
     public static final int NB_GRAMMARS = 26;
 
-    //=========================================================================
-    // Grammar switches debug strings 
-    //=========================================================================
+    // =========================================================================
+    // Grammar switches debug strings
+    // =========================================================================
     /** A string representation of grammars */
-    private static String[] GrammarSwitchString =
-        new String[]
-        {
-            "LDAP_MESSAGE_GRAMMAR_SWITCH",
-            "LDAP_RESULT_GRAMMAR_SWITCH",
-            "LDAP_CONTROL_GRAMMAR_SWITCH",
-            "BIND_REQUEST_GRAMMAR_SWITCH",
-            "BIND_RESPONSE_GRAMMAR_SWITCH",
-            "UNBIND_REQUEST_GRAMMAR_SWITCH",
-            "ABANDON_RESPONSE_GRAMMAR_SWITCH",
-            "ADD_RESPONSE_GRAMMAR_SWITCH",
-            "COMPARE_RESPONSE_GRAMMAR_SWITCH",
-            "DEL_RESPONSE_GRAMMAR_SWITCH",
-            "MODIFY_RESPONSE_GRAMMAR_SWITCH",
-            "MODIFY_DN_RESPONSE_GRAMMAR_SWITCH",
-            "SEARCH_RESULT_DONE_GRAMMAR_SWITCH",
-            "SEARCH_REQUEST_GRAMMAR_SWITCH",
-            "FILTER_GRAMMAR_SWITCH",
-            "SEARCH_RESULT_ENTRY_GRAMMAR_SWITCH",
-            "MODIFY_REQUEST_GRAMMAR_SWITCH",
-            "SEARCH_RESULT_REFERENCE_GRAMMAR_SWITCH",
-            "ADD_REQUEST_GRAMMAR_SWITCH",
-            "MODIFY_DN_REQUEST_GRAMMAR_SWITCH",
-            "DEL_REQUEST_GRAMMAR_SWITCH",
-            "COMPARE_REQUEST_GRAMMAR_SWITCH",
-            "EXTENDED_REQUEST_GRAMMAR_SWITCH",
-            "EXTENDED_RESPONSE_GRAMMAR_SWITCH",
-            "SUBSTRING_FILTER_GRAMMAR_SWITCH",
-            "MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH"
-        };
+    private static String[] GrammarSwitchString = new String[]
+        { "LDAP_MESSAGE_GRAMMAR_SWITCH", "LDAP_RESULT_GRAMMAR_SWITCH", "LDAP_CONTROL_GRAMMAR_SWITCH",
+            "BIND_REQUEST_GRAMMAR_SWITCH", "BIND_RESPONSE_GRAMMAR_SWITCH", "UNBIND_REQUEST_GRAMMAR_SWITCH",
+            "ABANDON_RESPONSE_GRAMMAR_SWITCH", "ADD_RESPONSE_GRAMMAR_SWITCH", "COMPARE_RESPONSE_GRAMMAR_SWITCH",
+            "DEL_RESPONSE_GRAMMAR_SWITCH", "MODIFY_RESPONSE_GRAMMAR_SWITCH", "MODIFY_DN_RESPONSE_GRAMMAR_SWITCH",
+            "SEARCH_RESULT_DONE_GRAMMAR_SWITCH", "SEARCH_REQUEST_GRAMMAR_SWITCH", "FILTER_GRAMMAR_SWITCH",
+            "SEARCH_RESULT_ENTRY_GRAMMAR_SWITCH", "MODIFY_REQUEST_GRAMMAR_SWITCH",
+            "SEARCH_RESULT_REFERENCE_GRAMMAR_SWITCH", "ADD_REQUEST_GRAMMAR_SWITCH", "MODIFY_DN_REQUEST_GRAMMAR_SWITCH",
+            "DEL_REQUEST_GRAMMAR_SWITCH", "COMPARE_REQUEST_GRAMMAR_SWITCH", "EXTENDED_REQUEST_GRAMMAR_SWITCH",
+            "EXTENDED_RESPONSE_GRAMMAR_SWITCH", "SUBSTRING_FILTER_GRAMMAR_SWITCH",
+            "MATCHING_RULE_ASSERTION_GRAMMAR_SWITCH" };
 
-    //=========================================================================
-    // States debug strings 
-    //=========================================================================
+    // =========================================================================
+    // States debug strings
+    // =========================================================================
     /** A string representation of all the states */
-    private static String[] LdapMessageString =
-        new String[]
-        {
-            "LDAP_MESSAGE_TAG",
-            "LDAP_MESSAGE_VALUE",
-            "LDAP_MESSAGE_ID_TAG",
-            "LDAP_MESSAGE_ID_VALUE",
-            "PROTOCOL_OP_TAG",
-            "PROTOCOL_OP_VALUE"
-        };
+    private static String[] LdapMessageString = new String[]
+        { "LDAP_MESSAGE_TAG", "LDAP_MESSAGE_VALUE", "LDAP_MESSAGE_ID_TAG", "LDAP_MESSAGE_ID_VALUE", "PROTOCOL_OP_TAG",
+            "PROTOCOL_OP_VALUE" };
 
     /** A string representation of all the LdapResult states */
-    private static String[] LdapResultString =
-        new String[]
-        {
-            "LDAP_RESULT_CODE_TAG",
-            "LDAP_RESULT_CODE_VALUE",
-            "LDAP_RESULT_MATCHED_DN_TAG",
-            "LDAP_RESULT_MATCHED_DN_VALUE",
-            "LDAP_RESULT_ERROR_MESSAGE_TAG",
-            "LDAP_RESULT_ERROR_MESSAGE_VALUE",
-            "LDAP_RESULT_REFERRAL_SEQUENCE_TAG",
-            "LDAP_RESULT_REFERRAL_SEQUENCE_VALUE",
-            "LDAP_RESULT_REFERRAL_TAG",
-            "LDAP_RESULT_REFERRAL_VALUE",
-            "LDAP_RESULT_REFERRAL_LOOP_TAG"
-        };
+    private static String[] LdapResultString = new String[]
+        { "LDAP_RESULT_CODE_TAG", "LDAP_RESULT_CODE_VALUE", "LDAP_RESULT_MATCHED_DN_TAG",
+            "LDAP_RESULT_MATCHED_DN_VALUE", "LDAP_RESULT_ERROR_MESSAGE_TAG", "LDAP_RESULT_ERROR_MESSAGE_VALUE",
+            "LDAP_RESULT_REFERRAL_SEQUENCE_TAG", "LDAP_RESULT_REFERRAL_SEQUENCE_VALUE", "LDAP_RESULT_REFERRAL_TAG",
+            "LDAP_RESULT_REFERRAL_VALUE", "LDAP_RESULT_REFERRAL_LOOP_TAG" };
 
     /** A string representation of all the controls states */
-    private static String[] LdapControlString =
-        new String[]
-        {
-            "CONTROLS_TAG",
-            "CONTROLS_VALUE",
-            "CONTROL_TAG",
-            "CONTROL_VALUE",
-            "CONTROL_TYPE_TAG",
-            "CONTROL_TYPE_VALUE",
-            "CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG",
-            "CONTROL_CRITICALITY_VALUE",
-            "CONTROL_LOOP_OR_VALUE_TAG",
-            "CONTROL_VALUE_VALUE",
-            "CONTROL_LOOP_OR_END_TAG"
-        };
+    private static String[] LdapControlString = new String[]
+        { "CONTROLS_TAG", "CONTROLS_VALUE", "CONTROL_TAG", "CONTROL_VALUE", "CONTROL_TYPE_TAG", "CONTROL_TYPE_VALUE",
+            "CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG", "CONTROL_CRITICALITY_VALUE", "CONTROL_LOOP_OR_VALUE_TAG",
+            "CONTROL_VALUE_VALUE", "CONTROL_LOOP_OR_END_TAG" };
 
     /** A string representation of all the Bind Request states */
-    private static String[] BindRequestString =
-        new String[]
-        {
-            "BIND_REQUEST_TAG",
-            "BIND_REQUEST_VALUE",
-            "BIND_REQUEST_VERSION_TAG",
-            "BIND_REQUEST_VERSION_VALUE",
-            "BIND_REQUEST_NAME_TAG",
-            "BIND_REQUEST_NAME_VALUE",
-            "BIND_REQUEST_AUTHENTICATION_CHOICE_TAG",
-            "BIND_REQUEST_AUTHENTICATION_SIMPLE_VALUE",
-            "BIND_REQUEST_AUTHENTICATION_SASL_VALUE",
-            "BIND_REQUEST_AUTHENTICATION_MECHANISM_TAG",
-            "BIND_REQUEST_AUTHENTICATION_MECHANISM_VALUE",
-            "BIND_REQUEST_AUTHENTICATION_CREDENTIALS_TAG",
-            "BIND_REQUEST_AUTHENTICATION_CREDENTIALS_VALUE",
-        };
+    private static String[] BindRequestString = new String[]
+        { "BIND_REQUEST_TAG", "BIND_REQUEST_VALUE", "BIND_REQUEST_VERSION_TAG", "BIND_REQUEST_VERSION_VALUE",
+            "BIND_REQUEST_NAME_TAG", "BIND_REQUEST_NAME_VALUE", "BIND_REQUEST_AUTHENTICATION_CHOICE_TAG",
+            "BIND_REQUEST_AUTHENTICATION_SIMPLE_VALUE", "BIND_REQUEST_AUTHENTICATION_SASL_VALUE",
+            "BIND_REQUEST_AUTHENTICATION_MECHANISM_TAG", "BIND_REQUEST_AUTHENTICATION_MECHANISM_VALUE",
+            "BIND_REQUEST_AUTHENTICATION_CREDENTIALS_TAG", "BIND_REQUEST_AUTHENTICATION_CREDENTIALS_VALUE", };
 
     /** A string representation of all the BindResponse states */
-    private static String[] BindResponseString =
-        new String[]
-        {
-            "BIND_RESPONSE_TAG",
-            "BIND_RESPONSE_VALUE",
-            "BIND_RESPONSE_LDAP_RESULT",
-            "BIND_RESPONSE_SERVER_SASL_CREDS_TAG",
-            "BIND_RESPONSE_SERVER_SASL_CREDS_VALUE"
-        };
+    private static String[] BindResponseString = new String[]
+        { "BIND_RESPONSE_TAG", "BIND_RESPONSE_VALUE", "BIND_RESPONSE_LDAP_RESULT",
+            "BIND_RESPONSE_SERVER_SASL_CREDS_TAG", "BIND_RESPONSE_SERVER_SASL_CREDS_VALUE" };
 
     /** A string representation of all the Unbind Request states */
-    private static String[] UnBindRequestString =
-        new String[]
-        {
-            "UNBIND_REQUEST_TAG",
-            "UNBIND_REQUEST_VALUE"
-        };
+    private static String[] UnBindRequestString = new String[]
+        { "UNBIND_REQUEST_TAG", "UNBIND_REQUEST_VALUE" };
 
     /** A string representation of all the Abandon Request states */
-    private static String[] AbandonRequestString =
-        new String[]
-        {
-            "ABANDON_REQUEST_MESSAGE_ID_TAG",
-            "ABANDON_REQUEST_MESSAGE_ID_VALUE"
-        };
+    private static String[] AbandonRequestString = new String[]
+        { "ABANDON_REQUEST_MESSAGE_ID_TAG", "ABANDON_REQUEST_MESSAGE_ID_VALUE" };
 
     /** A string representation of all the Add Response states */
-    private static String[] AddResponseString =
-        new String[]
-        {
-            "ADD_RESPONSE_TAG",
-            "ADD_RESPONSE_VALUE",
-            "ADD_RESPONSE_LDAP_RESULT"
-        };
+    private static String[] AddResponseString = new String[]
+        { "ADD_RESPONSE_TAG", "ADD_RESPONSE_VALUE", "ADD_RESPONSE_LDAP_RESULT" };
 
     /** A string representation of all the Compare Response states */
-    private static String[] CompareResponseString =
-        new String[]
-        {
-            "COMPARE_RESPONSE_TAG",
-            "COMPARE_RESPONSE_VALUE",
-            "COMPARE_RESPONSE_LDAP_RESULT"
-        };
+    private static String[] CompareResponseString = new String[]
+        { "COMPARE_RESPONSE_TAG", "COMPARE_RESPONSE_VALUE", "COMPARE_RESPONSE_LDAP_RESULT" };
 
     /** A string representation of all the Del Response states */
-    private static String[] DelResponseString =
-        new String[]
-        {
-            "DEL_RESPONSE_TAG",
-            "DEL_RESPONSE_VALUE",
-            "DEL_RESPONSE_LDAP_RESULT"
-        };
+    private static String[] DelResponseString = new String[]
+        { "DEL_RESPONSE_TAG", "DEL_RESPONSE_VALUE", "DEL_RESPONSE_LDAP_RESULT" };
 
     /** A string representation of all the Modify Response states */
-    private static String[] ModifyResponseString =
-        new String[]
-        {
-            "MODIFY_RESPONSE_TAG",
-            "MODIFY_RESPONSE_VALUE",
-            "MODIFY_RESPONSE_LDAP_RESULT"
-        };
+    private static String[] ModifyResponseString = new String[]
+        { "MODIFY_RESPONSE_TAG", "MODIFY_RESPONSE_VALUE", "MODIFY_RESPONSE_LDAP_RESULT" };
 
     /** A string representation of all the Modify DN Response states */
-    private static String[] ModifyDNResponseString =
-        new String[]
-        {
-            "MODIFY_DN_RESPONSE_TAG",
-            "MODIFY_DN_RESPONSE_VALUE",
-            "MODIFY_DN_RESPONSE_LDAP_RESULT"
-        };
+    private static String[] ModifyDNResponseString = new String[]
+        { "MODIFY_DN_RESPONSE_TAG", "MODIFY_DN_RESPONSE_VALUE", "MODIFY_DN_RESPONSE_LDAP_RESULT" };
 
     /** A string representation of all the Search Result Done states */
-    private static String[] SearchResultDoneString =
-        new String[]
-        {
-            "SEARCH_RESULT_DONE_TAG",
-            "SEARCH_RESULT_DONE_VALUE",
-            "SEARCH_RESULT_DONE_LDAP_RESULT"
-        };
+    private static String[] SearchResultDoneString = new String[]
+        { "SEARCH_RESULT_DONE_TAG", "SEARCH_RESULT_DONE_VALUE", "SEARCH_RESULT_DONE_LDAP_RESULT" };
 
     /** A string representation of all the Search Request states */
-    private static String[] SearchRequestString =
-        new String[]
-        {
-            "SEARCH_REQUEST_TAG",
-            "SEARCH_REQUEST_VALUE",
-            "SEARCH_REQUEST_BASE_OBJECT_TAG",
-            "SEARCH_REQUEST_BASE_OBJECT_VALUE",
-            "SEARCH_REQUEST_SCOPE_TAG",
-            "SEARCH_REQUEST_SCOPE_VALUE",
-            "SEARCH_REQUEST_DEREF_ALIASES_TAG",
-            "SEARCH_REQUEST_DEREF_ALIASES_VALUE",
-            "SEARCH_REQUEST_SIZE_LIMIT_TAG",
-            "SEARCH_REQUEST_SIZE_LIMIT_VALUE",
-            "SEARCH_REQUEST_TIME_LIMIT_TAG",
-            "SEARCH_REQUEST_TIME_LIMIT_VALUE",
-            "SEARCH_REQUEST_TYPES_ONLY_TAG",
-            "SEARCH_REQUEST_TYPES_ONLY_VALUE",
-            "SEARCH_REQUEST_FILTER",
-            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_LIST_TAG",
-            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_LIST_VALUE",
-            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_TAG",
-            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_VALUE",
-            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_LOOP_TAG"
-        };
+    private static String[] SearchRequestString = new String[]
+        { "SEARCH_REQUEST_TAG", "SEARCH_REQUEST_VALUE", "SEARCH_REQUEST_BASE_OBJECT_TAG",
+            "SEARCH_REQUEST_BASE_OBJECT_VALUE", "SEARCH_REQUEST_SCOPE_TAG", "SEARCH_REQUEST_SCOPE_VALUE",
+            "SEARCH_REQUEST_DEREF_ALIASES_TAG", "SEARCH_REQUEST_DEREF_ALIASES_VALUE", "SEARCH_REQUEST_SIZE_LIMIT_TAG",
+            "SEARCH_REQUEST_SIZE_LIMIT_VALUE", "SEARCH_REQUEST_TIME_LIMIT_TAG", "SEARCH_REQUEST_TIME_LIMIT_VALUE",
+            "SEARCH_REQUEST_TYPES_ONLY_TAG", "SEARCH_REQUEST_TYPES_ONLY_VALUE", "SEARCH_REQUEST_FILTER",
+            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_LIST_TAG", "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_LIST_VALUE",
+            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_TAG", "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_VALUE",
+            "SEARCH_REQUEST_ATTRIBUTE_DESCRIPTION_LOOP_TAG" };
 
     /** A string representation of all the Filter states */
-    private static String[] FilterString =
-        new String[]
-        {
-            "FILTER_TAG",
-            "FILTER_AND_TAG",
-            "FILTER_AND_VALUE",
-            "FILTER_OR_TAG",
-            "FILTER_OR_VALUE",
-            "FILTER_NOT_TAG",
-            "FILTER_NOT_VALUE",
-            "FILTER_EQUALITY_MATCH_TAG",
-            "FILTER_EQUALITY_MATCH_VALUE",
-            "FILTER_SUBSTRINGS_TAG",
-            "FILTER_SUBSTRINGS_VALUE",
-            "FILTER_GREATER_OR_EQUAL_TAG",
-            "FILTER_GREATER_OR_EQUAL_VALUE",
-            "FILTER_LESS_OR_EQUAL_TAG",
-            "FILTER_LESS_OR_EQUAL_VALUE",
-            "FILTER_PRESENT_TAG",
-            "FILTER_PRESENT_VALUE",
-            "FILTER_APPROX_MATCH_TAG",
-            "FILTER_APPROX_MATCH_VALUE",
-            "FILTER_EXTENSIBLE_MATCH_TAG",
-            "FILTER_EXTENSIBLE_MATCH_VALUE",
-            "FILTER_LOOP_TAG",
-            "FILTER_ATTRIBUTE_DESC_TAG",
-            "FILTER_ATTRIBUTE_DESC_VALUE",
-            "FILTER_ASSERTION_VALUE_TAG",
-            "FILTER_ASSERTION_VALUE_VALUE",
-        };
+    private static String[] FilterString = new String[]
+        { "FILTER_TAG", "FILTER_AND_TAG", "FILTER_AND_VALUE", "FILTER_OR_TAG", "FILTER_OR_VALUE", "FILTER_NOT_TAG",
+            "FILTER_NOT_VALUE", "FILTER_EQUALITY_MATCH_TAG", "FILTER_EQUALITY_MATCH_VALUE", "FILTER_SUBSTRINGS_TAG",
+            "FILTER_SUBSTRINGS_VALUE", "FILTER_GREATER_OR_EQUAL_TAG", "FILTER_GREATER_OR_EQUAL_VALUE",
+            "FILTER_LESS_OR_EQUAL_TAG", "FILTER_LESS_OR_EQUAL_VALUE", "FILTER_PRESENT_TAG", "FILTER_PRESENT_VALUE",
+            "FILTER_APPROX_MATCH_TAG", "FILTER_APPROX_MATCH_VALUE", "FILTER_EXTENSIBLE_MATCH_TAG",
+            "FILTER_EXTENSIBLE_MATCH_VALUE", "FILTER_LOOP_TAG", "FILTER_ATTRIBUTE_DESC_TAG",
+            "FILTER_ATTRIBUTE_DESC_VALUE", "FILTER_ASSERTION_VALUE_TAG", "FILTER_ASSERTION_VALUE_VALUE", };
 
     /** A string representation of all the search result entry states */
-    private static String[] SearchResultEntryString =
-        new String[]
-        {
-            "SEARCH_RESULT_ENTRY_TAG",
-            "SEARCH_RESULT_ENTRY_VALUE",
-            "SEARCH_RESULT_ENTRY_OBJECT_NAME_TAG",
-            "SEARCH_RESULT_ENTRY_OBJECT_NAME_VALUE",
-            "SEARCH_RESULT_ENTRY_ATTRIBUTES_TAG",
-            "SEARCH_RESULT_ENTRY_ATTRIBUTES_VALUE",
-            "SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_TAG",
-            "SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_VALUE",
-            "SEARCH_RESULT_ENTRY_TYPE_TAG",
-            "SEARCH_RESULT_ENTRY_TYPE_VALUE",
-            "SEARCH_RESULT_ENTRY_VALS_TAG",
-            "SEARCH_RESULT_ENTRY_VALS_VALUE",
-            "SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_TAG",
-            "SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_VALUE",
-            "SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_OR_LIST_TAG"
-        };
+    private static String[] SearchResultEntryString = new String[]
+        { "SEARCH_RESULT_ENTRY_TAG", "SEARCH_RESULT_ENTRY_VALUE", "SEARCH_RESULT_ENTRY_OBJECT_NAME_TAG",
+            "SEARCH_RESULT_ENTRY_OBJECT_NAME_VALUE", "SEARCH_RESULT_ENTRY_ATTRIBUTES_TAG",
+            "SEARCH_RESULT_ENTRY_ATTRIBUTES_VALUE", "SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_TAG",
+            "SEARCH_RESULT_ENTRY_PARTIAL_ATTRIBUTE_LIST_VALUE", "SEARCH_RESULT_ENTRY_TYPE_TAG",
+            "SEARCH_RESULT_ENTRY_TYPE_VALUE", "SEARCH_RESULT_ENTRY_VALS_TAG", "SEARCH_RESULT_ENTRY_VALS_VALUE",
+            "SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_TAG", "SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_VALUE",
+            "SEARCH_RESULT_ENTRY_ATTRIBUTE_VALUE_OR_LIST_TAG" };
 
     /** A string representation of all the modify request states */
-    private static String[] ModifyRequestString =
-        new String[]
-        {
-            "MODIFY_REQUEST_TAG",
-            "MODIFY_REQUEST_VALUE",
-            "MODIFY_REQUEST_OBJECT_TAG",
-            "MODIFY_REQUEST_OBJECT_VALUE",
-            "MODIFY_REQUEST_MODIFICATIONS_TAG",
-            "MODIFY_REQUEST_MODIFICATIONS_VALUE",
-            "MODIFY_REQUEST_MODIFICATION_SEQUENCE_TAG",
-            "MODIFY_REQUEST_MODIFICATION_SEQUENCE_VALUE",
-            "MODIFY_REQUEST_OPERATION_TAG",
-            "MODIFY_REQUEST_OPERATION_VALUE",
-            "MODIFY_REQUEST_MODIFICATION_TAG",
-            "MODIFY_REQUEST_MODIFICATION_VALUE",
-            "MODIFY_REQUEST_TYPE_TAG",
-            "MODIFY_REQUEST_TYPE_VALUE",
-            "MODIFY_REQUEST_VALS_TAG",
-            "MODIFY_REQUEST_VALS_VALUE",
-            "MODIFY_REQUEST_ATTRIBUTE_VALUE_TAG",
-            "MODIFY_REQUEST_ATTRIBUTE_VALUE_VALUE",
-            "MODIFY_REQUEST_ATTRIBUTE_VALUE_OR_MODIFICATION_TAG"
-        };
+    private static String[] ModifyRequestString = new String[]
+        { "MODIFY_REQUEST_TAG", "MODIFY_REQUEST_VALUE", "MODIFY_REQUEST_OBJECT_TAG", "MODIFY_REQUEST_OBJECT_VALUE",
+            "MODIFY_REQUEST_MODIFICATIONS_TAG", "MODIFY_REQUEST_MODIFICATIONS_VALUE",
+            "MODIFY_REQUEST_MODIFICATION_SEQUENCE_TAG", "MODIFY_REQUEST_MODIFICATION_SEQUENCE_VALUE",
+            "MODIFY_REQUEST_OPERATION_TAG", "MODIFY_REQUEST_OPERATION_VALUE", "MODIFY_REQUEST_MODIFICATION_TAG",
+            "MODIFY_REQUEST_MODIFICATION_VALUE", "MODIFY_REQUEST_TYPE_TAG", "MODIFY_REQUEST_TYPE_VALUE",
+            "MODIFY_REQUEST_VALS_TAG", "MODIFY_REQUEST_VALS_VALUE", "MODIFY_REQUEST_ATTRIBUTE_VALUE_TAG",
+            "MODIFY_REQUEST_ATTRIBUTE_VALUE_VALUE", "MODIFY_REQUEST_ATTRIBUTE_VALUE_OR_MODIFICATION_TAG" };
 
     /** A string representation of all the search result reference states */
-    private static String[] SearchResultReferenceString =
-        new String[]
-        {
-            "SEARCH_RESULT_REFERENCE_TAG",
-            "SEARCH_RESULT_REFERENCE_VALUE",
-            "SEARCH_RESULT_REFERENCE_LDAP_URL_TAG",
-            "SEARCH_RESULT_REFERENCE_LDAP_URL_VALUE",
-            "SEARCH_RESULT_REFERENCE_LOOP_OR_END_TAG"
-        };
+    private static String[] SearchResultReferenceString = new String[]
+        { "SEARCH_RESULT_REFERENCE_TAG", "SEARCH_RESULT_REFERENCE_VALUE", "SEARCH_RESULT_REFERENCE_LDAP_URL_TAG",
+            "SEARCH_RESULT_REFERENCE_LDAP_URL_VALUE", "SEARCH_RESULT_REFERENCE_LOOP_OR_END_TAG" };
 
     /** A string representation of all the add request states */
-    private static String[] AddRequestString =
-        new String[]
-        {
-            "ADD_REQUEST_TAG",
-            "ADD_REQUEST_VALUE",
-            "ADD_REQUEST_ENTRY_TAG",
-            "ADD_REQUEST_ENTRY_VALUE",
-            "ADD_REQUEST_ATTRIBUTE_LIST_TAG",
-            "ADD_REQUEST_ATTRIBUTE_LIST_VALUE",
-            "ADD_REQUEST_ATTRIBUTE_TAG",
-            "ADD_REQUEST_ATTRIBUTE_VALUE",
-            "ADD_REQUEST_ATTRIBUTE_TYPE_TAG",
-            "ADD_REQUEST_ATTRIBUTE_TYPE_VALUE",
-            "ADD_REQUEST_ATTRIBUTE_VALS_TAG",
-            "ADD_REQUEST_ATTRIBUTE_VALS_VALUE",
-            "ADD_REQUEST_ATTRIBUTE_VAL_TAG",
-            "ADD_REQUEST_ATTRIBUTE_VAL_VALUE",
-            "ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END"
-        };
+    private static String[] AddRequestString = new String[]
+        { "ADD_REQUEST_TAG", "ADD_REQUEST_VALUE", "ADD_REQUEST_ENTRY_TAG", "ADD_REQUEST_ENTRY_VALUE",
+            "ADD_REQUEST_ATTRIBUTE_LIST_TAG", "ADD_REQUEST_ATTRIBUTE_LIST_VALUE", "ADD_REQUEST_ATTRIBUTE_TAG",
+            "ADD_REQUEST_ATTRIBUTE_VALUE", "ADD_REQUEST_ATTRIBUTE_TYPE_TAG", "ADD_REQUEST_ATTRIBUTE_TYPE_VALUE",
+            "ADD_REQUEST_ATTRIBUTE_VALS_TAG", "ADD_REQUEST_ATTRIBUTE_VALS_VALUE", "ADD_REQUEST_ATTRIBUTE_VAL_TAG",
+            "ADD_REQUEST_ATTRIBUTE_VAL_VALUE", "ADD_REQUEST_ATTRIBUTE_VAL_OR_ATTRIBUTE_OR_END" };
 
     /** A string representation of all the ModifyDN request states */
-    private static String[] ModifyDNRequestString =
-        new String[]
-        {
-            "MODIFY_DN_REQUEST_TAG",
-            "MODIFY_DN_REQUEST_VALUE",
-            "MODIFY_DN_REQUEST_ENTRY_TAG",
-            "MODIFY_DN_REQUEST_ENTRY_VALUE",
-            "MODIFY_DN_REQUEST_NEW_RDN_TAG",
-            "MODIFY_DN_REQUEST_NEW_RDN_VALUE",
-            "MODIFY_DN_REQUEST_DELETE_OLD_RDN_TAG",
-            "MODIFY_DN_REQUEST_DELETE_OLD_RDN_VALUE",
-            "MODIFY_DN_REQUEST_NEW_SUPERIOR_TAG",
-            "MODIFY_DN_REQUEST_NEW_SUPERIOR_VALUE"
-        };
+    private static String[] ModifyDNRequestString = new String[]
+        { "MODIFY_DN_REQUEST_TAG", "MODIFY_DN_REQUEST_VALUE", "MODIFY_DN_REQUEST_ENTRY_TAG",
+            "MODIFY_DN_REQUEST_ENTRY_VALUE", "MODIFY_DN_REQUEST_NEW_RDN_TAG", "MODIFY_DN_REQUEST_NEW_RDN_VALUE",
+            "MODIFY_DN_REQUEST_DELETE_OLD_RDN_TAG", "MODIFY_DN_REQUEST_DELETE_OLD_RDN_VALUE",
+            "MODIFY_DN_REQUEST_NEW_SUPERIOR_TAG", "MODIFY_DN_REQUEST_NEW_SUPERIOR_VALUE" };
 
     /** A string representation of all the delete request states */
-    private static String[] DelRequestString =
-        new String[]
-        {
-            "DEL_REQUEST_TAG",
-            "DEL_REQUEST_VALUE"
-        };
+    private static String[] DelRequestString = new String[]
+        { "DEL_REQUEST_TAG", "DEL_REQUEST_VALUE" };
 
     /** A string representation of all the compare request states */
-    private static String[] CompareRequestString =
-        new String[]
-        {
-            "COMPARE_REQUEST_TAG",
-            "COMPARE_REQUEST_VALUE",
-            "COMPARE_REQUEST_ENTRY_TAG",
-            "COMPARE_REQUEST_ENTRY_VALUE",
-            "COMPARE_REQUEST_AVA_TAG",
-            "COMPARE_REQUEST_AVA_VALUE",
-            "COMPARE_REQUEST_ATTRIBUTE_DESC_TAG",
-            "COMPARE_REQUEST_ATTRIBUTE_DESC_VALUE",
-            "COMPARE_REQUEST_ASSERTION_VALUE_TAG",
-            "COMPARE_REQUEST_ASSERTION_VALUE_VALUE"
-        };
+    private static String[] CompareRequestString = new String[]
+        { "COMPARE_REQUEST_TAG", "COMPARE_REQUEST_VALUE", "COMPARE_REQUEST_ENTRY_TAG", "COMPARE_REQUEST_ENTRY_VALUE",
+            "COMPARE_REQUEST_AVA_TAG", "COMPARE_REQUEST_AVA_VALUE", "COMPARE_REQUEST_ATTRIBUTE_DESC_TAG",
+            "COMPARE_REQUEST_ATTRIBUTE_DESC_VALUE", "COMPARE_REQUEST_ASSERTION_VALUE_TAG",
+            "COMPARE_REQUEST_ASSERTION_VALUE_VALUE" };
 
     /** A string representation of all the extended request states */
-    private static String[] ExtendedRequestString =
-        new String[]
-        {
-            "EXTENDED_REQUEST_TAG",
-            "EXTENDED_REQUEST_VALUE",
-            "EXTENDED_REQUEST_NAME_TAG",
-            "EXTENDED_REQUEST_NAME_VALUE",
-            "EXTENDED_REQUEST_VALUE_TAG",
-            "EXTENDED_REQUEST_VALUE_VALUE"
-        };
+    private static String[] ExtendedRequestString = new String[]
+        { "EXTENDED_REQUEST_TAG", "EXTENDED_REQUEST_VALUE", "EXTENDED_REQUEST_NAME_TAG", "EXTENDED_REQUEST_NAME_VALUE",
+            "EXTENDED_REQUEST_VALUE_TAG", "EXTENDED_REQUEST_VALUE_VALUE" };
 
     /** A string representation of all the extended response states */
-    private static String[] ExtendedResponseString =
-        new String[]
-        {
-            "EXTENDED_RESPONSE_TAG",
-            "EXTENDED_RESPONSE_VALUE",
-            "EXTENDED_RESPONSE_LDAP_RESULT",
-            "EXTENDED_RESPONSE_NAME_TAG",
-            "EXTENDED_RESPONSE_NAME_VALUE",
-            "EXTENDED_RESPONSE_VALUE_TAG",
-            "EXTENDED_RESPONSE_VALUE_VALUE"
-        };
+    private static String[] ExtendedResponseString = new String[]
+        { "EXTENDED_RESPONSE_TAG", "EXTENDED_RESPONSE_VALUE", "EXTENDED_RESPONSE_LDAP_RESULT",
+            "EXTENDED_RESPONSE_NAME_TAG", "EXTENDED_RESPONSE_NAME_VALUE", "EXTENDED_RESPONSE_VALUE_TAG",
+            "EXTENDED_RESPONSE_VALUE_VALUE" };
 
     /** A string representation of all the substring filter states */
-    private static String[] SubstringFilterString =
-        new String[]
-        {
-            "SUBSTRINGS_FILTER_TAG",
-            "SUBSTRINGS_FILTER_VALUE",
-            "SUBSTRINGS_FILTER_TYPE_TAG",
-            "SUBSTRINGS_FILTER_TYPE_VALUE",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_TAG",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_VALUE",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_OR_ANY_OR_FINAL_TAG",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_VALUE",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_ANY_OR_FINAL_TAG",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_ANY_VALUE",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_TAG",
-            "SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_VALUE"
-        };
+    private static String[] SubstringFilterString = new String[]
+        { "SUBSTRINGS_FILTER_TAG", "SUBSTRINGS_FILTER_VALUE", "SUBSTRINGS_FILTER_TYPE_TAG",
+            "SUBSTRINGS_FILTER_TYPE_VALUE", "SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_SEQ_VALUE", "SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_OR_ANY_OR_FINAL_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_INITIAL_VALUE", "SUBSTRINGS_FILTER_SUBSTRINGS_ANY_OR_FINAL_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_ANY_VALUE", "SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_TAG",
+            "SUBSTRINGS_FILTER_SUBSTRINGS_FINAL_VALUE" };
 
     /** A string representation of all the Matching Rule Assertion states */
-    private static String[] MatchingRuleAssertionString =
-        new String[]
-        {
-            "MATCHING_RULE_ASSERTION_TAG",
-            "MATCHING_RULE_ASSERTION_VALUE",
-            "MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG",
-            "MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE",
-            "MATCHING_RULE_ASSERTION_TYPE_OR_MATCH_VALUE_TAG",
-            "MATCHING_RULE_ASSERTION_TYPE_VALUE",
-            "MATCHING_RULE_ASSERTION_MATCH_VALUE_TAG",
-            "MATCHING_RULE_ASSERTION_MATCH_VALUE_VALUE",
-            "MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_TAG",
-            "MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_VALUE"
-        };
+    private static String[] MatchingRuleAssertionString = new String[]
+        { "MATCHING_RULE_ASSERTION_TAG", "MATCHING_RULE_ASSERTION_VALUE",
+            "MATCHING_RULE_ASSERTION_MATCHING_RULE_OR_TYPE_TAG", "MATCHING_RULE_ASSERTION_MATCHING_RULE_VALUE",
+            "MATCHING_RULE_ASSERTION_TYPE_OR_MATCH_VALUE_TAG", "MATCHING_RULE_ASSERTION_TYPE_VALUE",
+            "MATCHING_RULE_ASSERTION_MATCH_VALUE_TAG", "MATCHING_RULE_ASSERTION_MATCH_VALUE_VALUE",
+            "MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_TAG", "MATCHING_RULE_ASSERTION_DN_ATTRIBUTES_VALUE" };
 
     /** The instance */
     private static LdapStatesEnum instance = new LdapStatesEnum();
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * This is a private constructor. This class is a singleton
-     *
      */
     private LdapStatesEnum()
     {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get an instance of this class
+     * 
      * @return An instance on this class
      */
     public static IStates getInstance()
@@ -1582,49 +1357,82 @@ public class LdapStatesEnum implements IStates
         return instance;
     }
 
+
     /**
      * Get the grammar name
-     * @param grammar The grammar code
+     * 
+     * @param grammar
+     *            The grammar code
      * @return The grammar name
      */
-    public String getGrammarName(int grammar)
+    public String getGrammarName( int grammar )
     {
-        switch (grammar)
+        switch ( grammar )
         {
-            case LDAP_MESSAGE_GRAMMAR            : return "LDAP_MESSAGE_GRAMMAR";
-            case LDAP_RESULT_GRAMMAR             : return "LDAP_RESULT_GRAMMAR";
-            case LDAP_CONTROL_GRAMMAR            : return "LDAP_CONTROL_GRAMMAR";
-            case BIND_REQUEST_GRAMMAR            : return "BIND_REQUEST_GRAMMAR";
-            case BIND_RESPONSE_GRAMMAR           : return "BIND_RESPONSE_GRAMMAR";
-            case UNBIND_REQUEST_GRAMMAR          : return "UNBIND_REQUEST_GRAMMAR";
-            case ABANDON_REQUEST_GRAMMAR         : return "ABANDON_REQUEST_GRAMMAR";
-            case ADD_RESPONSE_GRAMMAR            : return "ADD_RESPONSE_GRAMMAR";
-            case COMPARE_RESPONSE_GRAMMAR        : return "COMPARE_RESPONSE_GRAMMAR";
-            case DEL_RESPONSE_GRAMMAR            : return "DEL_RESPONSE_GRAMMAR";
-            case MODIFY_RESPONSE_GRAMMAR         : return "MODIFY_RESPONSE_GRAMMAR";
-            case MODIFY_DN_RESPONSE_GRAMMAR      : return "MODIFY_DN_RESPONSE_GRAMMAR";
-            case SEARCH_RESULT_DONE_GRAMMAR      : return "SEARCH_RESULT_DONE_GRAMMAR";
-            case SEARCH_REQUEST_GRAMMAR          : return "SEARCH_REQUEST_GRAMMAR";
-            case FILTER_GRAMMAR                  : return "FILTER_GRAMMAR";
-            case SEARCH_RESULT_ENTRY_GRAMMAR     : return "SEARCH_RESULT_ENTRY_GRAMMAR";
-            case MODIFY_REQUEST_GRAMMAR          : return "MODIFY_REQUEST_GRAMMAR";
-            case SEARCH_RESULT_REFERENCE_GRAMMAR : return "SEARCH_RESULT_REFERENCE_GRAMMAR";
-            case ADD_REQUEST_GRAMMAR             : return "ADD_REQUEST_GRAMMAR";
-            case MODIFY_DN_REQUEST_GRAMMAR       : return "MODIFY_DN_REQUEST_GRAMMAR";
-            case DEL_REQUEST_GRAMMAR             : return "DEL_REQUEST_GRAMMAR";
-            case COMPARE_REQUEST_GRAMMAR         : return "COMPARE_REQUEST_GRAMMAR";
-            case EXTENDED_REQUEST_GRAMMAR        : return "EXTENDED_REQUEST_GRAMMAR";
-            case EXTENDED_RESPONSE_GRAMMAR       : return "EXTENDED_RESPONSE_GRAMMAR";
-            case SUBSTRING_FILTER_GRAMMAR        : return "SUBSTRING_FILTER_GRAMMAR";
-            case MATCHING_RULE_ASSERTION_GRAMMAR : return "MATCHING_RULE_ASSERTION_GRAMMAR";
+            case LDAP_MESSAGE_GRAMMAR:
+                return "LDAP_MESSAGE_GRAMMAR";
+            case LDAP_RESULT_GRAMMAR:
+                return "LDAP_RESULT_GRAMMAR";
+            case LDAP_CONTROL_GRAMMAR:
+                return "LDAP_CONTROL_GRAMMAR";
+            case BIND_REQUEST_GRAMMAR:
+                return "BIND_REQUEST_GRAMMAR";
+            case BIND_RESPONSE_GRAMMAR:
+                return "BIND_RESPONSE_GRAMMAR";
+            case UNBIND_REQUEST_GRAMMAR:
+                return "UNBIND_REQUEST_GRAMMAR";
+            case ABANDON_REQUEST_GRAMMAR:
+                return "ABANDON_REQUEST_GRAMMAR";
+            case ADD_RESPONSE_GRAMMAR:
+                return "ADD_RESPONSE_GRAMMAR";
+            case COMPARE_RESPONSE_GRAMMAR:
+                return "COMPARE_RESPONSE_GRAMMAR";
+            case DEL_RESPONSE_GRAMMAR:
+                return "DEL_RESPONSE_GRAMMAR";
+            case MODIFY_RESPONSE_GRAMMAR:
+                return "MODIFY_RESPONSE_GRAMMAR";
+            case MODIFY_DN_RESPONSE_GRAMMAR:
+                return "MODIFY_DN_RESPONSE_GRAMMAR";
+            case SEARCH_RESULT_DONE_GRAMMAR:
+                return "SEARCH_RESULT_DONE_GRAMMAR";
+            case SEARCH_REQUEST_GRAMMAR:
+                return "SEARCH_REQUEST_GRAMMAR";
+            case FILTER_GRAMMAR:
+                return "FILTER_GRAMMAR";
+            case SEARCH_RESULT_ENTRY_GRAMMAR:
+                return "SEARCH_RESULT_ENTRY_GRAMMAR";
+            case MODIFY_REQUEST_GRAMMAR:
+                return "MODIFY_REQUEST_GRAMMAR";
+            case SEARCH_RESULT_REFERENCE_GRAMMAR:
+                return "SEARCH_RESULT_REFERENCE_GRAMMAR";
+            case ADD_REQUEST_GRAMMAR:
+                return "ADD_REQUEST_GRAMMAR";
+            case MODIFY_DN_REQUEST_GRAMMAR:
+                return "MODIFY_DN_REQUEST_GRAMMAR";
+            case DEL_REQUEST_GRAMMAR:
+                return "DEL_REQUEST_GRAMMAR";
+            case COMPARE_REQUEST_GRAMMAR:
+                return "COMPARE_REQUEST_GRAMMAR";
+            case EXTENDED_REQUEST_GRAMMAR:
+                return "EXTENDED_REQUEST_GRAMMAR";
+            case EXTENDED_RESPONSE_GRAMMAR:
+                return "EXTENDED_RESPONSE_GRAMMAR";
+            case SUBSTRING_FILTER_GRAMMAR:
+                return "SUBSTRING_FILTER_GRAMMAR";
+            case MATCHING_RULE_ASSERTION_GRAMMAR:
+                return "MATCHING_RULE_ASSERTION_GRAMMAR";
 
-            default                              : return "UNKNOWN";
+            default:
+                return "UNKNOWN";
         }
     }
 
+
     /**
      * Get the grammar name
-     * @param grammar The grammar class
+     * 
+     * @param grammar
+     *            The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -1733,17 +1541,20 @@ public class LdapStatesEnum implements IStates
         {
             return "MATCHING_RULE_ASSERTION_GRAMMAR";
         }
-        else 
+        else
         {
             return "UNKNOWN GRAMMAR";
         }
     }
 
+
     /**
      * Get the string representing the state
      * 
-     * @param grammar The current grammar being used
-     * @param state The state number
+     * @param grammar
+     *            The current grammar being used
+     * @param state
+     *            The state number
      * @return The String representing the state
      */
     public String getState( int grammar, int state )
@@ -1760,85 +1571,88 @@ public class LdapStatesEnum implements IStates
             switch ( grammar )
             {
 
-                case LDAP_MESSAGE_GRAMMAR :
+                case LDAP_MESSAGE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "LDAP_MESSAGE_END_STATE" : LdapMessageString[state] );
 
-                case LDAP_RESULT_GRAMMAR :
+                case LDAP_RESULT_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "LDAP_RESULT_END_STATE" : LdapResultString[state] );
 
-                case LDAP_CONTROL_GRAMMAR :
+                case LDAP_CONTROL_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "LDAP_CONTROL_END_STATE" : LdapControlString[state] );
 
-                case BIND_REQUEST_GRAMMAR :
+                case BIND_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "BIND_REQUEST_END_STATE" : BindRequestString[state] );
 
-                case BIND_RESPONSE_GRAMMAR :
+                case BIND_RESPONSE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "IND_RESPONSE_END_STATE" : BindResponseString[state] );
 
-                case UNBIND_REQUEST_GRAMMAR :
+                case UNBIND_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "UNBIND_REQUEST_END_STATE" : UnBindRequestString[state] );
 
-                case ABANDON_REQUEST_GRAMMAR :
+                case ABANDON_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "ABANDON_REQUEST_END_STATE" : AbandonRequestString[state] );
 
-                case ADD_RESPONSE_GRAMMAR :
+                case ADD_RESPONSE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "ADD_RESPONSE_END_STATE" : AddResponseString[state] );
 
-                case COMPARE_RESPONSE_GRAMMAR :
+                case COMPARE_RESPONSE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "COMPARE_RESPONSE_END_STATE" : CompareResponseString[state] );
 
-                case DEL_RESPONSE_GRAMMAR :
+                case DEL_RESPONSE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "DEL_RESPONSE_END_STATE" : DelResponseString[state] );
 
-                case MODIFY_RESPONSE_GRAMMAR :
+                case MODIFY_RESPONSE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "MODIFY_RESPONSE_END_STATE" : ModifyResponseString[state] );
 
-                case MODIFY_DN_RESPONSE_GRAMMAR :
+                case MODIFY_DN_RESPONSE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "MODIFY_DN_RESPONSE_END_STATE" : ModifyDNResponseString[state] );
 
-                case SEARCH_RESULT_DONE_GRAMMAR :
+                case SEARCH_RESULT_DONE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "SEARCH_RESULT_DONE_END_STATE" : SearchResultDoneString[state] );
 
-                case SEARCH_REQUEST_GRAMMAR :
+                case SEARCH_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "SEARCH_REQUEST_END_STATE" : SearchRequestString[state] );
 
-                case SEARCH_RESULT_REFERENCE_GRAMMAR :
-                    return ( ( state == GRAMMAR_END ) ? "SEARCH_RESULT_REFERENCE_END_STATE" : SearchResultReferenceString[state] );
+                case SEARCH_RESULT_REFERENCE_GRAMMAR:
+                    return ( ( state == GRAMMAR_END ) ? "SEARCH_RESULT_REFERENCE_END_STATE"
+                        : SearchResultReferenceString[state] );
 
-                case FILTER_GRAMMAR :
+                case FILTER_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "FILTER_END_STATE" : FilterString[state] );
 
-                case SEARCH_RESULT_ENTRY_GRAMMAR :
-                    return ( ( state == GRAMMAR_END ) ? "SEARCH_RESULT_ENTRY_END_STATE" : SearchResultEntryString[state] );
+                case SEARCH_RESULT_ENTRY_GRAMMAR:
+                    return ( ( state == GRAMMAR_END ) ? "SEARCH_RESULT_ENTRY_END_STATE"
+                        : SearchResultEntryString[state] );
 
-                case MODIFY_REQUEST_GRAMMAR :
+                case MODIFY_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "MODIFY_REQUEST_END_STATE" : ModifyRequestString[state] );
 
-                case ADD_REQUEST_GRAMMAR :
+                case ADD_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "ADD_REQUEST_END_STATE" : AddRequestString[state] );
 
-                case MODIFY_DN_REQUEST_GRAMMAR :
+                case MODIFY_DN_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "MODIFY_DN_REQUEST_END_STATE" : ModifyDNRequestString[state] );
 
-                case DEL_REQUEST_GRAMMAR :
+                case DEL_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "DEL_REQUEST_END_STATE" : DelRequestString[state] );
 
-                case COMPARE_REQUEST_GRAMMAR :
+                case COMPARE_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "COMPARE_REQUEST_END_STATE" : CompareRequestString[state] );
 
-                case EXTENDED_REQUEST_GRAMMAR :
+                case EXTENDED_REQUEST_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "EXTENDED_REQUEST_END_STATE" : ExtendedRequestString[state] );
 
-                case EXTENDED_RESPONSE_GRAMMAR :
+                case EXTENDED_RESPONSE_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "EXTENDED_RESPONSE_END_STATE" : ExtendedResponseString[state] );
 
-                case SUBSTRING_FILTER_GRAMMAR :
+                case SUBSTRING_FILTER_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "SUBSTRING_FILTER_END_STATE" : SubstringFilterString[state] );
 
-                case MATCHING_RULE_ASSERTION_GRAMMAR :
-                    return ( ( state == GRAMMAR_END ) ? "MATCHING_RULE_ASSERTION_END_STATE" : MatchingRuleAssertionString[state] );
+                case MATCHING_RULE_ASSERTION_GRAMMAR:
+                    return ( ( state == GRAMMAR_END ) ? "MATCHING_RULE_ASSERTION_END_STATE"
+                        : MatchingRuleAssertionString[state] );
 
-                default :
+                default:
                     return "UNKNOWN";
             }
         }

@@ -16,10 +16,12 @@
  */
 package org.apache.directory.shared.ldap.codec.util;
 
+
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
 
 /**
  * Test the class DNUtils
@@ -28,9 +30,10 @@ import junit.framework.TestCase;
  */
 public class DNUtilsTest extends TestCase
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
-	/**
+    /**
      * Test the DNUtils AreEquals method
      */
     public void testAreEqualsFull()
@@ -38,6 +41,7 @@ public class DNUtilsTest extends TestCase
         // Full compare
         Assert.assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 0, "azerty" ) );
     }
+
 
     /**
      * Test the DNUtils AreEquals method
@@ -48,6 +52,7 @@ public class DNUtilsTest extends TestCase
         Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "Azerty" ) );
     }
 
+
     /**
      * Test the DNUtils AreEquals method
      */
@@ -57,6 +62,7 @@ public class DNUtilsTest extends TestCase
         Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "" ) );
     }
 
+
     /**
      * Test the DNUtils AreEquals method
      */
@@ -65,7 +71,8 @@ public class DNUtilsTest extends TestCase
         // First character is !=
         Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "Azerty" ) );
     }
-    
+
+
     /**
      * Test the DNUtils AreEquals method
      */
@@ -74,7 +81,8 @@ public class DNUtilsTest extends TestCase
         // First character is !=
         Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azeRty" ) );
     }
-    
+
+
     /**
      * Test the DNUtils AreEquals method
      */
@@ -83,7 +91,8 @@ public class DNUtilsTest extends TestCase
         // First character is !=
         Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azertY" ) );
     }
-    
+
+
     /**
      * Test the DNUtils AreEquals method
      */
@@ -98,6 +107,7 @@ public class DNUtilsTest extends TestCase
         Assert.assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 5, "y" ) );
     }
 
+
     /**
      * Test the DNUtils AreEquals method
      */
@@ -106,6 +116,7 @@ public class DNUtilsTest extends TestCase
         // length too short
         Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azertyiop" ) );
     }
+
 
     /**
      * Test the DNUtils AreEquals method
@@ -116,6 +127,7 @@ public class DNUtilsTest extends TestCase
         Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "ertyiop" ) );
     }
 
+
     /**
      * Test the DNUtils AreEquals method
      */
@@ -124,6 +136,7 @@ public class DNUtilsTest extends TestCase
         // last character
         Assert.assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 5, "y" ) );
     }
+
 
     /**
      * Test the DNUtils AreEquals method

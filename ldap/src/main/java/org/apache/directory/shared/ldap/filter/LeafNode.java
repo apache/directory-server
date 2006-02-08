@@ -18,56 +18,61 @@ package org.apache.directory.shared.ldap.filter;
 
 
 /**
- * Abstract base class for leaf nodes within the expression filter tree. 
- *
+ * Abstract base class for leaf nodes within the expression filter tree.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class LeafNode extends AbstractExprNode
 {
     /** attribute on which this leaf is based */
-    private final String m_attribute ;
+    private final String m_attribute;
+
 
     /**
      * Creates a leaf node.
-     *
-     * @param a_attribute the attribute this node is based on
-     * @param a_type the type of this leaf node
+     * 
+     * @param a_attribute
+     *            the attribute this node is based on
+     * @param a_type
+     *            the type of this leaf node
      */
-    protected LeafNode( String a_attribute, int a_type )
+    protected LeafNode(String a_attribute, int a_type)
     {
-        super ( a_type ) ;
+        super( a_type );
 
-        m_attribute = a_attribute ;
+        m_attribute = a_attribute;
     }
 
 
     /**
      * Gets whether this node is a leaf - the answer is always true here.
-     *
+     * 
      * @return true always
      */
-    public final boolean isLeaf(  )
+    public final boolean isLeaf()
     {
-        return true ;
+        return true;
     }
 
 
     /**
      * Gets the attribute this leaf node is based on.
-     *
+     * 
      * @return the attribute asserted
      */
-    public final String getAttribute(  )
+    public final String getAttribute()
     {
-        return m_attribute ;
+        return m_attribute;
     }
 
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean equals(Object other)
+    public boolean equals( Object other )
     {
         if ( null == other )
         {
@@ -78,13 +83,13 @@ public abstract class LeafNode extends AbstractExprNode
         {
             return true;
         }
-        
-        if ( ! ( other instanceof LeafNode ) )
+
+        if ( !( other instanceof LeafNode ) )
         {
             return false;
         }
-        
-        if ( ! super.equals( other ) )
+
+        if ( !super.equals( other ) )
         {
             return false;
         }

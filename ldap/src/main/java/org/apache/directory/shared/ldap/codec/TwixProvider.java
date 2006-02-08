@@ -30,14 +30,15 @@ import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
 
 /**
  * The Twix specific BER provider for LDAP.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev: 157671 $
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev: 157671 $
  */
 public class TwixProvider extends Provider
 {
     /** The Transformer for this provider */
     private final TwixTransformer transformer;
+
 
     /**
      * Creates an instance of a Twix based LDAP BER Provider.
@@ -49,54 +50,58 @@ public class TwixProvider extends Provider
     }
 
     /** the singleton TwixProvider instance */
-    private static TwixProvider singleton ;
+    private static TwixProvider singleton;
+
 
     /**
-     * Gets a handle on the singleton TwixProvider.  Only one instance should
+     * Gets a handle on the singleton TwixProvider. Only one instance should
      * have to be instantiated for the entire jvm.
-     *
+     * 
      * @return the singleton SnaccProvider instance
      */
     public synchronized static Provider getProvider()
     {
         if ( singleton == null )
         {
-            singleton = new TwixProvider() ;
+            singleton = new TwixProvider();
         }
 
-        return singleton ;
+        return singleton;
     }
+
 
     /**
      * Gets the encoder associated with this provider.
-     *
+     * 
      * @return the provider's encoder.
      * @throws org.apache.directory.shared.ldap.message.spi.ProviderException
-     *          if the provider or its encoder cannot be found
+     *             if the provider or its encoder cannot be found
      */
     public ProviderEncoder getEncoder() throws ProviderException
     {
         return new TwixEncoder( this );
     }
 
+
     /**
      * Gets the decoder associated with this provider.
-     *
+     * 
      * @return the provider's decoder.
      * @throws org.apache.directory.shared.ldap.message.spi.ProviderException
-     *          if the provider or its decoder cannot be found
+     *             if the provider or its decoder cannot be found
      */
     public ProviderDecoder getDecoder( Set binaries ) throws ProviderException
     {
         return new TwixDecoder( this, binaries );
     }
 
+
     /**
      * Gets the transformer associated with this provider.
-     *
+     * 
      * @return the provider's transformer.
      * @throws org.apache.directory.shared.ldap.message.spi.ProviderException
-     *          if the provider or its transformer cannot be found
+     *             if the provider or its transformer cannot be found
      */
     public TransformerSpi getTransformer() throws ProviderException
     {

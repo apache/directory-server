@@ -18,8 +18,8 @@ package org.apache.directory.shared.ldap.schema;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.Name ;
-import javax.naming.NamingException ;
+import javax.naming.Name;
+import javax.naming.NamingException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.shared.ldap.name.DnOidContainer;
@@ -34,51 +34,55 @@ import org.apache.directory.shared.ldap.name.LdapDnParser;
  */
 public class LdapDnNormalizer implements Normalizer
 {
-	private static DnOidContainer oidContainer = DnOidContainer.getInstance();
-	
-	public static void setOidContainer( DnOidContainer oidContainer )
-	{
-		LdapDnNormalizer.oidContainer = oidContainer;
-	}
-	
+    private static DnOidContainer oidContainer = DnOidContainer.getInstance();
+
+
+    public static void setOidContainer( DnOidContainer oidContainer )
+    {
+        LdapDnNormalizer.oidContainer = oidContainer;
+    }
+
+
     /**
      * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
      */
     public Object normalize( Object value ) throws NamingException
     {
-    	if ( value instanceof String )
-    	{
-    		return LdapDnNormalizer.normalize( (String)value );
-    	}
-    	else
-    	{
-    		return LdapDnNormalizer.normalize( (Name)value );
-    	}
+        if ( value instanceof String )
+        {
+            return LdapDnNormalizer.normalize( ( String ) value );
+        }
+        else
+        {
+            return LdapDnNormalizer.normalize( ( Name ) value );
+        }
     }
 
+
     private static Name internalNormalize( Name name ) throws InvalidNameException, NamingException
-	{
-    	// First, check that the mapping table is filled with 
-    	// values, else we can return the name as is.
-    	if ( oidContainer == null )
-    	{
-    		return name;
-    	}
-    	
+    {
+        // First, check that the mapping table is filled with
+        // values, else we can return the name as is.
+        if ( oidContainer == null )
+        {
+            return name;
+        }
+
         // Loop on every NameComponent
         if ( name.size() != 0 )
         {
-        	//name = LdapDN.toOidName( name, DnOidContainer.getOids() );
+            // name = LdapDN.toOidName( name, DnOidContainer.getOids() );
         }
-        
+
         return name;
-	}
-	
+    }
+
+
     /**
-     * Normalizes the value if it is a Name or a String returning the String 
-     * representation always.  If the value is not a String or a Name the object
+     * Normalizes the value if it is a Name or a String returning the String
+     * representation always. If the value is not a String or a Name the object
      * is returned as is.
-     *
+     * 
      * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
      */
     public static Object normalize( Name value ) throws NamingException
@@ -87,15 +91,16 @@ public class LdapDnNormalizer implements Normalizer
         {
             return null;
         }
-        
-        return internalNormalize( (Name)value );
+
+        return internalNormalize( ( Name ) value );
     }
 
+
     /**
-     * Normalizes the value if it is a Name or a String returning the String 
-     * representation always.  If the value is not a String or a Name the object
+     * Normalizes the value if it is a Name or a String returning the String
+     * representation always. If the value is not a String or a Name the object
      * is returned as is.
-     *
+     * 
      * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
      */
     public static Object normalize( String value ) throws NamingException
@@ -104,15 +109,16 @@ public class LdapDnNormalizer implements Normalizer
         {
             return null;
         }
-        
+
         return internalNormalize( LdapDnParser.getNameParser().parse( value ) );
     }
-    
+
+
     /**
      * A String representation of this normalizer
      */
     public String toString()
     {
-    	return "DNNormalizer";
+        return "DNNormalizer";
     }
 }

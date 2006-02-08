@@ -15,7 +15,6 @@
  *
  */
 
-
 package org.apache.directory.shared.ldap.name;
 
 
@@ -26,21 +25,24 @@ import antlr.LexerSharedInputState;
 
 /**
  * A reusable lexer class extended from antlr generated antlrValueLexer
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ReusableAntlrValueLexer extends antlrValueLexer
 {
     private boolean savedCaseSensitive;
+
     private boolean savedCaseSensitiveLiterals;
+
 
     /**
      * Creates a ReusableAntlrValueLexer instance.
-     *
-     * @param in the input to the lexer
+     * 
+     * @param in
+     *            the input to the lexer
      */
-    public ReusableAntlrValueLexer( LexerSharedInputState inputState )
+    public ReusableAntlrValueLexer(LexerSharedInputState inputState)
     {
         super( inputState );
         savedCaseSensitive = getCaseSensitive();
@@ -50,15 +52,16 @@ public class ReusableAntlrValueLexer extends antlrValueLexer
 
     /**
      * Resets the state of an antlr lexer and initializes it with new input.
-     *
-     * @param in the input to the lexer
+     * 
+     * @param in
+     *            the input to the lexer
      */
     public void prepareNextInput( LexerSharedInputState inputState )
     {
         this.setInputState( inputState );
-        
-        this.setCaseSensitive(savedCaseSensitive);
-        
+
+        this.setCaseSensitive( savedCaseSensitive );
+
         // no set method for this protected field.
         this.caseSensitiveLiterals = savedCaseSensitiveLiterals;
     }

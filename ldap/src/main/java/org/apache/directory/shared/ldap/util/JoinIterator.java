@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 
 /**
  * An Iterator that joins the results of many iterators.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -31,22 +31,25 @@ public class JoinIterator implements Iterator
 {
     /** the iterators whose results are joined */
     private final Iterator[] iterators;
+
     private int index;
 
 
     /**
      * Creates an Iterator that joins other Iterators.
-     *
-     * @param iterators the Iterators whose results are joined
-     * @throws IllegalArgumentException if a null array argument, or one with
-     * less than 2 elements is used
+     * 
+     * @param iterators
+     *            the Iterators whose results are joined
+     * @throws IllegalArgumentException
+     *             if a null array argument, or one with less than 2 elements is
+     *             used
      */
-    public JoinIterator( Iterator[] iterators )
+    public JoinIterator(Iterator[] iterators)
     {
         if ( iterators == null || iterators.length < 2 )
         {
-            throw new IllegalArgumentException( "Iterator[] arg must not be " +
-                    "null, empty or composed of less than two Iterators" );
+            throw new IllegalArgumentException( "Iterator[] arg must not be "
+                + "null, empty or composed of less than two Iterators" );
         }
 
         this.iterators = iterators;
@@ -62,7 +65,8 @@ public class JoinIterator implements Iterator
 
     public boolean hasNext()
     {
-        for ( /** nada */ ; index < iterators.length; index++ )
+        for ( /** nada */
+        ; index < iterators.length; index++ )
         {
             if ( iterators[index].hasNext() )
             {
@@ -76,7 +80,8 @@ public class JoinIterator implements Iterator
 
     public Object next()
     {
-        for ( /** nada */ ; index < iterators.length; index++ )
+        for ( /** nada */
+        ; index < iterators.length; index++ )
         {
             if ( iterators[index].hasNext() )
             {

@@ -14,11 +14,11 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
 
 
-import java.util.Map ;
-import java.util.HashMap ;
+import java.util.Map;
+import java.util.HashMap;
 
 
 /**
@@ -27,8 +27,7 @@ import java.util.HashMap ;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractExprNode
-    implements ExprNode
+public abstract class AbstractExprNode implements ExprNode
 {
     /** equality assertion node */
     public static final int EQUALITY = 0;
@@ -58,71 +57,71 @@ public abstract class AbstractExprNode
     public static final int ASSERTION = 8;
 
     /** OR operator constant */
-    public static final int OR  = 9 ;
+    public static final int OR = 9;
 
     /** AND operator constant */
-    public static final int AND = 10 ;
+    public static final int AND = 10;
 
     /** NOT operator constant */
-    public static final int NOT = 11 ;
+    public static final int NOT = 11;
 
     /** The map of annotations */
-    private Map m_annotations ;
+    private Map m_annotations;
 
     /** node type set to enumation of constants */
-    private final int m_assertionType ;
+    private final int m_assertionType;
 
 
     /**
      * Creates an node by setting abstract node type.
-     *
-     * @param a_type the type of this leaf node
+     * 
+     * @param a_type
+     *            the type of this leaf node
      */
-    protected AbstractExprNode( int a_type )
+    protected AbstractExprNode(int a_type)
     {
         m_assertionType = a_type;
 
         switch ( m_assertionType )
         {
-        case ( APPROXIMATE ):
-            break;
+            case ( APPROXIMATE ):
+                break;
 
-        case ( EQUALITY ):
-            break;
+            case ( EQUALITY ):
+                break;
 
-        case ( EXTENSIBLE ):
-            break;
+            case ( EXTENSIBLE ):
+                break;
 
-        case ( GREATEREQ ):
-            break;
+            case ( GREATEREQ ):
+                break;
 
-        case ( LESSEQ ):
-            break;
+            case ( LESSEQ ):
+                break;
 
-        case ( PRESENCE ):
-            break;
+            case ( PRESENCE ):
+                break;
 
-        case ( SUBSTRING ):
-            break;
+            case ( SUBSTRING ):
+                break;
 
-        case ( SCOPE ):
-            break;
+            case ( SCOPE ):
+                break;
 
-        case ( ASSERTION ):
-            break;
+            case ( ASSERTION ):
+                break;
 
-        case ( OR ):
-            break;
+            case ( OR ):
+                break;
 
-        case ( AND ):
-            break;
+            case ( AND ):
+                break;
 
-        case ( NOT ):
-            break;
+            case ( NOT ):
+                break;
 
-        default:
-            throw new IllegalArgumentException( 
-                "Attribute value assertion type is undefined." );
+            default:
+                throw new IllegalArgumentException( "Attribute value assertion type is undefined." );
         }
     }
 
@@ -132,55 +131,57 @@ public abstract class AbstractExprNode
      */
     public Object get( Object a_key )
     {
-        if ( null == getAnnotations() ) 
+        if ( null == getAnnotations() )
         {
-            return null ;
+            return null;
         }
 
-        return getAnnotations().get( a_key ) ;
+        return getAnnotations().get( a_key );
     }
 
 
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#set(java.lang.Object, java.lang.Object)
+     * @see org.apache.directory.shared.ldap.filter.ExprNode#set(java.lang.Object,
+     *      java.lang.Object)
      */
     public void set( Object a_key, Object a_value )
     {
-        if ( null == getAnnotations() ) 
+        if ( null == getAnnotations() )
         {
-            m_annotations = new HashMap( 2 ) ;
+            m_annotations = new HashMap( 2 );
         }
 
-        getAnnotations().put( a_key, a_value ) ;
+        getAnnotations().put( a_key, a_value );
     }
 
-    
+
     /**
-     * Gets the annotations as a Map. 
-     *
+     * Gets the annotations as a Map.
+     * 
      * @return the annotation map.
      */
     protected Map getAnnotations()
     {
-        return m_annotations ;
+        return m_annotations;
     }
 
 
     /**
      * Gets the assertion type of this leaf node.
-     *
-     * @return the assertion or node type 
+     * 
+     * @return the assertion or node type
      */
-    public final int getAssertionType(  )
+    public final int getAssertionType()
     {
-        return m_assertionType ;
+        return m_assertionType;
     }
 
 
     /**
      * Returns the filter operator string associated with an assertion type.
-     *
-     * @param a_assertionType the assertion type value
+     * 
+     * @param a_assertionType
+     *            the assertion type value
      * @return the string representation
      * @todo Refactor these classes to use an enumeration type
      */
@@ -190,54 +191,55 @@ public abstract class AbstractExprNode
 
         switch ( a_assertionType )
         {
-        case ( APPROXIMATE ):
-            l_opstr = "~=";
+            case ( APPROXIMATE ):
+                l_opstr = "~=";
 
-            break;
+                break;
 
-        case ( EQUALITY ):
-            l_opstr = "=";
+            case ( EQUALITY ):
+                l_opstr = "=";
 
-            break;
+                break;
 
-        case ( EXTENSIBLE ):
-            l_opstr = "extensible";
+            case ( EXTENSIBLE ):
+                l_opstr = "extensible";
 
-            break;
+                break;
 
-        case ( GREATEREQ ):
-            l_opstr = ">=";
+            case ( GREATEREQ ):
+                l_opstr = ">=";
 
-            break;
+                break;
 
-        case ( LESSEQ ):
-            l_opstr = "<=";
+            case ( LESSEQ ):
+                l_opstr = "<=";
 
-            break;
+                break;
 
-        case ( PRESENCE ):
-            l_opstr = "=*";
+            case ( PRESENCE ):
+                l_opstr = "=*";
 
-            break;
+                break;
 
-        case ( SUBSTRING ):
-            l_opstr = "=";
+            case ( SUBSTRING ):
+                l_opstr = "=";
 
-            break;
+                break;
 
-        default:
-            throw new IllegalArgumentException( 
-                "Attribute value assertion type is undefined." );
+            default:
+                throw new IllegalArgumentException( "Attribute value assertion type is undefined." );
         }
-
 
         return l_opstr;
     }
-    
-    /* (non-Javadoc)
+
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean equals(Object other)
+    public boolean equals( Object other )
     {
         if ( null == other )
         {
@@ -248,12 +250,12 @@ public abstract class AbstractExprNode
         {
             return true;
         }
-        
+
         if ( !( other instanceof AbstractExprNode ) )
         {
             return false;
         }
-        
+
         AbstractExprNode otherExprNode = ( AbstractExprNode ) other;
 
         if ( otherExprNode.getAssertionType() != m_assertionType )
@@ -270,7 +272,6 @@ public abstract class AbstractExprNode
 
         // return true if both are non-null and equals() is true
 
-        return ( ( null != m_annotations && null != otherAnnotations ) &&
-                 m_annotations.equals( otherAnnotations ) );
+        return ( ( null != m_annotations && null != otherAnnotations ) && m_annotations.equals( otherAnnotations ) );
     }
 }

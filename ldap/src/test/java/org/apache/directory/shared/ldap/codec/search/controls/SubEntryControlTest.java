@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search.controls;
 
+
 import java.nio.ByteBuffer;
 
 import javax.naming.NamingException;
@@ -30,12 +31,14 @@ import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlDec
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+
 /**
  * Test the SubEntryControlTest codec
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubEntryControlTest extends TestCase {
+public class SubEntryControlTest extends TestCase
+{
     /**
      * Test the decoding of a SubEntryControl with a true visibility
      */
@@ -44,8 +47,7 @@ public class SubEntryControlTest extends TestCase {
         Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
         bb.put( new byte[]
-            {
-                0x01, 0x01, (byte)0xFF 	// Visibility ::= BOOLEAN
+            { 0x01, 0x01, ( byte ) 0xFF // Visibility ::= BOOLEAN
             } );
         bb.flip();
 
@@ -59,10 +61,11 @@ public class SubEntryControlTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         SubEntryControl control = container.getSubEntryControl();
         assertTrue( control.isVisible() );
     }
+
 
     /**
      * Test the decoding of a SubEntryControl with a false visibility
@@ -72,8 +75,7 @@ public class SubEntryControlTest extends TestCase {
         Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
         bb.put( new byte[]
-            {
-                0x01, 0x01, 0x00  // Visibility ::= BOOLEAN
+            { 0x01, 0x01, 0x00 // Visibility ::= BOOLEAN
             } );
         bb.flip();
 
@@ -87,10 +89,11 @@ public class SubEntryControlTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         SubEntryControl control = container.getSubEntryControl();
         assertFalse( control.isVisible() );
     }
+
 
     /**
      * Test the decoding of a SubEntryControl with an empty visibility
@@ -101,12 +104,10 @@ public class SubEntryControlTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate( 0x02 );
 
         bb.put( new byte[]
-            {
-                0x01, 0x00  // Visibility ::= BOOLEAN
+            { 0x01, 0x00 // Visibility ::= BOOLEAN
             } );
 
         bb.flip();
-
 
         // Allocate a LdapMessage Container
         IAsn1Container container = new SubEntryControlContainer();
@@ -115,13 +116,14 @@ public class SubEntryControlTest extends TestCase {
         try
         {
             decoder.decode( bb, container );
-            fail("We should never reach this point !!!");
+            fail( "We should never reach this point !!!" );
         }
         catch ( DecoderException de )
         {
             assertTrue( true );
         }
     }
+
 
     /**
      * Test the decoding of a bad SubEntryControl
@@ -132,12 +134,10 @@ public class SubEntryControlTest extends TestCase {
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
 
         bb.put( new byte[]
-            {
-                0x02, 0x01, 0x01  // Visibility ::= BOOLEAN
+            { 0x02, 0x01, 0x01 // Visibility ::= BOOLEAN
             } );
 
         bb.flip();
-
 
         // Allocate a LdapMessage Container
         IAsn1Container container = new SubEntryControlContainer();
@@ -146,7 +146,7 @@ public class SubEntryControlTest extends TestCase {
         try
         {
             decoder.decode( bb, container );
-            fail("We should never reach this point !!!");
+            fail( "We should never reach this point !!!" );
         }
         catch ( DecoderException de )
         {

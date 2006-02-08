@@ -1,31 +1,30 @@
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Lockable ModifyDnResponse implementation
  * 
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyDnResponseImpl
-    extends AbstractResultResponse implements ModifyDnResponse
+public class ModifyDnResponseImpl extends AbstractResultResponse implements ModifyDnResponse
 {
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
 
-
     static final long serialVersionUID = 996870775343263543L;
+
 
     /**
      * Creates a Lockable ModifyDnResponse as a reply to an ModifyDnRequest.
-     *
-     * @param id the sequence if of this response
+     * 
+     * @param id
+     *            the sequence if of this response
      */
-    public ModifyDnResponseImpl( final int id )
+    public ModifyDnResponseImpl(final int id)
     {
-        super( id, TYPE ) ;
+        super( id, TYPE );
     }
 }

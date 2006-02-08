@@ -23,16 +23,17 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * A subclass of InvalidAttributeIdentifierException which holds the LDAP resultCode
- * associated with the exception.  The LDAP result code associated with this
- * exception is the undefinedAttributeType result code value of 17.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * A subclass of InvalidAttributeIdentifierException which holds the LDAP
+ * resultCode associated with the exception. The LDAP result code associated
+ * with this exception is the undefinedAttributeType result code value of 17.
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapInvalidAttributeIdentifierException extends InvalidAttributeIdentifierException
-        implements LdapException
+public class LdapInvalidAttributeIdentifierException extends InvalidAttributeIdentifierException implements
+    LdapException
 {
     static final long serialVersionUID = 886120483680893537L;
 
@@ -49,7 +50,7 @@ public class LdapInvalidAttributeIdentifierException extends InvalidAttributeIde
     /**
      * @see javax.naming.directory.InvalidAttributeIdentifierException#InvalidAttributeIdentifierException(String)
      */
-    public LdapInvalidAttributeIdentifierException( String explanation )
+    public LdapInvalidAttributeIdentifierException(String explanation)
     {
         super( explanation );
     }

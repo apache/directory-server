@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.util;
 
+
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.slf4j.Logger;
@@ -32,34 +33,34 @@ public class BooleanDecoder
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( BooleanDecoder.class );
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Parse a byte buffer and send back a booelan.
      * 
-     * @param value The byte buffer to parse
-     *
+     * @param value
+     *            The byte buffer to parse
      * @return A boolean.
-     *
-     * @throws DecoderException Thrown if the byte stream does not contains a boolean
+     * @throws DecoderException
+     *             Thrown if the byte stream does not contains a boolean
      */
     public static boolean parse( Value value ) throws BooleanDecoderException
     {
-        byte[] bytes  = value.getData();
+        byte[] bytes = value.getData();
 
         if ( ( bytes == null ) || ( bytes.length == 0 ) )
         {
-            throw new BooleanDecoderException(
-                "The value is 0 byte long. This is not allowed for a boolean" );
+            throw new BooleanDecoderException( "The value is 0 byte long. This is not allowed for a boolean" );
         }
 
         if ( bytes.length != 1 )
         {
-            throw new BooleanDecoderException(
-                "The value is not 1 byte long. This is not allowed for a boolean" );
+            throw new BooleanDecoderException( "The value is not 1 byte long. This is not allowed for a boolean" );
         }
 
-        if ( ( bytes[0] != 0 ) && ( bytes[0] != (byte)0xFF ) )
+        if ( ( bytes[0] != 0 ) && ( bytes[0] != ( byte ) 0xFF ) )
         {
             log.warn( "A boolean must be encoded with a 0x00 or a 0xFF value" );
         }
@@ -67,4 +68,3 @@ public class BooleanDecoder
         return bytes[0] != 0;
     }
 }
-

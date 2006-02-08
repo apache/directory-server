@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The action used to set the value of a control.  This is an extension point 
- * where different controls can be plugged in (at least eventually).  For now
- * we hard code controls.
+ * The action used to set the value of a control. This is an extension point
+ * where different controls can be plugged in (at least eventually). For now we
+ * hard code controls.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -44,9 +44,10 @@ public class ControlValueAction extends GrammarAction
 {
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( ControlValueAction.class );
-    private static Map controlDecoders = new HashMap(); 
-    
-    
+
+    private static Map controlDecoders = new HashMap();
+
+
     public ControlValueAction()
     {
         super( "Sets the control value" );
@@ -54,36 +55,37 @@ public class ControlValueAction extends GrammarAction
         ControlDecoder decoder;
         decoder = new PSearchControlDecoder();
         controlDecoders.put( decoder.getControlType(), decoder );
-        
+
         decoder = new ManageDsaITControlDecoder();
         controlDecoders.put( decoder.getControlType(), decoder );
-        
+
         decoder = new SubEntryControlDecoder();
         controlDecoders.put( decoder.getControlType(), decoder );
     }
 
-    
+
     public void action( IAsn1Container container ) throws DecoderException
     {
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
         LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
         TLV tlv = ldapMessageContainer.getCurrentTLV();
-        
+
         // Get the current control
         Control control = ldapMessage.getCurrentControl();
         Value value = tlv.getValue();
 
         ControlDecoder decoder = ( ControlDecoder ) controlDecoders.get( control.getControlType() );
-        
+
         // Store the value - have to handle the special case of a 0 length value
         if ( tlv.getLength().getLength() == 0 )
         {
-            control.setControlValue( new byte[]{} );
+            control.setControlValue( new byte[]
+                {} );
         }
         else
         {
             Object decoded;
-            
+
             if ( decoder != null )
             {
                 decoded = decoder.decode( value.getData() );
@@ -92,19 +94,19 @@ public class ControlValueAction extends GrammarAction
             {
                 decoded = value.getData();
             }
-            
+
             control.setEncodedValue( value.getData() );
             control.setControlValue( decoded );
         }
-        
+
         // We can have an END transition
         ldapMessageContainer.grammarEndAllowed( true );
-        
+
         if ( log.isDebugEnabled() )
         {
             if ( control.getControlValue() instanceof byte[] )
             {
-                log.debug( "Control value : " + StringTools.dumpBytes( (byte[]) control.getControlValue() ) );
+                log.debug( "Control value : " + StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
             }
             else if ( control.getControlValue() instanceof String )
             {

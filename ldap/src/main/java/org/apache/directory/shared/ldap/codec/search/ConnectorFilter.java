@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 
@@ -25,35 +26,42 @@ import java.util.Iterator;
 
 
 /**
- * This Filter abstract class is used to store a set of filters used by OR/AND/NOT
- * filters. 
+ * This Filter abstract class is used to store a set of filters used by
+ * OR/AND/NOT filters.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class ConnectorFilter extends Filter
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The set of filters used by And/Or filters */
     protected ArrayList filterSet;
-    
+
     /** The filters length */
     protected transient int filtersLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
-     * The constructor. We wont initialize the ArrayList as it may not be used. 
+     * The constructor. We wont initialize the ArrayList as it may not be used.
      */
     public ConnectorFilter()
     {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Add a new Filter to the list.
-     * @param filter The filter to add
+     * 
+     * @param filter
+     *            The filter to add
      */
     public void addFilter( Filter filter ) throws DecoderException
     {
@@ -66,9 +74,10 @@ public abstract class ConnectorFilter extends Filter
         filterSet.add( filter );
     }
 
+
     /**
      * Get the list of filters stored in the composite filter
-     *
+     * 
      * @return And array of filters
      */
     public ArrayList getFilterSet()
@@ -76,70 +85,67 @@ public abstract class ConnectorFilter extends Filter
         return filterSet;
     }
 
+
     /**
-     * Compute the ConnectorFilter length
-     * 
-     * Length(ConnectorFilter) = sum(filterSet.computeLength())
-     * 
+     * Compute the ConnectorFilter length Length(ConnectorFilter) =
+     * sum(filterSet.computeLength())
      */
     public int computeLength()
     {
         int connectorFilterLength = 0;
-        
+
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
             Iterator filterIterator = filterSet.iterator();
-            
+
             while ( filterIterator.hasNext() )
             {
-                Filter filter = (Filter)filterIterator.next();
-                
+                Filter filter = ( Filter ) filterIterator.next();
+
                 connectorFilterLength += filter.computeLength();
             }
         }
-        
+
         return connectorFilterLength;
     }
 
+
     /**
-     * Encode the ConnectorFilter message to a PDU.
+     * Encode the ConnectorFilter message to a PDU. ConnectorFilter :
+     * filter.encode() ... filter.encode()
      * 
-     * ConnectorFilter :
-     * 
-     * filter.encode()
-     * ...
-     * filter.encode()
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         // encode each filter
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
             Iterator filterIterator = filterSet.iterator();
-            
+
             while ( filterIterator.hasNext() )
             {
-                Filter filter = (Filter)filterIterator.next();
-                
+                Filter filter = ( Filter ) filterIterator.next();
+
                 filter.encode( buffer );
             }
         }
-            
+
         return buffer;
     }
 
+
     /**
-     * Return a string compliant with RFC 2254 representing a composite
-     * filter, one of AND, OR and NOT
-     *
+     * Return a string compliant with RFC 2254 representing a composite filter,
+     * one of AND, OR and NOT
+     * 
      * @return The composite filter string
      */
     public String toString()

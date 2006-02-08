@@ -17,16 +17,17 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * A NULL object.
  */
 public class DERNull extends DERObject
 {
-    private static final byte[] zeroBytes = new byte[ 0 ];
+    private static final byte[] zeroBytes = new byte[0];
+
 
     public DERNull()
     {
-    	super( NULL, zeroBytes );
+        super( NULL, zeroBytes );
     }
 }
-

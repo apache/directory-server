@@ -25,27 +25,32 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A subclass of {@link AuthenticationException} which associates the
  * {@link ResultCodeEnum.INVALIDCREDENTIALS} value with the type.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapAuthenticationException extends AuthenticationException
-        implements LdapException
+public class LdapAuthenticationException extends AuthenticationException implements LdapException
 {
     static final long serialVersionUID = 4035795887975350185L;
 
-    public LdapAuthenticationException( String msg )
+
+    public LdapAuthenticationException(String msg)
     {
         super( msg );
     }
 
-    public LdapAuthenticationException() {}
+
+    public LdapAuthenticationException()
+    {
+    }
+
 
     /**
      * Gets ResultCodeEnum.INVALIDCREDENTIALS every time.
-     *
+     * 
      * @see LdapException#getResultCode()
      * @return ResultCodeEnum.INVALIDCREDENTIALS
      */

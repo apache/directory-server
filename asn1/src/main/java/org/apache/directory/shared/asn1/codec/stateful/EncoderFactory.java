@@ -16,9 +16,10 @@
  */
 package org.apache.directory.shared.asn1.codec.stateful;
 
+
 /**
  * A factory for creating new StatefulEncoders.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -26,8 +27,8 @@ public interface EncoderFactory
 {
     /**
      * Creates a new chunking state based encoder.
-     *
+     * 
      * @return a new chunking state based encoder
-     */ 
+     */
     StatefulEncoder createEncoder();
 }

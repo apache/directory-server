@@ -26,9 +26,9 @@ import junit.framework.TestCase;
 
 /**
  * Test cases for the AbstractMessage class' methods.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class AbstractMessageTest extends TestCase
 {
@@ -38,8 +38,10 @@ public class AbstractMessageTest extends TestCase
     public void testEqualsSameObj()
     {
         AbstractMessage msg;
-        msg = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        msg = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertTrue( msg.equals( msg ) );
     }
 
@@ -51,10 +53,14 @@ public class AbstractMessageTest extends TestCase
     {
         AbstractMessage msg0;
         AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        msg1 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
+        msg1 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertTrue( msg0.equals( msg1 ) );
         assertTrue( msg1.equals( msg0 ) );
     }
@@ -67,10 +73,14 @@ public class AbstractMessageTest extends TestCase
     {
         AbstractMessage msg0;
         AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        msg1 = new AbstractMessage( 6, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
+        msg1 = new AbstractMessage( 6, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertFalse( msg0.equals( msg1 ) );
         assertFalse( msg1.equals( msg0 ) );
     }
@@ -83,10 +93,14 @@ public class AbstractMessageTest extends TestCase
     {
         AbstractMessage msg0;
         AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        msg1 = new AbstractMessage( 5, MessageTypeEnum.UNBINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
+        msg1 = new AbstractMessage( 5, MessageTypeEnum.UNBINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertFalse( msg0.equals( msg1 ) );
         assertFalse( msg1.equals( msg0 ) );
     }
@@ -99,52 +113,65 @@ public class AbstractMessageTest extends TestCase
     {
         AbstractMessage msg0;
         AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        msg0.add( new Control() {
+        msg0 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST )
+        {
             private static final long serialVersionUID = 1L;
+        };
+        msg0.add( new Control()
+        {
+            private static final long serialVersionUID = 1L;
+
+
             public String getType()
             {
                 return null;
             }
 
+
             public void setType( String a_oid )
             {
             }
+
 
             public byte[] getValue()
             {
                 return new byte[0];
             }
 
+
             public void setValue( byte[] a_value )
             {
             }
+
 
             public boolean isCritical()
             {
                 return false;
             }
 
+
             public void setCritical( boolean a_isCritical )
             {
             }
+
 
             public byte[] getEncodedValue()
             {
                 return null;
             }
 
+
             public String getID()
             {
                 return null;
             }
-        });
-        msg1 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        } );
+        msg1 = new AbstractMessage( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertFalse( msg0.equals( msg1 ) );
         assertFalse( msg1.equals( msg0 ) );
     }
-
 
 }

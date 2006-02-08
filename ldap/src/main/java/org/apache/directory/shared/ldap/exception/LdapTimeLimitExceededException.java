@@ -25,11 +25,12 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A TiimeLimitExceededException which associates a resultCode namely the
  * {@link ResultCodeEnum#SIZELIMITEXCEEDED} resultCode with the exception.
- *
+ * 
  * @see LdapException
  * @see SizeLimitExceededException
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -50,7 +51,7 @@ public class LdapTimeLimitExceededException extends TimeLimitExceededException i
     /**
      * @see TimeLimitExceededException#TimeLimitExceededException(String)
      */
-    public LdapTimeLimitExceededException( String explanation )
+    public LdapTimeLimitExceededException(String explanation)
     {
         super( explanation );
     }
@@ -58,7 +59,7 @@ public class LdapTimeLimitExceededException extends TimeLimitExceededException i
 
     /**
      * Always returns {@link ResultCodeEnum#TIMELIMITEXCEEDED}
-     *
+     * 
      * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()

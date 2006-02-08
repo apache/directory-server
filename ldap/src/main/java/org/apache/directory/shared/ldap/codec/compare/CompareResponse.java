@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.compare;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,28 +27,31 @@ import org.apache.directory.shared.ldap.codec.LdapResponse;
 
 
 /**
- * An CompareResponse Message. Its syntax is :
- *   CompareResponse ::= [APPLICATION 15] LDAPResult
+ * An CompareResponse Message. Its syntax is : CompareResponse ::= [APPLICATION
+ * 15] LDAPResult
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class CompareResponse extends LdapResponse
 {
-    //~ Constructors -------------------------------------------------------------------------------
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new CompareResponse object.
      */
     public CompareResponse()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -55,18 +59,11 @@ public class CompareResponse extends LdapResponse
         return LdapConstants.COMPARE_RESPONSE;
     }
 
+
     /**
-     * Compute the CompareResponse length
-     * 
-     * CompareResponse :
-     * 
-     * 0x6F L1
-     *  |
-     *  +--> LdapResult
-     * 
-     * L1 = Length(LdapResult)
-     * 
-     * Length(CompareResponse) = Length(0x6F) + Length(L1) + L1
+     * Compute the CompareResponse length CompareResponse : 0x6F L1 | +-->
+     * LdapResult L1 = Length(LdapResult) Length(CompareResponse) = Length(0x6F) +
+     * Length(L1) + L1
      */
     public int computeLength()
     {
@@ -75,17 +72,19 @@ public class CompareResponse extends LdapResponse
         return 1 + Length.getNbBytes( ldapResponseLength ) + ldapResponseLength;
     }
 
+
     /**
      * Encode the CompareResponse message to a PDU.
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer )  throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
@@ -96,17 +95,18 @@ public class CompareResponse extends LdapResponse
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         // The ldapResult
-        return super.encode( buffer);
+        return super.encode( buffer );
     }
+
 
     /**
      * Get a String representation of an CompareResponse
-     *
-     * @return An CompareResponse String 
+     * 
+     * @return An CompareResponse String
      */
     public String toString()
     {

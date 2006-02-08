@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 import java.util.Observable;
@@ -22,7 +22,8 @@ import java.util.Observer;
 
 
 /**
- * The base abandonable request message class.  All such requests have a reponse type.
+ * The base abandonable request message class. All such requests have a reponse
+ * type.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 359829 $
@@ -30,33 +31,38 @@ import java.util.Observer;
 public class AbstractAbandonableRequest extends AbstractRequest implements AbandonableRequest
 {
     static final long serialVersionUID = -4511116249089399040L;
+
     /** Flag indicating whether or not this request returns a response. */
     private boolean abandoned = false;
+
     private RequestObservable o;
 
-    
+
     /**
      * Subclasses must provide these parameters via a super constructor call.
-     *
-     * @param id the sequential message identifier
-     * @param type the request type enum
+     * 
+     * @param id
+     *            the sequential message identifier
+     * @param type
+     *            the request type enum
      */
-    protected AbstractAbandonableRequest( final int id, final MessageTypeEnum type )
+    protected AbstractAbandonableRequest(final int id, final MessageTypeEnum type)
     {
-        super( id, type, true ) ;
+        super( id, type, true );
     }
 
 
     public void abandon()
     {
-        if ( abandoned ) return;
+        if ( abandoned )
+            return;
         abandoned = true;
         o.setChanged();
         o.notifyObservers();
         o.deleteObservers();
     }
 
-    
+
     public boolean isAbandoned()
     {
         return abandoned;
@@ -65,16 +71,17 @@ public class AbstractAbandonableRequest extends AbstractRequest implements Aband
 
     public void addAbandonListener( final AbandonListener listener )
     {
-        if ( o == null ) o = new RequestObservable();
-        o.addObserver( new Observer() {
+        if ( o == null )
+            o = new RequestObservable();
+        o.addObserver( new Observer()
+        {
             public void update( Observable o, Object arg )
             {
                 listener.requestAbandoned( AbstractAbandonableRequest.this );
             }
-        });
+        } );
     }
 
-    
     class RequestObservable extends Observable
     {
         public void setChanged()

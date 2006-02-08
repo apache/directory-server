@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.abandon;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,39 +27,44 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
- * A AbandonRequest Message. Its syntax is :
- *   AbandonRequest ::= [APPLICATION 16] MessageID
- *   MessageID ::= INTEGER (0 .. maxInt)
- *   maxInt INTEGER ::= 2147483647 -- (2^^31 - 1) --
+ * A AbandonRequest Message. Its syntax is : AbandonRequest ::= [APPLICATION 16]
+ * MessageID MessageID ::= INTEGER (0 .. maxInt) maxInt INTEGER ::= 2147483647 --
+ * (2^^31 - 1) --
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AbandonRequest extends LdapMessage
 {
-	/** The logger */
+    /** The logger */
     private static Logger log = LoggerFactory.getLogger( AbandonRequest.class );
 
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
-    /** The abandoned message ID  */
+    /** The abandoned message ID */
     private int abandonedMessageId;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new AbandonRequest object.
      */
     public AbandonRequest()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the abandoned message ID
-     *
+     * 
      * @return Returns the abandoned MessageId.
      */
     public int getAbandonedMessageId()
@@ -66,9 +72,10 @@ public class AbandonRequest extends LdapMessage
         return abandonedMessageId;
     }
 
+
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -76,77 +83,79 @@ public class AbandonRequest extends LdapMessage
         return LdapConstants.ABANDON_REQUEST;
     }
 
+
     /**
      * Set the abandoned message ID
-     *
-     * @param abandonedMessageId The abandoned messageID to set.
+     * 
+     * @param abandonedMessageId
+     *            The abandoned messageID to set.
      */
     public void setAbandonedMessageId( int abandonedMessageId )
     {
         this.abandonedMessageId = abandonedMessageId;
     }
 
+
     /**
-     * Compute the AbandonRequest length
-     * 
-     * AbandonRequest :
-     * 
-     * 0x50 0x0(1..4) abandoned MessageId
-     * 
-     * Length(AbandonRequest) = Length(0x50) + 1 + Length(abandoned MessageId)
+     * Compute the AbandonRequest length AbandonRequest : 0x50 0x0(1..4)
+     * abandoned MessageId Length(AbandonRequest) = Length(0x50) + 1 +
+     * Length(abandoned MessageId)
      */
     public int computeLength()
     {
-    	int length = 1 + 1 + Value.getNbBytes( abandonedMessageId );
-    	
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Message length : {}", new Integer(length) );
-    	}
-    	
+        int length = 1 + 1 + Value.getNbBytes( abandonedMessageId );
+
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Message length : {}", new Integer( length ) );
+        }
+
         return length;
     }
-    
+
+
     /**
      * Encode the AbandonRequest message to a PDU.
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer )  throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-        	log.error( "Cannot put a PDU in a null buffer !" );
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            log.error( "Cannot put a PDU in a null buffer !" );
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
-        
-        try 
+
+        try
         {
             // The tag
-            buffer.put( LdapConstants.ABANDON_REQUEST_TAG);
-            
-            // The length. It has to be evaluated depending on 
+            buffer.put( LdapConstants.ABANDON_REQUEST_TAG );
+
+            // The length. It has to be evaluated depending on
             // the abandoned messageId value.
-            buffer.put( (byte)Value.getNbBytes( abandonedMessageId ) );
-            
+            buffer.put( ( byte ) Value.getNbBytes( abandonedMessageId ) );
+
             // The abandoned messageId
             buffer.put( Value.getBytes( abandonedMessageId ) );
         }
         catch ( BufferOverflowException boe )
         {
-        	log.error( "The PDU buffer size is too small !" );
-            throw new EncoderException("The PDU buffer size is too small !"); 
+            log.error( "The PDU buffer size is too small !" );
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
-        
+
         return buffer;
     }
+
 
     /**
      * Return a String representing an AbandonRequest
      * 
      * @return A String representing the AbandonRequest
-    */
+     */
     public String toString()
     {
 

@@ -24,21 +24,22 @@ import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 /**
  * A container for the GracefulShutdown codec.
- *  
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulShutdownContainer extends AbstractContainer implements IAsn1Container 
+public class GracefulShutdownContainer extends AbstractContainer implements IAsn1Container
 {
     /** GracefulShutdown */
     private GracefulShutdown gracefulShutdown;
 
+
     /**
-     * Creates a new GracefulShutdownContainer object.
-     * We will store one grammar, it's enough ...
+     * Creates a new GracefulShutdownContainer object. We will store one
+     * grammar, it's enough ...
      */
     public GracefulShutdownContainer()
     {
-        super( );
+        super();
         currentGrammar = 0;
         grammars = new IGrammar[GracefulShutdownStatesEnum.NB_GRAMMARS];
         grammarStack = new IGrammar[1];
@@ -50,6 +51,7 @@ public class GracefulShutdownContainer extends AbstractContainer implements IAsn
         states = GracefulShutdownStatesEnum.getInstance();
     }
 
+
     /**
      * @return Returns the Graceful Shutdown object.
      */
@@ -57,17 +59,20 @@ public class GracefulShutdownContainer extends AbstractContainer implements IAsn
     {
         return gracefulShutdown;
     }
-    
+
+
     /**
-     * Set a GracefulShutdown Object into the container. It will be completed
-     * by the ldapDecoder.
-     *
-     * @param control the GracefulShutdown to set.
+     * Set a GracefulShutdown Object into the container. It will be completed by
+     * the ldapDecoder.
+     * 
+     * @param control
+     *            the GracefulShutdown to set.
      */
     public void setGracefulShutdown( GracefulShutdown gracefulShutdown )
     {
         this.gracefulShutdown = gracefulShutdown;
     }
+
 
     /**
      * Clean the container for the next decoding.

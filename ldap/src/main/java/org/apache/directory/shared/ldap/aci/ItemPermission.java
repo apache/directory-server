@@ -18,15 +18,17 @@
  */
 package org.apache.directory.shared.ldap.aci;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+
 /**
  * Represents permissions to be applied to all {@link ProtectedItem}s in
- * {@link ItemFirstACIItem}. 
- *
+ * {@link ItemFirstACIItem}.
+ * 
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
@@ -36,29 +38,34 @@ public class ItemPermission extends Permission
 
     private final Collection userClasses;
 
+
     /**
      * Creates a new instance
      * 
-     * @param precedence the precedence of this permission (<tt>-1</tt> to use the default)
-     * @param grantsAndDenials the set of {@link GrantAndDenial}s
-     * @param userClasses the collection of {@link UserClass}es
+     * @param precedence
+     *            the precedence of this permission (<tt>-1</tt> to use the
+     *            default)
+     * @param grantsAndDenials
+     *            the set of {@link GrantAndDenial}s
+     * @param userClasses
+     *            the collection of {@link UserClass}es
      */
-    public ItemPermission( int precedence, Collection grantsAndDenials, Collection userClasses )
+    public ItemPermission(int precedence, Collection grantsAndDenials, Collection userClasses)
     {
         super( precedence, grantsAndDenials );
-        
-        for( Iterator i = userClasses.iterator(); i.hasNext(); )
+
+        for ( Iterator i = userClasses.iterator(); i.hasNext(); )
         {
             Object val = i.next();
-            if( !( val instanceof UserClass ) )
+            if ( !( val instanceof UserClass ) )
             {
-                throw new IllegalArgumentException(
-                        "userClasses contains a wrong element." );
+                throw new IllegalArgumentException( "userClasses contains a wrong element." );
             }
         }
-        
+
         this.userClasses = Collections.unmodifiableCollection( new ArrayList( userClasses ) );
     }
+
 
     /**
      * Returns the collection of {@link UserClass}es.
@@ -67,11 +74,11 @@ public class ItemPermission extends Permission
     {
         return userClasses;
     }
-    
+
+
     public String toString()
     {
-        return "itemPermission: precedence=" + getPrecedence() + ", " +
-               "userClasses=" + userClasses + ", " +
-               "grantsAndDenials=" + getGrantsAndDenials();
+        return "itemPermission: precedence=" + getPrecedence() + ", " + "userClasses=" + userClasses + ", "
+            + "grantsAndDenials=" + getGrantsAndDenials();
     }
 }

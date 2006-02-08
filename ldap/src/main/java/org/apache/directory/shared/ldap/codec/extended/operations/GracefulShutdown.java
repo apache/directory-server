@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.extended.operations;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.tlv.Length;
@@ -25,14 +26,14 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 
 
 /**
- * An extended operation to proceed a graceful shutdown  
+ * An extended operation to proceed a graceful shutdown
  * 
  * <pre>
- *  GracefulShutdown ::= SEQUENCE
- *  {
- *      timeOffline     INTEGER (0..720) DEFAULT 0,
- *      delay       [0] INTEGER (0..86400) DEFAULT 0, 
- *  }
+ *   GracefulShutdown ::= SEQUENCE
+ *   {
+ *       timeOffline     INTEGER (0..720) DEFAULT 0,
+ *       delay       [0] INTEGER (0..86400) DEFAULT 0, 
+ *   }
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -43,20 +44,16 @@ public class GracefulShutdown extends GracefulAction
     /** Length of the sequence */
     private transient int gracefulSequenceLength;
 
+
     /**
-     * Compute the GracefulShutdown length
-     * 0x30 L1
-     *  |
-     *  +--> [0x02 0x0(1-4) [0..720] ]
-     *  +--> [0x80 0x0(1-3) [0..86400] ]
-     *  
-     *  L1 will always be &lt 11.
+     * Compute the GracefulShutdown length 0x30 L1 | +--> [0x02 0x0(1-4)
+     * [0..720] ] +--> [0x80 0x0(1-3) [0..86400] ] L1 will always be &lt 11.
      */
     public int computeLength()
     {
         int gracefulLength = 1 + 1;
         gracefulSequenceLength = 0;
-        
+
         if ( timeOffline != 0 )
         {
             gracefulSequenceLength += 1 + 1 + Value.getNbBytes( timeOffline );
@@ -69,19 +66,22 @@ public class GracefulShutdown extends GracefulAction
 
         return gracefulLength + gracefulSequenceLength;
     }
-    
+
+
     /**
      * Encodes the gracefulShutdown extended operation.
      * 
-     * @param buffer The encoded sink
+     * @param buffer
+     *            The encoded sink
      * @return A ByteBuffer that contains the encoded PDU
-     * @throws EncoderException If anything goes wrong.
+     * @throws EncoderException
+     *             If anything goes wrong.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         // Allocate the bytes buffer.
         ByteBuffer bb = ByteBuffer.allocate( computeLength() );
-        
+
         bb.put( UniversalTag.SEQUENCE_TAG );
         bb.put( Length.getBytes( gracefulSequenceLength ) );
 
@@ -89,26 +89,27 @@ public class GracefulShutdown extends GracefulAction
         {
             Value.encode( bb, timeOffline );
         }
-        
+
         if ( delay != 0 )
         {
-            bb.put( (byte)GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG );
-            bb.put( (byte)Value.getNbBytes( delay ) );
+            bb.put( ( byte ) GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG );
+            bb.put( ( byte ) Value.getNbBytes( delay ) );
             bb.put( Value.getBytes( delay ) );
         }
         return bb;
     }
-    
+
+
     /**
      * Return a string representation of the graceful shutdown
      */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
-        
+
         sb.append( "Graceful Shiutdown extended operation" );
         sb.append( "    TimeOffline : " ).append( timeOffline ).append( '\n' );
-        sb.append( "    Delay : ").append( delay ).append( '\n' );
+        sb.append( "    Delay : " ).append( delay ).append( '\n' );
 
         return sb.toString();
     }

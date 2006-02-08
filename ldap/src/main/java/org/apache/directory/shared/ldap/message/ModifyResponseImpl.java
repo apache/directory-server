@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
@@ -22,24 +22,24 @@ package org.apache.directory.shared.ldap.message ;
  * 
  * @version $Rev$
  */
-public class ModifyResponseImpl
-    extends AbstractResultResponse implements ModifyResponse
+public class ModifyResponseImpl extends AbstractResultResponse implements ModifyResponse
 {
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
 
-
     static final long serialVersionUID = 4132526905748233730L;
+
 
     /**
      * Creates a Lockable ModifyResponse as a reply to an ModifyRequest.
-     *
-     * @param id the sequence id for this response
+     * 
+     * @param id
+     *            the sequence id for this response
      */
-    public ModifyResponseImpl( final int id )
+    public ModifyResponseImpl(final int id)
     {
-        super( id, TYPE ) ;
+        super( id, TYPE );
     }
 }

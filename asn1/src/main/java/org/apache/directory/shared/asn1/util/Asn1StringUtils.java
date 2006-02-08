@@ -16,66 +16,78 @@
  */
 package org.apache.directory.shared.asn1.util;
 
+
 import java.io.UnsupportedEncodingException;
 
+
 /**
- * Little helper class. 
+ * Little helper class.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class Asn1StringUtils
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** Hex chars */
-    private static final byte[] HEX_CHAR =
-        new byte[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-    
-    //~ Methods ------------------------------------------------------------------------------------
+    private static final byte[] HEX_CHAR = new byte[]
+        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Helper function that dump a byte in hex form
      * 
-     * @param octet The byte to dump
+     * @param octet
+     *            The byte to dump
      * @return A string representation of the byte
      */
     public static String dumpByte( byte octet )
     {
-        return new String(
-                new byte[] { '0', 'x', HEX_CHAR[( octet & 0x00F0 ) >> 4], HEX_CHAR[octet & 0x000F] } );
+        return new String( new byte[]
+            { '0', 'x', HEX_CHAR[( octet & 0x00F0 ) >> 4], HEX_CHAR[octet & 0x000F] } );
     }
+
 
     /**
      * Helper function that dump an array of bytes in hex form
      * 
-     * @param buffer The bytes array to dump
+     * @param buffer
+     *            The bytes array to dump
      * @return A string representation of the array of bytes
      */
     public static String dumpBytes( byte[] buffer )
     {
-        if( buffer == null )
+        if ( buffer == null )
         {
             return "";
         }
 
         StringBuffer sb = new StringBuffer();
-        
-        for (int i = 0; i < buffer.length ; i++)
+
+        for ( int i = 0; i < buffer.length; i++ )
         {
-            sb.append("0x").append((char)(HEX_CHAR[( buffer[i] & 0x00F0 ) >> 4])).append((char)(HEX_CHAR[buffer[i] & 0x000F])).append(" ");
+            sb.append( "0x" ).append( ( char ) ( HEX_CHAR[( buffer[i] & 0x00F0 ) >> 4] ) ).append(
+                ( char ) ( HEX_CHAR[buffer[i] & 0x000F] ) ).append( " " );
         }
-        
+
         return sb.toString();
     }
-    
+
+
     /**
      * Return UTF-8 encoded byte[] representation of a String
-     * @param string The string to be transformed to a byte array
-     * @return The transformed byte array 
+     * 
+     * @param string
+     *            The string to be transformed to a byte array
+     * @return The transformed byte array
      */
     public static byte[] getBytesUtf8( String string )
     {
-        if( string == null )
+        if ( string == null )
         {
             return new byte[0];
         }
@@ -86,7 +98,8 @@ public class Asn1StringUtils
         }
         catch ( UnsupportedEncodingException uee )
         {
-            return new byte[]{};
+            return new byte[]
+                {};
         }
     }
 }

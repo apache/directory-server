@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,15 +50,17 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * The LdapMessage container stores all the messages decoded by the
- * Asn1Decoder. When dealing whith an incoding PDU, we will obtain
- * a LdapMessage in the ILdapContainer.
- *  
+ * The LdapMessage container stores all the messages decoded by the Asn1Decoder.
+ * When dealing whith an incoding PDU, we will obtain a LdapMessage in the
+ * ILdapContainer.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapMessageContainer extends AbstractContainer implements IAsn1Container //extends AbstractLdapContainer
+public class LdapMessageContainer extends AbstractContainer implements IAsn1Container // extends
+                                                                                        // AbstractLdapContainer
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The ldap message */
     private LdapMessage ldapMessage;
@@ -65,24 +68,27 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
     /** A HashSet which contaons the binary attributes */
     private Set binaries;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
-     * Creates a new LdapMessageContainer object.
-     * We will store ten grammars, it's enough ...
+     * Creates a new LdapMessageContainer object. We will store ten grammars,
+     * it's enough ...
      */
     public LdapMessageContainer()
     {
         this( new HashSet() );
     }
 
+
     /**
-     * Creates a new LdapMessageContainer object.
-     * We will store ten grammars, it's enough ...
+     * Creates a new LdapMessageContainer object. We will store ten grammars,
+     * it's enough ...
      */
-    public LdapMessageContainer( Set binaries )
+    public LdapMessageContainer(Set binaries)
     {
-        super( );
+        super();
         currentGrammar = 0;
         grammars = new IGrammar[LdapStatesEnum.NB_GRAMMARS];
         grammarStack = new IGrammar[10];
@@ -93,7 +99,7 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
         grammars[LdapStatesEnum.LDAP_MESSAGE_GRAMMAR] = LdapMessageGrammar.getInstance();
         grammars[LdapStatesEnum.LDAP_CONTROL_GRAMMAR] = LdapControlGrammar.getInstance();
         grammars[LdapStatesEnum.BIND_REQUEST_GRAMMAR] = BindRequestGrammar.getInstance();
-        grammars[LdapStatesEnum.LDAP_RESULT_GRAMMAR]  = LdapResultGrammar.getInstance();
+        grammars[LdapStatesEnum.LDAP_RESULT_GRAMMAR] = LdapResultGrammar.getInstance();
         grammars[LdapStatesEnum.BIND_RESPONSE_GRAMMAR] = BindResponseGrammar.getInstance();
         grammars[LdapStatesEnum.UNBIND_REQUEST_GRAMMAR] = UnBindRequestGrammar.getInstance();
         grammars[LdapStatesEnum.ABANDON_REQUEST_GRAMMAR] = AbandonRequestGrammar.getInstance();
@@ -124,7 +130,9 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
         this.binaries = binaries;
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
     /**
      * @return Returns the ldapMessage.
      */
@@ -134,16 +142,19 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
         return ldapMessage;
     }
 
+
     /**
-     * Set a ldapMessage Object into the container. It will be completed
-     * by the ldapDecoder .
-     *
-     * @param ldapMessage The ldapMessage to set.
+     * Set a ldapMessage Object into the container. It will be completed by the
+     * ldapDecoder .
+     * 
+     * @param ldapMessage
+     *            The ldapMessage to set.
      */
     public void setLdapMessage( LdapMessage ldapMessage )
     {
         this.ldapMessage = ldapMessage;
     }
+
 
     public void clean()
     {
@@ -151,6 +162,7 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
 
         ldapMessage = null;
     }
+
 
     /**
      * @return Returns true if the attribute is binary.

@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * Placeholder for unrecognized tags.
  */
@@ -25,9 +26,8 @@ public class DERUnknownTag extends DERObject
     /**
      * Basic DERObject constructor.
      */
-    public DERUnknownTag( int tag, byte[] value )
+    public DERUnknownTag(int tag, byte[] value)
     {
         super( tag, value );
     }
 }
-

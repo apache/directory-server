@@ -34,27 +34,28 @@ import java.nio.ByteBuffer;
 
 
 /**
- * A BER TLV Tag component decoder.  This decoder instanciate a Tag. The tag
+ * A BER TLV Tag component decoder. This decoder instanciate a Tag. The tag
  * won't be implementations should not copy the handle to the Tag object
  * delivered but should copy the data if they need it over the long term.
- *
- * @author   <a href="mailto:dev@directory.apache.org">Apache
- *           Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class Asn1Decoder implements ITLVBerDecoderMBean
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( Asn1Decoder.class );
-    
+
     /** This flag is used to indicate that there are more bytes in the stream */
     private static final boolean MORE = true;
 
     /** This flag is used to indicate that there are no more bytes in the stream */
     private static final boolean END = false;
 
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** Flag that is used to allow/disallow the indefinite form of Length */
     private boolean indefiniteLengthAllowed;
@@ -65,7 +66,9 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
     /** The maximum number of bytes that could be used to encode the Tag */
     private int maxTagLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * A public constructor of an Asn1 Decoder.
@@ -73,26 +76,29 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
     public Asn1Decoder()
     {
         indefiniteLengthAllowed = false;
-        maxLengthLength         = 1;
-        maxTagLength            = 1;
+        maxLengthLength = 1;
+        maxTagLength = 1;
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Treat the start of a TLV. It reads the tag and get its value.
-     *
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that stores the current state,
-     * the result and other informations.
      * 
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
-     * </code> otherwise
-     * 
-     * @throws DecoderException If something went wrong.
+     * </code>
+     *         otherwise
+     * @throws DecoderException
+     *             If something went wrong.
      */
-    private boolean treatTagStartState( ByteBuffer stream, IAsn1Container container )
-        throws DecoderException
+    private boolean treatTagStartState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
 
         if ( stream.hasRemaining() )
@@ -162,27 +168,30 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         }
     }
 
+
     /**
-     * Treat a tag that is more than one byte long if the stream was cut in pieces. This
-     * function is called when some new bytes where got from the stream.
+     * Treat a tag that is more than one byte long if the stream was cut in
+     * pieces. This function is called when some new bytes where got from the
+     * stream.
      * 
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that stores the current state,
-     * the result and other informations.
-     * 
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
-     * </code> otherwise
-     * 
-     * @throws DecoderException Thrown if anything went wrong
+     * </code>
+     *         otherwise
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private boolean treatTagPendingState( ByteBuffer stream, IAsn1Container container )
-        throws DecoderException
+    private boolean treatTagPendingState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
 
         if ( stream.hasRemaining() )
         {
 
-            Tag  tag    = container.getCurrentTLV().getTag();
+            Tag tag = container.getCurrentTLV().getTag();
             byte octet = stream.get();
 
             if ( tag.getSize() >= Tag.MAX_TAG_BYTES )
@@ -214,80 +223,80 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
     }
 
+
     /**
      * Dump the current TLV tree
-     * @param container The container
+     * 
+     * @param container
+     *            The container
      */
     private void dumpTLVTree( IAsn1Container container )
     {
         StringBuffer sb = new StringBuffer();
         TLV current = container.getCurrentTLV();
-        
-        sb.append("TLV").
-        	append( Asn1StringUtils.dumpByte(current.getTag().getTagBytes()[0])).
-        	append("(").
-        	append(current.getExpectedLength()).
-        	append(")");
-        
+
+        sb.append( "TLV" ).append( Asn1StringUtils.dumpByte( current.getTag().getTagBytes()[0] ) ).append( "(" )
+            .append( current.getExpectedLength() ).append( ")" );
+
         current = current.getParent();
-        
-        while (current != null)
+
+        while ( current != null )
         {
-            sb.append("-TLV").
-        		append(Asn1StringUtils.dumpByte(current.getTag().getTagBytes()[0])).
-        		append("(").
-        		append(current.getExpectedLength()).
-        		append(")");
+            sb.append( "-TLV" ).append( Asn1StringUtils.dumpByte( current.getTag().getTagBytes()[0] ) ).append( "(" )
+                .append( current.getExpectedLength() ).append( ")" );
             current = current.getParent();
         }
-        
-        log.debug("TLV Tree : {}", sb.toString());
+
+        log.debug( "TLV Tree : {}", sb.toString() );
     }
-    
+
+
     /**
      * Check if the TLV tree is fully decoded
-     * @param container The container
+     * 
+     * @param container
+     *            The container
      */
     private boolean isTLVDecoded( IAsn1Container container )
     {
         TLV current = container.getCurrentTLV();
-        
+
         TLV parent = current.getParent();
-        
-        while (parent != null)
+
+        while ( parent != null )
         {
-        	if (parent.getExpectedLength() != 0)
-        	{
-        	    return false;
-        	}
-        	
-        	parent = parent.getParent();
+            if ( parent.getExpectedLength() != 0 )
+            {
+                return false;
+            }
+
+            parent = parent.getParent();
         }
-        
+
         Value value = current.getValue();
-        
-        if ( (value != null) && (value.getData() != null) )
+
+        if ( ( value != null ) && ( value.getData() != null ) )
         {
-            return (current.getExpectedLength() == value.getData().length);
-        } 
+            return ( current.getExpectedLength() == value.getData().length );
+        }
         else
         {
             return current.getExpectedLength() == 0;
         }
     }
-    
+
+
     /**
-     * Action to be executed when the Tag has been decoded. Basically, this
-     * is a debug action. We will log the information that the Tag has been
-     * decoded.
-     *  
-     * @param container The container that stores the current state,
-     * the result and other informations.
+     * Action to be executed when the Tag has been decoded. Basically, this is a
+     * debug action. We will log the information that the Tag has been decoded.
      * 
-     * @throws DecoderException Thrown if anything went wrong
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private void treatTagEndState( IAsn1Container container )
-        throws DecoderException
+    private void treatTagEndState( IAsn1Container container ) throws DecoderException
     {
 
         if ( log.isDebugEnabled() )
@@ -295,10 +304,10 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             Tag tag = container.getCurrentTLV().getTag();
             log.debug( "Tag {} has been decoded", tag.toString() );
         }
-        
+
         // Create a link between the current TLV with its parent
-        container.getCurrentTLV().setParent(container.getParentTLV());
-        
+        container.getCurrentTLV().setParent( container.getParentTLV() );
+
         // After having decoded a tag, we have to execute the action
         // which controls if this tag is allowed and well formed.
         container.getGrammar().executeAction( container );
@@ -307,21 +316,23 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         container.setState( TLVStateEnum.LENGTH_STATE_START );
     }
 
+
     /**
-     * Treat the Length start. The tag has been decoded, so we have to deal
-     * with the LENGTH, which can be multi-bytes.
-     *
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that stores the current state,
-     * the result and other informations.
+     * Treat the Length start. The tag has been decoded, so we have to deal with
+     * the LENGTH, which can be multi-bytes.
      * 
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
-     * </code> otherwise
-     * 
-     * @throws DecoderException Thrown if anything went wrong
+     * </code>
+     *         otherwise
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private boolean treatLengthStartState( ByteBuffer stream, IAsn1Container container )
-        throws DecoderException
+    private boolean treatLengthStartState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
 
         if ( stream.hasRemaining() )
@@ -343,8 +354,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
                 container.setState( TLVStateEnum.LENGTH_STATE_END );
             }
-            else if ( ( octet & Length.LENGTH_EXTENSION_RESERVED ) !=
-                    Length.LENGTH_EXTENSION_RESERVED )
+            else if ( ( octet & Length.LENGTH_EXTENSION_RESERVED ) != Length.LENGTH_EXTENSION_RESERVED )
             {
 
                 int expectedLength = octet & Length.SHORT_MASK;
@@ -352,8 +362,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                 if ( expectedLength > 4 )
                 {
                     log.error( "Overflow : can't have more than 4 bytes long length" );
-                    throw new DecoderException(
-                        "Overflow : can't have more than 4 bytes long length" );
+                    throw new DecoderException( "Overflow : can't have more than 4 bytes long length" );
                 }
 
                 length.setExpectedLength( expectedLength );
@@ -377,21 +386,23 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         }
     }
 
+
     /**
-     * This function is called when a Length is in the process of being 
-     * decoded, but the lack of bytes in the buffer stopped the process. 
-     *
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that stores the current state,
-     * the result and other informations.
+     * This function is called when a Length is in the process of being decoded,
+     * but the lack of bytes in the buffer stopped the process.
      * 
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
-     * </code> otherwise
-     * 
-     * @throws DecoderException Thrown if anything went wrong
+     * </code>
+     *         otherwise
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private boolean treatLengthPendingState( ByteBuffer stream, IAsn1Container container )
-        throws DecoderException
+    private boolean treatLengthPendingState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
 
         if ( stream.hasRemaining() )
@@ -411,7 +422,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
                 length.incCurrentLength();
                 length.incSize();
-                length.setLength( ( length.getLength() << 8 ) | (octet & 0x00FF));
+                length.setLength( ( length.getLength() << 8 ) | ( octet & 0x00FF ) );
             }
 
             container.setState( TLVStateEnum.LENGTH_STATE_END );
@@ -424,47 +435,50 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             return END;
         }
     }
-    
+
+
     /**
      * A debug function used to dump the expected length stack.
-     * @param tlv The current TLV.
+     * 
+     * @param tlv
+     *            The current TLV.
      * @return A string which represent the expected length stack.
      */
-    private String getParentLength(TLV tlv)
+    private String getParentLength( TLV tlv )
     {
         StringBuffer buffer = new StringBuffer();
-        
-        buffer.append("TLV expected length stack : ");
-        
-        while (true)
+
+        buffer.append( "TLV expected length stack : " );
+
+        while ( true )
         {
             if ( tlv == null )
             {
-                buffer.append(" - null");
+                buffer.append( " - null" );
                 break;
             }
             else
             {
-                buffer.append(" - ").append(tlv.getExpectedLength());
+                buffer.append( " - " ).append( tlv.getExpectedLength() );
             }
-            
+
             tlv = tlv.getParent();
         }
-        
+
         return buffer.toString();
     }
 
+
     /**
-     * The Length is fully decoded. We have to call an action to check the
-     * size.
-     *
-     * @param container The container that stores the current state,
-     * the result and other informations.
+     * The Length is fully decoded. We have to call an action to check the size.
      * 
-     * @throws DecoderException Thrown if anything went wrong
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private void treatLengthEndState( IAsn1Container container )
-        throws DecoderException
+    private void treatLengthEndState( IAsn1Container container ) throws DecoderException
     {
         TLV tlv = container.getCurrentTLV();
         Length length = tlv.getLength();
@@ -473,19 +487,19 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         // that the enclosing constructed TLV expected length is not
         // exceeded by the current TLV.
         TLV parentTLV = container.getParentTLV();
-        
+
         if ( log.isDebugEnabled() )
         {
             log.debug( "Parent length : {}", getParentLength( parentTLV ) );
         }
-        
-        if (parentTLV == null) 
+
+        if ( parentTLV == null )
         {
             // This is the first TLV, so we can't check anything. We will
             // just store this TLV as the root of the PDU
             tlv.setExpectedLength( length.getLength() );
             container.setParentTLV( tlv );
-            
+
             if ( log.isDebugEnabled() )
             {
                 log.debug( "Root TLV[{}]", new Integer( tlv.getLength().getLength() ) );
@@ -494,37 +508,38 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         else
         {
             // We have a parent, so we will check that its expected length is
-            // not exceeded. 
+            // not exceeded.
             int expectedLength = parentTLV.getExpectedLength();
             int currentLength = tlv.getSize();
-            
-            if (expectedLength < currentLength)
+
+            if ( expectedLength < currentLength )
             {
                 // The expected length is lower than the Value length of the
                 // current TLV. This is an error...
-                log.error("tlv[{}, {}]", new Integer( expectedLength ), new Integer( currentLength ) );
-                throw new DecoderException("The current Value length is above the expected length");
+                log.error( "tlv[{}, {}]", new Integer( expectedLength ), new Integer( currentLength ) );
+                throw new DecoderException( "The current Value length is above the expected length" );
             }
-            
-            if (expectedLength == currentLength)
+
+            if ( expectedLength == currentLength )
             {
-                parentTLV.setExpectedLength(0);
+                parentTLV.setExpectedLength( 0 );
 
                 // deal with the particular case where expected length equal
                 // the current length, which means that the parentTLV has been
-                // completed. 
+                // completed.
                 // We also have to check that the current TLV is a constructed
-                // one. 
+                // one.
                 // In this case, we have to switch from this parent TLV
                 // to the parent's parent TLV.
                 if ( tlv.getTag().isConstructed() )
                 {
-                    // here, we also have another special case : a 
-                    // zero length TLV. We must then unstack all 
+                    // here, we also have another special case : a
+                    // zero length TLV. We must then unstack all
                     // the parents which length is null.
                     if ( tlv.getLength().getLength() == 0 )
                     {
-                        // We will set the parent to the first parentTLV which expectedLength 
+                        // We will set the parent to the first parentTLV which
+                        // expectedLength
                         // is not null, and it will become the new parent TLV
                         while ( parentTLV != null )
                         {
@@ -540,7 +555,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                             }
                         }
 
-                        container.setParentTLV(parentTLV);
+                        container.setParentTLV( parentTLV );
                     }
                     else
                     {
@@ -553,11 +568,11 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                 }
                 else
                 {
-                    tlv.setExpectedLength(tlv.getLength().getLength());
+                    tlv.setExpectedLength( tlv.getLength().getLength() );
                     // It's over, the parent TLV has been completed.
                     // Go back to the parent's parent TLV until we find
                     // a tlv which is not complete.
-                    while (parentTLV != null)
+                    while ( parentTLV != null )
                     {
                         if ( parentTLV.getExpectedLength() != 0 )
                         {
@@ -570,24 +585,25 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                             parentTLV = parentTLV.getParent();
                         }
                     }
-                    
-                    container.setParentTLV(parentTLV);
+
+                    container.setParentTLV( parentTLV );
                 }
             }
             else
             {
-	            // Renew the expected Length.
-	            parentTLV.setExpectedLength(expectedLength - currentLength);
-                tlv.setExpectedLength(tlv.getLength().getLength());
-	            
-	            if (tlv.getTag().isConstructed())
-	            {
-	                // We have a constructed tag, so we must switch the parentTLV
-                    tlv.setParent(parentTLV);
-                    container.setParentTLV(tlv);
-	            }
+                // Renew the expected Length.
+                parentTLV.setExpectedLength( expectedLength - currentLength );
+                tlv.setExpectedLength( tlv.getLength().getLength() );
+
+                if ( tlv.getTag().isConstructed() )
+                {
+                    // We have a constructed tag, so we must switch the
+                    // parentTLV
+                    tlv.setParent( parentTLV );
+                    container.setParentTLV( tlv );
+                }
             }
-            
+
         }
 
         if ( log.isDebugEnabled() )
@@ -609,22 +625,24 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         }
     }
 
+
     /**
-     * Treat the Value part. We will distinguish two cases : 
-     *  - if the Tag is a Primitive one, we will get the value.
-     *  - if the Tag is a Constructed one, nothing will be done.
+     * Treat the Value part. We will distinguish two cases : - if the Tag is a
+     * Primitive one, we will get the value. - if the Tag is a Constructed one,
+     * nothing will be done.
      * 
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that stores the current state,
-     * the result and other informations.
-     * 
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
-     * </code> otherwise
-     * 
-     * @throws DecoderException Thrown if anything went wrong
+     * </code>
+     *         otherwise
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private boolean treatValueStartState( ByteBuffer stream, IAsn1Container container )
-        throws DecoderException
+    private boolean treatValueStartState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
 
         TLV currentTlv = container.getCurrentTLV();
@@ -638,7 +656,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         else
         {
 
-            int length  = currentTlv.getLength().getLength();
+            int length = currentTlv.getLength().getLength();
             int nbBytes = stream.remaining();
 
             if ( nbBytes < length )
@@ -660,28 +678,29 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         }
     }
 
+
     /**
      * Treat a pending Value when we get more bytes in the buffer.
-     *
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that stores the current state,
-     * the result and other informations.
      * 
-     * @return <code>MORE</code> if some bytes remain in the buffer when 
-     * the value has been decoded, <code>END</code> if whe still need to get 
-     * some more bytes.
-     * 
-     * @throws DecoderException Thrown if anything went wrong
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
+     * @return <code>MORE</code> if some bytes remain in the buffer when the
+     *         value has been decoded, <code>END</code> if whe still need to
+     *         get some more bytes.
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private boolean treatValuePendingState( ByteBuffer stream, IAsn1Container container )
-        throws DecoderException
+    private boolean treatValuePendingState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
 
-        TLV currentTlv    = container.getCurrentTLV();
+        TLV currentTlv = container.getCurrentTLV();
 
-        int length        = currentTlv.getLength().getLength();
+        int length = currentTlv.getLength().getLength();
         int currentLength = currentTlv.getValue().getCurrentLength();
-        int nbBytes       = stream.remaining();
+        int nbBytes = stream.remaining();
 
         if ( ( currentLength + nbBytes ) < length )
         {
@@ -693,8 +712,8 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         else
         {
 
-            int    remaining = length - currentLength;
-            byte[] data      = new byte[remaining];
+            int remaining = length - currentLength;
+            byte[] data = new byte[remaining];
             stream.get( data, 0, remaining );
             currentTlv.getValue().addData( data );
             container.setState( TLVStateEnum.TLV_STATE_DONE );
@@ -703,52 +722,54 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         }
     }
 
+
     /**
      * When the TLV has been fully decoded, we have to execute the associated
      * action and switch to the next TLV, which will start with a Tag.
      * 
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that stores the current state,
-     * the result and other informations.
-     * 
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that stores the current state, the result and
+     *            other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
-     * </code> otherwise
-     * 
-     * @throws DecoderException Thrown if anything went wrong
+     * </code>
+     *         otherwise
+     * @throws DecoderException
+     *             Thrown if anything went wrong
      */
-    private boolean treatTLVDoneState( ByteBuffer stream, IAsn1Container container )
-        throws DecoderException
+    private boolean treatTLVDoneState( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
         if ( log.isDebugEnabled() )
         {
-            dumpTLVTree(container);
+            dumpTLVTree( container );
         }
-        
+
         // First, we have to execute the associated action
         container.getGrammar().executeAction( container );
 
         // Check if the PDU has been fully decoded.
         if ( isTLVDecoded( container ) )
         {
-        	if ( container.getState() == IStates.GRAMMAR_END )  
-        	{
-        		// Change the state to DECODED
-        		container.setState( TLVStateEnum.PDU_DECODED );
-        	}
-        	else
-        	{
-        		if ( container.isGrammarEndAllowed() )
-        		{
-            		// Change the state to DECODED
-            		container.setState( TLVStateEnum.PDU_DECODED );
-        		}
-        		else
-        		{
-        			log.error( "The PDU is decoded, but we should have had more TLVs" );
-        			throw new DecoderException( "Truncated PDU. Some elements are lacking, accordingly to the grammar" );
-        		}
-        	}
-            
+            if ( container.getState() == IStates.GRAMMAR_END )
+            {
+                // Change the state to DECODED
+                container.setState( TLVStateEnum.PDU_DECODED );
+            }
+            else
+            {
+                if ( container.isGrammarEndAllowed() )
+                {
+                    // Change the state to DECODED
+                    container.setState( TLVStateEnum.PDU_DECODED );
+                }
+                else
+                {
+                    log.error( "The PDU is decoded, but we should have had more TLVs" );
+                    throw new DecoderException( "Truncated PDU. Some elements are lacking, accordingly to the grammar" );
+                }
+            }
+
         }
         else
         {
@@ -759,77 +780,82 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         return stream.hasRemaining();
     }
 
+
     /**
      * An helper function that return a string representing the current state
      * for debuging purpose.
      * 
-     * @param state The state
-     * 
+     * @param state
+     *            The state
      * @return A string representation of the state
-    */
+     */
     private String stateToString( int state )
     {
 
         switch ( state )
         {
 
-            case TLVStateEnum.TAG_STATE_START :
+            case TLVStateEnum.TAG_STATE_START:
                 return "TAG_STATE_START";
 
-            case TLVStateEnum.TAG_STATE_PENDING :
+            case TLVStateEnum.TAG_STATE_PENDING:
                 return "TAG_STATE_PENDING";
 
-            case TLVStateEnum.TAG_STATE_END :
+            case TLVStateEnum.TAG_STATE_END:
                 return "TAG_STATE_END";
 
-            case TLVStateEnum.TAG_STATE_OVERFLOW :
+            case TLVStateEnum.TAG_STATE_OVERFLOW:
                 return "TAG_STATE_OVERFLOW";
 
-            case TLVStateEnum.LENGTH_STATE_START :
+            case TLVStateEnum.LENGTH_STATE_START:
                 return "LENGTH_STATE_START";
 
-            case TLVStateEnum.LENGTH_STATE_PENDING :
+            case TLVStateEnum.LENGTH_STATE_PENDING:
                 return "LENGTH_STATE_PENDING";
 
-            case TLVStateEnum.LENGTH_STATE_END :
+            case TLVStateEnum.LENGTH_STATE_END:
                 return "LENGTH_STATE_END";
 
-            case TLVStateEnum.VALUE_STATE_START :
+            case TLVStateEnum.VALUE_STATE_START:
                 return "VALUE_STATE_START";
 
-            case TLVStateEnum.VALUE_STATE_PENDING :
+            case TLVStateEnum.VALUE_STATE_PENDING:
                 return "VALUE_STATE_PENDING";
 
-            case TLVStateEnum.TLV_STATE_DONE :
+            case TLVStateEnum.TLV_STATE_DONE:
                 return "TLV_STATE_DONE";
 
-            default :
+            default:
                 return "UNKNOWN_STATE";
         }
     }
 
+
     /**
      * The decoder main function. This is where we read bytes from the stream
      * and go through the automaton. It's an inifnite loop which stop when no
-     * more bytes are to be read. It can occurs if the ByteBuffer is exhausted 
-     * or if the PDU has been fully decoded. 
-     *
-     * @param stream The ByteBuffer containing the PDU to decode
-     * @param container The container that store the state, the result and
-     * other elements.
+     * more bytes are to be read. It can occurs if the ByteBuffer is exhausted
+     * or if the PDU has been fully decoded.
      * 
-     * @throws DecoderException Thrown if anything went wrong!
+     * @param stream
+     *            The ByteBuffer containing the PDU to decode
+     * @param container
+     *            The container that store the state, the result and other
+     *            elements.
+     * @throws DecoderException
+     *             Thrown if anything went wrong!
      */
     public void decode( ByteBuffer stream, IAsn1Container container ) throws DecoderException
     {
 
-        /* We have to deal with the current state. This is an
-         * infinite loop, which will stop for any of these reasons :
-         * - STATE_END has been reached (hopefully, the most frequent case)
-         * - buffer is empty (it could happen)
-         * - STATE_OVERFLOW : bad situation ! The PDU may be a malevolous hand
-         * crafted ones, that try to "kill" our decoder. Whe must log it with
-         * all information to track back this case, and punish the guilty !
+        /*
+         * We have to deal with the current state. This is an infinite loop,
+         * which will stop for any of these reasons : - STATE_END has been
+         * reached (hopefully, the most frequent case) - buffer is empty (it
+         * could happen) - STATE_OVERFLOW : bad situation ! The PDU may be a
+         * malevolous hand crafted ones, that try to "kill" our decoder. Whe
+         * must log it with all information to track back this case, and punish
+         * the guilty !
          */
 
         boolean hasRemaining = stream.hasRemaining();
@@ -845,9 +871,9 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             {
                 log.debug( "--- State = {} ---", stateToString( container.getState() ) );
 
-                if (stream.hasRemaining())
+                if ( stream.hasRemaining() )
                 {
-                    byte octet = stream.get(stream.position());
+                    byte octet = stream.get( stream.position() );
 
                     log.debug( "  current byte : {}", Asn1StringUtils.dumpByte( octet ) );
                 }
@@ -860,70 +886,70 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             switch ( container.getState() )
             {
 
-                case TLVStateEnum.TAG_STATE_START :
-                	// Reset the GrammarEnd flag first
-                	container.grammarEndAllowed( false );
+                case TLVStateEnum.TAG_STATE_START:
+                    // Reset the GrammarEnd flag first
+                    container.grammarEndAllowed( false );
                     hasRemaining = treatTagStartState( stream, container );
 
                     break;
 
-                case TLVStateEnum.TAG_STATE_PENDING :
+                case TLVStateEnum.TAG_STATE_PENDING:
                     hasRemaining = treatTagPendingState( stream, container );
 
                     break;
 
-                case TLVStateEnum.TAG_STATE_END :
+                case TLVStateEnum.TAG_STATE_END:
                     treatTagEndState( container );
 
                     break;
 
-                case TLVStateEnum.TAG_STATE_OVERFLOW :
+                case TLVStateEnum.TAG_STATE_OVERFLOW:
                     log.error( "Incompatible state : OVERFLOW" );
                     throw new DecoderException( "Incompatible state occured" );
 
-                case TLVStateEnum.LENGTH_STATE_START :
+                case TLVStateEnum.LENGTH_STATE_START:
                     hasRemaining = treatLengthStartState( stream, container );
 
                     break;
 
-                case TLVStateEnum.LENGTH_STATE_PENDING :
+                case TLVStateEnum.LENGTH_STATE_PENDING:
                     hasRemaining = treatLengthPendingState( stream, container );
 
                     break;
 
-                case TLVStateEnum.LENGTH_STATE_END :
+                case TLVStateEnum.LENGTH_STATE_END:
                     treatLengthEndState( container );
 
                     break;
 
-                case TLVStateEnum.VALUE_STATE_START :
+                case TLVStateEnum.VALUE_STATE_START:
                     hasRemaining = treatValueStartState( stream, container );
 
                     break;
 
-                case TLVStateEnum.VALUE_STATE_PENDING :
+                case TLVStateEnum.VALUE_STATE_PENDING:
                     hasRemaining = treatValuePendingState( stream, container );
 
                     break;
 
-                case TLVStateEnum.VALUE_STATE_END :
-                	hasRemaining = stream.hasRemaining();
+                case TLVStateEnum.VALUE_STATE_END:
+                    hasRemaining = stream.hasRemaining();
 
                     // Nothing to do. We will never reach this state
                     break;
 
-                case TLVStateEnum.TLV_STATE_DONE :
+                case TLVStateEnum.TLV_STATE_DONE:
                     hasRemaining = treatTLVDoneState( stream, container );
-                    
+
                     break;
 
-                case TLVStateEnum.PDU_DECODED :
+                case TLVStateEnum.PDU_DECODED:
                     // We have to deal with the case where there are
                     // more bytes in the buffer, but the PDU has been decoded.
                     log.warn( "The PDU has been fully decoded but there are still bytes in the buffer." );
-                    
+
                     hasRemaining = false;
-                    
+
                     break;
             }
         }
@@ -931,7 +957,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         if ( log.isDebugEnabled() )
         {
             log.debug( "<<<------------------------------------------" );
-            
+
             if ( container.getState() == TLVStateEnum.PDU_DECODED )
             {
                 log.debug( "<-- Stop decoding : {}", container.getCurrentTLV().toString() );
@@ -940,17 +966,18 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             {
                 log.debug( "<-- End decoding : {}", container.getCurrentTLV().toString() );
             }
-            
+
             log.debug( "<<<==========================================" );
         }
-        
+
         return;
     } // end method decode
 
+
     /**
      * Get the length's Length.
-     *
-     * @return  Returns the length's Length.
+     * 
+     * @return Returns the length's Length.
      */
     public int getMaxLengthLength()
     {
@@ -958,16 +985,18 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         return maxLengthLength;
     }
 
+
     /**
      * Get the maximum Tag's length
-     *
-     * @return  Returns the maximum tag Length.
+     * 
+     * @return Returns the maximum tag Length.
      */
     public int getMaxTagLength()
     {
 
         return maxTagLength;
     }
+
 
     /**
      * Disallow indefinite length.
@@ -977,6 +1006,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         this.indefiniteLengthAllowed = false;
     }
 
+
     /**
      * Allow indefinite length.
      */
@@ -985,11 +1015,12 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         this.indefiniteLengthAllowed = true;
     }
 
+
     /**
      * Tells if indefinite length form could be used for Length
-     *
-     * @return  Returns <code>true</code> if the current decoder support
-     *          indefinite length
+     * 
+     * @return Returns <code>true</code> if the current decoder support
+     *         indefinite length
      */
     public boolean isIndefiniteLengthAllowed()
     {
@@ -997,30 +1028,33 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         return indefiniteLengthAllowed;
     }
 
+
     /**
      * Set the maximul length for a Length
-     *
-     * @param maxLengthLength  The lengthLength to set.
-     *
-     * @throws  DecoderException Thrown if the indefinite length is allowed
-     * or if the length's Length is above 126 bytes
+     * 
+     * @param maxLengthLength
+     *            The lengthLength to set.
+     * @throws DecoderException
+     *             Thrown if the indefinite length is allowed or if the length's
+     *             Length is above 126 bytes
      */
     public void setMaxLengthLength( int maxLengthLength ) throws DecoderException
     {
 
         if ( ( this.indefiniteLengthAllowed ) && ( maxLengthLength > 126 ) )
         {
-            throw new DecoderException(
-                "Length above 126 bytes are not allowed for a definite form Length" );
+            throw new DecoderException( "Length above 126 bytes are not allowed for a definite form Length" );
         }
 
         this.maxLengthLength = maxLengthLength;
     }
 
+
     /**
      * Set the maximum Tag length
-     *
-     * @param maxTagLength  The tagLength to set.
+     * 
+     * @param maxTagLength
+     *            The tagLength to set.
      */
     public void setMaxTagLength( int maxTagLength )
     {

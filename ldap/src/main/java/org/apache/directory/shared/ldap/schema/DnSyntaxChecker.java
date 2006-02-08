@@ -32,34 +32,35 @@ import org.apache.directory.shared.ldap.name.DnParser;
  */
 public class DnSyntaxChecker implements SyntaxChecker
 {
-    /** The oid of the checked syntax */ 
-    private final String oid ;
+    /** The oid of the checked syntax */
+    private final String oid;
+
     /** The parser used to parse the DN */
-    private NameParser parser ;
-    
-    
+    private NameParser parser;
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
-     * Creates a SyntaxChecker for a DN based Syntax that uses a distinguished 
+     * Creates a SyntaxChecker for a DN based Syntax that uses a distinguished
      * name parser.
      * 
-     * @param oid the OID of the syntax
+     * @param oid
+     *            the OID of the syntax
      */
-    public DnSyntaxChecker( String oid ) throws NamingException
+    public DnSyntaxChecker(String oid) throws NamingException
     {
-        this.oid = oid ;
+        this.oid = oid;
 
         /*
          * One may ask: why are we not taking the same measures here to
-         * introduce a name component normalizer? The answer to this is
-         * well we don't care what the value of an attribute assertion is
-         * we only care that the DN containing it is properly formed.
+         * introduce a name component normalizer? The answer to this is well we
+         * don't care what the value of an attribute assertion is we only care
+         * that the DN containing it is properly formed.
          */
-        parser = new DnParser() ;
+        parser = new DnParser();
     }
 
 
@@ -67,13 +68,12 @@ public class DnSyntaxChecker implements SyntaxChecker
     // SyntaxChecker Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
      */
-    public String getSyntaxOid() 
+    public String getSyntaxOid()
     {
-        return oid ;
+        return oid;
     }
 
 
@@ -84,23 +84,23 @@ public class DnSyntaxChecker implements SyntaxChecker
     {
         if ( value instanceof Name )
         {
-            return true ;
+            return true;
         }
         else if ( value instanceof String )
         {
             try
             {
-                parser.parse( ( String ) value ) ;
+                parser.parse( ( String ) value );
             }
             catch ( Exception e )
             {
-                return false ;
+                return false;
             }
-            
-            return true ;
+
+            return true;
         }
-        
-        return false ;
+
+        return false;
     }
 
 
@@ -111,14 +111,13 @@ public class DnSyntaxChecker implements SyntaxChecker
     {
         if ( value instanceof Name )
         {
-            return ;
+            return;
         }
         else if ( value instanceof String )
         {
-            parser.parse( ( String ) value ) ;
+            parser.parse( ( String ) value );
         }
-        
-        throw new NamingException( "Do not know how syntax check instances of " 
-            + value.getClass() ) ;
+
+        throw new NamingException( "Do not know how syntax check instances of " + value.getClass() );
     }
 }

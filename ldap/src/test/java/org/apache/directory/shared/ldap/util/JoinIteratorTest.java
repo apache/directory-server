@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 
 /**
  * Document this class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -68,9 +68,7 @@ public class JoinIteratorTest extends TestCase
     public void testTwoArguments()
     {
         Iterator[] iterators = new Iterator[]
-            { Collections.singleton( "foo" ).iterator(),
-              Collections.singleton( "bar" ).iterator()
-            };
+            { Collections.singleton( "foo" ).iterator(), Collections.singleton( "bar" ).iterator() };
 
         JoinIterator iterator = new JoinIterator( iterators );
         assertTrue( "iterator should have an element", iterator.hasNext() );
@@ -88,11 +86,8 @@ public class JoinIteratorTest extends TestCase
         multivalued.add( "foo2" );
 
         Iterator[] iterators = new Iterator[]
-            { Collections.singleton( "foo0" ).iterator(),
-              multivalued.iterator(),
-              Collections.singleton( "bar0" ).iterator(),
-              Collections.singleton( "bar1" ).iterator()
-            };
+            { Collections.singleton( "foo0" ).iterator(), multivalued.iterator(),
+                Collections.singleton( "bar0" ).iterator(), Collections.singleton( "bar1" ).iterator() };
 
         JoinIterator iterator = new JoinIterator( iterators );
         assertTrue( "iterator should have an element", iterator.hasNext() );

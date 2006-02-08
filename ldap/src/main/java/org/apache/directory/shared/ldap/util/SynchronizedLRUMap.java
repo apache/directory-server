@@ -15,171 +15,188 @@
  */
 package org.apache.directory.shared.ldap.util;
 
+
 import java.io.Externalizable;
+
 
 /**
  * <p>
- * An implementation of a Map which has a maximum size and uses a Least Recently Used
- * algorithm to remove items from the Map when the maximum size is reached and new items are added.
+ * An implementation of a Map which has a maximum size and uses a Least Recently
+ * Used algorithm to remove items from the Map when the maximum size is reached
+ * and new items are added.
  * </p>
- * 
  * <p>
  * A synchronized version can be obtained with:
- * <code>Collections.synchronizedMap( theMapToSynchronize )</code>
- * If it will be accessed by multiple threads, you _must_ synchronize access
- * to this Map.  Even concurrent get(Object) operations produce indeterminate
- * behaviour.
+ * <code>Collections.synchronizedMap( theMapToSynchronize )</code> If it will
+ * be accessed by multiple threads, you _must_ synchronize access to this Map.
+ * Even concurrent get(Object) operations produce indeterminate behaviour.
  * </p>
- * 
  * <p>
  * Unlike the Collections 1.0 version, this version of LRUMap does use a true
- * LRU algorithm.  The keys for all gets and puts are moved to the front of
- * the list.  LRUMap is now a subclass of SequencedHashMap, and the "LRU"
- * key is now equivalent to LRUMap.getFirst().
+ * LRU algorithm. The keys for all gets and puts are moved to the front of the
+ * list. LRUMap is now a subclass of SequencedHashMap, and the "LRU" key is now
+ * equivalent to LRUMap.getFirst().
  * </p>
  * 
  * @since Commons Collections 1.0
  * @version $Revision$ $Date: 2004/02/18 01:15:42 $
- * 
  * @author <a href="mailto:jstrachan@apache.org">James Strachan</a>
  * @author <a href="mailto:morgand@apache.org">Morgan Delagrange</a>
  */
-public final class SynchronizedLRUMap extends SequencedHashMap implements Externalizable {
+public final class SynchronizedLRUMap extends SequencedHashMap implements Externalizable
+{
     // add a serial version uid, so that if we change things in the future
     // without changing the format, we can still deserialize properly.
     private static final long serialVersionUID = 2197433140769957051L;
-        
+
     private int maximumSize = 0;
 
+
     /**
-     * Default constructor, primarily for the purpose of
-     * de-externalization.  This constructors sets a default
-     * LRU limit of 100 keys, but this value may be overridden
-     * internally as a result of de-externalization.
+     * Default constructor, primarily for the purpose of de-externalization.
+     * This constructors sets a default LRU limit of 100 keys, but this value
+     * may be overridden internally as a result of de-externalization.
      */
-    public SynchronizedLRUMap() 
+    public SynchronizedLRUMap()
     {
         this( 100 );
     }
 
+
     /**
-     * Create a new LRUMap with a maximum capacity of <i>i</i>.
-     * Once <i>i</i> capacity is achieved, subsequent gets
-     * and puts will push keys out of the map.  See .
+     * Create a new LRUMap with a maximum capacity of <i>i</i>. Once <i>i</i>
+     * capacity is achieved, subsequent gets and puts will push keys out of the
+     * map. See .
      * 
-     * @param i      Maximum capacity of the LRUMap
+     * @param i
+     *            Maximum capacity of the LRUMap
      */
-    public SynchronizedLRUMap(int i) 
+    public SynchronizedLRUMap(int i)
     {
         super( i );
         maximumSize = i;
     }
 
+
     /**
-     * <p>Get the value for a key from the Map.  The key
-     * will be promoted to the Most Recently Used position.
-     * Note that get(Object) operations will modify
-     * the underlying Collection.  Calling get(Object)
-     * inside of an iteration over keys, values, etc. is
-     * currently unsupported.</p>
+     * <p>
+     * Get the value for a key from the Map. The key will be promoted to the
+     * Most Recently Used position. Note that get(Object) operations will modify
+     * the underlying Collection. Calling get(Object) inside of an iteration
+     * over keys, values, etc. is currently unsupported.
+     * </p>
      * 
-     * @param key    Key to retrieve
-     * @return Returns the value.  Returns null if the key has a
-     *         null value <i>or</i> if the key has no value.
+     * @param key
+     *            Key to retrieve
+     * @return Returns the value. Returns null if the key has a null value <i>or</i>
+     *         if the key has no value.
      */
-    public synchronized Object get(Object key) 
+    public synchronized Object get( Object key )
     {
-    	if ( !containsKey( key ) ) 
-    	{
-    		return null;
-    	}
-    
-    	Object value = remove( key );
-        super.put(key, value);
+        if ( !containsKey( key ) )
+        {
+            return null;
+        }
+
+        Object value = remove( key );
+        super.put( key, value );
         return value;
     }
 
-     /**
-      * <p>Removes the key and its Object from the Map.</p>
-      * 
-      * <p>(Note: this may result in the "Least Recently Used"
-      * object being removed from the Map.  In that case,
-      * the removeLRU() method is called.  See javadoc for
-      * removeLRU() for more details.)</p>
-      * 
-      * @param key    Key of the Object to add.
-      * @param value  Object to add
-      * @return Former value of the key
-      */    
-    public Object put( Object key, Object value ) 
+
+    /**
+     * <p>
+     * Removes the key and its Object from the Map.
+     * </p>
+     * <p>
+     * (Note: this may result in the "Least Recently Used" object being removed
+     * from the Map. In that case, the removeLRU() method is called. See javadoc
+     * for removeLRU() for more details.)
+     * </p>
+     * 
+     * @param key
+     *            Key of the Object to add.
+     * @param value
+     *            Object to add
+     * @return Former value of the key
+     */
+    public Object put( Object key, Object value )
     {
 
         int mapSize = size();
         Object retval = null;
 
-        if ( mapSize >= maximumSize ) 
+        if ( mapSize >= maximumSize )
         {
-	        synchronized ( this )
-	        {
-	            // don't retire LRU if you are just
-	            // updating an existing key
-	            if ( !containsKey( key) ) 
-	            {
-	                // lets retire the least recently used item in the cache
-	                removeLRU();
-	            }
+            synchronized ( this )
+            {
+                // don't retire LRU if you are just
+                // updating an existing key
+                if ( !containsKey( key ) )
+                {
+                    // lets retire the least recently used item in the cache
+                    removeLRU();
+                }
 
-	            retval = super.put( key, value );
-	        }
+                retval = super.put( key, value );
+            }
         }
         else
         {
-        	synchronized ( this )
-        	{
-        		retval = super.put( key, value);
-        	}
+            synchronized ( this )
+            {
+                retval = super.put( key, value );
+            }
         }
-        
+
         return retval;
     }
 
+
     /**
-     * This method is used internally by the class for 
-     * finding and removing the LRU Object.
+     * This method is used internally by the class for finding and removing the
+     * LRU Object.
      */
-    private void removeLRU() 
+    private void removeLRU()
     {
         Object key = getFirstKey();
-        // be sure to call super.get(key), or you're likely to 
+        // be sure to call super.get(key), or you're likely to
         // get infinite promotion recursion
         super.get( key );
-        
-        remove(key);
+
+        remove( key );
     }
 
+
     // Properties
-    //-------------------------------------------------------------------------        
-    /** Getter for property maximumSize.
+    // -------------------------------------------------------------------------
+    /**
+     * Getter for property maximumSize.
+     * 
      * @return Value of property maximumSize.
      */
-    public int getMaximumSize() 
+    public int getMaximumSize()
     {
         return maximumSize;
     }
-    
-    /** Setter for property maximumSize.
-     * @param maximumSize New value of property maximumSize.
+
+
+    /**
+     * Setter for property maximumSize.
+     * 
+     * @param maximumSize
+     *            New value of property maximumSize.
      */
-    public void setMaximumSize(int maximumSize) 
+    public void setMaximumSize( int maximumSize )
     {
-        synchronized (this)
+        synchronized ( this )
         {
-        	this.maximumSize = maximumSize;
-        
-	        while (size() > maximumSize) 
-	        {
-	            removeLRU();
-	        }
+            this.maximumSize = maximumSize;
+
+            while ( size() > maximumSize )
+            {
+                removeLRU();
+            }
         }
     }
 }

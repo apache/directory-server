@@ -14,13 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Protocol request and response altering control interface.  Any number of
+ * Protocol request and response altering control interface. Any number of
  * controls may be associated with a protocol message.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -28,49 +28,57 @@ public interface Control extends javax.naming.ldap.Control
 {
     /**
      * Gets the OID of the Control to identify the control type.
-     *
+     * 
      * @return the OID of this Control.
      */
-    String getType() ;
+    String getType();
+
 
     /**
      * Sets the OID of the Control to identify the control type.
-     *
-     * @param oid the OID of this Control.
+     * 
+     * @param oid
+     *            the OID of this Control.
      */
-    void setType( String oid ) ;
+    void setType( String oid );
+
 
     /**
      * Gets the ASN.1 BER encoded value of the control which would have its own
      * custom ASN.1 defined structure based on the nature of the control.
-     *
+     * 
      * @return ASN.1 BER encoded value as binary data.
      */
-    byte [] getValue() ;
+    byte[] getValue();
+
 
     /**
      * Sets the ASN.1 BER encoded value of the control which would have its own
      * custom ASN.1 defined structure based on the nature of the control.
-     *
-     * @param value ASN.1 BER encoded value as binary data.
+     * 
+     * @param value
+     *            ASN.1 BER encoded value as binary data.
      */
-    void setValue( byte [] value ) ;
+    void setValue( byte[] value );
+
 
     /**
      * Determines whether or not this control is critical for the correct
-     * operation of a request or response message.  The default for this value
+     * operation of a request or response message. The default for this value
      * should be false.
-     *
+     * 
      * @return true if the control is critical false otherwise.
      */
-    boolean isCritical() ;
+    boolean isCritical();
+
 
     /**
      * Sets the criticil flag which determines whether or not this control is
-     * critical for the correct operation of a request or response message.  The
+     * critical for the correct operation of a request or response message. The
      * default for this value should be false.
-     *
-     * @param isCritical true if the control is critical false otherwise.
+     * 
+     * @param isCritical
+     *            true if the control is critical false otherwise.
      */
-    void setCritical( boolean isCritical ) ;
+    void setCritical( boolean isCritical );
 }

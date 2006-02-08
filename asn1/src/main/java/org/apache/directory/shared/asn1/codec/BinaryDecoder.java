@@ -12,31 +12,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 
 package org.apache.directory.shared.asn1.codec;
 
 
 /**
  * Defines common decoding methods for byte array decoders.
- *
+ * 
  * @author Apache Software Foundation
  * @version $Id: BinaryDecoder.java,v 1.10 2004/06/15 18:14:15 ggregory Exp $
  */
-public interface BinaryDecoder extends Decoder {
+public interface BinaryDecoder extends Decoder
+{
 
     /**
-     * Decodes a byte array and returns the results as a byte array. 
-     *
-     * @param pArray A byte array which has been encoded with the
-     *      appropriate encoder
+     * Decodes a byte array and returns the results as a byte array.
      * 
+     * @param pArray
+     *            A byte array which has been encoded with the appropriate
+     *            encoder
      * @return a byte array that contains decoded content
-     * 
-     * @throws org.apache.directory.shared.asn1.codec.DecoderException A decoder exception is thrown
-     *          if a Decoder encounters a failure condition during
-     *          the decode process.
+     * @throws org.apache.directory.shared.asn1.codec.DecoderException
+     *             A decoder exception is thrown if a Decoder encounters a
+     *             failure condition during the decode process.
      */
-    byte[] decode(byte[] pArray) throws DecoderException;
-}  
-
+    byte[] decode( byte[] pArray ) throws DecoderException;
+}

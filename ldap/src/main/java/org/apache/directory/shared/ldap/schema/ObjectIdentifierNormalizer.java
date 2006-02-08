@@ -22,7 +22,7 @@ import javax.naming.NamingException;
 
 /**
  * A normalizer for the objectIdentifierMatch matching rule.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -34,8 +34,8 @@ public class ObjectIdentifierNormalizer implements Normalizer
         {
             return null;
         }
-        
-        if (! ( value instanceof String ) )
+
+        if ( !( value instanceof String ) )
         {
             return value;
         }

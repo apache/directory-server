@@ -37,17 +37,17 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 
 /**
  * TestCase for the AddRequestImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public class AddRequestImplTest extends TestCase
 {
     /**
      * Creates and populates a LockableAttributeImpl with a specific id.
-     *
-     * @param id the id for the attribute
+     * 
+     * @param id
+     *            the id for the attribute
      * @return the LockableAttributeImpl assembled for testing
      */
     private LockableAttributeImpl getAttribute( String id )
@@ -62,7 +62,7 @@ public class AddRequestImplTest extends TestCase
 
     /**
      * Creates and populates a LockableAttributes object
-     *
+     * 
      * @return
      */
     private LockableAttributesImpl getAttributes()
@@ -132,7 +132,6 @@ public class AddRequestImplTest extends TestCase
         req1.setEntry( "cn=admin,dc=apache,dc=org" );
         req1.setAttributes( getAttributes() );
 
-
         assertFalse( req0.equals( req1 ) );
     }
 
@@ -176,74 +175,90 @@ public class AddRequestImplTest extends TestCase
                 return AddRequestImplTest.this.getAttributes();
             }
 
+
             public void setAttributes( Attributes entry )
             {
             }
+
 
             public String getEntry()
             {
                 return null;
             }
 
+
             public void setEntry( String entry )
             {
             }
+
 
             public MessageTypeEnum getResponseType()
             {
                 return MessageTypeEnum.ADDRESPONSE;
             }
 
+
             public boolean hasResponse()
             {
                 return true;
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.ADDREQUEST;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control control ) throws MessageException
             {
             }
 
+
             public void remove( Control control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 5;
             }
 
+
             public Object get( Object key )
             {
                 return null;
             }
+
 
             public Object put( Object key, Object value )
             {
                 return null;
             }
 
+
             public void abandon()
             {
             }
+
 
             public boolean isAbandoned()
             {
                 return false;
             }
 
-            public void addAbandonListener(AbandonListener listener)
+
+            public void addAbandonListener( AbandonListener listener )
             {
             }
+
 
             public ResultResponse getResultResponse()
             {

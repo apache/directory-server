@@ -26,16 +26,17 @@
  */
 package org.apache.directory.shared.ldap.util;
 
-import java.util.NoSuchElementException ;
 
-import javax.naming.NamingException ;
-import javax.naming.NamingEnumeration ;
+import java.util.NoSuchElementException;
+
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 
 
 /**
- * An empty NamingEnumeration without any values: meaning 
- * hasMore/hasMoreElements() always returns false, and next/nextElement()
- * always throws a NoSuchElementException.
+ * An empty NamingEnumeration without any values: meaning
+ * hasMore/hasMoreElements() always returns false, and next/nextElement() always
+ * throws a NoSuchElementException.
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
@@ -54,44 +55,45 @@ public class EmptyEnumeration implements NamingEnumeration
 
     /**
      * Always returns false.
+     * 
      * @see javax.naming.NamingEnumeration#hasMore()
      */
     public boolean hasMore() throws NamingException
     {
-        return false ;
+        return false;
     }
 
 
     /**
      * Always throws NoSuchElementException.
-     *
+     * 
      * @see javax.naming.NamingEnumeration#next()
      */
     public Object next() throws NamingException
     {
-        throw new NoSuchElementException() ;
+        throw new NoSuchElementException();
     }
 
 
     /**
      * Always return false.
-     *
+     * 
      * @see java.util.Enumeration#hasMoreElements()
      */
     public boolean hasMoreElements()
     {
-        return false ;
+        return false;
     }
 
 
     /**
      * Always throws NoSuchElementException.
-     *
+     * 
      * @see java.util.Enumeration#nextElement()
      */
     public Object nextElement()
     {
-        throw new NoSuchElementException() ;
+        throw new NoSuchElementException();
     }
 
 }

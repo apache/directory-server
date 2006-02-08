@@ -25,16 +25,16 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A SizeLimitExceededException which associates a resultCode namely the
  * {@link ResultCodeEnum#SIZELIMITEXCEEDED} resultCode with the exception.
- *
+ * 
  * @see LdapException
  * @see SizeLimitExceededException
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapSizeLimitExceededException extends SizeLimitExceededException
-        implements LdapException
+public class LdapSizeLimitExceededException extends SizeLimitExceededException implements LdapException
 {
     static final long serialVersionUID = -8611970137960601723L;
 
@@ -51,7 +51,7 @@ public class LdapSizeLimitExceededException extends SizeLimitExceededException
     /**
      * @see SizeLimitExceededException#SizeLimitExceededException(String)
      */
-    public LdapSizeLimitExceededException( String explanation )
+    public LdapSizeLimitExceededException(String explanation)
     {
         super( explanation );
     }
@@ -59,7 +59,7 @@ public class LdapSizeLimitExceededException extends SizeLimitExceededException
 
     /**
      * Always returns {@link ResultCodeEnum#SIZELIMITEXCEEDED}
-     *
+     * 
      * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()

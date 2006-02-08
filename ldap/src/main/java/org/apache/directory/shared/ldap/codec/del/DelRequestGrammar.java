@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.del;
 
+
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -38,16 +39,17 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class implements the DelRequest LDAP message. All the actions are declared in this
- * class. As it is a singleton, these declaration are only done once.
- * 
- * If an action is to be added or modified, this is where the work is to be done !
+ * This class implements the DelRequest LDAP message. All the actions are
+ * declared in this class. As it is a singleton, these declaration are only done
+ * once. If an action is to be added or modified, this is where the work is to
+ * be done !
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DelRequestGrammar extends AbstractGrammar implements IGrammar
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( DelRequestGrammar.class );
@@ -55,102 +57,105 @@ public class DelRequestGrammar extends AbstractGrammar implements IGrammar
     /** The instance of grammar. DelRequestGrammar is a singleton */
     private static IGrammar instance = new DelRequestGrammar();
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new DelRequestGrammar object.
      */
     private DelRequestGrammar()
     {
-        name              = DelRequestGrammar.class.getName();
-        statesEnum        = LdapStatesEnum.getInstance();
+        name = DelRequestGrammar.class.getName();
+        statesEnum = LdapStatesEnum.getInstance();
 
         // Create the transitions table
         super.transitions = new GrammarTransition[LdapStatesEnum.LAST_DEL_REQUEST_STATE][256];
 
-        //============================================================================================
+        // ============================================================================================
         // DelRequest
-        //============================================================================================
+        // ============================================================================================
         // DelRequestGrammar ::= [APPLICATION 10] LDAPDN { (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.DEL_REQUEST_TAG][LdapConstants.DEL_REQUEST_TAG] = new GrammarTransition(
-                LdapStatesEnum.DEL_REQUEST_TAG,
-                LdapStatesEnum.DEL_REQUEST_VALUE, null );
+            LdapStatesEnum.DEL_REQUEST_TAG, LdapStatesEnum.DEL_REQUEST_VALUE, null );
 
         // DelRequestGrammar ::= [APPLICATION 10] LDAPDN { (Value)
         // Initialise the del request pojo and store the DN to be deleted
         super.transitions[LdapStatesEnum.DEL_REQUEST_VALUE][LdapConstants.DEL_REQUEST_TAG] = new GrammarTransition(
-                LdapStatesEnum.DEL_REQUEST_VALUE, LdapStatesEnum.END_STATE,
-                new GrammarAction( "Init del Request" )
+            LdapStatesEnum.DEL_REQUEST_VALUE, LdapStatesEnum.END_STATE, new GrammarAction( "Init del Request" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
+
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+
+                    // We can allocate the DelRequest Object
+                    DelRequest delRequest = new DelRequest();
+
+                    // And store the DN into it
+                    // Get the Value and store it in the DelRequest
+                    TLV tlv = ldapMessageContainer.getCurrentTLV();
+
+                    // We have to handle the special case of a 0 length matched
+                    // DN
+                    Name entry = null;
+
+                    if ( tlv.getLength().getLength() == 0 )
                     {
-
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-
-                        // We can allocate the DelRequest Object
-                        DelRequest delRequest = new DelRequest();
-
-                        // And store the DN into it
-                        // Get the Value and store it in the DelRequest
-                        TLV tlv = ldapMessageContainer.getCurrentTLV();
-
-                        // We have to handle the special case of a 0 length matched DN
-                        Name entry = null;
-                        
-                        if ( tlv.getLength().getLength() == 0 )
-                        {
-                            throw new DecoderException( "The entry must not be null" );
-                        }
-                        else
-                        {
-                            try
-                            {
-                            	entry = new LdapDN( tlv.getValue().getData() );
-                            	entry = LdapDN.normalize( entry );
-                            }
-                            catch ( InvalidNameException ine )
-                            {
-                            	String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid"; 
-                                log.error( "{} : {}", msg, ine.getMessage());
-                                throw new DecoderException( msg, ine );
-                            }
-                            catch ( NamingException ne )
-                            {
-                            	String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() ) + ") is invalid";
-                                log.error( "{} : {}", msg, ne.getMessage() );
-                                throw new DecoderException( msg, ne );
-                            }
-
-                            delRequest.setEntry( entry );
-                        }
-
-                        // then we associate it to the ldapMessage Object
-                        ldapMessage.setProtocolOP( delRequest );
-                        
-                        // We can have an END transition
-                        ldapMessageContainer.grammarEndAllowed( true );
-                        
-                        // We can have an Pop transition
-                        ldapMessageContainer.grammarPopAllowed( true );
-                        
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Deleting DN {}", entry );
-                        }
+                        throw new DecoderException( "The entry must not be null" );
                     }
-                } );
+                    else
+                    {
+                        try
+                        {
+                            entry = new LdapDN( tlv.getValue().getData() );
+                            entry = LdapDN.normalize( entry );
+                        }
+                        catch ( InvalidNameException ine )
+                        {
+                            String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() )
+                                + ") is invalid";
+                            log.error( "{} : {}", msg, ine.getMessage() );
+                            throw new DecoderException( msg, ine );
+                        }
+                        catch ( NamingException ne )
+                        {
+                            String msg = "The DN to delete  (" + StringTools.dumpBytes( tlv.getValue().getData() )
+                                + ") is invalid";
+                            log.error( "{} : {}", msg, ne.getMessage() );
+                            throw new DecoderException( msg, ne );
+                        }
+
+                        delRequest.setEntry( entry );
+                    }
+
+                    // then we associate it to the ldapMessage Object
+                    ldapMessage.setProtocolOP( delRequest );
+
+                    // We can have an END transition
+                    ldapMessageContainer.grammarEndAllowed( true );
+
+                    // We can have an Pop transition
+                    ldapMessageContainer.grammarPopAllowed( true );
+
+                    if ( log.isDebugEnabled() )
+                    {
+                        log.debug( "Deleting DN {}", entry );
+                    }
+                }
+            } );
 
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * This class is a singleton.
-     *
+     * 
      * @return An instance on this grammar
      */
     public static IGrammar getInstance()

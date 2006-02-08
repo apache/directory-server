@@ -39,16 +39,15 @@ import java.util.Map;
 
 /**
  * Test case for the ModifyRequestImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public class ModifyRequestImplTest extends TestCase
 {
     /**
      * Builds a ModifyRequest for testing purposes.
-     *
+     * 
      * @return the ModifyRequest to use for tests
      */
     public ModifyRequestImpl getRequest()
@@ -61,8 +60,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item =
-                new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req.addModification( item );
 
         attr = new LockableAttributeImpl( "attr1" );
@@ -136,8 +134,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item =
-                new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -163,8 +160,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item =
-                new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -184,8 +180,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item =
-                new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -211,8 +206,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item =
-                new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -243,8 +237,7 @@ public class ModifyRequestImplTest extends TestCase
                 attr.add( "val0" );
                 attr.add( "val1" );
                 attr.add( "val2" );
-                ModificationItem item =
-                        new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+                ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
                 list.add( item );
 
                 attr = new LockableAttributeImpl( "attr1" );
@@ -261,78 +254,95 @@ public class ModifyRequestImplTest extends TestCase
                 return list;
             }
 
+
             public void addModification( ModificationItem a_mod )
             {
             }
 
+
             public void removeModification( ModificationItem a_mod )
             {
             }
+
 
             public String getName()
             {
                 return "cn=admin,dc=apache,dc=org";
             }
 
+
             public void setName( String a_name )
             {
             }
+
 
             public MessageTypeEnum getResponseType()
             {
                 return MessageTypeEnum.MODIFYRESPONSE;
             }
 
+
             public boolean hasResponse()
             {
                 return true;
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.MODIFYREQUEST;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control a_control ) throws MessageException
             {
             }
 
+
             public void remove( Control a_control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 45;
             }
 
+
             public Object get( Object a_key )
             {
                 return null;
             }
+
 
             public Object put( Object a_key, Object a_value )
             {
                 return null;
             }
 
+
             public void abandon()
             {
             }
+
 
             public boolean isAbandoned()
             {
                 return false;
             }
 
-            public void addAbandonListener(AbandonListener listener)
+
+            public void addAbandonListener( AbandonListener listener )
             {
             }
+
 
             public ResultResponse getResultResponse()
             {

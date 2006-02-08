@@ -33,10 +33,13 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequest
 {
     static final long serialVersionUID = 7916990159044177480L;
+
     /** Extended request's Object Identifier or <b>requestName</b> */
     private String oid;
+
     /** Extended request's payload or <b>requestValue</b> */
-    protected byte [] payload;
+    protected byte[] payload;
+
     protected ResultResponse response;
 
 
@@ -44,14 +47,14 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
     // Constructors
     // -----------------------------------------------------------------------
 
-
     /**
      * Creates a Lockable ExtendedRequest implementing object used to perform
      * extended protocol operation on the server.
-     *
-     * @param id the sequential message identifier
+     * 
+     * @param id
+     *            the sequential message identifier
      */
-    public ExtendedRequestImpl( final int id )
+    public ExtendedRequestImpl(final int id)
     {
         super( id, TYPE, true );
     }
@@ -60,12 +63,11 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
     // -----------------------------------------------------------------------
     // ExtendedRequest Interface Method Implementations
     // -----------------------------------------------------------------------
-    
 
     /**
      * Gets the Object Idendifier corresponding to the extended request type.
      * This is the <b>requestName</b> portion of the ext. req. PDU.
-     *
+     * 
      * @return the dotted-decimal representation as a String of the OID
      */
     public String getOid()
@@ -76,8 +78,9 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
     /**
      * Sets the Object Idendifier corresponding to the extended request type.
-     *
-     * @param oid the dotted-decimal representation as a String of the OID
+     * 
+     * @param oid
+     *            the dotted-decimal representation as a String of the OID
      */
     public void setOid( String oid )
     {
@@ -86,13 +89,13 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
 
     /**
-     * Gets the extended request's <b>requestValue</b> portion of the PDU.  The
+     * Gets the extended request's <b>requestValue</b> portion of the PDU. The
      * form of the data is request specific and is determined by the extended
      * request OID.
-     *
+     * 
      * @return byte array of data
      */
-    public byte [] getPayload()
+    public byte[] getPayload()
     {
         return payload;
     }
@@ -100,10 +103,11 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
     /**
      * Sets the extended request's <b>requestValue</b> portion of the PDU.
-     *
-     * @param payload byte array of data encapsulating ext. req. parameters
+     * 
+     * @param payload
+     *            byte array of data encapsulating ext. req. parameters
      */
-    public void setPayload( byte [] payload )
+    public void setPayload( byte[] payload )
     {
         this.payload = payload;
     }
@@ -113,18 +117,17 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
     // SingleReplyRequest Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the protocol response message type for this request which produces
      * at least one response.
-     *
+     * 
      * @return the message type of the response.
      */
     public MessageTypeEnum getResponseType()
     {
         return RESP_TYPE;
     }
-    
+
 
     /**
      * The result containing response for this request.
@@ -137,15 +140,16 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
         {
             response = new ExtendedResponseImpl( getMessageId() );
         }
-        
+
         return response;
     }
 
 
     /**
      * Checks to see if an object equals this ExtendedRequest.
-     *
-     * @param obj the object to be checked for equality
+     * 
+     * @param obj
+     *            the object to be checked for equality
      * @return true if the obj equals this ExtendedRequest, false otherwise
      */
     public boolean equals( Object obj )
@@ -155,7 +159,7 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
@@ -173,7 +177,7 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
         if ( oid != null && req.getOid() != null )
         {
-            if ( ! oid.equals( req.getOid() ) )
+            if ( !oid.equals( req.getOid() ) )
             {
                 return false;
             }
@@ -191,7 +195,7 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
         if ( payload != null && req.getPayload() != null )
         {
-            if ( ! ArrayUtils.isEquals( payload, req.getPayload() ) )
+            if ( !ArrayUtils.isEquals( payload, req.getPayload() ) )
             {
                 return false;
             }
@@ -199,11 +203,12 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
         return true;
     }
-    
+
+
     /**
      * Get a String representation of an Extended Request
-     *
-     * @return an Extended Request String 
+     * 
+     * @return an Extended Request String
      */
     public String toString()
     {
@@ -211,14 +216,11 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
 
         sb.append( "    Extended request\n" );
         sb.append( "        Request name : '" ).append( oid.toString() ).append( "'\n" );
-        
+
         if ( oid != null )
         {
-            sb.append( "        Request value : '" ).
-            	append( StringTools.utf8ToString( payload ) ).
-            	append( '/' ).
-            	append( StringTools.dumpBytes( payload ) ).
-            	append( "'\n" );
+            sb.append( "        Request value : '" ).append( StringTools.utf8ToString( payload ) ).append( '/' )
+                .append( StringTools.dumpBytes( payload ) ).append( "'\n" );
         }
 
         return sb.toString();
@@ -237,7 +239,8 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
     }
 
 
-    public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length ) throws NamingException
+    public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length )
+        throws NamingException
     {
         return null;
     }

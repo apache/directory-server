@@ -34,11 +34,17 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class FilterParserImpl implements FilterParser
 {
     private AntlrFilterParser parser;
+
     private PipedOutputStream parserPipe;
+
     private AntlrFilterLexer lexer;
+
     private TokenStreamSelector selector;
+
     private LexerSharedInputState state;
+
     private AntlrFilterValueLexer valueLexer;
+
     private AntlrFilterValueParser valueParser;
 
 
@@ -106,13 +112,13 @@ public class FilterParserImpl implements FilterParser
             filter = StringTools.trimConsecutiveToOne( filter, '*' );
         }
 
-        this.parserPipe.write( filter.getBytes() ) ;
-        this.parserPipe.write( '\n' ) ;
-        this.parserPipe.flush() ;
+        this.parserPipe.write( filter.getBytes() );
+        this.parserPipe.write( '\n' );
+        this.parserPipe.flush();
 
         try
         {
-            root = this.parser.filter() ;
+            root = this.parser.filter();
             this.state.reset();
             this.selector.select( this.lexer );
         }
@@ -120,17 +126,17 @@ public class FilterParserImpl implements FilterParser
         {
             // @todo either use ExceptionUtils here or switch to throwing a
             // naming exception instead.
-            String msg = "Parser failure on filter:\n\t" + filter ;
-            msg += "\nAntlr exception trace:\n" + e.getMessage() ;
-            init() ;
-            throw new ParseException( msg, e.getColumn() ) ;
+            String msg = "Parser failure on filter:\n\t" + filter;
+            msg += "\nAntlr exception trace:\n" + e.getMessage();
+            init();
+            throw new ParseException( msg, e.getColumn() );
         }
         catch ( TokenStreamException e2 )
         {
-            String msg = "Parser failure on filter:\n\t" + filter ;
+            String msg = "Parser failure on filter:\n\t" + filter;
             msg += "\nAntlr exception trace:\n" + e2.getMessage();
-            init() ;
-            throw new ParseException( msg, 0 ) ;
+            init();
+            throw new ParseException( msg, 0 );
         }
 
         return root;

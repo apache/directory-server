@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.codec.stateful.examples;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -28,29 +29,32 @@ import org.apache.directory.shared.asn1.codec.stateful.StatefulEncoder;
 /**
  * Document me.
  * 
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class HexEncoder implements StatefulEncoder
 {
     private static final int CHUNK_SZ = 128;
+
     private ByteBuffer buf = ByteBuffer.allocate( CHUNK_SZ );
+
     private EncoderMonitor monitor = new EncoderMonitorAdapter();
-    private EncoderCallback cb = new EncoderCallback() {
+
+    private EncoderCallback cb = new EncoderCallback()
+    {
         public void encodeOccurred( StatefulEncoder encoder, Object encoded )
         {
         }
     };
-    private final byte[] HEXCHAR_LUT = {
-        (byte)'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        'a', 'b', 'c', 'd', 'e', 'f'
-    };
+
+    private final byte[] HEXCHAR_LUT =
+        { ( byte ) '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 
     /**
      * Transforms a decoded ByteArray of binary data into a stream of ASCII hex
      * characters.
-     *
+     * 
      * @param obj
      * @throws org.apache.directory.shared.asn1.codec.EncoderException
      */
@@ -58,7 +62,7 @@ public class HexEncoder implements StatefulEncoder
     {
         ByteBuffer raw = ( ByteBuffer ) obj;
 
-        if ( raw == null || ! raw.hasRemaining() )
+        if ( raw == null || !raw.hasRemaining() )
         {
             return;
         }
@@ -68,9 +72,9 @@ public class HexEncoder implements StatefulEncoder
          * raw buffer and there's space for 2 hex character bytes in the
          * resultant hex encoded buffer.
          */
-        while( raw.hasRemaining() )
+        while ( raw.hasRemaining() )
         {
-            if ( ! buf.hasRemaining() )
+            if ( !buf.hasRemaining() )
             {
                 buf.flip();
                 cb.encodeOccurred( this, buf );

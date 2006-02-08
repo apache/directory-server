@@ -18,49 +18,52 @@ package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Control which allows for the management of referrals and other DSA 
- * specific entities without processing them: meaning the referrals are
- * treated as regular entries using this control.  More information is
- * available in <a href="">RFC 3296</a>.  Below we have included 
- * section 3 of the RFC describing this control:
+ * Control which allows for the management of referrals and other DSA specific
+ * entities without processing them: meaning the referrals are treated as
+ * regular entries using this control. More information is available in <a
+ * href="">RFC 3296</a>. Below we have included section 3 of the RFC describing
+ * this control:
+ * 
  * <pre>
- * 3.  The ManageDsaIT Control
- *
- *  The client may provide the ManageDsaIT control with an operation to
- *  indicate that the operation is intended to manage objects within the
- *  DSA (server) Information Tree.  The control causes Directory-specific
- *  entries (DSEs), regardless of type, to be treated as normal entries
- *  allowing clients to interrogate and update these entries using LDAP
- *  operations.
- *
- *  A client MAY specify the following control when issuing an add,
- *  compare, delete, modify, modifyDN, search request or an extended
- *  operation for which the control is defined.
- *
- *  The control type is 2.16.840.1.113730.3.4.2.  The control criticality
- *  may be TRUE or, if FALSE, absent.  The control value is absent.
- *
- *  When the control is present in the request, the server SHALL NOT
- *  generate a referral or continuation reference based upon information
- *  held in referral objects and instead SHALL treat the referral object
- *  as a normal entry.  The server, however, is still free to return
- *  referrals for other reasons.  When not present, referral objects
- *  SHALL be handled as described above.
- *
- *  The control MAY cause other objects to be treated as normal entries
- *  as defined by subsequent documents.
+ *  3.  The ManageDsaIT Control
+ * 
+ *   The client may provide the ManageDsaIT control with an operation to
+ *   indicate that the operation is intended to manage objects within the
+ *   DSA (server) Information Tree.  The control causes Directory-specific
+ *   entries (DSEs), regardless of type, to be treated as normal entries
+ *   allowing clients to interrogate and update these entries using LDAP
+ *   operations.
+ * 
+ *   A client MAY specify the following control when issuing an add,
+ *   compare, delete, modify, modifyDN, search request or an extended
+ *   operation for which the control is defined.
+ * 
+ *   The control type is 2.16.840.1.113730.3.4.2.  The control criticality
+ *   may be TRUE or, if FALSE, absent.  The control value is absent.
+ * 
+ *   When the control is present in the request, the server SHALL NOT
+ *   generate a referral or continuation reference based upon information
+ *   held in referral objects and instead SHALL treat the referral object
+ *   as a normal entry.  The server, however, is still free to return
+ *   referrals for other reasons.  When not present, referral objects
+ *   SHALL be handled as described above.
+ * 
+ *   The control MAY cause other objects to be treated as normal entries
+ *   as defined by subsequent documents.
  * </pre>
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ManageDsaITControl extends ControlImpl
 {
     public static final String CONTROL_OID = "2.16.840.1.113730.3.4.2";
+
     private static final long serialVersionUID = -8844249964346248321L;
+
     private final static byte[] EMPTY_BYTES = new byte[0];
-    
-    
+
+
     /**
      * Returns an empty byte[] everytime.
      */

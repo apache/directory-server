@@ -23,7 +23,7 @@ import javax.naming.NamingEnumeration;
 
 /**
  * A NamingEnumeration over an array of objects.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -31,16 +31,18 @@ public class ArrayNamingEnumeration implements NamingEnumeration
 {
     /** the objects to enumerate */
     private final Object[] objects;
+
     /** the index pointing into the array */
     private int index = 0;
 
 
     /**
      * Creates a NamingEnumeration over an array of objects.
-     *
-     * @param objects the objects to enumerate over
+     * 
+     * @param objects
+     *            the objects to enumerate over
      */
-    public ArrayNamingEnumeration( Object[] objects )
+    public ArrayNamingEnumeration(Object[] objects)
     {
         this.objects = objects;
     }

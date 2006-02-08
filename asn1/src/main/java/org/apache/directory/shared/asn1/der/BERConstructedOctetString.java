@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -25,23 +26,27 @@ import java.util.Vector;
 
 public class BERConstructedOctetString extends DEROctetString
 {
-	private Vector octets;
-    
+    private Vector octets;
+
+
     /**
-     * @param string the octets making up the octet string.
+     * @param string
+     *            the octets making up the octet string.
      */
-    public BERConstructedOctetString( byte[] string )
+    public BERConstructedOctetString(byte[] string)
     {
         super( string );
     }
 
-    public BERConstructedOctetString( Vector octets )
+
+    public BERConstructedOctetString(Vector octets)
     {
         super( toBytes( octets ) );
 
         this.octets = octets;
     }
-    
+
+
     /**
      * Convert a vector of octet strings into a single byte string.
      */
@@ -53,15 +58,16 @@ public class BERConstructedOctetString extends DEROctetString
         {
             try
             {
-                DEROctetString o = (DEROctetString)octs.elementAt( i );
+                DEROctetString o = ( DEROctetString ) octs.elementAt( i );
 
                 baos.write( o.getOctets() );
             }
-            catch (ClassCastException e)
+            catch ( ClassCastException e )
             {
-                throw new IllegalArgumentException( octs.elementAt( i ).getClass().getName() + " found in input should only contain DEROctetString." );
+                throw new IllegalArgumentException( octs.elementAt( i ).getClass().getName()
+                    + " found in input should only contain DEROctetString." );
             }
-            catch (IOException e)
+            catch ( IOException e )
             {
                 throw new IllegalArgumentException( "Exception converting octets " + e.toString() );
             }
@@ -69,6 +75,7 @@ public class BERConstructedOctetString extends DEROctetString
 
         return baos.toByteArray();
     }
+
 
     /**
      * @return Enumeration the DER octets that make up this string.
@@ -82,18 +89,19 @@ public class BERConstructedOctetString extends DEROctetString
 
         return octets.elements();
     }
-    
+
+
     private Vector generateOcts()
     {
-        int    start  = 0;
-        int    end    = 0;
+        int start = 0;
+        int end = 0;
         Vector vector = new Vector();
 
         while ( ( end + 1 ) < value.length )
         {
-            if ( value[ end ] == 0 && value[ end + 1 ] == 0 )
+            if ( value[end] == 0 && value[end + 1] == 0 )
             {
-                byte[]  nStr = new byte[ end - start + 1 ];
+                byte[] nStr = new byte[end - start + 1];
 
                 System.arraycopy( value, start, nStr, 0, nStr.length );
 
@@ -103,7 +111,7 @@ public class BERConstructedOctetString extends DEROctetString
             end++;
         }
 
-        byte[] nStr = new byte[ value.length - start ];
+        byte[] nStr = new byte[value.length - start];
 
         System.arraycopy( value, start, nStr, 0, nStr.length );
 
@@ -111,14 +119,14 @@ public class BERConstructedOctetString extends DEROctetString
 
         return vector;
     }
-    
-    public void encode( ASN1OutputStream out )
-        throws IOException
+
+
+    public void encode( ASN1OutputStream out ) throws IOException
     {
         out.write( CONSTRUCTED | OCTET_STRING );
 
         out.write( DERObject.TAGGED );
-        
+
         if ( octets != null )
         {
             for ( int i = 0; i != octets.size(); i++ )
@@ -129,13 +137,13 @@ public class BERConstructedOctetString extends DEROctetString
         else
         {
             int start = 0;
-            int end   = 0;
+            int end = 0;
 
             while ( ( end + 1 ) < value.length )
             {
-                if ( value[ end ] == 0 && value[ end + 1 ] == 0 )
+                if ( value[end] == 0 && value[end + 1] == 0 )
                 {
-                    byte[] newString = new byte[ end - start + 1 ];
+                    byte[] newString = new byte[end - start + 1];
 
                     System.arraycopy( value, start, newString, 0, newString.length );
 
@@ -145,7 +153,7 @@ public class BERConstructedOctetString extends DEROctetString
                 end++;
             }
 
-            byte[] newString = new byte[ value.length - start ];
+            byte[] newString = new byte[value.length - start];
 
             System.arraycopy( value, start, newString, 0, newString.length );
 
@@ -156,4 +164,3 @@ public class BERConstructedOctetString extends DEROctetString
         out.write( TERMINATOR );
     }
 }
-

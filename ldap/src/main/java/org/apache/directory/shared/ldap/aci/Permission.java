@@ -18,6 +18,7 @@
  */
 package org.apache.directory.shared.ldap.aci;
 
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,49 +26,55 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+
 /**
  * An abstract base class for {@link ItemPermission} and {@link UserPermission}.
- *
+ * 
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
- *
  */
 public abstract class Permission implements Serializable
 {
     private final int precedence;
+
     private final Set grantsAndDenials;
+
     private final Set grants;
+
     private final Set denials;
-    
+
+
     /**
      * Creates a new instance
      * 
-     * @param precedence the precedence of this permission (<tt>-1</tt> to use the default)
-     * @param grantsAndDenials the set of {@link GrantAndDenial}s
+     * @param precedence
+     *            the precedence of this permission (<tt>-1</tt> to use the
+     *            default)
+     * @param grantsAndDenials
+     *            the set of {@link GrantAndDenial}s
      */
-    protected Permission( int precedence, Collection grantsAndDenials )
+    protected Permission(int precedence, Collection grantsAndDenials)
     {
-        if( precedence < 0 || precedence > 255 )
+        if ( precedence < 0 || precedence > 255 )
         {
             precedence = -1;
         }
-        
+
         this.precedence = precedence;
-        
+
         Set tmpGrantsAndDenials = new HashSet();
         Set tmpGrants = new HashSet();
         Set tmpDenials = new HashSet();
-        for( Iterator i = grantsAndDenials.iterator(); i.hasNext(); )
+        for ( Iterator i = grantsAndDenials.iterator(); i.hasNext(); )
         {
             Object val = i.next();
-            if( !( val instanceof GrantAndDenial ) )
+            if ( !( val instanceof GrantAndDenial ) )
             {
-                throw new IllegalArgumentException(
-                        "grantsAndDenials contains a wrong element." );
+                throw new IllegalArgumentException( "grantsAndDenials contains a wrong element." );
             }
-            
+
             GrantAndDenial gad = ( GrantAndDenial ) val;
-            if( gad.isGrant() )
+            if ( gad.isGrant() )
             {
                 tmpGrants.add( gad );
             }
@@ -77,12 +84,13 @@ public abstract class Permission implements Serializable
             }
             tmpGrantsAndDenials.add( gad );
         }
-        
+
         this.grants = Collections.unmodifiableSet( tmpGrants );
         this.denials = Collections.unmodifiableSet( tmpDenials );
         this.grantsAndDenials = Collections.unmodifiableSet( tmpGrantsAndDenials );
     }
-    
+
+
     /**
      * Returns the precedence of this permission.
      */
@@ -90,7 +98,8 @@ public abstract class Permission implements Serializable
     {
         return precedence;
     }
-    
+
+
     /**
      * Returns the set of {@link GrantAndDenial}s.
      */
@@ -98,7 +107,8 @@ public abstract class Permission implements Serializable
     {
         return grantsAndDenials;
     }
-    
+
+
     /**
      * Returns the set of grants only.
      */
@@ -106,7 +116,8 @@ public abstract class Permission implements Serializable
     {
         return grants;
     }
-    
+
+
     /**
      * Returns the set of denials only.
      */

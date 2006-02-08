@@ -25,9 +25,10 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A subclass of NoSuchAttributeException which holds the LDAP resultCode
  * associated with the exception.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -48,7 +49,7 @@ public class LdapNoSuchAttributeException extends NoSuchAttributeException imple
     /**
      * @see javax.naming.directory.NoSuchAttributeException#NoSuchAttributeException(String)
      */
-    public LdapNoSuchAttributeException( String explanation )
+    public LdapNoSuchAttributeException(String explanation)
     {
         super( explanation );
     }

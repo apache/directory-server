@@ -25,23 +25,25 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A subclass of InvalidNameException designed to hold an unequivocal LDAP
  * result code.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class LdapInvalidNameException extends InvalidNameException implements LdapException
 {
     static final long serialVersionUID = 1922458280238058561L;
+
     /** the LDAP resultCode this exception is associated with */
     private final ResultCodeEnum resultCode;
 
 
     /**
      * Creates an Eve NamingException.
-     *
-     * @param resultCode the LDAP resultCode this exception is associated with
+     * 
+     * @param resultCode
+     *            the LDAP resultCode this exception is associated with
      */
-    public LdapInvalidNameException( ResultCodeEnum resultCode )
+    public LdapInvalidNameException(ResultCodeEnum resultCode)
     {
         this.resultCode = resultCode;
     }
@@ -49,11 +51,13 @@ public class LdapInvalidNameException extends InvalidNameException implements Ld
 
     /**
      * Creates an Eve NamingException.
-     *
-     * @param explanation an explanation for the failure
-     * @param resultCode the LDAP resultCode this exception is associated with
+     * 
+     * @param explanation
+     *            an explanation for the failure
+     * @param resultCode
+     *            the LDAP resultCode this exception is associated with
      */
-    public LdapInvalidNameException( String explanation, ResultCodeEnum resultCode )
+    public LdapInvalidNameException(String explanation, ResultCodeEnum resultCode)
     {
         super( explanation );
         this.resultCode = resultCode;
@@ -62,7 +66,7 @@ public class LdapInvalidNameException extends InvalidNameException implements Ld
 
     /**
      * Gets the LDAP resultCode this exception is associated with.
-     *
+     * 
      * @return the LDAP resultCode this exception is associated with
      */
     public ResultCodeEnum getResultCode()

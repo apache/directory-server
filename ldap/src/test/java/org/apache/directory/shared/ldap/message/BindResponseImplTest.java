@@ -28,9 +28,9 @@ import junit.framework.TestCase;
 
 /**
  * Tests the methods of the BindResponseImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class BindResponseImplTest extends TestCase
 
@@ -52,25 +52,21 @@ public class BindResponseImplTest extends TestCase
     {
         BindResponseImpl resp0 = new BindResponseImpl( 1 );
         BindResponseImpl resp1 = new BindResponseImpl( 1 );
-        assertTrue( "default copy with same id should be equal",
-                resp0.equals( resp1 ) );
-        assertTrue( "default copy with same id should be equal",
-                resp1.equals( resp0 ) );
+        assertTrue( "default copy with same id should be equal", resp0.equals( resp1 ) );
+        assertTrue( "default copy with same id should be equal", resp1.equals( resp0 ) );
     }
 
 
     /**
-     * Tests to make sure newly created objects with same different id are
-     * not equal.
+     * Tests to make sure newly created objects with same different id are not
+     * equal.
      */
     public void testNotEqualsNewWithDiffId()
     {
         BindResponseImpl resp0 = new BindResponseImpl( 1 );
         BindResponseImpl resp1 = new BindResponseImpl( 2 );
-        assertFalse( "different id objects should not be equal",
-                resp0.equals( resp1 ) );
-        assertFalse( "different id objects should not be equal",
-                resp1.equals( resp0 ) );
+        assertFalse( "different id objects should not be equal", resp0.equals( resp1 ) );
+        assertFalse( "different id objects should not be equal", resp1.equals( resp0 ) );
     }
 
 
@@ -84,10 +80,8 @@ public class BindResponseImplTest extends TestCase
         resp0.setServerSaslCreds( new byte[2] );
         BindResponseImpl resp1 = new BindResponseImpl( 1 );
         resp1.setServerSaslCreds( new byte[3] );
-        assertFalse( "different serverSaslCreds objects should not be equal",
-                resp0.equals( resp1 ) );
-        assertFalse( "different serverSaslCreds objects should not be equal",
-                resp1.equals( resp0 ) );
+        assertFalse( "different serverSaslCreds objects should not be equal", resp0.equals( resp1 ) );
+        assertFalse( "different serverSaslCreds objects should not be equal", resp1.equals( resp0 ) );
     }
 
 
@@ -122,9 +116,7 @@ public class BindResponseImplTest extends TestCase
         resp0.setServerSaslCreds( "password".getBytes() );
         resp1.setServerSaslCreds( "password".getBytes() );
 
-        assertTrue( "loaded carbon copies should be equal",
-                resp0.equals( resp1 ) );
-        assertTrue( "loaded carbon copies should be equal",
-                resp1.equals( resp0 ) );
+        assertTrue( "loaded carbon copies should be equal", resp0.equals( resp1 ) );
+        assertTrue( "loaded carbon copies should be equal", resp1.equals( resp0 ) );
     }
 }

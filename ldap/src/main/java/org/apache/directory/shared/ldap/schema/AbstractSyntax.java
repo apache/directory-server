@@ -19,7 +19,7 @@ package org.apache.directory.shared.ldap.schema;
 
 /**
  * An abstract Syntax class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -33,25 +33,27 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    
     /**
      * Creates a Syntax object using a unique OID.
      * 
-     * @param oid the OID for this Syntax
+     * @param oid
+     *            the OID for this Syntax
      */
-    protected AbstractSyntax( String oid )
+    protected AbstractSyntax(String oid)
     {
         super( oid );
     }
-    
-    
+
+
     /**
      * Creates a Syntax object using a unique OID.
-     *
-     * @param oid the OID for this Syntax
-     * @param isHumanReadible whether or not Syntax is human readible
+     * 
+     * @param oid
+     *            the OID for this Syntax
+     * @param isHumanReadible
+     *            whether or not Syntax is human readible
      */
-    protected AbstractSyntax( String oid, boolean isHumanReadible )
+    protected AbstractSyntax(String oid, boolean isHumanReadible)
     {
         super( oid );
         this.isHumanReadible = isHumanReadible;
@@ -60,11 +62,13 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
 
     /**
      * Creates a Syntax object using a unique OID.
-     *
-     * @param oid the OID for this Syntax
-     * @param description the description for this Syntax
+     * 
+     * @param oid
+     *            the OID for this Syntax
+     * @param description
+     *            the description for this Syntax
      */
-    protected AbstractSyntax( String oid, String description )
+    protected AbstractSyntax(String oid, String description)
     {
         super( oid, description );
     }
@@ -72,12 +76,15 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
 
     /**
      * Creates a Syntax object using a unique OID.
-     *
-     * @param oid the OID for this Syntax
-     * @param isHumanReadible whether or not Syntax is human readible
-     * @param description the description for this Syntax
+     * 
+     * @param oid
+     *            the OID for this Syntax
+     * @param isHumanReadible
+     *            whether or not Syntax is human readible
+     * @param description
+     *            the description for this Syntax
      */
-    protected AbstractSyntax( String oid, String description, boolean isHumanReadible )
+    protected AbstractSyntax(String oid, String description, boolean isHumanReadible)
     {
         super( oid, description );
         this.isHumanReadible = isHumanReadible;
@@ -88,7 +95,6 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
     // Syntax interface methods
     // ------------------------------------------------------------------------
 
-    
     /**
      * @see org.apache.directory.shared.ldap.schema.Syntax#isHumanReadible()
      */
@@ -102,26 +108,25 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
     // Protected setters
     // ------------------------------------------------------------------------
 
-    
     /**
      * Sets the human readible flag value.
      * 
-     * @param isHumanReadible the human readible flag value to set
+     * @param isHumanReadible
+     *            the human readible flag value to set
      */
     protected void setHumanReadible( boolean isHumanReadible )
     {
         this.isHumanReadible = isHumanReadible;
     }
 
-    
+
     // ------------------------------------------------------------------------
     // Object overloads
     // ------------------------------------------------------------------------
 
-
     /**
      * Based on the hashCode of the oid property.
-     *
+     * 
      * @return the hashCode of the oid String
      */
     public int hashCode()
@@ -133,13 +138,14 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
     /**
      * If the object implements Syntax and has the same OID as this Syntax then
      * they are equal.
-     *
-     * @param obj the object to test for equality
+     * 
+     * @param obj
+     *            the object to test for equality
      * @return true if obj is a Syntax and OID's match
      */
     public boolean equals( Object obj )
     {
-        if (! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }

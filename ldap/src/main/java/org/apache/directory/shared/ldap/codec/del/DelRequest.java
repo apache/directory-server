@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.del;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -29,33 +30,37 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * A DelRequest Message. Its syntax is :
- *   DelRequest ::= [APPLICATION 10] LDAPDN
+ * A DelRequest Message. Its syntax is : DelRequest ::= [APPLICATION 10] LDAPDN
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DelRequest extends LdapMessage
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The entry to be deleted */
     private Name entry;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new DelRequest object.
      */
     public DelRequest()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -63,9 +68,10 @@ public class DelRequest extends LdapMessage
         return LdapConstants.DEL_REQUEST;
     }
 
+
     /**
      * Get the entry to be deleted
-     *
+     * 
      * @return Returns the entry.
      */
     public String getEntry()
@@ -73,26 +79,22 @@ public class DelRequest extends LdapMessage
         return ( ( entry == null ) ? "" : entry.toString() );
     }
 
+
     /**
      * Set the entry to be deleted
-     *
-     * @param entry The entry to set.
+     * 
+     * @param entry
+     *            The entry to set.
      */
     public void setEntry( Name entry )
     {
         this.entry = entry;
     }
 
+
     /**
-     * Compute the DelRequest length
-     * 
-     * DelRequest :
-     * 
-     * 0x4A L1 entry
-     * 
-     * L1 = Length(entry)
-     * 
-     * Length(DelRequest) = Length(0x4A) + Length(L1) + L1
+     * Compute the DelRequest length DelRequest : 0x4A L1 entry L1 =
+     * Length(entry) Length(DelRequest) = Length(0x4A) + Length(L1) + L1
      */
     public int computeLength()
     {
@@ -100,21 +102,19 @@ public class DelRequest extends LdapMessage
         return 1 + Length.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
     }
 
+
     /**
-     * Encode the DelRequest message to a PDU.
+     * Encode the DelRequest message to a PDU. DelRequest : 0x4A LL entry
      * 
-     * DelRequest :
-     * 
-     * 0x4A LL entry
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
@@ -128,11 +128,12 @@ public class DelRequest extends LdapMessage
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         return buffer;
     }
+
 
     /**
      * Return a String representing a DelRequest

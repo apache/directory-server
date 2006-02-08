@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.ber.tlv;
 
+
 /**
  * Stores the different states of a PDU parsing.
  * 
@@ -23,7 +24,8 @@ package org.apache.directory.shared.asn1.ber.tlv;
  */
 public class TLVStateEnum
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** Start means that the deconding hasn't read the first byte */
     public static final int TAG_STATE_START = 0x00;
@@ -48,10 +50,10 @@ public class TLVStateEnum
     public static final int LENGTH_STATE_PENDING = 0x10;
 
     /** End means that the Length is totally read */
-    public static final int LENGTH_STATE_END    = 0x20;
+    public static final int LENGTH_STATE_END = 0x20;
 
     /** Start means that the decoding hasn't read the first byte */
-    public static final int VALUE_STATE_START   = 0x40;
+    public static final int VALUE_STATE_START = 0x40;
 
     /** Pending means that the Type Value is contained in more that one byte */
     public static final int VALUE_STATE_PENDING = 0x80;

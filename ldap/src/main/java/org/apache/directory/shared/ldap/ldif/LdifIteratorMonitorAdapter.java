@@ -14,40 +14,45 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.ldif ;
+package org.apache.directory.shared.ldap.ldif;
 
 
 /**
  * LDIF Iterator monitor adapter.
- *
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public class LdifIteratorMonitorAdapter implements LdifIteratorMonitor
 {
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.common.ldif.LdifIteratorMonitor#fatalFailure(
-     * java.lang.String, java.lang.Throwable)
+     *      java.lang.String, java.lang.Throwable)
      */
     public void fatalFailure( String msg, Throwable cause )
     {
     }
 
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.common.ldif.LdifIteratorMonitor#failure(
-     * java.lang.String, java.lang.Throwable)
+     *      java.lang.String, java.lang.Throwable)
      */
     public void failure( String msg, Throwable cause )
     {
     }
 
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.common.ldif.LdifIteratorMonitor#infoAvailable(
-     * java.lang.String)
+     *      java.lang.String)
      */
     public void infoAvailable( String msg )
     {

@@ -21,42 +21,49 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 
 
 /**
- * Define a transition between two states of a grammar. It stores the 
- * next state, and the action to execute while transiting.  
+ * Define a transition between two states of a grammar. It stores the next
+ * state, and the action to execute while transiting.
  * 
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class GrammarTransition
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The next state in the grammar */
-    private int           nextState;
+    private int nextState;
 
     /** The action associated to the transition */
     private GrammarAction action;
 
     /** The current state */
-    private int        currentState;
+    private int currentState;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new GrammarTransition object.
-     *
-     * @param currentState The current transition 
-     * @param nextState The target state
-     * @param action The action to execute. It could be null.
+     * 
+     * @param currentState
+     *            The current transition
+     * @param nextState
+     *            The target state
+     * @param action
+     *            The action to execute. It could be null.
      */
-    public GrammarTransition(  int currentState, int nextState, GrammarAction action )
+    public GrammarTransition(int currentState, int nextState, GrammarAction action)
     {
-        this.currentState      = currentState;
+        this.currentState = currentState;
         this.nextState = nextState;
-        this.action    = action;
+        this.action = action;
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * @return Returns the target state.
@@ -66,15 +73,18 @@ public class GrammarTransition
         return nextState;
     }
 
+
     /**
      * Tells if the transition has an associated action.
-     *
-     * @return <code>true</code> if an action has been asociated to the transition
+     * 
+     * @return <code>true</code> if an action has been asociated to the
+     *         transition
      */
     public boolean hasAction()
     {
         return action != null;
     }
+
 
     /**
      * @return Returns the action associated with the transition
@@ -84,18 +94,20 @@ public class GrammarTransition
         return action;
     }
 
+
     /**
-     * @param grammar The grammar which state we want a String from
+     * @param grammar
+     *            The grammar which state we want a String from
      * @return A representation of the transition as a string.
      */
-    public String toString(int grammar, IStates statesEnum)
+    public String toString( int grammar, IStates statesEnum )
     {
 
         StringBuffer sb = new StringBuffer();
 
         sb.append( "Transition from <" ).append( statesEnum.getState( grammar, currentState ) ).append( "> to <" )
-          .append( statesEnum.getState( grammar, nextState ) ).append( ">, action : " )
-          .append( ( ( action == null ) ? "no action" : action.toString() ) ).append( ">" );
+            .append( statesEnum.getState( grammar, nextState ) ).append( ">, action : " ).append(
+                ( ( action == null ) ? "no action" : action.toString() ) ).append( ">" );
 
         return sb.toString();
     }

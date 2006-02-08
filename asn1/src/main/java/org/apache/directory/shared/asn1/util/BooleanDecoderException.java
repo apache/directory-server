@@ -17,28 +17,35 @@
 
 package org.apache.directory.shared.asn1.util;
 
+
 /**
- * Thrown when a BooleanDecoderException has encountered a failure condition during a decode. 
+ * Thrown when a BooleanDecoderException has encountered a failure condition
+ * during a decode.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BooleanDecoderException extends Exception {
+public class BooleanDecoderException extends Exception
+{
 
     /**
      * Declares the Serial Version Uid.
      * 
-     * @see <a href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always Declare Serial Version Uid</a>
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
      */
     private static final long serialVersionUID = 1L;
+
 
     /**
      * Creates a BooleanDecoderException
      * 
-     * @param pMessage A message with meaning to a human
+     * @param pMessage
+     *            A message with meaning to a human
      */
-    public BooleanDecoderException(String pMessage) {
-        super(pMessage);
+    public BooleanDecoderException(String pMessage)
+    {
+        super( pMessage );
     }
 
-}  
-
+}

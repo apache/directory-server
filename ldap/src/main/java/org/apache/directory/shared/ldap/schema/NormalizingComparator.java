@@ -27,26 +27,30 @@ import org.slf4j.LoggerFactory;
 /**
  * A comparator which normalizes a value first before using a subordinate
  * comparator to compare them.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class NormalizingComparator implements Comparator
 {
     private static final Logger log = LoggerFactory.getLogger( NormalizingComparator.class );
+
     /** the Normalizer to normalize values with before comparing */
     private Normalizer normalizer;
+
     /** the underlying comparator to use for comparisons */
     private Comparator comparator;
 
 
     /**
      * A comparator which normalizes a value first before comparing them.
-     *
-     * @param normalizer the Normalizer to normalize values with before comparing
-     * @param comparator the underlying comparator to use for comparisons
+     * 
+     * @param normalizer
+     *            the Normalizer to normalize values with before comparing
+     * @param comparator
+     *            the underlying comparator to use for comparisons
      */
-    public NormalizingComparator( Normalizer normalizer, Comparator comparator )
+    public NormalizingComparator(Normalizer normalizer, Comparator comparator)
     {
         this.normalizer = normalizer;
         this.comparator = comparator;
@@ -56,7 +60,7 @@ public class NormalizingComparator implements Comparator
     /**
      * If any normalization attempt fails we compare using the unnormalized
      * object.
-     *
+     * 
      * @see Comparator#compare(Object, Object)
      */
     public int compare( Object o1, Object o2 )

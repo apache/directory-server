@@ -31,12 +31,16 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class CompareRequestImpl extends AbstractAbandonableRequest implements CompareRequest
 {
     static final long serialVersionUID = 1699731530016468977L;
+
     /** Distinguished name identifying the compared entry */
     private String name;
+
     /** The id of the attribute used in the comparison */
     private String attrId;
+
     /** The value of the attribute used in the comparison */
     private byte[] attrVal;
+
     private CompareResponse response;
 
 
@@ -44,14 +48,14 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     // Constructors
     // ------------------------------------------------------------------------
 
-
     /**
-     * Creates an CompareRequest implementation to compare a named entry with
-     * an attribute value assertion pair.
-     *
-     * @param id the sequence identifier of the CompareRequest message.
+     * Creates an CompareRequest implementation to compare a named entry with an
+     * attribute value assertion pair.
+     * 
+     * @param id
+     *            the sequence identifier of the CompareRequest message.
      */
-    public CompareRequestImpl( final int id )
+    public CompareRequestImpl(final int id)
     {
         super( id, TYPE );
     }
@@ -61,11 +65,10 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     // ComparisonRequest Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the distinguished name of the entry to be compared using the
      * attribute value assertion.
-     *
+     * 
      * @return the DN of the compared entry.
      */
     public String getName()
@@ -77,8 +80,9 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     /**
      * Sets the distinguished name of the entry to be compared using the
      * attribute value assertion.
-     *
-     * @param name the DN of the compared entry.
+     * 
+     * @param name
+     *            the DN of the compared entry.
      */
     public void setName( String name )
     {
@@ -88,37 +92,42 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
 
     /**
      * Gets the attribute value to use in making the comparison.
-     *
+     * 
      * @return the attribute value to used in comparison.
      */
     public byte[] getAssertionValue()
     {
-    	return attrVal;
+        return attrVal;
     }
+
 
     /**
      * Sets the attribute value to use in the comparison.
-     *
-     * @param attrVal the attribute value used in comparison.
+     * 
+     * @param attrVal
+     *            the attribute value used in comparison.
      */
     public void setAssertionValue( String attrVal )
     {
         this.attrVal = StringTools.getBytesUtf8( attrVal );
     }
 
+
     /**
      * Sets the attribute value to use in the comparison.
-     *
-     * @param attrVal the attribute value used in comparison.
+     * 
+     * @param attrVal
+     *            the attribute value used in comparison.
      */
     public void setAssertionValue( byte[] attrVal )
     {
         this.attrVal = attrVal;
     }
 
+
     /**
      * Gets the attribute id use in making the comparison.
-     *
+     * 
      * @return the attribute id used in comparison.
      */
     public String getAttributeId()
@@ -129,8 +138,9 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
 
     /**
      * Sets the attribute id used in the comparison.
-     *
-     * @param attrId the attribute id used in comparison.
+     * 
+     * @param attrId
+     *            the attribute id used in comparison.
      */
     public void setAttributeId( String attrId )
     {
@@ -142,11 +152,10 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     // SingleReplyRequest Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the protocol response message type for this request which produces
      * at least one response.
-     *
+     * 
      * @return the message type of the response.
      */
     public MessageTypeEnum getResponseType()
@@ -166,14 +175,16 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
         {
             response = new CompareResponseImpl( getMessageId() );
         }
-        
+
         return response;
     }
 
+
     /**
      * Checks to see if an object is equivalent to this CompareRequest.
-     *
-     * @param obj the obj to compare with this CompareRequest
+     * 
+     * @param obj
+     *            the obj to compare with this CompareRequest
      * @return true if the obj is equal to this request, false otherwise
      */
     public boolean equals( Object obj )
@@ -183,7 +194,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
@@ -202,7 +213,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
 
         if ( name != null && req.getName() != null )
         {
-            if ( ! name.equals( req.getName() ) )
+            if ( !name.equals( req.getName() ) )
             {
                 return false;
             }
@@ -220,7 +231,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
 
         if ( attrId != null && req.getAttributeId() != null )
         {
-            if ( ! attrId.equals( req.getAttributeId() ) )
+            if ( !attrId.equals( req.getAttributeId() ) )
             {
                 return false;
             }
@@ -238,7 +249,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
 
         if ( attrVal != null && req.getAssertionValue() != null )
         {
-            if ( ! Arrays.equals( attrVal, req.getAssertionValue() ) )
+            if ( !Arrays.equals( attrVal, req.getAssertionValue() ) )
             {
                 return false;
             }
@@ -246,11 +257,12 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
 
         return true;
     }
-    
+
+
     /**
      * Get a String representation of a Compare Request
-     *
-     * @return A Compare Request String 
+     * 
+     * @return A Compare Request String
      */
     public String toString()
     {
@@ -258,13 +270,9 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
 
         sb.append( "    Compare request\n" );
         sb.append( "        Entry : '" ).append( name.toString() ).append( "'\n" );
-        sb.append( "        Attribute description : '" ).append( attrId ).append(
-            "'\n" );
-        sb.append( "        Attribute value : '" ).
-        	append( StringTools.utf8ToString( attrVal ) ).
-        	append( '/' ).
-        	append( StringTools.dumpBytes( attrVal ) ).
-            append( "'\n" );
+        sb.append( "        Attribute description : '" ).append( attrId ).append( "'\n" );
+        sb.append( "        Attribute value : '" ).append( StringTools.utf8ToString( attrVal ) ).append( '/' ).append(
+            StringTools.dumpBytes( attrVal ) ).append( "'\n" );
 
         return sb.toString();
     }

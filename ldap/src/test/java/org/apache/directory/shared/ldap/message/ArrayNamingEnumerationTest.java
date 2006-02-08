@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 /**
  * Tests the {@link ArrayNamingEnumeration} class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -46,7 +46,7 @@ public class ArrayNamingEnumerationTest extends TestCase
             list.next();
             fail( "should blow exception before getting here" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
             assertNotNull( e );
         }
@@ -66,7 +66,7 @@ public class ArrayNamingEnumerationTest extends TestCase
             list.next();
             fail( "should blow exception before getting here" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
             assertNotNull( e );
         }
@@ -79,7 +79,8 @@ public class ArrayNamingEnumerationTest extends TestCase
     public void testUsingSingleElementArray()
     {
         ArrayNamingEnumeration list;
-        list = new ArrayNamingEnumeration( new String[] { "foo" });
+        list = new ArrayNamingEnumeration( new String[]
+            { "foo" } );
         assertTrue( list.hasMore() );
         assertEquals( "foo", list.next() );
 
@@ -88,13 +89,11 @@ public class ArrayNamingEnumerationTest extends TestCase
             list.next();
             fail( "should blow exception before getting here" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
             assertNotNull( e );
         }
     }
-
-
 
 
     /**
@@ -103,7 +102,8 @@ public class ArrayNamingEnumerationTest extends TestCase
     public void testUsingTwoElementArray()
     {
         ArrayNamingEnumeration list;
-        list = new ArrayNamingEnumeration( new String[] { "foo", "bar" });
+        list = new ArrayNamingEnumeration( new String[]
+            { "foo", "bar" } );
         assertTrue( list.hasMore() );
         assertEquals( "foo", list.next() );
         assertTrue( list.hasMore() );
@@ -114,7 +114,7 @@ public class ArrayNamingEnumerationTest extends TestCase
             list.next();
             fail( "should blow exception before getting here" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
             assertNotNull( e );
         }

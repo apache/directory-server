@@ -12,27 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 
 package org.apache.directory.shared.ldap.codec.util;
 
+
 /**
- * Thrown when a Decoder has encountered a failure condition during a decode. 
+ * Thrown when a Decoder has encountered a failure condition during a decode.
  * 
  * @author Apache Software Foundation
  * @version $Id: DecoderException.java,v 1.9 2004/02/29 04:08:31 tobrien Exp $
  */
-public class UrlDecoderException extends Exception {
-	final static long serialVersionUID = 1L;
+public class UrlDecoderException extends Exception
+{
+    final static long serialVersionUID = 1L;
+
 
     /**
      * Creates a DecoderException
      * 
-     * @param pMessage A message with meaning to a human
+     * @param pMessage
+     *            A message with meaning to a human
      */
-    public UrlDecoderException(String pMessage) {
-        super(pMessage);
+    public UrlDecoderException(String pMessage)
+    {
+        super( pMessage );
     }
 
-}  
-
+}

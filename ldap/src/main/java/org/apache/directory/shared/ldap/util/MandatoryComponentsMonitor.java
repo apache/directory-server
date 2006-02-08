@@ -15,16 +15,16 @@
  *
  */
 
-
 package org.apache.directory.shared.ldap.util;
 
 
 public class MandatoryComponentsMonitor extends AbstractSimpleComponentsMonitor
 {
-    public MandatoryComponentsMonitor( String [] components )
+    public MandatoryComponentsMonitor(String[] components)
     {
         super( components );
     }
+
 
     public boolean finalStateValid()
     {

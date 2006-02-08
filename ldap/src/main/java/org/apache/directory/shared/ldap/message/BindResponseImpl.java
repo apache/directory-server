@@ -23,28 +23,28 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
 /**
  * Lockable BindResponse implementation.
  * 
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public class BindResponseImpl extends AbstractResultResponse implements BindResponse
 {
     static final long serialVersionUID = -5146809476518669755L;
+
     /** optional property holding SASL authentication response paramters */
-    private byte [] serverSaslCreds;
+    private byte[] serverSaslCreds;
 
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a Lockable AddResponse as a reply to an AddRequest.
-     *
-     * @param id the session unique message id
+     * 
+     * @param id
+     *            the session unique message id
      */
-    public BindResponseImpl( final int id )
+    public BindResponseImpl(final int id)
     {
         super( id, TYPE );
     }
@@ -54,15 +54,14 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
     // BindResponse Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the optional property holding SASL authentication response paramters
-     * that are SASL mechanism specific.  Will return null if the authentication
+     * that are SASL mechanism specific. Will return null if the authentication
      * is simple.
-     *
+     * 
      * @return the sasl mech. specific credentials or null of auth. is simple
      */
-    public byte [] getServerSaslCreds()
+    public byte[] getServerSaslCreds()
     {
         return serverSaslCreds;
     }
@@ -70,25 +69,27 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
 
     /**
      * Sets the optional property holding SASL authentication response paramters
-     * that are SASL mechanism specific.  Leave null if authentication mode is
+     * that are SASL mechanism specific. Leave null if authentication mode is
      * simple.
-     *
-     * @param serverSaslCreds the sasl auth. mech. specific credentials
+     * 
+     * @param serverSaslCreds
+     *            the sasl auth. mech. specific credentials
      */
-    public void setServerSaslCreds( byte [] serverSaslCreds )
+    public void setServerSaslCreds( byte[] serverSaslCreds )
     {
         this.serverSaslCreds = serverSaslCreds;
     }
 
 
     /**
-     * Checks to see if this BindResponse is equal to another BindResponse.
-     * The implementation and lockable properties are not factored into the
-     * evaluation of equality.  Only the messageId, saslCredentials and the
+     * Checks to see if this BindResponse is equal to another BindResponse. The
+     * implementation and lockable properties are not factored into the
+     * evaluation of equality. Only the messageId, saslCredentials and the
      * LdapResults of this BindResponse PDU and the compared object are taken
      * into account if that object also implements the BindResponse interface.
-     *
-     * @param obj the object to test for equality with this BindResponse
+     * 
+     * @param obj
+     *            the object to test for equality with this BindResponse
      * @return true if obj equals this BindResponse false otherwise
      */
     public boolean equals( Object obj )
@@ -99,7 +100,7 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
@@ -118,7 +119,7 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
 
         if ( creds != null && serverSaslCreds != null )
         {
-            if ( ! ArrayUtils.isEquals( serverSaslCreds, creds ) )
+            if ( !ArrayUtils.isEquals( serverSaslCreds, creds ) )
             {
                 return false;
             }
@@ -126,19 +127,19 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
 
         return true;
     }
-    
+
 
     /**
      * Get a String representation of a BindResponse
-     *
-     * @return A BindResponse String 
+     * 
+     * @return A BindResponse String
      */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
         sb.append( "    BindResponse\n" );
         sb.append( super.toString() );
-        
+
         if ( serverSaslCreds != null )
         {
             sb.append( "        Server sasl credentials : '" ).append( serverSaslCreds.toString() ).append( "'\n" );
@@ -146,5 +147,5 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
 
         return sb.toString();
     }
-    
+
 }

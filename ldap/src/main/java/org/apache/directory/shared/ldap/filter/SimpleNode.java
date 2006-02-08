@@ -14,94 +14,103 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
+
 
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
  * A simple assertion value node.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public class SimpleNode extends LeafNode
 {
     /** the value */
-    private String value ;
+    private String value;
+
 
     /**
      * Creates a new SimpleNode object.
-     *
-     * @param attribute the attribute name
-     * @param value the value to test for
-     * @param type the type of the assertion
+     * 
+     * @param attribute
+     *            the attribute name
+     * @param value
+     *            the value to test for
+     * @param type
+     *            the type of the assertion
      */
-    public SimpleNode( String attribute, byte[] value, int type )
+    public SimpleNode(String attribute, byte[] value, int type)
     {
         this( attribute, StringTools.utf8ToString( value ), type );
     }
 
+
     /**
      * Creates a new SimpleNode object.
-     *
-     * @param attribute the attribute name
-     * @param value the value to test for
-     * @param type the type of the assertion
+     * 
+     * @param attribute
+     *            the attribute name
+     * @param value
+     *            the value to test for
+     * @param type
+     *            the type of the assertion
      */
-    public SimpleNode( String attribute, String value, int type )
+    public SimpleNode(String attribute, String value, int type)
     {
-        super( attribute, type ) ;
-        this.value = value ;
+        super( attribute, type );
+        this.value = value;
 
         switch ( type )
         {
-        case ( APPROXIMATE ):
-            break ;
+            case ( APPROXIMATE ):
+                break;
 
-        case ( EQUALITY ):
-            break ;
+            case ( EQUALITY ):
+                break;
 
-        case ( EXTENSIBLE ):
-            throw new IllegalArgumentException( "Assertion type supplied is "
-                + "extensible.  Use ExtensibleNode instead." ) ;
+            case ( EXTENSIBLE ):
+                throw new IllegalArgumentException( "Assertion type supplied is "
+                    + "extensible.  Use ExtensibleNode instead." );
 
-        case ( GREATEREQ ):
-            break ;
+            case ( GREATEREQ ):
+                break;
 
-        case ( LESSEQ ):
-            break ;
+            case ( LESSEQ ):
+                break;
 
-        case ( PRESENCE ):
-            throw new IllegalArgumentException( "Assertion type supplied is "
-                + "presence.  Use PresenceNode instead." ) ;
+            case ( PRESENCE ):
+                throw new IllegalArgumentException( "Assertion type supplied is "
+                    + "presence.  Use PresenceNode instead." );
 
-        case ( SUBSTRING ):
-            throw new IllegalArgumentException( "Assertion type supplied is "
-                + "substring.  Use SubstringNode instead." ) ;
+            case ( SUBSTRING ):
+                throw new IllegalArgumentException( "Assertion type supplied is "
+                    + "substring.  Use SubstringNode instead." );
 
-        default:
-            throw new IllegalArgumentException( 
-                "Attribute value assertion type is undefined." ) ;
+            default:
+                throw new IllegalArgumentException( "Attribute value assertion type is undefined." );
         }
     }
 
 
     /**
      * Gets the value.
-     *
+     * 
      * @return the value
      */
     public final String getValue()
     {
-        return value ;
+        return value;
     }
 
 
     /**
      * Sets the value of this node.
-     *
-     * @param value the value for this node
+     * 
+     * @param value
+     *            the value for this node
      */
     public void setValue( String value )
     {
@@ -111,50 +120,48 @@ public class SimpleNode extends LeafNode
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
-     * java.lang.StringBuffer)
+     *      java.lang.StringBuffer)
      */
     public StringBuffer printToBuffer( StringBuffer buf )
     {
-        buf.append( '(' ).append( getAttribute() ) ;
+        buf.append( '(' ).append( getAttribute() );
 
         switch ( getAssertionType() )
         {
-        case ( APPROXIMATE ):
-            buf.append( "~=" ) ;
-            break ;
+            case ( APPROXIMATE ):
+                buf.append( "~=" );
+                break;
 
-        case ( EQUALITY ):
-            buf.append( "=" ) ;
-            break ;
+            case ( EQUALITY ):
+                buf.append( "=" );
+                break;
 
-        case ( GREATEREQ ):
-            buf.append( ">=" ) ;
-            break ;
+            case ( GREATEREQ ):
+                buf.append( ">=" );
+                break;
 
-        case ( LESSEQ ):
-            buf.append( "<=" ) ;
-            break ;
+            case ( LESSEQ ):
+                buf.append( "<=" );
+                break;
 
-        default:
-            buf.append( "UNKNOWN" ) ;
+            default:
+                buf.append( "UNKNOWN" );
         }
 
-
         buf.append( value );
-        buf.append( ')' ) ;
+        buf.append( ')' );
 
-        if ( ( null != getAnnotations() )
-                && getAnnotations().containsKey( "count" ) )
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
-            buf.append( '[' ) ;
-            buf.append( getAnnotations().get( "count" ).toString() ) ;
-            buf.append( "] " ) ;
+            buf.append( '[' );
+            buf.append( getAnnotations().get( "count" ).toString() );
+            buf.append( "] " );
         }
         else
         {
-            buf.append( ' ' ) ;
+            buf.append( ' ' );
         }
-        
+
         return buf;
     }
 
@@ -164,29 +171,31 @@ public class SimpleNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer() ;
-        printToBuffer( buf ) ;
-        return ( buf.toString() ) ;
+        StringBuffer buf = new StringBuffer();
+        printToBuffer( buf );
+        return ( buf.toString() );
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     * org.apache.directory.shared.ldap.filter.FilterVisitor)
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
     public void accept( FilterVisitor visitor )
     {
         if ( visitor.canVisit( this ) )
         {
-            visitor.visit( this ) ;
+            visitor.visit( this );
         }
     }
 
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean equals(Object other)
+    public boolean equals( Object other )
     {
         if ( null == other )
         {
@@ -198,16 +207,16 @@ public class SimpleNode extends LeafNode
             return true;
         }
 
-        if ( ! ( other instanceof SimpleNode ) )
+        if ( !( other instanceof SimpleNode ) )
         {
             return false;
         }
-        
-        if ( ! super.equals( other ) )
+
+        if ( !super.equals( other ) )
         {
             return false;
         }
-        
+
         return value.equals( ( ( SimpleNode ) other ).getValue() );
     }
 }

@@ -25,8 +25,8 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
 
 
 /**
- * Type safe enumerations for an objectClass' type.  An ObjectClass type can
- * be one of the following types:
+ * Type safe enumerations for an objectClass' type. An ObjectClass type can be
+ * one of the following types:
  * <ul>
  * <li>ABSTRACT</li>
  * <li>AUXILIARY</li>
@@ -39,34 +39,36 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
 public class ObjectClassTypeEnum extends ValuedEnum
 {
     static final long serialVersionUID = -5916723482518366208L;
+
     /** The enumeration constant value for the abstract objectClasses */
     public static final int ABSTRACT_VAL = 0;
+
     /** The enumeration constant value for the auxillary objectClasses */
     public static final int AUXILLARY_VAL = 1;
+
     /** The enumeration constant value for the structural objectClasses */
     public static final int STRUCTURAL_VAL = 2;
 
     /** ValuedEnum for abstract objectClasses */
-    public static final ObjectClassTypeEnum ABSTRACT = 
-        new ObjectClassTypeEnum( "ABSTRACT", ABSTRACT_VAL );
-    
+    public static final ObjectClassTypeEnum ABSTRACT = new ObjectClassTypeEnum( "ABSTRACT", ABSTRACT_VAL );
+
     /** ValuedEnum for auxillary objectClasses */
-    public static final ObjectClassTypeEnum AUXILIARY =
-        new ObjectClassTypeEnum( "AUXILIARY", AUXILLARY_VAL );
+    public static final ObjectClassTypeEnum AUXILIARY = new ObjectClassTypeEnum( "AUXILIARY", AUXILLARY_VAL );
 
     /** ValuedEnum for structural objectClasses */
-    public static final ObjectClassTypeEnum STRUCTURAL =
-        new ObjectClassTypeEnum( "STRUCTURAL", STRUCTURAL_VAL );
+    public static final ObjectClassTypeEnum STRUCTURAL = new ObjectClassTypeEnum( "STRUCTURAL", STRUCTURAL_VAL );
 
 
     /**
      * Private constructor so no other instances can be created other than the
      * public static constants in this class.
-     *
-     * @param name a string name for the enumeration value.
-     * @param value the integer value of the enumeration.
+     * 
+     * @param name
+     *            a string name for the enumeration value.
+     * @param value
+     *            the integer value of the enumeration.
      */
-    private ObjectClassTypeEnum( final String name, final int value )
+    private ObjectClassTypeEnum(final String name, final int value)
     {
         super( name, value );
     }
@@ -76,13 +78,14 @@ public class ObjectClassTypeEnum extends ValuedEnum
      * Gets the objectClass type enumeration of AUXILIARY, STRUCTURAL, or,
      * ABSTRACT.
      * 
-     * @param name options are AUXILIARY, STRUCTURAL, or, ABSTRACT
+     * @param name
+     *            options are AUXILIARY, STRUCTURAL, or, ABSTRACT
      * @return the type safe enumeration for the objectClass type
      */
     public static ObjectClassTypeEnum getClassType( String name )
     {
         String upperCase = name.trim().toUpperCase();
-        
+
         if ( upperCase.equals( "STRUCTURAL" ) )
         {
             return ABSTRACT;
@@ -95,9 +98,9 @@ public class ObjectClassTypeEnum extends ValuedEnum
         {
             return ABSTRACT;
         }
-        
-        throw new IllegalArgumentException( "Unknown objectClass type name '" 
-            + name + "': options are AUXILIARY, STRUCTURAL, ABSTRACT." );
+
+        throw new IllegalArgumentException( "Unknown objectClass type name '" + name
+            + "': options are AUXILIARY, STRUCTURAL, ABSTRACT." );
     }
 
 
@@ -110,10 +113,10 @@ public class ObjectClassTypeEnum extends ValuedEnum
     {
         return EnumUtils.getEnumList( ObjectClassTypeEnum.class );
     }
-    
-    
+
+
     /**
-     * Gets the Map of ClassTypeEnum objects by name using the ClassTypeEnum 
+     * Gets the Map of ClassTypeEnum objects by name using the ClassTypeEnum
      * class.
      * 
      * @return the Map by name of ClassTypeEnums

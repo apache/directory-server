@@ -14,15 +14,14 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
- * A request that can generate zero, one, or more heterogenous responses for a 
+ * A request that can generate zero, one, or more heterogenous responses for a
  * single request.
- *
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public interface ManyReplyRequest extends ResultResponseRequest
@@ -33,5 +32,5 @@ public interface ManyReplyRequest extends ResultResponseRequest
      * 
      * @return the messages types generated in response to this Request
      */
-    MessageTypeEnum[] getResponseTypes() ;
+    MessageTypeEnum[] getResponseTypes();
 }

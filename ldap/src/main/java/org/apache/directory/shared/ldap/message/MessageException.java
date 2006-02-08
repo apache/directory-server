@@ -24,7 +24,7 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 import org.apache.directory.shared.ldap.RuntimeMultiException;
@@ -47,17 +47,18 @@ public class MessageException extends RuntimeMultiException
      */
     public MessageException()
     {
-        super() ;
+        super();
     }
 
 
     /**
      * Constructs an Exception with a detailed message.
      * 
-     * @param a_message The message associated with the exception.
+     * @param a_message
+     *            The message associated with the exception.
      */
-    public MessageException( String a_message )
+    public MessageException(String a_message)
     {
-        super( a_message ) ;
+        super( a_message );
     }
 }

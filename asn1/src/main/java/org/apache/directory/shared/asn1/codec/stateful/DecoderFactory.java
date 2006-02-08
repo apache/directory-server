@@ -19,7 +19,7 @@ package org.apache.directory.shared.asn1.codec.stateful;
 
 /**
  * A factory for creating new StatefulDecoders.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -27,7 +27,7 @@ public interface DecoderFactory
 {
     /**
      * Creates a chunking state based decoder.
-     *
+     * 
      * @return a chunking state based decoder
      */
     StatefulDecoder createDecoder();

@@ -17,32 +17,38 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.UnsupportedEncodingException;
+
 
 /**
  * Interface for DER string objects.
  */
 public abstract class DERString extends DERObject
 {
-	/**
+    /**
      * Basic DERObject constructor.
      */
-	DERString( int tag, byte[] value )
-	{
-		super( tag, value );
-	}
-	
-	/**
-	 * Lazy accessor.
-	 * @return underlying byte array converted to a String
-	 */
+    DERString(int tag, byte[] value)
+    {
+        super( tag, value );
+    }
+
+
+    /**
+     * Lazy accessor.
+     * 
+     * @return underlying byte array converted to a String
+     */
     public String getString()
     {
         return byteArrayToString( value );
     }
-    
+
+
     /**
      * Utility method for converting byte arrays to Strings.
+     * 
      * @param bytes
      * @return String
      */
@@ -57,9 +63,11 @@ public abstract class DERString extends DERObject
             return "";
         }
     }
-    
+
+
     /**
      * Utility method for converting Strings to bytes.
+     * 
      * @param string
      * @return bytes
      */
@@ -71,8 +79,8 @@ public abstract class DERString extends DERObject
         }
         catch ( UnsupportedEncodingException uee )
         {
-            return new byte[]{};
+            return new byte[]
+                {};
         }
     }
 }
-

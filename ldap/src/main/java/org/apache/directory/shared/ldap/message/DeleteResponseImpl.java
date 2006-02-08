@@ -20,28 +20,27 @@ package org.apache.directory.shared.ldap.message;
 /**
  * Lockable DeleteResponse implementation
  * 
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeleteResponseImpl
-    extends AbstractResultResponse implements DeleteResponse
+public class DeleteResponseImpl extends AbstractResultResponse implements DeleteResponse
 {
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
 
-
     static final long serialVersionUID = -6830004960050713586L;
+
 
     /**
      * Creates a Lockable DeleteResponse as a reply to an DeleteRequest.
-     *
-     * @param id the session unique message id
+     * 
+     * @param id
+     *            the session unique message id
      */
-    public DeleteResponseImpl( final int id )
+    public DeleteResponseImpl(final int id)
     {
-        super( id, TYPE ) ;
+        super( id, TYPE );
     }
 }

@@ -36,7 +36,7 @@ public class BranchNormalizedVisitorTest extends TestCase
     {
         FilterParserImpl parser = new FilterParserImpl();
 
-        String filter = "( ou = Human Resources )" ;
+        String filter = "( ou = Human Resources )";
 
         ExprNode ori = parser.parse( filter );
 
@@ -62,7 +62,7 @@ public class BranchNormalizedVisitorTest extends TestCase
     {
         FilterParserImpl parser = new FilterParserImpl();
 
-        String filter = "( & ( ou = Human Resources ) ( uid = akarasulu ) )" ;
+        String filter = "( & ( ou = Human Resources ) ( uid = akarasulu ) )";
 
         ExprNode ori = parser.parse( filter );
 
@@ -88,9 +88,9 @@ public class BranchNormalizedVisitorTest extends TestCase
     {
         FilterParserImpl parser = new FilterParserImpl();
 
-        String filter = "( & ( uid = akarasulu ) ( ou = Human Resources ) " ;
+        String filter = "( & ( uid = akarasulu ) ( ou = Human Resources ) ";
 
-        filter += "(| ( uid = akarasulu ) ( ou = Human Resources ) ) ) " ;
+        filter += "(| ( uid = akarasulu ) ( ou = Human Resources ) ) ) ";
 
         ExprNode ori = parser.parse( filter );
 
@@ -116,9 +116,9 @@ public class BranchNormalizedVisitorTest extends TestCase
     {
         FilterParserImpl parser = new FilterParserImpl();
 
-        String filter = "( & ( ou = Human Resources ) ( uid = akarasulu ) " ;
+        String filter = "( & ( ou = Human Resources ) ( uid = akarasulu ) ";
 
-        filter += "(| ( ou = Human Resources ) ( uid = akarasulu ) ) ) " ;
+        filter += "(| ( ou = Human Resources ) ( uid = akarasulu ) ) ) ";
 
         ExprNode ori = parser.parse( filter );
 
@@ -142,9 +142,9 @@ public class BranchNormalizedVisitorTest extends TestCase
 
     public void testBranchNormalizedComplex() throws Exception
     {
-        String filter1 = "( & ( a = A ) ( | ( b = B ) ( c = C ) ) )" ;
+        String filter1 = "( & ( a = A ) ( | ( b = B ) ( c = C ) ) )";
 
-        String filter2 = "( & ( a = A ) ( | ( c = C ) ( b = B ) ) )" ;
+        String filter2 = "( & ( a = A ) ( | ( c = C ) ( b = B ) ) )";
 
         String normalizedFilter1 = BranchNormalizedVisitor.getNormalizedFilter( filter1 );
 

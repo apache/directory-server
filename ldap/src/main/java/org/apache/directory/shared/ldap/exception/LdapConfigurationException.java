@@ -25,16 +25,16 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A ConfigurationException which associates a resultCode namely the
  * {@link ResultCodeEnum#OTHER} resultCode with the exception.
- *
+ * 
  * @see LdapException
  * @see javax.naming.ConfigurationException
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapConfigurationException extends ConfigurationException
-        implements LdapException
+public class LdapConfigurationException extends ConfigurationException implements LdapException
 {
     static final long serialVersionUID = 7062168557099947648L;
 
@@ -51,15 +51,16 @@ public class LdapConfigurationException extends ConfigurationException
     /**
      * @see javax.naming.NoPermissionException#NoPermissionException(String)
      */
-    public LdapConfigurationException( String explanation )
+    public LdapConfigurationException(String explanation)
     {
         super( explanation );
     }
 
 
     /**
-     * Always returns {@link org.apache.directory.shared.ldap.message.ResultCodeEnum#OTHER}
-     *
+     * Always returns
+     * {@link org.apache.directory.shared.ldap.message.ResultCodeEnum#OTHER}
+     * 
      * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()

@@ -26,6 +26,7 @@ package org.apache.directory.shared.ldap.message;
 public class SearchResponseReferenceImpl extends AbstractResponse implements SearchResponseReference
 {
     static final long serialVersionUID = 7423807019951309810L;
+
     /** Referral holding the reference urls */
     private Referral referral;
 
@@ -34,14 +35,14 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
     // Constructors
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a Lockable SearchResponseReference as a reply to an SearchRequest
      * to indicate the end of a search operation.
-     *
-     * @param id the session unique message id
+     * 
+     * @param id
+     *            the session unique message id
      */
-    public SearchResponseReferenceImpl( final int id )
+    public SearchResponseReferenceImpl(final int id)
     {
         super( id, TYPE );
     }
@@ -51,10 +52,9 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
     // SearchResponseReference Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the sequence of LdapUrls as a Referral instance.
-     *
+     * 
      * @return the sequence of LdapUrls
      */
     public Referral getReferral()
@@ -65,8 +65,9 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
 
     /**
      * Sets the sequence of LdapUrls as a Referral instance.
-     *
-     * @param referral the sequence of LdapUrls
+     * 
+     * @param referral
+     *            the sequence of LdapUrls
      */
     public void setReferral( Referral referral )
     {
@@ -76,8 +77,9 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
 
     /**
      * Checks to see if an object is equal to this SearchResponseReference stub.
-     *
-     * @param obj the object to compare to this response stub
+     * 
+     * @param obj
+     *            the object to compare to this response stub
      * @return true if the objects are equivalent false otherwise
      */
     public boolean equals( Object obj )
@@ -87,7 +89,7 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
@@ -106,7 +108,7 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
 
         if ( this.referral != null && resp.getReferral() != null )
         {
-            if ( ! this.referral.equals( resp.getReferral() ) )
+            if ( !this.referral.equals( resp.getReferral() ) )
             {
                 return false;
             }

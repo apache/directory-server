@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 
 /**
  * TestCase for the CompareRequestImpl class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -126,7 +126,8 @@ public class CompareRequestImplTest extends TestCase
 
 
     /**
-     * Tests for equality even when another CompareRequest implementation is used.
+     * Tests for equality even when another CompareRequest implementation is
+     * used.
      */
     public void testEqualsDiffImpl()
     {
@@ -137,90 +138,109 @@ public class CompareRequestImplTest extends TestCase
                 return null;
             }
 
+
             public void setAssertionValue( String value )
             {
 
             }
+
 
             public void setAssertionValue( byte[] value )
             {
 
             }
 
+
             public String getAttributeId()
             {
                 return null;
             }
+
 
             public void setAttributeId( String attrId )
             {
 
             }
 
+
             public String getName()
             {
                 return null;
             }
 
+
             public void setName( String a_name )
             {
             }
+
 
             public MessageTypeEnum getResponseType()
             {
                 return MessageTypeEnum.COMPARERESPONSE;
             }
 
+
             public boolean hasResponse()
             {
                 return true;
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.COMPAREREQUEST;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control a_control ) throws MessageException
             {
             }
 
+
             public void remove( Control a_control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 5;
             }
 
+
             public Object get( Object a_key )
             {
                 return null;
             }
+
 
             public Object put( Object a_key, Object a_value )
             {
                 return null;
             }
 
+
             public void abandon()
             {
             }
+
 
             public boolean isAbandoned()
             {
                 return false;
             }
 
-            public void addAbandonListener(AbandonListener listener)
+
+            public void addAbandonListener( AbandonListener listener )
             {
             }
+
 
             public ResultResponse getResultResponse()
             {

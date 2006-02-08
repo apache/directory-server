@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.primitives;
 
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -25,12 +26,13 @@ import org.apache.directory.shared.asn1.primitives.BitString;
 
 /**
  * Test the Bit String primitive
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class BitStringTest extends TestCase
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Test a null BitString
@@ -53,6 +55,7 @@ public class BitStringTest extends TestCase
         }
     }
 
+
     /**
      * Test an empty BitString
      */
@@ -61,7 +64,8 @@ public class BitStringTest extends TestCase
 
         BitString bitString = new BitString();
 
-        bitString.setData( new byte[] {} );
+        bitString.setData( new byte[]
+            {} );
 
         try
         {
@@ -74,6 +78,7 @@ public class BitStringTest extends TestCase
         }
     }
 
+
     /**
      * Test a single bit BitString BitString
      */
@@ -82,10 +87,12 @@ public class BitStringTest extends TestCase
 
         BitString bitString = new BitString( 1 );
 
-        bitString.setData( new byte[] { 0x07, ( byte ) 0x80 } );
+        bitString.setData( new byte[]
+            { 0x07, ( byte ) 0x80 } );
 
         Assert.assertEquals( true, bitString.getBit( 0 ) );
     }
+
 
     /**
      * Test a 32 bits BitString
@@ -95,14 +102,15 @@ public class BitStringTest extends TestCase
 
         BitString bitString = new BitString( 32 );
 
-        bitString.setData(
-            new byte[] { 0x00, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF } );
+        bitString.setData( new byte[]
+            { 0x00, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF } );
 
         for ( int i = 0; i < 32; i++ )
         {
             Assert.assertEquals( true, bitString.getBit( i ) );
         }
     }
+
 
     /**
      * Test a 33 bits BitString
@@ -112,11 +120,8 @@ public class BitStringTest extends TestCase
 
         BitString bitString = new BitString( 33 );
 
-        bitString.setData(
-            new byte[]
-            {
-                0x07, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0x80
-            } );
+        bitString.setData( new byte[]
+            { 0x07, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0x80 } );
 
         for ( int i = 0; i < 33; i++ )
         {
@@ -136,7 +141,8 @@ public class BitStringTest extends TestCase
         // bit number 14
         BitString bitString14 = new BitString( 14 );
 
-        bitString14.setData( new byte[] { 0x02, ( byte ) 0xFF, ( byte ) 0xFC } );
+        bitString14.setData( new byte[]
+            { 0x02, ( byte ) 0xFF, ( byte ) 0xFC } );
 
         for ( int i = 0; i < 14; i++ )
         {
@@ -146,8 +152,8 @@ public class BitStringTest extends TestCase
         // bit number 31
         BitString bitString31 = new BitString( 31 );
 
-        bitString31.setData(
-            new byte[] { 0x01, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFE } );
+        bitString31.setData( new byte[]
+            { 0x01, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFE } );
 
         for ( int i = 0; i < 31; i++ )
         {
@@ -157,14 +163,10 @@ public class BitStringTest extends TestCase
         // bit number 128
         BitString bitString128 = new BitString( 128 );
 
-        bitString128.setData(
-            new byte[]
-            {
-                0x00, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF,
-                ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF,
-                ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF,
-                ( byte ) 0xFF
-            } );
+        bitString128.setData( new byte[]
+            { 0x00, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF,
+                ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF,
+                ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF, ( byte ) 0xFF } );
 
         for ( int i = 0; i < 128; i++ )
         {

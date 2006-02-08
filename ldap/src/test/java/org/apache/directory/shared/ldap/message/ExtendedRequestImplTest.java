@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 
 /**
  * TestCase for the ExtendedRequestImpl class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
@@ -119,7 +119,8 @@ public class ExtendedRequestImplTest extends TestCase
 
 
     /**
-     * Tests for equality even when another ExtendedRequest implementation is used.
+     * Tests for equality even when another ExtendedRequest implementation is
+     * used.
      */
     public void testEqualsDiffImpl()
     {
@@ -127,83 +128,101 @@ public class ExtendedRequestImplTest extends TestCase
         {
             private static final long serialVersionUID = 1L;
 
+
             public String getOid()
             {
                 return null;
             }
 
+
             public void setOid( String oid )
             {
             }
+
 
             public byte[] getPayload()
             {
                 return null;
             }
 
+
             public void setPayload( byte[] payload )
             {
             }
+
 
             public MessageTypeEnum getResponseType()
             {
                 return MessageTypeEnum.EXTENDEDRESP;
             }
 
+
             public boolean hasResponse()
             {
                 return true;
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.EXTENDEDREQ;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control control ) throws MessageException
             {
             }
 
+
             public void remove( Control control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 5;
             }
 
+
             public Object get( Object key )
             {
                 return null;
             }
+
 
             public Object put( Object key, Object value )
             {
                 return null;
             }
 
+
             public ResultResponse getResultResponse()
             {
                 return null;
             }
+
 
             public String getID()
             {
                 return null;
             }
 
+
             public byte[] getEncodedValue()
             {
                 return null;
             }
 
-            public ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length) throws NamingException
+
+            public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length )
+                throws NamingException
             {
                 return null;
             }

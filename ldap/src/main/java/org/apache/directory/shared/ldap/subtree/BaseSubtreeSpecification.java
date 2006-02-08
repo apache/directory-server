@@ -27,8 +27,9 @@ import javax.naming.Name;
 
 /**
  * A simple implementation of the SubtreeSpecification interface.
- *
- * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:directory-dev@incubator.apache.org">Apache Directory
+ *         Project</a>
  * @version $Rev$
  */
 public class BaseSubtreeSpecification implements SubtreeSpecification
@@ -48,7 +49,10 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     /** the maximum distance from base past which entries are excluded */
     private final int maxBaseDistance;
 
-    /** a filter using only assertions on objectClass attributes for subtree refinement */
+    /**
+     * a filter using only assertions on objectClass attributes for subtree
+     * refinement
+     */
     private final ExprNode refinement;
 
 
@@ -56,11 +60,10 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     // C O N S T R U C T O R S
     // -----------------------------------------------------------------------
 
-
     /**
-     * Creates a simple subtree whose administrative point is necessarily the base
-     * and all subordinates underneath (excluding those that are part of inner areas)
-     * are part of the the subtree.
+     * Creates a simple subtree whose administrative point is necessarily the
+     * base and all subordinates underneath (excluding those that are part of
+     * inner areas) are part of the the subtree.
      */
     public BaseSubtreeSpecification()
     {
@@ -79,14 +82,15 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
 
 
     /**
-     * Creates a simple subtree refinement whose administrative point is necessarily
-     * the base and only those subordinates selected by the refinement filter are
-     * included.
-     *
-     * @param refinement the filter expression only composed of objectClass attribute
-     * value assertions
+     * Creates a simple subtree refinement whose administrative point is
+     * necessarily the base and only those subordinates selected by the
+     * refinement filter are included.
+     * 
+     * @param refinement
+     *            the filter expression only composed of objectClass attribute
+     *            value assertions
      */
-    public BaseSubtreeSpecification( ExprNode refinement )
+    public BaseSubtreeSpecification(ExprNode refinement)
     {
         this.base = new LdapName();
 
@@ -103,13 +107,14 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
 
 
     /**
-     * Creates a simple subtree whose administrative point above the base and all
-     * subordinates underneath the base (excluding those that are part of inner
-     * areas) are part of the the subtree.
-     *
-     * @param base the base of the subtree relative to the administrative point
+     * Creates a simple subtree whose administrative point above the base and
+     * all subordinates underneath the base (excluding those that are part of
+     * inner areas) are part of the the subtree.
+     * 
+     * @param base
+     *            the base of the subtree relative to the administrative point
      */
-    public BaseSubtreeSpecification( Name base )
+    public BaseSubtreeSpecification(Name base)
     {
         this.base = base;
 
@@ -126,37 +131,51 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
 
 
     /**
-     * Creates a subtree without a refinement filter where all other aspects
-     * can be varied.
-     *
-     * @param base the base of the subtree relative to the administrative point
-     * @param minBaseDistance the minimum distance below base to start including entries
-     * @param maxBaseDistance the maximum distance from base past which entries are excluded
-     * @param chopAfter the set of subordinates entries whose subordinates are to be excluded
-     * @param chopBefore the set of subordinates entries and their subordinates to exclude
+     * Creates a subtree without a refinement filter where all other aspects can
+     * be varied.
+     * 
+     * @param base
+     *            the base of the subtree relative to the administrative point
+     * @param minBaseDistance
+     *            the minimum distance below base to start including entries
+     * @param maxBaseDistance
+     *            the maximum distance from base past which entries are excluded
+     * @param chopAfter
+     *            the set of subordinates entries whose subordinates are to be
+     *            excluded
+     * @param chopBefore
+     *            the set of subordinates entries and their subordinates to
+     *            exclude
      */
-    public BaseSubtreeSpecification( Name base, int minBaseDistance, int maxBaseDistance,
-                                     Set chopAfter, Set chopBefore )
+    public BaseSubtreeSpecification(Name base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore)
     {
         this( base, minBaseDistance, maxBaseDistance, chopAfter, chopBefore, null );
     }
 
 
     /**
-     * Creates a subtree which may be a refinement filter where all aspects of the
-     * specification can be set.  If the refinement filter is null this defaults to
-     * {@link #BaseSubtreeSpecification(Name, int, int, Set, Set)}.
-     *
-     * @param base the base of the subtree relative to the administrative point
-     * @param minBaseDistance the minimum distance below base to start including entries
-     * @param maxBaseDistance the maximum distance from base past which entries are excluded
-     * @param chopAfter the set of subordinates entries whose subordinates are to be excluded
-     * @param chopBefore the set of subordinates entries and their subordinates to exclude
-     * @param refinement the filter expression only composed of objectClass attribute
-     * value assertions
+     * Creates a subtree which may be a refinement filter where all aspects of
+     * the specification can be set. If the refinement filter is null this
+     * defaults to {@link #BaseSubtreeSpecification(Name, int, int, Set, Set)}.
+     * 
+     * @param base
+     *            the base of the subtree relative to the administrative point
+     * @param minBaseDistance
+     *            the minimum distance below base to start including entries
+     * @param maxBaseDistance
+     *            the maximum distance from base past which entries are excluded
+     * @param chopAfter
+     *            the set of subordinates entries whose subordinates are to be
+     *            excluded
+     * @param chopBefore
+     *            the set of subordinates entries and their subordinates to
+     *            exclude
+     * @param refinement
+     *            the filter expression only composed of objectClass attribute
+     *            value assertions
      */
-    public BaseSubtreeSpecification( Name base, int minBaseDistance, int maxBaseDistance,
-                                     Set chopAfter, Set chopBefore, ExprNode refinement )
+    public BaseSubtreeSpecification(Name base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore,
+        ExprNode refinement)
     {
         this.base = base;
 
@@ -182,7 +201,6 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     // -----------------------------------------------------------------------
     // A C C E S S O R S
     // -----------------------------------------------------------------------
-
 
     public Name getBase()
     {

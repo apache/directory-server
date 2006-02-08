@@ -25,12 +25,13 @@
  */
 package org.apache.directory.shared.ldap.filter;
 
+
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
  * Filter expression tree node for extensible assertions.
- *
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $author$
  * @version $Revision$
@@ -39,81 +40,90 @@ public class ExtensibleNode extends LeafNode
 {
     /** The value of the attribute to match for */
     private final byte[] value;
-    
+
     /** The matching rules id */
-    private final String matchingRuleId ;
+    private final String matchingRuleId;
 
     /** The name of the dn attributes */
-    private boolean dnAttributes = false ;
+    private boolean dnAttributes = false;
+
 
     /**
      * Creates a new ExtensibleNode object.
-     *
-     * @param attribute the attribute used for the extensible assertion
-     * @param value the value to match for
-     * @param matchingRuleId the OID of the matching rule
-     * @param dnAttributes the dn attributes
+     * 
+     * @param attribute
+     *            the attribute used for the extensible assertion
+     * @param value
+     *            the value to match for
+     * @param matchingRuleId
+     *            the OID of the matching rule
+     * @param dnAttributes
+     *            the dn attributes
      */
-    public ExtensibleNode( String attribute, String value,
-        String matchingRuleId, boolean dnAttributes )
+    public ExtensibleNode(String attribute, String value, String matchingRuleId, boolean dnAttributes)
     {
         this( attribute, StringTools.getBytesUtf8( value ), matchingRuleId, dnAttributes );
     }
-    
+
+
     /**
      * Creates a new ExtensibleNode object.
-     *
-     * @param attribute the attribute used for the extensible assertion
-     * @param value the value to match for
-     * @param matchingRuleId the OID of the matching rule
-     * @param dnAttributes the dn attributes
+     * 
+     * @param attribute
+     *            the attribute used for the extensible assertion
+     * @param value
+     *            the value to match for
+     * @param matchingRuleId
+     *            the OID of the matching rule
+     * @param dnAttributes
+     *            the dn attributes
      */
-    public ExtensibleNode( String attribute, byte[] value,
-        String matchingRuleId, boolean dnAttributes )
+    public ExtensibleNode(String attribute, byte[] value, String matchingRuleId, boolean dnAttributes)
     {
-        super( attribute, EXTENSIBLE ) ;
+        super( attribute, EXTENSIBLE );
 
-        this.value = value ;
-        this.matchingRuleId = matchingRuleId ;
-        this.dnAttributes = dnAttributes ;
+        this.value = value;
+        this.matchingRuleId = matchingRuleId;
+        this.dnAttributes = dnAttributes;
     }
 
 
     /**
      * Gets the Dn attributes.
-     *
+     * 
      * @return the dn attributes
      */
-    public boolean dnAttributes(  )
+    public boolean dnAttributes()
     {
-        return dnAttributes ;
+        return dnAttributes;
     }
 
 
     /**
      * Gets the matching rule id as an OID string.
-     *
-     * @return the OID 
+     * 
+     * @return the OID
      */
-    public String getMatchingRuleId(  )
+    public String getMatchingRuleId()
     {
-        return matchingRuleId ;
+        return matchingRuleId;
     }
 
 
     /**
      * Gets the value.
-     *
+     * 
      * @return the value
      */
     public final byte[] getValue()
     {
-        return value ;
+        return value;
     }
+
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
-     * java.lang.StringBuffer)
+     *      java.lang.StringBuffer)
      */
     public StringBuffer printToBuffer( StringBuffer buf )
     {
@@ -128,8 +138,7 @@ public class ExtensibleNode extends LeafNode
         buf.append( StringTools.dumpBytes( this.value ) );
         buf.append( ')' );
 
-        if ( ( null != getAnnotations() )
-                && getAnnotations().containsKey( "count" ) )
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
             buf.append( '[' );
             buf.append( getAnnotations().get( "count" ).toString() );
@@ -139,7 +148,7 @@ public class ExtensibleNode extends LeafNode
         {
             buf.append( ' ' );
         }
-        
+
         return buf;
     }
 
@@ -149,22 +158,22 @@ public class ExtensibleNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer() ;
-        printToBuffer( buf ) ;
+        StringBuffer buf = new StringBuffer();
+        printToBuffer( buf );
 
-        return ( buf.toString() ) ;
+        return ( buf.toString() );
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     * org.apache.directory.shared.ldap.filter.FilterVisitor)
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
     public void accept( FilterVisitor visitor )
     {
         if ( visitor.canVisit( this ) )
         {
-            visitor.visit( this ) ;
+            visitor.visit( this );
         }
     }
 }

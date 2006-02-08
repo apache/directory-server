@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.add;
 
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
@@ -33,14 +34,16 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class implements the AddResponse LDAP message. All the actions are declared in this
- * class. As it is a singleton, these declaration are only done once.
+ * This class implements the AddResponse LDAP message. All the actions are
+ * declared in this class. As it is a singleton, these declaration are only done
+ * once.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AddResponseGrammar extends AbstractGrammar implements IGrammar
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( AddResponseGrammar.class );
@@ -48,7 +51,9 @@ public class AddResponseGrammar extends AbstractGrammar implements IGrammar
     /** The instance of grammar. AddResponseGrammar is a singleton */
     private static IGrammar instance = new AddResponseGrammar();
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new AddResponseGrammar object.
@@ -61,77 +66,79 @@ public class AddResponseGrammar extends AbstractGrammar implements IGrammar
         // Create the transitions table
         super.transitions = new GrammarTransition[LdapStatesEnum.LAST_ADD_RESPONSE_STATE][256];
 
-        //============================================================================================
+        // ============================================================================================
         // AddResponse Message
-        //============================================================================================
+        // ============================================================================================
         // LdapMessage ::= ... AddResponse ...
         // AddResponse ::= [APPLICATION 9] LDAPResult (Tag)
         // Nothing to do.
         super.transitions[LdapStatesEnum.ADD_RESPONSE_TAG][LdapConstants.ADD_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.ADD_RESPONSE_TAG, LdapStatesEnum.ADD_RESPONSE_VALUE, null );
+            LdapStatesEnum.ADD_RESPONSE_TAG, LdapStatesEnum.ADD_RESPONSE_VALUE, null );
 
         // LdapMessage ::= ... AddResponse ...
         // AddResponse ::= [APPLICATION 9] LDAPResult (Value)
         // The next Tag will be the LDAPResult Tag (0x0A).
         // We will switch the grammar then.
         super.transitions[LdapStatesEnum.ADD_RESPONSE_VALUE][LdapConstants.ADD_RESPONSE_TAG] = new GrammarTransition(
-                LdapStatesEnum.ADD_RESPONSE_VALUE, LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT, 
-                new GrammarAction( "Init AddResponse" )
+            LdapStatesEnum.ADD_RESPONSE_VALUE, LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT, new GrammarAction(
+                "Init AddResponse" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
+
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+
+                    // We will check that the request is not null
+                    TLV tlv = ldapMessageContainer.getCurrentTLV();
+
+                    if ( tlv.getLength().getLength() == 0 )
                     {
-
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage      ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-
-                        // We will check that the request is not null
-                        TLV   tlv       = ldapMessageContainer.getCurrentTLV();
-
-                        if ( tlv.getLength().getLength() == 0 )
-                        {
-                        	String msg = "The AddResponse must not be null";
-                        	log.error( msg );
-                        	throw new DecoderException( msg );
-                        }
-                        
-                        // Now, we can allocate the AddRequest Object
-                        AddResponse addResponse = new AddResponse();
-
-                        // As this is a new Constructed object, we have to init its length
-                        int expectedLength = tlv.getLength().getLength();
-                        addResponse.setExpectedLength( expectedLength );
-                        addResponse.setCurrentLength( 0 );
-                        addResponse.setParent( ldapMessage );
-
-                        // And we associate it to the ldapMessage Object
-                        ldapMessage.setProtocolOP( addResponse );
-                        
-                        log.debug( "Add Response" );
+                        String msg = "The AddResponse must not be null";
+                        log.error( msg );
+                        throw new DecoderException( msg );
                     }
-                } );
+
+                    // Now, we can allocate the AddRequest Object
+                    AddResponse addResponse = new AddResponse();
+
+                    // As this is a new Constructed object, we have to init its
+                    // length
+                    int expectedLength = tlv.getLength().getLength();
+                    addResponse.setExpectedLength( expectedLength );
+                    addResponse.setCurrentLength( 0 );
+                    addResponse.setParent( ldapMessage );
+
+                    // And we associate it to the ldapMessage Object
+                    ldapMessage.setProtocolOP( addResponse );
+
+                    log.debug( "Add Response" );
+                }
+            } );
 
         // LdapMessage ::= ... AddResponse ...
         // AddResponse ::= [APPLICATION 9] LDAPResult (Value)
-        // Ok, we have a LDAPResult Tag (0x0A). So we have to switch the grammar.
+        // Ok, we have a LDAPResult Tag (0x0A). So we have to switch the
+        // grammar.
         super.transitions[LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT][UniversalTag.ENUMERATED_TAG] = new GrammarTransition(
-                LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, 
-                new GrammarAction( "Pop allowed" )
+            LdapStatesEnum.ADD_RESPONSE_LDAP_RESULT, LdapStatesEnum.LDAP_RESULT_GRAMMAR_SWITCH, new GrammarAction(
+                "Pop allowed" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
-                    {
-                        container.grammarPopAllowed( true );
-                    }
-                    
-                });
+                    container.grammarPopAllowed( true );
+                }
+
+            } );
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the instance of this grammar
-     *
+     * 
      * @return An instance on the LdapMessage Grammar
      */
     public static IGrammar getInstance()

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
@@ -26,19 +26,19 @@ package org.apache.directory.shared.ldap.message ;
 public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements ModifyDnRequest
 {
     static final long serialVersionUID = 1233507339633051696L;
-    
+
     /** PDU's modify Dn candidate <b>entry</b> distinguished name property */
     private String name;
-    
+
     /** PDU's <b>newrdn</b> relative distinguished name property */
     private String newRdn;
-    
+
     /** PDU's <b>newSuperior</b> distinguished name property */
     private String newSuperior;
-    
+
     /** PDU's <b>deleteOldRdn</b> flag */
     private boolean deleteOldRdn = false;
-    
+
     private ModifyDnResponse response;
 
 
@@ -46,14 +46,14 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     // Constructors
     // -----------------------------------------------------------------------
 
-
     /**
-     * Creates a Lockable ModifyDnRequest implementing object used to perform
-     * a dn change on an entry potentially resulting in an entry move.
-     *
-     * @param id the seq id of this message
+     * Creates a Lockable ModifyDnRequest implementing object used to perform a
+     * dn change on an entry potentially resulting in an entry move.
+     * 
+     * @param id
+     *            the seq id of this message
      */
-    public ModifyDnRequestImpl( final int id )
+    public ModifyDnRequestImpl(final int id)
     {
         super( id, TYPE );
     }
@@ -63,12 +63,13 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     // ModifyDnRequest Interface Method Implementations
     // -----------------------------------------------------------------------
 
-
     /**
      * Gets the flag which determines if the old Rdn attribute is to be removed
-     * from the entry when the new Rdn is used in its stead.  This property
-     * corresponds to the <b>deleteoldrdn</p> PDU field.
-     *
+     * from the entry when the new Rdn is used in its stead. This property
+     * corresponds to the <b>deleteoldrdn
+     * </p>
+     * PDU field.
+     * 
      * @return true if the old rdn is to be deleted, false if it is not
      */
     public boolean getDeleteOldRdn()
@@ -79,11 +80,13 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
     /**
      * Sets the flag which determines if the old Rdn attribute is to be removed
-     * from the entry when the new Rdn is used in its stead.  This property
-     * corresponds to the <b>deleteoldrdn</p> PDU field.
-     *
-     * @param deleteOldRdn true if the old rdn is to be deleted, false if it
-     * is not
+     * from the entry when the new Rdn is used in its stead. This property
+     * corresponds to the <b>deleteoldrdn
+     * </p>
+     * PDU field.
+     * 
+     * @param deleteOldRdn
+     *            true if the old rdn is to be deleted, false if it is not
      */
     public void setDeleteOldRdn( boolean deleteOldRdn )
     {
@@ -93,11 +96,11 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
     /**
      * Gets whether or not this request is a DN change resulting in a move
-     * operation.  Setting the newSuperior property to a non-null name, toggles
+     * operation. Setting the newSuperior property to a non-null name, toggles
      * this flag.
-     *
+     * 
      * @return true if the newSuperior property is <b>NOT</b> null, false
-     * otherwise.
+     *         otherwise.
      */
     public boolean isMove()
     {
@@ -108,7 +111,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     /**
      * Gets the entry's distinguished name representing the <b>entry</b> PDU
      * field.
-     *
+     * 
      * @return the distinguished name of the entry.
      */
     public String getName()
@@ -120,8 +123,9 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     /**
      * Sets the entry's distinguished name representing the <b>entry</b> PDU
      * field.
-     *
-     * @param name the distinguished name of the entry.
+     * 
+     * @param name
+     *            the distinguished name of the entry.
      */
     public void setName( String name )
     {
@@ -132,7 +136,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     /**
      * Gets the new relative distinguished name for the entry which represents
      * the PDU's <b>newrdn</b> field.
-     *
+     * 
      * @return the relative dn with one component
      */
     public String getNewRdn()
@@ -144,8 +148,9 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     /**
      * Sets the new relative distinguished name for the entry which represents
      * the PDU's <b>newrdn</b> field.
-     *
-     * @param newRdn the relative dn with one component
+     * 
+     * @param newRdn
+     *            the relative dn with one component
      */
     public void setNewRdn( String newRdn )
     {
@@ -155,10 +160,10 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
     /**
      * Gets the optional distinguished name of the new superior entry where the
-     * candidate entry is to be moved.  This property corresponds to the PDU's
-     * <b>newSuperior</b> field.  May be null representing a simple Rdn change
+     * candidate entry is to be moved. This property corresponds to the PDU's
+     * <b>newSuperior</b> field. May be null representing a simple Rdn change
      * rather than a move operation.
-     *
+     * 
      * @return the dn of the superior entry the candidate entry is moved under.
      */
     public String getNewSuperior()
@@ -169,17 +174,18 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
     /**
      * Sets the optional distinguished name of the new superior entry where the
-     * candidate entry is to be moved.  This property corresponds to the PDU's
-     * <b>newSuperior</b> field.  May be null representing a simple Rdn change
-     * rather than a move operation.  Setting this property to a non-null value
+     * candidate entry is to be moved. This property corresponds to the PDU's
+     * <b>newSuperior</b> field. May be null representing a simple Rdn change
+     * rather than a move operation. Setting this property to a non-null value
      * toggles the move flag obtained via the <code>isMove</code> method.
-     *
-     * @param newSuperior the dn of the superior entry the candidate entry
-     * for DN modification is moved under.
+     * 
+     * @param newSuperior
+     *            the dn of the superior entry the candidate entry for DN
+     *            modification is moved under.
      */
     public void setNewSuperior( String newSuperior )
     {
-    	this.newSuperior = newSuperior;
+        this.newSuperior = newSuperior;
     }
 
 
@@ -187,18 +193,17 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     // SingleReplyRequest Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the protocol response message type for this request which produces
      * at least one response.
-     *
+     * 
      * @return the message type of the response.
      */
     public MessageTypeEnum getResponseType()
     {
         return RESP_TYPE;
     }
-    
+
 
     /**
      * The result containing response for this request.
@@ -211,16 +216,17 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
         {
             response = new ModifyDnResponseImpl( getMessageId() );
         }
-        
+
         return response;
     }
 
 
     /**
-     * Checks to see of an object equals this ModifyDnRequest stub.  The
-     * equality presumes all ModifyDnRequest specific properties are the same.
-     *
-     * @param obj the object to compare with this stub
+     * Checks to see of an object equals this ModifyDnRequest stub. The equality
+     * presumes all ModifyDnRequest specific properties are the same.
+     * 
+     * @param obj
+     *            the object to compare with this stub
      * @return true if the obj is equal to this stub, false otherwise
      */
     public boolean equals( Object obj )
@@ -230,7 +236,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
@@ -249,7 +255,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
         if ( name != null && req.getName() != null )
         {
-            if ( ! name.equals( req.getName() ) )
+            if ( !name.equals( req.getName() ) )
             {
                 return false;
             }
@@ -272,7 +278,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
         if ( newRdn != null && req.getNewRdn() != null )
         {
-            if ( ! newRdn.equals( req.getNewRdn() ) )
+            if ( !newRdn.equals( req.getNewRdn() ) )
             {
                 return false;
             }
@@ -290,7 +296,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
         if ( newSuperior != null && req.getNewSuperior() != null )
         {
-            if ( ! newSuperior.equals( req.getNewSuperior() ) )
+            if ( !newSuperior.equals( req.getNewSuperior() ) )
             {
                 return false;
             }
@@ -299,10 +305,11 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
         return true;
     }
 
+
     /**
      * Get a String representation of a ModifyDNRequest
-     *
-     * @return A ModifyDNRequest String 
+     * 
+     * @return A ModifyDNRequest String
      */
     public String toString()
     {
@@ -316,8 +323,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
 
         if ( newSuperior != null )
         {
-            sb.append( "        New superior : '" ).append( newSuperior.toString() ).append(
-                "'\n" );
+            sb.append( "        New superior : '" ).append( newSuperior.toString() ).append( "'\n" );
         }
 
         return sb.toString();

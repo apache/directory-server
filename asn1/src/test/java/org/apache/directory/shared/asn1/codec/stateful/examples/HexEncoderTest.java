@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.codec.stateful.examples;
 
+
 import java.nio.ByteBuffer;
 import java.util.Random;
 
@@ -27,16 +28,19 @@ import org.apache.directory.shared.asn1.codec.stateful.EncoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulEncoder;
 import org.apache.directory.shared.asn1.codec.stateful.examples.HexEncoder;
 
+
 /**
  * Document me.
  * 
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class HexEncoderTest extends TestCase implements EncoderCallback
 {
     HexEncoder encoder = null;
+
     byte[] encoded = null;
+
     byte[] data = null;
 
 
@@ -59,7 +63,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
 
     private void generateData( int amount )
     {
-        Random rand = new Random(System.currentTimeMillis()) ;
+        Random rand = new Random( System.currentTimeMillis() );
         data = new byte[amount];
         rand.nextBytes( data );
     }
@@ -67,16 +71,16 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
 
     public void encodeOccurred( StatefulEncoder encoder, Object encodedObj )
     {
-        ByteBuffer encodedBuf = ( ByteBuffer ) encodedObj ;
+        ByteBuffer encodedBuf = ( ByteBuffer ) encodedObj;
 
         if ( encoded == null )
         {
             encoded = new byte[encodedBuf.remaining()];
-            encodedBuf.get( encoded ) ;
+            encodedBuf.get( encoded );
         }
         else
         {
-            byte[] temp = encoded ;
+            byte[] temp = encoded;
             encoded = new byte[encodedBuf.remaining() + temp.length];
             System.arraycopy( temp, 0, encoded, 0, temp.length );
             encodedBuf.get( encoded, temp.length, encodedBuf.remaining() );
@@ -156,16 +160,14 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     {
         if ( encoded.length != hex.length )
         {
-            fail( "encoded length of " + encoded.length
-                    + " did not match expected hex char length of "
-                    + hex.length ) ;
+            fail( "encoded length of " + encoded.length + " did not match expected hex char length of " + hex.length );
         }
 
         for ( int ii = 0; ii < encoded.length; ii++ )
         {
             if ( encoded[ii] != hex[ii] )
             {
-                fail( "encoding failed - encoded array does not match" ) ;
+                fail( "encoding failed - encoded array does not match" );
             }
         }
     }

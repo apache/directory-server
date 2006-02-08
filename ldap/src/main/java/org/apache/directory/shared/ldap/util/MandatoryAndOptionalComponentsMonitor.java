@@ -15,7 +15,6 @@
  *
  */
 
-
 package org.apache.directory.shared.ldap.util;
 
 
@@ -27,10 +26,12 @@ import java.util.List;
 public class MandatoryAndOptionalComponentsMonitor implements ComponentsMonitor
 {
     private ComponentsMonitor mandatoryComponentsMonitor;
+
     private ComponentsMonitor optionalComponentsMonitor;
-    
-    public MandatoryAndOptionalComponentsMonitor( String [] mandatoryComponents,
-            String [] optionalComponents ) throws IllegalArgumentException
+
+
+    public MandatoryAndOptionalComponentsMonitor(String[] mandatoryComponents, String[] optionalComponents)
+        throws IllegalArgumentException
     {
         // check for common elements
         for ( int i = 0; i < mandatoryComponents.length; i++ )
@@ -39,16 +40,16 @@ public class MandatoryAndOptionalComponentsMonitor implements ComponentsMonitor
             {
                 if ( mandatoryComponents[i].equals( optionalComponents[j] ) )
                 {
-                    throw new IllegalArgumentException( 
-                            "Common element, \"" + mandatoryComponents[i] + 
-                            "\" detected for Mandatory and Optional components." );
+                    throw new IllegalArgumentException( "Common element, \"" + mandatoryComponents[i]
+                        + "\" detected for Mandatory and Optional components." );
                 }
             }
         }
-        
+
         mandatoryComponentsMonitor = new MandatoryComponentsMonitor( mandatoryComponents );
         optionalComponentsMonitor = new OptionalComponentsMonitor( optionalComponents );
     }
+
 
     public ComponentsMonitor useComponent( String component )
     {
@@ -64,33 +65,33 @@ public class MandatoryAndOptionalComponentsMonitor implements ComponentsMonitor
             }
             catch ( IllegalArgumentException e2 )
             {
-                throw new IllegalArgumentException( 
-                        "Unregistered or previously used component: " + component );
+                throw new IllegalArgumentException( "Unregistered or previously used component: " + component );
             }
         }
-        
+
         return this;
     }
 
+
     public boolean allComponentsUsed()
     {
-        return ( mandatoryComponentsMonitor.allComponentsUsed() && 
-            optionalComponentsMonitor.allComponentsUsed() );
+        return ( mandatoryComponentsMonitor.allComponentsUsed() && optionalComponentsMonitor.allComponentsUsed() );
     }
+
 
     public boolean finalStateValid()
     {
-        return ( mandatoryComponentsMonitor.finalStateValid() && 
-                optionalComponentsMonitor.finalStateValid() );
+        return ( mandatoryComponentsMonitor.finalStateValid() && optionalComponentsMonitor.finalStateValid() );
     }
+
 
     public List getRemainingComponents()
     {
         List remainingComponents = new LinkedList();
-        
+
         remainingComponents.addAll( mandatoryComponentsMonitor.getRemainingComponents() );
         remainingComponents.addAll( optionalComponentsMonitor.getRemainingComponents() );
-        
+
         return Collections.unmodifiableList( remainingComponents );
     }
 

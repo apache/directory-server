@@ -17,7 +17,9 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.math.BigInteger;
+
 
 /**
  * DER Integer object.
@@ -27,11 +29,12 @@ public class DERInteger extends DERObject
     /**
      * Basic DERObject constructor.
      */
-    DERInteger( byte[] value )
+    DERInteger(byte[] value)
     {
-    	super( INTEGER, value );
+        super( INTEGER, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -39,24 +42,27 @@ public class DERInteger extends DERObject
     {
         return new DERInteger( intToOctet( integer ) );
     }
-    
+
+
     /**
      * Lazy accessor
+     * 
      * @return integer value
      */
     public int intValue()
     {
         return octetToInt( value );
     }
-    
+
+
     private static int octetToInt( byte[] bytes )
     {
-    	return new BigInteger( bytes ).intValue();
+        return new BigInteger( bytes ).intValue();
     }
-	
+
+
     private static byte[] intToOctet( int integer )
     {
         return BigInteger.valueOf( integer ).toByteArray();
     }
 }
-

@@ -31,10 +31,11 @@ import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 public class CachingNormalizer implements Normalizer
 {
     /** Cache maximum size default */
-    public static final int CACHE_MAX = 250 ;
-    
+    public static final int CACHE_MAX = 250;
+
     /** Least recently used cache */
-    private final SynchronizedLRUMap cache ;
+    private final SynchronizedLRUMap cache;
+
     /** The underlying decorated Normalizer */
     private final Normalizer normalizer;
 
@@ -43,16 +44,16 @@ public class CachingNormalizer implements Normalizer
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a CachingNormalizer that decorates another normalizer using a
      * default cache size.
      * 
-     * @param normalizer the underlying Normalizer being decorated
+     * @param normalizer
+     *            the underlying Normalizer being decorated
      */
-    public CachingNormalizer( Normalizer normalizer )
+    public CachingNormalizer(Normalizer normalizer)
     {
-        this( normalizer, CACHE_MAX ) ;
+        this( normalizer, CACHE_MAX );
     }
 
 
@@ -60,13 +61,15 @@ public class CachingNormalizer implements Normalizer
      * Creates a CachingNormalizer that decorates another normalizer using a
      * specified cache size.
      * 
-     * @param normalizer the underlying Normalizer being decorated
-     * @param cacheSz the maximum size of the name cache
+     * @param normalizer
+     *            the underlying Normalizer being decorated
+     * @param cacheSz
+     *            the maximum size of the name cache
      */
-    public CachingNormalizer( Normalizer normalizer, int cacheSz )
+    public CachingNormalizer(Normalizer normalizer, int cacheSz)
     {
         this.normalizer = normalizer;
-        cache = new SynchronizedLRUMap( cacheSz ) ;
+        cache = new SynchronizedLRUMap( cacheSz );
     }
 
 
@@ -75,20 +78,20 @@ public class CachingNormalizer implements Normalizer
      */
     public Object normalize( Object value ) throws NamingException
     {
-    	if ( value == null )
-    	{
-    		return null;
-    	}
-    	
-    	Object result = cache.get( value );
-    	
+        if ( value == null )
+        {
+            return null;
+        }
+
+        Object result = cache.get( value );
+
         if ( result != null )
         {
             return result;
         }
-        
-        Object normalized = normalizer.normalize( value ) ;
-        cache.put( value, normalized ) ;
-        return normalized ;
+
+        Object normalized = normalizer.normalize( value );
+        cache.put( value, normalized );
+        return normalized;
     }
 }

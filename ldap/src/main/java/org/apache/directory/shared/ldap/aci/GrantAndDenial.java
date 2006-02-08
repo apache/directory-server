@@ -18,9 +18,10 @@
  */
 package org.apache.directory.shared.ldap.aci;
 
+
 /**
  * An enumeration that represents grants or denials of {@link MicroOperation}s.
- *
+ * 
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
@@ -30,44 +31,65 @@ public class GrantAndDenial
     // <tt>ProtectedItem</tt>s.
     /** Grant for {@link MicroOperation#ADD} */
     public static final GrantAndDenial GRANT_ADD = new GrantAndDenial( MicroOperation.ADD, 0, true );
+
     /** Denial for {@link MicroOperation#ADD} */
     public static final GrantAndDenial DENY_ADD = new GrantAndDenial( MicroOperation.ADD, 1, false );
+
     /** Grant for {@link MicroOperation#DISCLOSE_ON_ERROR} */
-    public static final GrantAndDenial GRANT_DISCLOSE_ON_ERROR = new GrantAndDenial( MicroOperation.DISCLOSE_ON_ERROR, 2, true );
+    public static final GrantAndDenial GRANT_DISCLOSE_ON_ERROR = new GrantAndDenial( MicroOperation.DISCLOSE_ON_ERROR,
+        2, true );
+
     /** Denial for {@link MicroOperation#DISCLOSE_ON_ERROR} */
-    public static final GrantAndDenial DENY_DISCLOSE_ON_ERROR = new GrantAndDenial( MicroOperation.DISCLOSE_ON_ERROR, 3, false );
+    public static final GrantAndDenial DENY_DISCLOSE_ON_ERROR = new GrantAndDenial( MicroOperation.DISCLOSE_ON_ERROR,
+        3, false );
+
     /** Grant for {@link MicroOperation#READ} */
     public static final GrantAndDenial GRANT_READ = new GrantAndDenial( MicroOperation.READ, 4, true );
+
     /** Denial for {@link MicroOperation#READ} */
     public static final GrantAndDenial DENY_READ = new GrantAndDenial( MicroOperation.READ, 5, false );
+
     /** Grant for {@link MicroOperation#REMOVE} */
     public static final GrantAndDenial GRANT_REMOVE = new GrantAndDenial( MicroOperation.REMOVE, 6, true );
+
     /** Denial for {@link MicroOperation#REMOVE} */
     public static final GrantAndDenial DENY_REMOVE = new GrantAndDenial( MicroOperation.REMOVE, 7, false );
-    
-    // Permissions that may be used only in conjunction with the entry component.
+
+    // Permissions that may be used only in conjunction with the entry
+    // component.
     /** Grant for {@link MicroOperation#BROWSE} */
     public static final GrantAndDenial GRANT_BROWSE = new GrantAndDenial( MicroOperation.BROWSE, 8, true );
+
     /** Denial for {@link MicroOperation#BROWSE} */
     public static final GrantAndDenial DENY_BROWSE = new GrantAndDenial( MicroOperation.BROWSE, 9, false );
+
     /** Grant for {@link MicroOperation#EXPORT} */
     public static final GrantAndDenial GRANT_EXPORT = new GrantAndDenial( MicroOperation.EXPORT, 10, true );
+
     /** Denial for {@link MicroOperation#EXPORT} */
     public static final GrantAndDenial DENY_EXPORT = new GrantAndDenial( MicroOperation.EXPORT, 11, false );
+
     /** Grant for {@link MicroOperation#IMPORT} */
     public static final GrantAndDenial GRANT_IMPORT = new GrantAndDenial( MicroOperation.IMPORT, 12, true );
+
     /** Denial for {@link MicroOperation#IMPORT} */
     public static final GrantAndDenial DENY_IMPORT = new GrantAndDenial( MicroOperation.IMPORT, 13, false );
+
     /** Grant for {@link MicroOperation#MODIFY} */
     public static final GrantAndDenial GRANT_MODIFY = new GrantAndDenial( MicroOperation.MODIFY, 14, true );
+
     /** Denial for {@link MicroOperation#MODIFY} */
     public static final GrantAndDenial DENY_MODIFY = new GrantAndDenial( MicroOperation.MODIFY, 15, false );
+
     /** Grant for {@link MicroOperation#RENAME} */
     public static final GrantAndDenial GRANT_RENAME = new GrantAndDenial( MicroOperation.RENAME, 16, true );
+
     /** Denial for {@link MicroOperation#RENAME} */
     public static final GrantAndDenial DENY_RENAME = new GrantAndDenial( MicroOperation.RENAME, 17, false );
+
     /** Grant for {@link MicroOperation#RETURN_DN} */
     public static final GrantAndDenial GRANT_RETURN_DN = new GrantAndDenial( MicroOperation.RETURN_DN, 18, true );
+
     /** Denial for {@link MicroOperation#RETURN_DN} */
     public static final GrantAndDenial DENY_RETURN_DN = new GrantAndDenial( MicroOperation.RETURN_DN, 19, false );
 
@@ -75,30 +97,40 @@ public class GrantAndDenial
     // except entry, of <tt>ProtectedItem</tt>s.
     /** Grant for {@link MicroOperation#COMPARE} */
     public static final GrantAndDenial GRANT_COMPARE = new GrantAndDenial( MicroOperation.COMPARE, 20, true );
+
     /** Deny for {@link MicroOperation#COMPARE} */
     public static final GrantAndDenial DENY_COMPARE = new GrantAndDenial( MicroOperation.COMPARE, 21, false );
+
     /** Grant for {@link MicroOperation#FILTER_MATCH} */
     public static final GrantAndDenial GRANT_FILTER_MATCH = new GrantAndDenial( MicroOperation.FILTER_MATCH, 22, true );
+
     /** Denial for {@link MicroOperation#FILTER_MATCH} */
     public static final GrantAndDenial DENY_FILTER_MATCH = new GrantAndDenial( MicroOperation.FILTER_MATCH, 23, false );
+
     /** Grant for {@link MicroOperation#INVOKE} */
     public static final GrantAndDenial GRANT_INVOKE = new GrantAndDenial( MicroOperation.INVOKE, 24, true );
+
     /** Denial for {@link MicroOperation#INVOKE} */
     public static final GrantAndDenial DENY_INVOKE = new GrantAndDenial( MicroOperation.INVOKE, 25, false );
 
     private final MicroOperation microOperation;
+
     private final int code;
+
     private final String name;
+
     private final boolean grant;
 
-    private GrantAndDenial( MicroOperation microOperation, int code, boolean grant )
+
+    private GrantAndDenial(MicroOperation microOperation, int code, boolean grant)
     {
         this.microOperation = microOperation;
         this.code = code;
-        this.name = ( grant? "grant" : "deny" ) + microOperation.getName();
+        this.name = ( grant ? "grant" : "deny" ) + microOperation.getName();
         this.grant = grant;
     }
-    
+
+
     /**
      * Returns the {@link MicroOperation} related with this grant or denial.
      */
@@ -107,6 +139,7 @@ public class GrantAndDenial
         return microOperation;
     }
 
+
     /**
      * Return the code number of this grant or denial.
      */
@@ -114,7 +147,8 @@ public class GrantAndDenial
     {
         return code;
     }
-    
+
+
     /**
      * Returns the name of this grant or denial.
      */
@@ -122,7 +156,8 @@ public class GrantAndDenial
     {
         return name;
     }
-    
+
+
     /**
      * Returns <tt>true</tt> if and only if this is grant.
      */
@@ -130,7 +165,8 @@ public class GrantAndDenial
     {
         return grant;
     }
-    
+
+
     public String toString()
     {
         return "[" + code + "] " + name;

@@ -24,15 +24,15 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
-import javax.naming.directory.Attributes ;
+import javax.naming.directory.Attributes;
 
 
 /**
  * Add protocol operation request used to add a new entry to the DIT.
- *
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
  * @version $Revision$
@@ -40,37 +40,42 @@ import javax.naming.directory.Attributes ;
 public interface AddRequest extends SingleReplyRequest, AbandonableRequest
 {
     /** LDAPv3 add request type enum code */
-    MessageTypeEnum TYPE = MessageTypeEnum.ADDREQUEST ;
-    
+    MessageTypeEnum TYPE = MessageTypeEnum.ADDREQUEST;
+
     /** LDAPv3 add response type enum code */
-    MessageTypeEnum RESP_TYPE = AddResponse.TYPE ;
+    MessageTypeEnum RESP_TYPE = AddResponse.TYPE;
+
 
     /**
      * Gets the distinguished name of the entry to add.
-     *
+     * 
      * @return the Dn of the added entry.
      */
-    String getEntry() ;
+    String getEntry();
+
 
     /**
      * Sets the distinguished name of the entry to add.
-     *
-     * @param entry the Dn of the added entry.
+     * 
+     * @param entry
+     *            the Dn of the added entry.
      */
-    void setEntry( String entry ) ;
+    void setEntry( String entry );
+
 
     /**
      * Gets the attributes of the entry to add.
-     *
+     * 
      * @return the Attributes containing attribute value pairs.
      */
-    Attributes getAttributes() ;
+    Attributes getAttributes();
+
 
     /**
      * Sets the attribute value pairs of the entry to add.
-     *
-     * @param attributes the Attributes with attribute value pairs for the added 
-     * entry.
+     * 
+     * @param attributes
+     *            the Attributes with attribute value pairs for the added entry.
      */
-    void setAttributes( Attributes attributes ) ;
+    void setAttributes( Attributes attributes );
 }

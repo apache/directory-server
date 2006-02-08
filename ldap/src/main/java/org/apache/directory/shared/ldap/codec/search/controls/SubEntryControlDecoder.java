@@ -33,16 +33,17 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 public class SubEntryControlDecoder extends Asn1Decoder implements ControlDecoder
 {
     private final static String CONTROL_TYPE_OID = "1.3.6.1.4.1.4203.1.10.1";
-    
+
     private static final Asn1Decoder decoder = new Asn1Decoder();
-    
+
+
     public String getControlType()
     {
         return CONTROL_TYPE_OID;
     }
 
 
-    public Asn1Object decode(byte[] controlBytes) throws DecoderException
+    public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
         ByteBuffer bb = ByteBuffer.wrap( controlBytes );
         SubEntryControlContainer container = new SubEntryControlContainer();

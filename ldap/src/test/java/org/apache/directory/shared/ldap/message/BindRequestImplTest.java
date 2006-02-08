@@ -32,9 +32,9 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 
 /**
  * TestCases for the methods of the BindRequestImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class BindRequestImplTest extends TestCase
 {
@@ -186,89 +186,108 @@ public class BindRequestImplTest extends TestCase
                 return true;
             }
 
+
             public boolean getSimple()
             {
                 return true;
             }
 
+
             public void setSimple( boolean a_isSimple )
             {
             }
+
 
             public byte[] getCredentials()
             {
                 return null;
             }
 
+
             public void setCredentials( byte[] a_credentials )
             {
             }
+
 
             public String getName()
             {
                 return "";
             }
 
+
             public void setName( String a_name )
             {
             }
+
 
             public boolean isVersion3()
             {
                 return true;
             }
 
+
             public boolean getVersion3()
             {
                 return true;
             }
 
+
             public void setVersion3( boolean a_isVersion3 )
             {
             }
+
 
             public MessageTypeEnum getResponseType()
             {
                 return MessageTypeEnum.BINDREQUEST;
             }
 
+
             public boolean hasResponse()
             {
                 return true;
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.BINDREQUEST;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control a_control ) throws MessageException
-            {                                
+            {
             }
+
 
             public void remove( Control a_control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 5;
             }
 
+
             public Object get( Object a_key )
             {
                 return null;
             }
 
+
             public Object put( Object a_key, Object a_value )
             {
                 return null;
             }
+
 
             public String getSaslMechanism()
             {
@@ -279,6 +298,7 @@ public class BindRequestImplTest extends TestCase
             public void setSaslMechanism( String saslMechanism )
             {
             }
+
 
             public ResultResponse getResultResponse()
             {

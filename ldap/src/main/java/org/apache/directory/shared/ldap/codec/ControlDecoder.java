@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
@@ -33,13 +34,16 @@ public interface ControlDecoder
      * @return the control type (an OID string)
      */
     String getControlType();
-    
+
+
     /**
      * Decodes raw ASN.1 encoded bytes into an Asn1Object for the control.
      * 
-     * @param controlBytes the encoded control bytes
-     * @return the decoded Asn1Object for the control 
-     * @throws DecoderException if anything goes wrong
+     * @param controlBytes
+     *            the encoded control bytes
+     * @return the decoded Asn1Object for the control
+     * @throws DecoderException
+     *             if anything goes wrong
      */
     Asn1Object decode( byte[] controlBytes ) throws DecoderException;
 }

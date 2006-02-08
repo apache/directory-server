@@ -35,16 +35,17 @@ import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 
 /**
  * Test cases for the methods of the SearchResponseEntryImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class SearchResponseEntryImplTest extends TestCase
 {
     /**
      * Creates and populates a LockableAttributeImpl with a specific id.
-     *
-     * @param id the id for the attribute
+     * 
+     * @param id
+     *            the id for the attribute
      * @return the LockableAttributeImpl assembled for testing
      */
     private LockableAttributeImpl getAttribute( String id )
@@ -59,7 +60,7 @@ public class SearchResponseEntryImplTest extends TestCase
 
     /**
      * Creates and populates a LockableAttributes object
-     *
+     * 
      * @return
      */
     LockableAttributesImpl getAttributes()
@@ -112,46 +113,56 @@ public class SearchResponseEntryImplTest extends TestCase
                 return "dc=example,dc=com";
             }
 
+
             public void setObjectName( String dn )
             {
             }
+
 
             public Attributes getAttributes()
             {
                 return SearchResponseEntryImplTest.this.getAttributes();
             }
 
+
             public void setAttributes( Attributes attributes )
             {
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.SEARCHRESENTRY;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control control ) throws MessageException
             {
             }
 
+
             public void remove( Control control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 5;
             }
 
+
             public Object get( Object key )
             {
                 return null;
             }
+
 
             public Object put( Object key, Object value )
             {
@@ -163,10 +174,8 @@ public class SearchResponseEntryImplTest extends TestCase
         resp1.setAttributes( getAttributes() );
         resp1.setObjectName( "dc=example,dc=com" );
 
-        assertFalse( "using Object.equal() should NOT be equal",
-                resp0.equals( resp1 ) );
-        assertTrue( "same but different implementations should be equal",
-                resp1.equals( resp0 ) );
+        assertFalse( "using Object.equal() should NOT be equal", resp0.equals( resp1 ) );
+        assertTrue( "same but different implementations should be equal", resp1.equals( resp0 ) );
     }
 
 
@@ -183,10 +192,8 @@ public class SearchResponseEntryImplTest extends TestCase
         resp1.setAttributes( getAttributes() );
         resp1.setObjectName( "dc=example,dc=com" );
 
-        assertFalse( "different object names should not be equal",
-                resp1.equals( resp0 ) );
-        assertFalse( "different object names should not be equal",
-                resp0.equals( resp1 ) );
+        assertFalse( "different object names should not be equal", resp1.equals( resp0 ) );
+        assertFalse( "different object names should not be equal", resp0.equals( resp1 ) );
     }
 
 
@@ -204,9 +211,7 @@ public class SearchResponseEntryImplTest extends TestCase
         resp1.setAttributes( getAttributes() );
         resp1.setObjectName( "dc=apache,dc=org" );
 
-        assertFalse( "different attributes should not be equal",
-                resp1.equals( resp0 ) );
-        assertFalse( "different attributes should not be equal",
-                resp0.equals( resp1 ) );
+        assertFalse( "different attributes should not be equal", resp1.equals( resp0 ) );
+        assertFalse( "different attributes should not be equal", resp0.equals( resp1 ) );
     }
 }

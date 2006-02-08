@@ -20,18 +20,15 @@ package org.apache.directory.shared.ldap.message;
 /**
  * Lockable SearchResponseDone implementation
  * 
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchResponseDoneImpl
-    extends AbstractResultResponse implements SearchResponseDone
+public class SearchResponseDoneImpl extends AbstractResultResponse implements SearchResponseDone
 {
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
-
 
     static final long serialVersionUID = 8698484213877460215L;
 
@@ -39,10 +36,11 @@ public class SearchResponseDoneImpl
     /**
      * Creates a Lockable SearchResponseDone as a reply to an SearchRequest to
      * indicate the end of a search operation.
-     *
-     * @param id the session unique message id
+     * 
+     * @param id
+     *            the session unique message id
      */
-    public SearchResponseDoneImpl( final int id )
+    public SearchResponseDoneImpl(final int id)
     {
         super( id, TYPE );
     }
@@ -51,8 +49,9 @@ public class SearchResponseDoneImpl
     /**
      * Checks for equality by using the underlying LdapResult objects of this
      * SearchResponseDone stub.
-     *
-     * @param obj the object to be tested for equality
+     * 
+     * @param obj
+     *            the object to be tested for equality
      * @return true if obj is equivalent to this SearchResponseDone impl
      */
     public boolean equals( Object obj )
@@ -63,14 +62,14 @@ public class SearchResponseDoneImpl
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
 
         LdapResult result = ( ( SearchResponseDone ) obj ).getLdapResult();
 
-        if ( ! getLdapResult().equals( result ) )
+        if ( !getLdapResult().equals( result ) )
         {
             return false;
         }

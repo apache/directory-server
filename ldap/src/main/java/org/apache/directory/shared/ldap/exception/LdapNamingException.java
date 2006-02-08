@@ -24,25 +24,28 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 /**
  * Extends the root NamingException by adding LDAP specific properties to it.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class LdapNamingException extends NamingException implements LdapException
 {
     static final long serialVersionUID = -3777365681132844241L;
+
     /** the LDAP resultCode this exception is associated with */
     private final ResultCodeEnum resultCode;
 
 
     /**
      * Creates an Eve NamingException.
-     *
-     * @param resultCode the LDAP resultCode this exception is associated with
+     * 
+     * @param resultCode
+     *            the LDAP resultCode this exception is associated with
      */
-    public LdapNamingException( ResultCodeEnum resultCode )
+    public LdapNamingException(ResultCodeEnum resultCode)
     {
         super();
 
@@ -53,10 +56,12 @@ public class LdapNamingException extends NamingException implements LdapExceptio
     /**
      * Creates an Eve NamingException.
      * 
-     * @param explanation an explanation for the failure
-     * @param resultCode the LDAP resultCode this exception is associated with
+     * @param explanation
+     *            an explanation for the failure
+     * @param resultCode
+     *            the LDAP resultCode this exception is associated with
      */
-    public LdapNamingException( String explanation, ResultCodeEnum resultCode )
+    public LdapNamingException(String explanation, ResultCodeEnum resultCode)
     {
         super( explanation );
 
@@ -66,7 +71,7 @@ public class LdapNamingException extends NamingException implements LdapExceptio
 
     /**
      * Gets the LDAP resultCode this exception is associated with.
-     *
+     * 
      * @return the LDAP resultCode this exception is associated with
      */
     public ResultCodeEnum getResultCode()

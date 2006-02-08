@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.ber;
 
+
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.IStates;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -23,19 +24,20 @@ import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 
 
 /**
- * This class is the abstract container used to store the current state
- * of a PDU being decoded. It also stores the grammars used to decode
- * the PDU, and zll the informations needed to decode a PDU. 
+ * This class is the abstract container used to store the current state of a PDU
+ * being decoded. It also stores the grammars used to decode the PDU, and zll
+ * the informations needed to decode a PDU.
  * 
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AbstractContainer implements IAsn1Container
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
-    /** The grammars that are used.
-     * It's a stack as we can switch grammars */
+    /**
+     * The grammars that are used. It's a stack as we can switch grammars
+     */
     protected IGrammar[] grammarStack;
 
     /** All the possible grammars */
@@ -67,18 +69,20 @@ public class AbstractContainer implements IAsn1Container
 
     /** The parent TLV */
     protected TLV parentTLV;
-    
+
     /** The grammar end transition flag */
     protected boolean grammarEndAllowed;
 
     /** The grammar pop transition flag */
     protected boolean grammarPopAllowed;
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the current grammar
-     *
+     * 
      * @return Returns the grammar used to decode a LdapMessage.
      */
     public IGrammar getGrammar()
@@ -86,21 +90,26 @@ public class AbstractContainer implements IAsn1Container
         return grammarStack[currentGrammar];
     }
 
+
     /**
      * Add a IGrammar to use
-     *
-     * @param grammar The grammar to add.
+     * 
+     * @param grammar
+     *            The grammar to add.
      */
     public void addGrammar( IGrammar grammar )
     {
         grammars[nbGrammars++] = grammar;
     }
 
+
     /**
      * Switch to another grammar
-     *
-     * @param currentState The current state in the current grammar
-     * @param grammar The grammar to add.
+     * 
+     * @param currentState
+     *            The current state in the current grammar
+     * @param grammar
+     *            The grammar to add.
      */
     public void switchGrammar( int currentState, int grammar )
     {
@@ -110,9 +119,10 @@ public class AbstractContainer implements IAsn1Container
         grammarStack[currentGrammar] = grammars[( grammar >> 8 ) - 1];
     }
 
+
     /**
      * restore the previous grammar (the one before a switch has occured)
-     *
+     * 
      * @return The previous current state, if any.
      */
     public int restoreGrammar()
@@ -132,9 +142,10 @@ public class AbstractContainer implements IAsn1Container
 
     }
 
+
     /**
      * Get the current grammar state
-     *
+     * 
      * @return Returns the current grammar state
      */
     public int getState()
@@ -142,78 +153,93 @@ public class AbstractContainer implements IAsn1Container
         return state;
     }
 
+
     /**
      * Set the new current state
-     *
-     * @param state The new state
+     * 
+     * @param state
+     *            The new state
      */
     public void setState( int state )
     {
         this.state = state;
     }
 
+
     /**
      * Check that we can have a end state after this transition
+     * 
      * @return true if this can be the last transition
      */
     public boolean isGrammarEndAllowed()
     {
-    	return grammarEndAllowed;
+        return grammarEndAllowed;
     }
-    
+
+
     /**
      * Set the flag to allow a end transition
-     * @param endAllowed true or false, depending on the next
-     * transition being an end or not.
+     * 
+     * @param endAllowed
+     *            true or false, depending on the next transition being an end
+     *            or not.
      */
     public void grammarEndAllowed( boolean grammarEndAllowed )
     {
-    	this.grammarEndAllowed = grammarEndAllowed;
+        this.grammarEndAllowed = grammarEndAllowed;
     }
+
 
     /**
      * Check that we can have a pop after this transition
+     * 
      * @return true if this can be the last transition before a pop
      */
-    public boolean isGrammarPopAllowed( )
+    public boolean isGrammarPopAllowed()
     {
         return popAllowedStack[currentGrammar];
     }
-    
+
+
     /**
      * Set the flag to allow a pop transition
-     * @param popAllowed true or false, depending on the next
-     * transition allows a pop or not.
+     * 
+     * @param popAllowed
+     *            true or false, depending on the next transition allows a pop
+     *            or not.
      */
     public void grammarPopAllowed( boolean grammarPopAllowed )
     {
         popAllowedStack[currentGrammar] = grammarPopAllowed;
     }
 
+
     /**
      * Get the transition
-     *
-     * @return Returns the transition from the previous state to the new 
-     * state
+     * 
+     * @return Returns the transition from the previous state to the new state
      */
     public int getTransition()
     {
         return transition;
     }
 
+
     /**
      * Update the transition from a state to another
-     *
-     * @param transition The transition to set
+     * 
+     * @param transition
+     *            The transition to set
      */
     public void setTransition( int transition )
     {
         this.transition = transition;
     }
 
+
     /**
      * Gert the current grammar number
-     *
+     * 
      * @return Returns the currentGrammar.
      */
     public int getCurrentGrammar()
@@ -221,9 +247,10 @@ public class AbstractContainer implements IAsn1Container
         return currentGrammar;
     }
 
+
     /**
      * Get the current grammar type.
-     *
+     * 
      * @return Returns the current Grammar type, or -1 if not found.
      */
     public int getCurrentGrammarType()
@@ -241,31 +268,36 @@ public class AbstractContainer implements IAsn1Container
         return -1;
     }
 
+
     /**
      * Initialize the grammar stack
-     *
-     * @param grammar Set the initial grammar
-    */
+     * 
+     * @param grammar
+     *            Set the initial grammar
+     */
     public void setInitGrammar( int grammar )
     {
         currentGrammar++;
         grammarStack[currentGrammar] = grammars[grammar];
-        stateStack[currentGrammar]   = 0;
+        stateStack[currentGrammar] = 0;
     }
+
 
     /**
      * Set the current TLV
-     *
-     * @param tlv The current TLV
+     * 
+     * @param tlv
+     *            The current TLV
      */
     public void setCurrentTLV( TLV tlv )
     {
         this.tlv = tlv;
     }
 
+
     /**
      * Get the current TLV
-     *
+     * 
      * @return Returns the current TLV being decoded
      */
     public TLV getCurrentTLV()
@@ -273,14 +305,17 @@ public class AbstractContainer implements IAsn1Container
         return this.tlv;
     }
 
+
     /**
      * Get the states for this container's grammars
      * 
      * @return Returns the states.
      */
-    public IStates getStates() {
+    public IStates getStates()
+    {
         return states;
     }
+
 
     /**
      * Get the parent TLV;
@@ -292,19 +327,21 @@ public class AbstractContainer implements IAsn1Container
         return parentTLV;
     }
 
+
     /**
      * Set the parent TLV.
      * 
-     * @param The parent TLV to set.
+     * @param The
+     *            parent TLV to set.
      */
-    public void setParentTLV( TLV parentTLV)
+    public void setParentTLV( TLV parentTLV )
     {
         this.parentTLV = parentTLV;
     }
 
+
     /**
      * Clean the container for the next usage.
-     *
      */
     public void clean()
     {

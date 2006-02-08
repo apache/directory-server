@@ -16,50 +16,42 @@
  */
 package org.apache.directory.shared.asn1.primitives;
 
+
 import java.io.Serializable;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
 
 /**
- * This class implement an OID (Object Identifier).
- * 
- * An OID is encoded as a list of bytes representing integers. 
- * 
- * An OID has a numeric representation where number are separated with dots :
- * SPNEGO Oid = 1.3.6.1.5.5.2
- * 
- * Translating from a byte list to a dot separated list of number follows the rules :
- * - the first number is in [0..2]
- * - the second number is in [0..39] if the first number is 0 or 1
- * - the first byte has a value equal to : number 1 * 40 + number two
- * - the upper bit of a byte is set if the next byte is a part of the number
- * 
- * For instance, the SPNEGO Oid (1.3.6.1.5.5.2) will be encoded : 
- * 1.3 -> 0x2B (1*40 + 3 = 43 = 0x2B) 
- * .6  -> 0x06 
- * .1  -> 0x01 
- * .5  -> 0x05 
- * .5  -> 0x05 
- * .2  -> 0x02 
- * 
- * The Kerberos V5 Oid (1.2.840.48018.1.2.2)  will be encoded :
- * 1.2   -> 0x2A (1*40 + 2 = 42 = 0x2A) 
- * 840   -> 0x86 0x48 (840 = 6 * 128 + 72 = (0x06 | 0x80) 0x48 = 0x86 0x48
- * 48018 -> 0x82 0xF7 0x12 (2 * 128 * 128 + 119 * 128 + 18 = (0x02 | 0x80) (0x77 | 0x80) 0x12
+ * This class implement an OID (Object Identifier). An OID is encoded as a list
+ * of bytes representing integers. An OID has a numeric representation where
+ * number are separated with dots : SPNEGO Oid = 1.3.6.1.5.5.2 Translating from
+ * a byte list to a dot separated list of number follows the rules : - the first
+ * number is in [0..2] - the second number is in [0..39] if the first number is
+ * 0 or 1 - the first byte has a value equal to : number 1 * 40 + number two -
+ * the upper bit of a byte is set if the next byte is a part of the number For
+ * instance, the SPNEGO Oid (1.3.6.1.5.5.2) will be encoded : 1.3 -> 0x2B (1*40 +
+ * 3 = 43 = 0x2B) .6 -> 0x06 .1 -> 0x01 .5 -> 0x05 .5 -> 0x05 .2 -> 0x02 The
+ * Kerberos V5 Oid (1.2.840.48018.1.2.2) will be encoded : 1.2 -> 0x2A (1*40 + 2 =
+ * 42 = 0x2A) 840 -> 0x86 0x48 (840 = 6 * 128 + 72 = (0x06 | 0x80) 0x48 = 0x86
+ * 0x48 48018 -> 0x82 0xF7 0x12 (2 * 128 * 128 + 119 * 128 + 18 = (0x02 | 0x80)
+ * (0x77 | 0x80) 0x12
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class OID implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
-    //~ Instance fields ----------------------------------------------------------------------------
+
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The OID as a array of int */
     private long[] oidValues;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new OID object.
@@ -71,28 +63,38 @@ public class OID implements Serializable
         // be created through the factory.
     }
 
-    /**
-     * Create a new OID object from a byte array
-     * @param oid
-     */
-    public OID( byte[] oid ) throws DecoderException
-    {
-        setOID(oid);
-    }
 
     /**
-     * Create a new OID object from a String
-     * @param oid The String which is supposed to be an OID
+     * Create a new OID object from a byte array
+     * 
+     * @param oid
      */
-    public OID( String oid ) throws DecoderException
+    public OID(byte[] oid) throws DecoderException
     {
         setOID( oid );
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
     /**
-     * Set the OID. It will be translated from a byte array to an internal representation.
-     * @param oid The bytes containing the OID
+     * Create a new OID object from a String
+     * 
+     * @param oid
+     *            The String which is supposed to be an OID
+     */
+    public OID(String oid) throws DecoderException
+    {
+        setOID( oid );
+    }
+
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
+    /**
+     * Set the OID. It will be translated from a byte array to an internal
+     * representation.
+     * 
+     * @param oid
+     *            The bytes containing the OID
      */
     public void setOID( byte[] oid ) throws DecoderException
     {
@@ -110,7 +112,7 @@ public class OID implements Serializable
         // First, we have to calculate the number of int to allocate
         int nbValues = 1;
 
-        int pos      = 0;
+        int pos = 0;
 
         while ( pos < oid.length )
         {
@@ -125,11 +127,10 @@ public class OID implements Serializable
 
         oidValues = new long[nbValues];
 
-        nbValues  = 0;
-        pos       = 0;
+        nbValues = 0;
+        pos = 0;
 
         int accumulator = 0;
-
 
         if ( ( oid[0] < 0 ) || ( oid[0] >= 80 ) )
         {
@@ -141,7 +142,7 @@ public class OID implements Serializable
                 if ( oid[pos] >= 0 )
                 {
                     oidValues[nbValues++] = ( ( accumulator << 7 ) + oid[pos] ) - 80;
-                    accumulator           = 0;
+                    accumulator = 0;
                     pos++;
                     break;
                 }
@@ -158,7 +159,8 @@ public class OID implements Serializable
             oidValues[nbValues++] = 0;
             oidValues[nbValues++] = oid[pos++]; // itu-t
         }
-        else // oid[0] is < 80
+        else
+        // oid[0] is < 80
         {
             oidValues[nbValues++] = 1;
             oidValues[nbValues++] = oid[pos++] - 40; // iso
@@ -170,7 +172,7 @@ public class OID implements Serializable
             if ( oid[pos] >= 0 )
             {
                 oidValues[nbValues++] = ( accumulator << 7 ) + oid[pos];
-                accumulator           = 0;
+                accumulator = 0;
             }
             else
             {
@@ -181,11 +183,14 @@ public class OID implements Serializable
         }
     }
 
+
     /**
-     * Set the OID. It will be translated from a String to an internal representation.
-     * The syntax will be controled in respect with this rule :
-     *  OID = ( [ '0' | '1' ] '.' [ 0 .. 39 ] | '2' '.' int) ( '.' int )* 
-     * @param oid The String containing the OID
+     * Set the OID. It will be translated from a String to an internal
+     * representation. The syntax will be controled in respect with this rule :
+     * OID = ( [ '0' | '1' ] '.' [ 0 .. 39 ] | '2' '.' int) ( '.' int )*
+     * 
+     * @param oid
+     *            The String containing the OID
      */
     public void setOID( String oid ) throws DecoderException
     {
@@ -195,8 +200,8 @@ public class OID implements Serializable
             throw new DecoderException( "Null OID" );
         }
 
-        int     nbValues  = 1;
-        byte[]  bytes   = oid.getBytes();
+        int nbValues = 1;
+        byte[] bytes = oid.getBytes();
         boolean dotSeen = false;
 
         // Count the number of int to allocate.
@@ -230,10 +235,10 @@ public class OID implements Serializable
 
         oidValues = new long[nbValues];
 
-        int pos    = 0;
+        int pos = 0;
         int intPos = 0;
-        
-        // This flag is used to forbid a second value above 39 if the 
+
+        // This flag is used to forbid a second value above 39 if the
         // first value is 0 or 1 (itu_t or iso arcs)
         boolean ituOrIso = false;
 
@@ -241,16 +246,16 @@ public class OID implements Serializable
         switch ( bytes[pos] )
         {
 
-            case '0' : // itu-t
-            case '1' : // iso
+            case '0': // itu-t
+            case '1': // iso
                 ituOrIso = true;
-                // fallthrough
-                
-            case '2' : // joint-iso-itu-t
+            // fallthrough
+
+            case '2': // joint-iso-itu-t
                 oidValues[intPos++] = bytes[pos++] - '0';
                 break;
 
-            default : // error, this value is not allowed
+            default: // error, this value is not allowed
                 throw new DecoderException( "Invalid OID : " + oid );
         }
 
@@ -277,7 +282,7 @@ public class OID implements Serializable
                     throw new DecoderException( "Invalid OID : " + oid );
                 }
 
-                if (ituOrIso && value > 39)
+                if ( ituOrIso && value > 39 )
                 {
                     throw new DecoderException( "Invalid OID : " + oid );
                 }
@@ -285,17 +290,17 @@ public class OID implements Serializable
                 {
                     ituOrIso = false;
                 }
-                
+
                 nbValues++;
-                dotSeen             = true;
+                dotSeen = true;
                 oidValues[intPos++] = value;
-                value               = 0;
+                value = 0;
             }
             else if ( ( bytes[i] >= 0x30 ) && ( bytes[i] <= 0x39 ) )
             {
                 dotSeen = false;
-                value   = ( ( value * 10 ) + bytes[i] ) - '0';
-                
+                value = ( ( value * 10 ) + bytes[i] ) - '0';
+
             }
             else
             {
@@ -308,8 +313,10 @@ public class OID implements Serializable
         oidValues[intPos++] = value;
     }
 
+
     /**
      * Get an array of int from the OID
+     * 
      * @return An array of int representing the OID
      */
     public long[] getOIDValues()
@@ -317,8 +324,10 @@ public class OID implements Serializable
         return oidValues;
     }
 
+
     /**
      * Get the number of bytes necessary to store the OID
+     * 
      * @return An int representing the length of the OID
      */
     public int getOIDLength()
@@ -326,167 +335,172 @@ public class OID implements Serializable
         long value = oidValues[0] * 40 + oidValues[1];
         int nbBytes = 0;
 
-        if (value < 128)
+        if ( value < 128 )
         {
             nbBytes = 1;
-        } 
-        else if (value < 16384)
+        }
+        else if ( value < 16384 )
         {
             nbBytes = 2;
         }
-        else if (value < 2097152)
+        else if ( value < 2097152 )
         {
             nbBytes = 3;
         }
-        else if (value < 268435456)
+        else if ( value < 268435456 )
         {
             nbBytes = 4;
         }
-        else 
+        else
         {
             nbBytes = 5;
         }
 
-        for (int i = 2; i < oidValues.length; i++ )
+        for ( int i = 2; i < oidValues.length; i++ )
         {
             value = oidValues[i];
-            
-            if (value < 128)
+
+            if ( value < 128 )
             {
                 nbBytes += 1;
-            } 
-            else if (value < 16384)
+            }
+            else if ( value < 16384 )
             {
                 nbBytes += 2;
             }
-            else if (value < 2097152)
+            else if ( value < 2097152 )
             {
                 nbBytes += 3;
             }
-            else if (value < 268435456)
+            else if ( value < 268435456 )
             {
                 nbBytes += 4;
             }
-            else 
+            else
             {
                 nbBytes += 5;
             }
         }
-        
+
         return nbBytes;
     }
 
+
     /**
      * Get an array of bytes from the OID
+     * 
      * @return An array of int representing the OID
      */
     public byte[] getOID()
     {
         long value = oidValues[0] * 40 + oidValues[1];
         long firstValues = value;
-        
+
         byte[] bytes = new byte[getOIDLength()];
         int pos = 0;
-        
-        if (oidValues[0] < 2)
+
+        if ( oidValues[0] < 2 )
         {
-            bytes[pos++] = (byte)(oidValues[0] * 40 + oidValues[1]);
-        } 
+            bytes[pos++] = ( byte ) ( oidValues[0] * 40 + oidValues[1] );
+        }
         else
         {
-            if (firstValues < 128)
+            if ( firstValues < 128 )
             {
-                bytes[pos++] = (byte)(firstValues);
-            } 
-            else if (firstValues < 16384)
-            {
-                bytes[pos++] = (byte)( ( firstValues >> 7 ) | 0x0080 );
-                bytes[pos++] = (byte)( firstValues & 0x007F);
+                bytes[pos++] = ( byte ) ( firstValues );
             }
-            else if (value < 2097152)
+            else if ( firstValues < 16384 )
             {
-                bytes[pos++] = (byte)( ( firstValues >> 14 ) | 0x0080);
-                bytes[pos++] = (byte)( ( ( firstValues >> 7 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( firstValues & 0x007F);
+                bytes[pos++] = ( byte ) ( ( firstValues >> 7 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( firstValues & 0x007F );
             }
-            else if (value < 268435456)
+            else if ( value < 2097152 )
             {
-                bytes[pos++] = (byte)( ( firstValues >> 21 ) | 0x0080);
-                bytes[pos++] = (byte)( ( ( firstValues >> 14 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( ( ( firstValues >> 7 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( firstValues & 0x007F);
+                bytes[pos++] = ( byte ) ( ( firstValues >> 14 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( firstValues >> 7 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( firstValues & 0x007F );
             }
-            else 
+            else if ( value < 268435456 )
             {
-                bytes[pos++] = (byte)( ( firstValues >> 28 ) | 0x0080);
-                bytes[pos++] = (byte)( ( ( firstValues >> 21 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( ( ( firstValues >> 14 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( ( ( firstValues >> 7 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( firstValues & 0x007F);
+                bytes[pos++] = ( byte ) ( ( firstValues >> 21 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( firstValues >> 14 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( firstValues >> 7 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( firstValues & 0x007F );
+            }
+            else
+            {
+                bytes[pos++] = ( byte ) ( ( firstValues >> 28 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( firstValues >> 21 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( firstValues >> 14 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( firstValues >> 7 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( firstValues & 0x007F );
             }
         }
-        
-        for (int i = 2; i < oidValues.length; i++ )
+
+        for ( int i = 2; i < oidValues.length; i++ )
         {
             value = oidValues[i];
-            
-            if (value < 128)
+
+            if ( value < 128 )
             {
-                bytes[pos++] = (byte)(value);
-            } 
-            else if (value < 16384)
-            {
-                bytes[pos++] = (byte)( ( value >> 7 ) | 0x0080 );
-                bytes[pos++] = (byte)( value & 0x007F);
+                bytes[pos++] = ( byte ) ( value );
             }
-            else if (value < 2097152)
+            else if ( value < 16384 )
             {
-                bytes[pos++] = (byte)( ( value >> 14 ) | 0x0080);
-                bytes[pos++] = (byte)( ( ( value >> 7 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( value & 0x007F);
+                bytes[pos++] = ( byte ) ( ( value >> 7 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( value & 0x007F );
             }
-            else if (value < 268435456)
+            else if ( value < 2097152 )
             {
-                bytes[pos++] = (byte)( ( value >> 21 ) | 0x0080);
-                bytes[pos++] = (byte)( ( ( value >> 14 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( ( ( value >> 7 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( value & 0x007F);
+                bytes[pos++] = ( byte ) ( ( value >> 14 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( value >> 7 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( value & 0x007F );
             }
-            else 
+            else if ( value < 268435456 )
             {
-                bytes[pos++] = (byte)( ( value >> 28 ) | 0x0080);
-                bytes[pos++] = (byte)( ( ( value >> 21 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( ( ( value >> 14 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( ( ( value >> 7 ) & 0x007F) | 0x0080);
-                bytes[pos++] = (byte)( value & 0x007F);
+                bytes[pos++] = ( byte ) ( ( value >> 21 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( value >> 14 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( value >> 7 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( value & 0x007F );
+            }
+            else
+            {
+                bytes[pos++] = ( byte ) ( ( value >> 28 ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( value >> 21 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( value >> 14 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( ( ( value >> 7 ) & 0x007F ) | 0x0080 );
+                bytes[pos++] = ( byte ) ( value & 0x007F );
             }
         }
-        
+
         return bytes;
     }
 
+
     /**
      * Get the OID as a String
+     * 
      * @return A String representing the OID
      */
     public String toString()
     {
 
         StringBuffer sb = new StringBuffer();
-        
-        if (oidValues != null)
+
+        if ( oidValues != null )
         {
-	        sb.append( oidValues[0] );
-	
-	        for ( int i = 1; i < oidValues.length; i++ )
-	        {
-	            sb.append( '.' ).append( oidValues[i] );
-	        }
+            sb.append( oidValues[0] );
+
+            for ( int i = 1; i < oidValues.length; i++ )
+            {
+                sb.append( '.' ).append( oidValues[i] );
+            }
         }
 
         return sb.toString();
     }
-    
+
+
     public static boolean isOID( String oid )
     {
         if ( ( oid == null ) || ( oid.length() == 0 ) )
@@ -494,8 +508,8 @@ public class OID implements Serializable
             return false;
         }
 
-        int     nbValues  = 1;
-        byte[]  bytes   = oid.getBytes();
+        int nbValues = 1;
+        byte[] bytes = oid.getBytes();
         boolean dotSeen = false;
 
         // Count the number of int to allocate.
@@ -527,9 +541,9 @@ public class OID implements Serializable
             return false;
         }
 
-        int pos    = 0;
-        
-        // This flag is used to forbid a second value above 39 if the 
+        int pos = 0;
+
+        // This flag is used to forbid a second value above 39 if the
         // first value is 0 or 1 (itu_t or iso arcs)
         boolean ituOrIso = false;
 
@@ -537,15 +551,15 @@ public class OID implements Serializable
         switch ( bytes[pos++] )
         {
 
-            case '0' : // itu-t
-            case '1' : // iso
+            case '0': // itu-t
+            case '1': // iso
                 ituOrIso = true;
-                // fallthrough
-                
-            case '2' : // joint-iso-itu-t
+            // fallthrough
+
+            case '2': // joint-iso-itu-t
                 break;
 
-            default : // error, this value is not allowed
+            default: // error, this value is not allowed
                 return false;
         }
 
@@ -571,7 +585,7 @@ public class OID implements Serializable
                     return false;
                 }
 
-                if (ituOrIso && value > 39)
+                if ( ituOrIso && value > 39 )
                 {
                     return false;
                 }
@@ -579,16 +593,16 @@ public class OID implements Serializable
                 {
                     ituOrIso = false;
                 }
-                
+
                 nbValues++;
-                dotSeen             = true;
-                value               = 0;
+                dotSeen = true;
+                value = 0;
             }
             else if ( ( bytes[i] >= 0x30 ) && ( bytes[i] <= 0x39 ) )
             {
                 dotSeen = false;
-                
-                value   = ( ( value * 10 ) + bytes[i] ) - '0';
+
+                value = ( ( value * 10 ) + bytes[i] ) - '0';
             }
             else
             {
@@ -597,6 +611,6 @@ public class OID implements Serializable
             }
         }
 
-    	return true;
+        return true;
     }
 }

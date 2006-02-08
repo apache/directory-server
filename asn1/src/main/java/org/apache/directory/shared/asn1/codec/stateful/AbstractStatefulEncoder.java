@@ -14,124 +14,130 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.asn1.codec.stateful ;
+package org.apache.directory.shared.asn1.codec.stateful;
 
 
 /**
  * Convenience class to not have to reimplement the two setter methods everytime
  * one starts a new encoder.
- *
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class AbstractStatefulEncoder implements StatefulEncoder
 {
     /** this encoder's callback */
-    private EncoderCallback cb = null ;
+    private EncoderCallback cb = null;
+
     /** this encoder's monitor */
-    private EncoderMonitor monitor = null ;
-    
-    
+    private EncoderMonitor monitor = null;
+
+
     // ------------------------------------------------------------------------
     // constructors
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Creates a stateful encoder where the callback and monitor must be set.
      */
-    public AbstractStatefulEncoder() 
-    { 
+    public AbstractStatefulEncoder()
+    {
     }
-    
-    
+
+
     /**
      * Creates a stateful encoder with a callback.
      * 
-     * @param cb the callback to use for this encoder
+     * @param cb
+     *            the callback to use for this encoder
      */
-    public AbstractStatefulEncoder( EncoderCallback cb )
+    public AbstractStatefulEncoder(EncoderCallback cb)
     {
-        setCallback( cb ) ;
+        setCallback( cb );
     }
 
-    
+
     /**
      * Creates a stateful encoder with a monitor but no callback.
      * 
-     * @param monitor the monitor to use for this encoder
+     * @param monitor
+     *            the monitor to use for this encoder
      */
-    public AbstractStatefulEncoder( EncoderMonitor monitor )
+    public AbstractStatefulEncoder(EncoderMonitor monitor)
     {
-        this.monitor = monitor ;
+        this.monitor = monitor;
     }
-    
-    
+
+
     /**
      * Creates a stateful encoder.
      * 
-     * @param cb the callback to use for this encoder
-     * @param monitor the monitor to use for this encoder
+     * @param cb
+     *            the callback to use for this encoder
+     * @param monitor
+     *            the monitor to use for this encoder
      */
-    public AbstractStatefulEncoder( EncoderCallback cb, EncoderMonitor monitor )
+    public AbstractStatefulEncoder(EncoderCallback cb, EncoderMonitor monitor)
     {
-        this.monitor = monitor ;
-        setCallback( cb ) ;
+        this.monitor = monitor;
+        setCallback( cb );
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // StatefulEncoder methods
     // ------------------------------------------------------------------------
-    
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.asn1.codec.stateful.StatefulEncoder#setCallback(
-     * org.apache.asn1.codec.stateful.EncoderCallback)
+     *      org.apache.asn1.codec.stateful.EncoderCallback)
      */
     public void setCallback( EncoderCallback cb )
     {
-        EncoderCallback old = this.cb ;
-        this.cb = cb ;
+        EncoderCallback old = this.cb;
+        this.cb = cb;
 
         if ( this.monitor != null )
         {
             this.monitor.callbackSet( this, old, cb );
         }
     }
-    
 
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.asn1.codec.stateful.StatefulEncoder#setEncoderMonitor(
-     * org.apache.asn1.codec.stateful.EncoderMonitor)
+     *      org.apache.asn1.codec.stateful.EncoderMonitor)
      */
     public void setEncoderMonitor( EncoderMonitor monitor )
     {
-        this.monitor = monitor ;
+        this.monitor = monitor;
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // protected methods
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * Notifies via the callback if one has been set that this encoder has
      * encoded a unit of encoded data.
      * 
-     * @param encoded the encoded byproduct.
+     * @param encoded
+     *            the encoded byproduct.
      */
     protected void encodeOccurred( Object encoded )
     {
         if ( cb != null )
-        {    
-            cb.encodeOccurred( this, encoded ) ;
+        {
+            cb.encodeOccurred( this, encoded );
         }
     }
-    
-    
+
+
     /**
      * Gets the encoder's monitor.
      * 
@@ -139,6 +145,6 @@ public abstract class AbstractStatefulEncoder implements StatefulEncoder
      */
     protected EncoderMonitor getEncoderMonitor()
     {
-        return monitor ;
+        return monitor;
     }
 }

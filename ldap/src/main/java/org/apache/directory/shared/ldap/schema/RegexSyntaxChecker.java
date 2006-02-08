@@ -22,29 +22,31 @@ import javax.naming.directory.InvalidAttributeValueException;
 
 
 /**
- * A SyntaxChecker implemented using Perl5 regular expressions to constrain 
+ * A SyntaxChecker implemented using Perl5 regular expressions to constrain
  * values.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RegexSyntaxChecker
-    implements SyntaxChecker
+public class RegexSyntaxChecker implements SyntaxChecker
 {
     /** the oid of the syntax checked */
     private final String oid;
+
     /** the set of regular expressions */
-    private final String [] expressions;
+    private final String[] expressions;
 
 
     /**
      * Creates a Syntax validator for a specific Syntax using Perl5 matching
      * rules for validation.
      * 
-     * @param oid the oid of the Syntax values checked
-     * @param matchExprArray the array of matching expressions
+     * @param oid
+     *            the oid of the Syntax values checked
+     * @param matchExprArray
+     *            the array of matching expressions
      */
-    public RegexSyntaxChecker( String oid, String [] matchExprArray )
+    public RegexSyntaxChecker(String oid, String[] matchExprArray)
     {
         expressions = matchExprArray;
         this.oid = oid;
@@ -67,22 +69,22 @@ public class RegexSyntaxChecker
     {
         String str = null;
         boolean match = true;
-        
+
         if ( value instanceof String )
         {
             str = ( String ) value;
 
-	        for ( int i = 0; i < expressions.length; i++ )
-	        {
-	            match = match && str.matches( expressions[i] );
-	            
-	            if ( ! match )
-	            {
-	                break;
-	            }
-	        }
+            for ( int i = 0; i < expressions.length; i++ )
+            {
+                match = match && str.matches( expressions[i] );
+
+                if ( !match )
+                {
+                    break;
+                }
+            }
         }
-        
+
         return match;
     }
 
@@ -96,9 +98,7 @@ public class RegexSyntaxChecker
         {
             return;
         }
-        
-        throw new InvalidAttributeValueException( value
-                + " does not conform to the syntax specified by " 
-                + oid );
+
+        throw new InvalidAttributeValueException( value + " does not conform to the syntax specified by " + oid );
     }
 }

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.codec.stateful.examples;
 
+
 import java.nio.ByteBuffer;
 import java.util.Random;
 
@@ -27,17 +28,21 @@ import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
 import org.apache.directory.shared.asn1.codec.stateful.examples.HexDecoder;
 
+
 /**
  * Document me.
  * 
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class HexDecoderTest extends TestCase implements DecoderCallback
 {
     private HexDecoder decoder = null;
+
     byte[] encoded = null;
+
     byte[] decoded = null;
+
     byte[] original = null;
 
 
@@ -61,30 +66,30 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
 
     private void generateData( int amount )
     {
-        Random rand = new Random( System.currentTimeMillis() ) ;
-        original = new byte[amount/2];
+        Random rand = new Random( System.currentTimeMillis() );
+        original = new byte[amount / 2];
         rand.nextBytes( original );
         char[] chars = Hex.encodeHex( original );
         encoded = new byte[amount];
         for ( int ii = 0; ii < amount; ii++ )
         {
-            encoded[ii] = (byte) chars[ii];
+            encoded[ii] = ( byte ) chars[ii];
         }
     }
 
 
     public void decodeOccurred( StatefulDecoder decoder, Object obj )
     {
-        ByteBuffer decodedBuf = ( ByteBuffer ) obj ;
+        ByteBuffer decodedBuf = ( ByteBuffer ) obj;
 
         if ( decoded == null )
         {
             decoded = new byte[decodedBuf.remaining()];
-            decodedBuf.get( decoded ) ;
+            decodedBuf.get( decoded );
         }
         else
         {
-            byte[] temp = decoded ;
+            byte[] temp = decoded;
             decoded = new byte[decodedBuf.remaining() + temp.length];
             System.arraycopy( temp, 0, decoded, 0, temp.length );
             decodedBuf.get( decoded, temp.length, decodedBuf.remaining() );
@@ -163,9 +168,9 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
         try
         {
             assertDecoded();
-            fail( "should not get here" ) ;
+            fail( "should not get here" );
         }
-        catch( NullPointerException e )
+        catch ( NullPointerException e )
         {
         }
 
@@ -205,16 +210,15 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     {
         if ( decoded.length != original.length )
         {
-            fail( "decoded length of " + decoded.length
-                    + " did not match expected original data length of "
-                    + original.length ) ;
+            fail( "decoded length of " + decoded.length + " did not match expected original data length of "
+                + original.length );
         }
 
         for ( int ii = 0; ii < decoded.length; ii++ )
         {
             if ( decoded[ii] != original[ii] )
             {
-                fail( "decode failed - decoded array does not match" ) ;
+                fail( "decode failed - decoded array does not match" );
             }
         }
     }

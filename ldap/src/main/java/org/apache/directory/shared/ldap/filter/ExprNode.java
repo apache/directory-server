@@ -24,11 +24,11 @@
  *
  */
 
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
 
 
 /**
- * Root expression node interface which all expression nodes in the filter 
+ * Root expression node interface which all expression nodes in the filter
  * expression tree implement.
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
@@ -39,39 +39,48 @@ public interface ExprNode
 {
     /**
      * Gets an annotation on the tree by key.
-     *
-     * @param a_key the annotation key.
+     * 
+     * @param a_key
+     *            the annotation key.
      * @return the annotation value.
      */
-    Object get( Object a_key ) ;
-    
+    Object get( Object a_key );
+
+
     /**
      * Sets a annotation key to a value.
-     *
-     * @param a_key the annotation key.
-     * @param a_value the annotation value.
+     * 
+     * @param a_key
+     *            the annotation key.
+     * @param a_value
+     *            the annotation value.
      */
-    void set( Object a_key, Object a_value ) ;
-    
+    void set( Object a_key, Object a_value );
+
+
     /**
      * Tests to see if this node is a leaf or branch node.
-     *
-     * @return true if the node is a leaf,false otherwise 
+     * 
+     * @return true if the node is a leaf,false otherwise
      */
-    boolean isLeaf() ;
-    
+    boolean isLeaf();
+
+
     /**
-     * Recursively appends this String representation of this node and its 
+     * Recursively appends this String representation of this node and its
      * descendents in prefix notation to a buffer.
-     *
-     * @param a_buf the buffer to append to.
+     * 
+     * @param a_buf
+     *            the buffer to append to.
      */
-    StringBuffer printToBuffer( StringBuffer a_buf ) ;
+    StringBuffer printToBuffer( StringBuffer a_buf );
+
 
     /**
      * Element/node accept method for visitor pattern.
      * 
-     * @param a_visitor the filter expression tree structure visitor
+     * @param a_visitor
+     *            the filter expression tree structure visitor
      */
-    void accept( FilterVisitor a_visitor ) ;    
+    void accept( FilterVisitor a_visitor );
 }

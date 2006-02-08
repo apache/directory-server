@@ -29,24 +29,29 @@ import java.util.*;
 public class AbstractMessage implements Message
 {
     static final long serialVersionUID = 7601738291101182094L;
+
     /** Map of message controls using OID Strings for keys and Control values */
     private final Map controls;
+
     /** The session unique message sequence identifier */
     private final int id;
+
     /** The message type enumeration */
     private final MessageTypeEnum type;
+
     /** Transient Message Parameter Hash */
     private final Map parameters;
 
 
-
     /**
      * Completes the instantiation of a Message.
-     *
-     * @param id the seq id of the message
-     * @param type the type of the message
+     * 
+     * @param id
+     *            the seq id of the message
+     * @param type
+     *            the type of the message
      */
-    protected AbstractMessage( final int id, final MessageTypeEnum type )
+    protected AbstractMessage(final int id, final MessageTypeEnum type)
     {
         this.id = id;
         this.type = type;
@@ -56,11 +61,11 @@ public class AbstractMessage implements Message
 
 
     /**
-     * Gets the session unique message sequence id for this message.  Requests
-     * and their responses if any have the same message id.  Clients at the
+     * Gets the session unique message sequence id for this message. Requests
+     * and their responses if any have the same message id. Clients at the
      * initialization of a session start with the first message's id set to 1
      * and increment it with each transaction.
-     *
+     * 
      * @return the session unique message id.
      */
     public int getMessageId()
@@ -71,7 +76,7 @@ public class AbstractMessage implements Message
 
     /**
      * Gets the controls associated with this message mapped by OID.
-     *
+     * 
      * @return Map of OID strings to Control object instances.
      * @see Control
      */
@@ -83,10 +88,12 @@ public class AbstractMessage implements Message
 
     /**
      * Adds a control to this Message.
-     *
-     * @param control the control to add.
-     * @throws MessageException if controls cannot be added to this Message or
-     * the control is not known etc.
+     * 
+     * @param control
+     *            the control to add.
+     * @throws MessageException
+     *             if controls cannot be added to this Message or the control is
+     *             not known etc.
      */
     public void add( Control control ) throws MessageException
     {
@@ -96,10 +103,12 @@ public class AbstractMessage implements Message
 
     /**
      * Deletes a control removing it from this Message.
-     *
-     * @param control the control to remove.
-     * @throws MessageException if controls cannot be added to this Message or
-     * the control is not known etc.
+     * 
+     * @param control
+     *            the control to remove.
+     * @throws MessageException
+     *             if controls cannot be added to this Message or the control is
+     *             not known etc.
      */
     public void remove( Control control ) throws MessageException
     {
@@ -108,10 +117,10 @@ public class AbstractMessage implements Message
 
 
     /**
-     * Gets the LDAP message type code associated with this Message.  Each
+     * Gets the LDAP message type code associated with this Message. Each
      * request and response type has a unique message type code defined by the
      * protocol in <a href="http://www.faqs.org/rfcs/rfc2251.html">RFC 2251</a>.
-     *
+     * 
      * @return the message type code.
      */
     public MessageTypeEnum getType()
@@ -121,17 +130,17 @@ public class AbstractMessage implements Message
 
 
     /**
-     * Gets a message scope parameter.  Message scope parameters are temporary
+     * Gets a message scope parameter. Message scope parameters are temporary
      * variables associated with a message and are set locally to be used to
      * associate housekeeping information with a request or its processing.
      * These parameters are never transmitted nor recieved, think of them as
-     * transient data associated with the message or its processing.
-     *
-     * These transient parameters are not locked down so modifications can occur
+     * transient data associated with the message or its processing. These
+     * transient parameters are not locked down so modifications can occur
      * without firing LockExceptions even when this Lockable is in the locked
      * state.
-     *
-     * @param key the key used to access a message parameter.
+     * 
+     * @param key
+     *            the key used to access a message parameter.
      * @return the transient message parameter value.
      */
     public Object get( Object key )
@@ -141,14 +150,14 @@ public class AbstractMessage implements Message
 
 
     /**
-     * Sets a message scope parameter.
-     *
-     * These transient parameters are not locked down so modifications can occur
-     * without firing LockExceptions even when this Lockable is in the locked
-     * state.
-     *
-     * @param key the parameter key
-     * @param value the parameter value
+     * Sets a message scope parameter. These transient parameters are not locked
+     * down so modifications can occur without firing LockExceptions even when
+     * this Lockable is in the locked state.
+     * 
+     * @param key
+     *            the parameter key
+     * @param value
+     *            the parameter value
      * @return the old value or null
      */
     public Object put( Object key, Object value )
@@ -158,12 +167,13 @@ public class AbstractMessage implements Message
 
 
     /**
-     * Checks to see if two messages are equivalent.  Messages equivalence does
+     * Checks to see if two messages are equivalent. Messages equivalence does
      * not factor in parameters accessible through the get() and put()
      * operations, nor do they factor in the Lockable properties of the Message.
      * Only the type, controls, and the messageId are evaluated for equality.
-     *
-     * @param obj the object to compare this Message to for equality
+     * 
+     * @param obj
+     *            the object to compare this Message to for equality
      */
     public boolean equals( Object obj )
     {
@@ -172,7 +182,7 @@ public class AbstractMessage implements Message
             return true;
         }
 
-        if ( ! ( obj instanceof Message ) )
+        if ( !( obj instanceof Message ) )
         {
             return false;
         }
@@ -198,7 +208,7 @@ public class AbstractMessage implements Message
         Iterator list = this.controls.keySet().iterator();
         while ( list.hasNext() )
         {
-            if ( ! controls.containsKey( list.next() ) )
+            if ( !controls.containsKey( list.next() ) )
             {
                 return false;
             }

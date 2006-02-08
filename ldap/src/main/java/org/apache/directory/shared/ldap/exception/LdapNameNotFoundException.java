@@ -23,12 +23,13 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * A NameNotFoundException holding LDAP specific information such as the
- * LDAP ResultCode.
- *
+ * A NameNotFoundException holding LDAP specific information such as the LDAP
+ * ResultCode.
+ * 
  * @see NameNotFoundException
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -42,7 +43,7 @@ public class LdapNameNotFoundException extends NameNotFoundException implements 
     }
 
 
-    public LdapNameNotFoundException( String explanation )
+    public LdapNameNotFoundException(String explanation)
     {
         super( explanation );
     }
@@ -51,7 +52,7 @@ public class LdapNameNotFoundException extends NameNotFoundException implements 
     /**
      * Gets the ResultCode associated with this exception which will always be
      * ResultCodeEnum.NOSUCHOBJECT.
-     *
+     * 
      * @return ResultCodeEnum.NOSUCHOBJECT
      */
     public ResultCodeEnum getResultCode()

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.extended;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -28,17 +29,16 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A ExtendedResponse Message. Its syntax is :
- *   ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
- *              COMPONENTS OF LDAPResult,
- *              responseName     [10] LDAPOID OPTIONAL,
- *              response         [11] OCTET STRING OPTIONAL }
+ * A ExtendedResponse Message. Its syntax is : ExtendedResponse ::= [APPLICATION
+ * 24] SEQUENCE { COMPONENTS OF LDAPResult, responseName [10] LDAPOID OPTIONAL,
+ * response [11] OCTET STRING OPTIONAL }
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ExtendedResponse extends LdapResponse
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The name */
     private OID responseName;
@@ -52,21 +52,25 @@ public class ExtendedResponse extends LdapResponse
     /** The OID length */
     private transient int responseNameLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new ExtendedResponse object.
      */
     public ExtendedResponse()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -74,9 +78,10 @@ public class ExtendedResponse extends LdapResponse
         return LdapConstants.EXTENDED_RESPONSE;
     }
 
+
     /**
      * Get the extended response name
-     *
+     * 
      * @return Returns the name.
      */
     public String getResponseName()
@@ -84,19 +89,22 @@ public class ExtendedResponse extends LdapResponse
         return ( ( responseName == null ) ? "" : responseName.toString() );
     }
 
+
     /**
      * Set the extended response name
-     *
-     * @param responseName The name to set.
+     * 
+     * @param responseName
+     *            The name to set.
      */
     public void setResponseName( OID responseName )
     {
         this.responseName = responseName;
     }
 
+
     /**
      * Get the extended response
-     *
+     * 
      * @return Returns the response.
      */
     public Object getResponse()
@@ -104,34 +112,28 @@ public class ExtendedResponse extends LdapResponse
         return response;
     }
 
+
     /**
      * Set the extended response
-     *
-     * @param response The response to set.
+     * 
+     * @param response
+     *            The response to set.
      */
     public void setResponse( Object response )
     {
         this.response = response;
     }
 
+
     /**
-     * Compute the ExtendedResponse length
+     * Compute the ExtendedResponse length ExtendedResponse : 0x78 L1 | +-->
+     * LdapResult [+--> 0x8A L2 name [+--> 0x8B L3 response]] L1 =
+     * Length(LdapResult) [ + Length(0x8A) + Length(L2) + L2 [ + Length(0x8B) +
+     * Length(L3) + L3]] Length(ExtendedResponse) = Length(0x78) + Length(L1) +
+     * L1
      * 
-     * ExtendedResponse :
-     * 
-     * 0x78 L1
-     *  |
-     *  +--> LdapResult
-     * [+--> 0x8A L2 name
-     * [+--> 0x8B L3 response]]
-     * 
-     * L1 = Length(LdapResult)
-     *      [ + Length(0x8A) + Length(L2) + L2
-     *       [ + Length(0x8B) + Length(L3) + L3]]
-     * 
-     * Length(ExtendedResponse) = Length(0x78) + Length(L1) + L1
      * @return The ExtendedResponse length
-    */
+     */
     public int computeLength()
     {
         extendedResponseLength = super.computeLength();
@@ -145,12 +147,13 @@ public class ExtendedResponse extends LdapResponse
             {
                 if ( response instanceof String )
                 {
-                    int responseLength = StringTools.getBytesUtf8( (String)response ).length;
+                    int responseLength = StringTools.getBytesUtf8( ( String ) response ).length;
                     extendedResponseLength += 1 + Length.getNbBytes( responseLength ) + responseLength;
                 }
                 else
                 {
-                    extendedResponseLength += 1 + Length.getNbBytes( ( (byte[])response).length ) + ( (byte[])response).length;
+                    extendedResponseLength += 1 + Length.getNbBytes( ( ( byte[] ) response ).length )
+                        + ( ( byte[] ) response ).length;
                 }
             }
         }
@@ -158,23 +161,20 @@ public class ExtendedResponse extends LdapResponse
         return 1 + Length.getNbBytes( extendedResponseLength ) + extendedResponseLength;
     }
 
+
     /**
-     * Encode the ExtendedResponse message to a PDU.
+     * Encode the ExtendedResponse message to a PDU. ExtendedResponse :
+     * LdapResult.encode() [0x8A LL response name] [0x8B LL response]
      * 
-     * ExtendedResponse :
-     * 
-     * LdapResult.encode()
-     * [0x8A LL response name]
-     * [0x8B LL response]
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
@@ -184,12 +184,12 @@ public class ExtendedResponse extends LdapResponse
             buffer.put( Length.getBytes( extendedResponseLength ) );
 
             // The LdapResult
-            super.encode(buffer);
+            super.encode( buffer );
 
             // The responseName, if any
             if ( responseName != null )
             {
-                buffer.put( (byte) LdapConstants.EXTENDED_RESPONSE_RESPONSE_NAME_TAG );
+                buffer.put( ( byte ) LdapConstants.EXTENDED_RESPONSE_RESPONSE_NAME_TAG );
                 buffer.put( Length.getBytes( responseNameLength ) );
 
                 if ( responseName.getOIDLength() != 0 )
@@ -201,11 +201,11 @@ public class ExtendedResponse extends LdapResponse
             // The response, if any
             if ( response != null )
             {
-                buffer.put( (byte)LdapConstants.EXTENDED_RESPONSE_RESPONSE_TAG );
+                buffer.put( ( byte ) LdapConstants.EXTENDED_RESPONSE_RESPONSE_TAG );
 
                 if ( response instanceof String )
                 {
-                    byte[] responseBytes = StringTools.getBytesUtf8( (String)response );
+                    byte[] responseBytes = StringTools.getBytesUtf8( ( String ) response );
                     buffer.put( Length.getBytes( responseBytes.length ) );
 
                     if ( responseBytes.length != 0 )
@@ -215,27 +215,28 @@ public class ExtendedResponse extends LdapResponse
                 }
                 else
                 {
-                    buffer.put( Length.getBytes( ( (byte[])response).length ) );
+                    buffer.put( Length.getBytes( ( ( byte[] ) response ).length ) );
 
-                    if ( ( (byte[])response).length != 0 )
+                    if ( ( ( byte[] ) response ).length != 0 )
                     {
-                        buffer.put( (byte[])response );
+                        buffer.put( ( byte[] ) response );
                     }
                 }
             }
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         return buffer;
     }
 
+
     /**
      * Get a String representation of an ExtendedResponse
-     *
-     * @return An ExtendedResponse String 
+     * 
+     * @return An ExtendedResponse String
      */
     public String toString()
     {

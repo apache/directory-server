@@ -18,57 +18,63 @@
  */
 package org.apache.directory.shared.ldap.aci;
 
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+
 /**
  * An abstract class that provides common properties and operations for
  * {@link ItemFirstACIItem} and {@link UserFirstACIItem} as specified X.501
  * specification.
- *
+ * 
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
 public abstract class ACIItem implements Serializable
 {
     private String identificationTag;
+
     /* 0 ~ 255 */
     private int precedence = 0;
+
     private AuthenticationLevel authenticationLevel;
-    
+
+
     /**
      * Creates a new instance
      * 
-     * @param identificationTag the id string of this item
-     * @param precedence the precedence of this item
-     * @param authenticationLevel the level of authentication required to this item
+     * @param identificationTag
+     *            the id string of this item
+     * @param precedence
+     *            the precedence of this item
+     * @param authenticationLevel
+     *            the level of authentication required to this item
      */
-    protected ACIItem(
-            String identificationTag,
-            int precedence,
-            AuthenticationLevel authenticationLevel )
+    protected ACIItem(String identificationTag, int precedence, AuthenticationLevel authenticationLevel)
     {
-        if( identificationTag == null )
+        if ( identificationTag == null )
         {
             throw new NullPointerException( "identificationTag" );
         }
-        if( precedence < 0 || precedence > 255 )
+        if ( precedence < 0 || precedence > 255 )
         {
             throw new IllegalArgumentException( "precedence: " + precedence );
         }
-        if( authenticationLevel == null )
+        if ( authenticationLevel == null )
         {
             throw new NullPointerException( "authenticationLevel" );
         }
-        
+
         this.identificationTag = identificationTag;
         this.precedence = precedence;
         this.authenticationLevel = authenticationLevel;
     }
-    
+
+
     /**
      * Returns the id string of this item.
      */
@@ -76,7 +82,8 @@ public abstract class ACIItem implements Serializable
     {
         return identificationTag;
     }
-    
+
+
     /**
      * Returns the precedence of this item.
      */
@@ -84,7 +91,8 @@ public abstract class ACIItem implements Serializable
     {
         return precedence;
     }
-    
+
+
     /**
      * Returns the level of authentication required to this item.
      */
@@ -92,12 +100,14 @@ public abstract class ACIItem implements Serializable
     {
         return authenticationLevel;
     }
-    
+
+
     /**
-     * Converts this item into a collection of {@link ACITuple}s and
-     * returns it.
+     * Converts this item into a collection of {@link ACITuple}s and returns
+     * it.
      */
     public abstract Collection toTuples();
+
 
     /**
      * Converts a set of {@link GrantAndDenial}s into a set of
@@ -106,7 +116,7 @@ public abstract class ACIItem implements Serializable
     protected static Set toMicroOperations( Set grantsAndDenials )
     {
         Set microOps = new HashSet();
-        for( Iterator j = grantsAndDenials.iterator(); j.hasNext(); )
+        for ( Iterator j = grantsAndDenials.iterator(); j.hasNext(); )
         {
             microOps.add( ( ( GrantAndDenial ) j.next() ).getMicroOperation() );
         }

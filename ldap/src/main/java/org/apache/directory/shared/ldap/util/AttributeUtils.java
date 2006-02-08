@@ -29,7 +29,7 @@ import javax.naming.NamingException;
 
 /**
  * A set of utility fuctions for working with Attributes.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -67,7 +67,8 @@ public class AttributeUtils
     }
 
 
-    public static boolean containsAnyValues( Attribute attr, Object[] compared, AttributeType type ) throws NamingException
+    public static boolean containsAnyValues( Attribute attr, Object[] compared, AttributeType type )
+        throws NamingException
     {
         Normalizer normalizer = type.getEquality().getNormalizer();
 
@@ -104,16 +105,21 @@ public class AttributeUtils
         return false;
     }
 
+
     /**
-     * Creates a new attribute which contains the values representing the difference
-     * of two attributes.  If both attributes are null then we cannot determine the
-     * attribute ID and an {@link IllegalArgumentException} is raised.  Note that the
-     * order of arguments makes a difference.
-     *
-     * @param attr0 the first attribute
-     * @param attr1 the second attribute
-     * @return a new attribute with the difference of values from both attribute arguments
-     * @throws NamingException if there are problems accessing attribute values
+     * Creates a new attribute which contains the values representing the
+     * difference of two attributes. If both attributes are null then we cannot
+     * determine the attribute ID and an {@link IllegalArgumentException} is
+     * raised. Note that the order of arguments makes a difference.
+     * 
+     * @param attr0
+     *            the first attribute
+     * @param attr1
+     *            the second attribute
+     * @return a new attribute with the difference of values from both attribute
+     *         arguments
+     * @throws NamingException
+     *             if there are problems accessing attribute values
      */
     public static Attribute getDifference( Attribute attr0, Attribute attr1 ) throws NamingException
     {
@@ -131,7 +137,7 @@ public class AttributeUtils
         {
             return ( Attribute ) attr0.clone();
         }
-        else if ( ! attr0.getID().equalsIgnoreCase( attr1.getID() ) )
+        else if ( !attr0.getID().equalsIgnoreCase( attr1.getID() ) )
         {
             throw new IllegalArgumentException( "Cannot take difference of attributes with different IDs!" );
         }
@@ -163,15 +169,20 @@ public class AttributeUtils
 
 
     /**
-     * Creates a new attribute which contains the values representing the union of
-     * two attributes.  If one attribute is null then the resultant attribute
-     * returned is a copy of the non-null attribute.  If both are null then we cannot
-     * determine the attribute ID and an {@link IllegalArgumentException} is raised.
-     *
-     * @param attr0 the first attribute
-     * @param attr1 the second attribute
-     * @return a new attribute with the union of values from both attribute arguments
-     * @throws NamingException if there are problems accessing attribute values
+     * Creates a new attribute which contains the values representing the union
+     * of two attributes. If one attribute is null then the resultant attribute
+     * returned is a copy of the non-null attribute. If both are null then we
+     * cannot determine the attribute ID and an {@link IllegalArgumentException}
+     * is raised.
+     * 
+     * @param attr0
+     *            the first attribute
+     * @param attr1
+     *            the second attribute
+     * @return a new attribute with the union of values from both attribute
+     *         arguments
+     * @throws NamingException
+     *             if there are problems accessing attribute values
      */
     public static Attribute getUnion( Attribute attr0, Attribute attr1 ) throws NamingException
     {
@@ -189,7 +200,7 @@ public class AttributeUtils
         {
             id = attr0.getID();
         }
-        else if ( ! attr0.getID().equalsIgnoreCase( attr1.getID() ) )
+        else if ( !attr0.getID().equalsIgnoreCase( attr1.getID() ) )
         {
             throw new IllegalArgumentException( "Cannot take union of attributes with different IDs!" );
         }
@@ -219,21 +230,26 @@ public class AttributeUtils
         return attr;
     }
 
+
     /**
-     * Return a string representing the attributes with tabs in front of the string
-     * @param tabs Spaces to be added before the string
-     * @param attributes The attributes to print
+     * Return a string representing the attributes with tabs in front of the
+     * string
+     * 
+     * @param tabs
+     *            Spaces to be added before the string
+     * @param attributes
+     *            The attributes to print
      * @return A string
      */
     public static String toString( String tabs, Attributes attributes )
     {
         StringBuffer sb = new StringBuffer();
-        
+
         sb.append( tabs ).append( "Attributes\n" );
 
         NamingEnumeration attributesIterator = attributes.getAll();
-        
-        while (attributesIterator.hasMoreElements())
+
+        while ( attributesIterator.hasMoreElements() )
         {
             Attribute attribute = ( Attribute ) attributesIterator.nextElement();
 
@@ -245,40 +261,43 @@ public class AttributeUtils
                 try
                 {
                     Object attr = attribute.get( j );
-                    
+
                     if ( attr instanceof String )
                     {
-                        sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " )
-                        .append( attr ).append( " \n" );
+                        sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
+                            " \n" );
                     }
-                    else if (attr instanceof byte[] )
+                    else if ( attr instanceof byte[] )
                     {
-                        String string = StringTools.utf8ToString( (byte[])attr );
-                        
+                        String string = StringTools.utf8ToString( ( byte[] ) attr );
+
                         sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " );
-                        sb.append( string ).append( '/');
-                        sb.append( StringTools.dumpBytes( (byte[]) attr ) );
+                        sb.append( string ).append( '/' );
+                        sb.append( StringTools.dumpBytes( ( byte[] ) attr ) );
                         sb.append( " \n" );
                     }
                     else
                     {
-                        sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " )
-                        .append( attr ).append( " \n" );
+                        sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
+                            " \n" );
                     }
                 }
                 catch ( NamingException ne )
                 {
-                    sb.append( "Bad attribute : ").append( ne.getMessage() );
+                    sb.append( "Bad attribute : " ).append( ne.getMessage() );
                 }
             }
         }
-        
+
         return sb.toString();
     }
 
+
     /**
      * Return a string representing the attributes
-     * @param attributes The attributes to print
+     * 
+     * @param attributes
+     *            The attributes to print
      * @return A string
      */
     public static String toString( Attributes attributes )

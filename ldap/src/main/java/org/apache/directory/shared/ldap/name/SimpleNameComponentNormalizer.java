@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * A simple NameComponentNormalizer which uses the same Normalizer to always
  * normalize the value the same way regardless of the attribute the value is
  * for.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -40,33 +40,39 @@ public class SimpleNameComponentNormalizer implements NameComponentNormalizer
     /**
      * Creates a new SimpleNameComponentNormalizer with the normalizer it uses
      * ever time irrespective of the attribute name or oid.
-     *
-     * @param normalizer the Normalizer to use for all normalization requests
+     * 
+     * @param normalizer
+     *            the Normalizer to use for all normalization requests
      */
-    public SimpleNameComponentNormalizer( Normalizer normalizer )
+    public SimpleNameComponentNormalizer(Normalizer normalizer)
     {
         this.normalizer = normalizer;
     }
 
+
     public String normalizeByName( String name, String val ) throws NamingException
     {
-        return (String)normalizer.normalize( val );
+        return ( String ) normalizer.normalize( val );
     }
+
 
     public String normalizeByName( String name, byte[] val ) throws NamingException
     {
-        return (String)normalizer.normalize( val );
+        return ( String ) normalizer.normalize( val );
     }
+
 
     public String normalizeByOid( String oid, String val ) throws NamingException
     {
-        return (String)normalizer.normalize( val );
+        return ( String ) normalizer.normalize( val );
     }
+
 
     public String normalizeByOid( String oid, byte[] val ) throws NamingException
     {
-        return (String)normalizer.normalize( val );
+        return ( String ) normalizer.normalize( val );
     }
+
 
     public boolean isDefined( String oid )
     {

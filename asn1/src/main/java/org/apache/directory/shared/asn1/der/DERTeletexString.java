@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER Teletex String
  */
@@ -25,11 +26,12 @@ public class DERTeletexString extends DERString
     /**
      * Basic DERObject constructor.
      */
-    public DERTeletexString( byte[] value )
+    public DERTeletexString(byte[] value)
     {
-    	super( T61_STRING, value );
+        super( T61_STRING, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -38,4 +40,3 @@ public class DERTeletexString extends DERString
         return new DERTeletexString( stringToByteArray( string ) );
     }
 }
-

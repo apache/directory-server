@@ -19,7 +19,7 @@ package org.apache.directory.shared.ldap.message;
 
 /**
  * Super interface for all request messages returning only one type of response.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -28,7 +28,7 @@ public interface SingleReplyRequest extends ResultResponseRequest
     /**
      * Gets the protocol response message type for this request which produces
      * at least one response.
-     *
+     * 
      * @return the message type of the response.
      */
     MessageTypeEnum getResponseType();

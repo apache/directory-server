@@ -16,9 +16,10 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+
 /**
  * An LDAP Response that contains an LDAPResult structure within it.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
@@ -26,7 +27,7 @@ public interface ResultResponse extends Response
 {
     /**
      * Gets the LdapResult components of this Response.
-     *
+     * 
      * @return the LdapResult for this Response.
      */
     LdapResult getLdapResult();

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,28 +27,28 @@ import org.apache.directory.shared.ldap.codec.LdapResponse;
 
 
 /**
- * A SearchResultDone Message. Its syntax is :
- *   SearchResultDone ::= [APPLICATION 5] LDAPResult
- * 
- * It's a Response, so it inherites from LdapResponse.
+ * A SearchResultDone Message. Its syntax is : SearchResultDone ::= [APPLICATION
+ * 5] LDAPResult It's a Response, so it inherites from LdapResponse.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SearchResultDone extends LdapResponse
 {
-    //~ Constructors -------------------------------------------------------------------------------
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new SearchResultDone object.
      */
     public SearchResultDone()
     {
-        super( );
+        super();
     }
+
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -55,18 +56,11 @@ public class SearchResultDone extends LdapResponse
         return LdapConstants.SEARCH_RESULT_DONE;
     }
 
+
     /**
-     * Compute the SearchResultDone length
-     * 
-     * SearchResultDone :
-     * 
-     * 0x65 L1
-     *  |
-     *  +--> LdapResult
-     * 
-     * L1 = Length(LdapResult)
-     * 
-     * Length(SearchResultDone) = Length(0x65) + Length(L1) + L1
+     * Compute the SearchResultDone length SearchResultDone : 0x65 L1 | +-->
+     * LdapResult L1 = Length(LdapResult) Length(SearchResultDone) =
+     * Length(0x65) + Length(L1) + L1
      */
     public int computeLength()
     {
@@ -75,17 +69,19 @@ public class SearchResultDone extends LdapResponse
         return 1 + Length.getNbBytes( ldapResponseLength ) + ldapResponseLength;
     }
 
+
     /**
      * Encode the SearchResultDone message to a PDU.
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer )  throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
@@ -96,17 +92,18 @@ public class SearchResultDone extends LdapResponse
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         // The ldapResult
-        return super.encode( buffer);
+        return super.encode( buffer );
     }
+
 
     /**
      * Get a String representation of a SearchResultDone
-     *
-     * @return A SearchResultDone String 
+     * 
+     * @return A SearchResultDone String
      */
     public String toString()
     {

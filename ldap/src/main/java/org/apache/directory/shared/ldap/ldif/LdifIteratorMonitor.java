@@ -14,14 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.ldif ;
+package org.apache.directory.shared.ldap.ldif;
 
 
 /**
  * A monitor for an LDIF iterator.
- *
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public interface LdifIteratorMonitor
@@ -29,23 +28,30 @@ public interface LdifIteratorMonitor
     /**
      * Monitors fatal Iterator failures.
      * 
-     * @param msg the message associated with the failure
-     * @param cause the throwable that caused the failure
+     * @param msg
+     *            the message associated with the failure
+     * @param cause
+     *            the throwable that caused the failure
      */
-    void fatalFailure( String msg, Throwable cause ) ; 
-    
+    void fatalFailure( String msg, Throwable cause );
+
+
     /**
      * Monitors recoverable Iterator failures.
      * 
-     * @param msg the message associated with the failure
-     * @param cause the throwable that caused the failure
+     * @param msg
+     *            the message associated with the failure
+     * @param cause
+     *            the throwable that caused the failure
      */
-    void failure( String msg, Throwable cause ) ;
-    
+    void failure( String msg, Throwable cause );
+
+
     /**
      * Monitors the availablity of information.
      * 
-     * @param msg the information
-     */ 
-    void infoAvailable( String msg ) ;
+     * @param msg
+     *            the information
+     */
+    void infoAvailable( String msg );
 }

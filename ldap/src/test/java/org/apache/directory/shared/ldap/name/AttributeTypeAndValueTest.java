@@ -16,12 +16,14 @@
  */
 package org.apache.directory.shared.ldap.name;
 
+
 import javax.naming.InvalidNameException;
 
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
 
 /**
  * Test the class AttributeTypeAndValue
@@ -30,7 +32,8 @@ import junit.framework.TestCase;
  */
 public class AttributeTypeAndValueTest extends TestCase
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Setup the test
@@ -38,6 +41,7 @@ public class AttributeTypeAndValueTest extends TestCase
     protected void setUp()
     {
     }
+
 
     /**
      * Test a null AttributeTypeAndValue
@@ -47,21 +51,23 @@ public class AttributeTypeAndValueTest extends TestCase
         Assert.assertEquals( "", new AttributeTypeAndValue().toString() );
     }
 
+
     /**
      * test an empty AttributeTypeAndValue
      */
     public void testLdapRDNEmpty() throws InvalidNameException
     {
-    	try
-    	{
-    		new AttributeTypeAndValue( "", "" );
-    		Assert.fail( "Should not occurs ... " );
-    	}
-    	catch ( InvalidNameException ine )
-    	{
-    		Assert.assertTrue( true );
-    	}
+        try
+        {
+            new AttributeTypeAndValue( "", "" );
+            Assert.fail( "Should not occurs ... " );
+        }
+        catch ( InvalidNameException ine )
+        {
+            Assert.assertTrue( true );
+        }
     }
+
 
     /**
      * test a simple AttributeTypeAndValue : a = b
@@ -71,77 +77,87 @@ public class AttributeTypeAndValueTest extends TestCase
         Assert.assertEquals( "a=b", new AttributeTypeAndValue( "a", "b" ).toString() );
     }
 
+
     /**
      * Compares two equals atavs
      */
     public void testCompareToEquals() throws InvalidNameException
     {
-    	AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-    	AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
-    	
-        Assert.assertEquals( 0, atav1.compareTo( atav2) );
+        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
+        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
+
+        Assert.assertEquals( 0, atav1.compareTo( atav2 ) );
     }
 
+
     /**
-     * Compares two equals atavs but with a type in different case 
+     * Compares two equals atavs but with a type in different case
      */
     public void testCompareToEqualsCase() throws InvalidNameException
     {
-    	AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-    	AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "A", "b" );
-    	
-        Assert.assertEquals( 0, atav1.compareTo( atav2) );
+        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
+        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "A", "b" );
+
+        Assert.assertEquals( 0, atav1.compareTo( atav2 ) );
     }
 
+
     /**
-     * Compare two atavs : the first one is superior because its type is superior
+     * Compare two atavs : the first one is superior because its type is
+     * superior
      */
     public void testCompareAtav1TypeSuperior() throws InvalidNameException
     {
-    	AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "b", "b" );
-    	AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
-    	
-        Assert.assertEquals( 1, atav1.compareTo( atav2) );
+        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "b", "b" );
+        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
+
+        Assert.assertEquals( 1, atav1.compareTo( atav2 ) );
     }
 
+
     /**
-     * Compare two atavs : the second one is superior because its type is superior
+     * Compare two atavs : the second one is superior because its type is
+     * superior
      */
     public void testCompareAtav2TypeSuperior() throws InvalidNameException
     {
-    	AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-    	AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "b", "b" );
-    	
-        Assert.assertEquals( -1, atav1.compareTo( atav2) );
+        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
+        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "b", "b" );
+
+        Assert.assertEquals( -1, atav1.compareTo( atav2 ) );
     }
 
+
     /**
-     * Compare two atavs : the first one is superior because its type is superior
+     * Compare two atavs : the first one is superior because its type is
+     * superior
      */
     public void testCompareAtav1ValueSuperior() throws InvalidNameException
     {
-    	AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-    	AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a" );
-    	
-        Assert.assertEquals( 1, atav1.compareTo( atav2) );
+        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
+        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a" );
+
+        Assert.assertEquals( 1, atav1.compareTo( atav2 ) );
     }
 
+
     /**
-     * Compare two atavs : the second one is superior because its type is superior
+     * Compare two atavs : the second one is superior because its type is
+     * superior
      */
     public void testCompareAtav2ValueSuperior() throws InvalidNameException
     {
-    	AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a" );
-    	AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
-    	
-        Assert.assertEquals( -1, atav1.compareTo( atav2) );
+        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a" );
+        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
+
+        Assert.assertEquals( -1, atav1.compareTo( atav2 ) );
     }
+
 
     public void testNormalize() throws InvalidNameException
     {
-    	AttributeTypeAndValue atav = new AttributeTypeAndValue( " A ", "a" );
-    	
-    	Assert.assertEquals( "a=a", atav.normalize() );
+        AttributeTypeAndValue atav = new AttributeTypeAndValue( " A ", "a" );
+
+        Assert.assertEquals( "a=a", atav.normalize() );
     }
 }
-

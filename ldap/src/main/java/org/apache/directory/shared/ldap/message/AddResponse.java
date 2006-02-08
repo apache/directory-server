@@ -24,13 +24,13 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Add protocol response message used to confirm the results of a add
- * request message.
- *
+ * Add protocol response message used to confirm the results of a add request
+ * message.
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
  * @version $Revision$
@@ -38,5 +38,5 @@ package org.apache.directory.shared.ldap.message ;
 public interface AddResponse extends ResultResponse
 {
     /** Add response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.ADDRESPONSE ;
+    MessageTypeEnum TYPE = MessageTypeEnum.ADDRESPONSE;
 }

@@ -32,14 +32,16 @@ import org.apache.directory.shared.ldap.util.ExceptionUtils;
 /**
  * A case-insensitive Lockable JNDI Attributes implementation.
  * 
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a> 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class LockableAttributesImpl implements Attributes
 {
     static final long serialVersionUID = -69864533495992471L;
+
     /** Map of user provided String ids to Attributes */
     private final Map map = new HashMap();
+
     /** Cache of lowercase id Strings to mixed cased user provided String ids */
     private Map keyMap;
 
@@ -47,7 +49,6 @@ public class LockableAttributesImpl implements Attributes
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
-
 
     /**
      * Creates a LockableAttributes without a parent Lockable.
@@ -60,11 +61,13 @@ public class LockableAttributesImpl implements Attributes
 
     /**
      * Used by clone to create a LockableAttributes.
-     *
-     * @param map the primary user provided id to Attribute Map
-     * @param keyMap the canonical key to user provided id Map
+     * 
+     * @param map
+     *            the primary user provided id to Attribute Map
+     * @param keyMap
+     *            the canonical key to user provided id Map
      */
-    private LockableAttributesImpl( Map map, Map keyMap )
+    private LockableAttributesImpl(Map map, Map keyMap)
     {
         this.keyMap = new HashMap();
 
@@ -86,11 +89,10 @@ public class LockableAttributesImpl implements Attributes
     // javax.naming.directory.Attributes Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
-     * Determines whether the attribute set ignores the case of
-     * attribute identifiers when retrieving or adding attributes.
-     *
+     * Determines whether the attribute set ignores the case of attribute
+     * identifiers when retrieving or adding attributes.
+     * 
      * @return true always.
      */
     public boolean isCaseIgnored()
@@ -101,7 +103,7 @@ public class LockableAttributesImpl implements Attributes
 
     /**
      * Retrieves the number of attributes in the attribute set.
-     *
+     * 
      * @return The nonnegative number of attributes in this attribute set.
      */
     public int size()
@@ -111,13 +113,13 @@ public class LockableAttributesImpl implements Attributes
 
 
     /**
-     * Retrieves the attribute with the given attribute id from the
-     * attribute set.
-     *
-     * @param attrId The non-null id of the attribute to retrieve.
-     *        If this attribute set ignores the character
-     *        case of its attribute ids, the case of attrID
-     *        is ignored.
+     * Retrieves the attribute with the given attribute id from the attribute
+     * set.
+     * 
+     * @param attrId
+     *            The non-null id of the attribute to retrieve. If this
+     *            attribute set ignores the character case of its attribute ids,
+     *            the case of attrID is ignored.
      * @return The attribute identified by attrID; null if not found.
      * @see #put
      * @see #remove
@@ -136,14 +138,14 @@ public class LockableAttributesImpl implements Attributes
 
 
     /**
-     * Retrieves an enumeration of the attributes in the attribute set.
-     * The effects of updates to this attribute set on this enumeration
-     * are undefined.
-     *
+     * Retrieves an enumeration of the attributes in the attribute set. The
+     * effects of updates to this attribute set on this enumeration are
+     * undefined.
+     * 
      * @return A non-null enumeration of the attributes in this attribute set.
      *         Each element of the enumeration is of class <tt>Attribute</tt>.
-     *         If attribute set has zero attributes, an empty enumeration
-     *         is returned.
+     *         If attribute set has zero attributes, an empty enumeration is
+     *         returned.
      */
     public NamingEnumeration getAll()
     {
@@ -152,15 +154,14 @@ public class LockableAttributesImpl implements Attributes
 
 
     /**
-     * Retrieves an enumeration of the ids of the attributes in the
-     * attribute set.
-     * The effects of updates to this attribute set on this enumeration
-     * are undefined.
-     *
-     * @return A non-null enumeration of the attributes' ids in
-     *         this attribute set. Each element of the enumeration is
-     *         of class String. If attribute set has zero attributes, an empty 
-     *         enumeration is returned.
+     * Retrieves an enumeration of the ids of the attributes in the attribute
+     * set. The effects of updates to this attribute set on this enumeration are
+     * undefined.
+     * 
+     * @return A non-null enumeration of the attributes' ids in this attribute
+     *         set. Each element of the enumeration is of class String. If
+     *         attribute set has zero attributes, an empty enumeration is
+     *         returned.
      */
     public NamingEnumeration getIDs()
     {
@@ -170,13 +171,14 @@ public class LockableAttributesImpl implements Attributes
 
     /**
      * Adds a new attribute to the attribute set.
-     *
-     * @param attrId non-null The id of the attribute to add.
-     *        If the attribute set ignores the character
-     *        case of its attribute ids, the case of attrID
-     *        is ignored.
-     * @param val The possibly null value of the attribute to add.
-     *        If null, the attribute does not have any values.
+     * 
+     * @param attrId
+     *            non-null The id of the attribute to add. If the attribute set
+     *            ignores the character case of its attribute ids, the case of
+     *            attrID is ignored.
+     * @param val
+     *            The possibly null value of the attribute to add. If null, the
+     *            attribute does not have any values.
      * @return The Attribute with attrID that was previous in this attribute set
      *         null if no such attribute existed.
      * @see #remove
@@ -197,11 +199,12 @@ public class LockableAttributesImpl implements Attributes
 
     /**
      * Adds a new attribute to the attribute set.
-     *
-     * @param attr The non-null attribute to add.  If the attribute set
-     *        ignores the character case of its attribute ids, the case of
-     *        attr's identifier is ignored.
-     * @return The Attribute with the same ID as attr that was previous in this 
+     * 
+     * @param attr
+     *            The non-null attribute to add. If the attribute set ignores
+     *            the character case of its attribute ids, the case of attr's
+     *            identifier is ignored.
+     * @return The Attribute with the same ID as attr that was previous in this
      *         attribute set; null if no such attribute existed.
      * @see #remove
      */
@@ -226,15 +229,16 @@ public class LockableAttributesImpl implements Attributes
 
 
     /**
-      * Removes the attribute with the attribute id 'attrID' from
-      * the attribute set. If the attribute does not exist, ignore.
-      *
-      * @param attrId The non-null id of the attribute to remove. If the
-      * attribute set ignores the character case of its attribute ids, the case 
-      * of attrID is ignored.
-      * @return The Attribute with the same ID as attrID that was previous in 
-      * the attribute set; null if no such attribute existed.
-      */
+     * Removes the attribute with the attribute id 'attrID' from the attribute
+     * set. If the attribute does not exist, ignore.
+     * 
+     * @param attrId
+     *            The non-null id of the attribute to remove. If the attribute
+     *            set ignores the character case of its attribute ids, the case
+     *            of attrID is ignored.
+     * @return The Attribute with the same ID as attrID that was previous in the
+     *         attribute set; null if no such attribute existed.
+     */
     public Attribute remove( String attrId )
     {
         Attribute old = get( attrId );
@@ -254,17 +258,17 @@ public class LockableAttributesImpl implements Attributes
 
 
     /**
-      * Makes a shallow copy of the attribute set.  The new set contains the
-      * same attributes as the original set.
-      *
-      * @return A non-null copy of this attribute set.
-      */
+     * Makes a shallow copy of the attribute set. The new set contains the same
+     * attributes as the original set.
+     * 
+     * @return A non-null copy of this attribute set.
+     */
     public Object clone()
     {
         return new LockableAttributesImpl( map, keyMap );
     }
-    
-    
+
+
     /**
      * Prints out the attributes as an LDIF.
      * 
@@ -273,13 +277,13 @@ public class LockableAttributesImpl implements Attributes
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
-        
+
         Iterator attrs = map.values().iterator();
         while ( attrs.hasNext() )
         {
             Attribute l_attr = ( Attribute ) attrs.next();
-            
-            try 
+
+            try
             {
                 NamingEnumeration l_values = l_attr.getAll();
                 while ( l_values.hasMore() )
@@ -290,13 +294,13 @@ public class LockableAttributesImpl implements Attributes
                     buf.append( l_value );
                     buf.append( '\n' );
                 }
-            } 
+            }
             catch ( NamingException e )
             {
                 buf.append( ExceptionUtils.getFullStackTrace( e ) );
             }
         }
-        
+
         return buf.toString();
     }
 
@@ -304,10 +308,11 @@ public class LockableAttributesImpl implements Attributes
     /**
      * Checks to see if this Attributes implemenation is equivalent to another.
      * The comparision does not take into account the implementation or any
-     * Lockable interface properties.  Case independent lookups by Attribute ID
+     * Lockable interface properties. Case independent lookups by Attribute ID
      * is considered to be significant.
-     *
-     * @param obj the Attributes object to test for equality to this
+     * 
+     * @param obj
+     *            the Attributes object to test for equality to this
      * @return true if the Attributes are equal false otherwise
      */
     public boolean equals( Object obj )
@@ -317,7 +322,7 @@ public class LockableAttributesImpl implements Attributes
             return true;
         }
 
-        if ( ! ( obj instanceof Attributes ) )
+        if ( !( obj instanceof Attributes ) )
         {
             return false;
         }
@@ -345,7 +350,7 @@ public class LockableAttributesImpl implements Attributes
                 return false;
             }
 
-            if ( ! myAttr.equals( attr ) )
+            if ( !myAttr.equals( attr ) )
             {
                 return false;
             }
@@ -359,13 +364,13 @@ public class LockableAttributesImpl implements Attributes
     // Utility Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * Sets the user provided key by normalizing it and adding a record into the
      * keymap for future lookups.
-     *
-     * @param userProvidedId the id of the Attribute gotten from the attribute
-     * instance via getID().
+     * 
+     * @param userProvidedId
+     *            the id of the Attribute gotten from the attribute instance via
+     *            getID().
      */
     private void setUserProvidedId( String userProvidedId )
     {
@@ -386,10 +391,11 @@ public class LockableAttributesImpl implements Attributes
     /**
      * Gets the user provided key by looking it up using the normalized key in
      * the key map.
-     *
-     * @param attrId the id of the Attribute in any case.
+     * 
+     * @param attrId
+     *            the id of the Attribute in any case.
      * @return the attribute id as it would be returned on a call to the
-     * Attribute's getID() method.
+     *         Attribute's getID() method.
      */
     private String getUserProvidedId( String attrId )
     {

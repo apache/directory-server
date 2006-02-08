@@ -12,9 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 
 package org.apache.directory.shared.asn1.codec;
+
 
 /**
  * Defines common encoding methods for byte array encoders.
@@ -22,20 +23,18 @@ package org.apache.directory.shared.asn1.codec;
  * @author Apache Software Foundation
  * @version $Id: BinaryEncoder.java,v 1.10 2004/02/29 04:08:31 tobrien Exp $
  */
-public interface BinaryEncoder extends Encoder {
-    
-    /**
-     * Encodes a byte array and return the encoded data
-     * as a byte array.
-     * 
-     * @param pArray Data to be encoded
-     *
-     * @return A byte array containing the encoded data
-     * 
-     * @throws EncoderException thrown if the Encoder
-     *      encounters a failure condition during the
-     *      encoding process.
-     */
-    byte[] encode(byte[] pArray) throws EncoderException;
-}  
+public interface BinaryEncoder extends Encoder
+{
 
+    /**
+     * Encodes a byte array and return the encoded data as a byte array.
+     * 
+     * @param pArray
+     *            Data to be encoded
+     * @return A byte array containing the encoded data
+     * @throws EncoderException
+     *             thrown if the Encoder encounters a failure condition during
+     *             the encoding process.
+     */
+    byte[] encode( byte[] pArray ) throws EncoderException;
+}

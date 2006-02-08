@@ -24,19 +24,19 @@
  *
  */
 
-package org.apache.directory.shared.ldap.url ;
+package org.apache.directory.shared.ldap.url;
 
 
-import java.util.List ;
+import java.util.List;
 
-import javax.naming.Name ;
+import javax.naming.Name;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
 /**
  * A parsed LDAP URL.
- *
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
  * @version $Revision$
@@ -48,62 +48,69 @@ public interface LdapUrl
      * 
      * @return the non-normalized Dn
      */
-    Name getName() ;
-    
+    Name getName();
+
+
     /**
-     * Gets the hostname component of this LdapUrl. 
+     * Gets the hostname component of this LdapUrl.
      * 
      * @return the hostname of the server.
      */
-    String getHostName() ;
-    
+    String getHostName();
+
+
     /**
-     * Gets the port component of this LdapUrl. 
+     * Gets the port component of this LdapUrl.
      * 
      * @return the port number component of the LdapUrl.
      */
-    int getPort() ;
-    
+    int getPort();
+
+
     /**
      * Gets the filter component of this LdapUrl as a filter expression tree.
      * 
      * @return the filter expression tree's root node.
      */
-    ExprNode getFilter() ;
-    
+    ExprNode getFilter();
+
+
     /**
      * Gets the attributes component of this LdapUrl.
      * 
      * @return a List containing the attribute names as Strings to return in the
-     * search results if this LdapUrl represents a search.  If attributes are 
-     * not specified the list will be empty.
+     *         search results if this LdapUrl represents a search. If attributes
+     *         are not specified the list will be empty.
      */
-    List getAttributes() ;
-    
+    List getAttributes();
+
+
     /**
-     * Gets the extensions component of this LdapUrl.
+     * Gets the extensions component of this LdapUrl. TODO can't say I know what
+     * this is at the moment
      * 
-     * TODO can't say I know what this is at the moment
      * @return a List containing the extensions
      */
-    List getExtensions() ;
-    
+    List getExtensions();
+
+
     /**
-     * Gets the scope of the search if this LdapUrl represents a search URL. 
-     * The values returned are defined within the JNDI SearchControls class.
+     * Gets the scope of the search if this LdapUrl represents a search URL. The
+     * values returned are defined within the JNDI SearchControls class.
      * 
      * @see javax.naming.directory.SearchControls#OBJECT_SCOPE
      * @see javax.naming.directory.SearchControls#ONELEVEL_SCOPE
      * @see javax.naming.directory.SearchControls#SUBTREE_SCOPE
      * @return the scope of the search.
      */
-    int getScope() ;
-    
+    int getScope();
+
+
     /**
      * Gets whether or not secure ldaps scheme with SSL is used or normal ldap
-     * scheme is used. 
+     * scheme is used.
      * 
      * @return true if ldaps is the scheme, false if it is ldap
      */
-    boolean isSecure() ;
+    boolean isSecure();
 }

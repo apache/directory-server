@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.ber.grammar;
 
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
@@ -27,34 +28,42 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
  */
 public interface IGrammar
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
-     * This method, when called, execute an action on the current data stored 
-     * in the container.
-     *
-     * @param asn1Container Store the data being processed.
-     *
-     * @throws DecoderException Thrown when an unrecoverable error occurs.
+     * This method, when called, execute an action on the current data stored in
+     * the container.
+     * 
+     * @param asn1Container
+     *            Store the data being processed.
+     * @throws DecoderException
+     *             Thrown when an unrecoverable error occurs.
      */
     void executeAction( IAsn1Container asn1Container ) throws DecoderException;
 
+
     /**
      * Get the grammar name
-     *
+     * 
      * @return Return the grammar's name
      */
     String getName();
 
+
     /**
-     * Get the statesEnum for the current grammar 
+     * Get the statesEnum for the current grammar
+     * 
      * @return The specific States Enum for the current grammar
      */
     IStates getStatesEnum();
 
+
     /**
      * Set the grammar's name
-     * @param name The grammar name
-    */
+     * 
+     * @param name
+     *            The grammar name
+     */
     void setName( String name );
 }

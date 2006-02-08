@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
@@ -27,59 +27,70 @@ package org.apache.directory.shared.ldap.message ;
 public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
 {
     /** Compare request message type enum code */
-    MessageTypeEnum TYPE = MessageTypeEnum.COMPAREREQUEST ;
+    MessageTypeEnum TYPE = MessageTypeEnum.COMPAREREQUEST;
+
     /** Compare response message type enum code */
-    MessageTypeEnum RESP_TYPE = CompareResponse.TYPE ;
+    MessageTypeEnum RESP_TYPE = CompareResponse.TYPE;
 
 
     /**
      * Gets the distinguished name of the entry to be compared using the
      * attribute value assertion.
-     *
+     * 
      * @return the DN of the compared entry.
      */
-    String getName() ;
+    String getName();
+
 
     /**
      * Sets the distinguished name of the entry to be compared using the
      * attribute value assertion.
-     *
-     * @param a_name the DN of the compared entry.
+     * 
+     * @param a_name
+     *            the DN of the compared entry.
      */
-    void setName( String a_name ) ;
+    void setName( String a_name );
+
 
     /**
      * Gets the attribute value to use in making the comparison.
-     *
+     * 
      * @return the attribute value to used in comparison.
      */
-    byte[] getAssertionValue() ;
+    byte[] getAssertionValue();
+
 
     /**
      * Sets the attribute value to use in the comparison.
-     *
-     * @param a_value the attribute value used in comparison.
+     * 
+     * @param a_value
+     *            the attribute value used in comparison.
      */
-    void setAssertionValue( String a_value ) ;
+    void setAssertionValue( String a_value );
+
 
     /**
      * Sets the attribute value to use in the comparison.
-     *
-     * @param a_value the attribute value used in comparison.
+     * 
+     * @param a_value
+     *            the attribute value used in comparison.
      */
-    void setAssertionValue( byte[] value ) ;
+    void setAssertionValue( byte[] value );
+
 
     /**
      * Gets the attribute id use in making the comparison.
-     *
+     * 
      * @return the attribute id used in comparison.
      */
-    String getAttributeId() ;
+    String getAttributeId();
+
 
     /**
      * Sets the attribute id used in the comparison.
-     *
-     * @param a_attrId the attribute id used in comparison.
+     * 
+     * @param a_attrId
+     *            the attribute id used in comparison.
      */
-    void setAttributeId( String a_attrId ) ;
+    void setAttributeId( String a_attrId );
 }

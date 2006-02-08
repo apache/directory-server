@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.modifyDn;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,26 +27,28 @@ import org.apache.directory.shared.ldap.codec.LdapResponse;
 
 
 /**
- * An ModifyDNResponse Message. Its syntax is :
- *   ModifyDNResponse ::= [APPLICATION 13] LDAPResult
+ * An ModifyDNResponse Message. Its syntax is : ModifyDNResponse ::=
+ * [APPLICATION 13] LDAPResult
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ModifyDNResponse extends LdapResponse
 {
-    //~ Constructors -------------------------------------------------------------------------------
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new ModifyDNResponse object.
      */
     public ModifyDNResponse()
     {
-        super( );
+        super();
     }
+
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -53,18 +56,11 @@ public class ModifyDNResponse extends LdapResponse
         return LdapConstants.MODIFYDN_RESPONSE;
     }
 
+
     /**
-     * Compute the ModifyDNResponse length
-     * 
-     * ModifyDNResponse :
-     * 
-     * 0x6D L1
-     *  |
-     *  +--> LdapResult
-     * 
-     * L1 = Length(LdapResult)
-     * 
-     * Length(ModifyDNResponse) = Length(0x6D) + Length(L1) + L1
+     * Compute the ModifyDNResponse length ModifyDNResponse : 0x6D L1 | +-->
+     * LdapResult L1 = Length(LdapResult) Length(ModifyDNResponse) =
+     * Length(0x6D) + Length(L1) + L1
      */
     public int computeLength()
     {
@@ -73,17 +69,19 @@ public class ModifyDNResponse extends LdapResponse
         return 1 + Length.getNbBytes( ldapResponseLength ) + ldapResponseLength;
     }
 
+
     /**
      * Encode the ModifyDNResponse message to a PDU.
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer )  throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
@@ -94,17 +92,18 @@ public class ModifyDNResponse extends LdapResponse
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         // The ldapResult
-        return super.encode( buffer);
+        return super.encode( buffer );
     }
+
 
     /**
      * Get a String representation of a ModifyDNResponse
-     *
-     * @return A ModifyDNResponse String 
+     * 
+     * @return A ModifyDNResponse String
      */
     public String toString()
     {

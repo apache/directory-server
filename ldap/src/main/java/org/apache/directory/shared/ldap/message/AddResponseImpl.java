@@ -29,23 +29,25 @@ public class AddResponseImpl extends AbstractResultResponse implements AddRespon
     // Constructors
     // ------------------------------------------------------------------------
 
-
     static final long serialVersionUID = 4027132942339551383L;
+
 
     /**
      * Creates a Lockable AddResponse as a reply to an AddRequest.
-     *
-     * @param id the session unique message id
+     * 
+     * @param id
+     *            the session unique message id
      */
-    public AddResponseImpl( final int id )
+    public AddResponseImpl(final int id)
     {
-        super( id, TYPE ) ;
+        super( id, TYPE );
     }
-    
+
+
     /**
      * Get a String representation of an AddResponse
-     *
-     * @return An AddResponse String 
+     * 
+     * @return An AddResponse String
      */
     public String toString()
     {

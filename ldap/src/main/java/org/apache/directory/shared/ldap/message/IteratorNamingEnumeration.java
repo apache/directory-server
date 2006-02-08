@@ -24,11 +24,11 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
-import java.util.Iterator ;
-import javax.naming.NamingEnumeration ;
+import java.util.Iterator;
+import javax.naming.NamingEnumeration;
 
 
 /**
@@ -39,20 +39,21 @@ import javax.naming.NamingEnumeration ;
  * @author $Author: akarasulu $
  * @version $Revision$
  */
-public class IteratorNamingEnumeration
-    implements NamingEnumeration
+public class IteratorNamingEnumeration implements NamingEnumeration
 {
     /** the iterator to wrap as in the enumeration */
-    private final Iterator m_iterator ;
+    private final Iterator m_iterator;
+
 
     /**
      * Creates a NamingEnumeration over an Iterator.
-     *
-     * @param a_iterator the Iterator the NamingEnumeration is based on.
+     * 
+     * @param a_iterator
+     *            the Iterator the NamingEnumeration is based on.
      */
-    public IteratorNamingEnumeration( final Iterator a_iterator )
+    public IteratorNamingEnumeration(final Iterator a_iterator)
     {
-        m_iterator = a_iterator ;
+        m_iterator = a_iterator;
     }
 
 
@@ -60,13 +61,12 @@ public class IteratorNamingEnumeration
     // Enumeration Interface Method Implementations
     // --------------------------------------------------------------------
 
-
     /**
      * @see java.util.Enumeration#hasMoreElements()
      */
     public boolean hasMoreElements()
     {
-        return m_iterator.hasNext() ;
+        return m_iterator.hasNext();
     }
 
 
@@ -75,7 +75,7 @@ public class IteratorNamingEnumeration
      */
     public Object nextElement()
     {
-        return m_iterator.next() ;
+        return m_iterator.next();
     }
 
 
@@ -83,10 +83,9 @@ public class IteratorNamingEnumeration
     // NamingEnumeration Interface Method Implementations
     // --------------------------------------------------------------------
 
-
     /**
      * @see javax.naming.NamingEnumeration#close()
-     */    
+     */
     public void close()
     {
         // Does nothing!
@@ -98,7 +97,7 @@ public class IteratorNamingEnumeration
      */
     public boolean hasMore()
     {
-        return m_iterator.hasNext() ;
+        return m_iterator.hasNext();
     }
 
 
@@ -107,6 +106,6 @@ public class IteratorNamingEnumeration
      */
     public Object next()
     {
-        return m_iterator.next() ;
+        return m_iterator.next();
     }
 }

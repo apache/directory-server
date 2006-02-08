@@ -21,10 +21,12 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * An interface for exceptions which add LDAP specific information to Exceptions.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * An interface for exceptions which add LDAP specific information to
+ * Exceptions.
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -32,7 +34,7 @@ public interface LdapException
 {
     /**
      * Gets the LDAP result code that would be associated with this exception.
-     *
+     * 
      * @return the LDAP result code corresponding to this exception type.
      */
     public ResultCodeEnum getResultCode();

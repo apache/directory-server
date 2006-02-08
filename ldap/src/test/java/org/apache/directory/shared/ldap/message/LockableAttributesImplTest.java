@@ -28,16 +28,17 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 /**
  * Test cases for the methods of the LockableAttributeImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class LockableAttributesImplTest extends TestCase
 {
     /**
      * Creates and populates a LockableAttributeImpl with a specific id.
-     *
-     * @param id the id for the attribute
+     * 
+     * @param id
+     *            the id for the attribute
      * @return the LockableAttributeImpl assembled for testing
      */
     private LockableAttributeImpl getAttribute( String id )
@@ -52,7 +53,7 @@ public class LockableAttributesImplTest extends TestCase
 
     /**
      * Creates and populates a LockableAttributes object
-     *
+     * 
      * @return
      */
     private LockableAttributesImpl getAttributes()
@@ -73,7 +74,8 @@ public class LockableAttributesImplTest extends TestCase
         LockableAttributesImpl attrs = getAttributes();
         attrs.put( "binaryNullAttr", null );
         attrs.put( "binaryEmptyAttr", ArrayUtils.EMPTY_BYTE_ARRAY );
-        attrs.put( "binaryFullAttr", new byte[]{ 0x44, 0x23 } );
+        attrs.put( "binaryFullAttr", new byte[]
+            { 0x44, 0x23 } );
         String str = attrs.toString();
         assertTrue( str.indexOf( "binaryNullAttr" ) != -1 );
         assertTrue( str.indexOf( "binaryEmptyAttr" ) != -1 );
@@ -113,10 +115,8 @@ public class LockableAttributesImplTest extends TestCase
         LockableAttributesImpl attrs1 = getAttributes();
         attrs1.put( getAttribute( "attr0" ) );
         attrs1.put( getAttribute( "attr0" ) );
-        assertTrue( "exact copies with repeated adds should be equal",
-                attrs0.equals( attrs1 ) );
-        assertTrue( "exact copies with repeated adds should be equal",
-                attrs1.equals( attrs0 ) );
+        assertTrue( "exact copies with repeated adds should be equal", attrs0.equals( attrs1 ) );
+        assertTrue( "exact copies with repeated adds should be equal", attrs1.equals( attrs0 ) );
     }
 
 
@@ -128,10 +128,8 @@ public class LockableAttributesImplTest extends TestCase
         LockableAttributesImpl attrs0 = getAttributes();
         LockableAttributesImpl attrs1 = getAttributes();
         attrs1.put( getAttribute( "blah" ) );
-        assertFalse( "different attributes should not be equal",
-                attrs0.equals( attrs1 ) );
-        assertFalse( "different attributes should not be equal",
-                attrs1.equals( attrs0 ) );
+        assertFalse( "different attributes should not be equal", attrs0.equals( attrs1 ) );
+        assertFalse( "different attributes should not be equal", attrs1.equals( attrs0 ) );
     }
 
 
@@ -146,10 +144,8 @@ public class LockableAttributesImplTest extends TestCase
         attrs1.put( getAttribute( "attr1" ) );
         attrs1.put( getAttribute( "attr2" ) );
 
-        assertTrue( "different implementations of the same " +
-                "attributes should be equal", attrs0.equals( attrs1 ) );
-        assertTrue( "different implementations of the same " +
-                "attributes should be equal", attrs1.equals( attrs0 ) );
+        assertTrue( "different implementations of the same " + "attributes should be equal", attrs0.equals( attrs1 ) );
+        assertTrue( "different implementations of the same " + "attributes should be equal", attrs1.equals( attrs0 ) );
     }
 
 

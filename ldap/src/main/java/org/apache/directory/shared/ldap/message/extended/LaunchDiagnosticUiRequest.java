@@ -23,22 +23,24 @@ import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 
 
 /**
- * An extended operation which launches an internal diagnostic UI.  Only the
- * administrator is authorized to execute this request.  All other requestors
+ * An extended operation which launches an internal diagnostic UI. Only the
+ * administrator is authorized to execute this request. All other requestors
  * will have a response with result code of insufficientAccessRights(50) sent.
  * Any failures to launch the UI will return a operationsError(1) result code.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class LaunchDiagnosticUiRequest extends ExtendedRequestImpl
 {
     private static final long serialVersionUID = -7481749915684864433L;
+
     public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.1";
+
     private static final byte[] EMPTY_PAYLOAD = new byte[0];
-    
-    
-    public LaunchDiagnosticUiRequest( int messageId )
+
+
+    public LaunchDiagnosticUiRequest(int messageId)
     {
         super( messageId );
         setOid( EXTENSION_OID );

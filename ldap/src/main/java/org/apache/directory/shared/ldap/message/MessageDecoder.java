@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
-
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderMonitor;
@@ -40,23 +39,28 @@ import org.slf4j.LoggerFactory;
 /**
  * Decodes a BER encoded LDAPv3 message envelope from an input stream
  * demarshaling it into a Message instance using a BER library provider.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public final class MessageDecoder implements ProviderDecoder
 {
     private static final Logger log = LoggerFactory.getLogger( MessageDecoder.class );
+
     private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
 
     /** Environment parameters stored here */
     private final Hashtable env;
+
     /** the ASN.1 provider */
     private final Provider provider;
+
     /** the ASN.1 provider's decoder */
     private final ProviderDecoder decoder;
+
     /** the ASN.1 provider's transformer */
     private final TransformerSpi transformer;
+
     /** the Message decode operation callback */
     private DecoderCallback cb;
 
@@ -65,7 +69,8 @@ public final class MessageDecoder implements ProviderDecoder
      * Creates a MessageDecoder using default properties for enabling a BER
      * library provider.
      * 
-     * @throws MessageException if there is a problem creating this decoder.
+     * @throws MessageException
+     *             if there is a problem creating this decoder.
      */
     public MessageDecoder() throws MessageException
     {
@@ -76,11 +81,13 @@ public final class MessageDecoder implements ProviderDecoder
     /**
      * Creates a MessageDecoder using default properties for enabling a BER
      * library provider.
-     *
-     * @param env The Map of environment parameters.
-     * @throws MessageException if there is a problem creating this decoder.
+     * 
+     * @param env
+     *            The Map of environment parameters.
+     * @throws MessageException
+     *             if there is a problem creating this decoder.
      */
-    public MessageDecoder( final Hashtable env ) throws MessageException
+    public MessageDecoder(final Hashtable env) throws MessageException
     {
         this.env = ( Hashtable ) env.clone();
         this.provider = Provider.getProvider( this.env );
@@ -100,11 +107,12 @@ public final class MessageDecoder implements ProviderDecoder
             }
             else if ( val instanceof String )
             {
-                // parse out all words based on expected JNDI format of this attribute
+                // parse out all words based on expected JNDI format of this
+                // attribute
                 String binaryIds = ( String ) val;
                 binaries = new HashSet();
 
-                if ( ! StringTools.isEmpty( binaryIds ) )
+                if ( !StringTools.isEmpty( binaryIds ) )
                 {
                     String[] binaryArray = binaryIds.split( " " );
 
@@ -123,7 +131,8 @@ public final class MessageDecoder implements ProviderDecoder
             {
                 if ( log.isWarnEnabled() )
                 {
-                    log.warn( "Unrecognized value for " + BINARY_KEY + " key in environment.  Using empty set for binaries." );
+                    log.warn( "Unrecognized value for " + BINARY_KEY
+                        + " key in environment.  Using empty set for binaries." );
                 }
                 binaries = Collections.EMPTY_SET;
             }
@@ -145,18 +154,21 @@ public final class MessageDecoder implements ProviderDecoder
             {
                 cb.decodeOccurred( decoder, transformer.transform( decoded ) );
             }
-        });
+        } );
     }
 
 
     /**
      * Reads and decodes a BER encoded LDAPv3 ASN.1 message envelope structure
      * from an input stream to build a fully populated Message object instance.
-     *
-     * @param lock lock object used to exclusively read from the input stream
-     * @param in the input stream to read PDU data from.
+     * 
+     * @param lock
+     *            lock object used to exclusively read from the input stream
+     * @param in
+     *            the input stream to read PDU data from.
      * @return the populated Message representing the PDU envelope.
-     * @throws MessageException if there is a problem decoding.
+     * @throws MessageException
+     *             if there is a problem decoding.
      */
     public Object decode( final Object lock, final InputStream in ) throws MessageException
     {
@@ -179,7 +191,6 @@ public final class MessageDecoder implements ProviderDecoder
             }
         }
 
-
         // Call on transformer to convert stub based PDU into Message based PDU
         Message message = transformer.transform( providerEnvelope );
         return message;
@@ -187,11 +198,13 @@ public final class MessageDecoder implements ProviderDecoder
 
 
     /**
-     * Decodes a chunk of stream data returning any resultant decoded PDU via
-     * a callback.
-     *
-     * @param chunk the chunk to decode
-     * @throws MessageException if there are failures while decoding the chunk
+     * Decodes a chunk of stream data returning any resultant decoded PDU via a
+     * callback.
+     * 
+     * @param chunk
+     *            the chunk to decode
+     * @throws MessageException
+     *             if there are failures while decoding the chunk
      */
     public void decode( Object chunk ) throws MessageException
     {
@@ -208,8 +221,9 @@ public final class MessageDecoder implements ProviderDecoder
 
     /**
      * Sets the callback used to deliver completly decoded PDU's.
-     *
-     * @param cb the callback to use for decoded PDU delivery
+     * 
+     * @param cb
+     *            the callback to use for decoded PDU delivery
      */
     public void setCallback( DecoderCallback cb )
     {
@@ -220,8 +234,9 @@ public final class MessageDecoder implements ProviderDecoder
     /**
      * Sets the monitor for this MessageDecoder which receives callbacks for
      * noteworthy events during decoding.
-     *
-     * @param monitor the monitor to receive notifications via callback events
+     * 
+     * @param monitor
+     *            the monitor to receive notifications via callback events
      */
     public void setDecoderMonitor( DecoderMonitor monitor )
     {

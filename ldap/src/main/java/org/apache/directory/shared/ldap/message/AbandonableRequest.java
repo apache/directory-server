@@ -19,7 +19,7 @@ package org.apache.directory.shared.ldap.message;
 
 /**
  * A request which can be abandoned.
- *  
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -30,17 +30,20 @@ public interface AbandonableRequest extends Request
      */
     void abandon();
 
+
     /**
      * Checks to see if this request has been abandoned.
      * 
      * @return true if the request has been abandoned.
      */
     boolean isAbandoned();
-    
+
+
     /**
      * Adds listener to be notified if this request gets abandoned.
      * 
-     * @param listener to be notified if this request gets abandoned.
+     * @param listener
+     *            to be notified if this request gets abandoned.
      */
     void addAbandonListener( AbandonListener listener );
 

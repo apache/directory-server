@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -32,19 +33,22 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
  */
 public class AndFilter extends ConnectorFilter
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
-     * The constructor. We wont initialize the ArrayList as they may not be used. 
+     * The constructor. We wont initialize the ArrayList as they may not be
+     * used.
      */
     public AndFilter()
     {
         super();
     }
 
+
     /**
      * Get the AndFilter.
-     *
+     * 
      * @return Returns the andFilter.
      */
     public ArrayList getAndFilter()
@@ -52,15 +56,11 @@ public class AndFilter extends ConnectorFilter
         return filterSet;
     }
 
+
     /**
-     * Compute the AndFilter length
-     * 
-     * AndFilter :
-     * 
-     * 0xA0 L1 super.computeLength()
-     * 
-     * Length(AndFilter) = Length(0xA0) + Length(super.computeLength()) + super.computeLength()
-     * 
+     * Compute the AndFilter length AndFilter : 0xA0 L1 super.computeLength()
+     * Length(AndFilter) = Length(0xA0) + Length(super.computeLength()) +
+     * super.computeLength()
      */
     public int computeLength()
     {
@@ -69,35 +69,31 @@ public class AndFilter extends ConnectorFilter
         return 1 + Length.getNbBytes( filtersLength ) + filtersLength;
     }
 
+
     /**
-     * Encode the AndFilter message to a PDU.
+     * Encode the AndFilter message to a PDU. AndFilter : 0xA0 LL
+     * filter.encode() ... filter.encode()
      * 
-     * AndFilter :
-     * 
-     * 0xA0 LL 
-     * filter.encode()
-     * ...
-     * filter.encode()
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
         {
             // The AndFilter Tag
-            buffer.put( (byte) LdapConstants.AND_FILTER_TAG );
+            buffer.put( ( byte ) LdapConstants.AND_FILTER_TAG );
             buffer.put( Length.getBytes( filtersLength ) );
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         super.encode( buffer );
@@ -105,16 +101,17 @@ public class AndFilter extends ConnectorFilter
         return buffer;
     }
 
+
     /**
      * Return a string compliant with RFC 2254 representing an AND filter
-     *
+     * 
      * @return The AND filter string
      */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
 
-        sb.append('&').append(super.toString());
+        sb.append( '&' ).append( super.toString() );
 
         return sb.toString();
     }

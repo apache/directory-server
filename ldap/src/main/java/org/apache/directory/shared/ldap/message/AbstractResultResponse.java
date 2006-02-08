@@ -33,15 +33,16 @@ public abstract class AbstractResultResponse extends AbstractResponse implements
     // Response Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Allows subclasses based on the abstract type to create a response to a
      * request.
-     *
-     * @param id the response eliciting this Request
-     * @param type the message type of the response
+     * 
+     * @param id
+     *            the response eliciting this Request
+     * @param type
+     *            the message type of the response
      */
-    protected AbstractResultResponse( final int id, final MessageTypeEnum type )
+    protected AbstractResultResponse(final int id, final MessageTypeEnum type)
     {
         super( id, type );
     }
@@ -51,10 +52,9 @@ public abstract class AbstractResultResponse extends AbstractResponse implements
     // Response Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the LdapResult components of this Response.
-     *
+     * 
      * @return the LdapResult for this Response.
      */
     public LdapResult getLdapResult()
@@ -64,14 +64,15 @@ public abstract class AbstractResultResponse extends AbstractResponse implements
 
 
     /**
-     * Checks to see if an object is equal to this AbstractResultResponse.
-     * First the object is checked to see if it is this AbstractResultResponse
-     * instance if so it returns true.  Next it checks if the super method
-     * returns false and if it does false is returned.  It then checks if the
-     * LDAPResult's are equal.  If not false is returned and if they match
-     * true is returned.
-     *
-     * @param obj the object to compare to this LdapResult containing response
+     * Checks to see if an object is equal to this AbstractResultResponse. First
+     * the object is checked to see if it is this AbstractResultResponse
+     * instance if so it returns true. Next it checks if the super method
+     * returns false and if it does false is returned. It then checks if the
+     * LDAPResult's are equal. If not false is returned and if they match true
+     * is returned.
+     * 
+     * @param obj
+     *            the object to compare to this LdapResult containing response
      * @return true if they objects are equivalent false otherwise
      */
     public boolean equals( Object obj )
@@ -81,12 +82,12 @@ public abstract class AbstractResultResponse extends AbstractResponse implements
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
 
-        if ( ! ( obj instanceof ResultResponse ) )
+        if ( !( obj instanceof ResultResponse ) )
         {
             return false;
         }
@@ -105,7 +106,7 @@ public abstract class AbstractResultResponse extends AbstractResponse implements
 
         if ( getLdapResult() != null && resp.getLdapResult() != null )
         {
-            if ( ! getLdapResult().equals( resp.getLdapResult() ) )
+            if ( !getLdapResult().equals( resp.getLdapResult() ) )
             {
                 return false;
             }
@@ -113,21 +114,22 @@ public abstract class AbstractResultResponse extends AbstractResponse implements
 
         return true;
     }
-    
+
+
     /**
      * Get a String representation of an Response
-     *
-     * @return An Response String 
+     * 
+     * @return An Response String
      */
     public String toString()
     {
-    	if ( result != null )
-    	{
-    		return result.toString();
-    	}
-    	else
-    	{
-    		return "No result";
-    	}
+        if ( result != null )
+        {
+            return result.toString();
+        }
+        else
+        {
+            return "No result";
+        }
     }
 }

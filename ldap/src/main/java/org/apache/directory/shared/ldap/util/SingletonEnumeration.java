@@ -27,9 +27,9 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import javax.naming.NamingEnumeration ;
+import javax.naming.NamingEnumeration;
 
-import java.util.NoSuchElementException ;
+import java.util.NoSuchElementException;
 
 
 /**
@@ -42,63 +42,65 @@ import java.util.NoSuchElementException ;
 public class SingletonEnumeration implements NamingEnumeration
 {
     /** The singleton element to return */
-    private final Object m_element ;
+    private final Object m_element;
+
     /** Can we return a element */
-    private boolean m_hasMore = true ;
-    
+    private boolean m_hasMore = true;
+
 
     /**
      * Creates a NamingEnumeration over a single element.
-     *
-     * @param a_element TODO
+     * 
+     * @param a_element
+     *            TODO
      */
-    public SingletonEnumeration( final Object a_element )
+    public SingletonEnumeration(final Object a_element)
     {
-        m_element = a_element ;
+        m_element = a_element;
     }
-    
+
 
     /**
      * Makes calls to hasMore to false even if we had more.
-     *
+     * 
      * @see javax.naming.NamingEnumeration#close()
      */
-    public void close() 
+    public void close()
     {
-        m_hasMore = false ;
+        m_hasMore = false;
     }
-    
+
 
     /**
      * @see javax.naming.NamingEnumeration#hasMore()
      */
-    public boolean hasMore() 
+    public boolean hasMore()
     {
-        return m_hasMore ;
+        return m_hasMore;
     }
 
 
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next() 
+    public Object next()
     {
         if ( m_hasMore )
         {
-            m_hasMore = false ;
-            return m_element ;
+            m_hasMore = false;
+            return m_element;
         }
-        
-        throw new NoSuchElementException() ;
+
+        throw new NoSuchElementException();
     }
-    
+
 
     /**
      * @see java.util.Enumeration#hasMoreElements()
      */
     public boolean hasMoreElements()
     {
-        return m_hasMore ;
+        return m_hasMore;
     }
 
 
@@ -107,6 +109,6 @@ public class SingletonEnumeration implements NamingEnumeration
      */
     public Object nextElement()
     {
-        return next() ;
+        return next();
     }
 }

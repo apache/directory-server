@@ -18,14 +18,16 @@
  */
 package org.apache.directory.shared.ldap.aci;
 
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+
 /**
  * Represents permissions to be applied to all {@link UserClass}es in
- * {@link UserFirstACIItem}. 
- *
+ * {@link UserFirstACIItem}.
+ * 
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
@@ -34,30 +36,35 @@ public class UserPermission extends Permission
     private static final long serialVersionUID = 3940100745409337694L;
 
     private final Collection protectedItems;
-    
+
+
     /**
      * Creates a new instance
      * 
-     * @param precedence the precedence of this permission (<tt>-1</tt> to use the default)
-     * @param grantsAndDenials the set of {@link GrantAndDenial}s
-     * @param protectedItems the collection of {@link ProtectedItem}s
+     * @param precedence
+     *            the precedence of this permission (<tt>-1</tt> to use the
+     *            default)
+     * @param grantsAndDenials
+     *            the set of {@link GrantAndDenial}s
+     * @param protectedItems
+     *            the collection of {@link ProtectedItem}s
      */
-    public UserPermission( int precedence, Collection grantsAndDenials, Collection protectedItems )
+    public UserPermission(int precedence, Collection grantsAndDenials, Collection protectedItems)
     {
         super( precedence, grantsAndDenials );
-        
-        for( Iterator i = protectedItems.iterator(); i.hasNext(); )
+
+        for ( Iterator i = protectedItems.iterator(); i.hasNext(); )
         {
             Object val = i.next();
-            if( !( val instanceof ProtectedItem ) )
+            if ( !( val instanceof ProtectedItem ) )
             {
-                throw new IllegalArgumentException(
-                        "protectedItems contains a wrong element." );
+                throw new IllegalArgumentException( "protectedItems contains a wrong element." );
             }
         }
-        
+
         this.protectedItems = Collections.unmodifiableCollection( protectedItems );
     }
+
 
     /**
      * Returns the collection of {@link ProtectedItem}s.
@@ -66,11 +73,11 @@ public class UserPermission extends Permission
     {
         return protectedItems;
     }
-    
+
+
     public String toString()
     {
-        return "itemPermission: precedence=" + getPrecedence() + ", " +
-               "protectedItems=" + protectedItems + ", " +
-               "grantsAndDenials=" + getGrantsAndDenials();
+        return "itemPermission: precedence=" + getPrecedence() + ", " + "protectedItems=" + protectedItems + ", "
+            + "grantsAndDenials=" + getGrantsAndDenials();
     }
 }

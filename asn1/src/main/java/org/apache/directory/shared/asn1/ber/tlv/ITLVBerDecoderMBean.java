@@ -16,8 +16,8 @@
  */
 package org.apache.directory.shared.asn1.ber.tlv;
 
-import org.apache.directory.shared.asn1.codec.DecoderException;
 
+import org.apache.directory.shared.asn1.codec.DecoderException;
 
 
 /**
@@ -25,43 +25,59 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
  */
 public interface ITLVBerDecoderMBean
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
-    /** Set the number of bytes that can be used to encode the Value length,
-     * including the first byte. 
-     * Max is 127 if the Length use a definite form, default is 1
-     *  
-     * @param length The number of byte to use 
-    */
+    /**
+     * Set the number of bytes that can be used to encode the Value length,
+     * including the first byte. Max is 127 if the Length use a definite form,
+     * default is 1
+     * 
+     * @param length
+     *            The number of byte to use
+     */
     void setMaxLengthLength( int length ) throws DecoderException;
 
-    /** Set the maximum number of bytes that should be used to encode a Tag label,
-     * including the first byte. 
-     * Default is 1, no maximum
-     *   
-     * @param length The length to use 
-    */
+
+    /**
+     * Set the maximum number of bytes that should be used to encode a Tag
+     * label, including the first byte. Default is 1, no maximum
+     * 
+     * @param length
+     *            The length to use
+     */
     void setMaxTagLength( int length );
+
 
     /** Allow indefinite length. */
     void allowIndefiniteLength();
 
+
     /** Disallow indefinite length. */
     void disallowIndefiniteLength();
 
-    /** Get the actual maximum number of bytes that can be used to encode the Length
-     *  
+
+    /**
+     * Get the actual maximum number of bytes that can be used to encode the
+     * Length
+     * 
      * @return The maximum bytes of the Length
-    */
+     */
     int getMaxLengthLength();
 
-    /** Get the actual maximum number of bytes that can be used to encode the Tag 
+
+    /**
+     * Get the actual maximum number of bytes that can be used to encode the Tag
+     * 
      * @return The maximum length of the Tag
-    */
+     */
     int getMaxTagLength();
 
-    /** Tell if indefinite length form could be used for Length 
+
+    /**
+     * Tell if indefinite length form could be used for Length
+     * 
      * @return <code>true</code> if the Indefinite form is allowed
-    */
+     */
     boolean isIndefiniteLengthAllowed();
 }

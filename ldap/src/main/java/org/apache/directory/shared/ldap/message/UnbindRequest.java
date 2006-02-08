@@ -14,13 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Unbind protocol request message used to end a client session.
  * 
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a> 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public interface UnbindRequest extends Request

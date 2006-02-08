@@ -17,66 +17,77 @@
 
 package org.apache.directory.shared.ldap.name;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * The DnOidContainer is a class which ill contain a global Map associating
- * names to thier OIDs and Normalizer. 
+ * names to thier OIDs and Normalizer.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- *
  */
-public class DnOidContainer 
+public class DnOidContainer
 {
-	/** The internaml map containing the name, Oid, Normalizer */ 
-	private static Map oidByName = new HashMap();
-	
-	private static DnOidContainer instance;
-	
-	static
-	{
-		instance = new DnOidContainer();
-	}
-	/**
-	 * Private constructor. This class cannot be constructed
-	 *
-	 */
-	private DnOidContainer()
-	{
-		// Empty private constructor
-	}
-	
-	public static DnOidContainer getInstance()
-	{
-		return instance;
-	}
+    /** The internaml map containing the name, Oid, Normalizer */
+    private static Map oidByName = new HashMap();
 
-	/**
-	 * Get the OID/Normalizer associated with the given name
-	 * @param name The type which OID is asked for
-	 * @return The couple OID/Normalizer correspondning to the given name
-	 */
-	public static Object getOidByName( String name ) 
-	{
-		return oidByName.get( name );
-	}
-	
-	/** 
-	 * Get the Map
-	 * @return The Oid Map
-	 */
-	public static Map getOids()
-	{
-		return oidByName;
-	}
+    private static DnOidContainer instance;
 
-	/**
-	 * Set the Map
-	 * @param oids The Map to store
-	 */
-	public static void setOids(Map oids) 
-	{
-		DnOidContainer.oidByName = oids;
-	}
+    static
+    {
+        instance = new DnOidContainer();
+    }
+
+
+    /**
+     * Private constructor. This class cannot be constructed
+     */
+    private DnOidContainer()
+    {
+        // Empty private constructor
+    }
+
+
+    public static DnOidContainer getInstance()
+    {
+        return instance;
+    }
+
+
+    /**
+     * Get the OID/Normalizer associated with the given name
+     * 
+     * @param name
+     *            The type which OID is asked for
+     * @return The couple OID/Normalizer correspondning to the given name
+     */
+    public static Object getOidByName( String name )
+    {
+        return oidByName.get( name );
+    }
+
+
+    /**
+     * Get the Map
+     * 
+     * @return The Oid Map
+     */
+    public static Map getOids()
+    {
+        return oidByName;
+    }
+
+
+    /**
+     * Set the Map
+     * 
+     * @param oids
+     *            The Map to store
+     */
+    public static void setOids( Map oids )
+    {
+        DnOidContainer.oidByName = oids;
+    }
 }

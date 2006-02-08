@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.util;
 
+
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 
 
@@ -26,32 +27,37 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
  */
 public class IntegerDecoder
 {
-    private static final int[] MASK = new int[]{ 0x000000FF, 0x0000FFFF, 0x00FFFFFF, 0xFFFFFFFF};
+    private static final int[] MASK = new int[]
+        { 0x000000FF, 0x0000FFFF, 0x00FFFFFF, 0xFFFFFFFF };
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
-     * Parse a byte buffer and send back an integer, controling
-     * that this number is in a specified interval.
-     * @param value The byte buffer to parse
-     * @param min Lowest value allowed, included
-     * @param max Highest value allowed, included
-     *
+     * Parse a byte buffer and send back an integer, controling that this number
+     * is in a specified interval.
+     * 
+     * @param value
+     *            The byte buffer to parse
+     * @param min
+     *            Lowest value allowed, included
+     * @param max
+     *            Highest value allowed, included
      * @return An integer
-     *
-     * @throws IntegerDecoderException Thrown if the byte stream does not contains an integer
+     * @throws IntegerDecoderException
+     *             Thrown if the byte stream does not contains an integer
      */
     public static int parse( Value value, int min, int max ) throws IntegerDecoderException
     {
 
-        int    result = 0;
+        int result = 0;
 
-        byte[] bytes  = value.getData();
+        byte[] bytes = value.getData();
 
         if ( ( bytes == null ) || ( bytes.length == 0 ) )
         {
-            throw new IntegerDecoderException(
-                "The value is 0 byte long. This is not allowed for an integer" );
+            throw new IntegerDecoderException( "The value is 0 byte long. This is not allowed for an integer" );
         }
 
         if ( bytes.length > 4 )
@@ -67,7 +73,7 @@ public class IntegerDecoder
 
         if ( ( bytes[0] & 0x80 ) == 0x80 )
         {
-            result = - ( ( ( ~ result ) + 1 ) & MASK[bytes.length - 1] );
+            result = -( ( ( ~result ) + 1 ) & MASK[bytes.length - 1] );
         }
 
         if ( ( result >= min ) && ( result <= max ) )
@@ -80,14 +86,15 @@ public class IntegerDecoder
         }
     }
 
+
     /**
-     * Parse a byte buffer and send back an integer 
-     *
-     * @param value The byte buffer to parse
-     *
+     * Parse a byte buffer and send back an integer
+     * 
+     * @param value
+     *            The byte buffer to parse
      * @return An integer
-     *
-     * @throws IntegerDecoderException Thrown if the byte stream does not contains an integer
+     * @throws IntegerDecoderException
+     *             Thrown if the byte stream does not contains an integer
      */
     public static int parse( Value value ) throws IntegerDecoderException
     {

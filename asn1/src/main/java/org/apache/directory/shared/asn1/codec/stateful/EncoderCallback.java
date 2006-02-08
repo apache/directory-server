@@ -16,19 +16,22 @@
  */
 package org.apache.directory.shared.asn1.codec.stateful;
 
+
 /**
  * Document me.
  * 
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public interface EncoderCallback
 {
     /**
      * Callback to deliver a fully encoded object.
-     *
-     * @param encoder the stateful encoder driving the callback
-     * @param encoded the object that was encoded
+     * 
+     * @param encoder
+     *            the stateful encoder driving the callback
+     * @param encoded
+     *            the object that was encoded
      */
-    void encodeOccurred( StatefulEncoder encoder, Object encoded ) ;
+    void encodeOccurred( StatefulEncoder encoder, Object encoded );
 }

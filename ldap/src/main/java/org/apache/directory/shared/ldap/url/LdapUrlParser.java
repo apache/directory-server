@@ -24,15 +24,15 @@
  *
  */
 
-package org.apache.directory.shared.ldap.url ;
+package org.apache.directory.shared.ldap.url;
 
 
-import javax.naming.NamingException ;
+import javax.naming.NamingException;
 
 
 /**
  * An LDAP URL parser.
- *
+ * 
  * @see <a href="http://www.faqs.org/rfcs/rfc2255.html">RFC 2255</a>
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
@@ -43,10 +43,11 @@ public interface LdapUrlParser
     /**
      * Parses an LDAP URL.
      * 
-     * @param a_urlString the LDAP URL as a String
+     * @param a_urlString
+     *            the LDAP URL as a String
      * @return a parsed instance of LdapUrl.
-     * @throws NamingException if the URL or any one of its components is 
-     * malformed.
+     * @throws NamingException
+     *             if the URL or any one of its components is malformed.
      */
-    LdapUrl parse( String a_urlString ) throws NamingException ;
+    LdapUrl parse( String a_urlString ) throws NamingException;
 }

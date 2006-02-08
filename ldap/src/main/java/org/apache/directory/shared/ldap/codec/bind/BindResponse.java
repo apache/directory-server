@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.bind;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,18 +27,16 @@ import org.apache.directory.shared.ldap.codec.LdapResponse;
 
 
 /**
- * A BindResponse Message. Its syntax is :
- *   BindResponse ::= [APPLICATION 1] SEQUENCE {
- *       COMPONENTS OF LDAPResult,
- *       serverSaslCreds    [7] OCTET STRING OPTIONAL }
- * 
- *   LdapResult ::= resultCode matchedDN errorMessage (referrals)*
+ * A BindResponse Message. Its syntax is : BindResponse ::= [APPLICATION 1]
+ * SEQUENCE { COMPONENTS OF LDAPResult, serverSaslCreds [7] OCTET STRING
+ * OPTIONAL } LdapResult ::= resultCode matchedDN errorMessage (referrals)*
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class BindResponse extends LdapResponse
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The server credentials */
     private byte[] serverSaslCreds;
@@ -45,27 +44,32 @@ public class BindResponse extends LdapResponse
     /** The bind response length */
     private transient int bindResponseLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new BindResponse object.
      */
     public BindResponse()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
     {
         return LdapConstants.BIND_RESPONSE;
     }
+
 
     /**
      * @return Returns the serverSaslCreds.
@@ -75,28 +79,24 @@ public class BindResponse extends LdapResponse
         return serverSaslCreds;
     }
 
+
     /**
      * Set the server sasl credentials
-     * @param serverSaslCreds The serverSaslCreds to set.
+     * 
+     * @param serverSaslCreds
+     *            The serverSaslCreds to set.
      */
     public void setServerSaslCreds( byte[] serverSaslCreds )
     {
         this.serverSaslCreds = serverSaslCreds;
     }
 
+
     /**
-     * Compute the BindResponse length
-     * 
-     * BindResponse :
-     * 
-     * 0x61 L1
-     *  |
-     *  +--> LdapResult
-     *  +--> [serverSaslCreds]
-     * 
-     * L1 = Length(LdapResult) [ + Length(serverSaslCreds) ]
-     * 
-     * Length(BindResponse) = Length(0x61) + Length(L1) + L1
+     * Compute the BindResponse length BindResponse : 0x61 L1 | +--> LdapResult
+     * +--> [serverSaslCreds] L1 = Length(LdapResult) [ +
+     * Length(serverSaslCreds) ] Length(BindResponse) = Length(0x61) +
+     * Length(L1) + L1
      */
     public int computeLength()
     {
@@ -104,30 +104,29 @@ public class BindResponse extends LdapResponse
 
         bindResponseLength = ldapResponseLength;
 
-        if (serverSaslCreds != null)
+        if ( serverSaslCreds != null )
         {
-            bindResponseLength += 1 + Length.getNbBytes( ( (byte[])serverSaslCreds).length ) +  ( (byte[])serverSaslCreds).length ;
+            bindResponseLength += 1 + Length.getNbBytes( ( ( byte[] ) serverSaslCreds ).length )
+                + ( ( byte[] ) serverSaslCreds ).length;
         }
 
         return 1 + Length.getNbBytes( bindResponseLength ) + bindResponseLength;
     }
 
+
     /**
-     * Encode the BindResponse message to a PDU.
+     * Encode the BindResponse message to a PDU. BindResponse :
+     * LdapResult.encode [0x87 LL serverSaslCreds]
      * 
-     * BindResponse :
-     * 
-     * LdapResult.encode
-     * [0x87 LL serverSaslCreds]
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
@@ -137,33 +136,34 @@ public class BindResponse extends LdapResponse
             buffer.put( Length.getBytes( bindResponseLength ) );
 
             // The LdapResult
-            super.encode(buffer);
+            super.encode( buffer );
 
             // The serverSaslCredential, if any
             if ( serverSaslCreds != null )
             {
-                buffer.put( (byte)LdapConstants.SERVER_SASL_CREDENTIAL_TAG );
+                buffer.put( ( byte ) LdapConstants.SERVER_SASL_CREDENTIAL_TAG );
 
-                buffer.put( Length.getBytes( ( (byte[])serverSaslCreds).length ) );
+                buffer.put( Length.getBytes( ( ( byte[] ) serverSaslCreds ).length ) );
 
-                if ( ( (byte[])serverSaslCreds).length != 0 )
+                if ( ( ( byte[] ) serverSaslCreds ).length != 0 )
                 {
-                    buffer.put( (byte[])serverSaslCreds );
+                    buffer.put( ( byte[] ) serverSaslCreds );
                 }
             }
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         return buffer;
     }
 
+
     /**
      * Get a String representation of a BindResponse
-     *
-     * @return A BindResponse String 
+     * 
+     * @return A BindResponse String
      */
     public String toString()
     {

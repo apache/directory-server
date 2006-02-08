@@ -14,21 +14,22 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
 
 
 /**
  * Adapter for the FilterParser monitor.
- *
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public class FilterParserMonitorAdapter implements FilterParserMonitor
 {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.ldap.common.filter.FilterParserMonitor#
-     * matchedProduction(java.lang.String)
+     *      matchedProduction(java.lang.String)
      */
     public void matchedProduction( String production )
     {

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.extended.operations;
 
+
 import java.nio.ByteBuffer;
 
 import javax.naming.NamingException;
@@ -31,12 +32,14 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+
 /**
  * Test the GracefulDisconnectTest codec
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulDisconnectTest extends TestCase {
+public class GracefulDisconnectTest extends TestCase
+{
     /**
      * Test the decoding of a GracefulDisconnect
      */
@@ -45,34 +48,24 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer stream = ByteBuffer.allocate( 0x70 );
         stream.put( new byte[]
-            {
-                0x30, 0x6E, 		        // GracefulDisconnec ::= SEQUENCE {
-				  0x02, 0x01, 0x01,         //     timeOffline INTEGER (0..720) DEFAULT 0,
-				  (byte)0x80, 0x01, 0x01,	//     delay INTEGER (0..86400) DEFAULT 0
-                                            //     replicatedContexts Referral OPTIONAL
-                  0x30, 0x66, 
-                    0x04, 0x1F, 
-                      'l', 'd', 'a', 'p', ':', '/', '/', 'd', 
-                      'i', 'r', 'e', 'c', 't', 'o', 'r', 'y', 
-                      '.', 'a', 'p', 'a', 'c', 'h', 'e', '.', 
-                      'o', 'r', 'g', ':', '8', '0', '/',
-                    0x04, 0x43,
-                      'l', 'd', 'a', 'p', ':', '/', '/', 'l', 
-                      'd', 'a', 'p', '.', 'n', 'e', 't', 's', 
-                      'c', 'a', 'p', 'e', '.', 'c', 'o', 'm', 
-                      '/', 'o', '=', 'B', 'a', 'b', 's', 'c', 
-                      'o', ',', 'c', '=', 'U', 'S', '?', '?', 
-                      '?', '(', 'i', 'n', 't', '=', '%', '5', 
-                      'c', '0', '0', '%', '5', 'c', '0', '0', 
-                      '%', '5', 'c', '0', '0', '%', '5', 'c', 
-                      '0', '4', ')'
-                                            // }
+            { 0x30, 0x6E, // GracefulDisconnec ::= SEQUENCE {
+                0x02, 0x01, 0x01, // timeOffline INTEGER (0..720) DEFAULT 0,
+                ( byte ) 0x80, 0x01, 0x01, // delay INTEGER (0..86400) DEFAULT
+                                            // 0
+                // replicatedContexts Referral OPTIONAL
+                0x30, 0x66, 0x04, 0x1F, 'l', 'd', 'a', 'p', ':', '/', '/', 'd', 'i', 'r', 'e', 'c', 't', 'o', 'r', 'y',
+                '.', 'a', 'p', 'a', 'c', 'h', 'e', '.', 'o', 'r', 'g', ':', '8', '0', '/', 0x04, 0x43, 'l', 'd', 'a',
+                'p', ':', '/', '/', 'l', 'd', 'a', 'p', '.', 'n', 'e', 't', 's', 'c', 'a', 'p', 'e', '.', 'c', 'o',
+                'm', '/', 'o', '=', 'B', 'a', 'b', 's', 'c', 'o', ',', 'c', '=', 'U', 'S', '?', '?', '?', '(', 'i',
+                'n', 't', '=', '%', '5', 'c', '0', '0', '%', '5', 'c', '0', '0', '%', '5', 'c', '0', '0', '%', '5',
+                'c', '0', '4', ')'
+            // }
             } );
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( stream, container );
@@ -82,24 +75,25 @@ public class GracefulDisconnectTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
         assertEquals( 1, gracefulDisconnect.getTimeOffline() );
         assertEquals( 1, gracefulDisconnect.getDelay() );
         assertEquals( 2, gracefulDisconnect.getReplicatedContexts().size() );
         assertEquals( "ldap://directory.apache.org:80/", gracefulDisconnect.getReplicatedContexts().get( 0 ).toString() );
-        assertEquals( "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)", gracefulDisconnect.getReplicatedContexts().get( 1 ).toString() );
+        assertEquals( "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)", gracefulDisconnect
+            .getReplicatedContexts().get( 1 ).toString() );
 
         // Check the length
-        assertEquals( 0x70, gracefulDisconnect.computeLength());
-        
+        assertEquals( 0x70, gracefulDisconnect.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb = gracefulDisconnect.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
-            
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -108,6 +102,7 @@ public class GracefulDisconnectTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
+
 
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline only
@@ -117,16 +112,15 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
-            {
-                0x30, 0x03,                 // GracefulDisconnect ::= SEQUENCE {
-                  0x02, 0x01, 0x01          //     timeOffline INTEGER (0..720) DEFAULT 0,
+            { 0x30, 0x03, // GracefulDisconnect ::= SEQUENCE {
+                0x02, 0x01, 0x01 // timeOffline INTEGER (0..720) DEFAULT 0,
             } );
 
         String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -136,22 +130,22 @@ public class GracefulDisconnectTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
         assertEquals( 1, gracefulDisconnect.getTimeOffline() );
         assertEquals( 0, gracefulDisconnect.getDelay() );
         assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
 
         // Check the length
-        assertEquals( 0x05, gracefulDisconnect.computeLength());
-        
+        assertEquals( 0x05, gracefulDisconnect.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb1 = gracefulDisconnect.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
-            
+
+            String encodedPdu = StringTools.dumpBytes( bb1.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -160,6 +154,7 @@ public class GracefulDisconnectTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
+
 
     /**
      * Test the decoding of a GracefulDisconnect with a delay only
@@ -169,16 +164,16 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
         bb.put( new byte[]
-            {
-                0x30, 0x03,                 // GracefulDisconnect ::= SEQUENCE {
-                  (byte)0x80, 0x01, 0x01          //     delay INTEGER (0..86400) DEFAULT 0
+            { 0x30, 0x03, // GracefulDisconnect ::= SEQUENCE {
+                ( byte ) 0x80, 0x01, 0x01 // delay INTEGER (0..86400) DEFAULT
+                                            // 0
             } );
 
         String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -188,22 +183,22 @@ public class GracefulDisconnectTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
         assertEquals( 0, gracefulDisconnect.getTimeOffline() );
         assertEquals( 1, gracefulDisconnect.getDelay() );
         assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
-        
+
         // Check the length
-        assertEquals( 0x05, gracefulDisconnect.computeLength());
-        
+        assertEquals( 0x05, gracefulDisconnect.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb1 = gracefulDisconnect.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
-            
+
+            String encodedPdu = StringTools.dumpBytes( bb1.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -212,6 +207,7 @@ public class GracefulDisconnectTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
+
 
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline and a delay
@@ -221,17 +217,17 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
         bb.put( new byte[]
-            {
-                0x30, 0x06,                 // GracefulDisconnect ::= SEQUENCE {
-                  0x02, 0x01, 0x01,          //     timeOffline INTEGER (0..720) DEFAULT 0,
-                  (byte)0x80, 0x01, 0x01,          //     timeOffline INTEGER (0..720) DEFAULT 0,
+            { 0x30, 0x06, // GracefulDisconnect ::= SEQUENCE {
+                0x02, 0x01, 0x01, // timeOffline INTEGER (0..720) DEFAULT 0,
+                ( byte ) 0x80, 0x01, 0x01, // timeOffline INTEGER (0..720)
+                                            // DEFAULT 0,
             } );
 
         String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -241,23 +237,23 @@ public class GracefulDisconnectTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
         assertEquals( 1, gracefulDisconnect.getTimeOffline() );
         assertEquals( 1, gracefulDisconnect.getDelay() );
         assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
 
         // Check the length
-        assertEquals(0x08, gracefulDisconnect.computeLength());
-        
+        assertEquals( 0x08, gracefulDisconnect.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb2 = gracefulDisconnect.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb2.array() ); 
-            
-            assertEquals(encodedPdu, decodedPdu );
+
+            String encodedPdu = StringTools.dumpBytes( bb2.array() );
+
+            assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
@@ -265,6 +261,7 @@ public class GracefulDisconnectTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
+
 
     /**
      * Test the decoding of a GracefulDisconnect with replicatedContexts only
@@ -274,32 +271,22 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer stream = ByteBuffer.allocate( 0x6A );
         stream.put( new byte[]
-            {
-                0x30, 0x68,                 // GracefulDisconnec ::= SEQUENCE {
-                  0x30, 0x66,               //     replicatedContexts Referral OPTIONAL 
-                    0x04, 0x1F, 
-                      'l', 'd', 'a', 'p', ':', '/', '/', 'd', 
-                      'i', 'r', 'e', 'c', 't', 'o', 'r', 'y', 
-                      '.', 'a', 'p', 'a', 'c', 'h', 'e', '.', 
-                      'o', 'r', 'g', ':', '8', '0', '/',
-                    0x04, 0x43,
-                      'l', 'd', 'a', 'p', ':', '/', '/', 'l', 
-                      'd', 'a', 'p', '.', 'n', 'e', 't', 's', 
-                      'c', 'a', 'p', 'e', '.', 'c', 'o', 'm', 
-                      '/', 'o', '=', 'B', 'a', 'b', 's', 'c', 
-                      'o', ',', 'c', '=', 'U', 'S', '?', '?', 
-                      '?', '(', 'i', 'n', 't', '=', '%', '5', 
-                      'c', '0', '0', '%', '5', 'c', '0', '0', 
-                      '%', '5', 'c', '0', '0', '%', '5', 'c', 
-                      '0', '4', ')'
-                                            // }
+            { 0x30, 0x68, // GracefulDisconnec ::= SEQUENCE {
+                0x30, 0x66, // replicatedContexts Referral OPTIONAL
+                0x04, 0x1F, 'l', 'd', 'a', 'p', ':', '/', '/', 'd', 'i', 'r', 'e', 'c', 't', 'o', 'r', 'y', '.', 'a',
+                'p', 'a', 'c', 'h', 'e', '.', 'o', 'r', 'g', ':', '8', '0', '/', 0x04, 0x43, 'l', 'd', 'a', 'p', ':',
+                '/', '/', 'l', 'd', 'a', 'p', '.', 'n', 'e', 't', 's', 'c', 'a', 'p', 'e', '.', 'c', 'o', 'm', '/',
+                'o', '=', 'B', 'a', 'b', 's', 'c', 'o', ',', 'c', '=', 'U', 'S', '?', '?', '?', '(', 'i', 'n', 't',
+                '=', '%', '5', 'c', '0', '0', '%', '5', 'c', '0', '0', '%', '5', 'c', '0', '0', '%', '5', 'c', '0',
+                '4', ')'
+            // }
             } );
-        
+
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( stream, container );
@@ -309,24 +296,25 @@ public class GracefulDisconnectTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
         assertEquals( 0, gracefulDisconnect.getTimeOffline() );
         assertEquals( 0, gracefulDisconnect.getDelay() );
         assertEquals( 2, gracefulDisconnect.getReplicatedContexts().size() );
         assertEquals( "ldap://directory.apache.org:80/", gracefulDisconnect.getReplicatedContexts().get( 0 ).toString() );
-        assertEquals( "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)", gracefulDisconnect.getReplicatedContexts().get( 1 ).toString() );
+        assertEquals( "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)", gracefulDisconnect
+            .getReplicatedContexts().get( 1 ).toString() );
 
         // Check the length
-        assertEquals( 0x6A, gracefulDisconnect.computeLength());
-        
+        assertEquals( 0x6A, gracefulDisconnect.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb = gracefulDisconnect.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
-            
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -335,6 +323,7 @@ public class GracefulDisconnectTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
+
 
     /**
      * Test the decoding of a empty GracefulDisconnect
@@ -344,15 +333,14 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x02 );
         bb.put( new byte[]
-            {
-                0x30, 0x00                 // GracefulDisconnect ::= SEQUENCE {
+            { 0x30, 0x00 // GracefulDisconnect ::= SEQUENCE {
             } );
-        
+
         String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -362,22 +350,22 @@ public class GracefulDisconnectTest extends TestCase {
             de.printStackTrace();
             Assert.fail( de.getMessage() );
         }
-        
+
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
         assertEquals( 0, gracefulDisconnect.getTimeOffline() );
         assertEquals( 0, gracefulDisconnect.getDelay() );
         assertEquals( 0, gracefulDisconnect.getReplicatedContexts().size() );
 
         // Check the length
-        assertEquals( 0x02, gracefulDisconnect.computeLength());
-        
+        assertEquals( 0x02, gracefulDisconnect.computeLength() );
+
         // Check the encoding
         try
         {
             ByteBuffer bb1 = gracefulDisconnect.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb1.array() ); 
-            
+
+            String encodedPdu = StringTools.dumpBytes( bb1.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -386,7 +374,8 @@ public class GracefulDisconnectTest extends TestCase {
             fail( ee.getMessage() );
         }
     }
-    
+
+
     // Defensive tests
 
     /**
@@ -397,14 +386,14 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
         bb.put( new byte[]
-            {
-                0x30, 0x04,                     // GracefulDisconnect ::= SEQUENCE {
-                  0x02, 0x02, 0x03, (byte)0xE8  //     timeOffline INTEGER (0..720) DEFAULT 0,
+            { 0x30, 0x04, // GracefulDisconnect ::= SEQUENCE {
+                0x02, 0x02, 0x03, ( byte ) 0xE8 // timeOffline INTEGER (0..720)
+                                                // DEFAULT 0,
             } );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -414,9 +403,10 @@ public class GracefulDisconnectTest extends TestCase {
             assertTrue( true );
             return;
         }
-        
+
         fail( "We should not reach this point" );
     }
+
 
     /**
      * Test the decoding of a GracefulDisconnect with a delay off limit
@@ -426,14 +416,17 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
         bb.put( new byte[]
-            {
-                0x30, 0x05,                     // GracefulDisconnect ::= SEQUENCE {
-                  (byte)0x80, 0x03, 0x01, (byte)0x86, (byte)0xA0  //     delay INTEGER (0..86400) DEFAULT 0
+            { 0x30, 0x05, // GracefulDisconnect ::= SEQUENCE {
+                ( byte ) 0x80, 0x03, 0x01, ( byte ) 0x86, ( byte ) 0xA0 // delay
+                                                                        // INTEGER
+                                                                        // (0..86400)
+                                                                        // DEFAULT
+                                                                        // 0
             } );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -443,9 +436,10 @@ public class GracefulDisconnectTest extends TestCase {
             assertTrue( true );
             return;
         }
-        
+
         fail( "We should not reach this point" );
     }
+
 
     /**
      * Test the decoding of a GracefulDisconnect with an empty TimeOffline
@@ -455,14 +449,13 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
         bb.put( new byte[]
-            {
-                0x30, 0x02,   // GracefulDisconnect ::= SEQUENCE {
-                  0x02, 0x00  //     timeOffline INTEGER (0..720) DEFAULT 0,
+            { 0x30, 0x02, // GracefulDisconnect ::= SEQUENCE {
+                0x02, 0x00 // timeOffline INTEGER (0..720) DEFAULT 0,
             } );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -472,9 +465,10 @@ public class GracefulDisconnectTest extends TestCase {
             assertTrue( true );
             return;
         }
-        
+
         fail( "We should not reach this point" );
     }
+
 
     /**
      * Test the decoding of a GracefulDisconnect with an empty delay
@@ -484,14 +478,13 @@ public class GracefulDisconnectTest extends TestCase {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
         bb.put( new byte[]
-            {
-                0x30, 0x02,         // GracefulDisconnect ::= SEQUENCE {
-                  (byte)0x80, 0x00  //     delay INTEGER (0..86400) DEFAULT 0
+            { 0x30, 0x02, // GracefulDisconnect ::= SEQUENCE {
+                ( byte ) 0x80, 0x00 // delay INTEGER (0..86400) DEFAULT 0
             } );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -501,26 +494,27 @@ public class GracefulDisconnectTest extends TestCase {
             assertTrue( true );
             return;
         }
-        
+
         fail( "We should not reach this point" );
     }
 
+
     /**
-     * Test the decoding of a GracefulDisconnect with an empty replicated contexts
+     * Test the decoding of a GracefulDisconnect with an empty replicated
+     * contexts
      */
     public void testDecodeGracefulDisconnectReplicatedContextsEmpty() throws NamingException
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x04 );
         bb.put( new byte[]
-            {
-                0x30, 0x02,   // GracefulDisconnect ::= SEQUENCE {
-                  0x30, 0x00  //     replicatedContexts Referral OPTIONAL     
+            { 0x30, 0x02, // GracefulDisconnect ::= SEQUENCE {
+                0x30, 0x00 // replicatedContexts Referral OPTIONAL
             } );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -530,27 +524,27 @@ public class GracefulDisconnectTest extends TestCase {
             assertTrue( true );
             return;
         }
-        
+
         fail( "We should not reach this point" );
     }
 
+
     /**
-     * Test the decoding of a GracefulDisconnect with an invalid replicated context
+     * Test the decoding of a GracefulDisconnect with an invalid replicated
+     * context
      */
     public void testDecodeGracefulDisconnectReplicatedContextsInvalid() throws NamingException
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x06 );
         bb.put( new byte[]
-            {
-                0x30, 0x04,   // GracefulDisconnect ::= SEQUENCE {
-                  0x30, 0x02, //     replicatedContexts Referral OPTIONAL
-                    0x04, 0x00
-            } );
+            { 0x30, 0x04, // GracefulDisconnect ::= SEQUENCE {
+                0x30, 0x02, // replicatedContexts Referral OPTIONAL
+                0x04, 0x00 } );
         bb.flip();
 
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
-        
+
         try
         {
             decoder.decode( bb, container );
@@ -560,7 +554,7 @@ public class GracefulDisconnectTest extends TestCase {
             assertTrue( true );
             return;
         }
-        
+
         fail( "We should not reach this point" );
     }
 }

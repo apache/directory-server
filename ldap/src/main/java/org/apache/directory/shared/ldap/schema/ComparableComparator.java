@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 /**
  * Compares two objects taking into account that one might be a Comparable.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -31,14 +31,15 @@ public class ComparableComparator implements Comparator, Serializable
 {
     static final long serialVersionUID = -5295278271807198471L;
 
+
     /**
-     * Compares two objects taking into account that one may be a Comparable.
-     * If the first is a comparable then its compareTo operation is called and
-     * the result returned as is.  If the first is not a Comparable but the
-     * second is then its compareTo method is called and the result is returned
-     * after being negated.  If none are comparables the hashCode of o1 minus
-     * the hashCode of o2 is returned.
-     *
+     * Compares two objects taking into account that one may be a Comparable. If
+     * the first is a comparable then its compareTo operation is called and the
+     * result returned as is. If the first is not a Comparable but the second is
+     * then its compareTo method is called and the result is returned after
+     * being negated. If none are comparables the hashCode of o1 minus the
+     * hashCode of o2 is returned.
+     * 
      * @see Comparator#compare(Object, Object)
      */
     public int compare( Object o1, Object o2 )
@@ -50,7 +51,7 @@ public class ComparableComparator implements Comparator, Serializable
 
         if ( o2 instanceof Comparable )
         {
-            return - ( ( Comparable ) o2 ).compareTo( o1 );
+            return -( ( Comparable ) o2 ).compareTo( o1 );
         }
 
         return o1.hashCode() - o2.hashCode();

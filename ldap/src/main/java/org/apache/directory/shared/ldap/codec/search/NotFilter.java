@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -32,64 +33,67 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
  */
 public class NotFilter extends ConnectorFilter
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
-     * The constructor. 
+     * The constructor.
      */
     public NotFilter()
     {
     }
 
+
     /**
-     * Subclass the addFilterMethod, as this is specific for a NotFilter
-     * (we cannot have more than one elements).
-     * @param filter The Filter to add
+     * Subclass the addFilterMethod, as this is specific for a NotFilter (we
+     * cannot have more than one elements).
+     * 
+     * @param filter
+     *            The Filter to add
      */
     public void addFilter( Filter filter ) throws DecoderException
     {
         if ( filterSet != null )
         {
-            throw new DecoderException("Cannot have more than one Filter within a Not Filter");
+            throw new DecoderException( "Cannot have more than one Filter within a Not Filter" );
         }
 
         super.addFilter( filter );
     }
 
+
     /**
      * Get the NotFilter
-     *
+     * 
      * @return Returns the notFilter.
      */
     public Filter getNotFilter()
     {
-        return (Filter)filterSet.get(0);
+        return ( Filter ) filterSet.get( 0 );
     }
+
 
     /**
      * Set the NotFilter
-     *
-     * @param notFilter The notFilter to set.
+     * 
+     * @param notFilter
+     *            The notFilter to set.
      */
     public void setNotFilter( Filter notFilter ) throws DecoderException
     {
         if ( filterSet != null )
         {
-            throw new DecoderException("Cannot have more than one Filter within a Not Filter");
+            throw new DecoderException( "Cannot have more than one Filter within a Not Filter" );
         }
 
         super.addFilter( notFilter );
     }
 
+
     /**
-     * Compute the NotFilter length
-     * 
-     * NotFilter :
-     * 
-     * 0xA2 L1 super.computeLength()
-     * 
-     * Length(NotFilter) = Length(0xA2) + Length(super.computeLength()) + super.computeLength()
-     * 
+     * Compute the NotFilter length NotFilter : 0xA2 L1 super.computeLength()
+     * Length(NotFilter) = Length(0xA2) + Length(super.computeLength()) +
+     * super.computeLength()
      */
     public int computeLength()
     {
@@ -98,33 +102,31 @@ public class NotFilter extends ConnectorFilter
         return 1 + Length.getNbBytes( filtersLength ) + filtersLength;
     }
 
+
     /**
-     * Encode the NotFilter message to a PDU.
-     * 
-     * NotFilter :
-     * 
-     * 0xA2 LL 
+     * Encode the NotFilter message to a PDU. NotFilter : 0xA2 LL
      * filter.encode()
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
         {
             // The NotFilter Tag
-            buffer.put( (byte) LdapConstants.NOT_FILTER_TAG );
+            buffer.put( ( byte ) LdapConstants.NOT_FILTER_TAG );
             buffer.put( Length.getBytes( filtersLength ) );
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         super.encode( buffer );
@@ -132,16 +134,17 @@ public class NotFilter extends ConnectorFilter
         return buffer;
     }
 
+
     /**
      * Return a string compliant with RFC 2254 representing a NOT filter
-     *
+     * 
      * @return The NOT filter string
      */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
 
-        sb.append('!').append(super.toString());
+        sb.append( '!' ).append( super.toString() );
 
         return sb.toString();
     }

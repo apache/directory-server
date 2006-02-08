@@ -15,7 +15,6 @@
  *
  */
 
-
 package org.apache.directory.shared.ldap.util;
 
 
@@ -29,31 +28,36 @@ public abstract class AbstractSimpleComponentsMonitor implements ComponentsMonit
 {
     private List components;
 
-    public AbstractSimpleComponentsMonitor( String [] components )
+
+    public AbstractSimpleComponentsMonitor(String[] components)
     {
         // register components
         this.components = new LinkedList( Arrays.asList( components ) );
     }
-    
+
+
     public ComponentsMonitor useComponent( String component ) throws IllegalArgumentException
     {
         if ( !components.remove( component ) )
         {
             throw new IllegalArgumentException( "Unregistered or previously used component: " + component );
         }
-        
+
         return this;
     }
+
 
     public boolean allComponentsUsed()
     {
         return components.isEmpty();
     }
 
+
     public List getRemainingComponents()
     {
         return Collections.unmodifiableList( components );
     }
+
 
     public abstract boolean finalStateValid();
 }

@@ -24,7 +24,7 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message.spi ;
+package org.apache.directory.shared.ldap.message.spi;
 
 
 import org.apache.directory.shared.ldap.message.MessageException;
@@ -40,42 +40,46 @@ import org.apache.directory.shared.ldap.message.MessageException;
 public class ProviderException extends MessageException
 {
     static final long serialVersionUID = 8915445282948982052L;
+
     /** The provider this exception resulted on */
-    private final Provider m_provider ;
+    private final Provider m_provider;
 
 
     /**
      * Gets the provider that caused this exception.
-     *
+     * 
      * @return the offensive Provider.
      */
     public Provider getProvider()
     {
-        return m_provider ;
+        return m_provider;
     }
 
 
     /**
      * Constructs an Exception without a message.
      * 
-     * @param a_provider The offending Provider that caused the exception.
+     * @param a_provider
+     *            The offending Provider that caused the exception.
      */
-    public ProviderException( final Provider a_provider )
+    public ProviderException(final Provider a_provider)
     {
-        super() ;
-        m_provider = a_provider ;
+        super();
+        m_provider = a_provider;
     }
 
 
     /**
      * Constructs an Exception with a detailed message.
      * 
-     * @param a_provider The offending Provider that caused the exception.
-     * @param a_message The message associated with the exception.
+     * @param a_provider
+     *            The offending Provider that caused the exception.
+     * @param a_message
+     *            The message associated with the exception.
      */
-    public ProviderException( final Provider a_provider, String a_message )
+    public ProviderException(final Provider a_provider, String a_message)
     {
-        super( a_message ) ;
-        m_provider = a_provider ;
+        super( a_message );
+        m_provider = a_provider;
     }
 }

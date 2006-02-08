@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 
 /**
  * TestCase for the ModifyDnRequestImpl class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -41,7 +41,7 @@ public class ModifyDnRequestImplTest extends TestCase
 {
     /**
      * Constructs a ModifyDnrequest to test.
-     *
+     * 
      * @return the request
      */
     public ModifyDnRequestImpl getRequest()
@@ -177,97 +177,118 @@ public class ModifyDnRequestImplTest extends TestCase
                 return "dc=admins,dc=apache,dc=org";
             }
 
+
             public void setName( String a_name )
             {
             }
+
 
             public String getNewRdn()
             {
                 return "dc=administrators";
             }
 
+
             public void setNewRdn( String a_newRdn )
             {
             }
+
 
             public boolean getDeleteOldRdn()
             {
                 return true;
             }
 
+
             public void setDeleteOldRdn( boolean a_deleteOldRdn )
             {
             }
+
 
             public String getNewSuperior()
             {
                 return "dc=groups,dc=apache,dc=org";
             }
 
+
             public void setNewSuperior( String a_newSuperior )
             {
             }
+
 
             public boolean isMove()
             {
                 return false;
             }
 
+
             public MessageTypeEnum getResponseType()
             {
                 return MessageTypeEnum.MODDNRESPONSE;
             }
+
 
             public boolean hasResponse()
             {
                 return true;
             }
 
+
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.MODDNREQUEST;
             }
+
 
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control a_control ) throws MessageException
             {
             }
 
+
             public void remove( Control a_control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 45;
             }
 
+
             public Object get( Object a_key )
             {
                 return null;
             }
+
 
             public Object put( Object a_key, Object a_value )
             {
                 return null;
             }
 
+
             public void abandon()
             {
             }
+
 
             public boolean isAbandoned()
             {
                 return false;
             }
 
-            public void addAbandonListener(AbandonListener listener)
+
+            public void addAbandonListener( AbandonListener listener )
             {
             }
+
 
             public ResultResponse getResultResponse()
             {

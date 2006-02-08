@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER UTF8String object.
  */
@@ -25,11 +26,12 @@ public class DERUTF8String extends DERString
     /**
      * Basic DERObject constructor.
      */
-    public DERUTF8String( byte[] value )
+    public DERUTF8String(byte[] value)
     {
-    	super( UTF8_STRING, value );
+        super( UTF8_STRING, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -38,4 +40,3 @@ public class DERUTF8String extends DERString
         return new DERUTF8String( stringToByteArray( string ) );
     }
 }
-

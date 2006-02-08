@@ -23,19 +23,19 @@
  * -- any LDAPd project for copyright and distribution information.      --
  *
  */
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
 
 
-import java.math.BigInteger ;
+import java.math.BigInteger;
 
 
 /**
  * Node used for the application of arbitrary predicates on return candidates.
  * Applies dynamic and programatic criteria for the selection of candidates for
- * return.  Nodes of this type may be introduced into the filter expression to
+ * return. Nodes of this type may be introduced into the filter expression to
  * provided the opportunity to constrain the search further without altering the
  * search algorithm.
- *
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $author$
  * @version $Revision$
@@ -43,55 +43,58 @@ import java.math.BigInteger ;
 public class AssertionNode extends AbstractExprNode
 {
     /** Setting scan count to max */
-    private static final BigInteger MAX = 
-        BigInteger.valueOf( Integer.MAX_VALUE ) ;
+    private static final BigInteger MAX = BigInteger.valueOf( Integer.MAX_VALUE );
+
     /** Setting display string to [MAX] */
-    private static final String MAX_STR = "[" + MAX.toString() + "]" ;    
+    private static final String MAX_STR = "[" + MAX.toString() + "]";
 
     /** The assertion or predicate to apply */
-    private final Assertion m_assertion ;
+    private final Assertion m_assertion;
+
     /** Description of assertion for polish printouts */
-    private final String m_desc ;
-    
+    private final String m_desc;
+
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an AssertionNode using an arbitrary candidate assertion.
      * 
-     * @param a_assertion the arbitrary selection logic.
+     * @param a_assertion
+     *            the arbitrary selection logic.
      */
-    public AssertionNode( Assertion a_assertion )
+    public AssertionNode(Assertion a_assertion)
     {
-        this( a_assertion, "ASSERTION" ) ;
+        this( a_assertion, "ASSERTION" );
     }
-    
+
 
     /**
      * Creates an AssertionNode using an arbitrary candidate assertion with a
      * descriptions used for filter AST walker dumps.
      * 
-     * @param a_assertion the arbitrary selection logic.
-     * @param a_desc the printout representation for filter prints.
-     */    
-    public AssertionNode( Assertion a_assertion, String a_desc )
+     * @param a_assertion
+     *            the arbitrary selection logic.
+     * @param a_desc
+     *            the printout representation for filter prints.
+     */
+    public AssertionNode(Assertion a_assertion, String a_desc)
     {
-        super ( ASSERTION ) ;
-        m_desc = a_desc ;
-        m_assertion = a_assertion ;
-        
+        super( ASSERTION );
+        m_desc = a_desc;
+        m_assertion = a_assertion;
+
         /*
          * We never want this node to ever make it to the point of becoming a
-         * candidate for use in an enumeration so we set the scan count to the 
+         * candidate for use in an enumeration so we set the scan count to the
          * maximum value.
          */
-        set( "count",  MAX ) ;
+        set( "count", MAX );
     }
-    
-    
+
+
     /**
      * Gets the Assertion used by this assertion node.
      * 
@@ -99,14 +102,13 @@ public class AssertionNode extends AbstractExprNode
      */
     public Assertion getAssertion()
     {
-        return m_assertion ;
+        return m_assertion;
     }
-    
-    
-    // ------------------------------------------------------------------------
-    //      A B S T R A C T   M E T H O D   I M P L E M E N T A T I O N S 
-    // ------------------------------------------------------------------------
 
+
+    // ------------------------------------------------------------------------
+    // A B S T R A C T M E T H O D I M P L E M E N T A T I O N S
+    // ------------------------------------------------------------------------
 
     /**
      * Always returns true since an AssertionNode has no children.
@@ -115,7 +117,7 @@ public class AssertionNode extends AbstractExprNode
      */
     public boolean isLeaf()
     {
-        return true ;
+        return true;
     }
 
 
@@ -124,16 +126,16 @@ public class AssertionNode extends AbstractExprNode
      */
     public StringBuffer printToBuffer( StringBuffer a_buf )
     {
-        return a_buf.append( m_desc ).append( MAX_STR ) ;
+        return a_buf.append( m_desc ).append( MAX_STR );
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     * org.apache.directory.shared.ldap.filter.FilterVisitor)
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
     public void accept( FilterVisitor a_visitor )
     {
-        a_visitor.visit( this ) ;
+        a_visitor.visit( this );
     }
 }

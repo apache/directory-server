@@ -14,18 +14,18 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Compare protocol response message used to confirm the results of a compare
  * request message.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface CompareResponse extends ResultResponse
 {
     /** Compare response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.COMPARERESPONSE ;
+    MessageTypeEnum TYPE = MessageTypeEnum.COMPARERESPONSE;
 }

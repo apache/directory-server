@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,35 +27,36 @@ public class DERObjectIdentifier extends DERObject
 {
     String identifier;
 
-    DERObjectIdentifier( byte[] bytes )
+
+    DERObjectIdentifier(byte[] bytes)
     {
-    	super( OBJECT_IDENTIFIER, bytes );
-    	
+        super( OBJECT_IDENTIFIER, bytes );
+
         StringBuffer objId = new StringBuffer();
-        long         value = 0;
-        boolean      first = true;
+        long value = 0;
+        boolean first = true;
 
         for ( int i = 0; i != bytes.length; i++ )
         {
-            int b = bytes[ i ] & 0xff;
+            int b = bytes[i] & 0xff;
 
             value = value * 128 + ( b & 0x7f );
-            if ( ( b & 0x80 ) == 0 )             // end of number reached
+            if ( ( b & 0x80 ) == 0 ) // end of number reached
             {
                 if ( first )
                 {
-                    switch ( (int)value / 40 )
+                    switch ( ( int ) value / 40 )
                     {
-                    case 0:
-                        objId.append( '0' );
-                        break;
-                    case 1:
-                        objId.append( '1' );
-                        value -= 40;
-                        break;
-                    default:
-                        objId.append( '2' );
-                        value -= 80;
+                        case 0:
+                            objId.append( '0' );
+                            break;
+                        case 1:
+                            objId.append( '1' );
+                            value -= 40;
+                            break;
+                        default:
+                            objId.append( '2' );
+                            value -= 80;
                     }
                     first = false;
                 }
@@ -67,9 +69,9 @@ public class DERObjectIdentifier extends DERObject
 
         this.identifier = objId.toString();
     }
-    
-    private void writeField( OutputStream out, long fieldValue )
-        throws IOException
+
+
+    private void writeField( OutputStream out, long fieldValue ) throws IOException
     {
         if ( fieldValue >= ( 1 << 7 ) )
         {
@@ -87,34 +89,33 @@ public class DERObjectIdentifier extends DERObject
                                 {
                                     if ( fieldValue >= ( 1 << 56 ) )
                                     {
-                                        out.write( (int)( fieldValue >> 56 ) | 0x80 );
+                                        out.write( ( int ) ( fieldValue >> 56 ) | 0x80 );
                                     }
-                                    out.write( (int)( fieldValue >> 49 ) | 0x80 );
+                                    out.write( ( int ) ( fieldValue >> 49 ) | 0x80 );
                                 }
-                                out.write( (int)( fieldValue >> 42 ) | 0x80 );
+                                out.write( ( int ) ( fieldValue >> 42 ) | 0x80 );
                             }
-                            out.write( (int)( fieldValue >> 35 ) | 0x80 );
+                            out.write( ( int ) ( fieldValue >> 35 ) | 0x80 );
                         }
-                        out.write( (int)( fieldValue >> 28 ) | 0x80 );
+                        out.write( ( int ) ( fieldValue >> 28 ) | 0x80 );
                     }
-                    out.write( (int)( fieldValue >> 21 ) | 0x80 );
+                    out.write( ( int ) ( fieldValue >> 21 ) | 0x80 );
                 }
-                out.write( (int)( fieldValue >> 14 ) | 0x80 );
+                out.write( ( int ) ( fieldValue >> 14 ) | 0x80 );
             }
-            out.write( (int)( fieldValue >> 7 ) | 0x80 );
+            out.write( ( int ) ( fieldValue >> 7 ) | 0x80 );
         }
-        out.write( (int)fieldValue & 0x7f );
+        out.write( ( int ) fieldValue & 0x7f );
     }
 
-    public void encode( ASN1OutputStream out )
-        throws IOException
-    {
-        OIDTokenizer          tok  = new OIDTokenizer( identifier );
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASN1OutputStream      aos  = new ASN1OutputStream( baos );
 
-        writeField( baos, Integer.parseInt( tok.nextToken() ) * 40
-                    + Integer.parseInt( tok.nextToken() ) );
+    public void encode( ASN1OutputStream out ) throws IOException
+    {
+        OIDTokenizer tok = new OIDTokenizer( identifier );
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASN1OutputStream aos = new ASN1OutputStream( baos );
+
+        writeField( baos, Integer.parseInt( tok.nextToken() ) * 40 + Integer.parseInt( tok.nextToken() ) );
 
         while ( tok.hasMoreTokens() )
         {
@@ -128,4 +129,3 @@ public class DERObjectIdentifier extends DERObject
         out.writeEncoded( OBJECT_IDENTIFIER, bytes );
     }
 }
-

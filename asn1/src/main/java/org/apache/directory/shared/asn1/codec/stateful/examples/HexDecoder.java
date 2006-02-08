@@ -16,23 +16,28 @@
  */
 package org.apache.directory.shared.asn1.codec.stateful.examples;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.stateful.AbstractStatefulDecoder;
 
+
 /**
  * Document me.
  * 
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class HexDecoder extends AbstractStatefulDecoder
 {
-    private ByteBuffer decoded = ByteBuffer.allocate( 128 ) ;
-    private byte lsn ;
-    private byte msn ;
-    private boolean expectingMsn = true ;
+    private ByteBuffer decoded = ByteBuffer.allocate( 128 );
+
+    private byte lsn;
+
+    private byte msn;
+
+    private boolean expectingMsn = true;
 
 
     public void decode( Object chunk ) throws DecoderException
@@ -46,7 +51,7 @@ public class HexDecoder extends AbstractStatefulDecoder
 
         while ( encoded.hasRemaining() )
         {
-            if ( ! decoded.hasRemaining() )
+            if ( !decoded.hasRemaining() )
             {
                 decoded.flip();
                 super.decodeOccurred( decoded );
@@ -64,9 +69,10 @@ public class HexDecoder extends AbstractStatefulDecoder
                 expectingMsn = true;
             }
 
-            /* if we've hit the most significant nibble then we have two hex
-             * characters as bytes so we need to compute and add the byte to
-             * the buffer
+            /*
+             * if we've hit the most significant nibble then we have two hex
+             * characters as bytes so we need to compute and add the byte to the
+             * buffer
              */
             if ( expectingMsn )
             {
@@ -76,9 +82,10 @@ public class HexDecoder extends AbstractStatefulDecoder
             }
         }
 
-        /* only trigger a decode callback if we have seen an even number of
-         * hex character bytes in which case we're in the expectingMsn state
-         * this will flush out what's siting in the buffer automatically
+        /*
+         * only trigger a decode callback if we have seen an even number of hex
+         * character bytes in which case we're in the expectingMsn state this
+         * will flush out what's siting in the buffer automatically
          */
         if ( expectingMsn )
         {
@@ -89,7 +96,6 @@ public class HexDecoder extends AbstractStatefulDecoder
     }
 
 
-
     private byte getNibble( byte ch ) throws DecoderException
     {
         // lowercase the character if it is in upper case
@@ -98,43 +104,42 @@ public class HexDecoder extends AbstractStatefulDecoder
             ch -= 32;
         }
 
-        switch(ch)
+        switch ( ch )
         {
             case 48:
-                return 0 ;
+                return 0;
             case 49:
-                return 1 ;
+                return 1;
             case 50:
-                return 2 ;
+                return 2;
             case 51:
-                return 3 ;
+                return 3;
             case 52:
-                return 4 ;
+                return 4;
             case 53:
-                return 5 ;
+                return 5;
             case 54:
-                return 6 ;
+                return 6;
             case 55:
-                return 7 ;
+                return 7;
             case 56:
-                return 8 ;
+                return 8;
             case 57:
-                return 9 ;
+                return 9;
             case 97:
-                return 10 ;
+                return 10;
             case 98:
-                return 11 ;
+                return 11;
             case 99:
-                return 12 ;
+                return 12;
             case 100:
-                return 13 ;
+                return 13;
             case 101:
-                return 14 ;
+                return 14;
             case 102:
-                return 15 ;
+                return 15;
             default:
-                throw new DecoderException( "non-hex character '" + (char) ch
-                    + "' encountered" );
+                throw new DecoderException( "non-hex character '" + ( char ) ch + "' encountered" );
         }
     }
 }

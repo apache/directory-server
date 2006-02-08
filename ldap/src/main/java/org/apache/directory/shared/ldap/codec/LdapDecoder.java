@@ -16,18 +16,20 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 
 
 /**
  * The Ldap decoder.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapDecoder extends Asn1Decoder {
+public class LdapDecoder extends Asn1Decoder
+{
 
     /**
-     * Standard LdapDecoder constructor. 
-     *
+     * Standard LdapDecoder constructor.
      */
     public LdapDecoder()
     {

@@ -24,16 +24,16 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
-import javax.naming.directory.Attributes ;
+import javax.naming.directory.Attributes;
 
 
 /**
- * Search entry protocol response message used to return non referral entries
- * to the client in response to a search request message.
- *
+ * Search entry protocol response message used to return non referral entries to
+ * the client in response to a search request message.
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: jmachols $
  * @version $Revision$
@@ -41,33 +41,39 @@ import javax.naming.directory.Attributes ;
 public interface SearchResponseEntry extends Response
 {
     /** Search entry response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.SEARCHRESENTRY ;
+    MessageTypeEnum TYPE = MessageTypeEnum.SEARCHRESENTRY;
+
 
     /**
      * Gets the distinguished name of the entry object returned.
-     *
+     * 
      * @return the Dn of the entry returned.
      */
-    String getObjectName() ;
+    String getObjectName();
+
 
     /**
      * Sets the distinguished name of the entry object returned.
-     *
-     * @param a_dn the Dn of the entry returned.
+     * 
+     * @param a_dn
+     *            the Dn of the entry returned.
      */
-    void setObjectName( String a_dn ) ;
+    void setObjectName( String a_dn );
+
 
     /**
      * Gets the set of attributes and all their values in a MultiMap.
-     *
+     * 
      * @return the set of attributes and all their values
      */
-    Attributes getAttributes() ;
+    Attributes getAttributes();
+
 
     /**
      * Sets the set of attributes and all their values in a MultiMap.
-     *
-     * @param a_attributes the set of attributes and all their values
+     * 
+     * @param a_attributes
+     *            the set of attributes and all their values
      */
-    void setAttributes( Attributes a_attributes ) ;
+    void setAttributes( Attributes a_attributes );
 }

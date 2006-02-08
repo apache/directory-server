@@ -18,65 +18,71 @@
  */
 package org.apache.directory.shared.ldap.aci;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
+
 /**
  * An {@link ACIItem} which specifies {@link UserClass}es first and then
- * {@link ProtectedItem}s each {@link UserClass} will have.  (18.4.2.4. X.501)
- *
+ * {@link ProtectedItem}s each {@link UserClass} will have. (18.4.2.4. X.501)
+ * 
  * @author The Apache Directory Project
  * @version $Rev$, $Date$
  */
 public class UserFirstACIItem extends ACIItem
 {
     private static final long serialVersionUID = 5587483838404246148L;
-    
+
     private final Collection userClasses;
+
     private final Collection userPermissions;
+
 
     /**
      * Creates a new instance.
      * 
-     * @param identificationTag the id string of this item
-     * @param precedence the precedence of this item
-     * @param authenticationLevel the level of authentication required to this item
-     * @param userClasses the collection of {@link UserClass}es this item protects
-     * @param userPermissions the collection of {@link UserPermission}s each <tt>protectedItems</tt> will have
+     * @param identificationTag
+     *            the id string of this item
+     * @param precedence
+     *            the precedence of this item
+     * @param authenticationLevel
+     *            the level of authentication required to this item
+     * @param userClasses
+     *            the collection of {@link UserClass}es this item protects
+     * @param userPermissions
+     *            the collection of {@link UserPermission}s each
+     *            <tt>protectedItems</tt> will have
      */
-    public UserFirstACIItem(
-            String identificationTag,
-            int precedence,
-            AuthenticationLevel authenticationLevel,
-            Collection userClasses,
-            Collection userPermissions )
+    public UserFirstACIItem(String identificationTag, int precedence, AuthenticationLevel authenticationLevel,
+        Collection userClasses, Collection userPermissions)
     {
         super( identificationTag, precedence, authenticationLevel );
-        
-        for( Iterator i = userClasses.iterator(); i.hasNext(); )
+
+        for ( Iterator i = userClasses.iterator(); i.hasNext(); )
         {
-            if( !UserClass.class.isAssignableFrom( i.next().getClass() ) )
+            if ( !UserClass.class.isAssignableFrom( i.next().getClass() ) )
             {
-                throw new IllegalArgumentException(
-                        "userClasses contains an element which is not a user class." );
+                throw new IllegalArgumentException( "userClasses contains an element which is not a user class." );
             }
         }
 
-        for( Iterator i = userPermissions.iterator(); i.hasNext(); )
+        for ( Iterator i = userPermissions.iterator(); i.hasNext(); )
         {
-            if( !UserPermission.class.isAssignableFrom( i.next().getClass() ) )
+            if ( !UserPermission.class.isAssignableFrom( i.next().getClass() ) )
             {
                 throw new IllegalArgumentException(
-                        "userPermissions contains an element which is not a user permission." );
+                    "userPermissions contains an element which is not a user permission." );
             }
         }
 
         this.userClasses = Collections.unmodifiableCollection( new ArrayList( userClasses ) );
         this.userPermissions = Collections.unmodifiableCollection( new ArrayList( userPermissions ) );
     }
+
 
     /**
      * Returns the set of {@link UserClass}es.
@@ -86,6 +92,7 @@ public class UserFirstACIItem extends ACIItem
         return userClasses;
     }
 
+
     /**
      * Returns the set of {@link UserPermission}s.
      */
@@ -93,47 +100,36 @@ public class UserFirstACIItem extends ACIItem
     {
         return userPermissions;
     }
-    
+
+
     public String toString()
     {
-        return "userFirstACIItem: " +
-               "identificationTag=" + getIdentificationTag() + ", " +
-               "precedence=" + getPrecedence() + ", " +
-               "authenticationLevel=" + getAuthenticationLevel() + ", " +
-               "userClasses=" + userClasses + ", " +
-               "userPermissions=" + userPermissions;
+        return "userFirstACIItem: " + "identificationTag=" + getIdentificationTag() + ", " + "precedence="
+            + getPrecedence() + ", " + "authenticationLevel=" + getAuthenticationLevel() + ", " + "userClasses="
+            + userClasses + ", " + "userPermissions=" + userPermissions;
     }
+
 
     public Collection toTuples()
     {
         Collection tuples = new ArrayList();
-        for( Iterator i = userPermissions.iterator(); i.hasNext(); )
+        for ( Iterator i = userPermissions.iterator(); i.hasNext(); )
         {
             UserPermission userPermission = ( UserPermission ) i.next();
             Set grants = userPermission.getGrants();
             Set denials = userPermission.getDenials();
-            int precedence = userPermission.getPrecedence() >= 0?
-                    userPermission.getPrecedence() : this.getPrecedence();
-            
-            if( grants.size() > 0 )
+            int precedence = userPermission.getPrecedence() >= 0 ? userPermission.getPrecedence() : this
+                .getPrecedence();
+
+            if ( grants.size() > 0 )
             {
-                tuples.add( new ACITuple(
-                        getUserClasses(),
-                        getAuthenticationLevel(),
-                        userPermission.getProtectedItems(),
-                        toMicroOperations( grants ),
-                        true,
-                        precedence ) );
+                tuples.add( new ACITuple( getUserClasses(), getAuthenticationLevel(), userPermission
+                    .getProtectedItems(), toMicroOperations( grants ), true, precedence ) );
             }
-            if( denials.size() > 0 )
+            if ( denials.size() > 0 )
             {
-                tuples.add( new ACITuple(
-                        getUserClasses(),
-                        getAuthenticationLevel(),
-                        userPermission.getProtectedItems(),
-                        toMicroOperations( denials ),
-                        false,
-                        precedence ) );
+                tuples.add( new ACITuple( getUserClasses(), getAuthenticationLevel(), userPermission
+                    .getProtectedItems(), toMicroOperations( denials ), false, precedence ) );
             }
         }
         return tuples;

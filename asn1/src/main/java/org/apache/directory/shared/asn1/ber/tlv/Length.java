@@ -16,20 +16,21 @@
  */
 package org.apache.directory.shared.asn1.ber.tlv;
 
+
 import java.io.Serializable;
 
 
 /**
  * The Length part of a TLV. We are not dealing with indefinite length.
  * 
- * @author   <a href="mailto:dev@directory.apache.org">Apache
- *           Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class Length implements Cloneable, Serializable
 {
-	public static final long serialVersionUID = 1L;
-	
-    //~ Static fields/initializers -----------------------------------------------------------------
+    public static final long serialVersionUID = 1L;
+
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** A mask to get the Length form */
     public static final transient int LENGTH_LONG_FORM = 0x0080;
@@ -40,7 +41,8 @@ public class Length implements Cloneable, Serializable
     /** A mask to get the long form value */
     public static final transient int SHORT_MASK = 0x007F;
 
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The length of the following value */
     private int length;
@@ -48,8 +50,10 @@ public class Length implements Cloneable, Serializable
     /** The size of the Length part. */
     private int size;
 
-    /** If the Length is in a long form, this variable store the expected
-     * number of bytes to be read to obtain the length */
+    /**
+     * If the Length is in a long form, this variable store the expected number
+     * of bytes to be read to obtain the length
+     */
     private transient int expectedLength;
 
     /** Stores the number of bytes already read for a long Length form */
@@ -58,35 +62,40 @@ public class Length implements Cloneable, Serializable
     /** A flag used with definite forms length. */
     private boolean definiteForm;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new object.
-    */
+     */
     public Length()
     {
-        length         = 0;
+        length = 0;
         expectedLength = 1;
-        currentLength  = 0;
-        size           = 0;
+        currentLength = 0;
+        size = 0;
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Reset the Length object
      */
     public void reset()
     {
-        length         = 0;
+        length = 0;
         expectedLength = 0;
-        currentLength  = 0;
-        size           = 0;
+        currentLength = 0;
+        size = 0;
     }
+
 
     /**
      * Get the Value length
-     *
+     * 
      * @return Returns the length of the value part.
      */
     public int getLength()
@@ -95,19 +104,22 @@ public class Length implements Cloneable, Serializable
         return length;
     }
 
+
     /**
-     * Set the length of the Value part 
-     *
-     * @param length The length of the Value part.
+     * Set the length of the Value part
+     * 
+     * @param length
+     *            The length of the Value part.
      */
     public void setLength( int length )
     {
         this.length = length;
     }
 
+
     /**
      * Get the current number of bytes read
-     *
+     * 
      * @return Returns the currentLength.
      */
     public int getCurrentLength()
@@ -116,15 +128,18 @@ public class Length implements Cloneable, Serializable
         return currentLength;
     }
 
+
     /**
      * Set the current length of the Length
-     *
-     * @param currentLength The currentLength to set.
+     * 
+     * @param currentLength
+     *            The currentLength to set.
      */
     public void setCurrentLength( int currentLength )
     {
         this.currentLength = currentLength;
     }
+
 
     /**
      * Increment the Length being read
@@ -134,9 +149,10 @@ public class Length implements Cloneable, Serializable
         this.currentLength++;
     }
 
+
     /**
      * Get the expected length
-     *
+     * 
      * @return Returns the expected Length of the long form Length.
      */
     public int getExpectedLength()
@@ -144,22 +160,25 @@ public class Length implements Cloneable, Serializable
         return expectedLength;
     }
 
+
     /**
      * Set the expected long form length
-     *
-     * @param expectedLength The long form expected length to set.
+     * 
+     * @param expectedLength
+     *            The long form expected length to set.
      */
     public void setExpectedLength( int expectedLength )
     {
         this.expectedLength = expectedLength;
     }
 
+
     /**
      * Clone the object
-     *
+     * 
      * @return A deep copy of the Length
-     *
-     * @throws CloneNotSupportedException Thrown if any problem occurs.
+     * @throws CloneNotSupportedException
+     *             Thrown if any problem occurs.
      */
     public Object clone() throws CloneNotSupportedException
     {
@@ -167,9 +186,10 @@ public class Length implements Cloneable, Serializable
         return super.clone();
     }
 
+
     /**
      * Get the size of the Length element
-     *
+     * 
      * @return Returns the size of the Length element.
      */
     public int getSize()
@@ -177,6 +197,7 @@ public class Length implements Cloneable, Serializable
 
         return size;
     }
+
 
     /**
      * Increment the size of the Length element.
@@ -186,37 +207,41 @@ public class Length implements Cloneable, Serializable
         this.size++;
     }
 
+
     /**
      * Return a String representing the Length
-     *
+     * 
      * @return The length
      */
     public String toString()
     {
 
         StringBuffer sb = new StringBuffer();
-        sb.append( "LENGTH[" ).append( length ).append( "](" )
-          .append( definiteForm ? "definite)" : "indefinite)" ).append( "size=" ).append( size )
-          .append(
-            ")" );
+        sb.append( "LENGTH[" ).append( length ).append( "](" ).append( definiteForm ? "definite)" : "indefinite)" )
+            .append( "size=" ).append( size ).append( ")" );
 
         return sb.toString();
     }
 
+
     /**
      * Set the Length's size
-     *
-     * @param size The lengthSize to set.
+     * 
+     * @param size
+     *            The lengthSize to set.
      */
     public void setSize( int size )
     {
         this.size = size;
     }
 
+
     /**
-     * Utility function that return the number of bytes necessary to store 
-     * the length
-     * @param length The length to store in a byte array
+     * Utility function that return the number of bytes necessary to store the
+     * length
+     * 
+     * @param length
+     *            The length to store in a byte array
      * @return The number of bytes necessary to store the length.
      */
     public static int getNbBytes( int length )
@@ -252,9 +277,12 @@ public class Length implements Cloneable, Serializable
         }
     }
 
+
     /**
      * Utility function that return a byte array representing the length
-     * @param length The length to store in a byte array
+     * 
+     * @param length
+     *            The length to store in a byte array
      * @return The byte array representing the length.
      */
     public static byte[] getBytes( int length )
@@ -308,8 +336,10 @@ public class Length implements Cloneable, Serializable
         return bytes;
     }
 
+
     /**
-     * Get the length's type 
+     * Get the length's type
+     * 
      * @return Returns the definiteForm flag.
      */
     public boolean isDefiniteForm()
@@ -317,10 +347,12 @@ public class Length implements Cloneable, Serializable
         return definiteForm;
     }
 
+
     /**
      * Set the length's form
-     *
-     * @param definiteForm The definiteForm flag to set.
+     * 
+     * @param definiteForm
+     *            The definiteForm flag to set.
      */
     public void setDefiniteForm( boolean definiteForm )
     {

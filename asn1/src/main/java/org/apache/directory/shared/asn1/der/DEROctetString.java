@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER Octet String object.
  */
@@ -25,14 +26,14 @@ public class DEROctetString extends DERObject
     /**
      * Basic DERObject constructor.
      */
-    public DEROctetString( byte[] value )
+    public DEROctetString(byte[] value)
     {
         super( OCTET_STRING, value );
     }
-    
+
+
     public byte[] getOctets()
     {
         return value;
     }
 }
-

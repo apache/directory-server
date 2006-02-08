@@ -17,8 +17,10 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
 
 /**
  * DER Application Specific object.
@@ -26,46 +28,48 @@ import java.io.IOException;
 public class DERApplicationSpecific extends DERObject
 {
     private int tag;
-    
+
+
     /**
      * Basic DERObject constructor.
      */
-    public DERApplicationSpecific( int tag, byte[] value )
+    public DERApplicationSpecific(int tag, byte[] value)
     {
-    	super( tag, value );
+        super( tag, value );
         this.tag = tag;
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
-    public static DERApplicationSpecific valueOf( int tag, DEREncodable object ) 
-        throws IOException 
+    public static DERApplicationSpecific valueOf( int tag, DEREncodable object ) throws IOException
     {
         tag = tag | CONSTRUCTED;
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
-        
+
         aos.writeObject( object );
-        
+
         return new DERApplicationSpecific( tag, baos.toByteArray() );
     }
-    
-    public int getApplicationTag() 
+
+
+    public int getApplicationTag()
     {
         return tag & 0x1F;
     }
-    
-    public DEREncodable getObject() 
-        throws IOException 
+
+
+    public DEREncodable getObject() throws IOException
     {
         return new ASN1InputStream( getOctets() ).readObject();
     }
-    
+
+
     public void encode( ASN1OutputStream out ) throws IOException
     {
         out.writeEncoded( APPLICATION | tag, value );
     }
 }
-

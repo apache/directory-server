@@ -23,11 +23,12 @@ public class DERGeneralString extends DERString
     /**
      * Basic DERObject constructor.
      */
-    DERGeneralString( byte[] value )
+    DERGeneralString(byte[] value)
     {
-    	super( GENERAL_STRING, value );
+        super( GENERAL_STRING, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -36,4 +37,3 @@ public class DERGeneralString extends DERString
         return new DERGeneralString( stringToByteArray( string ) );
     }
 }
-

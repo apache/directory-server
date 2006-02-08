@@ -25,8 +25,8 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
 
 
 /**
- * Type safe enum for a matching rule's comparator and normalizer component 
- * usage string.  This can be take one of the following three values: 
+ * Type safe enum for a matching rule's comparator and normalizer component
+ * usage string. This can be take one of the following three values:
  * <ul>
  * <li>ORDERING</li>
  * <li>EQUALITY</li>
@@ -39,41 +39,46 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
 public class MatchingRuleEnum extends ValuedEnum
 {
     static final long serialVersionUID = 5500272648097676014L;
+
     /** value for ordering usage */
     public static final int ORDERING_VAL = 0;
+
     /** value for equality usage */
     public static final int EQUALITY_VAL = 1;
+
     /** value for substring usage */
     public static final int SUBSTRING_VAL = 2;
 
     /** enum for ordering comparator usage */
-    public static final MatchingRuleEnum ORDERING = 
-        new MatchingRuleEnum( "ORDERING", ORDERING_VAL );
-    /** enum for equality comparator usage */
-    public static final MatchingRuleEnum EQUALITY = 
-        new MatchingRuleEnum( "EQUALITY", EQUALITY_VAL );
-    /** enum for substring comparator usage */
-    public static final MatchingRuleEnum SUBSTRING = 
-        new MatchingRuleEnum( "SUBSTRING", SUBSTRING_VAL );
+    public static final MatchingRuleEnum ORDERING = new MatchingRuleEnum( "ORDERING", ORDERING_VAL );
 
-    
+    /** enum for equality comparator usage */
+    public static final MatchingRuleEnum EQUALITY = new MatchingRuleEnum( "EQUALITY", EQUALITY_VAL );
+
+    /** enum for substring comparator usage */
+    public static final MatchingRuleEnum SUBSTRING = new MatchingRuleEnum( "SUBSTRING", SUBSTRING_VAL );
+
+
     /**
      * Private constructor so no other instances can be created other than the
      * public static constants in this class.
-     *
-     * @param name a string name for the enumeration value.
-     * @param value the integer value of the enumeration.
+     * 
+     * @param name
+     *            a string name for the enumeration value.
+     * @param value
+     *            the integer value of the enumeration.
      */
-    private MatchingRuleEnum( final String name, final int value )
+    private MatchingRuleEnum(final String name, final int value)
     {
         super( name, value );
     }
-    
-    
+
+
     /**
      * Gets the enumeration type for the usage string regardless of case.
      * 
-     * @param usage the usage string
+     * @param usage
+     *            the usage string
      * @return the usage enumeration type
      */
     public static MatchingRuleEnum getUsage( String usage )
@@ -82,22 +87,21 @@ public class MatchingRuleEnum extends ValuedEnum
         {
             return MatchingRuleEnum.EQUALITY;
         }
-        
+
         if ( usage.equalsIgnoreCase( MatchingRuleEnum.ORDERING.getName() ) )
         {
             return MatchingRuleEnum.ORDERING;
         }
-        
+
         if ( usage.equalsIgnoreCase( MatchingRuleEnum.SUBSTRING.getName() ) )
         {
             return MatchingRuleEnum.SUBSTRING;
         }
 
-        throw new IllegalArgumentException( "Unknown matching rule usage string"
-            + usage );
+        throw new IllegalArgumentException( "Unknown matching rule usage string" + usage );
     }
-    
-    
+
+
     /**
      * Gets a List of the enumerations for matching rule usage.
      * 
@@ -107,10 +111,10 @@ public class MatchingRuleEnum extends ValuedEnum
     {
         return EnumUtils.getEnumList( MatchingRuleEnum.class );
     }
-    
-    
+
+
     /**
-     * Gets the Map of MatchingRuleEnum objects by name using the 
+     * Gets the Map of MatchingRuleEnum objects by name using the
      * MatchingRuleEnum class.
      * 
      * @return the Map by name of MatchingRuleEnums

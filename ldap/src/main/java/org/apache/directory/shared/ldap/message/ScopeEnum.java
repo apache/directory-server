@@ -14,10 +14,10 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
-import javax.naming.directory.SearchControls ;
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.util.ValuedEnum;
 
@@ -29,71 +29,74 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
  * @author $Author: akarasulu $
  * @version $Revision$
  */
-public class ScopeEnum
-    extends ValuedEnum
+public class ScopeEnum extends ValuedEnum
 {
     static final long serialVersionUID = 6354503944147675151L;
-    /** Search scope parameter value for base object search */
-    public static final int BASEOBJECT_VAL = SearchControls.OBJECT_SCOPE ;
-    /** Search scope parameter value for single level search */
-    public static final int SINGLELEVEL_VAL = SearchControls.ONELEVEL_SCOPE ;
-    /** Search scope parameter value for whole subtree level search */
-    public static final int WHOLESUBTREE_VAL = SearchControls.SUBTREE_SCOPE ;
 
+    /** Search scope parameter value for base object search */
+    public static final int BASEOBJECT_VAL = SearchControls.OBJECT_SCOPE;
+
+    /** Search scope parameter value for single level search */
+    public static final int SINGLELEVEL_VAL = SearchControls.ONELEVEL_SCOPE;
+
+    /** Search scope parameter value for whole subtree level search */
+    public static final int WHOLESUBTREE_VAL = SearchControls.SUBTREE_SCOPE;
 
     /** LDAP search scope parameter value for base object search */
-    public static final int BASEOBJECT_LDAPVAL = 0 ;
-    /** LDAP search scope parameter value for single level search */
-    public static final int SINGLELEVEL_LDAPVAL = 1 ;
-    /** LDAP search scope parameter value for whole subtree level search */
-    public static final int WHOLESUBTREE_LDAPVAL = 2 ;
+    public static final int BASEOBJECT_LDAPVAL = 0;
 
+    /** LDAP search scope parameter value for single level search */
+    public static final int SINGLELEVEL_LDAPVAL = 1;
+
+    /** LDAP search scope parameter value for whole subtree level search */
+    public static final int WHOLESUBTREE_LDAPVAL = 2;
 
     /** Search scope parameter enum for base object search */
-    public static final ScopeEnum BASEOBJECT = 
-        new ScopeEnum( "BASEOBJECT", BASEOBJECT_VAL ) ;
+    public static final ScopeEnum BASEOBJECT = new ScopeEnum( "BASEOBJECT", BASEOBJECT_VAL );
+
     /** Search scope parameter enum for single level search */
-    public static final ScopeEnum SINGLELEVEL =
-        new ScopeEnum( "SINGLELEVEL", SINGLELEVEL_VAL ) ;
+    public static final ScopeEnum SINGLELEVEL = new ScopeEnum( "SINGLELEVEL", SINGLELEVEL_VAL );
+
     /** Search scope parameter enum for whole subtree level search */
-    public static final ScopeEnum WHOLESUBTREE =
-        new ScopeEnum( "WHOLESUBTREE", WHOLESUBTREE_VAL ) ;
+    public static final ScopeEnum WHOLESUBTREE = new ScopeEnum( "WHOLESUBTREE", WHOLESUBTREE_VAL );
 
 
     /**
      * Private construct so no other instances can be created other than the
      * public static constants in this class.
-     *
-     * @param a_name a string name for the enumeration value.
-     * @param a_value the integer value of the enumeration.
+     * 
+     * @param a_name
+     *            a string name for the enumeration value.
+     * @param a_value
+     *            the integer value of the enumeration.
      */
-    private ScopeEnum( final String a_name, final int a_value )
+    private ScopeEnum(final String a_name, final int a_value)
     {
-        super( a_name, a_value ) ;
+        super( a_name, a_value );
     }
-    
-    
+
+
     /**
      * Gets the type safe enumeration constant corresponding to a SearchControls
      * scope value.
      * 
-     * @param a_controls the SearchControls whose scope value we convert to enum
+     * @param a_controls
+     *            the SearchControls whose scope value we convert to enum
      * @return the SopeEnum for the scope int value
      */
     public static ScopeEnum getScope( SearchControls a_controls )
     {
-        switch( a_controls.getSearchScope() )
+        switch ( a_controls.getSearchScope() )
         {
-            case( SearchControls.OBJECT_SCOPE ):
-                return BASEOBJECT ; 
-            case( SearchControls.ONELEVEL_SCOPE ):
-                return SINGLELEVEL ; 
-            case( SearchControls.SUBTREE_SCOPE ):
-                return WHOLESUBTREE ; 
+            case ( SearchControls.OBJECT_SCOPE  ):
+                return BASEOBJECT;
+            case ( SearchControls.ONELEVEL_SCOPE  ):
+                return SINGLELEVEL;
+            case ( SearchControls.SUBTREE_SCOPE  ):
+                return WHOLESUBTREE;
             default:
-                throw new IllegalArgumentException( 
-                    "Unrecognized search scope in SearchControls: " 
-                    + a_controls.getSearchScope() ) ;
+                throw new IllegalArgumentException( "Unrecognized search scope in SearchControls: "
+                    + a_controls.getSearchScope() );
         }
     }
 
@@ -101,23 +104,22 @@ public class ScopeEnum
     /**
      * Gets the LdapValue for the scope enumeration as opposed to the JNDI value
      * which is returned using getValue().
-     *
+     * 
      * @return the LDAP enumeration value for the scope parameter on a search
-     * request.
-     */ 
+     *         request.
+     */
     public int getLdapValue()
     {
-        switch( getValue() )
+        switch ( getValue() )
         {
-            case( BASEOBJECT_VAL ):
+            case ( BASEOBJECT_VAL ):
                 return BASEOBJECT_LDAPVAL;
-            case( SINGLELEVEL_VAL ):
+            case ( SINGLELEVEL_VAL ):
                 return SINGLELEVEL_LDAPVAL;
-            case( WHOLESUBTREE_VAL ):
+            case ( WHOLESUBTREE_VAL ):
                 return WHOLESUBTREE_LDAPVAL;
             default:
-                throw new IllegalArgumentException( "Unrecognized value: "
-                    + getValue() );
+                throw new IllegalArgumentException( "Unrecognized value: " + getValue() );
         }
     }
 }

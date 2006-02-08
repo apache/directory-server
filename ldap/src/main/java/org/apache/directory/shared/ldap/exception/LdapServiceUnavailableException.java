@@ -25,14 +25,14 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * LDAP specific ServiceUnavailableException that preserves resultCode
  * resolution.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapServiceUnavailableException extends ServiceUnavailableException
-        implements LdapException
+public class LdapServiceUnavailableException extends ServiceUnavailableException implements LdapException
 {
     static final long serialVersionUID = -5058439476235675179L;
+
     /** the LDAP result code to be checked */
     private final ResultCodeEnum resultCode;
 
@@ -40,12 +40,14 @@ public class LdapServiceUnavailableException extends ServiceUnavailableException
     /**
      * Creates an LDAP specific ServiceUnavailableException that preserves
      * resultCode resolution.
-     *
-     * @param resultCode the LDAP result code to be checked
-     * @throws IllegalArgumentException if the result code is not within the set
-     * {@link ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
+     * 
+     * @param resultCode
+     *            the LDAP result code to be checked
+     * @throws IllegalArgumentException
+     *             if the result code is not within the set
+     *             {@link ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
      */
-    public LdapServiceUnavailableException( ResultCodeEnum resultCode )
+    public LdapServiceUnavailableException(ResultCodeEnum resultCode)
     {
         super();
         checkResultCode( resultCode );
@@ -56,13 +58,16 @@ public class LdapServiceUnavailableException extends ServiceUnavailableException
     /**
      * Creates an LDAP specific ServiceUnavailableException that preserves
      * resultCode resolution.
-     *
-     * @param explanation the reason for the exception to pass to super
-     * @param resultCode the LDAP result code to be checked
-     * @throws IllegalArgumentException if the result code is not within the set
-     * {@link ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
+     * 
+     * @param explanation
+     *            the reason for the exception to pass to super
+     * @param resultCode
+     *            the LDAP result code to be checked
+     * @throws IllegalArgumentException
+     *             if the result code is not within the set
+     *             {@link ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
      */
-    public LdapServiceUnavailableException( String explanation, ResultCodeEnum resultCode )
+    public LdapServiceUnavailableException(String explanation, ResultCodeEnum resultCode)
     {
         super( explanation );
         checkResultCode( resultCode );
@@ -72,17 +77,18 @@ public class LdapServiceUnavailableException extends ServiceUnavailableException
 
     /**
      * Checks to see if the LDAP result code is valid for this exception.
-     *
-     * @param resultCode the LDAP result code to be checked
-     * @throws IllegalArgumentException if the result code is not within the set
-     * {@link ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
+     * 
+     * @param resultCode
+     *            the LDAP result code to be checked
+     * @throws IllegalArgumentException
+     *             if the result code is not within the set
+     *             {@link ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
      */
     private void checkResultCode( ResultCodeEnum resultCode )
     {
-        if ( ! ResultCodeEnum.getServiceCodes().contains( resultCode ) )
+        if ( !ResultCodeEnum.getServiceCodes().contains( resultCode ) )
         {
-            String msg = "Only the following LDAP result codes can be used: "
-                    + ResultCodeEnum.getSearchCodes() ;
+            String msg = "Only the following LDAP result codes can be used: " + ResultCodeEnum.getSearchCodes();
             throw new IllegalArgumentException( msg );
         }
     }
@@ -91,7 +97,7 @@ public class LdapServiceUnavailableException extends ServiceUnavailableException
     /**
      * Returns one of the resultCodes within the set {@link
      * ResultCodeEnum#SERVICEUNAVAILABLE_CODES}.
-     *
+     * 
      * @see LdapException#getResultCode()
      */
     public final ResultCodeEnum getResultCode()

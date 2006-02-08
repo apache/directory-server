@@ -23,14 +23,13 @@
  * -- any LDAPd project for copyright and distribution information.      --
  *
  */
-package org.apache.directory.shared.ldap.filter ;
-
+package org.apache.directory.shared.ldap.filter;
 
 
 /**
  * Filter expression tree node representing a filter attribute value assertion
- * for presence. 
- *
+ * for presence.
+ * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $author$
  * @version $Revision$
@@ -39,12 +38,13 @@ public final class PresenceNode extends LeafNode
 {
     /**
      * Creates a PresenceNode object based on an attribute.
-     *
-     * @param an_attribute the attribute to assert the presence of
+     * 
+     * @param an_attribute
+     *            the attribute to assert the presence of
      */
-    public PresenceNode( String an_attribute )
+    public PresenceNode(String an_attribute)
     {
-        super( an_attribute, PRESENCE ) ;
+        super( an_attribute, PRESENCE );
     }
 
 
@@ -53,22 +53,21 @@ public final class PresenceNode extends LeafNode
      */
     public StringBuffer printToBuffer( StringBuffer a_buf )
     {
-        a_buf.append( '(' ).append( getAttribute() ).append( "=*" ) ;
+        a_buf.append( '(' ).append( getAttribute() ).append( "=*" );
 
-        a_buf.append( ')' ) ;
+        a_buf.append( ')' );
 
-        if ( ( null != getAnnotations() )
-                && getAnnotations().containsKey( "count" ) )
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
-            a_buf.append( '[' ) ;
-            a_buf.append( getAnnotations().get( "count" ).toString() ) ;
-            a_buf.append( "] " ) ;
+            a_buf.append( '[' );
+            a_buf.append( getAnnotations().get( "count" ).toString() );
+            a_buf.append( "] " );
         }
         else
         {
-            a_buf.append( ' ' ) ;
+            a_buf.append( ' ' );
         }
-        
+
         return a_buf;
     }
 
@@ -78,21 +77,21 @@ public final class PresenceNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer l_buf = new StringBuffer() ;
-        printToBuffer( l_buf ) ;
-        return ( l_buf.toString() ) ;
+        StringBuffer l_buf = new StringBuffer();
+        printToBuffer( l_buf );
+        return ( l_buf.toString() );
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     * org.apache.directory.shared.ldap.filter.FilterVisitor)
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
     public void accept( FilterVisitor a_visitor )
     {
-        if ( a_visitor.canVisit( this ) ) 
+        if ( a_visitor.canVisit( this ) )
         {
-            a_visitor.visit( this ) ;
+            a_visitor.visit( this );
         }
     }
 }

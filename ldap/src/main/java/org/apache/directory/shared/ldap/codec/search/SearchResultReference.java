@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import org.apache.directory.shared.asn1.ber.tlv.Length;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -30,37 +31,42 @@ import java.util.Iterator;
 
 
 /**
- * A SearchResultReference Message. Its syntax is :
- *   SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
+ * A SearchResultReference Message. Its syntax is : SearchResultReference ::=
+ * [APPLICATION 19] SEQUENCE OF LDAPURL
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SearchResultReference extends LdapMessage
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The set of LdapURLs */
     private ArrayList searchResultReferences;
-    
+
     /** The search result reference length */
     private transient int searchResultReferenceLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new SearchResultEntry object.
      */
     public SearchResultReference()
     {
-        super( );
+        super();
         searchResultReferences = new ArrayList();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -68,17 +74,22 @@ public class SearchResultReference extends LdapMessage
         return LdapConstants.SEARCH_RESULT_REFERENCE;
     }
 
+
     /**
      * Add a new reference to the list.
-     * @param searchResultReference The search result reference
-    */
+     * 
+     * @param searchResultReference
+     *            The search result reference
+     */
     public void addSearchResultReference( LdapURL searchResultReference )
     {
         searchResultReferences.add( searchResultReference );
     }
 
+
     /**
      * Get the list of references
+     * 
      * @return An ArrayList of SearchResultReferences
      */
     public ArrayList getSearchResultReferences()
@@ -86,50 +97,37 @@ public class SearchResultReference extends LdapMessage
         return searchResultReferences;
     }
 
+
     /**
-     * Compute the SearchResultReference length
-     * 
-     * SearchResultReference :
-     * 
-     * 0x73 L1
-     *  |
-     *  +--> 0x04 L2 reference
-     *  +--> 0x04 L3 reference
-     *  +--> ...
-     *  +--> 0x04 Li reference
-     *  +--> ...
-     *  +--> 0x04 Ln reference
-     * 
-     * L1 = n*Length(0x04) + sum(Length(Li)) + sum(Length(reference[i]))
-     * 
-     * Length(SearchResultReference) = Length(0x73 + Length(L1) + L1
+     * Compute the SearchResultReference length SearchResultReference : 0x73 L1 |
+     * +--> 0x04 L2 reference +--> 0x04 L3 reference +--> ... +--> 0x04 Li
+     * reference +--> ... +--> 0x04 Ln reference L1 = n*Length(0x04) +
+     * sum(Length(Li)) + sum(Length(reference[i])) Length(SearchResultReference) =
+     * Length(0x73 + Length(L1) + L1
      */
     public int computeLength()
     {
         searchResultReferenceLength = 0;
-        
+
         Iterator referencesIterator = searchResultReferences.iterator();
-        
+
         // We may have more than one reference.
-        while (referencesIterator.hasNext())
+        while ( referencesIterator.hasNext() )
         {
-            int ldapUrlLength = ((LdapURL)referencesIterator.next()).getNbBytes();
+            int ldapUrlLength = ( ( LdapURL ) referencesIterator.next() ).getNbBytes();
             searchResultReferenceLength += 1 + Length.getNbBytes( ldapUrlLength ) + ldapUrlLength;
         }
-        
+
         return 1 + Length.getNbBytes( searchResultReferenceLength ) + searchResultReferenceLength;
     }
 
+
     /**
-     * Encode the SearchResultReference message to a PDU.
+     * Encode the SearchResultReference message to a PDU. SearchResultReference :
+     * 0x73 LL 0x04 LL reference [0x04 LL reference]*
      * 
-     * SearchResultReference :
-     * 
-     * 0x73 LL
-     *   0x04 LL reference
-     *   [0x04 LL reference]*
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -139,36 +137,37 @@ public class SearchResultReference extends LdapMessage
             throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
-        try 
+        try
         {
             // The SearchResultReference Tag
             buffer.put( LdapConstants.SEARCH_RESULT_REFERENCE_TAG );
-            buffer.put( Length.getBytes( searchResultReferenceLength ) ) ;
+            buffer.put( Length.getBytes( searchResultReferenceLength ) );
 
             // The references. We must at least have one reference
             Iterator referencesIterator = searchResultReferences.iterator();
-            
+
             // We may have more than one reference.
-            while (referencesIterator.hasNext())
+            while ( referencesIterator.hasNext() )
             {
-                LdapURL reference = ((LdapURL)referencesIterator.next());
-                
+                LdapURL reference = ( ( LdapURL ) referencesIterator.next() );
+
                 // Encode the reference
                 Value.encode( buffer, reference.getString() );
             }
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !"); 
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         return buffer;
     }
 
+
     /**
      * Returns the Search Result Reference string
-     *
-     * @return The Search Result Reference string 
+     * 
+     * @return The Search Result Reference string
      */
     public String toString()
     {
@@ -189,8 +188,8 @@ public class SearchResultReference extends LdapMessage
 
             while ( referencesIterator.hasNext() )
             {
-                sb.append( "            '" )
-                  .append( ( ( LdapURL ) referencesIterator.next() ).toString() ).append( "'\n" );
+                sb.append( "            '" ).append( ( ( LdapURL ) referencesIterator.next() ).toString() ).append(
+                    "'\n" );
             }
         }
 

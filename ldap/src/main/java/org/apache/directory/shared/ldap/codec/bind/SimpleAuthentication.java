@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.bind;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -31,21 +32,24 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SimpleAuthentication  extends LdapAuthentication
+public class SimpleAuthentication extends LdapAuthentication
 {
-	/** The logger */
+    /** The logger */
     private static Logger log = LoggerFactory.getLogger( SimpleAuthentication.class );
 
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The simple authentication password */
     private byte[] simple;
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the simple password
-     *
+     * 
      * @return The password
      */
     public byte[] getSimple()
@@ -53,82 +57,79 @@ public class SimpleAuthentication  extends LdapAuthentication
         return simple;
     }
 
+
     /**
      * Set the simple password
-     *
-     * @param simple The simple password
+     * 
+     * @param simple
+     *            The simple password
      */
     public void setSimple( byte[] simple )
     {
         this.simple = simple;
     }
 
+
     /**
-     * Compute the Simple authentication length
-     * 
-     * Simple authentication :
-     * 
-     * 0x80 L1 simple
-     * 
-     * L1 = Length(simple)
-     * 
-     * Length(Simple authentication) = Length(0x80) + Length(L1) + Length(simple)
+     * Compute the Simple authentication length Simple authentication : 0x80 L1
+     * simple L1 = Length(simple) Length(Simple authentication) = Length(0x80) +
+     * Length(L1) + Length(simple)
      */
     public int computeLength()
     {
         int length = 1;
-        
+
         length += Length.getNbBytes( simple.length ) + simple.length;
 
-    	if ( log.isDebugEnabled() )
-    	{
-    		log.debug( "Simple Authentication length : {}", new Integer( length ) );
-    	}
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Simple Authentication length : {}", new Integer( length ) );
+        }
 
-    	return length;
+        return length;
     }
-    
+
+
     /**
-     * Encode the simple authentication to a PDU.
+     * Encode the simple authentication to a PDU. SimpleAuthentication : 0x80 LL
+     * simple
      * 
-     * SimpleAuthentication :
-     * 
-     * 0x80 LL simple
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )
         {
-        	log.error( "Cannot put a PDU in a null buffer !" );
+            log.error( "Cannot put a PDU in a null buffer !" );
             throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
-        try 
+        try
         {
             // The simpleAuthentication Tag
-            buffer.put( (byte) LdapConstants.BIND_REQUEST_SIMPLE_TAG );
-            buffer.put( Length.getBytes( simple.length ) ) ;
-            
+            buffer.put( ( byte ) LdapConstants.BIND_REQUEST_SIMPLE_TAG );
+            buffer.put( Length.getBytes( simple.length ) );
+
             if ( simple.length != 0 )
             {
-                buffer.put( simple ) ;
+                buffer.put( simple );
             }
         }
         catch ( BufferOverflowException boe )
         {
-        	log.error( "The PDU buffer size is too small !" );
-            throw new EncoderException("The PDU buffer size is too small !"); 
+            log.error( "The PDU buffer size is too small !" );
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         return buffer;
     }
 
+
     /**
      * Return the simple authentication as a string
-     *
+     * 
      * @return The simple authentication string.
      */
     public String toString()

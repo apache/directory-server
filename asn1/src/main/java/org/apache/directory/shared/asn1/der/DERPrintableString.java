@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER PrintableString object.
  */
@@ -25,11 +26,12 @@ public class DERPrintableString extends DERString
     /**
      * Basic DERObject constructor.
      */
-    public DERPrintableString( byte[] value )
+    public DERPrintableString(byte[] value)
     {
-    	super( PRINTABLE_STRING, value );
+        super( PRINTABLE_STRING, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -38,4 +40,3 @@ public class DERPrintableString extends DERString
         return new DERPrintableString( stringToByteArray( string ) );
     }
 }
-

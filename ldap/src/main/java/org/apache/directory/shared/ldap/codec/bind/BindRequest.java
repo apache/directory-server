@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.bind;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -31,15 +32,15 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A BindRequest ldapObject. It's a sub-class of Asn1Object, and it extends
- * the Asn1Object class to be seen as a member of the LdapMessage
- * CHOICE.
+ * A BindRequest ldapObject. It's a sub-class of Asn1Object, and it extends the
+ * Asn1Object class to be seen as a member of the LdapMessage CHOICE.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class BindRequest extends LdapMessage
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The protocol Version to use. Should be 3 */
     private int version;
@@ -53,21 +54,25 @@ public class BindRequest extends LdapMessage
     /** The bind request length */
     private transient int bindRequestLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new BindRequest object.
      */
     public BindRequest()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -75,9 +80,10 @@ public class BindRequest extends LdapMessage
         return LdapConstants.BIND_REQUEST;
     }
 
+
     /**
      * Get the user authentication
-     *
+     * 
      * @return The user authentication
      */
     public LdapAuthentication getAuthentication()
@@ -85,9 +91,10 @@ public class BindRequest extends LdapMessage
         return authentication;
     }
 
+
     /**
      * Get the user simple authentication
-     *
+     * 
      * @return The simple user authentication
      */
     public SimpleAuthentication getSimpleAuthentication()
@@ -95,9 +102,10 @@ public class BindRequest extends LdapMessage
         return ( SimpleAuthentication ) authentication;
     }
 
+
     /**
      * Get the user sasl authentication
-     *
+     * 
      * @return The sasl user authentication
      */
     public SaslCredentials getSaslAuthentication()
@@ -105,19 +113,22 @@ public class BindRequest extends LdapMessage
         return ( SaslCredentials ) authentication;
     }
 
+
     /**
      * Set the user authentication
-     *
-     * @param authentication The user authentication
+     * 
+     * @param authentication
+     *            The user authentication
      */
     public void setAuthentication( LdapAuthentication authentication )
     {
         this.authentication = authentication;
     }
 
+
     /**
      * Get the user name
-     *
+     * 
      * @return The user name
      */
     public String getName()
@@ -125,25 +136,29 @@ public class BindRequest extends LdapMessage
         return ( ( name == null ) ? null : name.toString() );
     }
 
+
     /**
      * Set the user name
-     *
-     * @param name The user name
+     * 
+     * @param name
+     *            The user name
      */
     public void setName( Name name )
     {
         this.name = name;
     }
 
+
     /**
      * Get the protocol version
-     *
+     * 
      * @return The protocol version
      */
     public int getVersion()
     {
         return version;
     }
+
 
     /**
      * Check if the Ldap version in use is 3
@@ -155,34 +170,25 @@ public class BindRequest extends LdapMessage
         return version == 3;
     }
 
+
     /**
      * Set the protocol version
-     *
-     * @param version The protocol version
+     * 
+     * @param version
+     *            The protocol version
      */
     public void setVersion( int version )
     {
         this.version = version;
     }
 
+
     /**
-     * Compute the BindRequest length
-     * 
-     * BindRequest :
-     * 
-     * 0x60 L1
-     *  |
-     *  +--> 0x02 0x01 (1..127) version
-     *  +--> 0x04 L2 name
-     *  +--> authentication
-     * 
-     * L2 = Length(name)
-     * L3/4 = Length(authentication) 
-     * 
-     * Length(BindRequest) = Length(0x60) + Length(L1) + L1
-     *                       + Length(0x02) + 1 + 1
-     *                       + Length(0x04) + Length(L2) + L2 
-     *                       + Length(authentication)
+     * Compute the BindRequest length BindRequest : 0x60 L1 | +--> 0x02 0x01
+     * (1..127) version +--> 0x04 L2 name +--> authentication L2 = Length(name)
+     * L3/4 = Length(authentication) Length(BindRequest) = Length(0x60) +
+     * Length(L1) + L1 + Length(0x02) + 1 + 1 + Length(0x04) + Length(L2) + L2 +
+     * Length(authentication)
      */
     public int computeLength()
     {
@@ -198,22 +204,14 @@ public class BindRequest extends LdapMessage
         return 1 + Length.getNbBytes( bindRequestLength ) + bindRequestLength;
     }
 
+
     /**
-     * Encode the BindRequest message to a PDU.
+     * Encode the BindRequest message to a PDU. BindRequest : 0x60 LL 0x02 LL
+     * version 0x04 LL name authentication.encode() 0x80 LL simple / \ 0x83 LL
+     * mechanism [0x04 LL credential]
      * 
-     * BindRequest :
-     * 
-     * 0x60 LL
-     *   0x02 LL version
-     *   0x04 LL name
-     *   authentication.encode()
-     *     0x80 LL simple
-     *    /
-     *    \
-     *     0x83 LL mechanism
-     *     [0x04 LL credential]
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
@@ -227,12 +225,12 @@ public class BindRequest extends LdapMessage
         {
             // The BindRequest Tag
             buffer.put( LdapConstants.BIND_REQUEST_TAG );
-            buffer.put( Length.getBytes( bindRequestLength ) ) ;
+            buffer.put( Length.getBytes( bindRequestLength ) );
 
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         // The version
@@ -247,10 +245,11 @@ public class BindRequest extends LdapMessage
         return buffer;
     }
 
+
     /**
      * Get a String representation of a BindRequest
-     *
-     * @return A BindRequest String 
+     * 
+     * @return A BindRequest String
      */
     public String toString()
     {
@@ -269,9 +268,8 @@ public class BindRequest extends LdapMessage
 
             if ( authentication instanceof SimpleAuthentication )
             {
-                sb.append( "        Simple authentication : '" )
-                  .append( ( ( SimpleAuthentication ) authentication ).toString() ).append(
-                    "'\n" );
+                sb.append( "        Simple authentication : '" ).append(
+                    ( ( SimpleAuthentication ) authentication ).toString() ).append( "'\n" );
             }
             else
             {

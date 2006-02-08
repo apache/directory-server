@@ -27,7 +27,8 @@ public interface AbandonListener
     /**
      * Notifies that a request has been abandoned.
      * 
-     * @param req the request which is abandoned.
+     * @param req
+     *            the request which is abandoned.
      */
     void requestAbandoned( AbandonableRequest req );
 }

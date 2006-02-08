@@ -33,16 +33,17 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 public class PSearchControlDecoder extends Asn1Decoder implements ControlDecoder
 {
     private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.3";
-    
+
     private static final Asn1Decoder decoder = new Asn1Decoder();
-    
+
+
     public String getControlType()
     {
         return CONTROL_TYPE_OID;
     }
 
 
-    public Asn1Object decode(byte[] controlBytes) throws DecoderException
+    public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
         ByteBuffer bb = ByteBuffer.wrap( controlBytes );
         PSearchControlContainer container = new PSearchControlContainer();

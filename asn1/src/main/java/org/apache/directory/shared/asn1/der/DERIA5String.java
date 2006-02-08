@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER IA5String object.
  */
@@ -25,11 +26,12 @@ public class DERIA5String extends DERString
     /**
      * Basic DERObject constructor.
      */
-    DERIA5String( byte[] value )
+    DERIA5String(byte[] value)
     {
-    	super( IA5_STRING, value );
+        super( IA5_STRING, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -38,4 +40,3 @@ public class DERIA5String extends DERString
         return new DERIA5String( stringToByteArray( string ) );
     }
 }
-

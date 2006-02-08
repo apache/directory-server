@@ -23,16 +23,9 @@ public class LdifParserImplTest extends TestCase
 {
     public void testLdifParser() throws NamingException
     {
-        String ldif = "dn: cn=app1,ou=applications,ou=conf,dc=apache,dc=org\n" +
-                "cn: app1\n" +
-                "objectClass: top\n" +
-                "objectClass: apApplication\n" +
-                "displayName: app1\n" +
-                "serviceType: http\n" +
-                "dependencies:\n" +
-                "httpHeaders:\n" +
-                "startupOptions:\n" +
-                "envVars:";
+        String ldif = "dn: cn=app1,ou=applications,ou=conf,dc=apache,dc=org\n" + "cn: app1\n" + "objectClass: top\n"
+            + "objectClass: apApplication\n" + "displayName: app1\n" + "serviceType: http\n" + "dependencies:\n"
+            + "httpHeaders:\n" + "startupOptions:\n" + "envVars:";
         LdifParser parser = new LdifParserImpl();
         Attributes attrs = new LockableAttributesImpl();
         parser.parse( attrs, ldif );
@@ -47,17 +40,10 @@ public class LdifParserImplTest extends TestCase
 
     public void testLdifParserComments() throws NamingException
     {
-        String ldif = "#comment\n" +
-                "dn: cn=app1,ou=applications,ou=conf,dc=apache,dc=org\n" +
-                "cn: app1#another comment\n" +
-                "objectClass: top\n" +
-                "objectClass: apApplication\n" +
-                "displayName: app1\n" +
-                "serviceType: http\n" +
-                "dependencies:\n" +
-                "httpHeaders:\n" +
-                "startupOptions:\n" +
-                "envVars:";
+        String ldif = "#comment\n" + "dn: cn=app1,ou=applications,ou=conf,dc=apache,dc=org\n"
+            + "cn: app1#another comment\n" + "objectClass: top\n" + "objectClass: apApplication\n"
+            + "displayName: app1\n" + "serviceType: http\n" + "dependencies:\n" + "httpHeaders:\n"
+            + "startupOptions:\n" + "envVars:";
         LdifParser parser = new LdifParserImpl();
         Attributes attrs = new LockableAttributesImpl();
         parser.parse( attrs, ldif );

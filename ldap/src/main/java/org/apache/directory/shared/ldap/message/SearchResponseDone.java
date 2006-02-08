@@ -18,14 +18,13 @@ package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Search done protocol response message used to indicate the completion of
- * a search request message.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * Search done protocol response message used to indicate the completion of a
+ * search request message.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
-public interface SearchResponseDone
-    extends ResultResponse
+public interface SearchResponseDone extends ResultResponse
 {
     /** Search done response message type enumeration value */
     MessageTypeEnum TYPE = MessageTypeEnum.SEARCHRESDONE;

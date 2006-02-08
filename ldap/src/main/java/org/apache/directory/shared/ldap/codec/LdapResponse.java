@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -28,7 +29,8 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  */
 public class LdapResponse extends LdapMessage
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The LdapResult element */
     private LdapResult ldapResult;
@@ -36,21 +38,25 @@ public class LdapResponse extends LdapMessage
     /** The response length */
     private transient int ldapResponseLength;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new LdapResponse object.
      */
     public LdapResponse()
     {
-        super( );
+        super();
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the LdapResult
-     *
+     * 
      * @return Returns the ldapResult.
      */
     public LdapResult getLdapResult()
@@ -58,15 +64,18 @@ public class LdapResponse extends LdapMessage
         return ldapResult;
     }
 
+
     /**
      * Set the ldap result
      * 
-     * @param ldapResult The ldapResult to set.
+     * @param ldapResult
+     *            The ldapResult to set.
      */
     public void setLdapResult( LdapResult ldapResult )
     {
         this.ldapResult = ldapResult;
     }
+
 
     /**
      * @return Returns the ldapResponseLength.
@@ -76,12 +85,9 @@ public class LdapResponse extends LdapMessage
         return ldapResponseLength;
     }
 
+
     /**
-     * Compute the LdapResponse length
-     * 
-     * LdapResponse :
-     * 
-     * LdapResult
+     * Compute the LdapResponse length LdapResponse : LdapResult
      */
     public int computeLength()
     {
@@ -90,17 +96,19 @@ public class LdapResponse extends LdapMessage
         return ldapResponseLength;
     }
 
+
     /**
      * Encode the AddResponse message to a PDU.
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer )  throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         // The ldapResult
@@ -110,10 +118,11 @@ public class LdapResponse extends LdapMessage
         return buffer;
     }
 
+
     /**
      * Get a String representation of an Response
-     *
-     * @return An Response String 
+     * 
+     * @return An Response String
      */
     public String toString()
     {

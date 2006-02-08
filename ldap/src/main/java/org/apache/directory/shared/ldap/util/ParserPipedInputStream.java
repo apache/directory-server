@@ -24,21 +24,21 @@ import java.io.IOException;
 /**
  * A piped input stream that fixes the "Read end Dead" issue when a single
  * thread is used.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ParserPipedInputStream extends PipedInputStream
 {
-    protected synchronized void receive(int b) throws IOException 
+    protected synchronized void receive( int b ) throws IOException
     {
-        while (in == out)
+        while ( in == out )
         {
             /* full: kick any waiting readers */
             notifyAll();
             try
             {
-                wait(1000);
+                wait( 1000 );
             }
             catch ( InterruptedException ex )
             {
@@ -46,13 +46,13 @@ public class ParserPipedInputStream extends PipedInputStream
             }
         }
 
-        if (in < 0)
+        if ( in < 0 )
         {
             in = 0;
             out = 0;
         }
 
-        buffer[in++] = (byte)(b & 0xFF);
+        buffer[in++] = ( byte ) ( b & 0xFF );
 
         if ( in >= buffer.length )
         {

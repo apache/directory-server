@@ -38,65 +38,68 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An unsolicited notification, extended response, intended for notifying 
- * clients of upcoming disconnection due to intended service windows.  
- * Unlike the {@see NoticeOfDisconnect} this response contains additional 
- * information about the amount of time the server will be offline and 
- * exactly when it intends to shutdown.
- *
+ * An unsolicited notification, extended response, intended for notifying
+ * clients of upcoming disconnection due to intended service windows. Unlike the
+ * {@see NoticeOfDisconnect} this response contains additional information about
+ * the amount of time the server will be offline and exactly when it intends to
+ * shutdown.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class GracefulDisconnect extends ExtendedResponseImpl
 {
     private static final long serialVersionUID = -4682291068700593492L;
+
     public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.5";
+
     private static final Logger log = LoggerFactory.getLogger( GracefulDisconnect.class );
-    
+
     /** offline Time after disconnection */
     private int timeOffline;
 
     /** Delay before disconnection */
     private int delay;
-    
+
     /** String based LDAP URL that may be followed for replicated namingContexts */
     private Referral replicatedContexts = new ReferralImpl();
 
 
-    public GracefulDisconnect( byte[] value )
+    public GracefulDisconnect(byte[] value)
     {
         super( 0 );
         this.value = value;
         decodeValue();
     }
-    
-    
-    public GracefulDisconnect( int timeOffline, int delay )
+
+
+    public GracefulDisconnect(int timeOffline, int delay)
     {
         super( 0 );
         super.oid = EXTENSION_OID;
         this.timeOffline = timeOffline;
         this.delay = delay;
-        
+
         StringBuffer buf = new StringBuffer();
         buf.append( "The server will disconnect and will be unavailable for " ).append( timeOffline );
         buf.append( " minutes in " ).append( delay ).append( " seconds." );
-        
+
         super.getLdapResult().setErrorMessage( buf.toString() );
         super.getLdapResult().setMatchedDn( "" );
         super.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE );
-        
+
         encodeResponse();
     }
-    
-    
+
+
     private void decodeValue()
     {
         GracefulDisconnectDecoder decoder = new GracefulDisconnectDecoder();
-        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = null; 
+        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = null;
         try
         {
-            codec = ( org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect ) decoder.decode( value );
+            codec = ( org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect ) decoder
+                .decode( value );
             this.timeOffline = codec.getTimeOffline();
             this.delay = codec.getDelay();
             super.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
@@ -112,11 +115,11 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             throw new RuntimeException( e );
         }
     }
-    
+
+
     private void encodeResponse()
     {
-        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec =
-            new org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect();
+        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = new org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect();
         codec.setTimeOffline( this.timeOffline );
         codec.setDelay( this.delay );
         Iterator contexts = this.replicatedContexts.getLdapUrls().iterator();
@@ -132,10 +135,10 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             {
                 log.error( "Failed while parsing LDAP url " + urlstr, e );
                 continue;
-            } 
+            }
             codec.addReplicatedContexts( url );
         }
-        
+
         try
         {
             super.value = codec.encode( null ).array();
@@ -146,19 +149,18 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             throw new RuntimeException( e );
         }
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // ExtendedResponse Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the reponse OID specific encoded response values.
-     *
+     * 
      * @return the response specific encoded response values.
      */
-    public byte [] getResponse()
+    public byte[] getResponse()
     {
         if ( value == null )
         {
@@ -170,10 +172,11 @@ public class GracefulDisconnect extends ExtendedResponseImpl
 
     /**
      * Sets the reponse OID specific encoded response values.
-     *
-     * @param value the response specific encoded response values.
+     * 
+     * @param value
+     *            the response specific encoded response values.
      */
-    public void setResponse( byte [] value )
+    public void setResponse( byte[] value )
     {
         ByteBuffer bb = ByteBuffer.wrap( value );
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();
@@ -186,8 +189,8 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         {
             log.error( "Failed while decoding response", e );
         }
-        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec =
-            container.getGracefulDisconnect();
+        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = container
+            .getGracefulDisconnect();
         this.delay = codec.getDelay();
         this.timeOffline = codec.getTimeOffline();
         List contexts = codec.getReplicatedContexts();
@@ -196,7 +199,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             LdapURL url = ( LdapURL ) contexts.get( ii );
             replicatedContexts.addLdapUrl( url.toString() );
         }
-        
+
         this.value = value;
     }
 
@@ -204,7 +207,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     /**
      * Gets the OID uniquely identifying this extended response (a.k.a. its
      * name).
-     *
+     * 
      * @return the OID of the extended response type.
      */
     public String getResponseName()
@@ -216,8 +219,9 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     /**
      * Sets the OID uniquely identifying this extended response (a.k.a. its
      * name).
-     *
-     * @param oid the OID of the extended response type.
+     * 
+     * @param oid
+     *            the OID of the extended response type.
      */
     public void setResponseName( String oid )
     {
@@ -229,19 +233,18 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     // Parameters of the Extended Response Value
     // -----------------------------------------------------------------------
 
-
-    public void setDelay(int delay)
+    public void setDelay( int delay )
     {
         this.delay = delay;
     }
 
 
-    public void setTimeOffline(int timeOffline)
+    public void setTimeOffline( int timeOffline )
     {
         this.timeOffline = timeOffline;
     }
 
-    
+
     public int getDelay()
     {
         return delay;

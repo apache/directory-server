@@ -12,43 +12,53 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 
 package org.apache.directory.shared.asn1.codec;
 
+
 /**
- * Thrown when a Decoder has encountered a failure condition during a decode. 
+ * Thrown when a Decoder has encountered a failure condition during a decode.
  * 
  * @author Apache Software Foundation
  * @version $Id: DecoderException.java,v 1.11 2004/09/09 16:00:13 ggregory Exp $
  */
-public class DecoderException extends Exception {
+public class DecoderException extends Exception
+{
 
     /**
      * Declares the Serial Version Uid.
      * 
-     * @see <a href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always Declare Serial Version Uid</a>
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
      */
     private static final long serialVersionUID = 1L;
 
+
     /**
      * Creates a DecoderException
      * 
-     * @param message A message with meaning to a human
+     * @param message
+     *            A message with meaning to a human
      */
-    public DecoderException(String message) {
+    public DecoderException(String message)
+    {
         super( message );
     }
 
+
     /**
      * Creates a DecoderException
      * 
-     * @param message A message with meaning to a human
-     * @param cause The Exception which caused the error
+     * @param message
+     *            A message with meaning to a human
+     * @param cause
+     *            The Exception which caused the error
      */
-    public DecoderException(String message, Throwable cause ) {
+    public DecoderException(String message, Throwable cause)
+    {
         super( message, cause );
     }
 
-}  
-
+}

@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.asn1.ber.grammar;
 
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
@@ -28,14 +29,16 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
  */
 public interface IAction
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * The action to be executed.
-     *
-     * @param container The container which stores the current data
-     *
-     * @throws DecoderException Thrown if something went wrong.
+     * 
+     * @param container
+     *            The container which stores the current data
+     * @throws DecoderException
+     *             Thrown if something went wrong.
      */
     public void action( IAsn1Container container ) throws DecoderException;
 }

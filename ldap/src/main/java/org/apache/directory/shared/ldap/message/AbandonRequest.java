@@ -29,17 +29,20 @@ public interface AbandonRequest extends Request
     /** Ldap abandon request type code */
     MessageTypeEnum TYPE = MessageTypeEnum.ABANDONREQUEST;
 
+
     /**
      * Gets the id of the request operation to terminate.
-     *
+     * 
      * @return the id of the request message to abandon
      */
     int getAbandoned();
 
+
     /**
      * Sets the id of the request operation to terminate.
-     *
-     * @param requestId the sequence id of the request message to abandon
+     * 
+     * @param requestId
+     *            the sequence id of the request message to abandon
      */
     void setAbandoned( int requestId );
 }

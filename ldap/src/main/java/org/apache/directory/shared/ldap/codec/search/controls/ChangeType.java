@@ -18,16 +18,18 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 
 /**
- * Enumeration type for entry changes associates with the persistent search 
- * control and the entry change control.  Used for the following ASN1 enumeration:
+ * Enumeration type for entry changes associates with the persistent search
+ * control and the entry change control. Used for the following ASN1
+ * enumeration:
+ * 
  * <pre>
- *  changeType ENUMERATED 
- *  {
- *      add             (1),
- *      delete          (2),
- *      modify          (4),
- *      modDN           (8)
- *  }
+ *   changeType ENUMERATED 
+ *   {
+ *       add             (1),
+ *       delete          (2),
+ *       modify          (4),
+ *       modDN           (8)
+ *   }
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -36,56 +38,65 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 public class ChangeType
 {
     public static final int ADD_VALUE = 1;
+
     public static final int DELETE_VALUE = 2;
+
     public static final int MODIFY_VALUE = 4;
+
     public static final int MODDN_VALUE = 8;
-    
+
     public static final ChangeType ADD = new ChangeType( "ADD", ADD_VALUE );
+
     public static final ChangeType DELETE = new ChangeType( "DELETE", DELETE_VALUE );
+
     public static final ChangeType MODIFY = new ChangeType( "MODIFY", MODIFY_VALUE );
+
     public static final ChangeType MODDN = new ChangeType( "MODDN", MODDN_VALUE );
-    
+
     private final String label;
+
     private final int value;
-    
-    
-    private ChangeType( String label, int value )
+
+
+    private ChangeType(String label, int value)
     {
         this.label = label;
         this.value = value;
     }
 
-    
+
     public int getValue()
     {
         return value;
     }
-    
-    
+
+
     public String toString()
     {
-        return( label );
+        return ( label );
     }
-    
-    
+
+
     /**
      * Gets the changeType enumeration type for an integer value.
      * 
-     * @param value the value to get the enumeration for
+     * @param value
+     *            the value to get the enumeration for
      * @return the enueration type for the value if the value is valid
-     * @throws IllegalArgumentException if the value is undefined
+     * @throws IllegalArgumentException
+     *             if the value is undefined
      */
     public static ChangeType getChangeType( int value )
     {
-        switch( value )
+        switch ( value )
         {
-            case( ADD_VALUE ):
+            case ( ADD_VALUE ):
                 return ADD;
-            case( DELETE_VALUE ):
+            case ( DELETE_VALUE ):
                 return DELETE;
-            case( MODIFY_VALUE ):
+            case ( MODIFY_VALUE ):
                 return MODIFY;
-            case( MODDN_VALUE ):
+            case ( MODDN_VALUE ):
                 return MODDN;
             default:
                 throw new IllegalArgumentException( "Undefined changeType value: " + value );

@@ -17,25 +17,27 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
- * DER NumericString - a string of ASCII numeric characters { 0,1,2,3,4,5,6,7,8,9 }.
+ * DER NumericString - a string of ASCII numeric characters {
+ * 0,1,2,3,4,5,6,7,8,9 }.
  */
 public class DERNumericString extends DERString
 {
     /**
      * Basic DERObject constructor.
      */
-    DERNumericString( byte[] value )
+    DERNumericString(byte[] value)
     {
-    	super( NUMERIC_STRING, value );
+        super( NUMERIC_STRING, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
     public static DERNumericString valueOf( String string )
     {
-    	return new DERNumericString( stringToByteArray( string ));
+        return new DERNumericString( stringToByteArray( string ) );
     }
 }
-

@@ -22,18 +22,19 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 
 
 /**
- * This class store the EntryChangeControl's grammar constants.
- * It is also used for debugging purposes.
- *
+ * This class store the EntryChangeControl's grammar constants. It is also used
+ * for debugging purposes.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class EntryChangeControlStatesEnum implements IStates
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
-    //=========================================================================
-    // Entry change control grammar states 
-    //=========================================================================
+    // =========================================================================
+    // Entry change control grammar states
+    // =========================================================================
 
     /** Sequence Tag */
     public static int EC_SEQUENCE_TAG = 0;
@@ -58,13 +59,13 @@ public class EntryChangeControlStatesEnum implements IStates
 
     /** changeNumber Value */
     public static int CHANGE_NUMBER_VALUE = 7;
-    
+
     /** terminal state */
     public static int LAST_EC_STATE = 8;
 
-    //=========================================================================
+    // =========================================================================
     // Grammars declaration.
-    //=========================================================================
+    // =========================================================================
     /** Entry change grammar */
     public static final int EC_GRAMMAR_SWITCH = 0x0100;
 
@@ -74,45 +75,42 @@ public class EntryChangeControlStatesEnum implements IStates
     /** The total number of grammars used */
     public static final int NB_GRAMMARS = 1;
 
-    //=========================================================================
-    // Grammar switches debug strings 
-    //=========================================================================
+    // =========================================================================
+    // Grammar switches debug strings
+    // =========================================================================
     /** A string representation of grammars */
-    private static String[] GrammarSwitchString = new String[] { "EC_GRAMMAR_SWITCH" };
+    private static String[] GrammarSwitchString = new String[]
+        { "EC_GRAMMAR_SWITCH" };
 
-    //=========================================================================
-    // States debug strings 
-    //=========================================================================
+    // =========================================================================
+    // States debug strings
+    // =========================================================================
     /** A string representation of all the states */
     private static String[] EcString = new String[]
-    {
-        "EC_SEQUENCE_TAG",
-        "EC_SEQUENCE_VALUE",
-        "CHANGE_TYPE_TAG",
-        "CHANGE_TYPE_VALUE",
-        "CHANGE_NUMBER_OR_PREVIOUS_DN_TAG",
-        "PREVIOUS_DN_VALUE",
-        "CHANGE_NUMBER_TAG",
-        "CHANGE_NUMBER_VALUE"
-    };
+        { "EC_SEQUENCE_TAG", "EC_SEQUENCE_VALUE", "CHANGE_TYPE_TAG", "CHANGE_TYPE_VALUE",
+            "CHANGE_NUMBER_OR_PREVIOUS_DN_TAG", "PREVIOUS_DN_VALUE", "CHANGE_NUMBER_TAG", "CHANGE_NUMBER_VALUE" };
 
     /** The instance */
     private static EntryChangeControlStatesEnum instance = new EntryChangeControlStatesEnum();
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * This is a private constructor. This class is a singleton
-     *
      */
     private EntryChangeControlStatesEnum()
     {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get an instance of this class
+     * 
      * @return An instance on this class
      */
     public static IStates getInstance()
@@ -120,23 +118,31 @@ public class EntryChangeControlStatesEnum implements IStates
         return instance;
     }
 
+
     /**
      * Get the grammar name
-     * @param grammar The grammar code
+     * 
+     * @param grammar
+     *            The grammar code
      * @return The grammar name
      */
     public String getGrammarName( int grammar )
     {
         switch ( grammar )
         {
-            case EC_GRAMMAR: return "EC_GRAMMAR";
-            default: return "UNKNOWN";
+            case EC_GRAMMAR:
+                return "EC_GRAMMAR";
+            default:
+                return "UNKNOWN";
         }
     }
 
+
     /**
      * Get the grammar name
-     * @param grammar The grammar class
+     * 
+     * @param grammar
+     *            The grammar class
      * @return The grammar name
      */
     public String getGrammarName( IGrammar grammar )
@@ -145,15 +151,18 @@ public class EntryChangeControlStatesEnum implements IStates
         {
             return "EC_GRAMMAR";
         }
-        
+
         return "UNKNOWN GRAMMAR";
     }
+
 
     /**
      * Get the string representing the state
      * 
-     * @param grammar The current grammar being used
-     * @param state The state number
+     * @param grammar
+     *            The current grammar being used
+     * @param state
+     *            The state number
      * @return The String representing the state
      */
     public String getState( int grammar, int state )
@@ -170,10 +179,10 @@ public class EntryChangeControlStatesEnum implements IStates
             switch ( grammar )
             {
 
-                case EC_GRAMMAR :
+                case EC_GRAMMAR:
                     return ( ( state == GRAMMAR_END ) ? "EC_END_STATE" : EcString[state] );
 
-                default :
+                default:
                     return "UNKNOWN";
             }
         }

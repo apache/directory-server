@@ -1,7 +1,7 @@
 /*
 
  ============================================================================
-                   The Apache Software License, Version 1.1
+ The Apache Software License, Version 1.1
  ============================================================================
 
  Copyright (C) 1999-2002 The Apache Software Foundation. All rights reserved.
@@ -10,26 +10,26 @@
  tion, are permitted provided that the following conditions are met:
 
  1. Redistributions of  source code must  retain the above copyright  notice,
-    this list of conditions and the following disclaimer.
+ this list of conditions and the following disclaimer.
 
  2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
 
  3. The end-user documentation included with the redistribution, if any, must
-    include  the following  acknowledgment:  "This product includes  software
-    developed  by the  Apache Software Foundation  (http://www.apache.org/)."
-    Alternately, this  acknowledgment may  appear in the software itself,  if
-    and wherever such third-party acknowledgments normally appear.
+ include  the following  acknowledgment:  "This product includes  software
+ developed  by the  Apache Software Foundation  (http://www.apache.org/)."
+ Alternately, this  acknowledgment may  appear in the software itself,  if
+ and wherever such third-party acknowledgments normally appear.
 
  4. The names "Eve Directory Server", "Apache Directory Project", "Apache Eve" 
-    and "Apache Software Foundation"  must not be used to endorse or promote
-    products derived  from this  software without  prior written
-    permission. For written permission, please contact apache@apache.org.
+ and "Apache Software Foundation"  must not be used to endorse or promote
+ products derived  from this  software without  prior written
+ permission. For written permission, please contact apache@apache.org.
 
  5. Products  derived from this software may not  be called "Apache", nor may
-    "Apache" appear  in their name,  without prior written permission  of the
-    Apache Software Foundation.
+ "Apache" appear  in their name,  without prior written permission  of the
+ Apache Software Foundation.
 
  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
@@ -46,17 +46,17 @@
  on  behalf of the Apache Software  Foundation. For more  information on the
  Apache Software Foundation, please see <http://www.apache.org/>.
 
-*/
-package org.apache.directory.shared.ldap.schema ;
+ */
+package org.apache.directory.shared.ldap.schema;
 
 
-import javax.naming.NamingException ;
+import javax.naming.NamingException;
 
 
 /**
- * Used to validate values of a particular syntax.  This interface does not
- * correlate to any LDAP or X.500 construct.  It has been created as a means
- * to enforce a syntax within the Eve server.
+ * Used to validate values of a particular syntax. This interface does not
+ * correlate to any LDAP or X.500 construct. It has been created as a means to
+ * enforce a syntax within the Eve server.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -65,26 +65,30 @@ public interface SyntaxChecker
 {
     /**
      * Gets the OID of the attribute syntax.
-     *
+     * 
      * @return the object identifier of the Syntax this SyntaxChecker validates
      */
-    String getSyntaxOid() ;
+    String getSyntaxOid();
+
 
     /**
      * Determines if the attribute's value conforms to the attribute syntax.
-     *
-     * @param a_value the value of some attribute with the syntax
+     * 
+     * @param a_value
+     *            the value of some attribute with the syntax
      * @return true if the value is in the valid syntax, false otherwise
      */
-    boolean isValidSyntax( Object a_value ) ;
-    
+    boolean isValidSyntax( Object a_value );
+
+
     /**
-     * Asserts whether or not the attribute's value conforms to the attribute 
+     * Asserts whether or not the attribute's value conforms to the attribute
      * syntax.
-     *
-     * @param a_value the value of some attribute with the syntax
-     * @throws NamingException if the value does not conform to the attribute
-     * syntax.
-     */    
-    void assertSyntax( Object a_value ) throws NamingException ;
+     * 
+     * @param a_value
+     *            the value of some attribute with the syntax
+     * @throws NamingException
+     *             if the value does not conform to the attribute syntax.
+     */
+    void assertSyntax( Object a_value ) throws NamingException;
 }

@@ -19,25 +19,24 @@ package org.apache.directory.shared.ldap.schema;
 
 /**
  * The default MatchingRule implementation.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractMatchingRule extends AbstractSchemaObject
-    implements MatchingRule
+public abstract class AbstractMatchingRule extends AbstractSchemaObject implements MatchingRule
 {
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    
     /**
      * Creates a MatchingRule using the minimal set of required information.
      * 
-     * @param oid the object identifier for this matching rule
+     * @param oid
+     *            the object identifier for this matching rule
      */
-    protected AbstractMatchingRule( String oid )
+    protected AbstractMatchingRule(String oid)
     {
         super( oid );
     }

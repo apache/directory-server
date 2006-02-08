@@ -14,12 +14,12 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.asn1.codec.stateful ;
+package org.apache.directory.shared.asn1.codec.stateful;
 
 
 /**
  * Callback interface for stateful decoder callbacks.
- *
+ * 
  * @author <a href="mailto:commons-dev@jakarta.apache.org">Jakarta Commons</a>
  * @version $Rev$
  */
@@ -28,8 +28,10 @@ public interface DecoderCallback
     /**
      * Callback to deliver a fully decoded object.
      * 
-     * @param decoder the stateful decoder driving the callback
-     * @param decoded the object that was decoded
+     * @param decoder
+     *            the stateful decoder driving the callback
+     * @param decoded
+     *            the object that was decoded
      */
-    void decodeOccurred( StatefulDecoder decoder, Object decoded ) ;
+    void decodeOccurred( StatefulDecoder decoder, Object decoded );
 }

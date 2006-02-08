@@ -16,26 +16,29 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import org.apache.directory.shared.asn1.Asn1Object;
 
 
 /**
- * An abstract Asn1Object used to store the filter. A filter is seen as a tree with a root.
- * This class does nothing, it's just the root of all the different filters.
- * 
+ * An abstract Asn1Object used to store the filter. A filter is seen as a tree
+ * with a root. This class does nothing, it's just the root of all the different
+ * filters.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class Filter extends Asn1Object
 {
-    //~ Constructors -------------------------------------------------------------------------------
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
-     * The constructor.  
+     * The constructor.
      */
     public Filter()
     {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 }

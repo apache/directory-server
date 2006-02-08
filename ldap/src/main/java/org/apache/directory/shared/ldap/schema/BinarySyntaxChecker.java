@@ -22,7 +22,7 @@ import javax.naming.NamingException;
 
 /**
  * A binary value (universal value acceptor) syntax checker.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -30,13 +30,14 @@ public class BinarySyntaxChecker implements SyntaxChecker
 {
     /** an instance so we don't have to create one every time */
     public static final SyntaxChecker INSTANCE = new BinarySyntaxChecker();
+
     /** the Apache assigned internal OID for this syntax checker */
     public static final String OID = "1.3.6.1.4.1.1466.115.121.1.5";
 
 
     /**
      * Gets the singleton instance for this class.
-     *
+     * 
      * @return the singleton instance
      */
     public static SyntaxChecker getSingletonInstance()
@@ -44,7 +45,7 @@ public class BinarySyntaxChecker implements SyntaxChecker
         return INSTANCE;
     }
 
-    
+
     /**
      * Private default constructor to prevent unnecessary instantiation.
      */
@@ -62,7 +63,7 @@ public class BinarySyntaxChecker implements SyntaxChecker
         // do nothing because everything is valid
     }
 
-    
+
     /**
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#getSyntaxOid()
      */
@@ -71,7 +72,7 @@ public class BinarySyntaxChecker implements SyntaxChecker
         return OID;
     }
 
-    
+
     /**
      * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(Object)
      */

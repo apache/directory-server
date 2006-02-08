@@ -22,9 +22,8 @@ import java.util.regex.Pattern;
 
 
 /**
- * A Normalizer that uses Perl5 based regular expressions to
- * normalize values.
- *
+ * A Normalizer that uses Perl5 based regular expressions to normalize values.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -32,25 +31,26 @@ public class RegexNormalizer implements Normalizer
 {
     /** the perl 5 regex engine */
     private final Pattern[] regexes;
-    
-    /** the set of regular expressions used to transform values*/
+
+    /** the set of regular expressions used to transform values */
     private final Matcher[] matchers;
 
 
     /**
      * Creates a Perl5 regular expression based normalizer.
-     *
-     * @param regexes the set of regular expressions used to transform values
+     * 
+     * @param regexes
+     *            the set of regular expressions used to transform values
      */
-    public RegexNormalizer( Pattern[] regexes )
+    public RegexNormalizer(Pattern[] regexes)
     {
-    	this.regexes = regexes;
-    	matchers = new Matcher[ regexes.length ];
-    	
-    	for ( int i = 0; i < regexes.length; i++ )
-    	{
-    		matchers[i] = regexes[i].matcher( "" ); 
-    	}
+        this.regexes = regexes;
+        matchers = new Matcher[regexes.length];
+
+        for ( int i = 0; i < regexes.length; i++ )
+        {
+            matchers[i] = regexes[i].matcher( "" );
+        }
     }
 
 
@@ -63,21 +63,21 @@ public class RegexNormalizer implements Normalizer
         {
             return null;
         }
-        
+
         if ( value instanceof String )
         {
-            String str = ( String ) value ;
-    
+            String str = ( String ) value;
+
             for ( int i = 0; i < matchers.length; i++ )
             {
-            	
-                str = matchers[i].replaceAll( str ) ;
+
+                str = matchers[i].replaceAll( str );
             }
-    
-            return str ;
+
+            return str;
         }
-        
-        return value ;
+
+        return value;
     }
 
 
@@ -86,8 +86,8 @@ public class RegexNormalizer implements Normalizer
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer() ;
-        buf.append( "RegexNormalizer( " ) ;
+        StringBuffer buf = new StringBuffer();
+        buf.append( "RegexNormalizer( " );
 
         for ( int i = 0; i < regexes.length; i++ )
         {
@@ -99,7 +99,7 @@ public class RegexNormalizer implements Normalizer
             }
         }
 
-        buf.append( " )" ) ;
-        return buf.toString() ;
+        buf.append( " )" );
+        return buf.toString();
     }
 }

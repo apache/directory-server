@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 
 /**
  * TestCase for the methods of the DeleteRequestImpl class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
@@ -95,7 +95,8 @@ public class DeleteRequestImplTest extends TestCase
 
 
     /**
-     * Tests for equality even when another DeleteRequest implementation is used.
+     * Tests for equality even when another DeleteRequest implementation is
+     * used.
      */
     public void testEqualsDiffImpl()
     {
@@ -106,65 +107,79 @@ public class DeleteRequestImplTest extends TestCase
                 return null;
             }
 
+
             public void setName( String a_name )
             {
             }
+
 
             public MessageTypeEnum getResponseType()
             {
                 return MessageTypeEnum.DELRESPONSE;
             }
 
+
             public boolean hasResponse()
             {
                 return true;
             }
+
 
             public MessageTypeEnum getType()
             {
                 return MessageTypeEnum.DELREQUEST;
             }
 
+
             public Map getControls()
             {
                 return Collections.EMPTY_MAP;
             }
 
+
             public void add( Control a_control ) throws MessageException
             {
             }
 
+
             public void remove( Control a_control ) throws MessageException
             {
             }
+
 
             public int getMessageId()
             {
                 return 5;
             }
 
+
             public Object get( Object a_key )
             {
                 return null;
             }
+
 
             public Object put( Object a_key, Object a_value )
             {
                 return null;
             }
 
+
             public void abandon()
             {
             }
+
 
             public boolean isAbandoned()
             {
                 return false;
             }
 
-            public void addAbandonListener(AbandonListener listener)
+
+            public void addAbandonListener( AbandonListener listener )
             {
             }
+
 
             public ResultResponse getResultResponse()
             {

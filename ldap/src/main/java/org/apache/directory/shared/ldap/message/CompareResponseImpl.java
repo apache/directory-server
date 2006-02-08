@@ -14,33 +14,32 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Lockable CompareResponse implementation.
  * 
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class CompareResponseImpl
-    extends AbstractResultResponse implements CompareResponse
+public class CompareResponseImpl extends AbstractResultResponse implements CompareResponse
 {
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
 
-
     static final long serialVersionUID = 6452521899386487731L;
+
 
     /**
      * Creates a Lockable CompareResponse as a reply to an CompareRequest.
-     *
-     * @param id the session unique message id
+     * 
+     * @param id
+     *            the session unique message id
      */
-    public CompareResponseImpl( final int id )
+    public CompareResponseImpl(final int id)
     {
         super( id, TYPE );
     }

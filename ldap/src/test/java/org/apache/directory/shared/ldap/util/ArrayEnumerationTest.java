@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests the ArrayEnumeration class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -48,11 +48,9 @@ public class ArrayEnumerationTest extends TestCase
 
             fail( "should never get here due to a NoSuchElementException" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
         }
-
-
 
         // test with empty array
 
@@ -70,14 +68,14 @@ public class ArrayEnumerationTest extends TestCase
 
             fail( "should never get here due to a NoSuchElementException" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
         }
-
 
         // test with one object
 
-        array = new Object[] { new Object() };
+        array = new Object[]
+            { new Object() };
 
         list = new ArrayEnumeration( array );
 
@@ -93,15 +91,14 @@ public class ArrayEnumerationTest extends TestCase
 
             fail( "should never get here due to a NoSuchElementException" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
         }
-
-
 
         // test with two objects
 
-        array = new Object[] { new Object(), new Object() };
+        array = new Object[]
+            { new Object(), new Object() };
 
         list = new ArrayEnumeration( array );
 
@@ -121,15 +118,14 @@ public class ArrayEnumerationTest extends TestCase
 
             fail( "should never get here due to a NoSuchElementException" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
         }
-
-
 
         // test with three elements
 
-        array = new Object[] { new Object(), new Object(), new Object() };
+        array = new Object[]
+            { new Object(), new Object(), new Object() };
 
         list = new ArrayEnumeration( array );
 
@@ -153,7 +149,7 @@ public class ArrayEnumerationTest extends TestCase
 
             fail( "should never get here due to a NoSuchElementException" );
         }
-        catch( NoSuchElementException e )
+        catch ( NoSuchElementException e )
         {
         }
     }

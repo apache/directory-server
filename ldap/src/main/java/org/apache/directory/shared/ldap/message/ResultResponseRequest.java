@@ -26,11 +26,11 @@ package org.apache.directory.shared.ldap.message;
 public interface ResultResponseRequest extends Request
 {
     /**
-     * If called for the first time, this methohd creates a result containing 
+     * If called for the first time, this methohd creates a result containing
      * response object for this request.
      * 
      * @return a result containing response with defaults and the messageId set
-     * in response to this specific request
+     *         in response to this specific request
      */
     ResultResponse getResultResponse();
 }

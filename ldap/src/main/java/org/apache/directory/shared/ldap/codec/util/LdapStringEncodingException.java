@@ -17,29 +17,35 @@
 
 package org.apache.directory.shared.ldap.codec.util;
 
+
 /**
- * Thrown when a LdapStringEncodingDecoder has encountered a failure condition during 
- * the String creation. 
+ * Thrown when a LdapStringEncodingDecoder has encountered a failure condition
+ * during the String creation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapStringEncodingException extends Exception {
+public class LdapStringEncodingException extends Exception
+{
 
     /**
      * Declares the Serial Version Uid.
      * 
-     * @see <a href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always Declare Serial Version Uid</a>
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
      */
     private static final long serialVersionUID = 1L;
+
 
     /**
      * Creates a LdapStringEncodingException
      * 
-     * @param pMessage A message with meaning to a human
+     * @param pMessage
+     *            A message with meaning to a human
      */
-    public LdapStringEncodingException(String pMessage) {
-        super(pMessage);
+    public LdapStringEncodingException(String pMessage)
+    {
+        super( pMessage );
     }
 
-}  
-
+}

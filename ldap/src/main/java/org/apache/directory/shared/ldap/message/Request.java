@@ -14,22 +14,21 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Ldap protocol request messages derive from this super interface.
- *
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Request extends Message
 {
     /**
      * Tests to see if this Request produces one or more response types.
-     *
+     * 
      * @return true if a response can be expected, false otherwise.
      */
-    boolean hasResponse() ;
+    boolean hasResponse();
 }

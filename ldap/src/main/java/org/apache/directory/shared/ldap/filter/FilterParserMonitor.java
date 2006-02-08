@@ -14,14 +14,13 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
 
 
 /**
  * A monitor for FilterParsers.
- *
- * @author <a href="mailto:dev@directory.apache.org">
- * Apache Directory Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public interface FilterParserMonitor
@@ -29,7 +28,8 @@ public interface FilterParserMonitor
     /**
      * Monitors FilterParser events where it matches a production.
      * 
-     * @param production the name of the production matched
+     * @param production
+     *            the name of the production matched
      */
-    void matchedProduction( String production ) ;
+    void matchedProduction( String production );
 }

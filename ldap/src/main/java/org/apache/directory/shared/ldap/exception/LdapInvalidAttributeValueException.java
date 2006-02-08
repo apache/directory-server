@@ -23,37 +23,42 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * Makes a InvalidAttributeValueException unambiguous with respect to the result code it corresponds to
- * by associating an LDAP specific result code with it.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * Makes a InvalidAttributeValueException unambiguous with respect to the result
+ * code it corresponds to by associating an LDAP specific result code with it.
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class LdapInvalidAttributeValueException extends InvalidAttributeValueException implements LdapException
 {
     static final long serialVersionUID = 5763624876999168014L;
+
     /** the LDAP resultCode this exception is associated with */
     private final ResultCodeEnum resultCode;
 
 
     /**
      * Creates an Ldap InvalidAttributeValueException using a result code.
-     *
-     * @param resultCode the LDAP resultCode this exception is associated with
-     * @throws IllegalArgumentException if the resultCode argument is not ResultCodeEnum.CONSTRAINTVIOLATION, or
-     * ResultCodeEnum.INVALIDATTRIBUTESYNTAX
+     * 
+     * @param resultCode
+     *            the LDAP resultCode this exception is associated with
+     * @throws IllegalArgumentException
+     *             if the resultCode argument is not
+     *             ResultCodeEnum.CONSTRAINTVIOLATION, or
+     *             ResultCodeEnum.INVALIDATTRIBUTESYNTAX
      */
-    public LdapInvalidAttributeValueException( ResultCodeEnum resultCode )
+    public LdapInvalidAttributeValueException(ResultCodeEnum resultCode)
     {
         super();
 
-        switch( resultCode.getValue() )
+        switch ( resultCode.getValue() )
         {
-            case( ResultCodeEnum.CONSTRAINTVIOLATION_VAL ):
+            case ( ResultCodeEnum.CONSTRAINTVIOLATION_VAL  ):
                 break;
-            case( ResultCodeEnum.INVALIDATTRIBUTESYNTAX_VAL ):
+            case ( ResultCodeEnum.INVALIDATTRIBUTESYNTAX_VAL  ):
                 break;
             default:
 
@@ -65,12 +70,15 @@ public class LdapInvalidAttributeValueException extends InvalidAttributeValueExc
 
 
     /**
-     * Creates an Ldap InvalidAttributeValueException using a result code and a specific message.
-     *
-     * @param explanation an explanation for the failure
-     * @param resultCode the LDAP resultCode this exception is associated with
+     * Creates an Ldap InvalidAttributeValueException using a result code and a
+     * specific message.
+     * 
+     * @param explanation
+     *            an explanation for the failure
+     * @param resultCode
+     *            the LDAP resultCode this exception is associated with
      */
-    public LdapInvalidAttributeValueException( String explanation, ResultCodeEnum resultCode )
+    public LdapInvalidAttributeValueException(String explanation, ResultCodeEnum resultCode)
     {
         super( explanation );
 
@@ -80,7 +88,7 @@ public class LdapInvalidAttributeValueException extends InvalidAttributeValueExc
 
     /**
      * Gets the LDAP resultCode this exception is associated with.
-     *
+     * 
      * @return the LDAP resultCode this exception is associated with
      */
     public ResultCodeEnum getResultCode()

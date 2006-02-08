@@ -23,7 +23,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 /**
  * The response sent back from the server when a {@see GracefulShutdownRequest}
- * extended operation is sent.  Delivery of this response may block until all
+ * extended operation is sent. Delivery of this response may block until all
  * connected clients are sent a GracefulDisconnect unsolicited notification.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -32,52 +32,51 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 public class GracefulShutdownResponse extends ExtendedResponseImpl
 {
     private static final long serialVersionUID = -3824715470944544189L;
+
     public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.4";
+
     private static final byte[] EMPTY_RESPONSE = new byte[0];
-    
-    
-    public GracefulShutdownResponse( int messageId, ResultCodeEnum rcode )
+
+
+    public GracefulShutdownResponse(int messageId, ResultCodeEnum rcode)
     {
         super( messageId );
-        
+
         switch ( rcode.getValue() )
         {
-            case( ResultCodeEnum.SUCCESS_VAL ):
+            case ( ResultCodeEnum.SUCCESS_VAL  ):
                 break;
-            case( ResultCodeEnum.OPERATIONSERROR_VAL ):
+            case ( ResultCodeEnum.OPERATIONSERROR_VAL  ):
                 break;
-            case( ResultCodeEnum.INSUFFICIENTACCESSRIGHTS_VAL ):
+            case ( ResultCodeEnum.INSUFFICIENTACCESSRIGHTS_VAL  ):
                 break;
             default:
-                throw new IllegalArgumentException( "The result code can only be one of: " + 
-                    ResultCodeEnum.SUCCESS + ", " + 
-                    ResultCodeEnum.OPERATIONSERROR + ", " + 
-                    ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
+                throw new IllegalArgumentException( "The result code can only be one of: " + ResultCodeEnum.SUCCESS
+                    + ", " + ResultCodeEnum.OPERATIONSERROR + ", " + ResultCodeEnum.INSUFFICIENTACCESSRIGHTS );
         }
         super.getLdapResult().setMatchedDn( "" );
         super.getLdapResult().setResultCode( rcode );
     }
-    
-    
-    public GracefulShutdownResponse( int messageId )
+
+
+    public GracefulShutdownResponse(int messageId)
     {
         super( messageId );
         super.getLdapResult().setMatchedDn( "" );
         super.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // ExtendedResponse Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the reponse OID specific encoded response values.
-     *
+     * 
      * @return the response specific encoded response values.
      */
-    public byte [] getResponse()
+    public byte[] getResponse()
     {
         return EMPTY_RESPONSE;
     }
@@ -85,10 +84,11 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
 
     /**
      * Sets the reponse OID specific encoded response values.
-     *
-     * @param value the response specific encoded response values.
+     * 
+     * @param value
+     *            the response specific encoded response values.
      */
-    public void setResponse( byte [] value )
+    public void setResponse( byte[] value )
     {
         // do nothing here instead
     }
@@ -97,7 +97,7 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
     /**
      * Gets the OID uniquely identifying this extended response (a.k.a. its
      * name).
-     *
+     * 
      * @return the OID of the extended response type.
      */
     public String getResponseName()
@@ -109,8 +109,9 @@ public class GracefulShutdownResponse extends ExtendedResponseImpl
     /**
      * Sets the OID uniquely identifying this extended response (a.k.a. its
      * name).
-     *
-     * @param oid the OID of the extended response type.
+     * 
+     * @param oid
+     *            the OID of the extended response type.
      */
     public void setResponseName( String oid )
     {

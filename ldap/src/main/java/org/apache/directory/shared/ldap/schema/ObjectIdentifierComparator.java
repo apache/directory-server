@@ -23,13 +23,14 @@ import java.util.Comparator;
 
 /**
  * A comparator for the objectIdentifierMatch matchingRule.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ObjectIdentifierComparator implements Comparator, Serializable
 {
     private static final long serialVersionUID = -2374941241008282707L;
+
 
     public int compare( Object o1, Object o2 )
     {
@@ -51,7 +52,7 @@ public class ObjectIdentifierComparator implements Comparator, Serializable
             return 0;
         }
 
-        if ( ! ( o1 instanceof String && o2 instanceof String ) )
+        if ( !( o1 instanceof String && o2 instanceof String ) )
         {
             if ( o1.equals( o2 ) )
             {

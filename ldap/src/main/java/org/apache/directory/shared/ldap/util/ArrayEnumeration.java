@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 
 /**
  * An enumeration wrapper around an array.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -38,10 +38,11 @@ public class ArrayEnumeration implements Enumeration
 
     /**
      * Constructs an enumeration by wrapping an array.
-     *
-     * @param array the underlying array that is wrapped
+     * 
+     * @param array
+     *            the underlying array that is wrapped
      */
-    public ArrayEnumeration( Object[] array )
+    public ArrayEnumeration(Object[] array)
     {
         this.array = array;
     }
@@ -55,7 +56,7 @@ public class ArrayEnumeration implements Enumeration
 
     public Object nextElement()
     {
-        if ( ! hasMoreElements() )
+        if ( !hasMoreElements() )
         {
             throw new NoSuchElementException( "no more objects in array" );
         }

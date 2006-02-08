@@ -24,31 +24,29 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Super interface used as a marker for all protocol response type messages.
- * Note that only 4 response interfaces directly extend this interfaces.  They
+ * Note that only 4 response interfaces directly extend this interfaces. They
  * are listed below:
- *
  * <ul>
- *      <li> UnbindResponse </li>
- *      <li> AbandonResponse </li>
- *      <li> SearchResponseEntry </li>
- *      <li> SearchResponseReference </li>
+ * <li> UnbindResponse </li>
+ * <li> AbandonResponse </li>
+ * <li> SearchResponseEntry </li>
+ * <li> SearchResponseReference </li>
  * </ul>
  * <br>
- * All other responses derive from the ResultResponse interface.  These
- * responses unlike the three above have an LdapResult component.  The
- * ResultResponse interface takes this into account providing a Response with
- * an LdapResult property.
+ * All other responses derive from the ResultResponse interface. These responses
+ * unlike the three above have an LdapResult component. The ResultResponse
+ * interface takes this into account providing a Response with an LdapResult
+ * property.
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
  * @version $Revision$
  */
-public interface Response
-    extends Message
+public interface Response extends Message
 {
 }

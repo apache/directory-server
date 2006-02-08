@@ -16,37 +16,43 @@
  */
 package org.apache.directory.shared.asn1.ber.grammar;
 
+
 /**
  * A top level grammar class that store meta informations about the actions.
- * 
- * Those informations are not mandatory, but they can be usefull for debugging. 
+ * Those informations are not mandatory, but they can be usefull for debugging.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class GrammarAction implements IAction
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The action's name */
     protected String name;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new GrammarAction object.
-     *
-     * @param name The name of the create daction
+     * 
+     * @param name
+     *            The name of the create daction
      */
-    public GrammarAction(  String name )
+    public GrammarAction(String name)
     {
         this.name = name;
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Print the action's name
-     *
+     * 
      * @return The action's name
      */
     public String toString()

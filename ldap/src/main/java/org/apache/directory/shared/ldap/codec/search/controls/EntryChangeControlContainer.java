@@ -23,21 +23,21 @@ import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
- *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryChangeControlContainer extends AbstractContainer implements IAsn1Container 
+public class EntryChangeControlContainer extends AbstractContainer implements IAsn1Container
 {
     /** EntryChangeControl */
     private EntryChangeControl control;
 
+
     /**
-     * Creates a new EntryChangeControlContainer object.
-     * We will store one grammar, it's enough ...
+     * Creates a new EntryChangeControlContainer object. We will store one
+     * grammar, it's enough ...
      */
     public EntryChangeControlContainer()
     {
-        super( );
+        super();
         currentGrammar = 0;
         grammars = new IGrammar[EntryChangeControlStatesEnum.NB_GRAMMARS];
         grammarStack = new IGrammar[1];
@@ -58,19 +58,20 @@ public class EntryChangeControlContainer extends AbstractContainer implements IA
         return control;
     }
 
-    
+
     /**
      * Set a EntryChangeControl Object into the container. It will be completed
      * by the ldapDecoder.
-     *
-     * @param control the EntryChangeControl to set.
+     * 
+     * @param control
+     *            the EntryChangeControl to set.
      */
     public void setEntryChangeControl( EntryChangeControl control )
     {
         this.control = control;
     }
 
-    
+
     public void clean()
     {
         super.clean();

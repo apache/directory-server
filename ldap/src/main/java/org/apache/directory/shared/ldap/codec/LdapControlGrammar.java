@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
@@ -36,16 +37,16 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class implements the Control LDAP message. All the actions are declared in this
- * class. As it is a singleton, these declaration are only done once.
- * 
- * If an action is to be added or modified, this is where the work is to be done !
+ * This class implements the Control LDAP message. All the actions are declared
+ * in this class. As it is a singleton, these declaration are only done once. If
+ * an action is to be added or modified, this is where the work is to be done !
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdapControlGrammar extends AbstractGrammar implements IGrammar
 {
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
 
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( LdapControlGrammar.class );
@@ -53,17 +54,20 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
     /** The instance of grammar. LdapControlGrammar is a singleton */
     private static IGrammar instance = new LdapControlGrammar();
 
+
     /**
      * Get the instance of this grammar
-     *
+     * 
      * @return An instance on the LdapControl Grammar
      */
     public static IGrammar getInstance()
     {
         return instance;
     }
-    
-    //~ Constructors -------------------------------------------------------------------------------
+
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
     /**
      * Creates a new LdapControlGrammar object.
      */
@@ -75,237 +79,219 @@ public class LdapControlGrammar extends AbstractGrammar implements IGrammar
         // Create the transitions table
         super.transitions = new GrammarTransition[LdapStatesEnum.LAST_CONTROL_STATE][256];
 
-        //============================================================================================
+        // ============================================================================================
         // Controls
-        //============================================================================================
-        //    ...
-        //    controls       [0] Controls OPTIONAL } (Tag)
+        // ============================================================================================
+        // ...
+        // controls [0] Controls OPTIONAL } (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.CONTROLS_TAG][LdapConstants.CONTROLS_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROLS_TAG,
-                LdapStatesEnum.CONTROLS_VALUE, null );
+            LdapStatesEnum.CONTROLS_TAG, LdapStatesEnum.CONTROLS_VALUE, null );
 
-        //    ...
-        //    controls       [0] Controls OPTIONAL } (Value)
+        // ...
+        // controls [0] Controls OPTIONAL } (Value)
         // Initialize the controls pojo
         super.transitions[LdapStatesEnum.CONTROLS_VALUE][LdapConstants.CONTROLS_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROLS_VALUE, LdapStatesEnum.CONTROL_TAG,
-                new GrammarAction( "Init Controls" )
+            LdapStatesEnum.CONTROLS_VALUE, LdapStatesEnum.CONTROL_TAG, new GrammarAction( "Init Controls" )
+            {
+                public void action( IAsn1Container container )
                 {
-                    public void action( IAsn1Container container ) 
-                    {
 
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
 
-                        // We can initialize the controls array
-                        ldapMessage.initControl();
-                    }
-                } );
+                    // We can initialize the controls array
+                    ldapMessage.initControl();
+                }
+            } );
 
-        //============================================================================================
-        // Control 
-        //============================================================================================
+        // ============================================================================================
+        // Control
+        // ============================================================================================
         // Control ::= SEQUENCE { (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.CONTROL_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_TAG,
-                LdapStatesEnum.CONTROL_VALUE, null );
+            LdapStatesEnum.CONTROL_TAG, LdapStatesEnum.CONTROL_VALUE, null );
 
-        // Another control when critical and value are empty 
+        // Another control when critical and value are empty
         super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_LOOP_OR_END_TAG,
-                LdapStatesEnum.CONTROL_VALUE, null );
-        
-        // Another control when value is empty 
+            LdapStatesEnum.CONTROL_LOOP_OR_END_TAG, LdapStatesEnum.CONTROL_VALUE, null );
+
+        // Another control when value is empty
         super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_VALUE_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_LOOP_OR_END_TAG,
-                LdapStatesEnum.CONTROL_VALUE, null );
-        
+            LdapStatesEnum.CONTROL_LOOP_OR_END_TAG, LdapStatesEnum.CONTROL_VALUE, null );
+
         // Another control after a value
         super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_END_TAG][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_LOOP_OR_END_TAG,
-                LdapStatesEnum.CONTROL_VALUE, null );
-        
+            LdapStatesEnum.CONTROL_LOOP_OR_END_TAG, LdapStatesEnum.CONTROL_VALUE, null );
+
         // Control ::= SEQUENCE { (Value)
         // Create a new Control object, and store it in the controls array.
         super.transitions[LdapStatesEnum.CONTROL_VALUE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_VALUE, LdapStatesEnum.CONTROL_TYPE_TAG,
-                new GrammarAction( "Add Control" )
+            LdapStatesEnum.CONTROL_VALUE, LdapStatesEnum.CONTROL_TYPE_TAG, new GrammarAction( "Add Control" )
+            {
+                public void action( IAsn1Container container )
                 {
-                    public void action( IAsn1Container container )
-                    {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-                        
-                        // Create a new control
-                        Control control = new Control();
-                        
-                        // Add it to the ldap message
-                        ldapMessage.addControl( control );
-                    }
-                });
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
 
-        //============================================================================================
-        // ControlType 
-        //============================================================================================
-        // Control ::= SEQUENCE { 
-        //    controlType  LDAPOID, (Tag)
+                    // Create a new control
+                    Control control = new Control();
+
+                    // Add it to the ldap message
+                    ldapMessage.addControl( control );
+                }
+            } );
+
+        // ============================================================================================
+        // ControlType
+        // ============================================================================================
+        // Control ::= SEQUENCE {
+        // controlType LDAPOID, (Tag)
         // Nothing to do
         super.transitions[LdapStatesEnum.CONTROL_TYPE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_TYPE_TAG,
-                LdapStatesEnum.CONTROL_TYPE_VALUE, null );
+            LdapStatesEnum.CONTROL_TYPE_TAG, LdapStatesEnum.CONTROL_TYPE_VALUE, null );
 
         // Control ::= SEQUENCE {
-        //    controlType  LDAPOID, (Value)
+        // controlType LDAPOID, (Value)
         //
         // Store the value in the control object created before
         super.transitions[LdapStatesEnum.CONTROL_TYPE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_TYPE_VALUE, LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG, 
-                new GrammarAction( "Set Control type" )
+            LdapStatesEnum.CONTROL_TYPE_VALUE, LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG, new GrammarAction(
+                "Set Control type" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
                 {
-                    public void action( IAsn1Container container ) throws DecoderException
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+
+                    TLV tlv = ldapMessageContainer.getCurrentTLV();
+
+                    // Get the current control
+                    Control control = ldapMessage.getCurrentControl();
+
+                    // Store the type
+                    // We have to handle the special case of a 0 length OID
+                    if ( tlv.getLength().getLength() == 0 )
                     {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-                        
-                        TLV tlv = ldapMessageContainer.getCurrentTLV();
-                        
-                        // Get the current control
-                        Control control = ldapMessage.getCurrentControl();
-                        
-                        // Store the type
-                        // We have to handle the special case of a 0 length OID
-                        if ( tlv.getLength().getLength() == 0 )
-                        {
-                            log.error( "The OID must not be null" );
-                            throw new DecoderException( "The OID must not be null" );
-                        }
-                        else
-                        {
-                        	// The OID is encoded as a String, not an Object Id
-                        	try
-                        	{
-                        		new OID( StringTools.utf8ToString( tlv.getValue().getData() ) );
-                        	}
-                        	catch ( DecoderException de )
-                        	{
-                                log.error("The control type " + StringTools.dumpBytes( tlv.getValue().getData() ) + 
-                                        " is not a valid OID : " + de.getMessage() );
-                            
-                                throw de;
-                        	}
-                        	
-                        	try 
-                        	{
-                        		control.setControlType( new LdapString( tlv.getValue().getData() ) );
-                        	}
-                        	catch ( LdapStringEncodingException lsee )
-                        	{
-                                log.error("The control type " + StringTools.dumpBytes( tlv.getValue().getData() ) + 
-                                        " is invalid : " + lsee.getMessage() );
-                            
-                                throw new DecoderException( lsee.getMessage() );
-                        	}
-                        }
-                        
-                        // We can have an END transition
-                        ldapMessageContainer.grammarEndAllowed( true );
-                        
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Control OID : " + control.getControlType() );
-                        }
+                        log.error( "The OID must not be null" );
+                        throw new DecoderException( "The OID must not be null" );
                     }
-                });
-
-        //============================================================================================
-        // Control Criticality
-        //============================================================================================
-        // Control ::= SEQUENCE {
-        //    ...
-        //    criticality             BOOLEAN DEFAULT FALSE, (Tag)
-        // Nothing to do
-        super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG,
-                LdapStatesEnum.CONTROL_CRITICALITY_VALUE, null );
-
-        // Control ::= SEQUENCE { (Value)
-        //    ...
-        //    criticality             BOOLEAN DEFAULT FALSE, (Value)
-        // Store the criticality in the control object created before
-        super.transitions[LdapStatesEnum.CONTROL_CRITICALITY_VALUE][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_CRITICALITY_VALUE, LdapStatesEnum.CONTROL_LOOP_OR_VALUE_TAG, 
-                new GrammarAction( "Set Control criticality" )
-                {
-                    public void action( IAsn1Container container ) throws DecoderException
+                    else
                     {
-                        LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer )
-                            container;
-                        LdapMessage          ldapMessage          =
-                            ldapMessageContainer.getLdapMessage();
-                        
-                        TLV tlv = ldapMessageContainer.getCurrentTLV();
-                        
-                        // Get the current control
-                        Control control = ldapMessage.getCurrentControl();
-                        
-                        // Store the criticality
-                        // We get the value. If it's a 0, it's a FALSE. If it's
-                        // a FF, it's a TRUE. Any other value should be an error,
-                        // but we could relax this constraint. So if we have something
-                        // which is not 0, it will be interpreted as TRUE, but we
-                        // will generate a warning.
-                        Value value        = tlv.getValue();
+                        // The OID is encoded as a String, not an Object Id
+                        try
+                        {
+                            new OID( StringTools.utf8ToString( tlv.getValue().getData() ) );
+                        }
+                        catch ( DecoderException de )
+                        {
+                            log.error( "The control type " + StringTools.dumpBytes( tlv.getValue().getData() )
+                                + " is not a valid OID : " + de.getMessage() );
+
+                            throw de;
+                        }
 
                         try
                         {
-                            control.setCriticality( BooleanDecoder.parse( value) );
+                            control.setControlType( new LdapString( tlv.getValue().getData() ) );
                         }
-                        catch ( BooleanDecoderException bde )
+                        catch ( LdapStringEncodingException lsee )
                         {
-                            log.error("The control criticality flag " + StringTools.dumpBytes( value.getData() ) + 
-                                    " is invalid : " + bde.getMessage() + ". It should be 0 or 255" );
-                        
-                            throw new DecoderException( bde.getMessage() );
-                        }
-                        
-                        // We can have an END transition
-                        ldapMessageContainer.grammarEndAllowed( true );
-                        
-                        if ( log.isDebugEnabled() )
-                        {
-                            log.debug( "Control criticality : " + control.getCriticality() );
+                            log.error( "The control type " + StringTools.dumpBytes( tlv.getValue().getData() )
+                                + " is invalid : " + lsee.getMessage() );
+
+                            throw new DecoderException( lsee.getMessage() );
                         }
                     }
-                });
 
-        //============================================================================================
-        // Control Value
-        //============================================================================================
+                    // We can have an END transition
+                    ldapMessageContainer.grammarEndAllowed( true );
+
+                    if ( log.isDebugEnabled() )
+                    {
+                        log.debug( "Control OID : " + control.getControlType() );
+                    }
+                }
+            } );
+
+        // ============================================================================================
+        // Control Criticality
+        // ============================================================================================
         // Control ::= SEQUENCE {
-        //    ...
-        //    controlValue            OCTET STRING OPTIONAL } (Tag)
+        // ...
+        // criticality BOOLEAN DEFAULT FALSE, (Tag)
         // Nothing to do
-        super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG,
-                LdapStatesEnum.CONTROL_VALUE_VALUE, null );
-
-        super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_VALUE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_LOOP_OR_VALUE_TAG,
-                LdapStatesEnum.CONTROL_VALUE_VALUE, null );
+        super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
+            LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG, LdapStatesEnum.CONTROL_CRITICALITY_VALUE, null );
 
         // Control ::= SEQUENCE { (Value)
-        //    ...
-        //    controlValue            OCTET STRING OPTIONAL } (Value)
+        // ...
+        // criticality BOOLEAN DEFAULT FALSE, (Value)
+        // Store the criticality in the control object created before
+        super.transitions[LdapStatesEnum.CONTROL_CRITICALITY_VALUE][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
+            LdapStatesEnum.CONTROL_CRITICALITY_VALUE, LdapStatesEnum.CONTROL_LOOP_OR_VALUE_TAG, new GrammarAction(
+                "Set Control criticality" )
+            {
+                public void action( IAsn1Container container ) throws DecoderException
+                {
+                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
+                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+
+                    TLV tlv = ldapMessageContainer.getCurrentTLV();
+
+                    // Get the current control
+                    Control control = ldapMessage.getCurrentControl();
+
+                    // Store the criticality
+                    // We get the value. If it's a 0, it's a FALSE. If it's
+                    // a FF, it's a TRUE. Any other value should be an error,
+                    // but we could relax this constraint. So if we have
+                    // something
+                    // which is not 0, it will be interpreted as TRUE, but we
+                    // will generate a warning.
+                    Value value = tlv.getValue();
+
+                    try
+                    {
+                        control.setCriticality( BooleanDecoder.parse( value ) );
+                    }
+                    catch ( BooleanDecoderException bde )
+                    {
+                        log.error( "The control criticality flag " + StringTools.dumpBytes( value.getData() )
+                            + " is invalid : " + bde.getMessage() + ". It should be 0 or 255" );
+
+                        throw new DecoderException( bde.getMessage() );
+                    }
+
+                    // We can have an END transition
+                    ldapMessageContainer.grammarEndAllowed( true );
+
+                    if ( log.isDebugEnabled() )
+                    {
+                        log.debug( "Control criticality : " + control.getCriticality() );
+                    }
+                }
+            } );
+
+        // ============================================================================================
+        // Control Value
+        // ============================================================================================
+        // Control ::= SEQUENCE {
+        // ...
+        // controlValue OCTET STRING OPTIONAL } (Tag)
+        // Nothing to do
+        super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
+            LdapStatesEnum.CONTROL_LOOP_OR_CRITICAL_OR_VALUE_TAG, LdapStatesEnum.CONTROL_VALUE_VALUE, null );
+
+        super.transitions[LdapStatesEnum.CONTROL_LOOP_OR_VALUE_TAG][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
+            LdapStatesEnum.CONTROL_LOOP_OR_VALUE_TAG, LdapStatesEnum.CONTROL_VALUE_VALUE, null );
+
+        // Control ::= SEQUENCE { (Value)
+        // ...
+        // controlValue OCTET STRING OPTIONAL } (Value)
         // Store the value in the control object created before
         super.transitions[LdapStatesEnum.CONTROL_VALUE_VALUE][UniversalTag.OCTET_STRING_TAG] = new GrammarTransition(
-                LdapStatesEnum.CONTROL_VALUE_VALUE, LdapStatesEnum.CONTROL_LOOP_OR_END_TAG, new ControlValueAction() );
+            LdapStatesEnum.CONTROL_VALUE_VALUE, LdapStatesEnum.CONTROL_LOOP_OR_END_TAG, new ControlValueAction() );
     }
 }

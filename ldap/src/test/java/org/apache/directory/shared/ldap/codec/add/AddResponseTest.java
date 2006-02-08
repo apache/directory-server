@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.add;
 
+
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -32,10 +33,12 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
 
+
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddResponseTest extends TestCase {
+public class AddResponseTest extends TestCase
+{
     /**
      * Test the decoding of a AddResponse
      */
@@ -43,23 +46,21 @@ public class AddResponseTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x0E );
-        
-        stream.put(
-            new byte[]
-            {
-                0x30, 0x0C, 		// LDAPMessage ::=SEQUENCE {
-				0x02, 0x01, 0x01, 	//         messageID MessageID
-				0x69, 0x07, 		//        CHOICE { ..., addResponse AddResponse, ...
-                        			// AddResponse ::= [APPLICATION 9] LDAPResult
-				0x0A, 0x01, 0x00, 	//   LDAPResult ::= SEQUENCE {
-									//		resultCode ENUMERATED {
-									//			success (0), ...
-				 					//      },
-				0x04, 0x00,			//		matchedDN    LDAPDN,
-				0x04, 0x00  		//      errorMessage LDAPString,
-									//		referral     [3] Referral OPTIONAL }
-									// }
+        ByteBuffer stream = ByteBuffer.allocate( 0x0E );
+
+        stream.put( new byte[]
+            { 0x30, 0x0C, // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01, // messageID MessageID
+                0x69, 0x07, // CHOICE { ..., addResponse AddResponse, ...
+                // AddResponse ::= [APPLICATION 9] LDAPResult
+                0x0A, 0x01, 0x00, // LDAPResult ::= SEQUENCE {
+                // resultCode ENUMERATED {
+                // success (0), ...
+                // },
+                0x04, 0x00, // matchedDN LDAPDN,
+                0x04, 0x00 // errorMessage LDAPString,
+            // referral [3] Referral OPTIONAL }
+            // }
             } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
@@ -78,26 +79,26 @@ public class AddResponseTest extends TestCase {
             de.printStackTrace();
             fail( de.getMessage() );
         }
-    	
+
         // Check the decoded AddResponse
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddResponse addResponse      = message.getAddResponse();
-        
+        AddResponse addResponse = message.getAddResponse();
+
         assertEquals( 1, message.getMessageId() );
         assertEquals( 0, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 
         // Check the length
-        assertEquals(0x0E, message.computeLength());
-        
+        assertEquals( 0x0E, message.computeLength() );
+
         try
         {
             ByteBuffer bb = message.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
-            
-            assertEquals(encodedPdu, decodedPdu );
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
+            assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {
@@ -106,6 +107,7 @@ public class AddResponseTest extends TestCase {
         }
     }
 
+
     /**
      * Test the decoding of a AddResponse with no LdapResult
      */
@@ -113,14 +115,12 @@ public class AddResponseTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x0E );
-        
-        stream.put(
-            new byte[]
-            {
-                0x30, 0x0C, 		// LDAPMessage ::=SEQUENCE {
-				  0x02, 0x01, 0x01, 	//         messageID MessageID
-				  0x69, 0x00, 		//        CHOICE { ..., addResponse AddResponse, ...
+        ByteBuffer stream = ByteBuffer.allocate( 0x0E );
+
+        stream.put( new byte[]
+            { 0x30, 0x0C, // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01, // messageID MessageID
+                0x69, 0x00, // CHOICE { ..., addResponse AddResponse, ...
             } );
 
         stream.flip();
@@ -138,9 +138,10 @@ public class AddResponseTest extends TestCase {
             assertTrue( true );
             return;
         }
-    	
+
         fail( "We should not reach this point" );
     }
+
 
     /**
      * Test the decoding of a AddResponse with a control
@@ -149,30 +150,24 @@ public class AddResponseTest extends TestCase {
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
-        ByteBuffer  stream      = ByteBuffer.allocate( 0x2B );
-        
-        stream.put(
-            new byte[]
-            {
-                0x30, 0x29,          // LDAPMessage ::=SEQUENCE {
-                  0x02, 0x01, 0x01,  //         messageID MessageID
-                  0x69, 0x07,        //        CHOICE { ..., addResponse AddResponse, ...
-                                     // AddResponse ::= [APPLICATION 9] LDAPResult
-                    0x0A, 0x01, 0x00,//   LDAPResult ::= SEQUENCE {
-                                     //      resultCode ENUMERATED {
-                                     //          success (0), ...
-                                     //      },
-                    0x04, 0x00,      //      matchedDN    LDAPDN,
-                    0x04, 0x00,      //      errorMessage LDAPString,
-                                     //      referral     [3] Referral OPTIONAL }
-                                     // }
-                  (byte)0xA0, 0x1B,  // A control 
-                    0x30, 0x19, 
-                      0x04, 0x17, 
-                        0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 
-                        0x2E, 0x31, 0x2E, 0x31, 0x31, 0x33, 0x37, 0x33, 
-                        0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32
-            } );
+        ByteBuffer stream = ByteBuffer.allocate( 0x2B );
+
+        stream.put( new byte[]
+            { 0x30, 0x29, // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01, // messageID MessageID
+                0x69, 0x07, // CHOICE { ..., addResponse AddResponse, ...
+                // AddResponse ::= [APPLICATION 9] LDAPResult
+                0x0A, 0x01, 0x00,// LDAPResult ::= SEQUENCE {
+                // resultCode ENUMERATED {
+                // success (0), ...
+                // },
+                0x04, 0x00, // matchedDN LDAPDN,
+                0x04, 0x00, // errorMessage LDAPString,
+                // referral [3] Referral OPTIONAL }
+                // }
+                ( byte ) 0xA0, 0x1B, // A control
+                0x30, 0x19, 0x04, 0x17, 0x32, 0x2E, 0x31, 0x36, 0x2E, 0x38, 0x34, 0x30, 0x2E, 0x31, 0x2E, 0x31, 0x31,
+                0x33, 0x37, 0x33, 0x30, 0x2E, 0x33, 0x2E, 0x34, 0x2E, 0x32 } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -190,35 +185,35 @@ public class AddResponseTest extends TestCase {
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        
+
         // Check the decoded AddResponse
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddResponse addResponse      = message.getAddResponse();
-        
+        AddResponse addResponse = message.getAddResponse();
+
         assertEquals( 1, message.getMessageId() );
         assertEquals( 0, addResponse.getLdapResult().getResultCode() );
         assertEquals( "", addResponse.getLdapResult().getMatchedDN() );
         assertEquals( "", addResponse.getLdapResult().getErrorMessage() );
 
         // Check the length
-        assertEquals(0x2B, message.computeLength());
-        
+        assertEquals( 0x2B, message.computeLength() );
+
         // Check the Control
         List controls = message.getControls();
-        
+
         assertEquals( 1, controls.size() );
-        
+
         Control control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
-        assertEquals( "", StringTools.dumpBytes( (byte[])control.getControlValue() ) );
+        assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
         try
         {
             ByteBuffer bb = message.encode( null );
-            
-            String encodedPdu = StringTools.dumpBytes( bb.array() ); 
-            
-            assertEquals(encodedPdu, decodedPdu );
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
+            assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
         {

@@ -33,9 +33,10 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 public class EntryChangeControlDecoder extends Asn1Decoder implements ControlDecoder
 {
     private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.7";
-    
+
     private static final Asn1Decoder decoder = new Asn1Decoder();
-    
+
+
     public String getControlType()
     {
         return CONTROL_TYPE_OID;

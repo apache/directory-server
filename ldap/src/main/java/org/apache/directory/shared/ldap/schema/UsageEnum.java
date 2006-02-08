@@ -25,8 +25,8 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
 
 
 /**
- * Type safe enum for an AttributeType definition's usage string.  This can be
- * take one of the following four values: 
+ * Type safe enum for an AttributeType definition's usage string. This can be
+ * take one of the following four values:
  * <ul>
  * <li>userApplications</li>
  * <li>directoryOperation</li>
@@ -40,48 +40,54 @@ import org.apache.directory.shared.ldap.util.ValuedEnum;
 public class UsageEnum extends ValuedEnum
 {
     static final long serialVersionUID = -5838426429165435227L;
+
     /** value for attributes with userApplications usage */
     public static final int USERAPPLICATIONS_VAL = 0;
+
     /** value for attributes with directoryOperation usage */
     public static final int DIRECTORYOPERATION_VAL = 1;
+
     /** value for attributes with distributedOperation usage */
     public static final int DISTRIBUTEDOPERATION_VAL = 2;
+
     /** value for attributes with dSAOperation usage */
     public static final int DSAOPERATION_VAL = 3;
 
-
     /** enum for attributes with userApplications usage */
-    public static final UsageEnum USERAPPLICATIONS = 
-        new UsageEnum( "userApplications", USERAPPLICATIONS_VAL );
+    public static final UsageEnum USERAPPLICATIONS = new UsageEnum( "userApplications", USERAPPLICATIONS_VAL );
+
     /** enum for attributes with directoryOperation usage */
-    public static final UsageEnum DIRECTORYOPERATION = 
-        new UsageEnum( "directoryOperation", DIRECTORYOPERATION_VAL );
+    public static final UsageEnum DIRECTORYOPERATION = new UsageEnum( "directoryOperation", DIRECTORYOPERATION_VAL );
+
     /** enum for attributes with distributedOperation usage */
-    public static final UsageEnum DISTRIBUTEDOPERATION = 
-        new UsageEnum( "distributedOperation", DISTRIBUTEDOPERATION_VAL );
+    public static final UsageEnum DISTRIBUTEDOPERATION = new UsageEnum( "distributedOperation",
+        DISTRIBUTEDOPERATION_VAL );
+
     /** enum for attributes with dSAOperation usage */
-    public static final UsageEnum DSAOPERATION = 
-        new UsageEnum( "dSAOperation", DSAOPERATION_VAL );
+    public static final UsageEnum DSAOPERATION = new UsageEnum( "dSAOperation", DSAOPERATION_VAL );
 
 
     /**
      * Private construct so no other instances can be created other than the
      * public static constants in this class.
-     *
-     * @param name a string name for the enumeration value.
-     * @param value the integer value of the enumeration.
+     * 
+     * @param name
+     *            a string name for the enumeration value.
+     * @param value
+     *            the integer value of the enumeration.
      */
-    private UsageEnum( final String name, final int value )
+    private UsageEnum(final String name, final int value)
     {
         super( name, value );
     }
-    
-    
+
+
     /**
-     * Gets the enumeration type for the attributeType usage string regardless 
+     * Gets the enumeration type for the attributeType usage string regardless
      * of case.
      * 
-     * @param usage the usage string
+     * @param usage
+     *            the usage string
      * @return the usage enumeration type
      */
     public static UsageEnum getUsage( String usage )
@@ -90,29 +96,26 @@ public class UsageEnum extends ValuedEnum
         {
             return UsageEnum.USERAPPLICATIONS;
         }
-        
-        if ( usage.equalsIgnoreCase(
-            UsageEnum.DIRECTORYOPERATION.getName() ) )
+
+        if ( usage.equalsIgnoreCase( UsageEnum.DIRECTORYOPERATION.getName() ) )
         {
             return UsageEnum.DIRECTORYOPERATION;
         }
-        
-        if ( usage.equalsIgnoreCase(
-            UsageEnum.DISTRIBUTEDOPERATION.getName() ) )
+
+        if ( usage.equalsIgnoreCase( UsageEnum.DISTRIBUTEDOPERATION.getName() ) )
         {
             return UsageEnum.DISTRIBUTEDOPERATION;
         }
-        
+
         if ( usage.equalsIgnoreCase( UsageEnum.DSAOPERATION.getName() ) )
         {
             return UsageEnum.DSAOPERATION;
         }
-        
-        throw new IllegalArgumentException( "Unknown attributeType usage string"
-            + usage );
+
+        throw new IllegalArgumentException( "Unknown attributeType usage string" + usage );
     }
-    
-    
+
+
     /**
      * Gets a List of the enumerations for attributeType usage.
      * 
@@ -122,8 +125,8 @@ public class UsageEnum extends ValuedEnum
     {
         return EnumUtils.getEnumList( UsageEnum.class );
     }
-    
-    
+
+
     /**
      * Gets the Map of UsageEnum objects by name using the UsageEnum class.
      * 

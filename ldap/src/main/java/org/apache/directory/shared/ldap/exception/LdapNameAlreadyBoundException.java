@@ -23,17 +23,17 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
- * A NameAlreadyBoundException which contains LDAP specific information such
- * as a result code.
- *
+ * A NameAlreadyBoundException which contains LDAP specific information such as
+ * a result code.
+ * 
  * @see NameAlreadyBoundException
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapNameAlreadyBoundException extends NameAlreadyBoundException
-        implements LdapException
+public class LdapNameAlreadyBoundException extends NameAlreadyBoundException implements LdapException
 {
     static final long serialVersionUID = 5387177233617276618L;
 
@@ -44,15 +44,15 @@ public class LdapNameAlreadyBoundException extends NameAlreadyBoundException
     }
 
 
-    public LdapNameAlreadyBoundException( String explanation )
+    public LdapNameAlreadyBoundException(String explanation)
     {
-        super(explanation);
+        super( explanation );
     }
 
 
     /**
      * Always returns ResultCodeEnum.ENTRYALREADYEXISTS.
-     *
+     * 
      * @see LdapException#getResultCode()
      * @return ResultCodeEnum.ENTRYALREADYEXISTS all the time
      */

@@ -14,10 +14,10 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.schema ;
+package org.apache.directory.shared.ldap.schema;
 
 
-import javax.naming.NamingException ;
+import javax.naming.NamingException;
 
 
 /**
@@ -30,10 +30,12 @@ public interface Normalizer
 {
     /**
      * Gets the normalized value.
-     *
-     * @param value the value to normalize. It must *not* be null !
+     * 
+     * @param value
+     *            the value to normalize. It must *not* be null !
      * @return the normalized form for a value
-     * @throws NamingException if an error results during normalization
+     * @throws NamingException
+     *             if an error results during normalization
      */
-    Object normalize( Object value ) throws NamingException ;
+    Object normalize( Object value ) throws NamingException;
 }

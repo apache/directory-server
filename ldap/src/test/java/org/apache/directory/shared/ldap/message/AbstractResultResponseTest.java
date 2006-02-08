@@ -30,9 +30,8 @@ import junit.framework.TestCase;
 
 /**
  * TestCase for the methods of the AbstractResultResponse class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
 public class AbstractResultResponseTest extends TestCase
@@ -43,8 +42,10 @@ public class AbstractResultResponseTest extends TestCase
     public void testEqualsSameObj()
     {
         AbstractResultResponse msg;
-        msg = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        msg = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertTrue( msg.equals( msg ) );
     }
 
@@ -54,10 +55,14 @@ public class AbstractResultResponseTest extends TestCase
      */
     public void testEqualsExactCopy()
     {
-        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
+        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         LdapResult r0 = msg0.getLdapResult();
         LdapResult r1 = msg1.getLdapResult();
 
@@ -88,10 +93,14 @@ public class AbstractResultResponseTest extends TestCase
      */
     public void testNotEqualsDiffResult()
     {
-        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        AbstractResultResponse msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
+        AbstractResultResponse msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         LdapResult r0 = msg0.getLdapResult();
         LdapResult r1 = msg1.getLdapResult();
 
@@ -124,10 +133,14 @@ public class AbstractResultResponseTest extends TestCase
     {
         AbstractResultResponse msg0;
         AbstractResultResponse msg1;
-        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        msg1 = new AbstractResultResponse( 6, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
+        msg1 = new AbstractResultResponse( 6, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertFalse( msg0.equals( msg1 ) );
         assertFalse( msg1.equals( msg0 ) );
     }
@@ -140,10 +153,14 @@ public class AbstractResultResponseTest extends TestCase
     {
         AbstractResultResponse msg0;
         AbstractResultResponse msg1;
-        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.UNBINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
+        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.UNBINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertFalse( msg0.equals( msg1 ) );
         assertFalse( msg1.equals( msg0 ) );
     }
@@ -156,49 +173,63 @@ public class AbstractResultResponseTest extends TestCase
     {
         AbstractResultResponse msg0;
         AbstractResultResponse msg1;
-        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
-        msg0.add( new Control() {
+        msg0 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
             private static final long serialVersionUID = 1L;
+        };
+        msg0.add( new Control()
+        {
+            private static final long serialVersionUID = 1L;
+
+
             public String getType()
             {
                 return null;
             }
 
+
             public void setType( String a_oid )
             {
             }
+
 
             public byte[] getValue()
             {
                 return new byte[0];
             }
 
+
             public void setValue( byte[] a_value )
             {
             }
+
 
             public boolean isCritical()
             {
                 return false;
             }
 
+
             public void setCritical( boolean a_isCritical )
             {
             }
+
 
             public byte[] getEncodedValue()
             {
                 return null;
             }
 
+
             public String getID()
             {
                 return null;
             }
-        });
-        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST ) {
-            private static final long serialVersionUID = 1L;};
+        } );
+        msg1 = new AbstractResultResponse( 5, MessageTypeEnum.BINDREQUEST )
+        {
+            private static final long serialVersionUID = 1L;
+        };
         assertFalse( msg0.equals( msg1 ) );
         assertFalse( msg1.equals( msg0 ) );
     }

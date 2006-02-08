@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -32,25 +33,30 @@ import org.apache.directory.shared.ldap.codec.util.LdapString;
  */
 public class PresentFilter extends Filter
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The attribute description. */
     private LdapString attributeDescription;
 
-    //~ Constructors -------------------------------------------------------------------------------
+
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
-     * The constructor. 
+     * The constructor.
      */
     public PresentFilter()
     {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the attribute
-     *
+     * 
      * @return Returns the attributeDescription.
      */
     public LdapString getAttributeDescription()
@@ -58,58 +64,55 @@ public class PresentFilter extends Filter
         return attributeDescription;
     }
 
+
     /**
      * Set the attributeDescription
-     *
-     * @param attributeDescription The attributeDescription to set.
+     * 
+     * @param attributeDescription
+     *            The attributeDescription to set.
      */
     public void setAttributeDescription( LdapString attributeDescription )
     {
         this.attributeDescription = attributeDescription;
     }
 
+
     /**
-     * Compute the PresentFilter length
-     * 
-     * PresentFilter :
-     * 
-     * 0x87 L1 present
-     * 
-     * Length(PresentFilter) = Length(0x87) + Length(super.computeLength()) + super.computeLength()
-     * 
+     * Compute the PresentFilter length PresentFilter : 0x87 L1 present
+     * Length(PresentFilter) = Length(0x87) + Length(super.computeLength()) +
+     * super.computeLength()
      */
     public int computeLength()
     {
         return 1 + Length.getNbBytes( attributeDescription.getNbBytes() ) + attributeDescription.getNbBytes();
     }
 
+
     /**
-     * Encode the PresentFilter message to a PDU.
+     * Encode the PresentFilter message to a PDU. PresentFilter : 0x87 LL
+     * attributeDescription
      * 
-     * PresentFilter :
-     * 
-     * 0x87 LL attributeDescription 
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
         {
             // The PresentFilter Tag
-            buffer.put( (byte)LdapConstants.PRESENT_FILTER_TAG );
+            buffer.put( ( byte ) LdapConstants.PRESENT_FILTER_TAG );
             buffer.put( Length.getBytes( attributeDescription.getNbBytes() ) );
             buffer.put( attributeDescription.getBytes() );
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         super.encode( buffer );
@@ -117,9 +120,10 @@ public class PresentFilter extends Filter
         return buffer;
     }
 
+
     /**
      * Return a string compliant with RFC 2254 representing a Present filter
-     *
+     * 
      * @return The Present filter string
      */
     public String toString()

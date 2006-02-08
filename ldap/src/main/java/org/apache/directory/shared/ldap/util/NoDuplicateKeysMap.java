@@ -15,7 +15,6 @@
  *
  */
 
-
 package org.apache.directory.shared.ldap.util;
 
 
@@ -32,8 +31,9 @@ import java.util.HashMap;
 public class NoDuplicateKeysMap extends HashMap
 {
     /**
-     * Overrides java.util.Map.put(java.lang.Object, java.lang.Object) to prevent duplicate keys.
-     *  
+     * Overrides java.util.Map.put(java.lang.Object, java.lang.Object) to
+     * prevent duplicate keys.
+     * 
      * @see java.util.Map#put(java.lang.Object, java.lang.Object)
      */
     public Object put( Object key, Object value ) throws IllegalArgumentException
@@ -47,7 +47,7 @@ public class NoDuplicateKeysMap extends HashMap
             return super.put( key, value );
         }
     }
-    
+
     // add a serial version uid, so that if we change things in the future
     // without changing the format, we can still deserialize properly.
     private static final long serialVersionUID = 5107433500719957457L;

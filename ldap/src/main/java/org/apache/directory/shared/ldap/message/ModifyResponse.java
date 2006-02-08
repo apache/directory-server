@@ -20,7 +20,7 @@ package org.apache.directory.shared.ldap.message;
 /**
  * Modify protocol response message used to confirm the results of a modify
  * request message.
- *
+ * 
  * @version $Revision$
  */
 public interface ModifyResponse extends ResultResponse

@@ -23,26 +23,28 @@ import java.io.Serializable;
 /**
  * Attribute specification bean used to store the schema information for an
  * attributeType definition.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractAttributeType
-    extends AbstractSchemaObject
-    implements Serializable, AttributeType
+public abstract class AbstractAttributeType extends AbstractSchemaObject implements Serializable, AttributeType
 {
     // ------------------------------------------------------------------------
-    // Specification Attributes 
+    // Specification Attributes
     // ------------------------------------------------------------------------
 
     /** whether or not this type is single valued */
     private boolean isSingleValue = false;
+
     /** whether or not this type is a collective attribute */
     private boolean isCollective = false;
+
     /** whether or not this type can be modified by directory users */
     private boolean canUserModify = true;
+
     /** the usage for this attributeType */
     private UsageEnum usage = UsageEnum.USERAPPLICATIONS;
+
     /** the length of this attribute in bytes */
     private int length = -1;
 
@@ -51,13 +53,13 @@ public abstract class AbstractAttributeType
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an AttributeType using a unique OID.
-     *
-     * @param oid the IANA OID number for the attributeType
+     * 
+     * @param oid
+     *            the IANA OID number for the attributeType
      */
-    protected AbstractAttributeType( String oid )
+    protected AbstractAttributeType(String oid)
     {
         super( oid );
     }
@@ -66,7 +68,6 @@ public abstract class AbstractAttributeType
     // ------------------------------------------------------------------------
     // Accessor Methods for Specification Properties
     // ------------------------------------------------------------------------
-
 
     /**
      * @see AttributeType#isSingleValue()
@@ -117,12 +118,12 @@ public abstract class AbstractAttributeType
     // M U T A T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Sets whether or not an attribute of this AttributeType single valued or
      * multi-valued.
-     *
-     * @param singleValue true if its is single valued, false if multi-valued
+     * 
+     * @param singleValue
+     *            true if its is single valued, false if multi-valued
      */
     protected void setSingleValue( boolean singleValue )
     {
@@ -132,8 +133,9 @@ public abstract class AbstractAttributeType
 
     /**
      * Sets whether or not an attribute of this AttributeType is a collective.
-     *
-     * @param collective true if it is collective, false otherwise
+     * 
+     * @param collective
+     *            true if it is collective, false otherwise
      */
     protected void setCollective( boolean collective )
     {
@@ -142,10 +144,11 @@ public abstract class AbstractAttributeType
 
 
     /**
-     * Sets whether or not an attribute of this AttributeType can be modified
-     * by directory users.
-     *
-     * @param canUserModify true if directory users can modify, false otherwise
+     * Sets whether or not an attribute of this AttributeType can be modified by
+     * directory users.
+     * 
+     * @param canUserModify
+     *            true if directory users can modify, false otherwise
      */
     protected void setCanUserModify( boolean canUserModify )
     {
@@ -155,8 +158,9 @@ public abstract class AbstractAttributeType
 
     /**
      * The usage class for this attributeType.
-     *
-     * @param usage the way attributes of this AttributeType are used in the DSA
+     * 
+     * @param usage
+     *            the way attributes of this AttributeType are used in the DSA
      */
     protected void setUsage( UsageEnum usage )
     {
@@ -167,8 +171,9 @@ public abstract class AbstractAttributeType
     /**
      * Sets the length limit of this AttributeType based on its associated
      * syntax.
-     *
-     * @param length the new length to set
+     * 
+     * @param length
+     *            the new length to set
      */
     protected void setLength( int length )
     {

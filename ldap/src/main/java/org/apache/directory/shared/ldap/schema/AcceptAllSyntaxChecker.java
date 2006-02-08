@@ -22,7 +22,7 @@ import javax.naming.NamingException;
 
 /**
  * A SyntaxChecker implementation which accepts all values as valid.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -34,10 +34,11 @@ public class AcceptAllSyntaxChecker implements SyntaxChecker
 
     /**
      * Creates a SyntaxChecker which accepts all values.
-     *
-     * @param oid the oid of the Syntax this checker is associated with
+     * 
+     * @param oid
+     *            the oid of the Syntax this checker is associated with
      */
-    public AcceptAllSyntaxChecker( String oid )
+    public AcceptAllSyntaxChecker(String oid)
     {
         this.oid = oid;
     }
@@ -54,7 +55,7 @@ public class AcceptAllSyntaxChecker implements SyntaxChecker
 
     /**
      * Returns true every time.
-     *
+     * 
      * @see SyntaxChecker#isValidSyntax(Object)
      */
     public boolean isValidSyntax( Object a_value )
@@ -65,7 +66,7 @@ public class AcceptAllSyntaxChecker implements SyntaxChecker
 
     /**
      * Does nothing but return immediately and no exceptions are ever thrown.
-     *
+     * 
      * @see SyntaxChecker#assertSyntax(Object)
      */
     public void assertSyntax( Object value ) throws NamingException

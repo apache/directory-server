@@ -24,32 +24,35 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Search reference protocol response message used to return referrals to the
  * client in response to a search request message.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface SearchResponseReference extends Response
 {
     /** Search reference response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.SEARCHRESREF ;
+    MessageTypeEnum TYPE = MessageTypeEnum.SEARCHRESREF;
+
 
     /**
      * Gets the sequence of LdapUrls as a Referral instance.
-     *
+     * 
      * @return the sequence of LdapUrls
      */
-    Referral getReferral() ;
+    Referral getReferral();
+
 
     /**
      * Sets the sequence of LdapUrls as a Referral instance.
-     *
-     * @param a_referral the sequence of LdapUrls
+     * 
+     * @param a_referral
+     *            the sequence of LdapUrls
      */
-    void setReferral( Referral a_referral ) ;
+    void setReferral( Referral a_referral );
 }

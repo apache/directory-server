@@ -14,37 +14,40 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Bind protocol response message used to confirm the results of a bind
- * request message.  BindResponse consists simply of an indication from the
- * server of the status of the client's request for authentication.
- *
+ * Bind protocol response message used to confirm the results of a bind request
+ * message. BindResponse consists simply of an indication from the server of the
+ * status of the client's request for authentication.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface BindResponse extends ResultResponse
 {
     /** Bind response message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.BINDRESPONSE ;
+    MessageTypeEnum TYPE = MessageTypeEnum.BINDRESPONSE;
+
 
     /**
      * Gets the optional property holding SASL authentication response paramters
-     * that are SASL mechanism specific.  Will return null if the authentication
+     * that are SASL mechanism specific. Will return null if the authentication
      * is simple.
-     *
+     * 
      * @return the sasl mech. specific credentials or null of auth. is simple
      */
-    byte [] getServerSaslCreds() ;
+    byte[] getServerSaslCreds();
+
 
     /**
      * Sets the optional property holding SASL authentication response paramters
-     * that are SASL mechanism specific.  Leave null if authentication mode is
+     * that are SASL mechanism specific. Leave null if authentication mode is
      * simple.
-     *
-     * @param a_serverSaslCreds the sasl auth. mech. specific credentials
+     * 
+     * @param a_serverSaslCreds
+     *            the sasl auth. mech. specific credentials
      */
-    void setServerSaslCreds( byte [] a_serverSaslCreds ) ;
+    void setServerSaslCreds( byte[] a_serverSaslCreds );
 }

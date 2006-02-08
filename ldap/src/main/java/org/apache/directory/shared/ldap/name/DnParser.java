@@ -15,15 +15,15 @@
  *
  */
 
-package org.apache.directory.shared.ldap.name ;
+package org.apache.directory.shared.ldap.name;
 
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import javax.naming.Name ;
-import javax.naming.NameParser ;
-import javax.naming.NamingException ;
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -33,14 +33,14 @@ import org.apache.directory.shared.ldap.util.NestableRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import antlr.TokenStreamSelector ;
-import antlr.RecognitionException ;
-import antlr.TokenStreamException ;
+import antlr.TokenStreamSelector;
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
 
 
 /**
  * A distinguished name parser which generates JNDI Ldap exception on error.
- *
+ * 
  * @see <a href="http://www.faqs.org/rfcs/rfc2253.html">RFC 2253</a>
  * @see <a href="http://www.faqs.org/rfcs/rfc1779.html">RFC 1779</a>
  */
@@ -48,9 +48,9 @@ public class DnParser implements NameParser
 {
     private static final Logger log = LoggerFactory.getLogger( DnParser.class );
 
-    private TokenStreamSelector m_selector ;
+    private TokenStreamSelector m_selector;
 
-    private final boolean m_isNormalizing ;
+    private final boolean m_isNormalizing;
 
     private ReusableAntlrNameParser m_parser;
 
@@ -60,18 +60,20 @@ public class DnParser implements NameParser
 
     private static final Object parserMutex = new Object();
 
+
     /**
      * Creates a regular non normalizing name parser.
-     *
-     * @throws LdapNamingException if there is a problem creating the pipe
+     * 
+     * @throws LdapNamingException
+     *             if there is a problem creating the pipe
      */
     public DnParser() throws NamingException
     {
-        this.m_isNormalizing = false ;
-        
+        this.m_isNormalizing = false;
+
         try
         {
-            init() ;
+            init();
         }
         catch ( IOException e )
         {
@@ -86,15 +88,17 @@ public class DnParser implements NameParser
 
     /**
      * Creates a normalizing name parser.
-     *
-     * @param a_normalizer the name component value normaliser used
-     * @throws LdapNamingException if there is a problem creating the pipe
+     * 
+     * @param a_normalizer
+     *            the name component value normaliser used
+     * @throws LdapNamingException
+     *             if there is a problem creating the pipe
      */
-    public DnParser( NameComponentNormalizer a_normalizer ) throws NamingException
+    public DnParser(NameComponentNormalizer a_normalizer) throws NamingException
     {
         try
         {
-            init() ;
+            init();
         }
         catch ( IOException e )
         {
@@ -104,46 +108,47 @@ public class DnParser implements NameParser
             ne.setRootCause( e );
             throw ne;
         }
-        
+
         synchronized ( parserMutex )
         {
-            this.m_isNormalizing = true ;
-            this.m_parser.setNormalizer( a_normalizer ) ;
+            this.m_isNormalizing = true;
+            this.m_parser.setNormalizer( a_normalizer );
         }
     }
 
 
     /**
      * Tests to see if this parser is normalizing.
-     *
+     * 
      * @return true if it normalizes false otherwise
      */
     public boolean isNormizing()
     {
-        return this.m_isNormalizing ;
+        return this.m_isNormalizing;
     }
 
 
     /**
      * Initializes the parser machinery and the pluming.
-     *
-     * @throws IOException if there is a problem creating the parser's pipe
+     * 
+     * @throws IOException
+     *             if there is a problem creating the parser's pipe
      */
     private void init() throws IOException
     {
         synchronized ( parserMutex )
         {
-            this.m_selector = new TokenStreamSelector() ;
-    
+            this.m_selector = new TokenStreamSelector();
+
             // Create lexers and add them to the selector.
             typeLexer = new ReusableAntlrTypeLexer( new StringReader( "" ) );
             this.m_selector.addInputStream( typeLexer, ReusableAntlrTypeLexer.LEXER_KEY );
             valueLexer = new ReusableAntlrValueLexer( typeLexer.getInputState() );
             this.m_selector.addInputStream( valueLexer, ReusableAntlrValueLexer.LEXER_KEY );
-    
+
             // Set selector on lexers, select initial lexer and initalize parser
-            typeLexer.setSelector( this.m_selector ) ;
-            valueLexer.setSelector( this.m_selector ) ;
+            typeLexer.setSelector( this.m_selector );
+            valueLexer.setSelector( this.m_selector );
             this.m_selector.select( ReusableAntlrTypeLexer.LEXER_KEY );
             this.m_parser = new ReusableAntlrNameParser( m_selector );
         }
@@ -153,7 +158,7 @@ public class DnParser implements NameParser
     /**
      * Resets the parser and lexers to be reused with new input
      */
-    private void reset( String name )     
+    private void reset( String name )
     {
         this.typeLexer.prepareNextInput( new StringReader( name + "#\n" ) );
         this.valueLexer.prepareNextInput( typeLexer.getInputState() );
@@ -163,12 +168,14 @@ public class DnParser implements NameParser
 
     /**
      * Parses a name as a String into an existing Name object.
-     *
-     * @param name the distinguished name as a string.
-     * @param emptyName the empty LdapName to be populated or null.
+     * 
+     * @param name
+     *            the distinguished name as a string.
+     * @param emptyName
+     *            the empty LdapName to be populated or null.
      * @return the populated LdapName
-     * @throws NamingException if a_name is invalid or the parsers plumbing 
-     *     breaks
+     * @throws NamingException
+     *             if a_name is invalid or the parsers plumbing breaks
      */
     public Name parse( String name, LdapName emptyName ) throws NamingException
     {
@@ -176,11 +183,11 @@ public class DnParser implements NameParser
         {
             log.debug( "Parsing DN '" + name + "'" );
         }
-        
+
         // Handle the empty name basis case.
         if ( name == null || name.trim().equals( "" ) )
         {
-            return null == emptyName ? new LdapName() : emptyName ;
+            return null == emptyName ? new LdapName() : emptyName;
         }
 
         try
@@ -190,56 +197,56 @@ public class DnParser implements NameParser
                 synchronized ( parserMutex )
                 {
                     reset( name );
-                    emptyName = new LdapName( m_parser.name() ) ;
+                    emptyName = new LdapName( m_parser.name() );
                 }
             }
-            else 
+            else
             {
                 synchronized ( parserMutex )
                 {
                     reset( name );
-                    emptyName.setList( m_parser.name() ) ;
+                    emptyName.setList( m_parser.name() );
                 }
             }
         }
         catch ( RecognitionException e )
         {
-            String msg = "Parser failure on name:\n\t" + name ;
-            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e ) ;
+            String msg = "Parser failure on name:\n\t" + name;
+            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e );
 
-            throw new LdapInvalidNameException( msg, ResultCodeEnum.INVALIDDNSYNTAX ) ;
+            throw new LdapInvalidNameException( msg, ResultCodeEnum.INVALIDDNSYNTAX );
         }
         catch ( TokenStreamException e2 )
         {
-            String msg = "Parser failure on name:\n\t" + name ;
-            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e2 ) ;
-            throw new LdapInvalidNameException( msg, ResultCodeEnum.INVALIDDNSYNTAX ) ;
+            String msg = "Parser failure on name:\n\t" + name;
+            msg += "\nAntlr exception trace:\n" + ExceptionUtils.getFullStackTrace( e2 );
+            throw new LdapInvalidNameException( msg, ResultCodeEnum.INVALIDDNSYNTAX );
         }
         catch ( NestableRuntimeException e )
         {
-            Throwable throwable = e.getCause() ;
+            Throwable throwable = e.getCause();
             if ( throwable instanceof NamingException )
             {
-                NamingException ne = ( NamingException ) throwable ;
-                throw ne ;
+                NamingException ne = ( NamingException ) throwable;
+                throw ne;
             }
             else
             {
-                throw e ;
+                throw e;
             }
         }
 
-        return emptyName ;
+        return emptyName;
     }
-    
-    
+
+
     /**
      * Parses a name as a String into a Name object.
-     *
+     * 
      * @see javax.naming.NameParser#parse(java.lang.String)
      */
     public Name parse( String name ) throws NamingException
     {
-        return parse( name, new LdapName() ) ;
+        return parse( name, new LdapName() );
     }
 }

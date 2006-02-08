@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
@@ -26,33 +26,37 @@ package org.apache.directory.shared.ldap.message ;
 public class AbstractRequest extends AbstractMessage implements Request
 {
     static final long serialVersionUID = -4511116249089399040L;
+
     /** Flag indicating whether or not this request returns a response. */
-    private final boolean hasResponse ;
- 
-    
+    private final boolean hasResponse;
+
+
     /**
      * Subclasses must provide these parameters via a super constructor call.
-     *
-     * @param id the sequential message identifier
-     * @param type the request type enum
-     * @param hasResponse flag indicating if this request generates a response
+     * 
+     * @param id
+     *            the sequential message identifier
+     * @param type
+     *            the request type enum
+     * @param hasResponse
+     *            flag indicating if this request generates a response
      */
-    protected AbstractRequest( final int id, final MessageTypeEnum type, boolean hasResponse )
+    protected AbstractRequest(final int id, final MessageTypeEnum type, boolean hasResponse)
     {
-        super( id, type ) ;
+        super( id, type );
 
-        this.hasResponse = hasResponse ;
+        this.hasResponse = hasResponse;
     }
 
 
     /**
      * Indicator flag used to determine whether or not this type of request
      * produces a reply.
-     *
+     * 
      * @return true if any reply is generated, false if no response is generated
      */
     public boolean hasResponse()
     {
-        return hasResponse ;
+        return hasResponse;
     }
- }
+}

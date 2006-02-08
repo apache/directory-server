@@ -14,23 +14,23 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.schema ;
+package org.apache.directory.shared.ldap.schema;
 
 
-import java.util.Comparator ;
+import java.util.Comparator;
 
-import javax.naming.Name ;
-import javax.naming.NameParser ;
-import javax.naming.NamingException ;
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.name.DnParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 
 
 /**
- * A DnComparator that uses a parser to parse Dn strings.  The parser may
- * or may not be Schema enabled.
- *
+ * A DnComparator that uses a parser to parse Dn strings. The parser may or may
+ * not be Schema enabled.
+ * 
  * @todo start using some kinda name cache here; it is way too expensive to be
  *       doing this over and over again
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -39,15 +39,14 @@ import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 public class DnComparator implements Comparator
 {
     /** The parser used to parse DN Strings */
-    private NameParser parser ;
-    
+    private NameParser parser;
+
     private static final Object parserMutex = new Object();
-    
-    
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
 
     /**
      * Creates a default schema-less DN Comparator whose parser does not attempt
@@ -57,76 +56,73 @@ public class DnComparator implements Comparator
     {
         synchronized ( parserMutex )
         {
-            parser = new DnParser() ;
+            parser = new DnParser();
         }
     }
-    
-    
+
+
     /**
      * Creates a DN Comparator using a name component normalizer which should
-     * use schema normalizers for attribute equality matching rules to
-     * normalize assertion values.
+     * use schema normalizers for attribute equality matching rules to normalize
+     * assertion values.
      */
-    public DnComparator( NameComponentNormalizer normalizer ) throws NamingException
+    public DnComparator(NameComponentNormalizer normalizer) throws NamingException
     {
         synchronized ( parserMutex )
         {
-            parser = new DnParser( normalizer ) ;
+            parser = new DnParser( normalizer );
         }
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // Comparator Methods
     // ------------------------------------------------------------------------
-    
-    
+
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare( Object obj1, Object obj2 )
     {
-        Name dn1 = null ;
-        Name dn2 = null ;
-        
+        Name dn1 = null;
+        Name dn2 = null;
+
         // Figure out how to compose the Name for the first object
         if ( obj1 instanceof Name )
         {
-            dn1 = ( Name ) obj1 ;
+            dn1 = ( Name ) obj1;
         }
         else if ( obj1 instanceof String )
         {
-        	// Speedup the comparison
-        	if ( ((String)obj1).compareTo((String)obj2) == 0)
-        	{
-        		return 0;
-        	}
-        	else
-        	{
-	            try
-	            {
+            // Speedup the comparison
+            if ( ( ( String ) obj1 ).compareTo( ( String ) obj2 ) == 0 )
+            {
+                return 0;
+            }
+            else
+            {
+                try
+                {
                     synchronized ( parserMutex )
                     {
-                        dn1 = parser.parse( ( String ) obj1 ) ;
+                        dn1 = parser.parse( ( String ) obj1 );
                     }
-	            }
-	            catch ( NamingException ne )
-	            {
-	                throw new IllegalArgumentException( 
-	                    "first argument (" + obj1 + ") was not a distinguished name" ) ;
-	            }
-        	}
+                }
+                catch ( NamingException ne )
+                {
+                    throw new IllegalArgumentException( "first argument (" + obj1 + ") was not a distinguished name" );
+                }
+            }
         }
         else
         {
-            throw new IllegalArgumentException( 
-                "first argument (" + obj1 + ") was not a Name or a String" ) ;
+            throw new IllegalArgumentException( "first argument (" + obj1 + ") was not a Name or a String" );
         }
 
         // Figure out how to compose the Name for the second object
         if ( obj2 instanceof Name )
         {
-            dn2 = ( Name ) obj2 ;
+            dn2 = ( Name ) obj2;
         }
         else if ( obj2 instanceof String )
         {
@@ -134,21 +130,19 @@ public class DnComparator implements Comparator
             {
                 synchronized ( parserMutex )
                 {
-                    dn2 = parser.parse( ( String ) obj2 ) ;
+                    dn2 = parser.parse( ( String ) obj2 );
                 }
             }
             catch ( NamingException ne )
             {
-                throw new IllegalArgumentException( 
-                    "second argument was not a distinguished name" ) ;
+                throw new IllegalArgumentException( "second argument was not a distinguished name" );
             }
         }
         else
         {
-            throw new IllegalArgumentException( 
-                "second argument was not a distinguished name" ) ;
+            throw new IllegalArgumentException( "second argument was not a distinguished name" );
         }
 
-        return dn1.compareTo( dn2 ) ;
+        return dn1.compareTo( dn2 );
     }
 }

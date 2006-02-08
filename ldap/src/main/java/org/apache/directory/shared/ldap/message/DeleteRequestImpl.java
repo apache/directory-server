@@ -26,8 +26,10 @@ package org.apache.directory.shared.ldap.message;
 public class DeleteRequestImpl extends AbstractAbandonableRequest implements DeleteRequest
 {
     static final long serialVersionUID = 3187847454305567542L;
+
     /** The distinguished name of the entry to delete */
     private String name;
+
     private DeleteResponse response;
 
 
@@ -35,14 +37,14 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
     // Constructors
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a Lockable DeleteRequest implementing object used to delete a
      * leaf entry from the DIT.
-     *
-     * @param id the sequential message identifier
+     * 
+     * @param id
+     *            the sequential message identifier
      */
-    public DeleteRequestImpl( final int id )
+    public DeleteRequestImpl(final int id)
     {
         super( id, TYPE );
     }
@@ -52,11 +54,10 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
     // DeleteRequest Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the distinguished name of the leaf entry to be deleted by this
      * request.
-     *
+     * 
      * @return the DN of the leaf entry to delete.
      */
     public String getName()
@@ -68,8 +69,9 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
     /**
      * Sets the distinguished name of the leaf entry to be deleted by this
      * request.
-     *
-     * @param name the DN of the leaf entry to delete.
+     * 
+     * @param name
+     *            the DN of the leaf entry to delete.
      */
     public void setName( String name )
     {
@@ -81,11 +83,10 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
     // SingleReplyRequest Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the protocol response message type for this request which produces
      * at least one response.
-     *
+     * 
      * @return the message type of the response.
      */
     public MessageTypeEnum getResponseType()
@@ -105,19 +106,20 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
         {
             response = new DeleteResponseImpl( getMessageId() );
         }
-        
+
         return response;
     }
 
-    
+
     /**
-     * Checks to see if an object is equivalent to this DeleteRequest.  First
-     * there's a quick test to see if the obj is the same object as this
-     * one - if so true is returned. Next if the super method fails false is
-     * returned.  Then the name of the entry is compared - if not the same false
-     * is returned.  Finally the method exists returning true.
-     *
-     * @param obj the object to test for equality to this
+     * Checks to see if an object is equivalent to this DeleteRequest. First
+     * there's a quick test to see if the obj is the same object as this one -
+     * if so true is returned. Next if the super method fails false is returned.
+     * Then the name of the entry is compared - if not the same false is
+     * returned. Finally the method exists returning true.
+     * 
+     * @param obj
+     *            the object to test for equality to this
      * @return true if the obj is equal to this DeleteRequest, false otherwise
      */
     public boolean equals( Object obj )
@@ -127,7 +129,7 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
@@ -146,7 +148,7 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
 
         if ( name != null && req.getName() != null )
         {
-            if ( ! name.equals( req.getName() ) )
+            if ( !name.equals( req.getName() ) )
             {
                 return false;
             }
@@ -154,7 +156,8 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
 
         return true;
     }
-    
+
+
     /**
      * Return a String representing a DelRequest
      * 

@@ -24,12 +24,12 @@
  *
  */
 
-package org.apache.directory.shared.ldap.message.spi ;
+package org.apache.directory.shared.ldap.message.spi;
 
 
 /**
- * All Service Provider Interfaces extend this super interface to corralate
- * SPI implementations with the appropriate provider.
+ * All Service Provider Interfaces extend this super interface to corralate SPI
+ * implementations with the appropriate provider.
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author $Author: akarasulu $
@@ -39,11 +39,11 @@ public interface ProviderObject
 {
     /**
      * Gets the Provider associated with this SPI implementation object.
-     *
+     * 
      * @return Provider.
      */
-    Provider getProvider() ;
+    Provider getProvider();
 
     /** @link dependency */
-    /*# Provider lnkProvider; */
+    /* # Provider lnkProvider; */
 }

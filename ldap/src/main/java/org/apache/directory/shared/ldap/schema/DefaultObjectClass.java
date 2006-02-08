@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 /**
  * Objectclass specification bean used to store the schema information for an
- * objectclass definition.  
+ * objectclass definition.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -33,8 +33,10 @@ import java.io.Serializable;
 public class DefaultObjectClass extends AbstractSchemaObject implements ObjectClass, Serializable
 {
     static final long serialVersionUID = -4744807759763092241L;
+
     /** empty array of ObjectClasses so we do not have to recreate objects */
     private static final ObjectClass[] EMPTY_OCLASS_ARR = new ObjectClass[0];
+
     /** empty array of AttributeTypes so we do not have to recreate objects */
     private static final AttributeType[] EMPTY_ATYPE_ARR = new AttributeType[0];
 
@@ -44,25 +46,28 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
 
     /** */
     private ObjectClassTypeEnum type = ObjectClassTypeEnum.ABSTRACT;
+
     /** */
     private ArrayList mayList;
+
     /** */
     private ArrayList mustList;
+
     /** */
     private ArrayList superClasses;
 
-    
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an ObjectClassImpl instance with an OID.
      * 
-     * @param oid the unique object identifier for this objectClass
+     * @param oid
+     *            the unique object identifier for this objectClass
      */
-    DefaultObjectClass( String oid )
+    DefaultObjectClass(String oid)
     {
         super( oid );
     }
@@ -71,7 +76,6 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
     // ------------------------------------------------------------------------
     // ObjectClass Methods
     // ------------------------------------------------------------------------
-
 
     public ObjectClass[] getSuperClasses()
     {
@@ -116,12 +120,12 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
     // Package Friendly Mutators
     // ------------------------------------------------------------------------
 
-
     /**
      * Adds a list of AttributeTypes that may be present within this
      * ObjectClass.
-     *
-     * @param mayList more AttributeTypes to add to the optional attribute list
+     * 
+     * @param mayList
+     *            more AttributeTypes to add to the optional attribute list
      */
     void addToMayList( List mayList )
     {
@@ -137,8 +141,9 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
     /**
      * Adds a list of AttributeTypes that must be present within this
      * ObjectClass.
-     *
-     * @param mustList more AttributeTypes to add to the mandatory list
+     * 
+     * @param mustList
+     *            more AttributeTypes to add to the mandatory list
      */
     void addToMustList( List mustList )
     {
@@ -153,8 +158,9 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
 
     /**
      * Adds ObjectClass to the list of super classes for this ObjectClass.
-     *
-     * @param superClasses the list of super classes to add to this ObjectClass
+     * 
+     * @param superClasses
+     *            the list of super classes to add to this ObjectClass
      */
     void addSuperClasses( List superClasses )
     {
@@ -169,8 +175,9 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
 
     /**
      * Sets the classType for this ObjectClass.
-     *
-     * @param type the new class type enumeration for this ObjectClass
+     * 
+     * @param type
+     *            the new class type enumeration for this ObjectClass
      */
     void setType( ObjectClassTypeEnum type )
     {

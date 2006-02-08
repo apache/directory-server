@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests the FilterParserImpl class.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -195,7 +195,8 @@ public class FilterParserImplTest extends TestCase
 
     public void testExtensibleFilterForm1WithNumericOid() throws IOException, ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) parser.parse( "( 1.2.3.4 :dn :1.3434.23.2 := dummyAssertion\\23\\ac )" );
+        ExtensibleNode node = ( ExtensibleNode ) parser
+            .parse( "( 1.2.3.4 :dn :1.3434.23.2 := dummyAssertion\\23\\ac )" );
         assertEquals( "1.2.3.4", node.getAttribute() );
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
@@ -567,8 +568,8 @@ public class FilterParserImplTest extends TestCase
 
     /**
      * Enrique just found this bug with the filter parser when parsing substring
-     * expressions like *any*.  Here's the JIRA issue:
-     * <a href="http://nagoya.apache.org/jira/browse/DIRLDAP-21">DIRLDAP-21</a>.
+     * expressions like *any*. Here's the JIRA issue: <a
+     * href="http://nagoya.apache.org/jira/browse/DIRLDAP-21">DIRLDAP-21</a>.
      */
     public void testSubstringStarAnyStar() throws IOException, ParseException
     {
@@ -582,24 +583,23 @@ public class FilterParserImplTest extends TestCase
         assertNull( node.getFinal() );
     }
 
-
     /* @todo look at custom error handlers for the parser */
-    /////// Causes parser to hang rather than really bombing out.  Looks like
-    /////// we may need to implement a custom error handler for this parser.
-//    public void testSubstringNoAnyDoubleStar() throws IOException, ParseException
-//    {
-//        SubstringNode node = null;
-//
-//        try
-//        {
-//            node = ( SubstringNode ) parser.parse( "( ou = foo**bar )" );
-//            fail("should not get here");
-//        }
-//        catch( Exception e )
-//        {
-//        }
-//
-//        assertNull( node );
-//    }
-
+    // ///// Causes parser to hang rather than really bombing out. Looks like
+    // ///// we may need to implement a custom error handler for this parser.
+    // public void testSubstringNoAnyDoubleStar() throws IOException,
+    // ParseException
+    // {
+    // SubstringNode node = null;
+    //
+    // try
+    // {
+    // node = ( SubstringNode ) parser.parse( "( ou = foo**bar )" );
+    // fail("should not get here");
+    // }
+    // catch( Exception e )
+    // {
+    // }
+    //
+    // assertNull( node );
+    // }
 }

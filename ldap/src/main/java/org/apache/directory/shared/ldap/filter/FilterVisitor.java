@@ -24,27 +24,27 @@
  *
  * Created on Oct 13, 2003
  */
-package org.apache.directory.shared.ldap.filter ;
+package org.apache.directory.shared.ldap.filter;
 
 
-import java.util.ArrayList ;
+import java.util.ArrayList;
 
 
 /**
- * Filter expression tree node visitor interface.  Note that this is a variation
- * of the extrinsic visitor variation.  It has the following advantages over the
+ * Filter expression tree node visitor interface. Note that this is a variation
+ * of the extrinsic visitor variation. It has the following advantages over the
  * standard visitor pattern:
  * <ul>
- *  <li>Visitor takes responsibility that a visitor can visit a node</li>
- *  <li>Each visitor knows which types of concrete classes it can visit</li>
- *  <li>New visitors can be created without changing the node class</li>
- *  <li>New node classes can be added without having to change old visitors</li>
- *  <li>Visitation order can be controled in every respect:</li>
- *  <ul>
- *      <li>Visitation rejection with canVisit() and/or getOrder()</li>
- *      <li>Recursive visitation ordering with isPrefix()</li>
- *      <li>Child visitation ordering with getOrder()</li>
- *  </ul>
+ * <li>Visitor takes responsibility that a visitor can visit a node</li>
+ * <li>Each visitor knows which types of concrete classes it can visit</li>
+ * <li>New visitors can be created without changing the node class</li>
+ * <li>New node classes can be added without having to change old visitors</li>
+ * <li>Visitation order can be controled in every respect:</li>
+ * <ul>
+ * <li>Visitation rejection with canVisit() and/or getOrder()</li>
+ * <li>Recursive visitation ordering with isPrefix()</li>
+ * <li>Child visitation ordering with getOrder()</li>
+ * </ul>
  * </ul>
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
@@ -56,33 +56,40 @@ public interface FilterVisitor
     /**
      * Visits a filter expression AST using a specific visitation order.
      * 
-     * @param a_node the node to visit
+     * @param a_node
+     *            the node to visit
      */
-    void visit( ExprNode a_node ) ;
-    
+    void visit( ExprNode a_node );
+
+
     /**
      * Checks to see if a node can be visited.
      * 
-     * @param a_node the node to be visited
+     * @param a_node
+     *            the node to be visited
      * @return whether or node the node should be visited
      */
-    boolean canVisit( ExprNode a_node ) ;
+    boolean canVisit( ExprNode a_node );
+
 
     /**
      * Determines whether the visitation order is prefix or postfix.
      * 
      * @return true if the visitation is in prefix order, false otherwise.
      */
-    boolean isPrefix() ;
-    
+    boolean isPrefix();
+
+
     /**
      * Get the array of children to visit sequentially to determine the order of
-     * child visitations.  Some children may not be returned at all if 
-     * canVisit() returns false on them.
+     * child visitations. Some children may not be returned at all if canVisit()
+     * returns false on them.
      * 
-     * @param node the parent branch node
-     * @param a_children the child node array
+     * @param node
+     *            the parent branch node
+     * @param a_children
+     *            the child node array
      * @return the new reordered array of children
      */
-    ArrayList getOrder( BranchNode node, ArrayList a_children ) ;
+    ArrayList getOrder( BranchNode node, ArrayList a_children );
 }

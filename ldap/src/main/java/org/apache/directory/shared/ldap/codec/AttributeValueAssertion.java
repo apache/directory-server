@@ -16,25 +16,22 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+
 import org.apache.directory.shared.ldap.codec.util.LdapString;
 
 
 /**
  * A class to store an attribute value assertion. Tha grammar is :
- * 
- * AttributeValueAssertion ::= SEQUENCE {
- *           attributeDesc   AttributeDescription,
- *           assertionValue  AssertionValue }
- *
- * AttributeDescription ::= LDAPString
- * 
+ * AttributeValueAssertion ::= SEQUENCE { attributeDesc AttributeDescription,
+ * assertionValue AssertionValue } AttributeDescription ::= LDAPString
  * AssertionValue ::= OCTET STRING
- *                
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class AttributeValueAssertion
 {
-    //~ Instance fields ----------------------------------------------------------------------------
+    // ~ Instance fields
+    // ----------------------------------------------------------------------------
 
     /** The attribute description */
     private LdapString attributeDesc;
@@ -42,11 +39,13 @@ public class AttributeValueAssertion
     /** The assertion value */
     private Object assertionValue;
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
-     * Get the assertion value 
-     *
+     * Get the assertion value
+     * 
      * @return Returns the assertionValue.
      */
     public Object getAssertionValue()
@@ -54,19 +53,22 @@ public class AttributeValueAssertion
         return assertionValue;
     }
 
+
     /**
      * Set the assertion value
-     *
-     * @param assertionValue The assertionValue to set.
+     * 
+     * @param assertionValue
+     *            The assertionValue to set.
      */
     public void setAssertionValue( Object assertionValue )
     {
         this.assertionValue = assertionValue;
     }
 
+
     /**
      * Get the attribute description
-     *
+     * 
      * @return Returns the attributeDesc.
      */
     public String getAttributeDesc()
@@ -74,21 +76,25 @@ public class AttributeValueAssertion
         return ( ( attributeDesc == null ) ? null : attributeDesc.getString() );
     }
 
+
     /**
      * Set the attribute description
-     *
-     * @param attributeDesc The attributeDesc to set.
+     * 
+     * @param attributeDesc
+     *            The attributeDesc to set.
      */
     public void setAttributeDesc( LdapString attributeDesc )
     {
         this.attributeDesc = attributeDesc;
     }
 
+
     /**
      * Get a String representation of an AttributeValueAssertion
-     *
-     * @param tabs The spacing to be put before the string 
-     * @return An AttributeValueAssertion String 
+     * 
+     * @param tabs
+     *            The spacing to be put before the string
+     * @return An AttributeValueAssertion String
      */
     public String toString( String tabs )
     {
@@ -96,43 +102,43 @@ public class AttributeValueAssertion
         StringBuffer sb = new StringBuffer();
 
         sb.append( tabs ).append( "AttributeValueAssertion\n" );
-        sb.append( tabs ).append( "    Assertion description : '" )
-          .append( attributeDesc.toString() ).append( "'\n" );
-        sb.append( tabs ).append( "    Assertion value : '" ).append( assertionValue.toString() )
-          .append( "'\n" );
+        sb.append( tabs ).append( "    Assertion description : '" ).append( attributeDesc.toString() ).append( "'\n" );
+        sb.append( tabs ).append( "    Assertion value : '" ).append( assertionValue.toString() ).append( "'\n" );
 
         return sb.toString();
     }
 
+
     /**
-     * Get a String representation of an AttributeValueAssertion,
-     * as of RFC 2254.
-     *
-     * @param filterType The filter type 
-     * @return An AttributeValueAssertion String 
+     * Get a String representation of an AttributeValueAssertion, as of RFC
+     * 2254.
+     * 
+     * @param filterType
+     *            The filter type
+     * @return An AttributeValueAssertion String
      */
-    public String toStringRFC2254( int filterType)
+    public String toStringRFC2254( int filterType )
     {
 
         StringBuffer sb = new StringBuffer();
 
         sb.append( attributeDesc.toString() );
 
-        switch (filterType)
+        switch ( filterType )
         {
-            case LdapConstants.EQUALITY_MATCH_FILTER :
+            case LdapConstants.EQUALITY_MATCH_FILTER:
                 sb.append( '=' );
                 break;
 
-            case LdapConstants.LESS_OR_EQUAL_FILTER :
+            case LdapConstants.LESS_OR_EQUAL_FILTER:
                 sb.append( "<=" );
                 break;
 
-            case LdapConstants.GREATER_OR_EQUAL_FILTER :
+            case LdapConstants.GREATER_OR_EQUAL_FILTER:
                 sb.append( ">=" );
                 break;
 
-            case LdapConstants.APPROX_MATCH_FILTER :
+            case LdapConstants.APPROX_MATCH_FILTER:
                 sb.append( "~=" );
                 break;
         }
@@ -141,6 +147,7 @@ public class AttributeValueAssertion
 
         return sb.toString();
     }
+
 
     /**
      * Get a String representation of an AttributeValueAssertion

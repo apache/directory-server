@@ -15,7 +15,6 @@
  *
  */
 
-
 package org.apache.directory.shared.ldap.name;
 
 
@@ -26,12 +25,13 @@ import antlr.TokenStreamSelector;
 
 /**
  * A reusable parser class extended from antlr generated parser for an LDAP
- * subtree specification as defined by <a href="http://www.faqs.org/rfcs/rfc3672.html">
- * RFC 3672</a>.  This class enables the reuse of the antlr parser without having to
- * recreate the it every time as stated in 
- * <a href="http://www.antlr.org:8080/pipermail/antlr-interest/2003-April/003631.html">
+ * subtree specification as defined by <a
+ * href="http://www.faqs.org/rfcs/rfc3672.html"> RFC 3672</a>. This class
+ * enables the reuse of the antlr parser without having to recreate the it every
+ * time as stated in <a
+ * href="http://www.antlr.org:8080/pipermail/antlr-interest/2003-April/003631.html">
  * a Antlr Interest Group mail</a> .
- *
+ * 
  * @see <a href="http://www.faqs.org/rfcs/rfc3672.html">RFC 3672</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -41,12 +41,12 @@ class ReusableAntlrNameParser extends antlrNameParser
     /**
      * Creates a ReusableAntlrNameParser instance.
      */
-    public ReusableAntlrNameParser( TokenStreamSelector selector )
+    public ReusableAntlrNameParser(TokenStreamSelector selector)
     {
         super( selector );
     }
 
-    
+
     /**
      * Resets the state of an antlr parser.
      */
@@ -54,7 +54,7 @@ class ReusableAntlrNameParser extends antlrNameParser
     {
         // no set method for this protected field.
         this.traceDepth = 0;
-        
+
         this.getInputState().reset();
     }
 }

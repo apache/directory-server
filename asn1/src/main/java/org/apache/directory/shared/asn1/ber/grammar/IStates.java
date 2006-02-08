@@ -22,12 +22,13 @@ import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 /**
  * This interface is used to store the different states of a grammar. While
- * tracing debugging information, the methods to dump the current state
- * as a string are called.
+ * tracing debugging information, the methods to dump the current state as a
+ * string are called.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface IStates {
+public interface IStates
+{
     /** The initial state of every grammar */
     static int INIT_GRAMMAR_STATE = 0;
 
@@ -43,12 +44,15 @@ public interface IStates {
     /** The mask to filter states transition */
     final static int STATES_SWITCH_MASK = 0x00FF;
 
+
     /** Get the current state for a specified grammar */
     String getState( int grammar, int state );
 
+
     /** Return the grammar name from a grammar */
-    String getGrammarName( IGrammar grammar);
+    String getGrammarName( IGrammar grammar );
+
 
     /** Return the grammar name from a grammar number */
-    String getGrammarName(int grammar);
+    String getGrammarName( int grammar );
 }

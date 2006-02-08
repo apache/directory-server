@@ -25,7 +25,7 @@ import java.util.prefs.BackingStoreException;
 
 /**
  * A wrapper around Preferences to access it as a Dictionary.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -39,21 +39,19 @@ public class PreferencesDictionary extends Dictionary
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
 
-
-    public PreferencesDictionary( Preferences prefs )
+    public PreferencesDictionary(Preferences prefs)
     {
         this.prefs = prefs;
     }
 
 
     // ------------------------------------------------------------------------
-    // E X T R A   M E T H O D S
+    // E X T R A M E T H O D S
     // ------------------------------------------------------------------------
-
 
     /**
      * Gets the Preferences used as the backing store for this Dictionary.
-     *
+     * 
      * @return the underlying Preferences object
      */
     public Preferences getPreferences()
@@ -63,9 +61,8 @@ public class PreferencesDictionary extends Dictionary
 
 
     // ------------------------------------------------------------------------
-    // D I C T I O N A R Y   M E T H O D S
+    // D I C T I O N A R Y M E T H O D S
     // ------------------------------------------------------------------------
-
 
     public int size()
     {

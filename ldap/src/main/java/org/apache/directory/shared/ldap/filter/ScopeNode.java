@@ -25,9 +25,9 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 
 
 /**
- * Node used not to represent an published assertion but an assertion on the 
+ * Node used not to represent an published assertion but an assertion on the
  * scope of the search.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -38,44 +38,50 @@ public class ScopeNode extends AbstractExprNode
 
     /** the search base */
     private final String baseDn;
-    
+
     /** the alias dereferencing mode */
     private final DerefAliasesEnum derefAliases;
 
 
     /**
      * Creates a new ScopeNode object.
-     *
-     * @param derefAliases the alias dereferencing mode
-     * @param baseDn the search base
-     * @param scope the search scope
+     * 
+     * @param derefAliases
+     *            the alias dereferencing mode
+     * @param baseDn
+     *            the search base
+     * @param scope
+     *            the search scope
      */
-    public ScopeNode( DerefAliasesEnum derefAliases, String baseDn, int scope )
+    public ScopeNode(DerefAliasesEnum derefAliases, String baseDn, int scope)
     {
-        super ( SCOPE );
+        super( SCOPE );
         this.scope = scope;
         this.baseDn = baseDn;
         this.derefAliases = derefAliases;
     }
-    
-    
+
+
     /**
      * Creates a new ScopeNode object.
-     *
-     * @param env the JNDI environment from which to extract the alias
-     * dereferencing mode
-     * @param baseDn the search base
-     * @param scope the search scope
+     * 
+     * @param env
+     *            the JNDI environment from which to extract the alias
+     *            dereferencing mode
+     * @param baseDn
+     *            the search base
+     * @param scope
+     *            the search scope
      */
-    public ScopeNode( Map env, String baseDn, int scope )
+    public ScopeNode(Map env, String baseDn, int scope)
     {
-        super ( SCOPE );
+        super( SCOPE );
         this.scope = scope;
         this.baseDn = baseDn;
         this.derefAliases = DerefAliasesEnum.getEnum( env );
     }
-    
-    
+
+
     /**
      * Always returns true since a scope node has no children.
      * 
@@ -89,7 +95,7 @@ public class ScopeNode extends AbstractExprNode
 
     /**
      * Gets the scope constant for this node.
-     *
+     * 
      * @return the scope constant
      * @see SearchControls.OBJECT_SCOPE
      * @see SearchControls.ONELEVEL_SCOPE
@@ -103,15 +109,15 @@ public class ScopeNode extends AbstractExprNode
 
     /**
      * Gets the base dn.
-     *
+     * 
      * @return the base dn
      */
     public String getBaseDn()
     {
         return this.baseDn;
     }
-    
-    
+
+
     /**
      * Gets the alias dereferencing mode type safe enumeration.
      * 
@@ -130,25 +136,24 @@ public class ScopeNode extends AbstractExprNode
     {
         switch ( this.scope )
         {
-        case ( SearchControls.OBJECT_SCOPE ):
-            buf.append( "OBJECT_SCOPE" );
+            case ( SearchControls.OBJECT_SCOPE  ):
+                buf.append( "OBJECT_SCOPE" );
 
-            break;
+                break;
 
-        case ( SearchControls.ONELEVEL_SCOPE ):
-            buf.append( "ONELEVEL_SCOPE" );
+            case ( SearchControls.ONELEVEL_SCOPE  ):
+                buf.append( "ONELEVEL_SCOPE" );
 
-            break;
+                break;
 
-        case ( SearchControls.SUBTREE_SCOPE ):
-            buf.append( "SUBTREE_SCOPE (Estimated)" );
+            case ( SearchControls.SUBTREE_SCOPE  ):
+                buf.append( "SUBTREE_SCOPE (Estimated)" );
 
-            break;
+                break;
 
-        default:
-            buf.append( "UNKNOWN" );
+            default:
+                buf.append( "UNKNOWN" );
         }
-
 
         if ( getAnnotations().containsKey( "count" ) )
         {
@@ -156,14 +161,14 @@ public class ScopeNode extends AbstractExprNode
             buf.append( getAnnotations().get( "count" ).toString() );
             buf.append( ']' );
         }
-        
+
         return buf;
     }
 
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     * org.apache.directory.shared.ldap.filter.FilterVisitor)
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
     public void accept( FilterVisitor visitor )
     {

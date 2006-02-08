@@ -14,36 +14,40 @@
  *   limitations under the License.
  *
  */
-package org.apache.directory.shared.ldap.message ;
+package org.apache.directory.shared.ldap.message;
 
 
 /**
  * Delete request protocol message used to remove an existing leaf entry from
  * the directory.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
 public interface DeleteRequest extends SingleReplyRequest, AbandonableRequest
 {
     /** Delete request message type enumeration value */
-    MessageTypeEnum TYPE = MessageTypeEnum.DELREQUEST ;
+    MessageTypeEnum TYPE = MessageTypeEnum.DELREQUEST;
+
     /** Delete response message type enumeration value */
-    MessageTypeEnum RESP_TYPE = DeleteResponse.TYPE ;
+    MessageTypeEnum RESP_TYPE = DeleteResponse.TYPE;
+
 
     /**
      * Gets the distinguished name of the leaf entry to be deleted by this
      * request.
-     *
+     * 
      * @return the DN of the leaf entry to delete.
      */
-    String getName() ;
+    String getName();
+
 
     /**
      * Sets the distinguished name of the leaf entry to be deleted by this
      * request.
-     *
-     * @param a_name the DN of the leaf entry to delete.
+     * 
+     * @param a_name
+     *            the DN of the leaf entry to delete.
      */
-    void setName( String a_name ) ;
+    void setName( String a_name );
 }

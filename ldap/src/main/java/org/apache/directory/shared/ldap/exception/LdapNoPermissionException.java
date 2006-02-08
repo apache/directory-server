@@ -24,17 +24,18 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 /**
  * A NoPermissionException which associates a resultCode namely the
- * {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS} resultCode with the exception.
- *
+ * {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS} resultCode with the
+ * exception.
+ * 
  * @see LdapException
  * @see NoPermissionException
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapNoPermissionException extends NoPermissionException
-        implements LdapException
+public class LdapNoPermissionException extends NoPermissionException implements LdapException
 {
     static final long serialVersionUID = -8611970137960601723L;
 
@@ -51,7 +52,7 @@ public class LdapNoPermissionException extends NoPermissionException
     /**
      * @see NoPermissionException#NoPermissionException(String)
      */
-    public LdapNoPermissionException( String explanation )
+    public LdapNoPermissionException(String explanation)
     {
         super( explanation );
     }
@@ -59,7 +60,7 @@ public class LdapNoPermissionException extends NoPermissionException
 
     /**
      * Always returns {@link ResultCodeEnum#INSUFFICIENTACCESSRIGHTS}
-     *
+     * 
      * @see LdapException#getResultCode()
      */
     public ResultCodeEnum getResultCode()

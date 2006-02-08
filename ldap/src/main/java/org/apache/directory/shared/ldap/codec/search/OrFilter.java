@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.search;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -32,20 +33,24 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
  */
 public class OrFilter extends ConnectorFilter
 {
-    //~ Constructors -------------------------------------------------------------------------------
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
-     * The constructor. We wont initialize the ArrayList as they may not be used. 
+     * The constructor. We wont initialize the ArrayList as they may not be
+     * used.
      */
     public OrFilter()
     {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Get the OrFilter
-     *
+     * 
      * @return Returns the orFilter.
      */
     public ArrayList getOrFilter()
@@ -53,15 +58,11 @@ public class OrFilter extends ConnectorFilter
         return filterSet;
     }
 
+
     /**
-     * Compute the OrFilter length
-     * 
-     * OrFilter :
-     * 
-     * 0xA1 L1 super.computeLength()
-     * 
-     * Length(OrFilter) = Length(0xA1) + Length(super.computeLength()) + super.computeLength()
-     * 
+     * Compute the OrFilter length OrFilter : 0xA1 L1 super.computeLength()
+     * Length(OrFilter) = Length(0xA1) + Length(super.computeLength()) +
+     * super.computeLength()
      */
     public int computeLength()
     {
@@ -70,33 +71,30 @@ public class OrFilter extends ConnectorFilter
         return 1 + Length.getNbBytes( filtersLength ) + filtersLength;
     }
 
+
     /**
-     * Encode the OrFilter message to a PDU.
+     * Encode the OrFilter message to a PDU. OrFilter : 0xA1 LL filter.encode()
      * 
-     * OrFilter :
-     * 
-     * 0xA1 LL 
-     * filter.encode()
-     * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
         {
             // The OrFilter Tag
-            buffer.put( (byte)LdapConstants.OR_FILTER_TAG );
+            buffer.put( ( byte ) LdapConstants.OR_FILTER_TAG );
             buffer.put( Length.getBytes( filtersLength ) );
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         super.encode( buffer );
@@ -104,9 +102,10 @@ public class OrFilter extends ConnectorFilter
         return buffer;
     }
 
+
     /**
      * Return a string compliant with RFC 2254 representing an OR filter
-     *
+     * 
      * @return The OR filter string
      */
     public String toString()

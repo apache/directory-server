@@ -31,8 +31,10 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 public class SearchResponseEntryImpl extends AbstractResponse implements SearchResponseEntry
 {
     static final long serialVersionUID = -8357316233060886637L;
+
     /** Distinguished name of the search result entry returned */
     private String objectName = "";
+
     /** Partial set of attributes returned in response to search */
     private Attributes attributes;
 
@@ -41,14 +43,14 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
     // Constructors
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates a Lockable SearchResponseEntry as a reply to an SearchRequest to
      * indicate the end of a search operation.
-     *
-     * @param id the session unique message id
+     * 
+     * @param id
+     *            the session unique message id
      */
-    public SearchResponseEntryImpl( final int id )
+    public SearchResponseEntryImpl(final int id)
     {
         super( id, TYPE );
     }
@@ -58,10 +60,9 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
     // SearchResponseEntry Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets the set of attributes and all their values in a Attributes.
-     *
+     * 
      * @return the set of attributes and all their values
      */
     public Attributes getAttributes()
@@ -72,8 +73,9 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
 
     /**
      * Sets the set of attributes and all their values in a Attributes.
-     *
-     * @param attributes the set of attributes and all their values
+     * 
+     * @param attributes
+     *            the set of attributes and all their values
      */
     public void setAttributes( Attributes attributes )
     {
@@ -83,7 +85,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
 
     /**
      * Gets the distinguished name of the entry object returned.
-     *
+     * 
      * @return the Dn of the entry returned.
      */
     public String getObjectName()
@@ -94,8 +96,9 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
 
     /**
      * Sets the distinguished name of the entry object returned.
-     *
-     * @param dn the Dn of the entry returned.
+     * 
+     * @param dn
+     *            the Dn of the entry returned.
      */
     public void setObjectName( String objectName )
     {
@@ -105,10 +108,10 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
 
     /**
      * Checks for equality by comparing the objectName, and attributes
-     * properties of this Message after delegating to the super.equals()
-     * method.
-     *
-     * @param obj the object to test for equality with this message
+     * properties of this Message after delegating to the super.equals() method.
+     * 
+     * @param obj
+     *            the object to test for equality with this message
      * @return true if the obj is equal false otherwise
      */
     public boolean equals( Object obj )
@@ -118,14 +121,14 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
             return true;
         }
 
-        if ( ! super.equals( obj ) )
+        if ( !super.equals( obj ) )
         {
             return false;
         }
 
         SearchResponseEntry resp = ( SearchResponseEntry ) obj;
 
-        if ( ! objectName.equals( resp.getObjectName() ) )
+        if ( !objectName.equals( resp.getObjectName() ) )
         {
             return false;
         }
@@ -144,10 +147,10 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
         {
             return attributes.equals( resp.getAttributes() );
         }
-        
+
         return true;
     }
-    
+
 
     /**
      * Return a string representation of a SearchResultEntry request
@@ -155,7 +158,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
-        
+
         sb.append( "    Search Result Entry\n" );
         sb.append( "        Object Name : '" ).append( objectName.toString() ).append( "'\n" );
         sb.append( "        Attributes\n" );
@@ -168,7 +171,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
         {
             sb.append( "            No attributes\n" );
         }
-        
+
         return sb.toString();
     }
 }

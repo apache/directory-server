@@ -23,21 +23,21 @@ import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 
 /**
- *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PSearchControlContainer extends AbstractContainer implements IAsn1Container 
+public class PSearchControlContainer extends AbstractContainer implements IAsn1Container
 {
     /** PSearchControl */
     private PSearchControl control;
 
+
     /**
-     * Creates a new PSearchControlContainer object.
-     * We will store one grammar, it's enough ...
+     * Creates a new PSearchControlContainer object. We will store one grammar,
+     * it's enough ...
      */
     public PSearchControlContainer()
     {
-        super( );
+        super();
         currentGrammar = 0;
         grammars = new IGrammar[PSearchControlStatesEnum.NB_GRAMMARS];
         grammarStack = new IGrammar[1];
@@ -59,19 +59,20 @@ public class PSearchControlContainer extends AbstractContainer implements IAsn1C
         return control;
     }
 
-    
+
     /**
-     * Set a PSearchControl Object into the container. It will be completed
-     * by the ldapDecoder.
-     *
-     * @param control the PSearchControl to set.
+     * Set a PSearchControl Object into the container. It will be completed by
+     * the ldapDecoder.
+     * 
+     * @param control
+     *            the PSearchControl to set.
      */
     public void setPSearchControl( PSearchControl control )
     {
         this.control = control;
     }
 
-    
+
     public void clean()
     {
         super.clean();

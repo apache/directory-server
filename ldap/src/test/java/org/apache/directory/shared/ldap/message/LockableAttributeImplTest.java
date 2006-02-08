@@ -27,9 +27,9 @@ import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 
 /**
  * Test cases for the methods of the LockableAttributeImpl class.
- *
- * @author <a href="mailto:dev@directory.apache.org"> Apache Directory
- *         Project</a> $Rev$
+ * 
+ * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
+ *         $Rev$
  */
 public class LockableAttributeImplTest extends TestCase
 {
@@ -78,10 +78,8 @@ public class LockableAttributeImplTest extends TestCase
         attr1.add( "value0" );
         attr1.add( "value1" );
         attr1.add( "value2" );
-        assertFalse( "Attributes with different ids should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different ids should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different ids should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different ids should not be equal", attr1.equals( attr0 ) );
     }
 
 
@@ -95,10 +93,8 @@ public class LockableAttributeImplTest extends TestCase
         attr1.add( "value0" );
         attr1.add( "value1" );
         attr1.add( "value2" );
-        assertFalse( "Attributes with different id case should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different id case should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different id case should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different id case should not be equal", attr1.equals( attr0 ) );
     }
 
 
@@ -111,22 +107,16 @@ public class LockableAttributeImplTest extends TestCase
         LockableAttributeImpl attr1 = new LockableAttributeImpl( "test-attr1" );
         attr1.add( "value0" );
         attr1.add( "value1" );
-        assertFalse( "Attributes with different values should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different values should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different values should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different values should not be equal", attr1.equals( attr0 ) );
 
         attr1.add( "value2" );
-        assertTrue( "Attributes with same values should be equal",
-                attr0.equals( attr1 ) );
-        assertTrue( "Attributes with same values should be equal",
-                attr1.equals( attr0 ) );
+        assertTrue( "Attributes with same values should be equal", attr0.equals( attr1 ) );
+        assertTrue( "Attributes with same values should be equal", attr1.equals( attr0 ) );
 
         attr1.add( "value3" );
-        assertFalse( "Attributes with different values should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different values should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different values should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different values should not be equal", attr1.equals( attr0 ) );
     }
 
 
@@ -140,30 +130,24 @@ public class LockableAttributeImplTest extends TestCase
         LockableAttributeImpl attr1 = new LockableAttributeImpl( "test-attr1" );
         attr1.add( "value0" );
         attr1.add( "value1" );
-        assertFalse( "Attributes with different values should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different values should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different values should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different values should not be equal", attr1.equals( attr0 ) );
 
         attr1.add( "value2" );
-        assertTrue( "Attributes with same values should be equal",
-                attr0.equals( attr1 ) );
-        assertTrue( "Attributes with same values should be equal",
-                attr1.equals( attr0 ) );
+        assertTrue( "Attributes with same values should be equal", attr0.equals( attr1 ) );
+        assertTrue( "Attributes with same values should be equal", attr1.equals( attr0 ) );
 
         attr1.add( "value2" );
-        assertFalse( "Attributes with different values should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different values should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different values should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different values should not be equal", attr1.equals( attr0 ) );
     }
 
 
     /**
      * Tests for inequality with different implementations.
-     *
+     * 
      * @todo start looking at comparing syntaxes to determine if attributes are
-     * really equal
+     *       really equal
      */
     public void testNotEqualDiffImpl()
     {
@@ -171,23 +155,18 @@ public class LockableAttributeImplTest extends TestCase
         Attribute attr1 = new BasicAttribute( "test-attr1" );
         attr1.add( "value0" );
         attr1.add( "value1" );
-        assertFalse( "Attributes with different values should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different values should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different values should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different values should not be equal", attr1.equals( attr0 ) );
 
         attr1.add( "value2" );
-        assertTrue( "Attributes with same values diff impl should be equal",
-                attr0.equals( attr1 ) );
+        assertTrue( "Attributes with same values diff impl should be equal", attr0.equals( attr1 ) );
 
-//        assertTrue( "Attributes with same values diff impl should be equal",
-//                attr1.equals( attr0 ) );
+        // assertTrue( "Attributes with same values diff impl should be equal",
+        // attr1.equals( attr0 ) );
 
         attr1.add( "value3" );
-        assertFalse( "Attributes with different values should not be equal",
-                attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different values should not be equal",
-                attr1.equals( attr0 ) );
+        assertFalse( "Attributes with different values should not be equal", attr0.equals( attr1 ) );
+        assertFalse( "Attributes with different values should not be equal", attr1.equals( attr0 ) );
     }
 
 

@@ -24,21 +24,22 @@ import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
 
 /**
  * A container for the GracefulDisconnect codec.
- *  
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulDisconnectContainer extends AbstractContainer implements IAsn1Container 
+public class GracefulDisconnectContainer extends AbstractContainer implements IAsn1Container
 {
     /** GracefulShutdown */
     private GracefulDisconnect gracefulDisconnect;
 
+
     /**
-     * Creates a new GracefulDisconnectContainer object.
-     * We will store one grammar, it's enough ...
+     * Creates a new GracefulDisconnectContainer object. We will store one
+     * grammar, it's enough ...
      */
     public GracefulDisconnectContainer()
     {
-        super( );
+        super();
         currentGrammar = 0;
         grammars = new IGrammar[GracefulDisconnectStatesEnum.NB_GRAMMARS];
         grammarStack = new IGrammar[1];
@@ -50,6 +51,7 @@ public class GracefulDisconnectContainer extends AbstractContainer implements IA
         states = GracefulDisconnectStatesEnum.getInstance();
     }
 
+
     /**
      * @return Returns the Graceful Shutdown object.
      */
@@ -57,17 +59,20 @@ public class GracefulDisconnectContainer extends AbstractContainer implements IA
     {
         return gracefulDisconnect;
     }
-    
+
+
     /**
      * Set a GracefulDisconnect Object into the container. It will be completed
      * by the ldapDecoder.
-     *
-     * @param control the GracefulShutdown to set.
+     * 
+     * @param control
+     *            the GracefulShutdown to set.
      */
     public void setGracefulDisconnect( GracefulDisconnect gracefulDisconnect )
     {
         this.gracefulDisconnect = gracefulDisconnect;
     }
+
 
     /**
      * Clean the container for the next decoding.

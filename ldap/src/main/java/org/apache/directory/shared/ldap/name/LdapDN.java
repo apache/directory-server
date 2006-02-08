@@ -17,6 +17,7 @@
 
 package org.apache.directory.shared.ldap.name;
 
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -37,23 +38,19 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
- * The LdapDN class contains a DN (Distinguished Name). Its specification can be found in RFC 2253, 
- * "UTF-8 String Representation of Distinguished Names".
+ * The LdapDN class contains a DN (Distinguished Name). Its specification can be
+ * found in RFC 2253, "UTF-8 String Representation of Distinguished Names". We
+ * will store two representation of a DN : - a user Provider represeentation,
+ * which is the parsed String given by a user - an internal representation. A DN
+ * is formed of RDNs, in a specific order : RDN[n], RDN[n-1], ... RDN[1], RDN[0]
+ * It represents a tree, in which the root is the last RDN (RDN[0]) and the leaf
+ * is the first RDN (RDN[n]).
  * 
- * We will store two representation of a DN :
- *  - a user Provider represeentation, which is the parsed String given by a user
- *  - an internal representation.
- *  
- * A DN is formed of RDNs, in a specific order :
- *  RDN[n], RDN[n-1], ... RDN[1], RDN[0]
- *  
- * It represents a tree, in which the root is the last RDN (RDN[0]) and the leaf is the
- * first RDN (RDN[n]).
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapDN /*extends LdapString*/ implements Name
+public class LdapDN /* extends LdapString */implements Name
 {
     /** The LoggerFactory used by this class */
     private static Logger log = LoggerFactory.getLogger( LdapDN.class );
@@ -61,7 +58,9 @@ public class LdapDN /*extends LdapString*/ implements Name
     /**
      * Declares the Serial Version Uid.
      * 
-     * @see <a href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always Declare Serial Version Uid</a>
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
      */
     private static final long serialVersionUID = 1L;
 
@@ -71,23 +70,26 @@ public class LdapDN /*extends LdapString*/ implements Name
     /** Value returned by the compareTo method if values are equals */
     public final static int EQUALS = 0;
 
-    //~ Static fields/initializers -----------------------------------------------------------------
+    // ~ Static fields/initializers
+    // -----------------------------------------------------------------
     /** The RDNs that are elements of the DN */
-    private List rdns = new ArrayList(5); 
-    
+    private List rdns = new ArrayList( 5 );
+
     /** The user provided name */
     private String upName;
-    
+
     /** The normalized name */
     private String normName;
-    
+
     /** The bytes representation of the normName */
     private byte[] bytes;
-    
+
     /** A null LdapDN */
     public static final LdapDN EMPTY_LDAPDN = new LdapDN();
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Construct an empty LdapDN object
@@ -96,84 +98,99 @@ public class LdapDN /*extends LdapString*/ implements Name
     {
         super();
         upName = "";
-        normName = ""; 
+        normName = "";
     }
-    
+
+
     /**
      * Creates an ldap name using a list of NameComponents. Each NameComponent
      * is a String
-     *
-     * @param a_list of String name components.
+     * 
+     * @param a_list
+     *            of String name components.
      */
-    LdapDN( List list ) throws InvalidNameException
+    LdapDN(List list) throws InvalidNameException
     {
-    	super();
-    	
-    	if ( ( list != null ) && ( list.size() != 0 ) )
-    	{
-	    	Iterator nameComponents = list.iterator();
-	    	
-	    	while ( nameComponents.hasNext() )
-	    	{
-	    		String nameComponent = (String)nameComponents.next();
-	    		add( 0, nameComponent );
-	    	}
-    	}
+        super();
+
+        if ( ( list != null ) && ( list.size() != 0 ) )
+        {
+            Iterator nameComponents = list.iterator();
+
+            while ( nameComponents.hasNext() )
+            {
+                String nameComponent = ( String ) nameComponents.next();
+                add( 0, nameComponent );
+            }
+        }
     }
+
 
     /**
      * Creates an ldap name using a list of name components.
-     *
-     * @param nameComponents List of String name components.
+     * 
+     * @param nameComponents
+     *            List of String name components.
      */
-    LdapDN( Iterator nameComponents ) throws InvalidNameException
+    LdapDN(Iterator nameComponents) throws InvalidNameException
     {
-    	super();
-    	
-    	if ( nameComponents != null )
-    	{
-	    	while ( nameComponents.hasNext() )
-	    	{
-	    		String nameComponent = (String)nameComponents.next();
-	    		add( 0, nameComponent );
-	    	}
-    	}
+        super();
+
+        if ( nameComponents != null )
+        {
+            while ( nameComponents.hasNext() )
+            {
+                String nameComponent = ( String ) nameComponents.next();
+                add( 0, nameComponent );
+            }
+        }
     }
+
 
     /**
      * Parse a String and checks that it is a valid DN <br>
      * <p>
-     * &lt;distinguishedName&gt;     ::= &lt;name&gt; | e <br>
-     * &lt;name&gt;                ::= &lt;name-component&gt; &lt;name-components&gt; <br>
-     * &lt;name-components&gt;    ::= &lt;spaces&gt; &lt;separator&gt; &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
+     * &lt;distinguishedName&gt; ::= &lt;name&gt; | e <br>
+     * &lt;name&gt; ::= &lt;name-component&gt; &lt;name-components&gt; <br>
+     * &lt;name-components&gt; ::= &lt;spaces&gt; &lt;separator&gt;
+     * &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
      * </p>
      * 
-     * @param bytes The byte buffer that contains the DN
-     * @exception A InvalidNameException is thrown if the buffer does not contains a valid DN.
+     * @param bytes
+     *            The byte buffer that contains the DN
+     * @exception A
+     *                InvalidNameException is thrown if the buffer does not
+     *                contains a valid DN.
      */
-    public LdapDN( String upName ) throws InvalidNameException
+    public LdapDN(String upName) throws InvalidNameException
     {
         if ( StringTools.isNotEmpty( upName ) )
         {
             LdapDnParser.parseInternal( upName, rdns );
         }
-        
-        // Stores the representations of a DN : internal (as a string and as a byte[]) and external.
+
+        // Stores the representations of a DN : internal (as a string and as a
+        // byte[]) and external.
         normalize( upName );
     }
-    
+
+
     /**
      * Parse a buffer and checks that it is a valid DN <br>
      * <p>
-     * &lt;distinguishedName&gt;     ::= &lt;name&gt; | e <br>
-     * &lt;name&gt;                ::= &lt;name-component&gt; &lt;name-components&gt; <br>
-     * &lt;name-components&gt;    ::= &lt;spaces&gt; &lt;separator&gt; &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
+     * &lt;distinguishedName&gt; ::= &lt;name&gt; | e <br>
+     * &lt;name&gt; ::= &lt;name-component&gt; &lt;name-components&gt; <br>
+     * &lt;name-components&gt; ::= &lt;spaces&gt; &lt;separator&gt;
+     * &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
      * </p>
      * 
-     * @param bytes The byte buffer that contains the DN
-     * @exception A InvalidNameException is thrown if the buffer does not contains a valid DN.
+     * @param bytes
+     *            The byte buffer that contains the DN
+     * @exception A
+     *                InvalidNameException is thrown if the buffer does not
+     *                contains a valid DN.
      */
-    public LdapDN( byte[] bytes ) throws InvalidNameException
+    public LdapDN(byte[] bytes) throws InvalidNameException
     {
         try
         {
@@ -183,38 +200,42 @@ public class LdapDN /*extends LdapString*/ implements Name
         }
         catch ( UnsupportedEncodingException uee )
         {
-        	log.error( "The byte array is not an UTF-8 encoded Unicode String : " + uee.getMessage() );
-            throw new InvalidNameException( "The byte array is not an UTF-8 encoded Unicode String : " + uee.getMessage() );
+            log.error( "The byte array is not an UTF-8 encoded Unicode String : " + uee.getMessage() );
+            throw new InvalidNameException( "The byte array is not an UTF-8 encoded Unicode String : "
+                + uee.getMessage() );
         }
     }
-    
+
 
     /**
      * Normalize the DN by triming useless spaces and lowercasing names.
+     * 
      * @return a normalized form of the DN
      */
     private void normalize( String upName )
     {
-    	normName = toNormName();
-        this.upName = upName == null ? "" : upName ;
+        normName = toNormName();
+        this.upName = upName == null ? "" : upName;
     }
-    
+
+
     /**
      * Build the normalized DN as a String,
+     * 
      * @return A String representing the normalized DN
      */
     public String toNormName()
     {
         if ( ( rdns == null ) || ( rdns.size() == 0 ) )
         {
-        	bytes = null;
+            bytes = null;
             return "";
         }
         else
         {
             StringBuffer sb = new StringBuffer();
             boolean isFirst = true;
-            
+
             for ( int i = 0; i < rdns.size(); i++ )
             {
                 if ( isFirst )
@@ -225,29 +246,33 @@ public class LdapDN /*extends LdapString*/ implements Name
                 {
                     sb.append( ',' );
                 }
-                
-                sb.append( ( (Rdn)rdns.get( i ) ) );
+
+                sb.append( ( ( Rdn ) rdns.get( i ) ) );
             }
-            
-            normName = sb.toString(); 
+
+            normName = sb.toString();
             bytes = StringTools.getBytesUtf8( normName );
-            
+
             return normName;
         }
     }
-    
+
+
     /**
      * Return the normalized DN as a String. It returns the same value as the
      * getNormName method
+     * 
      * @return A String representing the normalized DN
      */
     public String toString()
     {
-    	return normName == null ? "" : normName;
+        return normName == null ? "" : normName;
     }
-    
+
+
     /**
      * Return the User Provided DN as a String,
+     * 
      * @return A String representing the User Provided DN
      */
     public String toUpName()
@@ -260,7 +285,7 @@ public class LdapDN /*extends LdapString*/ implements Name
         {
             StringBuffer sb = new StringBuffer();
             boolean isFirst = true;
-            
+
             for ( int i = 0; i < rdns.size(); i++ )
             {
                 if ( isFirst )
@@ -271,125 +296,118 @@ public class LdapDN /*extends LdapString*/ implements Name
                 {
                     sb.append( ',' );
                 }
-                
-                sb.append(( (Rdn)rdns.get( i ) ).getUpName() );
+
+                sb.append( ( ( Rdn ) rdns.get( i ) ).getUpName() );
             }
-            
+
             return sb.toString();
         }
     }
-    
+
+
     /**
-     * Return the User Provided prefix representation of the DN starting at the posn position.
+     * Return the User Provided prefix representation of the DN starting at the
+     * posn position. If posn = 0, return an empty string. for DN : sn=smith,
+     * dc=apache, dc=org getUpname(0) -> "" getUpName(1) -> "dc=org"
+     * getUpname(3) -> "sn=smith, dc=apache, dc=org" getUpName(4) ->
+     * ArrayOutOfBoundException Warning ! The returned String is not exactly the
+     * user provided DN, as spaces before and after each RDNs have been trimmed.
      * 
-     * If posn = 0, return an empty string.
-     * 
-     * for DN : sn=smith, dc=apache, dc=org
-     * 
-     * getUpname(0) -> ""
-     * getUpName(1) -> "dc=org"
-     * getUpname(3) -> "sn=smith, dc=apache, dc=org"
-     * getUpName(4) -> ArrayOutOfBoundException
-     * 
-     * Warning ! The returned String is not exactly the user provided DN, as spaces
-     * before and after each RDNs have been trimmed.
-     * 
-     * @param posn The starting position
+     * @param posn
+     *            The starting position
      * @return The truncated DN
      */
     private String getUpNamePrefix( int posn )
     {
-    	if ( posn == 0 )
-    	{
-    		return "";
-    	}
-    	
-    	if ( posn > rdns.size() )
-    	{
-    		String message = "Impossible to get the position " + posn + ", the DN only has " + rdns.size() + " RDNs";
-    		log.error( message );
-    		throw new ArrayIndexOutOfBoundsException( message );
-    	}
-    
-    	int start = rdns.size() - posn;
-    	StringBuffer sb = new StringBuffer();
-    	boolean isFirst = true;
-    	
-    	for ( int i = start; i < rdns.size(); i++ )
-    	{
-    		if ( isFirst )
-    		{
-    			isFirst = false;
-    		}
-    		else
-    		{
-    			sb.append( ',' );
-    		}
-    		
-    		sb.append( ( (Rdn)rdns.get( i ) ).getUpName() );
-    	}
-    	
-    	return sb.toString();
+        if ( posn == 0 )
+        {
+            return "";
+        }
+
+        if ( posn > rdns.size() )
+        {
+            String message = "Impossible to get the position " + posn + ", the DN only has " + rdns.size() + " RDNs";
+            log.error( message );
+            throw new ArrayIndexOutOfBoundsException( message );
+        }
+
+        int start = rdns.size() - posn;
+        StringBuffer sb = new StringBuffer();
+        boolean isFirst = true;
+
+        for ( int i = start; i < rdns.size(); i++ )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ',' );
+            }
+
+            sb.append( ( ( Rdn ) rdns.get( i ) ).getUpName() );
+        }
+
+        return sb.toString();
     }
 
+
     /**
-     * Return the User Provided suffix representation of the DN starting at the posn position.
+     * Return the User Provided suffix representation of the DN starting at the
+     * posn position. If posn = 0, return an empty string. for DN : sn=smith,
+     * dc=apache, dc=org getUpname(0) -> "sn=smith, dc=apache, dc=org"
+     * getUpName(1) -> "sn=smith, dc=apache" getUpname(3) -> "sn=smith"
+     * getUpName(4) -> "" Warning ! The returned String is not exactly the user
+     * provided DN, as spaces before and after each RDNs have been trimmed.
      * 
-     * If posn = 0, return an empty string.
-     * 
-     * for DN : sn=smith, dc=apache, dc=org
-     * 
-     * getUpname(0) -> "sn=smith, dc=apache, dc=org"
-     * getUpName(1) -> "sn=smith, dc=apache"
-     * getUpname(3) -> "sn=smith"
-     * getUpName(4) -> ""
-     * 
-     * Warning ! The returned String is not exactly the user provided DN, as spaces
-     * before and after each RDNs have been trimmed.
-     * 
-     * @param posn The starting position
+     * @param posn
+     *            The starting position
      * @return The truncated DN
      */
     private String getUpNameSuffix( int posn )
     {
-    	if ( posn > rdns.size() )
-    	{
-    		return "";
-    	}
-    	
-    	int end = rdns.size() - posn;
-    	StringBuffer sb = new StringBuffer();
-    	boolean isFirst = true;
-    	
-    	for ( int i = 0; i < end; i++ )
-    	{
-    		if ( isFirst )
-    		{
-    			isFirst = false;
-    		}
-    		else
-    		{
-    			sb.append( ',' );
-    		}
-    		
-    		sb.append( ( (Rdn)rdns.get( i ) ).getUpName() );
-    	}
-    	
-    	return sb.toString();
+        if ( posn > rdns.size() )
+        {
+            return "";
+        }
+
+        int end = rdns.size() - posn;
+        StringBuffer sb = new StringBuffer();
+        boolean isFirst = true;
+
+        for ( int i = 0; i < end; i++ )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ',' );
+            }
+
+            sb.append( ( ( Rdn ) rdns.get( i ) ).getUpName() );
+        }
+
+        return sb.toString();
     }
-    
+
+
     /**
      * Gets the hashcode of the string representation of this name.
+     * 
      * @see java.lang.Object#hashCode()
      */
     public int hashCode()
     {
-        return upName.hashCode() ;
+        return upName.hashCode();
     }
-    
+
 
     /**
-     * Get the initial DN (without normalization) 
+     * Get the initial DN (without normalization)
+     * 
      * @return The DN as a String
      */
     public String getName()
@@ -397,14 +415,15 @@ public class LdapDN /*extends LdapString*/ implements Name
         return ( upName == null ? "" : upName );
     }
 
+
     /**
-     * Get the initial DN (without normalization) 
+     * Get the initial DN (without normalization)
+     * 
      * @return The DN as a String
      */
-    /*public String getNormName()
-    {
-        return ( normName == null ? "" : normName );
-    }*/
+    /*
+     * public String getNormName() { return ( normName == null ? "" : normName ); }
+     */
 
     /**
      * Get the number of NameComponent conatained in this LdapDN
@@ -415,47 +434,48 @@ public class LdapDN /*extends LdapString*/ implements Name
     {
         return rdns.size();
     }
-    
+
+
     /**
      * Get the number of bytes necessary to store this DN
+     * 
      * @return A integer, which is the size of the UTF-8 byte array
      */
     public static int getNbBytes( Name dn )
     {
-    	LdapDN ldapDn = (LdapDN)dn;
-    	return ldapDn.bytes == null ? 0 : ldapDn.bytes.length;
+        LdapDN ldapDn = ( LdapDN ) dn;
+        return ldapDn.bytes == null ? 0 : ldapDn.bytes.length;
     }
-    
+
+
     /**
      * Get an UTF-8 representation of the normalized form of the DN
+     * 
      * @return A byte[] representation of the DN
      */
     public static byte[] getBytes( Name dn )
     {
-    	return ((LdapDN)dn).bytes;
+        return ( ( LdapDN ) dn ).bytes;
     }
-    
+
+
     /**
-     * Determines whether this name starts with a specified prefix.
-     * A name <tt>name</tt> is a prefix if it is equal to
-     * <tt>getPrefix(name.size())</tt>.
-     * 
-     * Be aware that for a specific DN like :
-     * 
-     * cn=xxx, ou=yyy
-     * 
-     * the startsWith method will retourn true with ou=yyy, and
+     * Determines whether this name starts with a specified prefix. A name
+     * <tt>name</tt> is a prefix if it is equal to
+     * <tt>getPrefix(name.size())</tt>. Be aware that for a specific DN like :
+     * cn=xxx, ou=yyy the startsWith method will retourn true with ou=yyy, and
      * false with cn=xxx
-     *
-     * @param name the name to check
-     * @return  true if <tt>name</tt> is a prefix of this name, false otherwise
+     * 
+     * @param name
+     *            the name to check
+     * @return true if <tt>name</tt> is a prefix of this name, false otherwise
      */
-    public boolean startsWith ( Name name )
+    public boolean startsWith( Name name )
     {
         if ( name instanceof LdapDN )
         {
-            LdapDN nameDN = (LdapDN)name;
-            
+            LdapDN nameDN = ( LdapDN ) name;
+
             if ( nameDN.size() == 0 )
             {
                 return true;
@@ -466,21 +486,21 @@ public class LdapDN /*extends LdapString*/ implements Name
                 // The name is longer than the current LdapDN.
                 return false;
             }
-            
+
             // Ok, iterate through all the RDN of the name,
             // starting a the end of the current list.
-            
+
             for ( int i = nameDN.size() - 1; i >= 0; i-- )
             {
-            	Rdn nameRdn = (Rdn)(nameDN.rdns.get( nameDN.rdns.size() - i - 1 ));
-            	Rdn ldapRdn = (Rdn)rdns.get( rdns.size() - i - 1 );
-                
-                if ( nameRdn.compareTo(ldapRdn) != 0 )
+                Rdn nameRdn = ( Rdn ) ( nameDN.rdns.get( nameDN.rdns.size() - i - 1 ) );
+                Rdn ldapRdn = ( Rdn ) rdns.get( rdns.size() - i - 1 );
+
+                if ( nameRdn.compareTo( ldapRdn ) != 0 )
                 {
                     return false;
                 }
             }
-            
+
             return true;
         }
         else
@@ -490,27 +510,24 @@ public class LdapDN /*extends LdapString*/ implements Name
         }
     }
 
+
     /**
-     * Determines whether this name ends with a specified suffix.
-     * A name <tt>name</tt> is a suffix if it is equal to
-     * <tt>getSuffix(size()-name.size())</tt>.
+     * Determines whether this name ends with a specified suffix. A name
+     * <tt>name</tt> is a suffix if it is equal to
+     * <tt>getSuffix(size()-name.size())</tt>. Be aware that for a specific
+     * DN like : cn=xxx, ou=yyy the endsWith method will retourn true with
+     * cn=xxx, and false with ou=yyy
      * 
-     * Be aware that for a specific DN like :
-     * 
-     * cn=xxx, ou=yyy
-     * 
-     * the endsWith method will retourn true with cn=xxx, and
-     * false with ou=yyy
-     *
-     * @param name the name to check
-     * @return  true if <tt>name</tt> is a suffix of this name, false otherwise
+     * @param name
+     *            the name to check
+     * @return true if <tt>name</tt> is a suffix of this name, false otherwise
      */
-    public boolean endsWith ( Name name )
+    public boolean endsWith( Name name )
     {
         if ( name instanceof LdapDN )
         {
-            LdapDN nameDN = (LdapDN)name;
-            
+            LdapDN nameDN = ( LdapDN ) name;
+
             if ( nameDN.size() == 0 )
             {
                 return true;
@@ -521,19 +538,19 @@ public class LdapDN /*extends LdapString*/ implements Name
                 // The name is longer than the current LdapDN.
                 return false;
             }
-            
+
             // Ok, iterate through all the RDN of the name
             for ( int i = 0; i < nameDN.size(); i++ )
             {
-            	Rdn nameRdn = (Rdn)(nameDN.rdns.get( i ));
-            	Rdn ldapRdn = (Rdn)rdns.get( i );
-                
-                if ( nameRdn.compareTo(ldapRdn) != 0 )
+                Rdn nameRdn = ( Rdn ) ( nameDN.rdns.get( i ) );
+                Rdn ldapRdn = ( Rdn ) rdns.get( i );
+
+                if ( nameRdn.compareTo( ldapRdn ) != 0 )
                 {
                     return false;
                 }
             }
-            
+
             return true;
         }
         else
@@ -542,27 +559,29 @@ public class LdapDN /*extends LdapString*/ implements Name
             return name == null;
         }
     }
-    
+
+
     /**
-     * Determines whether this name is empty.
-     * An empty name is one with zero components.
-     *
-     * @return  true if this name is empty, false otherwise
+     * Determines whether this name is empty. An empty name is one with zero
+     * components.
+     * 
+     * @return true if this name is empty, false otherwise
      */
     public boolean isEmpty()
     {
         return ( rdns.size() == 0 );
     }
-    
+
+
     /**
      * Retrieves a component of this name.
-     *
+     * 
      * @param posn
-     *      the 0-based index of the component to retrieve.
-     *      Must be in the range [0,size()).
-     * @return  the component at index posn
-     * @throws  ArrayIndexOutOfBoundsException
-     *      if posn is outside the specified range
+     *            the 0-based index of the component to retrieve. Must be in the
+     *            range [0,size()).
+     * @return the component at index posn
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
      */
     public String get( int posn )
     {
@@ -572,21 +591,22 @@ public class LdapDN /*extends LdapString*/ implements Name
         }
         else
         {
-        	Rdn rdn = (Rdn)rdns.get( rdns.size() - posn - 1 );
-        
+            Rdn rdn = ( Rdn ) rdns.get( rdns.size() - posn - 1 );
+
             return rdn.toString();
         }
     }
-    
+
+
     /**
      * Retrieves a component of this name.
-     *
+     * 
      * @param posn
-     *      the 0-based index of the component to retrieve.
-     *      Must be in the range [0,size()).
-     * @return  the component at index posn
-     * @throws  ArrayIndexOutOfBoundsException
-     *      if posn is outside the specified range
+     *            the 0-based index of the component to retrieve. Must be in the
+     *            range [0,size()).
+     * @return the component at index posn
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
      */
     public Rdn getRdn( int posn )
     {
@@ -596,122 +616,128 @@ public class LdapDN /*extends LdapString*/ implements Name
         }
         else
         {
-        	Rdn rdn = (Rdn)rdns.get( rdns.size() - posn - 1 );
-        
+            Rdn rdn = ( Rdn ) rdns.get( rdns.size() - posn - 1 );
+
             return rdn;
         }
     }
-    
+
+
     /**
      * Retrieves all the components of this name.
-     *
-     * @return  All the components
+     * 
+     * @return All the components
      */
     public List getRdns()
     {
         List newRdns = new ArrayList();
-        
+
         // We will clone the list, to avoid user modifications
         for ( int i = 0; i < rdns.size(); i++ )
         {
-            newRdns.add( i, ((Rdn)rdns.get( i ) ).clone() );
+            newRdns.add( i, ( ( Rdn ) rdns.get( i ) ).clone() );
         }
-        
-    	return newRdns;
+
+        return newRdns;
     }
-    
+
+
     /**
-     * Retrieves the components of this name as an enumeration
-     * of strings.  The effect on the enumeration of updates to
-     * this name is undefined.  If the name has zero components,
-     * an empty (non-null) enumeration is returned.
-     *
-     * @return  an enumeration of the components of this name, each as string
+     * Retrieves the components of this name as an enumeration of strings. The
+     * effect on the enumeration of updates to this name is undefined. If the
+     * name has zero components, an empty (non-null) enumeration is returned.
+     * 
+     * @return an enumeration of the components of this name, each as string
      */
     public Enumeration getAll()
     {
         /*
          * Note that by accessing the name component using the get() method on
          * the name rather than get() on the list we are reading components from
-         * right to left with increasing index values.  LdapName.get() does the
-         * index translation on m_list for us. 
+         * right to left with increasing index values. LdapName.get() does the
+         * index translation on m_list for us.
          */
-        return new Enumeration() 
+        return new Enumeration()
         {
-            private int pos ;
+            private int pos;
+
 
             public boolean hasMoreElements()
             {
-                return pos < rdns.size() ;
+                return pos < rdns.size();
             }
+
 
             public Object nextElement()
             {
-                if ( pos >= rdns.size() ) 
+                if ( pos >= rdns.size() )
                 {
-                	log.error( "Exceeded number of elements in the current object" );
-                    throw new NoSuchElementException() ;
+                    log.error( "Exceeded number of elements in the current object" );
+                    throw new NoSuchElementException();
                 }
 
                 Object obj = rdns.get( rdns.size() - pos - 1 );
-                pos++ ;
+                pos++;
                 return obj.toString();
             }
         };
     }
-    
+
+
     /**
-     * Retrieves the components of this name as an enumeration
-     * of strings.  The effect on the enumeration of updates to
-     * this name is undefined.  If the name has zero components,
-     * an empty (non-null) enumeration is returned.
-     *
-     * @return  an enumeration of the components of this name, as Rdn
+     * Retrieves the components of this name as an enumeration of strings. The
+     * effect on the enumeration of updates to this name is undefined. If the
+     * name has zero components, an empty (non-null) enumeration is returned.
+     * 
+     * @return an enumeration of the components of this name, as Rdn
      */
     public Enumeration getAllRdn()
     {
         /*
          * Note that by accessing the name component using the get() method on
          * the name rather than get() on the list we are reading components from
-         * right to left with increasing index values.  LdapName.get() does the
-         * index translation on m_list for us. 
+         * right to left with increasing index values. LdapName.get() does the
+         * index translation on m_list for us.
          */
-        return new Enumeration() 
+        return new Enumeration()
         {
-            private int pos ;
+            private int pos;
+
 
             public boolean hasMoreElements()
             {
-                return pos < rdns.size() ;
+                return pos < rdns.size();
             }
+
 
             public Object nextElement()
             {
-                if ( pos >= rdns.size() ) 
+                if ( pos >= rdns.size() )
                 {
-                	log.error( "Exceeded number of elements in the current object" );
-                    throw new NoSuchElementException() ;
+                    log.error( "Exceeded number of elements in the current object" );
+                    throw new NoSuchElementException();
                 }
 
                 Object obj = rdns.get( rdns.size() - pos - 1 );
-                pos++ ;
-                return obj ;
+                pos++;
+                return obj;
             }
         };
     }
-    
+
+
     /**
-     * Creates a name whose components consist of a prefix of the
-     * components of this name.  Subsequent changes to
-     * this name will not affect the name that is returned and vice versa.
-     *
+     * Creates a name whose components consist of a prefix of the components of
+     * this name. Subsequent changes to this name will not affect the name that
+     * is returned and vice versa.
+     * 
      * @param posn
-     *      the 0-based index of the component at which to stop.
-     *      Must be in the range [0,size()].
-     * @return  a name consisting of the components at indexes in
-     *      the range [0,posn].
-     * @throws  ArrayIndexOutOfBoundsException
-     *      if posn is outside the specified range
+     *            the 0-based index of the component at which to stop. Must be
+     *            in the range [0,size()].
+     * @return a name consisting of the components at indexes in the range
+     *         [0,posn].
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
      */
     public Name getPrefix( int posn )
     {
@@ -719,41 +745,42 @@ public class LdapDN /*extends LdapString*/ implements Name
         {
             return EMPTY_LDAPDN;
         }
-        
+
         if ( ( posn < 0 ) || ( posn > rdns.size() ) )
         {
-        	String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
-        	log.error( message );
+            String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
+            log.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
-        
+
         LdapDN newLdapDN = new LdapDN();
-        
-        for (int i = rdns.size() - posn; i < rdns.size(); i++ )
+
+        for ( int i = rdns.size() - posn; i < rdns.size(); i++ )
         {
             // Don't forget to clone the rdns !
-            newLdapDN.rdns.add( ( (Rdn)rdns.get( i ) ).clone() );
+            newLdapDN.rdns.add( ( ( Rdn ) rdns.get( i ) ).clone() );
         }
 
         newLdapDN.normName = newLdapDN.toNormName();
         newLdapDN.upName = getUpNamePrefix( posn );
-        
+
         return newLdapDN;
     }
 
+
     /**
-     * Creates a name whose components consist of a suffix of the
-     * components in this name.  Subsequent changes to
-     * this name do not affect the name that is returned and vice versa.
-     *
+     * Creates a name whose components consist of a suffix of the components in
+     * this name. Subsequent changes to this name do not affect the name that is
+     * returned and vice versa.
+     * 
      * @param posn
-     *      the 0-based index of the component at which to start.
-     *      Must be in the range [0,size()].
-     * @return  a name consisting of the components at indexes in
-     *      the range [posn,size()].  If posn is equal to 
-     *      size(), an empty name is returned.
-     * @throws  ArrayIndexOutOfBoundsException
-     *      if posn is outside the specified range
+     *            the 0-based index of the component at which to start. Must be
+     *            in the range [0,size()].
+     * @return a name consisting of the components at indexes in the range
+     *         [posn,size()]. If posn is equal to size(), an empty name is
+     *         returned.
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
      */
     public Name getSuffix( int posn )
     {
@@ -761,20 +788,20 @@ public class LdapDN /*extends LdapString*/ implements Name
         {
             return EMPTY_LDAPDN;
         }
-        
+
         if ( ( posn < 0 ) || ( posn > rdns.size() ) )
         {
             String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
             log.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
-        
+
         LdapDN newLdapDN = new LdapDN();
-        
-        for (int i = 0; i < size() - posn; i++ )
+
+        for ( int i = 0; i < size() - posn; i++ )
         {
             // Don't forget to clone the rdns !
-            newLdapDN.rdns.add( ( (Rdn)rdns.get( i ) ).clone() );
+            newLdapDN.rdns.add( ( ( Rdn ) rdns.get( i ) ).clone() );
         }
 
         newLdapDN.normName = newLdapDN.toNormName();
@@ -782,195 +809,195 @@ public class LdapDN /*extends LdapString*/ implements Name
 
         return newLdapDN;
     }
-    
+
+
     /**
      * Adds the components of a name -- in order -- to the end of this name.
-     *
+     * 
      * @param suffix
-     *      the components to add
-     * @return  the updated name (not a new one)
-     *
-     * @throws  InvalidNameException if <tt>suffix</tt> is not a valid name,
-     *      or if the addition of the components would violate the syntax
-     *      rules of this name
+     *            the components to add
+     * @return the updated name (not a new one)
+     * @throws InvalidNameException
+     *             if <tt>suffix</tt> is not a valid name, or if the addition
+     *             of the components would violate the syntax rules of this name
      */
     public Name addAll( Name suffix ) throws InvalidNameException
     {
         addAll( rdns.size(), suffix );
-        
+
         return this;
     }
 
+
     /**
      * Adds the components of a name -- in order -- at a specified position
-     * within this name.
-     * Components of this name at or after the index of the first new
-     * component are shifted up (away from 0) to accommodate the new
+     * within this name. Components of this name at or after the index of the
+     * first new component are shifted up (away from 0) to accommodate the new
      * components.
-     *
+     * 
      * @param name
-     *      the components to add
+     *            the components to add
      * @param posn
-     *      the index in this name at which to add the new
-     *      components.  Must be in the range [0,size()].
-     * @return  the updated name (not a new one)
-     *
-     * @throws  ArrayIndexOutOfBoundsException
-     *      if posn is outside the specified range
-     * @throws  InvalidNameException if <tt>n</tt> is not a valid name,
-     *      or if the addition of the components would violate the syntax
-     *      rules of this name
+     *            the index in this name at which to add the new components.
+     *            Must be in the range [0,size()].
+     * @return the updated name (not a new one)
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
+     * @throws InvalidNameException
+     *             if <tt>n</tt> is not a valid name, or if the addition of
+     *             the components would violate the syntax rules of this name
      */
-    public Name addAll(int posn, Name name) throws InvalidNameException
+    public Name addAll( int posn, Name name ) throws InvalidNameException
     {
-        if (name instanceof LdapDN )
+        if ( name instanceof LdapDN )
         {
             if ( ( name == null ) || ( name.size() == 0 ) )
             {
                 return this;
             }
-            
+
             // Concatenate the rdns
-            rdns.addAll( size() - posn, ((LdapDN)name).rdns );
+            rdns.addAll( size() - posn, ( ( LdapDN ) name ).rdns );
 
             // Regenerate the normalized name and the original string
             normalize( toUpName() );
-            
+
             return this;
         }
         else
         {
-        	log.error( "Not a valid LdapDN suffix : " + name );
+            log.error( "Not a valid LdapDN suffix : " + name );
             throw new InvalidNameException( "The suffix is not a LdapDN" );
         }
     }
 
+
     /**
      * Adds a single component to the end of this name.
-     *
+     * 
      * @param comp
-     *      the component to add
-     * @return  the updated name (not a new one)
-     *
-     * @throws  InvalidNameException if adding <tt>comp</tt> would violate
-     *      the syntax rules of this name
+     *            the component to add
+     * @return the updated name (not a new one)
+     * @throws InvalidNameException
+     *             if adding <tt>comp</tt> would violate the syntax rules of
+     *             this name
      */
-    public Name add(String comp) throws InvalidNameException
+    public Name add( String comp ) throws InvalidNameException
     {
         // We have to parse the nameComponent which is given as an argument
-    	Rdn newRdn = new Rdn( comp );
-        
+        Rdn newRdn = new Rdn( comp );
+
         rdns.add( 0, newRdn );
         normalize( toUpName() );
 
         return this;
     }
 
+
     /**
      * Adds a single component at a specified position within this name.
-     * Components of this name at or after the index of the new component
-     * are shifted up by one (away from index 0) to accommodate the new
-     * component.
-     *
+     * Components of this name at or after the index of the new component are
+     * shifted up by one (away from index 0) to accommodate the new component.
+     * 
      * @param comp
-     *      the component to add
+     *            the component to add
      * @param posn
-     *      the index at which to add the new component.
-     *      Must be in the range [0,size()].
-     * @return  the updated name (not a new one)
-     *
-     * @throws  ArrayIndexOutOfBoundsException
-     *      if posn is outside the specified range
-     * @throws  InvalidNameException if adding <tt>comp</tt> would violate
-     *      the syntax rules of this name
+     *            the index at which to add the new component. Must be in the
+     *            range [0,size()].
+     * @return the updated name (not a new one)
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
+     * @throws InvalidNameException
+     *             if adding <tt>comp</tt> would violate the syntax rules of
+     *             this name
      */
-    public Name add(int posn, String comp) throws InvalidNameException
+    public Name add( int posn, String comp ) throws InvalidNameException
     {
         if ( ( posn < 0 ) || ( posn > size() ) )
         {
-        	String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
-        	log.error( message );
-            throw new ArrayIndexOutOfBoundsException( message ); 
+            String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
+            log.error( message );
+            throw new ArrayIndexOutOfBoundsException( message );
         }
 
         // We have to parse the nameComponent which is given as an argument
         Rdn newRdn = new Rdn( comp );
-        
+
         int realPos = size() - posn;
         rdns.add( realPos, newRdn );
-        
+
         normalize( toUpName() );
-        
+
         return this;
     }
 
+
     /**
-     * Removes a component from this name.
-     * The component of this name at the specified position is removed.
-     * Components with indexes greater than this position
-     * are shifted down (toward index 0) by one.
-     *
+     * Removes a component from this name. The component of this name at the
+     * specified position is removed. Components with indexes greater than this
+     * position are shifted down (toward index 0) by one.
+     * 
      * @param posn
-     *      the index of the component to remove.
-     *      Must be in the range [0,size()).
-     * @return  the component removed (a String)
-     *
-     * @throws  ArrayIndexOutOfBoundsException
-     *      if posn is outside the specified range
-     * @throws  InvalidNameException if deleting the component
-     *      would violate the syntax rules of the name
+     *            the index of the component to remove. Must be in the range
+     *            [0,size()).
+     * @return the component removed (a String)
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
+     * @throws InvalidNameException
+     *             if deleting the component would violate the syntax rules of
+     *             the name
      */
-    public Object remove(int posn) throws InvalidNameException
+    public Object remove( int posn ) throws InvalidNameException
     {
         if ( rdns.size() == 0 )
         {
             return EMPTY_LDAPDN;
         }
-        
+
         if ( ( posn < 0 ) || ( posn >= rdns.size() ) )
         {
-        	String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
-        	log.error ( message );
+            String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
+            log.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
-        
+
         int realPos = size() - posn - 1;
-        Rdn rdn = (Rdn)rdns.remove( realPos );
-        
+        Rdn rdn = ( Rdn ) rdns.remove( realPos );
+
         normalize( toUpName() );
-        
+
         return rdn;
     }
 
+
     /**
-     * Generates a new copy of this name.
-     * Subsequent changes to the components of this name will not
-     * affect the new copy, and vice versa.
-     *
-     * @return  a copy of this name
-     *
+     * Generates a new copy of this name. Subsequent changes to the components
+     * of this name will not affect the new copy, and vice versa.
+     * 
+     * @return a copy of this name
      * @see Object#clone()
      */
     public Object clone()
     {
         try
         {
-            LdapDN dn = (LdapDN)super.clone();
+            LdapDN dn = ( LdapDN ) super.clone();
             dn.rdns = new ArrayList();
-            
+
             for ( int i = 0; i < rdns.size(); i++ )
             {
-                dn.rdns.add( i, ((Rdn)rdns.get( i ) ).clone() );
+                dn.rdns.add( i, ( ( Rdn ) rdns.get( i ) ).clone() );
             }
-            
+
             return dn;
         }
         catch ( CloneNotSupportedException cnse )
         {
-        	log.error( "The clone operation has failed" );
+            log.error( "The clone operation has failed" );
             throw new Error( "Assertion failure : cannot clone the object" );
         }
     }
+
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
@@ -979,61 +1006,62 @@ public class LdapDN /*extends LdapString*/ implements Name
     {
         if ( obj instanceof String )
         {
-            return normName.equals( obj ) ;
-        } 
+            return normName.equals( obj );
+        }
         else if ( obj instanceof LdapDN )
         {
-            LdapDN name = ( LdapDN ) obj ;
+            LdapDN name = ( LdapDN ) obj;
 
             if ( name.size() != this.size() )
             {
-                return false ;
+                return false;
             }
 
-            for ( int i = 0; i < size(); i++ ) 
+            for ( int i = 0; i < size(); i++ )
             {
-                if ( ( (Rdn)name.rdns.get( i ) ).compareTo( rdns.get( i ) ) != 0)
+                if ( ( ( Rdn ) name.rdns.get( i ) ).compareTo( rdns.get( i ) ) != 0 )
                 {
                     return false;
                 }
             }
 
             // All components matched so we return true
-            return true ;
-        } 
-        else 
+            return true;
+        }
+        else
         {
-            return false ;
+            return false;
         }
     }
 
+
     /**
-     * Compares this name with another name for order.
-     * Returns a negative integer, zero, or a positive integer as this
-     * name is less than, equal to, or greater than the given name.
-     *
-     * <p> As with <tt>Object.equals()</tt>, the notion of ordering for names 
-     * depends on the class that implements this interface.
-     * For example, the ordering may be
-     * based on lexicographical ordering of the name components.
-     * Specific attributes of the name, such as how it treats case,
-     * may affect the ordering.  In general, two names of different
-     * classes may not be compared.
-     *
-     * @param   obj the non-null object to compare against.
-     * @return  a negative integer, zero, or a positive integer as this name
-     *      is less than, equal to, or greater than the given name
-     * @throws  ClassCastException if obj is not a <tt>Name</tt> of a
-     *      type that may be compared with this name
-     *
+     * Compares this name with another name for order. Returns a negative
+     * integer, zero, or a positive integer as this name is less than, equal to,
+     * or greater than the given name.
+     * <p>
+     * As with <tt>Object.equals()</tt>, the notion of ordering for names
+     * depends on the class that implements this interface. For example, the
+     * ordering may be based on lexicographical ordering of the name components.
+     * Specific attributes of the name, such as how it treats case, may affect
+     * the ordering. In general, two names of different classes may not be
+     * compared.
+     * 
+     * @param obj
+     *            the non-null object to compare against.
+     * @return a negative integer, zero, or a positive integer as this name is
+     *         less than, equal to, or greater than the given name
+     * @throws ClassCastException
+     *             if obj is not a <tt>Name</tt> of a type that may be
+     *             compared with this name
      * @see Comparable#compareTo(Object)
      */
-    public int compareTo(Object obj)
+    public int compareTo( Object obj )
     {
         if ( obj instanceof LdapDN )
         {
-            LdapDN ldapDN = (LdapDN)obj;
-            
+            LdapDN ldapDN = ( LdapDN ) obj;
+
             if ( ldapDN.size() != size() )
             {
                 return size() - ldapDN.size();
@@ -1041,16 +1069,16 @@ public class LdapDN /*extends LdapString*/ implements Name
 
             for ( int i = rdns.size(); i > 0; i-- )
             {
-            	Rdn rdn1 = (Rdn) rdns.get( i - 1 );
-            	Rdn rdn2 = (Rdn) ldapDN.rdns.get( i - 1 );
+                Rdn rdn1 = ( Rdn ) rdns.get( i - 1 );
+                Rdn rdn2 = ( Rdn ) ldapDN.rdns.get( i - 1 );
                 int res = rdn1.compareTo( rdn2 );
-                
+
                 if ( res != 0 )
                 {
                     return res;
                 }
             }
-            
+
             return EQUALS;
         }
         else
@@ -1058,195 +1086,184 @@ public class LdapDN /*extends LdapString*/ implements Name
             return 1;
         }
     }
-    
-    private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav, Map oids ) throws InvalidNameException, NamingException
+
+
+    private static AttributeTypeAndValue atavOidToName( AttributeTypeAndValue atav, Map oids )
+        throws InvalidNameException, NamingException
     {
-		 String type = StringTools.trim( atav.getType() );
-	    	
-		 if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
-		 {
-			OidNormalizer oidNormalizer = (OidNormalizer)oids.get( type );
-				 
-			 if ( oidNormalizer != null )
-			 {
-				 return new AttributeTypeAndValue( oidNormalizer.getName(), 
-						 (String)oidNormalizer.getNormalizer().normalize( atav.getValue() ) );
-				 
-			 }
-			 else
-			 {
-				 // We don't have a normalizer for this OID : just do nothing.
-				 return atav;
-			 }
-		 }
-		 else
-		 {
-			 // The type is empty : this is not possible... 
-			 log.error( "Empty type not allowed in a DN" );
-			 throw new InvalidNameException( "Empty type not allowed in a DN" );
-		 }
-    	
+        String type = StringTools.trim( atav.getType() );
+
+        if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
+        {
+            OidNormalizer oidNormalizer = ( OidNormalizer ) oids.get( type );
+
+            if ( oidNormalizer != null )
+            {
+                return new AttributeTypeAndValue( oidNormalizer.getName(), ( String ) oidNormalizer.getNormalizer()
+                    .normalize( atav.getValue() ) );
+
+            }
+            else
+            {
+                // We don't have a normalizer for this OID : just do nothing.
+                return atav;
+            }
+        }
+        else
+        {
+            // The type is empty : this is not possible...
+            log.error( "Empty type not allowed in a DN" );
+            throw new InvalidNameException( "Empty type not allowed in a DN" );
+        }
+
     }
-    
+
+
     /**
-     * Transform a RDN by changing the value to its OID counterpart and normalizing
-     * the value accordingly to its type.
-     * @param rdn The RDN to modify
-     * @param oids The map of all existing oids and normalizer 
-     * @throws InvalidNameException If 
+     * Transform a RDN by changing the value to its OID counterpart and
+     * normalizing the value accordingly to its type.
+     * 
+     * @param rdn
+     *            The RDN to modify
+     * @param oids
+     *            The map of all existing oids and normalizer
+     * @throws InvalidNameException
+     *             If
      * @throws NamingException
      */
     private static void rdnOidToName( Rdn rdn, Map oids ) throws InvalidNameException, NamingException
     {
-		 if ( rdn.getNbAtavs() > 1 )
-		 {
-			 // We have more than one ATAV for this RDN. We will loop on all ATAVs
-			 Rdn rdnCopy = (Rdn)rdn.clone();
-			 rdn.clear();
-			 
-			 Iterator atavs = rdnCopy.iterator();
-			 
-			 while ( atavs.hasNext() )
-			 {
-				 Object val = atavs.next();
-				 AttributeTypeAndValue newAtav = atavOidToName( (AttributeTypeAndValue)val, oids );
-				 rdn.addAttributeTypeAndValue( newAtav.getType(), newAtav.getValue() );
-			 }
-			 
-			 
-		 }
-		 else
-		 {
-			 String type = StringTools.trim( rdn.getType() );
-		    	
-			 if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
-			 {
-				OidNormalizer oidNormalizer = (OidNormalizer)oids.get( type );
-					 
-				 if ( oidNormalizer != null )
-				 {
-					 Rdn rdnCopy = (Rdn)rdn.clone();
-					 rdn.clear();
-					 
-					 rdn.addAttributeTypeAndValue( oidNormalizer.getName(), 
-							 (String)oidNormalizer.getNormalizer().normalize( rdnCopy.getValue() ) );
-					 
-				 }
-				 else
-				 {
-					 // We don't have a normalizer for this OID : just do nothing.
-					 return;
-				 }
-			 }
-			 else
-			 {
-				 // The type is empty : this is not possible... 
-				 log.error( "We should not have an empty DN" );
-				 throw new InvalidNameException( "Empty type not allowed in a DN" );
-			 }
-		 }
+        if ( rdn.getNbAtavs() > 1 )
+        {
+            // We have more than one ATAV for this RDN. We will loop on all
+            // ATAVs
+            Rdn rdnCopy = ( Rdn ) rdn.clone();
+            rdn.clear();
+
+            Iterator atavs = rdnCopy.iterator();
+
+            while ( atavs.hasNext() )
+            {
+                Object val = atavs.next();
+                AttributeTypeAndValue newAtav = atavOidToName( ( AttributeTypeAndValue ) val, oids );
+                rdn.addAttributeTypeAndValue( newAtav.getType(), newAtav.getValue() );
+            }
+
+        }
+        else
+        {
+            String type = StringTools.trim( rdn.getType() );
+
+            if ( StringTools.isNotEmpty( StringTools.lowerCase( type ) ) )
+            {
+                OidNormalizer oidNormalizer = ( OidNormalizer ) oids.get( type );
+
+                if ( oidNormalizer != null )
+                {
+                    Rdn rdnCopy = ( Rdn ) rdn.clone();
+                    rdn.clear();
+
+                    rdn.addAttributeTypeAndValue( oidNormalizer.getName(), ( String ) oidNormalizer.getNormalizer()
+                        .normalize( rdnCopy.getValue() ) );
+
+                }
+                else
+                {
+                    // We don't have a normalizer for this OID : just do
+                    // nothing.
+                    return;
+                }
+            }
+            else
+            {
+                // The type is empty : this is not possible...
+                log.error( "We should not have an empty DN" );
+                throw new InvalidNameException( "Empty type not allowed in a DN" );
+            }
+        }
     }
 
+
     /**
-     * Change the internal DN, using the first alias instead of oids or other aliases. 
-     * As we still have the UP name of each RDN, we will be able to provide both 
-     * representation of the DN.
+     * Change the internal DN, using the first alias instead of oids or other
+     * aliases. As we still have the UP name of each RDN, we will be able to
+     * provide both representation of the DN. example : dn: 2.5.4.3=People,
+     * dc=example, domainComponent=com will be transformed to : cn=People,
+     * dc=example, dc=com because 2.5.4.3 is the OID for cn and dc is the first
+     * alias of the couple of aliases (dc, domaincomponent). This is really
+     * important do have such a representation, as 'cn' and 'commonname' share
+     * the same OID.
      * 
-     * example :
-     * 
-     *  dn: 2.5.4.3=People, dc=example, domainComponent=com
-     *  
-     * will be transformed to :
-     * 
-     *  cn=People, dc=example, dc=com
-     *  
-     *  because 2.5.4.3 is the OID for cn and dc is the first alias
-     *  of the couple of aliases (dc, domaincomponent).  
-     *  
-     * This is really important do have such a representation, as 'cn' and 'commonname'
-     * share the same OID.
-     *  
-     * @param dn The DN to transform
-     * @param oids The mapping between names and oids. 
+     * @param dn
+     *            The DN to transform
+     * @param oids
+     *            The mapping between names and oids.
      * @return A normalized form of the DN
-     * @throws InvalidNameException If the DN is invalid
+     * @throws InvalidNameException
+     *             If the DN is invalid
      */
     public static Name normalize( Name dn, Map oids ) throws InvalidNameException, NamingException
     {
-    	if ( ( dn == null ) || ( dn.size() == 0 ) || ( oids== null ) || ( oids.size() == 0 ) )
-    	{
-    		return dn;
-    	}
-    	
-    	LdapDN newDn = (LdapDN)dn.clone();
-    	
-    	Enumeration rdns = newDn.getAllRdn();
-    	
-    	// Loop on all RDNs
-    	while ( rdns.hasMoreElements() )
-    	{
-    		Rdn rdn = (Rdn)rdns.nextElement();
-    		String upName = rdn.getUpName();
-    		rdnOidToName( rdn, oids );
-    		rdn.normalizeString();
-    		rdn.setUpName( upName );
-    	}
-    	
-    	newDn.normalize( newDn.upName );
-    	
-    	return newDn;
+        if ( ( dn == null ) || ( dn.size() == 0 ) || ( oids == null ) || ( oids.size() == 0 ) )
+        {
+            return dn;
+        }
+
+        LdapDN newDn = ( LdapDN ) dn.clone();
+
+        Enumeration rdns = newDn.getAllRdn();
+
+        // Loop on all RDNs
+        while ( rdns.hasMoreElements() )
+        {
+            Rdn rdn = ( Rdn ) rdns.nextElement();
+            String upName = rdn.getUpName();
+            rdnOidToName( rdn, oids );
+            rdn.normalizeString();
+            rdn.setUpName( upName );
+        }
+
+        newDn.normalize( newDn.upName );
+
+        return newDn;
     }
+
 
     public static Name normalize( Name dn ) throws InvalidNameException, NamingException
     {
-    	return normalize( dn, DnOidContainer.getOids() );
+        return normalize( dn, DnOidContainer.getOids() );
     }
+
 
     /**
      * Substitute OIDs and aliases for the simplest alias
-     * @param tlv The TLV which contains the data
+     * 
+     * @param tlv
+     *            The TLV which contains the data
      * @return A simple attribute
-     * @throws LdapStringEncodingException If the attribute is not valid
+     * @throws LdapStringEncodingException
+     *             If the attribute is not valid
      */
     public static LdapString normalizeAttribute( byte[] data ) throws LdapStringEncodingException
     {
-    	LdapString type = new LdapString( data );
-    	
-    	OidNormalizer oidNormalizer = (OidNormalizer)DnOidContainer.getOids().get( type.getString() );
-    	
-    	if ( oidNormalizer != null )
-    	{
-    		type = new LdapString( StringTools.getBytesUtf8( oidNormalizer.getName() ) );
-    	}
-    	
-    	return type;
+        LdapString type = new LdapString( data );
+
+        OidNormalizer oidNormalizer = ( OidNormalizer ) DnOidContainer.getOids().get( type.getString() );
+
+        if ( oidNormalizer != null )
+        {
+            type = new LdapString( StringTools.getBytesUtf8( oidNormalizer.getName() ) );
+        }
+
+        return type;
     }
 
     /*
-    public Name toLdapName() throws InvalidNameException
-    {
-    	Name name = new LdapName();
-    	
-    	Enumeration rdns = getAll();
-    	
-    	while ( rdns.hasMoreElements() )
-    	{
-    		name.add( (String)rdns.nextElement() );
-    	}
-    	
-    	return name;
-    }
-    
-    public LdapDN( LdapName name ) throws InvalidNameException
-    {
-    	Name newName = new LdapDN();
-    	
-    	Enumeration comps = name.getAll();
-
-    	while ( comps.hasMoreElements() )
-    	{
-    		newName.add( (String)comps.nextElement() );
-    	}
-    }
-    */
+     * public Name toLdapName() throws InvalidNameException { Name name = new
+     * LdapName(); Enumeration rdns = getAll(); while ( rdns.hasMoreElements() ) {
+     * name.add( (String)rdns.nextElement() ); } return name; } public LdapDN(
+     * LdapName name ) throws InvalidNameException { Name newName = new
+     * LdapDN(); Enumeration comps = name.getAll(); while (
+     * comps.hasMoreElements() ) { newName.add( (String)comps.nextElement() ); } }
+     */
 }

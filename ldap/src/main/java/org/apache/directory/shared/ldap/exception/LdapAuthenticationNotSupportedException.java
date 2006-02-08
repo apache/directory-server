@@ -25,16 +25,18 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 /**
  * A subclass of the {@link AuthenticationNotSupportedException} carrying along
  * an unequivocal ResultCodeEnum value.
- *
- * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
- * LDAP ResultCode to JNDI Exception Mappings</a>
+ * 
+ * @see <a
+ *      href="http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#EXCEPT">
+ *      LDAP ResultCode to JNDI Exception Mappings</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapAuthenticationNotSupportedException
-        extends AuthenticationNotSupportedException implements LdapException
+public class LdapAuthenticationNotSupportedException extends AuthenticationNotSupportedException implements
+    LdapException
 {
     static final long serialVersionUID = 2532733848470791678L;
+
     /** the result code type safe enumeration */
     private final ResultCodeEnum resultCode;
 
@@ -43,16 +45,17 @@ public class LdapAuthenticationNotSupportedException
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-
     /**
      * Creates an LdapException with the resultCode.
-     *
+     * 
      * @see AuthenticationNotSupportedException#AuthenticationNotSupportedException()
-     * @param resultCode the resultCode enumeration
-     * @throws IllegalArgumentException if the resultCode is not one of the
-     * codes corresponding to an AuthenticationNotSupportedException
+     * @param resultCode
+     *            the resultCode enumeration
+     * @throws IllegalArgumentException
+     *             if the resultCode is not one of the codes corresponding to an
+     *             AuthenticationNotSupportedException
      */
-    public LdapAuthenticationNotSupportedException( ResultCodeEnum resultCode )
+    public LdapAuthenticationNotSupportedException(ResultCodeEnum resultCode)
     {
         super();
         this.resultCode = resultCode;
@@ -62,13 +65,15 @@ public class LdapAuthenticationNotSupportedException
 
     /**
      * Sets the resultCode associated with this LdapException.
-     *
+     * 
      * @see AuthenticationNotSupportedException#AuthenticationNotSupportedException(String)
-     * @param resultCode the resultCode enumeration
-     * @throws IllegalArgumentException if the resultCode is not one of the
-     * codes corresponding to an AuthenticationNotSupportedException
+     * @param resultCode
+     *            the resultCode enumeration
+     * @throws IllegalArgumentException
+     *             if the resultCode is not one of the codes corresponding to an
+     *             AuthenticationNotSupportedException
      */
-    public LdapAuthenticationNotSupportedException( String explanation, ResultCodeEnum resultCode )
+    public LdapAuthenticationNotSupportedException(String explanation, ResultCodeEnum resultCode)
     {
         super( explanation );
         this.resultCode = resultCode;
@@ -80,7 +85,6 @@ public class LdapAuthenticationNotSupportedException
     // LdapException methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see LdapException#getResultCode()
      */
@@ -91,32 +95,32 @@ public class LdapAuthenticationNotSupportedException
 
 
     // ------------------------------------------------------------------------
-    // P R I V A T E   M E T H O D S
+    // P R I V A T E M E T H O D S
     // ------------------------------------------------------------------------
-
 
     /**
      * Checks to make sure the resultCode value is right for this exception
      * type.
-     *
-     * @throws IllegalArgumentException if the result code is not one of
-     * {@link ResultCodeEnum#INAPPROPRIATEAUTHENTICATION},
-     * {@link ResultCodeEnum#AUTHMETHODNOTSUPPORTED},
-     * {@link ResultCodeEnum#CONFIDENTIALITYREQUIRED}.
+     * 
+     * @throws IllegalArgumentException
+     *             if the result code is not one of
+     *             {@link ResultCodeEnum#INAPPROPRIATEAUTHENTICATION},
+     *             {@link ResultCodeEnum#AUTHMETHODNOTSUPPORTED},
+     *             {@link ResultCodeEnum#CONFIDENTIALITYREQUIRED}.
      */
     private void checkResultCode()
     {
-        switch( resultCode.getValue() )
+        switch ( resultCode.getValue() )
         {
-            case( ResultCodeEnum.INAPPROPRIATEAUTHENTICATION_VAL ):
+            case ( ResultCodeEnum.INAPPROPRIATEAUTHENTICATION_VAL  ):
                 break;
-            case( ResultCodeEnum.CONFIDENTIALITYREQUIRED_VAL ):
+            case ( ResultCodeEnum.CONFIDENTIALITYREQUIRED_VAL  ):
                 break;
-            case( ResultCodeEnum.AUTHMETHODNOTSUPPORTED_VAL ):
+            case ( ResultCodeEnum.AUTHMETHODNOTSUPPORTED_VAL  ):
                 break;
             default:
-                throw new IllegalArgumentException( "Unexceptable result code "
-                        + "for this exception type: " + resultCode.getName() );
+                throw new IllegalArgumentException( "Unexceptable result code " + "for this exception type: "
+                    + resultCode.getName() );
         }
     }
 }

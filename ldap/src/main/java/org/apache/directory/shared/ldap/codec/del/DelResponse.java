@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.del;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,26 +27,28 @@ import org.apache.directory.shared.ldap.codec.LdapResponse;
 
 
 /**
- * An DelResponse Message. Its syntax is :
- *   DelResponse ::= [APPLICATION 11] LDAPResult
+ * An DelResponse Message. Its syntax is : DelResponse ::= [APPLICATION 11]
+ * LDAPResult
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DelResponse extends LdapResponse
 {
-    //~ Constructors -------------------------------------------------------------------------------
+    // ~ Constructors
+    // -------------------------------------------------------------------------------
 
     /**
      * Creates a new DelResponse object.
      */
     public DelResponse()
     {
-        super( );
+        super();
     }
+
 
     /**
      * Get the message type
-     *
+     * 
      * @return Returns the type.
      */
     public int getMessageType()
@@ -53,18 +56,10 @@ public class DelResponse extends LdapResponse
         return LdapConstants.DEL_RESPONSE;
     }
 
+
     /**
-     * Compute the DelResponse length
-     * 
-     * DelResponse :
-     * 
-     * 0x6B L1
-     *  |
-     *  +--> LdapResult
-     * 
-     * L1 = Length(LdapResult)
-     * 
-     * Length(DelResponse) = Length(0x6B) + Length(L1) + L1
+     * Compute the DelResponse length DelResponse : 0x6B L1 | +--> LdapResult L1 =
+     * Length(LdapResult) Length(DelResponse) = Length(0x6B) + Length(L1) + L1
      */
     public int computeLength()
     {
@@ -73,17 +68,19 @@ public class DelResponse extends LdapResponse
         return 1 + Length.getNbBytes( ldapResponseLength ) + ldapResponseLength;
     }
 
+
     /**
      * Encode the DelResponse message to a PDU.
      * 
-     * @param buffer The buffer where to put the PDU
+     * @param buffer
+     *            The buffer where to put the PDU
      * @return The PDU.
      */
-    public ByteBuffer encode( ByteBuffer buffer )  throws EncoderException
+    public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
-        if (buffer == null)
+        if ( buffer == null )
         {
-            throw new EncoderException("Cannot put a PDU in a null buffer !");
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
         }
 
         try
@@ -94,17 +91,18 @@ public class DelResponse extends LdapResponse
         }
         catch ( BufferOverflowException boe )
         {
-            throw new EncoderException("The PDU buffer size is too small !");
+            throw new EncoderException( "The PDU buffer size is too small !" );
         }
 
         // The ldapResult
-        return super.encode( buffer);
+        return super.encode( buffer );
     }
+
 
     /**
      * Get a String representation of a DelResponse
-     *
-     * @return A DelResponse String 
+     * 
+     * @return A DelResponse String
      */
     public String toString()
     {

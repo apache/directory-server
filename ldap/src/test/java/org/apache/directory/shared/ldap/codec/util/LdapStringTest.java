@@ -16,6 +16,7 @@
  */
 package org.apache.directory.shared.ldap.codec.util;
 
+
 import java.io.UnsupportedEncodingException;
 
 import junit.framework.Assert;
@@ -32,7 +33,8 @@ import org.apache.directory.shared.ldap.codec.util.LdapStringEncodingException;
  */
 public class LdapStringTest extends TestCase
 {
-    //~ Methods ------------------------------------------------------------------------------------
+    // ~ Methods
+    // ------------------------------------------------------------------------------------
 
     /**
      * Setup the test
@@ -40,6 +42,7 @@ public class LdapStringTest extends TestCase
     protected void setUp()
     {
     }
+
 
     // CONSTRUCTOR functions --------------------------------------------------
 
@@ -53,6 +56,7 @@ public class LdapStringTest extends TestCase
         Assert.assertEquals( "", ls.getString() );
     }
 
+
     /**
      * Test an empty LdapString
      */
@@ -62,6 +66,7 @@ public class LdapStringTest extends TestCase
 
         Assert.assertEquals( "", ls.getString() );
     }
+
 
     /**
      * Test an ASCII LdapString
@@ -73,6 +78,7 @@ public class LdapStringTest extends TestCase
         Assert.assertEquals( "azerty", ls.getString() );
     }
 
+
     /**
      * Test a european LdapString
      */
@@ -82,27 +88,31 @@ public class LdapStringTest extends TestCase
 
         Assert.assertEquals( "J\u00e9r\u00f4me", ls.getString() );
         Assert.assertEquals( 8, ls.getNbBytes() );
-        Assert.assertEquals( "J\u00e9r\u00f4me" , new String( ls.getBytes(), "UTF-8" ) );
+        Assert.assertEquals( "J\u00e9r\u00f4me", new String( ls.getBytes(), "UTF-8" ) );
     }
+
 
     /**
      * Test the bytes LdapString constructor
      */
     public void testLdapStringBytes() throws LdapStringEncodingException, UnsupportedEncodingException
     {
-        LdapString ls = new LdapString( new byte[]{'J', (byte)0xc3, (byte)0xa9, 'r', (byte)0xc3, (byte)0xb4, 'm', 'e'} );
+        LdapString ls = new LdapString( new byte[]
+            { 'J', ( byte ) 0xc3, ( byte ) 0xa9, 'r', ( byte ) 0xc3, ( byte ) 0xb4, 'm', 'e' } );
 
         Assert.assertEquals( "J\u00e9r\u00f4me", ls.getString() );
         Assert.assertEquals( 8, ls.getNbBytes() );
-        Assert.assertEquals( "J\u00e9r\u00f4me" , new String( ls.getBytes(), "UTF-8" ) );
+        Assert.assertEquals( "J\u00e9r\u00f4me", new String( ls.getBytes(), "UTF-8" ) );
     }
+
 
     /**
      * Test a wrong LdapString
      */
     public void testWrongLdapStringBytes() throws LdapStringEncodingException, UnsupportedEncodingException
     {
-        LdapString ls = new LdapString( new byte[]{'J', (byte)0xe3, (byte)0xc9, 'r', (byte)0xc3, (byte)0xb4, 'm', 'e'} );
-        Assert.assertEquals( "J\ufffd\ufffdr\u00f4me" ,ls.getString() );
+        LdapString ls = new LdapString( new byte[]
+            { 'J', ( byte ) 0xe3, ( byte ) 0xc9, 'r', ( byte ) 0xc3, ( byte ) 0xb4, 'm', 'e' } );
+        Assert.assertEquals( "J\ufffd\ufffdr\u00f4me", ls.getString() );
     }
 }

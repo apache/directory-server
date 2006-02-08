@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.directory.shared.ldap.ldif ;
+package org.apache.directory.shared.ldap.ldif;
 
 
 import org.apache.directory.shared.ldap.util.MultiMap;
@@ -43,12 +43,12 @@ public interface LdifComposer
 {
     /**
      * Builds or composes an Ldap Data Interchange Format representation of an
-     * Entry.  Entry either should be common or should not be referenced here
-     * due to the fact that it is specific to the server side.
-     *
-     * @param an_entry the entry to export to ldif
+     * Entry. Entry either should be common or should not be referenced here due
+     * to the fact that it is specific to the server side.
+     * 
+     * @param an_entry
+     *            the entry to export to ldif
      * @return the ldif of an entry
      */
-    String compose( MultiMap an_entry ) ;
+    String compose( MultiMap an_entry );
 }
-

@@ -17,25 +17,32 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 /**
  * DER Boolean object.
  */
 public class DERBoolean extends DERObject
 {
-	private static final byte[] trueArray  = { (byte)0xff };
-	private static final byte[] falseArray = { (byte)0x00 };
-	
-    public static final DERBoolean TRUE  = new DERBoolean( trueArray );
+    private static final byte[] trueArray =
+        { ( byte ) 0xff };
+
+    private static final byte[] falseArray =
+        { ( byte ) 0x00 };
+
+    public static final DERBoolean TRUE = new DERBoolean( trueArray );
+
     public static final DERBoolean FALSE = new DERBoolean( falseArray );
-    
+
+
     /**
      * Basic DERObject constructor.
      */
-    public DERBoolean( byte[] value )
+    public DERBoolean(byte[] value)
     {
         super( BOOLEAN, value );
     }
-    
+
+
     /**
      * Static factory method, type-conversion operator.
      */
@@ -43,14 +50,15 @@ public class DERBoolean extends DERObject
     {
         return ( value ? TRUE : FALSE );
     }
-    
+
+
     /**
      * Lazy accessor
+     * 
      * @return boolean value
      */
     public boolean isTrue()
     {
-        return value[ 0 ] == (byte)0xff;
+        return value[0] == ( byte ) 0xff;
     }
 }
-

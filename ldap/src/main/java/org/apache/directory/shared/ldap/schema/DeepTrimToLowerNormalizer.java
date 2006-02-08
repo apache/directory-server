@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * characters on the edges and within the string with a single space character
  * thereby preserving tokenization order - while doing all this in the same pass
  * it lower cases all characters.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -39,14 +39,14 @@ public class DeepTrimToLowerNormalizer implements Normalizer
         {
             return null;
         }
-        
+
         if ( value instanceof byte[] )
         {
-            return StringTools.deepTrimToLower( StringTools.utf8ToString( (byte[])value ) );
+            return StringTools.deepTrimToLower( StringTools.utf8ToString( ( byte[] ) value ) );
         }
         else
         {
-            return StringTools.deepTrimToLower( (String)value );
+            return StringTools.deepTrimToLower( ( String ) value );
         }
     }
 }

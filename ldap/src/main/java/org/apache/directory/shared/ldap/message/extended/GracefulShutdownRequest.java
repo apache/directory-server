@@ -44,7 +44,9 @@ import org.slf4j.LoggerFactory;
 public class GracefulShutdownRequest extends ExtendedRequestImpl
 {
     private static final Logger log = LoggerFactory.getLogger( GracefulShutdownRequest.class );
+
     private static final long serialVersionUID = -4682291068700593492L;
+
     public static final String EXTENSION_OID = "1.2.6.1.4.1.18060.1.1.1.100.3";
 
     /** Undetermined value used for timeOffline */
@@ -60,13 +62,13 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
     private int delay;
 
 
-    public GracefulShutdownRequest( int messageId )
+    public GracefulShutdownRequest(int messageId)
     {
         this( messageId, UNDETERMINED, NOW );
     }
 
 
-    public GracefulShutdownRequest( int messageId, int timeOffline, int delay )
+    public GracefulShutdownRequest(int messageId, int timeOffline, int delay)
     {
         super( messageId );
         setOid( EXTENSION_OID );
@@ -83,7 +85,7 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
         payload = gs.encode( null ).array();
     }
 
-    
+
     public void setPayload( byte[] payload )
     {
         GracefulShutdownDecoder decoder = new GracefulShutdownDecoder();
@@ -100,9 +102,9 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
             throw new RuntimeException( e );
         }
     }
-    
-    
-    public ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length)
+
+
+    public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length )
         throws NamingException
     {
         return ( ExtendedResponse ) getResultResponse();
@@ -129,7 +131,7 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
                 throw new RuntimeException( e );
             }
         }
-        
+
         return payload;
     }
 
@@ -141,15 +143,14 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
             GracefulShutdownResponse gsr = new GracefulShutdownResponse( getMessageId() );
             response = gsr;
         }
-        
+
         return response;
     }
-    
-    
+
+
     // -----------------------------------------------------------------------
     // Parameters of the Extended Request Payload
     // -----------------------------------------------------------------------
-
 
     public int getDelay()
     {
@@ -157,7 +158,7 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
     }
 
 
-    public void setDelay(int delay)
+    public void setDelay( int delay )
     {
         this.delay = delay;
     }
@@ -169,7 +170,7 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
     }
 
 
-    public void setTimeOffline(int timeOffline)
+    public void setTimeOffline( int timeOffline )
     {
         this.timeOffline = timeOffline;
     }

@@ -17,7 +17,9 @@
 
 package org.apache.directory.shared.asn1.der;
 
+
 import java.io.IOException;
+
 
 /**
  * Interface for encodable DER objects.
@@ -26,4 +28,3 @@ public interface DEREncodable
 {
     void encode( ASN1OutputStream out ) throws IOException;
 }
-

@@ -21,17 +21,17 @@ import java.util.*;
 
 
 /**
- * A Referral implementation.  For the time being this implementation
- * uses a String representation for LDAPURLs.  In the future an LdapUrl
- * interface with default implementations will be used once a parser for an
- * LdapUrl is created.
- *
+ * A Referral implementation. For the time being this implementation uses a
+ * String representation for LDAPURLs. In the future an LdapUrl interface with
+ * default implementations will be used once a parser for an LdapUrl is created.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class ReferralImpl implements Referral
 {
     static final long serialVersionUID = 2638820668325359096L;
+
     /** Sequence of LDAPUrls composing this Referral */
     private final List urls = new ArrayList();
 
@@ -40,10 +40,9 @@ public class ReferralImpl implements Referral
     // LdapResult Interface Method Implementations
     // ------------------------------------------------------------------------
 
-
     /**
      * Gets an unmodifiable set of alternative referral urls.
-     *
+     * 
      * @return the alternative url objects.
      */
     public Collection getLdapUrls()
@@ -54,8 +53,9 @@ public class ReferralImpl implements Referral
 
     /**
      * Adds an LDAPv3 URL to this Referral.
-     *
-     * @param url the LDAPv3 URL to add
+     * 
+     * @param url
+     *            the LDAPv3 URL to add
      */
     public void addLdapUrl( String url )
     {
@@ -65,8 +65,9 @@ public class ReferralImpl implements Referral
 
     /**
      * Removes an LDAPv3 URL to this Referral.
-     *
-     * @param url the LDAPv3 URL to remove
+     * 
+     * @param url
+     *            the LDAPv3 URL to remove
      */
     public void removeLdapUrl( String url )
     {
@@ -76,11 +77,12 @@ public class ReferralImpl implements Referral
 
     /**
      * Compares this Referral implementation to see if it is the same as
-     * another.  The classes do not have to be the same implementation to
-     * return true.  Both this and the compared Referral must have the same
-     * entries exactly.  The order of Referral URLs does not matter.
-     *
-     * @param obj the object to compare this ReferralImpl to
+     * another. The classes do not have to be the same implementation to return
+     * true. Both this and the compared Referral must have the same entries
+     * exactly. The order of Referral URLs does not matter.
+     * 
+     * @param obj
+     *            the object to compare this ReferralImpl to
      * @return true if both implementations contain exactly the same URLs
      */
     public boolean equals( Object obj )
@@ -105,7 +107,7 @@ public class ReferralImpl implements Referral
             while ( list.hasNext() )
             {
                 // if one of our urls is not contained in the obj return false
-                if ( ! refs.contains( list.next() ) )
+                if ( !refs.contains( list.next() ) )
                 {
                     return false;
                 }
@@ -117,11 +119,12 @@ public class ReferralImpl implements Referral
 
         return false;
     }
-    
+
+
     /**
      * Get a String representation of a Referral
-     *
-     * @return A Referral String 
+     * 
+     * @return A Referral String
      */
     public String toString()
     {
@@ -132,14 +135,13 @@ public class ReferralImpl implements Referral
             sb.append( "            Referrals :\n" );
 
             Object[] urlsArray = urls.toArray();
-            
+
             for ( int i = 0; i < urlsArray.length; i++ )
             {
 
-                String referral = ( String ) urlsArray[ i ];
+                String referral = ( String ) urlsArray[i];
 
-                sb.append( "                Referral[" ).append( i ).append( "] :" ).append( referral )
-                        .append( '\n' );
+                sb.append( "                Referral[" ).append( i ).append( "] :" ).append( referral ).append( '\n' );
             }
         }
 

@@ -23,19 +23,19 @@
  * -- any LDAPd project for copyright and distribution information.      --
  *
  */
-package org.apache.directory.shared.ldap.ldif ;
+package org.apache.directory.shared.ldap.ldif;
 
 
-import java.util.LinkedList ;
+import java.util.LinkedList;
 
-import javax.naming.directory.Attribute ;
-import javax.naming.directory.BasicAttribute ;
-import javax.naming.directory.BasicAttributes ;
-import javax.naming.directory.ModificationItem ;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.ModificationItem;
 
 
 /**
- * A entry to be populated by an ldif parser. 
+ * A entry to be populated by an ldif parser.
  * 
  * @author <a href="mailto:aok123@bellsouth.net">Alex Karasulu</a>
  * @author <a href="mailto:jmachols@comcast.net">Jeff Machols</a>
@@ -45,19 +45,19 @@ import javax.naming.directory.ModificationItem ;
 public class LdifEntry
 {
     /** the version of the ldif */
-    private int m_version ;
+    private int m_version;
 
     /** the modification type */
-    private String m_modType ;
+    private String m_modType;
 
     /** the modification item list */
-    private LinkedList m_itemList ;
+    private LinkedList m_itemList;
 
     /** the dn of the ldif entry */
-    private String m_dn ;
+    private String m_dn;
 
     /** attributes of the entry */
-    private BasicAttributes m_attributeList ;
+    private BasicAttributes m_attributeList;
 
 
     /**
@@ -65,127 +65,139 @@ public class LdifEntry
      */
     public LdifEntry()
     {
-        m_modType = "add" ; // Default LDIF content
-        m_itemList = new LinkedList() ;
-        m_dn = null ;
-        m_attributeList = new BasicAttributes( true ) ;
-        m_version = 1 ; // default version in ldif
+        m_modType = "add"; // Default LDIF content
+        m_itemList = new LinkedList();
+        m_dn = null;
+        m_attributeList = new BasicAttributes( true );
+        m_version = 1; // default version in ldif
     }
+
 
     /**
      * Sets the version of this ldif
-     *
-     * @param a_ver sets the version of this ldif
+     * 
+     * @param a_ver
+     *            sets the version of this ldif
      */
     public void setVersion( int a_ver )
     {
-        m_version = a_ver ;
+        m_version = a_ver;
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
-     * @param a_dn TODO DOCUMENT ME!
+     * 
+     * @param a_dn
+     *            TODO DOCUMENT ME!
      */
     public void setDn( String a_dn )
     {
-        m_dn = a_dn ;
+        m_dn = a_dn;
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
-     * @param a_modType TODO DOCUMENT ME!
+     * 
+     * @param a_modType
+     *            TODO DOCUMENT ME!
      */
     public void setModType( String a_modType )
     {
-        m_modType = a_modType ;
+        m_modType = a_modType;
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
-     * @param a_modOp TODO DOCUMENT ME!
-     * @param a_attr TODO DOCUMENT ME!
+     * 
+     * @param a_modOp
+     *            TODO DOCUMENT ME!
+     * @param a_attr
+     *            TODO DOCUMENT ME!
      */
     public void addModificationItem( int a_modOp, Attribute a_attr )
     {
-        ModificationItem l_item = new ModificationItem( a_modOp, a_attr ) ;
-        m_itemList.add( l_item ) ;
+        ModificationItem l_item = new ModificationItem( a_modOp, a_attr );
+        m_itemList.add( l_item );
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
-     * @param a_modOp TODO DOCUMENT ME!
-     * @param a_id TODO DOCUMENT ME!
-     * @param a_value TODO DOCUMENT ME!
+     * 
+     * @param a_modOp
+     *            TODO DOCUMENT ME!
+     * @param a_id
+     *            TODO DOCUMENT ME!
+     * @param a_value
+     *            TODO DOCUMENT ME!
      */
     public void addModificationItem( int a_modOp, String a_id, Object a_value )
     {
-        BasicAttribute l_attr = new BasicAttribute( a_id, a_value ) ;
-        ModificationItem l_item = new ModificationItem( a_modOp, l_attr ) ;
-        m_itemList.add( l_item ) ;
+        BasicAttribute l_attr = new BasicAttribute( a_id, a_value );
+        ModificationItem l_item = new ModificationItem( a_modOp, l_attr );
+        m_itemList.add( l_item );
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
-     * @param a_attr TODO DOCUMENT ME!
+     * 
+     * @param a_attr
+     *            TODO DOCUMENT ME!
      */
     public void addAttribute( Attribute a_attr )
     {
-        m_attributeList.put( a_attr ) ;
+        m_attributeList.put( a_attr );
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
-     * @param a_id TODO DOCUMENT ME!
-     * @param a_value TODO DOCUMENT ME!
+     * 
+     * @param a_id
+     *            TODO DOCUMENT ME!
+     * @param a_value
+     *            TODO DOCUMENT ME!
      */
     public void addAttribute( String a_id, Object a_value )
     {
-        m_attributeList.put( a_id, a_value ) ;
+        m_attributeList.put( a_id, a_value );
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
+     * 
      * @return TODO DOCUMENT ME!
      */
     public String getModType()
     {
-        return m_modType ;
+        return m_modType;
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
+     * 
      * @return TODO DOCUMENT ME!
      */
     public LinkedList getModificationItems()
     {
-        return m_itemList ;
+        return m_itemList;
     }
 
 
     /**
      * TODO DOCUMENT ME!
-     *
+     * 
      * @return TODO DOCUMENT ME!
      */
     public String getDn()
     {
-        return m_dn ;
+        return m_dn;
     }
 
 

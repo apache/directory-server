@@ -26,25 +26,23 @@ import java.text.ParseException;
 
 /**
  * Visitor which traverses a filter tree while normalizing the branch node
- * order.  Filter expressions can change the order of expressions in branch
- * nodes without effecting the logical meaning of the expression.  This visitor
- * orders the children of expression tree branch nodes consistantly.  It is
- * really useful for comparing expression trees which may be altered for
- * performance or altered because of codec idiosyncracies: for example the
- * SNACC4J codec uses a hashmap to store expressions in a sequence which
- * rearranges the order of children based on object hashcodes.  We need this
- * visitor to remove such inconsitancies in order hence normalizing the branch
- * node's child order.
+ * order. Filter expressions can change the order of expressions in branch nodes
+ * without effecting the logical meaning of the expression. This visitor orders
+ * the children of expression tree branch nodes consistantly. It is really
+ * useful for comparing expression trees which may be altered for performance or
+ * altered because of codec idiosyncracies: for example the SNACC4J codec uses a
+ * hashmap to store expressions in a sequence which rearranges the order of
+ * children based on object hashcodes. We need this visitor to remove such
+ * inconsitancies in order hence normalizing the branch node's child order.
  * 
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory
- *         Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class BranchNormalizedVisitor implements FilterVisitor
 {
     public void visit( ExprNode node )
     {
-        if ( ! ( node instanceof BranchNode ) )
+        if ( !( node instanceof BranchNode ) )
         {
             return;
         }
@@ -58,25 +56,25 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
         Comparator nodeComparator = new NodeComparator();
 
-        TreeSet set = new TreeSet( nodeComparator ) ;
+        TreeSet set = new TreeSet( nodeComparator );
 
         ArrayList children = branch.getChildren();
 
-        for( int ii = 0; ii < children.size(); ii++ )
+        for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = ( ExprNode ) children.get( ii );
 
-            if ( ! child.isLeaf() )
+            if ( !child.isLeaf() )
             {
                 visit( child );
             }
 
-            set.add( child ) ;
+            set.add( child );
         }
 
         children.clear();
 
-        children.addAll( set ) ;
+        children.addAll( set );
     }
 
 
@@ -106,11 +104,14 @@ public class BranchNormalizedVisitor implements FilterVisitor
     /**
      * Normalizes a filter expression to a canonical representation while
      * retaining logical meaning of the expression.
-     *
-     * @param filter the filter to normalize
+     * 
+     * @param filter
+     *            the filter to normalize
      * @return the normalized version of the filter
-     * @throws java.io.IOException if filter parser cannot be created
-     * @throws java.text.ParseException if the filter is malformed
+     * @throws java.io.IOException
+     *             if filter parser cannot be created
+     * @throws java.text.ParseException
+     *             if the filter is malformed
      */
     public static String getNormalizedFilter( String filter ) throws IOException, ParseException
     {
@@ -125,8 +126,9 @@ public class BranchNormalizedVisitor implements FilterVisitor
     /**
      * Normalizes a filter expression to a canonical representation while
      * retaining logical meaning of the expression.
-     *
-     * @param filter the filter to normalize
+     * 
+     * @param filter
+     *            the filter to normalize
      * @return the normalized String version of the filter
      */
     public static String getNormalizedFilter( ExprNode filter )
@@ -141,7 +143,6 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
         return normalized.toString().trim();
     }
-
 
     class NodeComparator implements Comparator
     {

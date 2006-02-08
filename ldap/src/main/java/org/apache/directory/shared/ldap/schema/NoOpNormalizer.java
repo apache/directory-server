@@ -17,7 +17,7 @@
 package org.apache.directory.shared.ldap.schema;
 
 
-import java.io.Serializable ;
+import java.io.Serializable;
 
 
 /**
@@ -37,17 +37,18 @@ public class NoOpNormalizer implements Normalizer, Serializable
     public NoOpNormalizer()
     {
     }
-    
+
 
     /**
      * Returns the value argument as-is without alterations all the time.
-     *
-     * @param value any value
+     * 
+     * @param value
+     *            any value
      * @return the value argument returned as-is
      * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
      */
     public Object normalize( Object value )
     {
-        return value ;
+        return value;
     }
 }
