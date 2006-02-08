@@ -53,7 +53,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
-      <artifactId>ldap-shared</artifactId>
+      <artifactId>shared-ldap</artifactId>
       <version>0.9.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
