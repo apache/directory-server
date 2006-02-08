@@ -32,8 +32,8 @@ import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.kerberos.store.KerberosAttribute;
-import org.apache.protocol.common.store.ContextOperation;
 
 /**
  * Command for changing a principal's password in a JNDI context.

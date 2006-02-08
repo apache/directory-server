@@ -54,7 +54,7 @@
       	<configuration>
       	  <archive>
       	    <manifest>
-      	      <mainClass>org.apache.ldap.server.ServerMain</mainClass>
+      	      <mainClass>org.apache.directory.server.UberjarMain</mainClass>
       	    </manifest>
       	  </archive>
       	</configuration>
@@ -66,7 +66,7 @@
       	<configuration>
       	  <archive>
       	    <manifest>
-      	      <mainClass>org.apache.ldap.server.ServerMain</mainClass>
+      	      <mainClass>org.apache.directory.server.UberjarMain</mainClass>
       	    </manifest> 
       	  </archive>
           <descriptor>src/main/assembly/apacheds-main.xml</descriptor>

@@ -32,8 +32,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
-import org.apache.ldap.common.message.extended.GracefulDisconnect;
-import org.apache.ldap.common.message.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
+import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 
 
 /**

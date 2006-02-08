@@ -18,10 +18,10 @@ package org.apache.kerberos.io.encoder;
 
 import java.util.Iterator;
 
-import org.apache.asn1.der.DERInteger;
-import org.apache.asn1.der.DEROctetString;
-import org.apache.asn1.der.DERSequence;
-import org.apache.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.asn1.der.DERInteger;
+import org.apache.directory.shared.asn1.der.DEROctetString;
+import org.apache.directory.shared.asn1.der.DERSequence;
+import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.kerberos.messages.value.AuthorizationData;
 import org.apache.kerberos.messages.value.AuthorizationDataEntry;
 

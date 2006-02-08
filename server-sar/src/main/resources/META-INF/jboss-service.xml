@@ -2,12 +2,12 @@
 <!DOCTYPE server>
 
 <server>
-	<mbean code="org.apache.ldap.server.jmx.DirectoryService"
+	<mbean code="org.apache.directory.server.sar.DirectoryService"
 		name="apacheds.system:service=Directory">
 
 		<attribute name="EmbeddedServerEnabled">true</attribute>
 		<attribute name="ContextFactory">
-			org.apache.ldap.server.jndi.ServerContextFactory
+			org.apache.directory.server.jndi.ServerContextFactory
 		</attribute>
 		<attribute name="ContextProviderURL">
 			uid=admin,ou=system
@@ -41,7 +41,7 @@
 			-->
 			<xml-properties>
 				<config-property name="Krb5KdcEntryFilter">
-					org.apache.protocol.common.store.Krb5KdcEntryFilter
+					org.apache.directory.server.protocol.common.store.Krb5KdcEntryFilter
 				</config-property>
 			</xml-properties>
 		</attribute>

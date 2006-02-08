@@ -26,14 +26,14 @@ import javax.naming.spi.InitialContextFactory;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.core.configuration.ConfigurationException;
+import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.kerberos.store.operations.AddPrincipal;
 import org.apache.kerberos.store.operations.ChangePassword;
 import org.apache.kerberos.store.operations.DeletePrincipal;
 import org.apache.kerberos.store.operations.GetAllPrincipals;
 import org.apache.kerberos.store.operations.GetPrincipal;
-import org.apache.ldap.server.configuration.ConfigurationException;
-import org.apache.protocol.common.ServiceConfiguration;
-import org.apache.protocol.common.store.ContextOperation;
 
 /**
  * A JNDI-backed search strategy implementation.  This search strategy searches a

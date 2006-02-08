@@ -18,8 +18,8 @@ package org.apache.kerberos.io.decoder;
 
 import java.util.Enumeration;
 
-import org.apache.asn1.der.DERInteger;
-import org.apache.asn1.der.DERSequence;
+import org.apache.directory.shared.asn1.der.DERInteger;
+import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.kerberos.crypto.encryption.EncryptionType;
 
 public class EncryptionTypeDecoder

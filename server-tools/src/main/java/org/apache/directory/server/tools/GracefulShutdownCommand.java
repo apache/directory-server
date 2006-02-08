@@ -25,7 +25,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
-import org.apache.ldap.common.message.extended.GracefulShutdownRequest;
+import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 
 
 /**

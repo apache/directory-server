@@ -19,7 +19,7 @@ package org.apache.kerberos.io.decoder;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.apache.asn1.der.DERGeneralizedTime;
+import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
 import org.apache.kerberos.messages.value.KerberosTime;
 
 public class KerberosTimeDecoder

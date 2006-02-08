@@ -18,13 +18,13 @@ package org.apache.kerberos.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.protocol.shared.chain.Command;
+import org.apache.directory.server.protocol.shared.chain.Filter;
+import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.apache.kerberos.exceptions.KerberosException;
 import org.apache.kerberos.messages.ErrorMessage;
 import org.apache.kerberos.messages.ErrorMessageModifier;
 import org.apache.kerberos.messages.value.KerberosTime;
-import org.apache.protocol.common.chain.Command;
-import org.apache.protocol.common.chain.Filter;
-import org.apache.protocol.common.chain.impl.CommandBase;
 
 /**
  * A {@link Command} for helping convert a {@link KerberosException} into

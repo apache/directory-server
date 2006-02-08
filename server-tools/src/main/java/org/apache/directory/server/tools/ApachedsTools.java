@@ -31,7 +31,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.ldap.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 

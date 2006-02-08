@@ -22,7 +22,7 @@ import java.io.File;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.InstallationLayout;
-import org.apache.ldap.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ServerStartupConfiguration;
 
 
 /**

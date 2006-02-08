@@ -19,11 +19,11 @@ package org.apache.kerberos.io.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.asn1.der.ASN1OutputStream;
-import org.apache.asn1.der.DERInteger;
-import org.apache.asn1.der.DEROctetString;
-import org.apache.asn1.der.DERSequence;
-import org.apache.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.asn1.der.ASN1OutputStream;
+import org.apache.directory.shared.asn1.der.DERInteger;
+import org.apache.directory.shared.asn1.der.DEROctetString;
+import org.apache.directory.shared.asn1.der.DERSequence;
+import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.kerberos.messages.value.EncryptionTypeInfoEntry;
 
 public class EncryptionTypeInfoEncoder

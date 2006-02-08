@@ -18,11 +18,11 @@ package org.apache.kerberos.io.decoder;
 
 import java.util.Enumeration;
 
-import org.apache.asn1.der.DEREncodable;
-import org.apache.asn1.der.DERGeneralizedTime;
-import org.apache.asn1.der.DERInteger;
-import org.apache.asn1.der.DERSequence;
-import org.apache.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.asn1.der.DEREncodable;
+import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
+import org.apache.directory.shared.asn1.der.DERInteger;
+import org.apache.directory.shared.asn1.der.DERSequence;
+import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.kerberos.messages.value.KerberosTime;
 import org.apache.kerberos.messages.value.LastRequest;
 import org.apache.kerberos.messages.value.LastRequestEntry;

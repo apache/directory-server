@@ -18,11 +18,11 @@ package org.apache.kerberos.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.apache.kerberos.exceptions.ErrorType;
 import org.apache.kerberos.exceptions.KerberosException;
 import org.apache.kerberos.store.PrincipalStore;
 import org.apache.kerberos.store.PrincipalStoreEntry;
-import org.apache.protocol.common.chain.impl.CommandBase;
 
 public abstract class GetPrincipalStoreEntry extends CommandBase
 {

@@ -20,13 +20,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.asn1.der.ASN1OutputStream;
-import org.apache.asn1.der.DERApplicationSpecific;
-import org.apache.asn1.der.DERGeneralString;
-import org.apache.asn1.der.DERInteger;
-import org.apache.asn1.der.DEROctetString;
-import org.apache.asn1.der.DERSequence;
-import org.apache.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.asn1.der.ASN1OutputStream;
+import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
+import org.apache.directory.shared.asn1.der.DERGeneralString;
+import org.apache.directory.shared.asn1.der.DERInteger;
+import org.apache.directory.shared.asn1.der.DEROctetString;
+import org.apache.directory.shared.asn1.der.DERSequence;
+import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.kerberos.messages.ErrorMessage;
 
 public class ErrorMessageEncoder

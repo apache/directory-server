@@ -18,7 +18,7 @@ package org.apache.kerberos.service;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.protocol.common.chain.impl.CommandBase;
+import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.params.DESParameters;

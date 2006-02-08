@@ -19,7 +19,7 @@ package org.apache.kerberos.store;
 
 import java.util.Map;
 
-import org.apache.protocol.common.catalog.Catalog;
+import org.apache.directory.server.protocol.shared.catalog.Catalog;
 
 /**
  * A catalog for mapping Kerberos realms to search base DN's. 

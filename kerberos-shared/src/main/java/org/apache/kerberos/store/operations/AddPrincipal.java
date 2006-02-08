@@ -28,9 +28,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirStateFactory.Result;
 
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.name.LdapName;
 import org.apache.kerberos.store.PrincipalStoreEntry;
-import org.apache.ldap.common.name.LdapName;
-import org.apache.protocol.common.store.ContextOperation;
 
 /**
  * Command for adding a principal to a JNDI context.

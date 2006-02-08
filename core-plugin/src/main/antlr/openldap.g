@@ -30,10 +30,10 @@ header {
  * Keep the semicolon right next to the package name or else there will be a
  * bug that comes into the foreground in the new antlr release.
  */
-package org.apache.ldap.server.tools.schema;
+package org.apache.directory.server.core.tools.schema;
 
 import java.util.* ;
-import org.apache.ldap.common.schema.*;
+import org.apache.directory.shared.ldap.schema.*;
 
 }
 

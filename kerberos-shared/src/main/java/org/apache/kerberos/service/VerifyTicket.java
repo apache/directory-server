@@ -18,10 +18,10 @@ package org.apache.kerberos.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.apache.kerberos.exceptions.ErrorType;
 import org.apache.kerberos.exceptions.KerberosException;
 import org.apache.kerberos.messages.components.Ticket;
-import org.apache.protocol.common.chain.impl.CommandBase;
 
 /*
  * Shared by TGS and Changepw

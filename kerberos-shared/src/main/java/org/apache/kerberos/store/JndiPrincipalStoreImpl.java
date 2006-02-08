@@ -20,7 +20,7 @@ import javax.naming.spi.InitialContextFactory;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.protocol.common.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 
 /**
  * A JNDI-backed implementation of the PrincipalStore interface.  This PrincipalStore uses

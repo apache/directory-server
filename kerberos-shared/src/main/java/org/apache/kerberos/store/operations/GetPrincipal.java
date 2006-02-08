@@ -26,11 +26,11 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.kerberos.messages.value.SamType;
 import org.apache.kerberos.store.KerberosAttribute;
 import org.apache.kerberos.store.PrincipalStoreEntry;
 import org.apache.kerberos.store.PrincipalStoreEntryModifier;
-import org.apache.protocol.common.store.ContextOperation;
 
 /**
  * Encapsulates the action of looking up a principal in an embedded ApacheDS DIT.

@@ -19,12 +19,12 @@ package org.apache.kerberos.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.asn1.der.ASN1InputStream;
-import org.apache.asn1.der.DEREncodable;
-import org.apache.asn1.der.DERInteger;
-import org.apache.asn1.der.DEROctetString;
-import org.apache.asn1.der.DERSequence;
-import org.apache.asn1.der.DERTaggedObject;
+import org.apache.directory.shared.asn1.der.ASN1InputStream;
+import org.apache.directory.shared.asn1.der.DEREncodable;
+import org.apache.directory.shared.asn1.der.DERInteger;
+import org.apache.directory.shared.asn1.der.DEROctetString;
+import org.apache.directory.shared.asn1.der.DERSequence;
+import org.apache.directory.shared.asn1.der.DERTaggedObject;
 import org.apache.kerberos.messages.value.PreAuthenticationData;
 import org.apache.kerberos.messages.value.PreAuthenticationDataModifier;
 import org.apache.kerberos.messages.value.PreAuthenticationDataType;

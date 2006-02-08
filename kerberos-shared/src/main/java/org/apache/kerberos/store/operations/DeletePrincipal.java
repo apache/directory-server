@@ -30,8 +30,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.kerberos.store.KerberosAttribute;
-import org.apache.protocol.common.store.ContextOperation;
 
 /**
  * Command for deleting a principal from a JNDI context.

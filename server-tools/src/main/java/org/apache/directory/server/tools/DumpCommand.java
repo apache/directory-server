@@ -38,17 +38,17 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
+import org.apache.directory.server.core.schema.AttributeTypeRegistry;
+import org.apache.directory.server.core.schema.bootstrap.BootstrapRegistries;
+import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
+import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
 
-import org.apache.ldap.common.message.LockableAttributeImpl;
-import org.apache.ldap.common.message.LockableAttributesImpl;
-import org.apache.ldap.common.schema.AttributeType;
-import org.apache.ldap.common.schema.UsageEnum;
-import org.apache.ldap.server.partition.impl.btree.Tuple;
-import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.ldap.server.partition.impl.btree.jdbm.JdbmMasterTable;
-import org.apache.ldap.server.schema.AttributeTypeRegistry;
-import org.apache.ldap.server.schema.bootstrap.BootstrapRegistries;
-import org.apache.ldap.server.schema.bootstrap.BootstrapSchemaLoader;
 
 
 /**

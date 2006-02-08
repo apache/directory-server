@@ -18,6 +18,7 @@ package org.apache.kerberos.service;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.protocol.shared.chain.impl.CommandBase;
 import org.apache.kerberos.exceptions.ErrorType;
 import org.apache.kerberos.exceptions.KerberosException;
 import org.apache.kerberos.messages.ApplicationRequest;
@@ -31,7 +32,6 @@ import org.apache.kerberos.messages.value.HostAddress;
 import org.apache.kerberos.messages.value.KerberosTime;
 import org.apache.kerberos.messages.value.TicketFlags;
 import org.apache.kerberos.replay.ReplayCache;
-import org.apache.protocol.common.chain.impl.CommandBase;
 
 /*
  * Shared by TGS and Changepw
