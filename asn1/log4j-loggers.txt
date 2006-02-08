@@ -1,4 +1,0 @@
-# org.apache.asn1
-log4j.logger.org.apache.asn1.ber.Asn1Decoder.java
-log4j.logger.org.apache.asn1.ber.grammar.AbstractGrammar.java
-log4j.logger.org.apache.asn1.util.BooleanDecoder.java
