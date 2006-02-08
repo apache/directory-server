@@ -19,7 +19,7 @@ header {
  *   limitations under the License.
  *
  */
-package org.apache.ldap.common.filter;
+package org.apache.directory.shared.ldap.filter;
 
 
 import antlr.*;

@@ -15,10 +15,10 @@
  */
 header {
 	/*
-	 * Keep the semicolon right next to org.apache.ldap.common.name or else there
+	 * Keep the semicolon right next to org.apache.directory.shared.ldap.name or else there
 	 * will be a bug that comes into the foreground in the new antlr release.
 	 */
-    package org.apache.ldap.common.name;
+    package org.apache.directory.shared.ldap.name;
 
     import antlr.TokenStreamSelector ;
 }

@@ -108,7 +108,7 @@
             <configuration>
               <tasks>
                 <copy file="src/main/antlr/DnCommonTokenTypes.txt" 
-                      todir="target/generated-sources/antlr/org/apache/ldap/common/name/"/>
+                      todir="target/generated-sources/antlr/org/apache/directory/shared/ldap/name/"/>
               </tasks>
             </configuration>
             <goals>

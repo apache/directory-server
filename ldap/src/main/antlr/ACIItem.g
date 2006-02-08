@@ -18,7 +18,7 @@ header
  */
 
 
-package org.apache.ldap.common.aci;
+package org.apache.directory.shared.ldap.aci;
 
 
 import java.util.ArrayList;
@@ -33,22 +33,22 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.ldap.common.filter.AbstractExprNode;
-import org.apache.ldap.common.filter.BranchNode;
-import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.filter.FilterParserImpl;
-import org.apache.ldap.common.filter.LeafNode;
-import org.apache.ldap.common.filter.SimpleNode;
-import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.common.name.NameComponentNormalizer;
-import org.apache.ldap.common.subtree.SubtreeSpecification;
-import org.apache.ldap.common.subtree.SubtreeSpecificationModifier;
-import org.apache.ldap.common.util.ComponentsMonitor;
-import org.apache.ldap.common.util.MandatoryAndOptionalComponentsMonitor;
-import org.apache.ldap.common.util.MandatoryComponentsMonitor;
-import org.apache.ldap.common.util.NamespaceTools;
-import org.apache.ldap.common.util.NoDuplicateKeysMap;
-import org.apache.ldap.common.util.OptionalComponentsMonitor;
+import org.apache.directory.shared.ldap.filter.AbstractExprNode;
+import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.name.DnParser;
+import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
+import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
+import org.apache.directory.shared.ldap.util.ComponentsMonitor;
+import org.apache.directory.shared.ldap.util.MandatoryAndOptionalComponentsMonitor;
+import org.apache.directory.shared.ldap.util.MandatoryComponentsMonitor;
+import org.apache.directory.shared.ldap.util.NamespaceTools;
+import org.apache.directory.shared.ldap.util.NoDuplicateKeysMap;
+import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

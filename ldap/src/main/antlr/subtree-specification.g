@@ -18,7 +18,7 @@ header
  */
 
 
-package org.apache.ldap.common.subtree;
+package org.apache.directory.shared.ldap.subtree;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -27,17 +27,17 @@ import java.util.ArrayList;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.ldap.common.name.DnParser;
-import org.apache.ldap.common.name.NameComponentNormalizer;
-import org.apache.ldap.common.filter.ExprNode;
-import org.apache.ldap.common.filter.LeafNode;
-import org.apache.ldap.common.filter.SimpleNode;
-import org.apache.ldap.common.filter.BranchNode;
-import org.apache.ldap.common.filter.AbstractExprNode;
-import org.apache.ldap.common.subtree.SubtreeSpecification;
-import org.apache.ldap.common.subtree.SubtreeSpecificationModifier;
-import org.apache.ldap.common.util.ComponentsMonitor;
-import org.apache.ldap.common.util.OptionalComponentsMonitor;
+import org.apache.directory.shared.ldap.name.DnParser;
+import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.AbstractExprNode;
+import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
+import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
+import org.apache.directory.shared.ldap.util.ComponentsMonitor;
+import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
