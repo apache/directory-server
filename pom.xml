@@ -12,6 +12,7 @@
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
+  <url>http://directory.apache.org/newsite/projects/apacheds/</url>
   <pluginRepositories>
     <pluginRepository>
       <id>apache.snapshots</id>
@@ -239,6 +240,7 @@ Use JDK 1.5 to make sure these modules build.
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
         <version>2.0-SNAPSHOT</version>
       </plugin>

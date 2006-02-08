@@ -42,7 +42,7 @@
 
         <tr>
           <td>
-            <a href="./users/index.html">User's Guide</a>
+            <a href="./docs/users/index.html">User's Guide</a>
           </td>
           <td>
             Material that might go into a user's guide or howto section.
@@ -51,25 +51,21 @@
 
         <tr>
           <td>
-            <a href="./developers/index.html">Developers's Guide</a>
+            <a href="./docs/developers/index.html">Developers's Guide</a>
           </td>
           <td>
             Material that might go into a developer's guide.
           </td>
         </tr>
-
-        <tr>
-          <td>
-            <a href="./projects/index.html">Projects</a>
-          </td>
-          <td>
-            The sitedocs for the various maven source code projects containing
-            the usual reports and info are here.
-          </td>
-        </tr>
-
+         
       </table>
 
+      <p>
+        Here is a figure for the architectural overview of ApacheDS. Click on it to see further details.
+      </p>
+      <p>
+        <a href="./modules.html"><img src="images/50k-ft-architecture.png" href="./modules.html"/></a>
+      </p>
 
     </section>
   </body>
