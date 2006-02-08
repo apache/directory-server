@@ -139,7 +139,7 @@
             <innoTarget>
               <id>windows-xp-procrun</id>
               <finalName>
-                apacheds-${pom.version}-win32-setup.exe
+                apacheds-${pom.version}-win32-setup
               </finalName>
               <osName>Windows XP</osName>
               <osFamily>windows</osFamily>
