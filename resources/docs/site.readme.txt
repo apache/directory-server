@@ -1,6 +1,7 @@
 ##############  W O R K  I N  P R O G R E S S  ############## 
 
-To generate the whole site for this project execute
+To generate the whole site for this project change to the
+master project's root directory and execute
 
 	mvn site --non-recursive
 
