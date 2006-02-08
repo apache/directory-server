@@ -7,7 +7,6 @@
   <bean id="environment" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="properties">
       <props>
-        <prop key="asn.1.berlib.provider">org.apache.directory.common.codec.TwixProvider</prop>
         <prop key="java.naming.security.authentication">simple</prop>
         <prop key="java.naming.security.principal">uid=admin,ou=system</prop>
         <prop key="java.naming.security.credentials">secret</prop>
@@ -66,101 +65,101 @@
     </property>
     <property name="bootstrapSchemas">
       <set>
-        <bean class="org.apache.directory.server.schema.bootstrap.AutofsSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.CorbaSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.CoreSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.CosineSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.ApacheSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.CollectiveSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.InetorgpersonSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.JavaSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.Krb5kdcSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.NisSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.SystemSchema"/>
-        <bean class="org.apache.directory.server.schema.bootstrap.ApachednsSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.AutofsSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.CorbaSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.CoreSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.CosineSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.ApacheSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.CollectiveSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.InetorgpersonSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.JavaSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.Krb5kdcSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.NisSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.SystemSchema"/>
+        <bean class="org.apache.directory.server.core.schema.bootstrap.ApachednsSchema"/>
       </set>
     </property>
     
     <property name="extendedOperationHandlers">
       <list>
-        <bean class="org.apache.directory.server.protocol.support.extended.GracefulShutdownHandler"/>
-        <bean class="org.apache.directory.server.protocol.support.extended.LaunchDiagnosticUiHandler"/>
+        <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
+        <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
       </list>
     </property>
-    
+
     <property name="interceptorConfigurations">
       <list>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>normalizationService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.normalization.NormalizationService" />
+            <bean class="org.apache.directory.server.core.normalization.NormalizationService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>authenticationService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.authn.AuthenticationService" />
+            <bean class="org.apache.directory.server.core.authn.AuthenticationService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>referralService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.referral.ReferralService" />
+            <bean class="org.apache.directory.server.core.referral.ReferralService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>authorizationService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.authz.AuthorizationService" />
+            <bean class="org.apache.directory.server.core.authz.AuthorizationService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>oldAuthorizationService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.authz.OldAuthorizationService" />
+            <bean class="org.apache.directory.server.core.authz.OldAuthorizationService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>exceptionService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.exception.ExceptionService" />
+            <bean class="org.apache.directory.server.core.exception.ExceptionService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>schemaService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.schema.SchemaService" />
+            <bean class="org.apache.directory.server.core.schema.SchemaService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>subentryService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.subtree.SubentryService" />
+            <bean class="org.apache.directory.server.core.subtree.SubentryService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>operationalAttributeService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.operational.OperationalAttributeService" />
+            <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>collectiveAttributeService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.collective.CollectiveAttributeService" />
+            <bean class="org.apache.directory.server.core.collective.CollectiveAttributeService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.configuration.MutableInterceptorConfiguration">
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>eventService</value></property>
           <property name="interceptor">
-            <bean class="org.apache.directory.server.event.EventService" />
+            <bean class="org.apache.directory.server.core.event.EventService" />
           </property>
         </bean>
       </list>
     </property>
   </bean>
   
-  <bean id="examplePartitionConfiguration" class="org.apache.directory.server.configuration.MutableDirectoryPartitionConfiguration">
+  <bean id="examplePartitionConfiguration" class="org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration">
     <property name="name"><value>example</value></property>
     <property name="suffix"><value>dc=example,dc=com</value></property>
     <property name="indexedAttributes">
@@ -186,7 +185,7 @@
     <property name="customEditors">
       <map>
         <entry key="javax.naming.directory.Attributes">
-          <bean class="org.apache.directory.server.configuration.AttributesPropertyEditor"/>
+          <bean class="org.apache.directory.server.core.configuration.AttributesPropertyEditor"/>
         </entry>
       </map>
    </property>
