@@ -35,11 +35,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.directory</groupId>
-      <artifactId>directory-asn1</artifactId>
-      <version>0.3.4-SNAPSHOT</version>
-    </dependency>
-    <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
       <version>1.0</version>
