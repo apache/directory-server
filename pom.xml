@@ -242,43 +242,6 @@ Use JDK 1.5 to make sure these modules build.
         <artifactId>maven-site-plugin</artifactId>
         <version>2.0-SNAPSHOT</version>
       </plugin>
-      <!-- The following plugin can be enabled for recursive site generations -->
-      <!-- <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <inherited>false</inherited>
-        <executions>
-          <execution>
-            <phase>site</phase>
-            <configuration>
-              <tasks>
-                <copy file="src/site/site.xml" todir="protocols/kerberos-common/src/site"/>
-                <copy file="src/site/site.xml" todir="protocols/src/site"/>
-                <copy file="src/site/site.xml" todir="protocols/dhcp/src/site"/>
-                <copy file="src/site/site.xml" todir="protocols/changepw/src/site"/>
-                <copy file="src/site/site.xml" todir="protocols/ntp/src/site"/>
-                <copy file="src/site/site.xml" todir="protocols/ldap/src/site"/>
-                <copy file="src/site/site.xml" todir="protocols/kerberos/src/site"/>
-                <copy file="src/site/site.xml" todir="protocols/dns/src/site"/>
-                <copy file="src/site/site.xml" todir="simple/jndi/src/site"/>
-                <copy file="src/site/site.xml" todir="simple/src/site"/>
-                <copy file="src/site/site.xml" todir="simple/unit/src/site"/>
-                <copy file="src/site/site.xml" todir="simple/main/src/site"/>
-                <copy file="src/site/site.xml" todir="simple/ssl/src/site"/>
-                <copy file="src/site/site.xml" todir="simple/installers/src/site"/>
-                <copy file="src/site/site.xml" todir="core/src/site"/>
-                <copy file="src/site/site.xml" todir="core-unit/src/site"/>
-                <copy file="src/site/site.xml" todir="plugin/src/site"/>
-                <copy file="src/site/site.xml" todir="protocol-common/src/site"/>
-                <copy file="src/site/site.xml" todir="shared/src/site"/>
-                <copy file="src/site/site.xml" todir="tools/src/site"/>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin> -->
     </plugins>
   </build>
 
@@ -292,17 +255,13 @@ Use JDK 1.5 to make sure these modules build.
           <reportSet>
             <reports>
               <report>project-team</report>
-              <!-- <report>mailing-list</report>
+              <report>mailing-list</report>
               <report>issue-tracking</report>
               <report>license</report>
-              <report>scm</report> -->
+              <report>scm</report>
             </reports>
           </reportSet>
         </reportSets>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
     </plugins>
   </reporting>
