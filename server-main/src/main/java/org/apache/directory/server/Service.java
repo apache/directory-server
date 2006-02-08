@@ -153,11 +153,10 @@ public class Service implements DaemonApplication
                     try
                     {
                         lock.wait( 20000 );
-                        log.debug( "[Delete me] Woke up! Time = " + System.currentTimeMillis() );
                     }
                     catch ( InterruptedException e )
                     {
-                        log.error( "SynchWorker failed to wait on lock.", e );
+                        log.warn( "SynchWorker failed to wait on lock.", e );
                     }
                 }
                 
