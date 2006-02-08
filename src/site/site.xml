@@ -12,31 +12,34 @@
     <links>
        <item name="ApacheDS" href="/projects/apacheds/index.html"/>
        <item name="Naming" href="/projects/naming/index.html"/>
-       <item name="Network Layer (MINA)" href="/projects/network/index.html"/>
+       <item name="MINA (Network Layer)" href="/projects/mina/index.html"/>
        <item name="Directory" href="/index.html"/>
     </links>
     <menu name="Apache Directory Server">
       <item name="Overview" href="/index.html"/>
       <item name="Features" href="/features.html"/>
       <item name="Roadmap" href="/roadmap.html"/>
-      <item name="User's Guide" href="/users/index.html" collapse="true">
-        <item name="Building" href="/users/building.html"/>
-        <item name="Authentication" href="/users/authentication.html"/>
-        <item name="Authorization" href="/users/authorization.html"/>
-        <item name="Subentries" href="/users/subentries.html"/>
-        <item name="Collective Attributes" href="/users/collective.html"/>
-        <item name="Configuration" href="/users/configuration.html"/>
-        <item name="Partitions" href="/users/partitions.html"/>
-        <item name="Maven Plugin" href="/users/plugin.html"/>
+      <item name="Documentation" collapse="false">
+        <item name="User's Guide" href="/docs/users/index.html" collapse="true">
+          <item name="Building" href="/docs/users/building.html"/>
+          <item name="Authentication" href="/docs/users/authentication.html"/>
+          <item name="Authorization" href="/docs/users/authorization.html"/>
+          <item name="Subentries" href="/docs/users/subentries.html"/>
+          <item name="Collective Attributes" href="/docs/users/collective.html"/>
+          <item name="Configuration" href="/docs/users/configuration.html"/>
+          <item name="Partitions" href="/docs/users/partitions.html"/>
+          <item name="Maven Plugin" href="/docs/users/plugin.html"/>
+        </item>
+        <item name="Developer's Guide" href="/docs/developers/index.html" collapse="true">
+          <item name="Architecture" href="/docs/developers/architecture.html"/>
+          <item name="Components" href="/docs/developers/components.html"/>
+          <item name="Networking" href="/docs/developers/networking.html"/>
+          <item name="Protocol" href="/docs/developers/protocol.html"/>
+          <item name="Backend Subsystem" href="/docs/developers/backend.html"/>
+        </item>
+        <item name="API Docs" href="/docs/api/index.html"/>
       </item>
-      <item name="Developer's Guide" href="/developers/index.html" collapse="true">
-        <item name="Architecture" href="/developers/architecture.html"/>
-        <item name="Components" href="/developers/components.html"/>
-        <item name="Networking" href="/developers/networking.html"/>
-        <item name="Protocol" href="/developers/protocol.html"/>
-        <item name="Backend Subsystem" href="/developers/backend.html"/>
-      </item>
-      <item name="ApacheDS Projects" href="/subprojects/index.html"/>
+      <item name="ApacheDS Modules" href="/modules.html"/>
       <item name="Downloads" href="http://cvs.apache.org/dist/directory/apacheds/"/>
     </menu>
     
