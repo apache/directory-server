@@ -12,7 +12,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-jndi</artifactId>
+      <artifactId>apacheds-server-ssl</artifactId>
       <version>${pom.version}</version>
     </dependency>  
     <dependency>
