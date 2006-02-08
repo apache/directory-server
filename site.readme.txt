@@ -8,6 +8,21 @@ The site will be generated at
 
 	target/site
 
+API documentation does not get generated automatically during
+maven's site phase. To achieve it you need to execute
+
+	./apidocs.sh
+
+API documentation will be generated at
+
+	target/site/docs/api
+
+If you want to customize api documentation generation have a
+look at the script (especially for setting packages to be
+excluded) by executing
+
+	vi ./apidocs.sh
+
 For deploying the site to the remote server you need to
 configure the Apache Web Server access parameters
 in your local m2 configuration file which is normally at
