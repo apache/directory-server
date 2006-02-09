@@ -250,7 +250,7 @@ Use JDK 1.5 to make sure these modules build.
             <phase>site</phase>
             <configuration>
               <tasks>
-                <javadoc destdir="target/site/docs/api">
+                <javadoc destdir="target/site/docs/api" author="true" use="true" windowtitle="ApacheDS">
                   <sourcepath>
                     <dirset dir=".">
                       <include name="*/src/main/java"/>
