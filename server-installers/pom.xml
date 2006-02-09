@@ -119,6 +119,11 @@
               <author>szoerner@apache.org</author>
             </authors>
           </application>
+          <svnBaseUrl>
+            http://svn.apache.org/repos/asf/directory/trunks/apacheds
+          </svnBaseUrl>
+          <packageSources>true</packageSources>
+          <packageDocs>true</packageDocs>
           <applicationClass>
             org.apache.ldap.server.DirectoryServer
           </applicationClass>

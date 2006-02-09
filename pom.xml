@@ -82,7 +82,6 @@
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
-        <module>server-installers</module>
         <module>kerberos-shared</module>
 
         <!-- extra for jdk 1.5 -->
@@ -114,7 +113,6 @@
         <module>server-unit</module>
         <module>server-main</module>
         <module>server-jndi</module>
-        <module>server-installers</module>
         <module>kerberos-shared</module>
       </modules>
       <build>
