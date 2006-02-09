@@ -249,12 +249,17 @@ Use JDK 1.5 to make sure these modules build.
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <phase>install</phase>
+            <phase>site</phase>
             <configuration>
               <tasks>
-                <exec executable="mvn">
-                  <arg line="site --non-recursive"/>
-                </exec>
+                <javadoc destdir="target/site/docs/api">
+                  <sourcepath>
+                    <dirset dir=".">
+                      <include name="*/src/main/java"/>
+                    </dirset>
+                  </sourcepath>
+                  <package name="org.apache.directory.server.*"/>
+                </javadoc>
               </tasks>
             </configuration>
             <goals>
