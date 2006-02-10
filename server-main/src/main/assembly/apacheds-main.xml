@@ -25,6 +25,7 @@
         <exclude>xerces:xerces</exclude>
         <exclude>commons-pool:commons-pool</exclude>
         <exclude>com.sun:tools</exclude>
+        <exclude>oro:oro</exclude>
         <exclude>xml-apis:xml-apis</exclude>
         <exclude>aspectwerkz:aspectwerkz-core</exclude>
         <exclude>velocity:velocity</exclude>

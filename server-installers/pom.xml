@@ -91,6 +91,7 @@
             <exclude>velocity:velocity</exclude>
             <exclude>org.springframework:spring-aop</exclude>
             <exclude>qdox:qdox</exclude>
+            <exclude>oro:oro</exclude>
             <exclude>commons-attributes:commons-attributes-compiler</exclude>
             <exclude>commons-attributes:commons-attributes-api</exclude>
             <exclude>cglib:cglib</exclude>

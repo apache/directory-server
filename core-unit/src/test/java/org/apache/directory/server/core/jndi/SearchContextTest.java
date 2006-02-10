@@ -195,6 +195,31 @@ public class SearchContextTest extends AbstractAdminTestCase
     }
 
     
+    public void testSearchSubstringSubTreeLevel() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_PROP, DerefAliasesEnum.NEVERDEREFALIASES.getName() );
+
+        HashMap map = new HashMap();
+        NamingEnumeration list = sysRoot.search( "", "(objectClass=organ*)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        // 13 because it also matches organizationalPerson which the admin is
+        assertEquals( "Expected number of results returned was incorrect", 13, map.size() );
+        assertTrue( map.containsKey( "ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
+        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
+    }
+
+    
     public void testSearchFilterArgs() throws NamingException
     {
         SearchControls controls = new SearchControls();
