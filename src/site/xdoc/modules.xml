@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+ <properties>
+  <title>ApacheDS Modules</title>
+ </properties>
+ <body>
+  <section name="ApacheDS Modules">
+   <p>ApacheDS is composed of several modules. Here is the list of them with brief descriptions:</p>
+   <table>
+    <tr><th>Name</th><th>Description</th></tr>
+    <tr> <td>ApacheDS Server JNDI</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Protocol Change Password</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Server Sar (JBoss 3.x)</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Protocol Ntp</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Core</td> <td>Server's core contains all backend subsystems. It depends on protocol and uses it with seda to service LDAP requests. The core contains the JNDI provider, interceptor framework, interceptor services, the schema subsystem and the database subsystem. Hence the core is the heart of the server. </td> </tr>
+    <tr> <td>ApacheDS Protocol Kerberos</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Server Unit</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Protocol Shared</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Core Unit</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Server Installers</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Protocol Dhcp</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Core Shared</td> <td>Created to eliminate cyclic project dependencies between the core and the maven plugin. Any code shared across modules in general can go here so long as it does not depend on other modules. </td> </tr>
+    <tr> <td>ApacheDS Server SSL</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Core Plugin (Maven 2)</td> <td>A collection of tools as plugins to manage various tasks associated with the directory server. </td> </tr>
+    <tr> <td>ApacheDS Server Main</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Protocol Dns</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Protocol Ldap</td> <td>To be described...</td> </tr>
+    <tr> <td>ApacheDS Server Tools</td> <td>Contained within this executable jar are various commandline utilities for apacheds. </td> </tr>
+    <tr> <td>ApacheDS Protocol Kerberos Shared</td> <td>To be described...</td> </tr>
+   </table>
+  </section>
+ </body>
+</document>

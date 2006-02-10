@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+ <properties>
+  <title>ApacheDS 1.0-RC1 Change Log</title>
+ </properties>
+ <body>
+  <section name="ApacheDS 1.0-RC1 Change Log">
+<subsection name="Bug">
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-167'>DIRSERVER-167</a>] - Remove Regexp dependency - use jdk 1.4 regex</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-168'>DIRSERVER-168</a>] - Use Map for controls in o.a.l.c.message.Message instead of Collection</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-170'>DIRSERVER-170</a>] - remove the snacc provider</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-173'>DIRSERVER-173</a>] - Change the name of apache-provider and apache2-provider</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-183'>DIRSERVER-183</a>] - Launching ADS when it is full of entry is very long</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-247'>DIRSERVER-247</a>] - AuthorizationService.lookup with attrIds drops attrIds.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-248'>DIRSERVER-248</a>] - ACI evaluation seems to be case sensitive</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-250'>DIRSERVER-250</a>] - An Attempt to Use a New Type of Partition Configuration Fails</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-251'>DIRSERVER-251</a>] - Putting a jpeg picture in the inetOrgPerson jpegPhoto attribute alter the bytes datas of the picture</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-252'>DIRSERVER-252</a>] - Stack trace overflow when trying to connect with a bad DN</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-253'>DIRSERVER-253</a>] - Critical unsupported controls must result in an unsupported operation error.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-254'>DIRSERVER-254</a>] - Search for super OC does not return subclasses if add op does not add complete objectClass lineage</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-255'>DIRSERVER-255</a>] - Adding a duplicate attribute value should cause an error.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-256'>DIRSERVER-256</a>] - SchemaService modifies attibute while checking for removal of last attribute value</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-258'>DIRSERVER-258</a>] - NormalizationService is not handling correctly a Name with a comma followed by a space in it: for instance "text1, text2"</li>
+</ul>
+</subsection>
+<subsection name="New Feature">
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-144'>DIRSERVER-144</a>] - Add NTP to the possible services of ApacheDS</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-259'>DIRSERVER-259</a>] - Add Support for Persistent Search Control</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-261'>DIRSERVER-261</a>] - Storing user passwords other than in clear</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-262'>DIRSERVER-262</a>] - Add support for referrals to the core JNDI provider</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-263'>DIRSERVER-263</a>] - Implement Abandon operation handling</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-266'>DIRSERVER-266</a>] - Implement the handling of time and size limits on searches</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-267'>DIRSERVER-267</a>] - Add support for the standard set of JNDI env properties</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-269'>DIRSERVER-269</a>] - Add Support for Named References</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-270'>DIRSERVER-270</a>] - Add Support for LDAP Controls</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-273'>DIRSERVER-273</a>] - add extended operation for graceful shutdown</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-274'>DIRSERVER-274</a>] - Need a dump tool to extract LDIF from JDBM database</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-276'>DIRSERVER-276</a>] - Add extended operation to launch the old diagnostic UI</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-277'>DIRSERVER-277</a>] - Add SASL GSSAPI (Kerberos V5) mechanism support</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-278'>DIRSERVER-278</a>] - Add SASL support to LDAP</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-280'>DIRSERVER-280</a>] - Add subentries control from RFC 3672</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-281'>DIRSERVER-281</a>] - Extended operation for Notice of DIsconnect (Unsolicited Notification)</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-282'>DIRSERVER-282</a>] - create daemonized installers and integrate it into the build with an m2 plugin</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-283'>DIRSERVER-283</a>] - Add Support for Language Tags and Ranges</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-284'>DIRSERVER-284</a>] - LDAPS (LDAP over SSL)</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-286'>DIRSERVER-286</a>] - Add an apacheds tools project for various apacheds clients.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-435'>DIRSERVER-435</a>] - delegating binds to custom partitions</li>
+</ul>
+</subsection>
+<subsection name="Improvement">
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-287'>DIRSERVER-287</a>] - find a way to get the ide plugins to reference target/schema as another java source directory</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-288'>DIRSERVER-288</a>] - [Performance] Add SearchResultFilter instead of rewrapping SearchResultFilterEnumerations</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-289'>DIRSERVER-289</a>] - Configure an optional password message digest algorithm which is applied on userPassword attribute values at add and modify operations.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-290'>DIRSERVER-290</a>] - Allow the installation of the shutdown handler to be optional for embedded servers</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-292'>DIRSERVER-292</a>] - StringUtils &amp; StringTools</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-293'>DIRSERVER-293</a>] - class AbstractCoreTest should not be in core/src/main/java?</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-447'>DIRSERVER-447</a>] - Code reorganization</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-481'>DIRSERVER-481</a>] - Binding can take long if DN is wrong</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-494'>DIRSERVER-494</a>] - Standalone build should be available for 0.9.3</li>
+</ul>
+</subsection>
+<subsection name="Wish">
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-294'>DIRSERVER-294</a>] - Proposed change to the vendorVersion attribute format.</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-505'>DIRSERVER-505</a>] - Get javaapp plugin to only bundle classes used from deps</li>
+</ul>
+</subsection>
+<subsection name="Task">
+<ul>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-295'>DIRSERVER-295</a>] - Search Helper IBS</li>
+<li>[<a href='http://issues.apache.org/jira/browse/DIRSERVER-572'>DIRSERVER-572</a>] - implement some basic schema checking</li>
+</ul>
+</subsection>
+  </section>
+ </body>
+</document>

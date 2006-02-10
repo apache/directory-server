@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+ <properties>
+  <title>ApacheDS Releases</title>
+ </properties>
+ <body>
+  <section name="ApacheDS 1.0-RC1">
+   <p>
+     Apache Directory Project is proud to announce the first public 
+     release of Apache Directory Server, ApacheDS 1.0-RC1!
+   </p>
+   <p>
+     The release notes is available <a href="apacheds-release-10-rc1.html">here.</a>
+   </p>
+   <p>
+     The change log is available <a href="apacheds-changelog-10-rc1.html">here.</a>
+   </p>
+   <p>
+     Installers for various platforms are available.
+   <table>
+    <tr> <td> <a href="http://www.apache.org/dyn/closer.cgi/directory/apacheds/apacheds-1.0-RC1-linux-i386.rpm">Linux (RPM/Native - i386)</a> </td> </tr>
+    <tr> <td> <a href="http://www.apache.org/dyn/closer.cgi/directory/apacheds/apacheds-1.0-RC1-linux-i386-setup.jar">Linux (IzPack/Java - i386)</a> </td> </tr>
+    <tr> <td> <a href="http://www.apache.org/dyn/closer.cgi/directory/apacheds/apacheds-1.0-RC1-solaris-i386-setup.jar">Solaris (IzPack/Java - i386)</a> </td> </tr>
+    <tr> <td> <a href="http://www.apache.org/dyn/closer.cgi/directory/apacheds/apacheds-1.0-RC1-solaris-sparc-setup.jar">Solaris (IzPack/Java - SPARC)</a> </td> </tr>
+    <tr> <td> <a href="http://www.apache.org/dyn/closer.cgi/directory/apacheds/apacheds-1.0-RC1-macosx-ppc-setup.jar">MacOSX (IzPack/Java - PPC)</a> </td> </tr>
+    <tr> <td> <a href="http://www.apache.org/dyn/closer.cgi/directory/apacheds/apacheds-1.0-RC1-win32-setup.exe">Windows (Inno/Native - i386)</a> </td> </tr>
+   </table>
+   </p>
+  </section>
+ </body>
+</document>
