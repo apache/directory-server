@@ -25,9 +25,6 @@ import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.jndi.ServerContextFactory;
 
-import org.apache.mina.registry.ServiceRegistry;
-import org.apache.mina.registry.SimpleServiceRegistry;
-
 import org.jboss.system.ServiceMBeanSupport;
 
 import org.slf4j.Logger;
@@ -71,8 +68,6 @@ public class DirectoryService extends ServiceMBeanSupport implements DirectorySe
     // ---------------------------------------------
 
     private static final Logger LOG = LoggerFactory.getLogger( DirectoryService.class );
-
-    private static final ServiceRegistry DEFAULT_MINA_REGISTRY = new SimpleServiceRegistry();
 
     /** Default LDAP Listen Port */
     public static final int DEFAULT_LDAP_PORT = 389;
@@ -151,8 +146,6 @@ public class DirectoryService extends ServiceMBeanSupport implements DirectorySe
             cfg.setAllowAnonymousAccess( this.anonymousAccess );
 
             // Wire protocols
-            cfg.setMinaServiceRegistry( DEFAULT_MINA_REGISTRY );
-
             cfg.setEnableNetworking( this.ldapNetworkingSupport );
             cfg.setLdapPort( this.ldapPort );
             cfg.setLdapsPort( this.ldapsPort );
@@ -275,7 +268,7 @@ public class DirectoryService extends ServiceMBeanSupport implements DirectorySe
         while ( en.hasMoreElements() )
         {
             key = ( String ) en.nextElement();
-            env.put( key, ( String ) ht.get( key ) );
+            env.put( key, ht.get( key ) );
         }
     }
 
