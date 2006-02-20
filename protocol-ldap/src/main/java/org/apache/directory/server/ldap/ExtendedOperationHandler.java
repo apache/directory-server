@@ -23,8 +23,6 @@ import java.util.Set;
 
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
 
 
 /**
@@ -70,20 +68,4 @@ public interface ExtendedOperationHandler
      * @param provider the ldap protocol provider 
      */
     void setLdapProvider( LdapProtocolProvider provider );
-
-
-    /**
-     * Sets the LDAP service for the this extenedOperation handler.
-     * 
-     * @param service the MINA service for LDAP or LDAPS
-     */
-    void setLdapService( Service service );
-
-
-    /**
-     * Sets the MINA service registry for this extendedOperation handler.
-     * 
-     * @param registry the MINA service registry
-     */
-    void setServiceRegistry( ServiceRegistry registry );
 }

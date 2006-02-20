@@ -35,8 +35,6 @@ import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +48,6 @@ public class SessionsFrame extends JFrame
 
     boolean isServiceBound = true;
     private IoSession requestor;
-    private ServiceRegistry minaRegistry;
-    private Service ldapService;
     private IoHandler ldapProvider;
     private JPanel jContentPane = null;
     private JPanel mainPanel = null;
@@ -97,8 +93,6 @@ public class SessionsFrame extends JFrame
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize()
     {
@@ -716,24 +710,10 @@ public class SessionsFrame extends JFrame
         bindItem.setEnabled( !isServiceBound );
     }
 
-
-    public void setMinaRegistry( ServiceRegistry minaRegistry )
-    {
-        this.minaRegistry = minaRegistry;
-    }
-
-
-    public void setLdapService( Service ldapService )
-    {
-        this.ldapService = ldapService;
-    }
-
-
     public void setRequestor( IoSession requestor )
     {
         this.requestor = requestor;
     }
-
 
     /**
      * This method initializes jMenuItem	
@@ -755,8 +735,8 @@ public class SessionsFrame extends JFrame
                         "Selecting no will send a notice of disconnect ONLY.  "
                             + "\nSelecting yes will send both.  Cancel will abort unbind.",
                         "Send graceful disconnect before disconnect notice?", JOptionPane.YES_NO_CANCEL_OPTION );
-                    IoAcceptor acceptor = minaRegistry.getAcceptor( ldapService.getTransportType() );
-                    List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
+                    IoAcceptor acceptor = ( IoAcceptor ) requestor.getService();
+                    List sessions = new ArrayList( acceptor.getManagedSessions( requestor.getServiceAddress() ) );
                     //                    ServerLdapContext ctx;
                     //                    try
                     //                    {
@@ -782,12 +762,12 @@ public class SessionsFrame extends JFrame
                     else if ( input == JOptionPane.NO_OPTION )
                     {
                         GracefulShutdownHandler.sendNoticeOfDisconnect( sessions, requestor );
-                        minaRegistry.unbind( ldapService );
+                        acceptor.unbind( requestor.getServiceAddress() );
                         isServiceBound = false;
                         unbindItem.setEnabled( isServiceBound );
                         bindItem.setEnabled( !isServiceBound );
                         JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for "
-                            + ldapService.getAddress() + " has been successfully unbound.", "Success!",
+                            + requestor.getLocalAddress() + " has been successfully unbound.", "Success!",
                             JOptionPane.INFORMATION_MESSAGE );
                         refresh();
                         return;
@@ -812,7 +792,7 @@ public class SessionsFrame extends JFrame
                         int delay = dialog.getDelay();
                         GracefulDisconnect graceful = new GracefulDisconnect( timeOffline, delay );
                         GracefulShutdownHandler.sendGracefulDisconnect( sessions, graceful, requestor );
-                        minaRegistry.unbind( ldapService );
+                        acceptor.unbind( requestor.getServiceAddress() );
                         isServiceBound = false;
                         unbindItem.setEnabled( isServiceBound );
                         bindItem.setEnabled( !isServiceBound );
@@ -832,7 +812,7 @@ public class SessionsFrame extends JFrame
                         // now send the notice of disconnect
                         GracefulShutdownHandler.sendNoticeOfDisconnect( sessions, requestor );
                         JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service for "
-                            + ldapService.getAddress() + " has been successfully unbound.", "Success!",
+                            + requestor.getLocalAddress() + " has been successfully unbound.", "Success!",
                             JOptionPane.OK_OPTION );
                         refresh();
                     }
@@ -875,8 +855,8 @@ public class SessionsFrame extends JFrame
                 {
                     try
                     {
-                        minaRegistry.bind( ldapService, getLdapProvider() );
-                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service " + ldapService.getAddress()
+                        ( ( IoAcceptor ) requestor.getService() ).bind( requestor.getServiceAddress(), getLdapProvider() );
+                        JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service " + requestor.getServiceAddress()
                             + " has been successfully bound.\n" + " Clients may now connect to the server once again.",
                             "Success!", JOptionPane.INFORMATION_MESSAGE );
                         isServiceBound = true;

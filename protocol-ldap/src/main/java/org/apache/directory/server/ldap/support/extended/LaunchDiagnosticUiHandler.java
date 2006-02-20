@@ -45,8 +45,6 @@ import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiReque
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiResponse;
 import org.apache.directory.shared.ldap.name.LdapName;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
 
 
 public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
@@ -61,8 +59,6 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
-    private Service ldapService;
-    private ServiceRegistry minaRegistry;
     private LdapProtocolProvider ldapProvider;
 
 
@@ -114,8 +110,6 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             }
 
             SessionsFrame sessions = new SessionsFrame();
-            sessions.setMinaRegistry( minaRegistry );
-            sessions.setLdapService( ldapService );
             sessions.setRequestor( requestor );
             sessions.setLdapProvider( ldapProvider.getHandler() );
             Point pos = getCenteredPosition( sessions );
@@ -135,7 +129,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     {
         Toolkit tk = Toolkit.getDefaultToolkit();
         Dimension screenSize = tk.getScreenSize();
-        return ( double ) screenSize.getWidth() / ( double ) screenSize.getHeight();
+        return screenSize.getWidth() / screenSize.getHeight();
     }
 
 
@@ -159,17 +153,5 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     public void setLdapProvider( LdapProtocolProvider provider )
     {
         this.ldapProvider = provider;
-    }
-
-
-    public void setLdapService( Service service )
-    {
-        this.ldapService = service;
-    }
-
-
-    public void setServiceRegistry( ServiceRegistry registry )
-    {
-        this.minaRegistry = registry;
     }
 }

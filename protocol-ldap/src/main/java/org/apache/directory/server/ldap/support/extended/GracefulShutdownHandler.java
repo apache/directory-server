@@ -40,13 +40,9 @@ import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownResponse;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,9 +60,6 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         set.add( GracefulDisconnect.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
-
-    private ServiceRegistry serviceRegistry;
-    private Service ldapService;
 
 
     public String getOid()
@@ -119,8 +112,8 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // handle the body of this operation below here
         // -------------------------------------------------------------------
 
-        IoAcceptor acceptor = serviceRegistry.getAcceptor( ldapService.getTransportType() );
-        List sessions = new ArrayList( acceptor.getManagedSessions( ldapService.getAddress() ) );
+        IoAcceptor acceptor = ( IoAcceptor ) requestor.getService();
+        List sessions = new ArrayList( acceptor.getManagedSessions( requestor.getServiceAddress() ) );
         StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
         GracefulShutdownRequest gsreq = ( GracefulShutdownRequest ) req;
 
@@ -143,7 +136,8 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // minaRegistry.getAcceptor( service.getTransportType() )
         //                       .setDisconnectClientsOnUnbind( false );
         // -------------------------------------------------------------------
-        serviceRegistry.unbind( ldapService );
+        // This might not work, either.
+        acceptor.unbind( requestor.getServiceAddress() );
 
         // -------------------------------------------------------------------
         // synchronously send a NoD to clients that are not aware of this resp
@@ -350,17 +344,5 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
     public void setLdapProvider( LdapProtocolProvider provider )
     {
-    }
-
-
-    public void setServiceRegistry( ServiceRegistry registry )
-    {
-        this.serviceRegistry = registry;
-    }
-
-
-    public void setLdapService( Service service )
-    {
-        this.ldapService = service;
     }
 }
