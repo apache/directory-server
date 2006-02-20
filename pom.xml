@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.apache.directory</groupId>
     <artifactId>build</artifactId>
     <version>1.0</version>
   </parent>
+
   <groupId>org.apache.directory.server</groupId>
-  <version>1.0-RC1-SNAPSHOT</version>
   <artifactId>build</artifactId>
+  <version>1.0-RC1-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
   <url>http://directory.apache.org/newsite/projects/apacheds/</url>
+
   <pluginRepositories>
     <pluginRepository>
       <id>apache.snapshots</id>
@@ -237,10 +240,12 @@ Use JDK 1.5 to make sure these modules build.
 
   <build>
     <plugins>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
+      
       <plugin>
         <inherited>false</inherited>
         <groupId>org.apache.maven.plugins</groupId>
@@ -266,6 +271,7 @@ Use JDK 1.5 to make sure these modules build.
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
 
