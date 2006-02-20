@@ -19,13 +19,12 @@ package org.apache.directory.server.ntp;
 
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Dictionary;
 
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
+import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.registry.Service;
-import org.apache.mina.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,17 +35,15 @@ public class NtpServer
     private static final Logger log = LoggerFactory.getLogger( NtpServer.class );
 
     private NtpConfiguration config;
-    private ServiceRegistry registry;
+    private IoAcceptor acceptor;
 
     private IoHandler handler;
-    private Service tcpService;
-    private Service udpService;
 
 
-    public NtpServer(NtpConfiguration config, ServiceRegistry registry)
+    public NtpServer( NtpConfiguration config, IoAcceptor acceptor )
     {
         this.config = config;
-        this.registry = registry;
+        this.acceptor = acceptor;
 
         String name = config.getName();
         int port = config.getPort();
@@ -55,11 +52,7 @@ public class NtpServer
         {
             handler = new NtpProtocolHandler();
 
-            udpService = new Service( name, TransportType.DATAGRAM, port );
-            tcpService = new Service( name, TransportType.SOCKET, port );
-
-            registry.bind( udpService, handler );
-            registry.bind( tcpService, handler );
+            acceptor.bind( new InetSocketAddress( port ), handler );
 
             log.debug( name + " listening on port " + port );
         }
@@ -78,13 +71,10 @@ public class NtpServer
 
     public void destroy()
     {
-        registry.unbind( udpService );
-        registry.unbind( tcpService );
+        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
 
-        registry = null;
+        acceptor = null;
         handler = null;
-        udpService = null;
-        tcpService = null;
 
         log.debug( config.getName() + " has stopped listening on port " + config.getPort() );
     }
